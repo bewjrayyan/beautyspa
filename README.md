@@ -1,6 +1,6 @@
 # BeautySpa — FleetCart
 
-Private e-commerce and booking platform for a beauty / spa business. Built on **[FleetCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system)** (Laravel 11, modular architecture) with custom admin workflows for orders, reports, treatments, loyalty, and CHIP payments.
+Private e-commerce and booking platform for a beauty / spa business, owned and customized by **MediaCreative Solution** (Bewj Rayyan). Built on **[FleetCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system)** (Laravel 11, modular architecture) with admin workflows for orders, reports, treatments, loyalty, and CHIP payments.
 
 > **Repository:** [github.com/bewjrayyan/beautyspa](https://github.com/bewjrayyan/beautyspa) (private)
 
@@ -233,14 +233,17 @@ git push -u origin feature/your-feature-name
 
 ---
 
-## License & upstream
+## License & ownership
 
-FleetCart is a commercial product by [Envay Soft](https://envaysoft.com). This private repository contains your business customizations and configuration. Respect the original Codecanyon / Envay Soft license for the base product.
+**BeautySpa** and the customizations in this repository are developed and maintained by:
 
----
+| | |
+|---|---|
+| **Author** | Bewj Rayyan ([@bewjrayyan](https://github.com/bewjrayyan)) |
+| **Company** | MediaCreative Solution |
 
-## Maintainer
+This is a **private** codebase for the BeautySpa business. Unauthorized copying, distribution, or use outside MediaCreative Solution / Bewj Rayyan is not permitted unless agreed in writing.
 
-**Bewj Rayyan** — [GitHub @bewjrayyan](https://github.com/bewjrayyan)
+The storefront platform is built on [FleetCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system) (Laravel eCommerce). The FleetCart core remains subject to its original Codecanyon / Envay Soft license; custom modules, themes, and business logic in this repo are maintained by **MediaCreative Solution**.
 
-For issues, use GitHub Issues on the private repo or your internal tracker.
+For support or changes, contact MediaCreative Solution or open an issue on this private repository.
