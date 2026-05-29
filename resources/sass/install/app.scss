@@ -1,0 +1,19 @@
+@import "../../../modules/Storefront/Resources/assets/public/sass/components/modern-phone-input";
+@import "bootstrap/scss/bootstrap";
+@import "animate.css/animate";
+@import "abstracts/_variables";
+@import "base/_reset";
+@import "base/_typography";
+@import "components/_button";
+@import "components/_form";
+@import "components/_table";
+@import "components/_alert";
+@import "pages/_install";
+
+[x-cloak] {
+    display: none !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

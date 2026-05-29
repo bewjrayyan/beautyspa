@@ -1,0 +1,68 @@
+<?php
+
+return [
+    'dashboard' => 'Dashboard',
+    'overview' => 'Store performance at a glance',
+    'beautician_analytics' => 'Beautician Analytics',
+    'treatment_sales' => 'Treatment Sales',
+    'today_appointments' => 'Today\'s Appointments',
+    'total_sales' => 'Total Sales',
+    'total_orders' => 'Total Orders',
+    'total_products' => 'Total Products',
+    'total_customers' => 'Total Customers',
+    'loyalty_members' => 'Loyalty members',
+    'loyalty_members_cta' => 'Open',
+    'members_section' => 'Members',
+    'members_view_all' => 'View all',
+    'members_search_placeholder' => 'Phone, IC, or passport',
+    'members_search' => 'Search',
+    'hints' => [
+        'total_sales' => 'Lifetime revenue from all orders',
+        'total_orders' => 'Orders excluding canceled',
+        'treatment_sales' => 'Revenue from beautician treatment bookings',
+        'today_appointments' => 'Appointments scheduled for today',
+        'total_products' => 'Products in your catalog',
+        'total_customers' => 'Registered customer accounts',
+        'loyalty_members' => ':active with points',
+    ],
+    'no_data' => 'No data available!',
+    'latest_searches' => 'Latest Searches',
+    'latest_orders' => 'Latest Orders',
+    'latest_reviews' => 'Latest Reviews',
+    'table' => [
+        'customer' => 'Customer',
+        'members' => [
+            'member' => 'Member',
+            'tier' => 'Tier',
+            'points' => 'Points',
+        ],
+        'latest_searches' => [
+            'keyword' => 'Keyword',
+            'results' => 'Results',
+            'hits' => 'Hits',
+        ],
+        'latest_orders' => [
+            'order_id' => 'Order ID',
+            'status' => 'Status',
+            'total' => 'Total',
+        ],
+        'latest_reviews' => [
+            'product' => 'Product',
+            'rating' => 'Rating',
+        ],
+    ],
+    'sales_analytics_title' => 'Sales Analytics',
+    'sales_analytics' => [
+        'orders' => 'Orders',
+        'sales' => 'Sales',
+        'day_names' => [
+            0 => 'Monday',
+            1 => 'Tuesday',
+            2 => 'Wednesday',
+            3 => 'Thursday',
+            4 => 'Friday',
+            5 => 'Saturday',
+            6 => 'Sunday',
+        ],
+    ],
+];

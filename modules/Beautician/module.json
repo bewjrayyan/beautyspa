@@ -1,0 +1,9 @@
+{
+    "name": "Beautician",
+    "alias": "beautician",
+    "description": "Beautician master data for treatment bookings.",
+    "priority": 100,
+    "providers": [
+        "Modules\\Beautician\\Providers\\BeauticianServiceProvider"
+    ]
+}

@@ -1,0 +1,225 @@
+.fc-saas-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+
+    &--3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    &--4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.fc-saas-stat {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 22px 20px;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: -24px;
+        right: -24px;
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    @each $name, $config in (
+        sky: (
+            bg: linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%),
+            border: #bae6fd,
+            orb: #7dd3fc,
+            icon: #0284c7,
+            shadow: rgba(2, 132, 199, 0.15)
+        ),
+        violet: (
+            bg: linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%),
+            border: #ddd6fe,
+            orb: #c4b5fd,
+            icon: #7c3aed,
+            shadow: rgba(124, 58, 237, 0.15)
+        ),
+        mint: (
+            bg: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%),
+            border: #a7f3d0,
+            orb: #6ee7b7,
+            icon: #059669,
+            shadow: rgba(5, 150, 105, 0.15)
+        ),
+        peach: (
+            bg: linear-gradient(145deg, #fff7ed 0%, #ffedd5 100%),
+            border: #fed7aa,
+            orb: #fdba74,
+            icon: #ea580c,
+            shadow: rgba(234, 88, 12, 0.15)
+        ),
+        rose: (
+            bg: linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%),
+            border: #fecdd3,
+            orb: #fda4af,
+            icon: #e11d48,
+            shadow: rgba(225, 29, 72, 0.15)
+        ),
+        indigo: (
+            bg: linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%),
+            border: #c7d2fe,
+            orb: #a5b4fc,
+            icon: #4f46e5,
+            shadow: rgba(79, 70, 229, 0.15)
+        ),
+        gold: (
+            bg: linear-gradient(145deg, #fef3c7 0%, #fffbeb 100%),
+            border: #fcd34d,
+            orb: #fde68a,
+            icon: #d97706,
+            shadow: rgba(217, 119, 6, 0.15)
+        )
+    ) {
+        &--#{$name} {
+            background: map-get($config, bg);
+            border-color: map-get($config, border);
+
+            &::before {
+                background: map-get($config, orb);
+            }
+
+            .fc-saas-stat-icon {
+                background: rgba(255, 255, 255, 0.85);
+                color: map-get($config, icon);
+                box-shadow: 0 4px 12px map-get($config, shadow);
+            }
+        }
+    }
+}
+
+.fc-saas-stat-icon {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.fc-saas-stat-body {
+    min-width: 0;
+    flex: 1;
+    padding-top: 2px;
+}
+
+.fc-saas-stat-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.fc-saas-stat-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+}
+
+.fc-saas-stat-hint {
+    display: block;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+.fc-saas-stat-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 16px;
+
+    &:hover,
+    &:focus {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #0068e1;
+        outline-offset: 2px;
+    }
+
+    .fc-saas-stat {
+        height: 100%;
+    }
+}
+
+.fc-saas-stat:has(.fc-saas-stat-cta) .fc-saas-stat-body {
+    padding-right: 56px;
+}
+
+.fc-saas-stat-cta {
+    position: absolute;
+    right: 18px;
+    top: 22px;
+    bottom: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #0068e1;
+    opacity: 1;
+
+    .fa {
+        font-size: 10px;
+        transition: transform 0.15s ease;
+    }
+}
+
+.fc-saas-stat-link:hover .fc-saas-stat-cta .fa {
+    transform: translateX(3px);
+}
+
+@media (max-width: 1200px) {
+    .fc-saas-stats--3,
+    .fc-saas-stats--4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .fc-saas-stats,
+    .fc-saas-stats--3,
+    .fc-saas-stats--4 {
+        grid-template-columns: 1fr;
+    }
+
+    .fc-saas-stat-value {
+        font-size: 24px;
+    }
+}

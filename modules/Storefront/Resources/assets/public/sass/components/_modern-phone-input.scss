@@ -1,0 +1,39 @@
+.iti {
+    width: 100%;
+}
+
+.iti__country-container {
+    .iti__selected-country {
+        padding: 0 8px 0 10px;
+    }
+}
+
+.modern-phone-input,
+.iti .iti__tel-input {
+    width: 100%;
+}
+
+.iti--separate-dial-code .iti__selected-dial-code {
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.iti__dropdown-content {
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.iti__country.iti__highlight {
+    background-color: rgba(242, 116, 172, 0.12);
+}
+
+.account-profile-show__phone-wrap,
+.auth-page .input-group:has(.modern-phone-input) {
+    .iti {
+        width: 100%;
+    }
+}
+
+.checkout-field-icon .iti {
+    width: 100%;
+}

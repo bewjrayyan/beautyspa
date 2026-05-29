@@ -1,0 +1,9 @@
+{
+    "name": "modules/beautician",
+    "description": "Beautician module for FleetCart",
+    "autoload": {
+        "psr-4": {
+            "Modules\\Beautician\\": ""
+        }
+    }
+}

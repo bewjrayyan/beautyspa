@@ -1,0 +1,38 @@
+<?php
+
+return [
+    'billing' => [
+        'first_name' => 'Nama pertama',
+        'last_name' => 'Nama keluarga',
+        'address_1' => 'Baris alamat 1',
+        'address_2' => 'Baris alamat 2 (pilihan)',
+        'city' => 'Bandar',
+        'zip' => 'Poskod / ZIP',
+        'country' => 'Negara',
+        'state' => 'Negeri / Wilayah',
+    ],
+    'shipping' => [
+        'first_name' => 'Nama pertama',
+        'last_name' => 'Nama keluarga',
+        'address_1' => 'Baris alamat 1',
+        'address_2' => 'Baris alamat 2 (pilihan)',
+        'city' => 'Bandar',
+        'zip' => 'Poskod / ZIP',
+        'country' => 'Negara',
+        'state' => 'Negeri / Wilayah',
+    ],
+    'street_address' => 'Alamat jalan',
+    'customer_email' => 'E-mel',
+    'customer_phone' => 'Telefon',
+    'create_an_account' => 'Cipta akaun?',
+    'password' => 'Kata laluan',
+    'ship_to_a_different_address' => 'Hantar ke alamat lain',
+    'order_note' => 'Nota pesanan',
+    'gift_recipient_name' => 'Nama penerima',
+    'gift_recipient_phone' => 'Nombor WhatsApp penerima',
+    'gift_sender_name' => 'Nama anda',
+    'gift_message' => 'Mesej hadiah',
+    'beautician_id' => 'Beautician',
+    'appointment_date' => 'Tarikh Temujanji',
+    'appointment_time' => 'Masa Temujanji',
+];

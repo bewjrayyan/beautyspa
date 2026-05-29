@@ -1,0 +1,9 @@
+{
+    "name": "BeauticianReport",
+    "alias": "beauticianreport",
+    "description": "Beautician analytics and treatment sales reports.",
+    "priority": 100,
+    "providers": [
+        "Modules\\BeauticianReport\\Providers\\BeauticianReportServiceProvider"
+    ]
+}

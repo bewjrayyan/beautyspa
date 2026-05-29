@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'group' => 'Hadiah istimewa',
+    'tab' => 'Hantar baucar hadiah',
+    'lead' => 'Benarkan pelanggan hantar baucar hadiah digital melalui nombor pesanan dan WhatsApp — tanpa produk hadiah atau perubahan checkout.',
+    'section_status' => 'Status halaman',
+    'section_voucher' => 'Reka bentuk baucar',
+    'section_message' => 'Kapsyen WhatsApp',
+    'step_order' => 'Pelanggan masukkan nombor pesanan yang sah',
+    'step_whatsapp' => 'Nombor WhatsApp penerima disahkan',
+    'step_send' => 'Imej baucar dijana dan dihantar melalui OneSender',
+    'public_page' => 'URL awam',
+    'status_active' => 'Aktif',
+    'status_inactive' => 'Dimatikan',
+    'enable' => 'Aktifkan halaman hantar hadiah',
+    'flow_help' => 'Apabila diaktifkan, borang awam di /send-gift menerima butiran pesanan dan menghantar baucar melalui API OneSender anda.',
+    'voucher_background' => 'Imej latar baucar',
+    'voucher_background_help' => 'JPEG/PNG sebagai templat baucar. Nama penerima dan nombor pesanan akan ditulis pada imej ini.',
+    'message_template' => 'Templat mesej WhatsApp',
+    'message_template_placeholder' => 'Hai {recipient_name}! Pesanan: {order_number}. Daripada: {sender_name}',
+    'message_template_help' => 'Placeholder: {recipient_name}, {order_number}, {sender_name}, {voucher_value}. Dihantar sebagai kapsyen imej.',
+    'whatsapp_help' => 'Menggunakan API OneSender dari',
+    'whatsapp_settings_link' => 'Tetapan → Notifikasi WhatsApp',
+];

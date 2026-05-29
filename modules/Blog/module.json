@@ -1,0 +1,10 @@
+{
+    "name": "Blog",
+    "alias": "blog",
+    "priority": 100,
+    "providers": [
+        "Modules\\Blog\\Providers\\BlogServiceProvider"
+    ],
+    "files": [],
+    "requires": []
+}

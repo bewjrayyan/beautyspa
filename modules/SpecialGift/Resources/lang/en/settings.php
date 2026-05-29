@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'group' => 'Special gift',
+    'tab' => 'Send gift voucher',
+    'lead' => 'Let customers send a digital gift voucher by order number and WhatsApp — no gift products or checkout changes.',
+    'section_status' => 'Page status',
+    'section_voucher' => 'Voucher design',
+    'section_message' => 'WhatsApp caption',
+    'step_order' => 'Customer enters a valid order number',
+    'step_whatsapp' => 'Recipient WhatsApp number is validated',
+    'step_send' => 'Voucher image is generated and sent via OneSender',
+    'public_page' => 'Public URL',
+    'status_active' => 'Live',
+    'status_inactive' => 'Disabled',
+    'enable' => 'Enable send gift page',
+    'flow_help' => 'When enabled, the public form at /send-gift accepts order details and delivers the voucher through your configured OneSender API.',
+    'voucher_background' => 'Voucher background image',
+    'voucher_background_help' => 'JPEG/PNG used as the voucher template. Recipient name and order number are drawn on this image.',
+    'message_template' => 'WhatsApp message template',
+    'message_template_placeholder' => 'Hi {recipient_name}! Order: {order_number}. From: {sender_name}',
+    'message_template_help' => 'Placeholders: {recipient_name}, {order_number}, {sender_name}, {voucher_value}. Sent as the image caption.',
+    'whatsapp_help' => 'Uses OneSender API from',
+    'whatsapp_settings_link' => 'Settings → WhatsApp Notifications',
+];

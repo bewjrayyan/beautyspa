@@ -1,0 +1,48 @@
+<?php
+
+namespace Modules\Setting\Providers;
+
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ViewErrorBag;
+use Modules\Admin\Ui\Facades\TabManager;
+use Modules\Setting\Admin\SettingTabs;
+use Illuminate\Support\ServiceProvider;
+
+class SettingServiceProvider extends ServiceProvider
+{
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            module_path('Setting', 'Config/whatsapp_notifications.php'),
+            'setting.whatsapp_notifications'
+        );
+    }
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        TabManager::register('settings', SettingTabs::class);
+
+        View::composer([
+            'setting::admin.settings.tabs.*',
+            'setting::admin.settings.partials.*',
+        ], function ($view) {
+            if (! $view->offsetExists('errors')) {
+                $view->with('errors', request()->session()->get('errors') ?: new ViewErrorBag());
+            }
+
+            if (! $view->offsetExists('settings')) {
+                $view->with('settings', setting()->all());
+            }
+        });
+    }
+}

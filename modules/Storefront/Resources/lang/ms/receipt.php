@@ -1,0 +1,31 @@
+<?php
+
+return [
+
+    'title' => 'Resit Pembayaran',
+    'receipt_no' => 'No. Resit',
+    'order_no' => 'No. Pesanan',
+    'date' => 'Tarikh',
+    'customer' => 'Pelanggan',
+    'email' => 'E-mel',
+    'phone' => 'Telefon',
+    'payment_details' => 'Butiran Pembayaran',
+    'payment_method' => 'Kaedah Bayaran',
+    'payment_status' => 'Status Bayaran',
+    'transaction_id' => 'ID Transaksi',
+    'amount_paid' => 'Jumlah Dibayar',
+    'items' => 'Item',
+    'description' => 'Perihal',
+    'qty' => 'Kuantiti',
+    'amount' => 'Amaun',
+    'subtotal' => 'Subjumlah',
+    'discount' => 'Diskaun',
+    'tax' => 'Cukai',
+    'total' => 'Jumlah Dibayar',
+    'appointment' => 'Temujanji',
+    'beautician' => 'Beautician',
+    'appointment_date' => 'Tarikh',
+    'appointment_time' => 'Masa',
+    'thank_you' => 'Terima kasih atas pembayaran anda.',
+    'footer_note' => 'Ini adalah resit pembayaran yang dijana komputer dan tidak memerlukan tandatangan.',
+];

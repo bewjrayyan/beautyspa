@@ -1,0 +1,15 @@
+{
+    "name": "fleetcart/specialgift",
+    "description": "Special gift orders and recipient WhatsApp notifications",
+    "authors": [
+        {
+            "name": "FleetCart"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\SpecialGift\\": ""
+        }
+    }
+}

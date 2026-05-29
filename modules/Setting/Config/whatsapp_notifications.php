@@ -1,0 +1,65 @@
+<?php
+
+$appUrl = rtrim((string) env('APP_URL', 'http://localhost'), '/');
+
+return [
+  /*
+    |--------------------------------------------------------------------------
+    | WhatsApp / OneSender (Settings → tab=sms)
+    |--------------------------------------------------------------------------
+    | Override via .env. Applied to DB when missing/null (see migration).
+    */
+    'onesender_enabled' => filter_var(env('ONESENDER_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'onesender_api_url' => env('ONESENDER_API_URL', 'https://wa3269.cloudwa.my.id/api/v1/messages'),
+    'onesender_api_key' => env('ONESENDER_API_KEY', ''),
+    'onesender_admin_phones' => env('ONESENDER_ADMIN_PHONES', ''),
+    'onesender_whatsapp_group_id' => env('ONESENDER_WHATSAPP_GROUP_ID', ''),
+    'onesender_sending_paused' => filter_var(env('ONESENDER_SENDING_PAUSED', false), FILTER_VALIDATE_BOOLEAN),
+    'onesender_dedupe_enabled' => filter_var(env('ONESENDER_DEDUPE_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'onesender_dedupe_minutes' => (int) env('ONESENDER_DEDUPE_MINUTES', 1440),
+    'onesender_outbound_queue_enabled' => filter_var(env('ONESENDER_OUTBOUND_QUEUE_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'onesender_outbound_delay_seconds' => (int) env('ONESENDER_OUTBOUND_DELAY_SECONDS', 30),
+    'whatsapp_group_staff_name' => env('WHATSAPP_GROUP_STAFF_NAME', 'TEAM'),
+    'whatsapp_order_tracking_url' => env(
+        'WHATSAPP_ORDER_TRACKING_URL',
+        $appUrl . '/order-tracking'
+    ),
+
+    'welcome_sms' => filter_var(env('WHATSAPP_WELCOME_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'whatsapp_customer_reminder_enabled' => filter_var(env('WHATSAPP_CUSTOMER_REMINDER_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'whatsapp_customer_reminder_minutes' => (int) env('WHATSAPP_CUSTOMER_REMINDER_MINUTES', 60),
+    'whatsapp_customer_completed_enabled' => filter_var(env('WHATSAPP_CUSTOMER_COMPLETED_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+    'whatsapp_customer_completed_message' => env('WHATSAPP_CUSTOMER_COMPLETED_MESSAGE', implode("\n", [
+        '✨ *Terima Kasih — :store*',
+        '',
+        'Hai :customer,',
+        '',
+        'Rawatan *:treatment* anda telah selesai.',
+        '',
+        'Kami berharap anda berpuas hati. Jumpa lagi!',
+    ])),
+    'whatsapp_customer_followup_enabled' => filter_var(env('WHATSAPP_CUSTOMER_FOLLOWUP_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+    'whatsapp_customer_followup_days' => (int) env('WHATSAPP_CUSTOMER_FOLLOWUP_DAYS', 7),
+    'whatsapp_customer_followup_message' => env('WHATSAPP_CUSTOMER_FOLLOWUP_MESSAGE', implode("\n", [
+        '💆 *Susulan — :store*',
+        '',
+        'Hai :customer,',
+        '',
+        'Sudah :date sejak rawatan *:treatment* anda. Bagaimana keadaan anda?',
+        '',
+        'Hubungi kami jika ingin tempah sesi seterusnya. Terima kasih!',
+    ])),
+
+    'new_order_admin_sms' => filter_var(env('WHATSAPP_NEW_ORDER_ADMIN', true), FILTER_VALIDATE_BOOLEAN),
+    'new_order_sms' => filter_var(env('WHATSAPP_NEW_ORDER_CUSTOMER', true), FILTER_VALIDATE_BOOLEAN),
+    'sms_order_statuses' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('WHATSAPP_SMS_ORDER_STATUSES', 'pending,processing,completed'))
+    ))),
+
+    'whatsapp_completed_group_enabled' => filter_var(env('WHATSAPP_COMPLETED_GROUP_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'whatsapp_completed_beautician_enabled' => filter_var(env('WHATSAPP_COMPLETED_BEAUTICIAN_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'whatsapp_beautician_new_booking_enabled' => filter_var(env('WHATSAPP_BEAUTICIAN_NEW_BOOKING_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'whatsapp_beautician_reminder_enabled' => filter_var(env('WHATSAPP_BEAUTICIAN_REMINDER_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'whatsapp_beautician_reminder_minutes' => (int) env('WHATSAPP_BEAUTICIAN_REMINDER_MINUTES', 60),
+];

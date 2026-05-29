@@ -1,0 +1,129 @@
+$stacked-border: #e2e8f0;
+$stacked-muted: #64748b;
+$stacked-text: #1a202c;
+$stacked-primary: #0068e1;
+
+.stacked-form {
+    margin: 0 -4px;
+}
+
+.stacked-form__card {
+    border-radius: 14px;
+    border: 1px solid $stacked-border;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+}
+
+.stacked-form__section {
+    padding: 22px 24px;
+    border-bottom: 1px solid $stacked-border;
+    min-width: 0;
+
+    &:last-of-type {
+        border-bottom: none;
+    }
+}
+
+.stacked-form__title {
+    margin: 0 0 18px;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: $stacked-text;
+    border: none;
+}
+
+.stacked-form__body {
+    .tab-content-title {
+        display: none;
+    }
+}
+
+.stacked-form .form-footer,
+.stacked-form > .stacked-form__card > .form-group:last-child {
+    margin: 0;
+    padding: 16px 24px;
+    background: #f8fafc;
+    border-top: 1px solid $stacked-border;
+
+    .col-md-10 {
+        width: 100%;
+        margin-left: 0;
+        padding: 0;
+    }
+}
+
+#role-edit-form .accordion-content,
+#role-create-form .accordion-content {
+    display: block;
+}
+
+#role-edit-form .stacked-form,
+#role-create-form .stacked-form {
+    width: 100%;
+}
+
+#role-edit-form,
+#role-create-form {
+    #general.stacked-form__section {
+        padding-bottom: 20px;
+    }
+
+    #permissions.stacked-form__section {
+        padding: 22px 24px 0;
+        border-bottom: none;
+
+        .stacked-form__title {
+            margin-bottom: 16px;
+        }
+    }
+
+    #permissions .permissions-manager {
+        padding: 0 0 24px;
+    }
+
+    .role-general-fields {
+        max-width: 480px;
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        label {
+            font-weight: 600;
+            color: $stacked-text;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border-color: $stacked-border;
+            box-shadow: none;
+
+            &:focus {
+                border-color: $stacked-primary;
+                box-shadow: 0 0 0 3px rgba(0, 104, 225, 0.12);
+            }
+        }
+    }
+
+    .permissions-modules {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        align-items: start;
+    }
+
+    .permission-module {
+        margin: 0;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    #role-edit-form,
+    #role-create-form {
+        .permissions-modules {
+            grid-template-columns: 1fr;
+        }
+    }
+}

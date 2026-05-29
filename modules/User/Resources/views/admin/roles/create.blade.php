@@ -1,0 +1,27 @@
+@extends('admin::layout')
+
+@component('admin::components.page.header')
+    @slot('title', trans('admin::resource.create', ['resource' => trans('user::roles.role')]))
+
+    <li><a href="{{ route('admin.roles.index') }}">{{ trans('user::roles.roles') }}</a></li>
+    <li class="active">{{ trans('admin::resource.create', ['resource' => trans('user::roles.role')]) }}</li>
+@endcomponent
+
+@section('content')
+    <div class="admin-role-form-page">
+    <form method="POST" action="{{ route('admin.roles.store') }}" class="form-horizontal" id="role-create-form" novalidate>
+        {{ csrf_field() }}
+
+        {!! $tabs->render(compact('role')) !!}
+    </form>
+    </div>
+@endsection
+
+@include('user::admin.roles.partials.shortcuts')
+
+@push('globals')
+    @vite([
+        'modules/User/Resources/assets/admin/sass/main.scss',
+        'modules/User/Resources/assets/admin/js/main.js'
+    ])
+@endpush

@@ -1,0 +1,31 @@
+<?php
+
+return [
+
+    'order_placed' => 'Tempahan Disahkan!',
+    'booking_confirmed_subtitle' => 'Terima kasih — tempahan rawatan anda telah diterima.',
+    'your_order_has_been_placed' => 'Rujukan pesanan <strong>#:id</strong>',
+    'order_summary' => 'Ringkasan pesanan',
+    'booking_details' => 'Butiran tempahan rawatan',
+    'beautician' => 'Beautician',
+    'appointment_date' => 'Tarikh',
+    'appointment_time' => 'Masa',
+    'payment_method' => 'Bayaran',
+    'order_total' => 'Jumlah dibayar',
+    'customer' => 'Pelanggan',
+    'treatments' => 'Rawatan',
+    'qty' => 'Kuantiti',
+    'view_invoice' => 'Lihat invois',
+    'view_order_details' => 'Lihat butiran pesanan',
+    'notify_beautician' => 'Maklumkan beautician',
+    'add_to_google_calendar' => 'Simpan ke Google Calendar',
+    'continue_shopping' => 'Terus membeli-belah',
+    'calendar_event_title' => 'Temujanji rawatan',
+    'calendar_order' => 'Pesanan #:id',
+    'beautician_notify_sent' => 'Notifikasi WhatsApp telah dihantar kepada beautician.',
+    'beautician_notify_not_configured' => 'WhatsApp belum dikonfigurasi. Sila hubungi spa.',
+    'beautician_notify_no_beautician' => 'Tiada beautician ditugaskan untuk tempahan ini.',
+    'beautician_notify_no_phone' => 'Nombor telefon beautician tidak tersedia.',
+    'login_to_view_order' => 'Log masuk untuk lihat sejarah pesanan penuh',
+    'manage_my_appointment' => 'Urus temujanji saya',
+];

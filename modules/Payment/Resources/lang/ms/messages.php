@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'only_supports_bdt' => 'Hanya mata wang BDT disokong',
+    'only_supports_inr' => 'Hanya mata wang INR disokong',
+    'only_supports_zar' => 'Hanya mata wang ZAR disokong',
+    'currency_not_supported' => 'Mata wang tidak disokong',
+    'payment_gateway_error' => 'Ralat gerbang pembayaran!',
+    'payment_cancelled' => 'Pembayaran dibatalkan!',
+    'chip_currency_not_supported' => 'CHIP hanya menyokong MYR, SGD, dan USD.',
+    'chip_checkout_failed' => 'Gagal mencipta pembayaran CHIP. Sila semak kelayakan API anda.',
+    'chip_invalid_callback' => 'Respons pembayaran CHIP tidak sah.',
+    'chip_payment_not_completed' => 'Pembayaran CHIP belum selesai.',
+    'payment_verification_failed' => 'Pembayaran tidak dapat disahkan. Sila hubungi sokongan jika anda telah dicaj.',
+    'payment_not_completed' => 'Pembayaran belum selesai.',
+    'payment_amount_mismatch' => 'Jumlah pembayaran tidak sepadan dengan jumlah pesanan.',
+    'payment_method_mismatch' => 'Kaedah pembayaran tidak sepadan dengan pesanan ini.',
+    'order_already_paid' => 'Pesanan ini telah dibayar.',
+    'order_not_payable' => 'Pesanan ini tidak boleh menerima pembayaran.',
+    'invalid_checkout_session' => 'Sesi checkout tidak sah. Sila buat pesanan semula.',
+    'chip_webhook_unauthorized' => 'Permintaan webhook CHIP tidak dibenarkan.',
+    'chip_payment_fee' => 'Yuran pemprosesan bayaran',
+];

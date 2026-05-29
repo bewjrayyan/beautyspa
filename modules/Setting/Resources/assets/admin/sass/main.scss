@@ -1,0 +1,1072 @@
+$settings-primary: #0068e1;
+$settings-primary-soft: #eff8ff;
+$settings-primary-hover: #0056c7;
+$settings-border: #e2e8f0;
+$settings-muted: #64748b;
+$settings-text: #1a202c;
+$settings-bg: #f8fafc;
+// Tab content uses full panel width (sidebar layout handles overall grid).
+$settings-field-max: 100%;
+$settings-block-max: none;
+
+#settings-edit-form.admin-settings-page {
+    .accordion,
+    .accordion-content {
+        display: none !important;
+    }
+}
+
+.settings-validation-summary {
+    &__title {
+        margin: 0 0 8px;
+        font-weight: 600;
+    }
+
+    &__list {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 13px;
+        line-height: 1.5;
+
+        li {
+            margin-bottom: 4px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+.admin-settings {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    margin-top: 0;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+}
+
+.settings-sidebar {
+    position: sticky;
+    top: 72px;
+    align-self: start;
+}
+
+.settings-sidebar__inner {
+    border-radius: 12px;
+    border: 1px solid $settings-border;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    padding: 10px 8px 12px;
+    max-height: none;
+    overflow: visible;
+}
+
+.settings-nav-group {
+    &:not(:first-child) {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid $settings-border;
+    }
+}
+
+.settings-nav-group__title {
+    margin: 0 0 6px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: $settings-muted;
+    line-height: 1.4;
+}
+
+.settings-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.settings-nav__item {
+    margin: 1px 0;
+}
+
+.settings-nav__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $settings-text;
+    text-decoration: none;
+    line-height: 1.45;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover,
+    &:focus {
+        background: $settings-bg;
+        color: $settings-primary;
+        text-decoration: none;
+    }
+}
+
+.settings-nav__item.is-active .settings-nav__link {
+    background: $settings-primary-soft;
+    color: $settings-primary;
+    font-weight: 600;
+    box-shadow: inset 2px 0 0 $settings-primary;
+}
+
+.settings-nav__item.has-error .settings-nav__link {
+    color: #dc2626;
+}
+
+.settings-nav__error {
+    font-size: 12px;
+    color: #dc2626;
+    flex-shrink: 0;
+}
+
+.settings-panel {
+    border-radius: 12px;
+    border: 1px solid $settings-border;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+.settings-panel__content {
+    padding: 22px 24px 4px;
+    min-height: 160px;
+
+    > .tab-pane {
+        padding: 0;
+    }
+
+    .tab-content-title {
+        margin: 0 0 18px;
+        padding: 0 0 12px;
+        font-size: 17px;
+        font-weight: 700;
+        color: $settings-text;
+        border-bottom: 1px solid $settings-border;
+        line-height: 1.3;
+        max-width: 100%;
+    }
+
+    .row {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .col-md-8,
+    .col-md-10,
+    .col-md-12 {
+        float: none;
+        width: 100%;
+        max-width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+// Stacked fields — full width within the settings panel
+.settings-form {
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: $settings-field-max;
+        margin-bottom: 16px;
+        margin-left: 0;
+        margin-right: 0;
+
+        &::before,
+        &::after {
+            display: none;
+        }
+
+        > label.control-label {
+            position: static;
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+            margin-bottom: 6px;
+            float: none;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: $settings-text;
+            line-height: 1.4;
+        }
+
+        > [class*="col-md-"] {
+            position: static;
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+            float: none;
+        }
+
+        .form-control,
+        .selectize-control,
+        .selectize-input {
+            width: 100%;
+            max-width: $settings-field-max;
+        }
+
+        .form-control {
+            height: 40px;
+            border-radius: 8px;
+            border-color: $settings-border;
+            box-shadow: none;
+            font-size: 13px;
+
+            &:focus {
+                border-color: $settings-primary;
+                box-shadow: 0 0 0 3px rgba(0, 104, 225, 0.1);
+            }
+        }
+
+        textarea.form-control {
+            height: auto;
+            min-height: 88px;
+            resize: vertical;
+        }
+
+        .selectize-control.single {
+            max-width: $settings-field-max;
+        }
+
+        .checkbox,
+        .radio {
+            padding-top: 0;
+            margin-top: 2px;
+
+            label {
+                font-weight: 500;
+                font-size: 13px;
+                color: $settings-text;
+            }
+        }
+
+        .help-block {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: $settings-muted;
+            max-width: $settings-field-max;
+        }
+
+        &.has-error .form-control {
+            border-color: #dc2626;
+        }
+    }
+
+    .settings-fields {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+// Wider blocks: media, tables, payment boxes
+.settings-panel__content {
+    .single-image-wrapper,
+    .multiple-images-wrapper {
+        max-width: 360px;
+        margin-bottom: 20px;
+
+        h4 {
+            margin: 0 0 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: $settings-text;
+        }
+    }
+
+    .media-picker-divider {
+        margin: 4px 0 16px;
+        max-width: 360px;
+        border-color: $settings-border;
+    }
+
+    .box,
+    .table-responsive,
+    .table,
+    #payment-methods,
+    .payment-method,
+    .courier-settings,
+    .google-reviews-editor {
+        max-width: none;
+    }
+
+    .box .form-group {
+        max-width: $settings-field-max;
+    }
+}
+
+.settings-panel__footer {
+    padding: 14px 24px;
+    background: $settings-bg;
+    border-top: 1px solid $settings-border;
+
+    .form-group {
+        margin: 0;
+        max-width: $settings-field-max;
+    }
+
+    .col-md-10 {
+        width: auto;
+        margin-left: 0;
+        padding: 0;
+    }
+
+    .btn-primary {
+        background: $settings-primary;
+        border-color: $settings-primary;
+        border-radius: 8px;
+        padding: 9px 22px;
+        font-weight: 600;
+        font-size: 13px;
+        min-width: 100px;
+
+        &:hover,
+        &:focus {
+            background: $settings-primary-hover;
+            border-color: $settings-primary-hover;
+        }
+    }
+}
+
+// Unified settings tab UI (all tabs)
+.st-tab {
+    max-width: 100%;
+    width: 100%;
+
+    &__lead {
+        margin: 0 0 18px;
+        font-size: 14px;
+        line-height: 1.55;
+        color: $settings-muted;
+    }
+
+    &__body {
+        > .row > .col-md-8 {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        // Legacy tabs: first checkbox as enable card
+        > .row:not(.st-gateway) > .col-md-8 > .form-group:first-child {
+            max-width: 100%;
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: linear-gradient(
+                135deg,
+                $settings-primary-soft 0%,
+                #fff 70%
+            );
+            border: 1px solid color-mix(in srgb, $settings-primary 18%, $settings-border);
+
+            .checkbox label {
+                font-weight: 600;
+                font-size: 14px;
+            }
+        }
+
+        > hr {
+            margin: 20px 0;
+            border-color: $settings-border;
+        }
+
+        .section-title,
+        h4.m-t-0 {
+            margin: 0 0 14px;
+            padding: 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: $settings-text;
+            border: none;
+        }
+    }
+}
+
+.st-section {
+    margin-bottom: 16px;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid $settings-border;
+    background: #fff;
+
+    &--compact {
+        padding-top: 14px;
+    }
+
+    &--media .st-section__body .single-image-wrapper {
+        max-width: 320px;
+        margin-bottom: 0;
+
+        h4 {
+            display: none;
+        }
+    }
+
+    &__head {
+        margin-bottom: 14px;
+    }
+
+    &__title {
+        margin: 0 0 6px;
+        font-size: 14px;
+        font-weight: 700;
+        color: $settings-text;
+
+        .fa {
+            margin-right: 8px;
+            color: $settings-primary;
+        }
+    }
+
+    &__desc {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.5;
+        color: $settings-muted;
+    }
+
+    &__body .form-group {
+        max-width: 100%;
+    }
+}
+
+.st-tab__body .box-content,
+.settings-form .tab-pane .box-content {
+    margin-bottom: 16px;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid $settings-border;
+    background: #fff;
+    max-width: 100%;
+    width: 100%;
+
+    .section-title {
+        margin: 0 0 12px;
+        font-size: 14px;
+        font-weight: 700;
+        color: $settings-text;
+    }
+
+    > .help-block.text-muted:first-of-type {
+        margin-top: -6px;
+        margin-bottom: 14px;
+    }
+}
+
+.st-enable-card {
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: linear-gradient(
+        135deg,
+        $settings-primary-soft 0%,
+        #fff 70%
+    );
+    border: 1px solid color-mix(in srgb, $settings-primary 18%, $settings-border);
+
+    .form-group {
+        max-width: 100%;
+        margin-bottom: 0;
+    }
+
+    .checkbox {
+        margin: 0;
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: $settings-text;
+        }
+    }
+
+    &__hint {
+        margin: 8px 0 0;
+        font-size: 12px;
+        color: $settings-muted;
+        line-height: 1.45;
+    }
+}
+
+.st-card {
+    margin-bottom: 16px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    border: 1px solid $settings-border;
+    background: #fff;
+
+    &--status {
+        background: linear-gradient(
+            135deg,
+            $settings-primary-soft 0%,
+            #fff 48%
+        );
+        border-color: color-mix(in srgb, $settings-primary 22%, $settings-border);
+    }
+
+    &__header {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        margin-bottom: 14px;
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: $settings-primary;
+        color: #fff;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    &__title {
+        margin: 0 0 4px;
+        font-size: 14px;
+        font-weight: 700;
+        color: $settings-text;
+    }
+
+    &__subtitle {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: $settings-muted;
+    }
+}
+
+.st-steps {
+    margin: 0 0 14px;
+    padding: 0 0 0 20px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: $settings-text;
+
+    li {
+        margin-bottom: 4px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.st-public-link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding-top: 12px;
+    border-top: 1px solid $settings-border;
+
+    &__label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: $settings-muted;
+    }
+
+    &__url {
+        font-size: 13px;
+        font-weight: 500;
+        color: $settings-primary;
+        word-break: break-all;
+
+        .fa {
+            margin-left: 4px;
+            font-size: 11px;
+        }
+    }
+
+    &__badge {
+        margin-left: auto;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        background: $settings-bg;
+        color: $settings-muted;
+        border: 1px solid $settings-border;
+
+        &--on {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+    }
+}
+
+.st-notice {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: $settings-primary-soft;
+    border: 1px solid color-mix(in srgb, $settings-primary 20%, #bfdbfe);
+
+    > .fa {
+        margin-top: 2px;
+        color: $settings-primary;
+        flex-shrink: 0;
+    }
+
+    p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #1e40af;
+
+        a {
+            font-weight: 600;
+            color: $settings-primary;
+        }
+    }
+}
+
+.st-tab__body .panel.panel-default {
+    border-radius: 10px;
+    border-color: $settings-border;
+    box-shadow: none;
+
+    .panel-body {
+        padding: 14px 16px;
+    }
+}
+
+#specialgift.tab-pane > .tab-content-title {
+    margin-bottom: 8px;
+}
+
+// Loyalty settings tab (2-column layout)
+.st-tab--loyalty {
+    max-width: 100%;
+    width: 100%;
+}
+
+.loyalty-settings {
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: start;
+        margin-bottom: 16px;
+    }
+
+    &__col .st-section {
+        height: 100%;
+        margin-bottom: 0;
+    }
+
+    &__whatsapp {
+        margin-bottom: 0;
+    }
+
+    &__wa-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px 24px;
+
+        .form-group {
+            max-width: 100%;
+            margin-bottom: 12px;
+        }
+    }
+}
+
+// WhatsApp notifications tab (sms)
+.st-tab--whatsapp {
+    .wa-settings {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .wa-settings__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 12px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid $settings-border;
+
+        .btn-link {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+
+    .wa-settings__fields-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px 20px;
+
+        .form-group {
+            max-width: 100%;
+            margin-bottom: 12px;
+        }
+    }
+
+    .wa-settings__full-width {
+        grid-column: 1 / -1;
+    }
+
+    .st-wa-item {
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid $settings-border;
+        background: $settings-bg;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        &--plain {
+            background: #fff;
+        }
+
+        &__toggle {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 12px;
+
+            .form-group {
+                margin-bottom: 0;
+                max-width: 100%;
+            }
+
+            .checkbox label {
+                font-weight: 600;
+                font-size: 13px;
+            }
+        }
+
+        &__hint {
+            margin: 6px 0 0;
+            font-size: 12px;
+            line-height: 1.45;
+            color: $settings-muted;
+        }
+
+        &__fields {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed color-mix(in srgb, $settings-border 80%, transparent);
+
+            .form-group {
+                max-width: 100%;
+                margin-bottom: 10px;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .help-block {
+                margin-top: 4px;
+            }
+        }
+    }
+
+    .st-wa-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1.4;
+
+        &--off {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        &--muted {
+            background: $settings-bg;
+            color: $settings-muted;
+            border: 1px solid $settings-border;
+        }
+    }
+}
+
+// CHIP payment tab
+.st-tab--chip {
+    .chip-settings__notice {
+        margin-bottom: 14px;
+    }
+
+    .chip-settings__all-methods {
+        margin-bottom: 18px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: $settings-bg;
+        border: 1px dashed $settings-border;
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .checkbox label {
+            font-weight: 600;
+        }
+    }
+
+    .chip-settings__methods {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .chip-brand-panel {
+        position: sticky;
+        top: 16px;
+        padding: 24px 20px;
+        border-radius: 14px;
+        border: 1px solid $settings-border;
+        background: linear-gradient(
+            165deg,
+            $settings-primary-soft 0%,
+            #fff 55%
+        );
+        text-align: center;
+
+        &__logo {
+            padding: 8px 0 16px;
+
+            svg {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+
+        &__caption {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+            color: $settings-muted;
+        }
+    }
+}
+
+.chip-method-card {
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid $settings-border;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+
+    &--fpx {
+        --chip-accent: #0d9488;
+        --chip-accent-soft: #ccfbf1;
+    }
+
+    &--card {
+        --chip-accent: #2563eb;
+        --chip-accent-soft: #dbeafe;
+    }
+
+    &--atome {
+        --chip-accent: #7c3aed;
+        --chip-accent-soft: #ede9fe;
+    }
+
+    &__hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 16px;
+        padding: 16px 18px;
+        background: linear-gradient(
+            105deg,
+            var(--chip-accent-soft) 0%,
+            #fff 52%
+        );
+        border-bottom: 1px solid color-mix(in srgb, var(--chip-accent) 12%, $settings-border);
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--chip-accent);
+        color: #fff;
+        font-size: 20px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--chip-accent) 35%, transparent);
+    }
+
+    &__titles {
+        flex: 1 1 160px;
+        min-width: 0;
+    }
+
+    &__title {
+        margin: 0 0 4px;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        color: var(--chip-accent);
+        text-transform: none;
+    }
+
+    &__subtitle {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.4;
+        color: $settings-muted;
+    }
+
+    &__toggle {
+        flex-shrink: 0;
+        margin-left: auto;
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .checkbox label {
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+    }
+
+    &__body {
+        padding: 16px 18px 18px;
+    }
+
+    &__fields {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2px;
+
+        .form-group {
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .help-block {
+            margin-top: -4px;
+            margin-bottom: 10px;
+        }
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .loyalty-settings__grid,
+    .loyalty-settings__wa-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .st-tab--whatsapp .wa-settings__fields-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .st-tab--chip .chip-brand-panel {
+        position: static;
+        margin-top: 8px;
+    }
+
+    .chip-method-card__toggle {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .admin-settings {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .settings-sidebar {
+        position: static;
+    }
+
+    .settings-sidebar__inner {
+        max-height: none;
+        padding: 8px;
+    }
+
+    .settings-nav-group {
+        &:not(:first-child) {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+    }
+
+    .settings-nav-group__title {
+        display: none;
+    }
+
+    .settings-nav {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .settings-nav__item {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .settings-nav__link {
+        white-space: nowrap;
+        padding: 9px 14px;
+        border: 1px solid $settings-border;
+        background: #fff;
+        font-size: 14px;
+    }
+
+    .settings-nav__item.is-active .settings-nav__link {
+        border-color: $settings-primary;
+        box-shadow: none;
+    }
+
+    .settings-panel__content {
+        padding: 18px 16px 4px;
+    }
+
+    .settings-form .form-group {
+        max-width: 100%;
+    }
+
+    .settings-panel__footer {
+        padding: 12px 16px;
+    }
+}

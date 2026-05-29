@@ -1,0 +1,215 @@
+@php
+    $configuredBaseUrl = rtrim((string) config('app.url'), '/');
+@endphp
+
+<script>
+    window.FleetCart = {
+        version: '{{ fleetcart_version() }}',
+        csrfToken: '{{ csrf_token() }}',
+        baseUrl: '{{ $configuredBaseUrl }}',
+        appUrl: @json(rtrim(config('app.url'), '/')),
+        rtl: {{ is_rtl() ? 'true' : 'false' }},
+        locale: '{{ locale() }}',
+        defaultPhoneCountry: '{{ strtolower(setting('default_country', 'MY')) }}',
+        supportedLocales: @json(supported_locales()),
+        langs: {},
+        data: {},
+        errors: {},
+        selectize: [],
+        defaultCurrencySymbol: '{{ currency_symbol(setting("default_currency")) }}'
+    };
+
+    const adminPathIndex = (window.location.pathname || '').indexOf('/admin');
+
+    if (adminPathIndex !== -1) {
+        const installPrefix = window.location.pathname.substring(0, adminPathIndex);
+        FleetCart.baseUrl = `${window.location.origin}${installPrefix}`.replace(/\/$/, '');
+    } else {
+        FleetCart.baseUrl = (FleetCart.baseUrl || window.location.origin).replace(/\/$/, '');
+    }
+
+    FleetCart.langs['admin::admin.buttons.delete'] = '{{ trans('admin::admin.buttons.delete') }}';
+    FleetCart.langs['admin::admin.buttons.media_gallery'] = '{{ trans('admin::admin.buttons.media_gallery') }}';
+    FleetCart.langs['admin::admin.buttons.replace_image'] = '{{ trans('admin::admin.buttons.replace_image') }}';
+    FleetCart.langs['media::media.file_manager.title'] = '{{ trans('media::media.file_manager.title') }}';
+    FleetCart.langs['media::media.file_manager.insert'] = '{{ trans('media::media.file_manager.insert') }}';
+    FleetCart.langs['admin::admin.table.search_here'] = '{{ trans('admin::admin.table.search_here') }}';
+    FleetCart.langs['admin::admin.table.showing_start_end_total_entries'] = '{{ trans('admin::admin.table.showing_start_end_total_entries') }}';
+    FleetCart.langs['admin::admin.table.showing_empty_entries'] = '{{ trans('admin::admin.table.showing_empty_entries') }}';
+    FleetCart.langs['admin::admin.table.show_menu_entries'] = '{{ trans('admin::admin.table.show_menu_entries') }}';
+    FleetCart.langs['admin::admin.table.filtered_from_max_total_entries'] = '{{ trans('admin::admin.table.filtered_from_max_total_entries') }}';
+    FleetCart.langs['admin::admin.table.no_data_available_table'] = '{{ trans('admin::admin.table.no_data_available_table') }}';
+    FleetCart.langs['admin::admin.table.loading'] = '{{ trans('admin::admin.table.loading') }}';
+    FleetCart.langs['admin::admin.table.processing'] = '{{ trans('admin::admin.table.processing') }}';
+    FleetCart.langs['admin::admin.table.no_matching_records_found'] = '{{ trans('admin::admin.table.no_matching_records_found') }}';
+    FleetCart.langs['admin::admin.pagination.previous'] = '{{ trans('admin::admin.pagination.previous') }}';
+    FleetCart.langs['admin::admin.pagination.next'] = '{{ trans('admin::admin.pagination.next') }}';
+    FleetCart.langs['media::media.open_file'] = '{{ trans('media::media.open_file') }}';
+    FleetCart.langs['media::media.grid.select_all'] = '{{ trans('media::media.grid.select_all') }}';
+    FleetCart.langs['media::media.grid.unlinked_products'] = '{{ trans('media::media.grid.unlinked_products') }}';
+    FleetCart.langs['media::media.grid.unlinked_products_active'] = '{{ trans('media::media.grid.unlinked_products_active') }}';
+    FleetCart.langs['media::media.grid.unlinked_badge'] = '{{ trans('media::media.grid.unlinked_badge') }}';
+    FleetCart.langs['media::media.grid.unlinked_products_empty'] = '{{ trans('media::media.grid.unlinked_products_empty') }}';
+    FleetCart.langs['media::media.grid.deleting'] = '{{ trans('media::media.grid.deleting') }}';
+    FleetCart.langs['media::media.grid.delete_done'] = '{{ trans('media::media.grid.delete_done') }}';
+    FleetCart.langs['media::media.grid.delete_failed'] = '{{ trans('media::media.grid.delete_failed') }}';
+    FleetCart.langs['media::media.grid.delete_partial'] = '{{ trans('media::media.grid.delete_partial') }}';
+    FleetCart.langs['core::messages.something_went_wrong'] = '{{ trans('core::messages.something_went_wrong') }}';
+
+    FleetCart.apiUrl = function (path) {
+        const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+        const appUrl = (FleetCart.appUrl || FleetCart.baseUrl || '').replace(/\/$/, '');
+
+        return `${appUrl}${normalizedPath}`;
+    };
+
+    FleetCart.resolveAdminBaseUrl = function () {
+        const pathnameParts = (window.location.pathname || "").split("/").filter(Boolean);
+        const adminIndex = pathnameParts.indexOf("admin");
+
+        if (adminIndex > 0) {
+            return `${window.location.origin}/${pathnameParts.slice(0, adminIndex).join("/")}`.replace(/\/$/, "");
+        }
+
+        try {
+            const appPath = new URL(FleetCart.appUrl || "").pathname.replace(/\/$/, "");
+
+            return `${window.location.origin}${appPath}`.replace(/\/$/, "");
+        } catch (e) {
+            return window.location.origin.replace(/\/$/, "");
+        }
+    };
+
+    // Guard against stale cached bundles still using an outdated FleetCart.baseUrl.
+    $(document).on("click", ".image-picker, .multiple-image-picker, .file-picker", function () {
+        FleetCart.baseUrl = FleetCart.resolveAdminBaseUrl();
+    });
+
+    FleetCart.normalizeFileManagerIframeSrc = function (src) {
+        try {
+            const url = new URL(src, window.location.origin);
+            const currentBase = FleetCart.resolveAdminBaseUrl();
+            const currentBasePath = new URL(currentBase).pathname.replace(/\/$/, "");
+
+            if (!url.pathname.includes("/admin/file-manager")) {
+                return src;
+            }
+
+            if (currentBasePath && !url.pathname.startsWith(`${currentBasePath}/`)) {
+                url.pathname = `${currentBasePath}${url.pathname.startsWith("/") ? "" : "/"}${url.pathname}`;
+            }
+
+            return url.toString();
+        } catch (e) {
+            return src;
+        }
+    };
+
+    // Final safeguard: rewrite iframe src before load if stale code generates wrong origin/path.
+    const fileManagerIframeObserver = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            mutation.addedNodes.forEach(function (node) {
+                if (!(node instanceof Element)) {
+                    return;
+                }
+
+                const iframe = node.matches("iframe.file-manager-iframe")
+                    ? node
+                    : node.querySelector("iframe.file-manager-iframe");
+
+                if (!iframe) {
+                    return;
+                }
+
+                const currentSrc = iframe.getAttribute("src");
+
+                if (!currentSrc) {
+                    return;
+                }
+
+                const normalizedSrc = FleetCart.normalizeFileManagerIframeSrc(currentSrc);
+
+                if (normalizedSrc !== currentSrc) {
+                    iframe.setAttribute("src", normalizedSrc);
+                }
+            });
+        });
+    });
+
+    const startFileManagerIframeObserver = function () {
+        const targetNode = document.body || document.documentElement;
+
+        if (!(targetNode instanceof Node)) {
+            return;
+        }
+
+        fileManagerIframeObserver.observe(targetNode, {
+            childList: true,
+            subtree: true,
+        });
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", startFileManagerIframeObserver);
+    } else {
+        startFileManagerIframeObserver();
+    }
+
+    FleetCart.patchMediaPickerGetFrame = function () {
+        if (!window.MediaPicker || !window.MediaPicker.prototype) {
+            return false;
+        }
+
+        const patchedMarker = "__fleetcartGetFramePatched";
+
+        if (window.MediaPicker.prototype[patchedMarker]) {
+            return true;
+        }
+
+        window.MediaPicker.prototype.getFrame = function () {
+            const pathnameParts = (window.location.pathname || "").split("/").filter(Boolean);
+            const adminIndex = pathnameParts.indexOf("admin");
+            const installPrefix =
+                adminIndex > 0
+                    ? `/${pathnameParts.slice(0, adminIndex).join("/")}`
+                    : (() => {
+                          try {
+                              return new URL(FleetCart.appUrl || "").pathname.replace(/\/$/, "");
+                          } catch (e) {
+                              return "";
+                          }
+                      })();
+
+            const fileManagerUrl = new URL(
+                `${installPrefix}/admin/${this.options.routePrefix}`,
+                window.location.origin
+            );
+
+            fileManagerUrl.searchParams.set("type", this.options.type);
+            fileManagerUrl.searchParams.set("multiple", this.options.multiple);
+
+            return $(
+                `<iframe class="file-manager-iframe" frameborder="0" src="${fileManagerUrl.toString()}"></iframe>`
+            );
+        };
+
+        window.MediaPicker.prototype[patchedMarker] = true;
+
+        return true;
+    };
+
+    // Ensure patch applies even if MediaPicker script loads later.
+    if (!FleetCart.patchMediaPickerGetFrame()) {
+        const patchInterval = setInterval(function () {
+            if (FleetCart.patchMediaPickerGetFrame()) {
+                clearInterval(patchInterval);
+            }
+        }, 100);
+
+        setTimeout(function () {
+            clearInterval(patchInterval);
+        }, 10000);
+    }
+</script>
+
+@stack('globals')

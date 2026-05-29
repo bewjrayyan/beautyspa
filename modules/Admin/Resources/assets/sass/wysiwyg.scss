@@ -1,0 +1,61 @@
+@import "ckeditor5/ckeditor5.css";
+
+.ck-editor {
+    --ck-border-radius: 6px;
+    --ck-color-base-border: #d2d6de;
+}
+
+.ck.ck-toolbar {
+    height: auto !important;
+    min-height: 0;
+    padding: 4px 6px !important;
+}
+
+.ck.ck-toolbar.ck-toolbar_grouping > .ck-toolbar__grouped-dropdown {
+    display: none !important;
+}
+
+.ck.ck-toolbar > .ck-toolbar__items {
+    flex-wrap: wrap;
+    gap: 1px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.ck.ck-sticky-panel__content {
+    height: auto !important;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.ck.ck-toolbar .ck-toolbar__line-break {
+    flex-basis: 100%;
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.ck.ck-toolbar .ck-toolbar__separator {
+    margin: 0 2px;
+}
+
+.ck.ck-toolbar .ck-button {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 4px;
+}
+
+.ck-editor__editable {
+    min-height: 280px;
+    font-size: 14px;
+    color: #555555;
+}
+
+.ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+    border-color: #d2d6de;
+}
+
+.product-form .ck-editor {
+    width: 100%;
+}

@@ -1,0 +1,9 @@
+{
+    "name": "TreatmentReservation",
+    "alias": "treatmentreservation",
+    "description": "Treatment reservation calendar, kanban job sheet, and booking management.",
+    "priority": 100,
+    "providers": [
+        "Modules\\TreatmentReservation\\Providers\\TreatmentReservationServiceProvider"
+    ]
+}

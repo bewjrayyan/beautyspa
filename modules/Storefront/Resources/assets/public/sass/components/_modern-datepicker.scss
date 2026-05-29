@@ -1,0 +1,57 @@
+@import "flatpickr/dist/flatpickr.css";
+
+.modern-datepicker-wrap,
+.account-profile-show__date-wrap {
+    position: relative;
+
+    > i {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        z-index: 2;
+        font-size: 18px;
+        color: #9ca3af;
+        pointer-events: none;
+        transform: translateY(-50%);
+    }
+
+    .form-control,
+    .flatpickr-input[readonly] {
+        padding-left: 42px;
+        cursor: pointer;
+        background-color: #fff;
+    }
+}
+
+.flatpickr-calendar {
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    border: 1px solid #e8ecf1;
+}
+
+.flatpickr-months .flatpickr-month {
+    height: 48px;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+    font-weight: 600;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: var(--color-primary, #f274ac);
+    border-color: var(--color-primary, #f274ac);
+}
+
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+    background: var(--color-primary, #f274ac);
+    border-color: var(--color-primary, #f274ac);
+}
+
+.flatpickr-day.today {
+    border-color: var(--color-primary, #f274ac);
+}

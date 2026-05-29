@@ -1,0 +1,9 @@
+{
+    "name": "SpecialGift",
+    "alias": "specialgift",
+    "description": "Send gift vouchers to loved ones with WhatsApp notifications.",
+    "priority": 100,
+    "providers": [
+        "Modules\\SpecialGift\\Providers\\SpecialGiftServiceProvider"
+    ]
+}

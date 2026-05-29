@@ -1,0 +1,321 @@
+.checkout-left {
+    flex-grow: 1;
+    padding-right: 15px;
+}
+
+.checkout-form {
+    .account-details {
+        margin-bottom: 14px;
+    }
+
+    .account-email-checking {
+        margin-top: 6px;
+        margin-bottom: 0;
+        font-size: 13px;
+        color: var(--color-black-35);
+    }
+
+    .checkout-account-exists {
+        margin-top: 4px;
+    }
+
+    .checkout-account-exists-alert {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+        border-radius: var(--radius-default);
+        background: var(--color-primary-alpha-10);
+        border: 1px solid var(--color-primary-alpha-30);
+
+        > i {
+            font-size: 22px;
+            color: var(--color-primary);
+            line-height: 1.2;
+        }
+
+        strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--color-black);
+        }
+
+        p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--color-black-35);
+        }
+    }
+
+    .checkout-inline-login-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 16px;
+        margin-top: 4px;
+
+        a {
+            font-size: 14px;
+            color: var(--color-primary);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .btn-use-different-email {
+        padding: 0;
+        font-size: 14px;
+        color: var(--color-black-35);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--color-primary);
+        }
+    }
+
+    .section-title {
+        margin-bottom: 15px;
+        padding-bottom: 13px;
+        border-bottom: 1px solid var(--border-color-lite);
+    }
+
+    .treatment-booking-section {
+        margin-bottom: 24px;
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .beautician-picker {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .beautician-picker-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color-lite);
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+            &.is-selected {
+                border-color: var(--color-primary);
+                box-shadow: 0 0 0 1px var(--color-primary);
+            }
+        }
+
+        .beautician-picker-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .beautician-picker-avatar,
+        .beautician-picker-photo {
+            flex-shrink: 0;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .beautician-picker-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .beautician-picker-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .beautician-picker-name {
+            font-weight: 600;
+            color: var(--color-black);
+        }
+
+        .beautician-picker-title {
+            font-size: 13px;
+            color: var(--color-gray);
+        }
+    }
+
+    .create-an-account-form {
+        .helper-text {
+            font-size: 14px;
+            display: block;
+            margin: -4px 0 14px;
+            color: var(--color-gray);
+        }
+    }
+
+    .create-an-account-label,
+    .ship-to-different-address-label {
+        margin: 4px 0 15px;
+
+        label {
+            color: var(--color-black);
+        }
+    }
+
+    .address-card-wrap {
+        margin-bottom: -10px;
+
+        > .row {
+            margin-left: -10px;
+            margin-right: -10px;
+
+            > .col {
+                flex: 0 0 33.33333333333333%;
+                max-width: 33.33333333333333%;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+
+        .address-card {
+            margin-bottom: 20px;
+
+            &.cursor-default {
+                cursor: default;
+            }
+        }
+
+        .error-message {
+            display: block;
+            margin: -10px 0 20px;
+        }
+    }
+
+    .add-new-address-wrap {
+        .btn-add-new-address {
+            font-weight: var(--font-medium);
+            margin-bottom: 10px;
+            padding: 5px 0;
+
+            &:hover {
+                color: var(--color-primary);
+            }
+        }
+    }
+
+    .order-notes {
+        margin-bottom: 0;
+
+        textarea {
+            height: 80px;
+        }
+    }
+}
+
+@media screen and (max-width: 1700px) {
+    .checkout-form {
+        .address-card-wrap {
+            padding: 3px 0;
+
+            > .row {
+                > .col {
+                    flex: 0 0 50%;
+                    max-width: 50%;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1350px) {
+    .checkout-form {
+        .address-card-wrap {
+            > .row {
+                > .col {
+                    flex: 0 0 100%;
+                    max-width: 100%;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .checkout-form {
+        .address-card-wrap {
+            > .row {
+                > .col {
+                    flex: 0 0 33.33333333333333%;
+                    max-width: 33.33333333333333%;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1199px) {
+    .checkout-form {
+        .address-card-wrap {
+            > .row {
+                > .col {
+                    flex: 0 0 50%;
+                    max-width: 50%;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .checkout-left {
+        padding-right: 0;
+    }
+
+    .checkout-form {
+        .address-card-wrap {
+            > .row {
+                > .col {
+                    flex: 0 0 33.33333333333333%;
+                    max-width: 33.33333333333333%;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 850px) {
+    .checkout-form {
+        .address-card-wrap {
+            > .row {
+                > .col {
+                    flex: 0 0 50%;
+                    max-width: 50%;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .checkout-form {
+        .address-card-wrap {
+            > .row {
+                > .col {
+                    flex: 0 0 100%;
+                    max-width: 100%;
+                }
+            }
+        }
+    }
+}

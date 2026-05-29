@@ -1,0 +1,41 @@
+---
+description: FleetCart checklist for new modules/features — translations (en/ms) and admin permissions
+alwaysApply: true
+---
+
+# FleetCart: new module / feature checklist
+
+When adding a **new module**, **admin feature**, or **significant function**, complete all items before considering the work done.
+
+## Translations (all supported locales)
+
+This project uses **English (`en`) and Bahasa Malaysia (`ms`)** at minimum.
+
+1. Add strings to `modules/{Module}/Resources/lang/en/*.php` — never hardcode UI copy in Blade/JS.
+2. Mirror keys in `modules/{Module}/Resources/lang/ms/*.php` with proper BM (not English leftovers).
+3. Use `trans('module::file.key')` in views, tabs, validation `availableAttributes`, and flash messages.
+4. After lang changes: run `php artisan translation:refresh-cache --sync` (all modules) or `php artisan loyalty:sync-translations` (Loyalty only). Also `php artisan view:clear` if Blade still shows keys.
+5. Optional helper: `php scripts/sync-ms-translations.php` to seed missing `ms` keys from `en`.
+6. **Loyalty module:** run `php artisan loyalty:sync-translations` after adding keys (syncs en/ms to DB + refreshes loader cache). In Blade, use `LoyaltyLang::get('tiers.form.key')` when keys may be missing from stale cache.
+
+## Admin role permissions
+
+Every admin route/action must be gated and assignable in **Roles → Permissions** and **Users → Permissions**.
+
+1. Define `modules/{Module}/Config/permissions.php` (groups → actions → `module::permissions.*` keys).
+2. Add labels in `Resources/lang/en/permissions.php` and `Resources/lang/ms/permissions.php`.
+3. Protect routes/controllers with `hasAccess('admin.module.action')` (or project middleware equivalent).
+4. Grant default access to admin roles via seeder/command if needed (see `Loyalty` grant-permissions command pattern).
+5. If a **custom** `UserController` (or similar) overrides `update`/`store`, **must** persist `permissions` from the request (use `Permission::prepare` via `$user->permissions = $request->input('permissions', [])` — do not only `except(['permissions'])`).
+
+## UI copy conventions
+
+- Admin locale MS: sentence case labels; avoid `text-transform: uppercase` on BM labels unless intentional.
+- Permission radios: default **Inherit** checked so all keys submit with the form.
+
+## Quick self-check before PR
+
+- [ ] `en` + `ms` keys exist for every new user-facing string
+- [ ] `Config/permissions.php` + lang permission labels added
+- [ ] Routes guarded; role/user permission UI shows new module
+- [ ] User/role save paths persist permissions when applicable

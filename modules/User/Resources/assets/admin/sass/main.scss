@@ -1,0 +1,27 @@
+@import "./profile-page";
+@import "./permissions";
+@import "./role-stacked-form";
+@import "./users-index";
+
+.api-keys {
+    margin-bottom: 20px;
+}
+
+#new_password {
+    .btn-reset-password {
+        margin: 10px 0 15px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .permission-row {
+        .radio-btn {
+            float: left;
+            margin-left: 15px;
+        }
+    }
+
+    .permission-group-actions {
+        margin-top: 10px;
+    }
+}

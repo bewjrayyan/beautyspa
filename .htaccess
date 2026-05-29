@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /fleetcart/
+
+    # Serve existing files from the project root (if any).
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Serve static assets from public/ when the file exists there.
+    RewriteCond %{DOCUMENT_ROOT}/fleetcart/public/$1 -f
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # Route all application requests through Laravel's public front controller.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ public/index.php [L]
+</IfModule>

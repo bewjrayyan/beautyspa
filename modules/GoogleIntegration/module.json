@@ -1,0 +1,9 @@
+{
+    "name": "GoogleIntegration",
+    "alias": "googleintegration",
+    "description": "Sync completed orders to Google Sheets and Google Calendar.",
+    "priority": 100,
+    "providers": [
+        "Modules\\GoogleIntegration\\Providers\\GoogleIntegrationServiceProvider"
+    ]
+}

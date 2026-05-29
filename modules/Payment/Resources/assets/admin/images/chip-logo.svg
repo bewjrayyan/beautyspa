@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" role="img" aria-label="CHIP">
+    <defs>
+        <linearGradient id="chip-gradient" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#c084fc"/>
+            <stop offset="50%" stop-color="#818cf8"/>
+            <stop offset="100%" stop-color="#4f46e5"/>
+        </linearGradient>
+    </defs>
+    <g transform="translate(2,4)">
+        <path fill="url(#chip-gradient)" d="M16 2C8.3 2 2 8.3 2 16s6.3 14 14 14c3.1 0 5.9-1 8.2-2.7l-3.4-5.2C18.8 23.4 17.5 24 16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8c1.5 0 2.8.4 3.8 1.1L23.2 3.3C20.9 2 18.1 2 16 2zm0 6c-2.2 0-4 1.8-4 4v4c0 2.2 1.8 4 4 4 1.1 0 2.1-.4 2.8-1.1l3.4 5.2C20.5 27.6 18.4 28 16 28 9.4 28 4 22.6 4 16S9.4 4 16 4c2.4 0 4.5.7 6.2 1.9l-3.4 5.2C17.1 10.4 16.6 10 16 10z"/>
+        <rect x="6" y="14" width="12" height="2.5" rx="1.2" fill="url(#chip-gradient)"/>
+        <rect x="6" y="19.5" width="8" height="2.5" rx="1.2" fill="url(#chip-gradient)"/>
+    </g>
+    <text x="38" y="27" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="18" font-weight="700" fill="#1e1b4b">CHIP</text>
+</svg>

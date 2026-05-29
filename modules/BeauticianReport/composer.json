@@ -1,0 +1,12 @@
+{
+    "name": "fleetcart/beautician-report",
+    "description": "Beautician analytics and treatment sales reports for FleetCart.",
+    "require": {
+        "php": "^8.2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\BeauticianReport\\": ""
+        }
+    }
+}

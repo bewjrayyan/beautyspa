@@ -1,0 +1,9 @@
+{
+    "name": "Loyalty",
+    "alias": "loyalty",
+    "description": "Customer membership tiers and loyalty points wallet.",
+    "priority": 100,
+    "providers": [
+        "Modules\\Loyalty\\Providers\\LoyaltyServiceProvider"
+    ]
+}

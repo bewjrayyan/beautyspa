@@ -1,0 +1,56 @@
+<?php
+
+namespace Modules\Beautician\Http\Requests;
+
+use Illuminate\Validation\Rule;
+use Modules\Core\Http\Requests\Request;
+use Modules\Core\Rules\ValidPhone;
+
+class SaveBeauticianRequest extends Request
+{
+    protected $availableAttributes = 'beautician::attributes';
+
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->input('user_id') === '') {
+            $this->merge(['user_id' => null]);
+        }
+    }
+
+
+    public function rules(): array
+    {
+        $id = $this->route('id');
+        $linkedUserId = $this->input('user_id') ?: null;
+
+        if ($id && ! $linkedUserId) {
+            $linkedUserId = \Modules\Beautician\Entities\Beautician::query()
+                ->whereKey($id)
+                ->value('user_id');
+        }
+
+        return [
+            'user_id' => [
+                'nullable',
+                'integer',
+                'exists:users,id',
+                Rule::unique('beauticians', 'user_id')->ignore($id),
+            ],
+            'portal_email' => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($linkedUserId),
+            ],
+            'portal_password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', new ValidPhone()],
+            'profile_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'job_title' => 'nullable|string|max:255',
+            'is_active' => 'required|boolean',
+            'position' => 'nullable|integer|min:0',
+        ];
+    }
+}

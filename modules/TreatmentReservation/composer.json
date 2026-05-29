@@ -1,0 +1,9 @@
+{
+    "name": "modules/treatmentreservation",
+    "description": "Treatment reservation management for FleetCart",
+    "autoload": {
+        "psr-4": {
+            "Modules\\TreatmentReservation\\": ""
+        }
+    }
+}
