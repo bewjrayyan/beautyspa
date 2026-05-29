@@ -1,6 +1,6 @@
 # BeautySpa — AestheticCart
 
-Private e-commerce and booking platform for a beauty / spa business, owned and customized by **MediaCreative Solution** (Bewj Rayyan). Built on **[FleetCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system)** (Laravel 11, modular architecture), customized and rebranded as **AestheticCart**, with admin workflows for orders, reports, treatments, loyalty, and CHIP payments.
+Private e-commerce and booking platform for a beauty / spa business, built on **AestheticCart** (Laravel 11, modular architecture) by **MediaCreative Solution** (Bewj Rayyan), with admin workflows for orders, reports, treatments, loyalty, and CHIP payments.
 
 > **Repository:** [github.com/bewjrayyan/beautyspa](https://github.com/bewjrayyan/beautyspa) (private)
 
@@ -243,7 +243,5 @@ git push -u origin feature/your-feature-name
 | **Company** | MediaCreative Solution |
 
 This is a **private** codebase for the BeautySpa business. Unauthorized copying, distribution, or use outside MediaCreative Solution / Bewj Rayyan is not permitted unless agreed in writing.
-
-The storefront platform is built on [AestheticCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system) (Laravel eCommerce). The AestheticCart core remains subject to its original Codecanyon / Envay Soft license; custom modules, themes, and business logic in this repo are maintained by **MediaCreative Solution**.
 
 For support or changes, contact MediaCreative Solution or open an issue on this private repository.

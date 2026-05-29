@@ -204,10 +204,6 @@ export default class {
     }
 
     shortcuts() {
-        Mousetrap.bind("f1", () => {
-            window.open("https://docs.envaysoft.com/", "_blank");
-        });
-
         Mousetrap.bind("?", () => {
             $("#keyboard-shortcuts-modal").modal();
         });

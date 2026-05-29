@@ -18,16 +18,16 @@ class UsersTableSeeder extends Seeder
     {
         $adminRole = Role::find(1);
 
-        $envaySoft = User::create([
-            'first_name' => 'Envay',
-            'last_name' => 'Soft',
-            'email' => 'envaysoft@gmail.com',
+        $admin = User::create([
+            'first_name' => 'Admin',
+            'last_name' => 'BeautySpa',
+            'email' => 'admin@beautyspa.local',
             'password' => bcrypt(123456),
         ]);
 
-        $activation = Activation::create($envaySoft);
-        Activation::complete($envaySoft, $activation->code);
+        $activation = Activation::create($admin);
+        Activation::complete($admin, $activation->code);
 
-        $adminRole->users()->attach($envaySoft);
+        $adminRole->users()->attach($admin);
     }
 }

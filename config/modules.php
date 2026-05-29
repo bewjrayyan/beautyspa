@@ -148,8 +148,8 @@ return [
     'composer' => [
         'vendor' => 'fleetcart',
         'author' => [
-            'name' => 'Envay Soft',
-            'email' => 'envaysoft@gmail.com',
+            'name' => 'MediaCreative Solution',
+            'email' => 'bewjrayyan@gmail.com',
         ],
     ],
 
