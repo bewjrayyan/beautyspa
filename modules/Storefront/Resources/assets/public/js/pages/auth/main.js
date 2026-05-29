@@ -20,7 +20,7 @@ function createOtpMethods(getPhoneInputId) {
         },
 
         apiFetch(url, options = {}) {
-            const targetUrl = url.startsWith("http") ? url : FleetCart.url(url);
+            const targetUrl = url.startsWith("http") ? url : AestheticCart.url(url);
 
             return fetch(targetUrl, {
                 credentials: "same-origin",
@@ -28,7 +28,7 @@ function createOtpMethods(getPhoneInputId) {
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
-                    "X-CSRF-TOKEN": FleetCart.csrfToken || this.csrfToken(),
+                    "X-CSRF-TOKEN": AestheticCart.csrfToken || this.csrfToken(),
                     "X-Requested-With": "XMLHttpRequest",
                     ...(options.headers || {}),
                 },

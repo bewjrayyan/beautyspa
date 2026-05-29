@@ -185,7 +185,7 @@
 @push('globals')
     <script>
         @foreach (array_keys(__('user::users.index')) as $indexKey)
-            FleetCart.langs['user::users.index.{{ $indexKey }}'] = @json(__('user::users.index.' . $indexKey));
+            AestheticCart.langs['user::users.index.{{ $indexKey }}'] = @json(__('user::users.index.' . $indexKey));
         @endforeach
     </script>
 

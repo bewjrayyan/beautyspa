@@ -9,7 +9,7 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
     }
 
     function configureAxios() {
-        const fleetCart = window.FleetCart || {};
+        const fleetCart = window.AestheticCart || {};
 
         if (fleetCart.baseUrl) {
             axios.defaults.baseURL = `${fleetCart.baseUrl}/admin`;

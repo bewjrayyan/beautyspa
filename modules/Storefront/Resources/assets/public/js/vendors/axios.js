@@ -2,8 +2,8 @@ import axios from "axios";
 
 window.axios = axios;
 
-axios.defaults.baseURL = FleetCart.baseUrl;
-axios.defaults.headers.common["X-CSRF-TOKEN"] = FleetCart.csrfToken;
+axios.defaults.baseURL = AestheticCart.baseUrl;
+axios.defaults.headers.common["X-CSRF-TOKEN"] = AestheticCart.csrfToken;
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
 axios.interceptors.request.use((config) => {
@@ -12,9 +12,9 @@ axios.interceptors.request.use((config) => {
     if (
         typeof url === "string" &&
         url.startsWith("/") &&
-        typeof FleetCart?.url === "function"
+        typeof AestheticCart?.url === "function"
     ) {
-        config.url = FleetCart.url(url);
+        config.url = AestheticCart.url(url);
     }
 
     return config;

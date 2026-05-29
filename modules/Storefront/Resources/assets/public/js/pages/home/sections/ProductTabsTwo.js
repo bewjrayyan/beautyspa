@@ -10,7 +10,7 @@ Alpine.data("ProductTabsTwo", (tabs) => ({
     },
 
     url(tabIndex) {
-        return FleetCart.url(
+        return AestheticCart.url(
             `/storefront/tab-products/sections/${2}/tabs/${tabIndex + 1}`
         );
     },

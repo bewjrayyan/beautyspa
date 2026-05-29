@@ -2,7 +2,7 @@
 
 namespace Modules\User\Http\Controllers\Admin;
 
-use FleetCart\Http\IntendedUrl;
+use AestheticCart\Http\IntendedUrl;
 use Illuminate\Http\Response;
 use Modules\User\Entities\User;
 use Modules\User\Http\Controllers\BaseAuthController;

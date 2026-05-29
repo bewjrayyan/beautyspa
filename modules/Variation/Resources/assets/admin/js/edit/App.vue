@@ -330,7 +330,7 @@ export default {
     mixins: [VariationMixin],
 
     created() {
-        this.form = this.prepareFormData(FleetCart.data["variation"]);
+        this.form = this.prepareFormData(AestheticCart.data["variation"]);
     },
 
     mounted() {

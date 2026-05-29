@@ -231,12 +231,12 @@
 @push('scripts')
     <script>
         (function () {
-            const csrf = window.FleetCart?.csrfToken || '';
+            const csrf = window.AestheticCart?.csrfToken || '';
             const endpoints = {
-                sendOtp: FleetCart.url('/my-appointments/send-otp'),
-                verifyOtp: FleetCart.url('/my-appointments/verify-otp'),
-                cancel: (id) => FleetCart.url(`/my-appointments/${id}/cancel`),
-                reschedule: (id) => FleetCart.url(`/my-appointments/${id}/reschedule`),
+                sendOtp: AestheticCart.url('/my-appointments/send-otp'),
+                verifyOtp: AestheticCart.url('/my-appointments/verify-otp'),
+                cancel: (id) => AestheticCart.url(`/my-appointments/${id}/cancel`),
+                reschedule: (id) => AestheticCart.url(`/my-appointments/${id}/reschedule`),
             };
             let phone = '';
 

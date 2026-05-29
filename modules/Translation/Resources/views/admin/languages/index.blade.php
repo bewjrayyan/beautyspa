@@ -26,13 +26,13 @@
 
 @push('globals')
     <script>
-        FleetCart.data['languages'] = @json($languages);
-        FleetCart.langs['translation::languages.table.name'] = '{{ trans('translation::languages.table.name') }}';
-        FleetCart.langs['translation::languages.table.default'] = '{{ trans('translation::languages.table.default') }}';
-        FleetCart.langs['translation::languages.table.actions'] = '{{ trans('translation::languages.table.actions') }}';
-        FleetCart.langs['translation::languages.table.translations'] = '{{ trans('translation::languages.table.translations') }}';
-        FleetCart.langs['translation::languages.table.delete'] = '{{ trans('translation::languages.table.delete') }}';
-        FleetCart.langs['translation::languages.default_language_updated'] = '{{ trans('translation::languages.default_language_updated') }}';
+        AestheticCart.data['languages'] = @json($languages);
+        AestheticCart.langs['translation::languages.table.name'] = '{{ trans('translation::languages.table.name') }}';
+        AestheticCart.langs['translation::languages.table.default'] = '{{ trans('translation::languages.table.default') }}';
+        AestheticCart.langs['translation::languages.table.actions'] = '{{ trans('translation::languages.table.actions') }}';
+        AestheticCart.langs['translation::languages.table.translations'] = '{{ trans('translation::languages.table.translations') }}';
+        AestheticCart.langs['translation::languages.table.delete'] = '{{ trans('translation::languages.table.delete') }}';
+        AestheticCart.langs['translation::languages.default_language_updated'] = '{{ trans('translation::languages.default_language_updated') }}';
     </script>
 
     @vite([

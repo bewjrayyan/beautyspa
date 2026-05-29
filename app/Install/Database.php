@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Install;
+namespace AestheticCart\Install;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;

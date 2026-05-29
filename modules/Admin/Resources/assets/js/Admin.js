@@ -62,7 +62,7 @@ export default class {
                     }
                 },
             },
-            ...FleetCart.selectize
+            ...AestheticCart.selectize
         );
 
         for (let select of selects) {

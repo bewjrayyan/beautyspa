@@ -1,6 +1,6 @@
 Alpine.data("CustomPageSelect", () => ({
     open: false,
-    selected: FleetCart.data["initialPerPage"] || 20,
+    selected: AestheticCart.data["initialPerPage"] || 20,
 
     get activeClass() {
         return this.open ? "active" : "";

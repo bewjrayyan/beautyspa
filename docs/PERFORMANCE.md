@@ -1,4 +1,4 @@
-# FleetCart Performance Guide
+# AestheticCart Performance Guide
 
 Panduan ringkas untuk mempercepat storefront dan mengurangkan beban database.
 
@@ -21,7 +21,7 @@ Panduan ringkas untuk mempercepat storefront dan mengurangkan beban database.
 
 ## 0. XAMPP / macOS: storage permissions & `Unable to set visibility for file cache`
 
-FleetCart uses `swayok/alternative-laravel-cache` (Flysystem). Tagged cache files live under `storage/framework/cache/local-data/cache/` (pool folder name is literally `cache`).
+AestheticCart uses `swayok/alternative-laravel-cache` (Flysystem). Tagged cache files live under `storage/framework/cache/local-data/cache/` (pool folder name is literally `cache`).
 
 Flysystem calls `chmod` on that folder when it already exists. On macOS, **only the file owner** can chmod — Apache fails on folders created by your CLI user even when mode is `777`. **In code (local):** `XamppPermissiveLocalFilesystemAdapter` ignores failed visibility updates; `TranslationLoader` falls back to uncached translations if cache still fails.
 
@@ -98,7 +98,7 @@ ASSET_CDN_URL=https://cdn.yourdomain.com
 
 ## 3. Database
 
-### Sudah ada dalam FleetCart
+### Sudah ada dalam AestheticCart
 
 - Settings: `Setting::allCached()` (perlu `APP_CACHE=true`)
 - Menu / Mega menu: `Cache::tags` + `rememberForever`

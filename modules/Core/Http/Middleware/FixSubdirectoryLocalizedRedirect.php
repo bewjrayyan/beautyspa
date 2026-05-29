@@ -22,8 +22,8 @@ class FixSubdirectoryLocalizedRedirect
             $location = $response->headers->get('Location');
 
             if (is_string($location) && $location !== '') {
-                $response->headers->set('Location', fleetcart_normalize_install_url(
-                    fleetcart_apply_install_base_url($location)
+                $response->headers->set('Location', aestheticcart_normalize_install_url(
+                    aestheticcart_apply_install_base_url($location)
                 ));
             }
         }

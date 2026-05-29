@@ -4,7 +4,7 @@
 
 @section('content')
     <section
-        x-data="Checkout(FleetCart.data.checkout)"
+        x-data="Checkout(AestheticCart.data.checkout)"
         class="checkout-wrap checkout-wrap--modern"
     >
         <div class="container">
@@ -103,13 +103,13 @@
 
 @push('globals')
     <script>
-        FleetCart.data.checkout = @json($checkoutConfig);
+        AestheticCart.data.checkout = @json($checkoutConfig);
 
-        FleetCart.stripePublishableKey = '{{ setting("stripe_publishable_key") }}',
-        FleetCart.stripeEnabled = {{ setting("stripe_enabled") ? 'true' : 'false' }},
-        FleetCart.stripeIntegrationType = '{{ setting("stripe_integration_type") }}',
-        FleetCart.langs['storefront::checkout.payment_for_order'] = '{{ trans("storefront::checkout.payment_for_order") }}';
-        FleetCart.langs['storefront::checkout.remember_about_your_order'] = '{{ trans("storefront::checkout.remember_about_your_order") }}';
+        AestheticCart.stripePublishableKey = '{{ setting("stripe_publishable_key") }}',
+        AestheticCart.stripeEnabled = {{ setting("stripe_enabled") ? 'true' : 'false' }},
+        AestheticCart.stripeIntegrationType = '{{ setting("stripe_integration_type") }}',
+        AestheticCart.langs['storefront::checkout.payment_for_order'] = '{{ trans("storefront::checkout.payment_for_order") }}';
+        AestheticCart.langs['storefront::checkout.remember_about_your_order'] = '{{ trans("storefront::checkout.remember_about_your_order") }}';
     </script>
 
     @vite([

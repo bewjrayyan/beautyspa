@@ -2,7 +2,7 @@ import DataTable from "datatables.net-bs";
 import qs from "qs";
 
 // Initialize state holders.
-FleetCart.dataTable = { routePrefix: {}, routes: {}, selected: {} };
+AestheticCart.dataTable = { routePrefix: {}, routes: {}, selected: {} };
 
 let table = null;
 
@@ -11,8 +11,8 @@ export default class {
         this.selector = selector;
         this.element = $(selector);
 
-        if (FleetCart.dataTable.selected[selector] === undefined) {
-            FleetCart.dataTable.selected[selector] = [];
+        if (AestheticCart.dataTable.selected[selector] === undefined) {
+            AestheticCart.dataTable.selected[selector] = [];
         }
 
         this.initiateDataTable(options, callback);
@@ -241,15 +241,15 @@ export default class {
     appendToSelected(id) {
         id = parseInt(id);
 
-        if (!FleetCart.dataTable.selected[this.selector].includes(id)) {
-            FleetCart.dataTable.selected[this.selector].push(id);
+        if (!AestheticCart.dataTable.selected[this.selector].includes(id)) {
+            AestheticCart.dataTable.selected[this.selector].push(id);
         }
     }
 
     removeFromSelected(id) {
         id = parseInt(id);
 
-        FleetCart.dataTable.selected[this.selector].remove(id);
+        AestheticCart.dataTable.selected[this.selector].remove(id);
     }
 
     checkSelectedCheckboxes(selectedIds) {
@@ -263,10 +263,10 @@ export default class {
     }
 
     route(name, params) {
-        let router = FleetCart.dataTable.routes[this.selector][name];
+        let router = AestheticCart.dataTable.routes[this.selector][name];
 
-        const url = `${window.FleetCart.baseUrl}/admin/${
-            FleetCart.dataTable.routePrefix[this.selector]
+        const url = `${window.AestheticCart.baseUrl}/admin/${
+            AestheticCart.dataTable.routePrefix[this.selector]
         }`;
 
         if (typeof router === "string") {
@@ -301,20 +301,20 @@ export default class {
     }
 
     hasRoute(name) {
-        return FleetCart.dataTable.routes[this.selector][name] !== undefined;
+        return AestheticCart.dataTable.routes[this.selector][name] !== undefined;
     }
 
     static set(selector, { routePrefix = null, routes = {} }) {
-        FleetCart.dataTable.routePrefix[selector] = routePrefix;
-        FleetCart.dataTable.routes[selector] = routes;
+        AestheticCart.dataTable.routePrefix[selector] = routePrefix;
+        AestheticCart.dataTable.routes[selector] = routes;
     }
 
     static setSelectedIds(selector, selected) {
-        FleetCart.dataTable.selected[selector] = selected;
+        AestheticCart.dataTable.selected[selector] = selected;
     }
 
     static getSelectedIds(selector) {
-        return FleetCart.dataTable.selected[selector];
+        return AestheticCart.dataTable.selected[selector];
     }
 
     static reload(selector, callback, resetPaging = false) {

@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="install-url" content="{{ route('install.do') }}">
 
-        <title>FleetCart - Installation</title>
+        <title>AestheticCart - Installation</title>
 
         <link rel="shortcut icon" href="{{ asset('build/assets/favicon.ico') }}" type="image/x-icon">
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +14,8 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
         <script>
-            window.FleetCart = window.FleetCart || {};
-            FleetCart.defaultPhoneCountry = 'my';
+            window.AestheticCart = window.AestheticCart || {};
+            AestheticCart.defaultPhoneCountry = 'my';
         </script>
 
         @vite([
@@ -158,7 +158,7 @@
                     </ul>
 
                     <span class="app-version">
-                        {{ fleetcart_version() }}
+                        {{ aestheticcart_version() }}
                     </span>
                 </aside>
 

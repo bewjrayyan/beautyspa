@@ -8,6 +8,6 @@ app.config.globalProperties.window = window;
 app.config.globalProperties.trans = trans;
 app.config.globalProperties.hasAccess = hasAccess;
 app.config.globalProperties.defaultCurrencySymbol =
-    FleetCart.defaultCurrencySymbol;
+    AestheticCart.defaultCurrencySymbol;
 
 app.mount("#app");

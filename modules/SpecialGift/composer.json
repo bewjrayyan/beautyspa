@@ -1,9 +1,9 @@
 {
-    "name": "fleetcart/specialgift",
+    "name": "aestheticcart/specialgift",
     "description": "Special gift orders and recipient WhatsApp notifications",
     "authors": [
         {
-            "name": "FleetCart"
+            "name": "AestheticCart"
         }
     ],
     "require": {},

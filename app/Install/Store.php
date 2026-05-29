@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Install;
+namespace AestheticCart\Install;
 
 use Modules\Setting\Entities\Setting;
 

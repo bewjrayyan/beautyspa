@@ -4,13 +4,13 @@ export default class {
     constructor() {
         this.productCount = 0;
 
-        this.addFlashSaleProducts(FleetCart.data["flash_sale.products"]);
+        this.addFlashSaleProducts(AestheticCart.data["flash_sale.products"]);
 
         if (this.productCount === 0) {
             this.addProduct();
         }
 
-        this.addFlashSaleProductsError(FleetCart.errors["flash_sale.products"]);
+        this.addFlashSaleProductsError(AestheticCart.errors["flash_sale.products"]);
 
         this.attachEventListeners();
         this.makeProductPanelsSortable();

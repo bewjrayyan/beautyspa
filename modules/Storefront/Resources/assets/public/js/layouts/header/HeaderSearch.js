@@ -30,12 +30,12 @@ Alpine.data(
 
         get moreResultsUrl() {
             if (this.form.category) {
-                return FleetCart.url(
+                return AestheticCart.url(
                     `/categories/${this.form.category}/products?query=${this.form.query}`
                 );
             }
 
-            return FleetCart.url(`/products?query=${this.form.query}`);
+            return AestheticCart.url(`/products?query=${this.form.query}`);
         },
 
         get hasAnySuggestion() {
@@ -112,7 +112,7 @@ Alpine.data(
         async fetchSuggestions() {
             if (this.form.query === "") return;
 
-            const { data } = await axios.get(FleetCart.url("/suggestions"), {
+            const { data } = await axios.get(AestheticCart.url("/suggestions"), {
                 params: this.form,
             });
 
@@ -138,14 +138,14 @@ Alpine.data(
             }
 
             if (this.form.category) {
-                window.location.href = FleetCart.url(
+                window.location.href = AestheticCart.url(
                     `/categories/${this.form.category}/products?query=${this.form.query}`
                 );
 
                 return;
             }
 
-            window.location.href = FleetCart.url(
+            window.location.href = AestheticCart.url(
                 `/products?query=${this.form.query}`
             );
         },
@@ -253,7 +253,7 @@ Alpine.data(
         baseImage(product) {
             return this.hasBaseImage(product)
                 ? product.base_image.path
-                : FleetCart.url('/build/assets/image-placeholder.png');
+                : AestheticCart.url('/build/assets/image-placeholder.png');
         },
     })
 );

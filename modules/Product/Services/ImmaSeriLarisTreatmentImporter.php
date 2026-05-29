@@ -1294,7 +1294,7 @@ class ImmaSeriLarisTreatmentImporter
         $context = stream_context_create([
             'http' => [
                 'timeout' => 30,
-                'user_agent' => 'FleetCart-ImmaImporter/1.0',
+                'user_agent' => 'AestheticCart-ImmaImporter/1.0',
             ],
             'ssl' => [
                 'verify_peer' => false,

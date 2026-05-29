@@ -307,7 +307,7 @@
 
 @push('globals')
     <script>
-        FleetCart.langs['storefront::account.addresses.confirm'] = '{{ trans('storefront::account.addresses.confirm') }}';
+        AestheticCart.langs['storefront::account.addresses.confirm'] = '{{ trans('storefront::account.addresses.confirm') }}';
     </script>
 
     @vite([

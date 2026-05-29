@@ -2,7 +2,7 @@
 
 namespace Modules\User\Http\Controllers\Admin;
 
-use FleetCart\Http\IntendedUrl;
+use AestheticCart\Http\IntendedUrl;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;

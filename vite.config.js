@@ -7,7 +7,7 @@ import path from "path";
 import autoprefixer from "autoprefixer";
 import postcssRTLCSS from "postcss-rtlcss";
 
-// FleetCart version
+// AestheticCart version
 const VERSION = "4.7.11";
 
 export default defineConfig(async ({ command }) => {

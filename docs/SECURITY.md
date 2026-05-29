@@ -1,4 +1,4 @@
-# FleetCart Security Guide
+# AestheticCart Security Guide
 
 This document summarizes security controls in this project and the checklist for production deployments.
 

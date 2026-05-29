@@ -60,7 +60,7 @@ require __DIR__ . '/../bootstrap/xampp-compat.php';
 
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-FleetCart\Http\FixSubdirectoryRequest::apply();
+AestheticCart\Http\FixSubdirectoryRequest::apply();
 
 /*
 |--------------------------------------------------------------------------

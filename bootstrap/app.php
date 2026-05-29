@@ -28,17 +28,17 @@ $app = new Illuminate\Foundation\Application(
 
 $app->singleton(
     Illuminate\Contracts\Http\Kernel::class,
-    FleetCart\Http\Kernel::class
+    AestheticCart\Http\Kernel::class
 );
 
 $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
-    FleetCart\Console\Kernel::class
+    AestheticCart\Console\Kernel::class
 );
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
-    FleetCart\Exceptions\Handler::class
+    AestheticCart\Exceptions\Handler::class
 );
 
 /*

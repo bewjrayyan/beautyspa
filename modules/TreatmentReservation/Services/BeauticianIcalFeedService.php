@@ -75,7 +75,7 @@ class BeauticianIcalFeedService
         $lines = [
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
-            'PRODID:-//FleetCart//Treatment Reservations//EN',
+            'PRODID:-//AestheticCart//Treatment Reservations//EN',
             'CALSCALE:GREGORIAN',
             'METHOD:PUBLISH',
             'X-WR-CALNAME:' . $this->escape("{$beautician->name} — " . setting('store_name')),

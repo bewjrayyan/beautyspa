@@ -3,9 +3,9 @@
 return [
     'manifest' => [
         'id' => 'pwa',
-        'name' => env('APP_NAME', 'FleetCart'),
-        'description' => 'Revolutionize your online business with the cutting-edge FleetCart e-commerce solution.',
-        'short_name' => env('APP_NAME', 'FleetCart'),
+        'name' => env('APP_NAME', 'AestheticCart'),
+        'description' => 'Revolutionize your online business with the cutting-edge AestheticCart e-commerce solution.',
+        'short_name' => env('APP_NAME', 'AestheticCart'),
         'dir' => 'auto',
         'lang' => 'en',
         'scope' => '/',

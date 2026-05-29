@@ -48,7 +48,7 @@ Alpine.data(
         },
 
         get productUrl() {
-            let url = FleetCart.url(`/products/${this.product.slug}`);
+            let url = AestheticCart.url(`/products/${this.product.slug}`);
 
             if (this.hasAnyVariant) {
                 url += `?variant=${this.item.uid}`;
@@ -374,7 +374,7 @@ Alpine.data(
         },
 
         addGalleryEmptySlide() {
-            const filePath = `${FleetCart.baseUrl}/build/assets/image-placeholder.png`;
+            const filePath = `${AestheticCart.baseUrl}/build/assets/image-placeholder.png`;
 
             galleryPreviewSlider.addSlide(
                 0,
@@ -754,7 +754,7 @@ Alpine.data(
         },
 
         setVariantSlug() {
-            const url = `${FleetCart.url(`/products/${this.product.slug}`)}?variant=${this.item.uid}`;
+            const url = `${AestheticCart.url(`/products/${this.product.slug}`)}?variant=${this.item.uid}`;
 
             window.history.replaceState({}, "", url);
         },
@@ -917,7 +917,7 @@ Alpine.data(
             }
 
             axios
-                .post(FleetCart.url("/cart/items"), payload)
+                .post(AestheticCart.url("/cart/items"), payload)
                 .then((response) => {
                     this.$store.cart.updateCart(response.data);
                     this.$store.layout.openSidebarCart();

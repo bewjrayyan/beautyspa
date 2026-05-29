@@ -31,7 +31,7 @@
 
 @push('globals')
     <script>
-        FleetCart.data['tax_rates'] = {!! old_json('rates', $taxClass->taxRates) !!};
-        FleetCart.errors['tax_rates'] = @json($errors->get('rates.*'), JSON_FORCE_OBJECT);
+        AestheticCart.data['tax_rates'] = {!! old_json('rates', $taxClass->taxRates) !!};
+        AestheticCart.errors['tax_rates'] = @json($errors->get('rates.*'), JSON_FORCE_OBJECT);
     </script>
 @endpush

@@ -9,7 +9,7 @@ Alpine.data("CartItem", (cartItem) => ({
     },
 
     get productUrl() {
-        let url = FleetCart.url(`/products/${this.product.slug}`);
+        let url = AestheticCart.url(`/products/${this.product.slug}`);
 
         if (this.hasAnyVariant) {
             url += `?variant=${this.item.uid}`;
@@ -60,7 +60,7 @@ Alpine.data("CartItem", (cartItem) => ({
     get baseImage() {
         return this.hasBaseImage
             ? this.item.base_image.path || this.product.base_image.path
-            : FleetCart.url('/build/assets/image-placeholder.png');
+            : AestheticCart.url('/build/assets/image-placeholder.png');
     },
 
     isQtyIncreaseDisabled(cartItem) {

@@ -9,7 +9,7 @@ class ImportImmaBlogPostCommand extends Command
 {
     protected $signature = 'blog:import-imma {url : Source blog post URL} {--force : Refresh if slug exists}';
 
-    protected $description = 'Import a blog post from immaserilaris.com into FleetCart';
+    protected $description = 'Import a blog post from immaserilaris.com into AestheticCart';
 
     public function handle(ImmaSeriLarisBlogImporter $importer): int
     {

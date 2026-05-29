@@ -31,7 +31,7 @@ return [
     |
     */
 
-    'session' => 'fleetcart_auth',
+    'session' => 'aestheticcart_auth',
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +42,7 @@ return [
     |
     */
 
-    'cookie' => 'fleetcart_auth',
+    'cookie' => 'aestheticcart_auth',
 
     /*
     |--------------------------------------------------------------------------

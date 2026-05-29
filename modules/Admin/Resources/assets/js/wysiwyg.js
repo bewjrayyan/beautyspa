@@ -41,7 +41,7 @@ import {
 
 const editors = {};
 
-class FleetCartUploadAdapter {
+class AestheticCartUploadAdapter {
     constructor(loader) {
         this.loader = loader;
     }
@@ -74,7 +74,7 @@ class FleetCartUploadAdapter {
 
 function uploadAdapterPlugin(editor) {
     editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
-        return new FleetCartUploadAdapter(loader);
+        return new AestheticCartUploadAdapter(loader);
     };
 }
 
@@ -84,14 +84,14 @@ const mediaGalleryIcon = `<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000
 
 function mediaGalleryLabel() {
     return (
-        window.FleetCart?.langs?.["admin::admin.buttons.media_gallery"] ||
+        window.AestheticCart?.langs?.["admin::admin.buttons.media_gallery"] ||
         "Media gallery"
     );
 }
 
 function replaceImageLabel() {
     return (
-        window.FleetCart?.langs?.["admin::admin.buttons.replace_image"] ||
+        window.AestheticCart?.langs?.["admin::admin.buttons.replace_image"] ||
         "Replace from gallery"
     );
 }
@@ -415,7 +415,7 @@ function buildConfig(editorOptions = {}) {
         table: {
             contentToolbar: ["tableColumn", "tableRow", "mergeTableCells"],
         },
-        language: FleetCart.rtl ? "ar" : undefined,
+        language: AestheticCart.rtl ? "ar" : undefined,
         ...editorOptions,
     };
 }

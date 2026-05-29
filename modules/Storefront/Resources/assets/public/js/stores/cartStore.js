@@ -21,7 +21,7 @@ Alpine.store("cart", {
 
     get quantity() {
         if (!this.fetched) {
-            return FleetCart?.cartQuantity ?? 0;
+            return AestheticCart?.cartQuantity ?? 0;
         }
 
         return Object.values(this.items).length;
@@ -86,7 +86,7 @@ Alpine.store("cart", {
         try {
             this.fetching = true;
 
-            const { data } = await axios.get(FleetCart.url("/cart/get"));
+            const { data } = await axios.get(AestheticCart.url("/cart/get"));
 
             this.cart = this.normalizeCart(data);
         } catch (error) {

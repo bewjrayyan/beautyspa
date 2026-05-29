@@ -1,7 +1,7 @@
 {
     "name": "Media",
     "alias": "media",
-    "description": "The FleetCart Media Module.",
+    "description": "The AestheticCart Media Module.",
     "priority": 80,
     "providers": [
         "Modules\\Media\\Providers\\MediaServiceProvider"

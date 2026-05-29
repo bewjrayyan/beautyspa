@@ -1,6 +1,6 @@
 {
-    "name": "fleetcart/beautician-report",
-    "description": "Beautician analytics and treatment sales reports for FleetCart.",
+    "name": "aestheticcart/beautician-report",
+    "description": "Beautician analytics and treatment sales reports for AestheticCart.",
     "require": {
         "php": "^8.2.0"
     },

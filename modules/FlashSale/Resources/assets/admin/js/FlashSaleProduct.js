@@ -25,7 +25,7 @@ export default class {
             };
         }
 
-        if (! $.isEmptyObject(FleetCart.errors['flash_sale.products'])) {
+        if (! $.isEmptyObject(AestheticCart.errors['flash_sale.products'])) {
             return {
                 id: product.id,
                 name: product.name,
@@ -123,7 +123,7 @@ export default class {
                 return;
             }
 
-            const showUrl = `${FleetCart.data['flash_sale.product_show_url']}/${productId}`;
+            const showUrl = `${AestheticCart.data['flash_sale.product_show_url']}/${productId}`;
 
             axios.get(showUrl).then((response) => {
                 this.applyProductMeta(response.data);
@@ -158,7 +158,7 @@ export default class {
 
         if (isVirtual) {
             if ($badge.length === 0) {
-                const label = FleetCart.langs['product::products.table.virtual_treatment'] ?? 'Virtual/Treatment';
+                const label = AestheticCart.langs['product::products.table.virtual_treatment'] ?? 'Virtual/Treatment';
 
                 this.productPanelHtml
                     .find('.flash-sale-item__sold')

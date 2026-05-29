@@ -2,7 +2,7 @@ import intlTelInput from "intl-tel-input/intlTelInputWithUtils";
 import "intl-tel-input/styles";
 
 function defaultCountry() {
-    return (window.FleetCart?.defaultPhoneCountry || "my").toLowerCase();
+    return (window.AestheticCart?.defaultPhoneCountry || "my").toLowerCase();
 }
 
 export function buildPhoneInputOptions(el) {

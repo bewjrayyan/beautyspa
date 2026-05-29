@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Http\Requests;
+namespace AestheticCart\Http\Requests;
 
 use Illuminate\Validation\Rule;
 use Modules\Core\Http\Requests\Request;

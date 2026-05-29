@@ -17,7 +17,7 @@ Alpine.data("VerticalProducts", (columnNumber) => ({
 
     async fetchProducts() {
         const response = await axios.get(
-            FleetCart.url(`/storefront/vertical-products/${columnNumber}`)
+            AestheticCart.url(`/storefront/vertical-products/${columnNumber}`)
         );
 
         this.products = response.data;

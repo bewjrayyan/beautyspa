@@ -1,6 +1,6 @@
 @push('globals')
     <script>
-        FleetCart.selectize.push({
+        AestheticCart.selectize.push({
             load: function (query, callback) {
                 var url = this.$input.data('url');
 

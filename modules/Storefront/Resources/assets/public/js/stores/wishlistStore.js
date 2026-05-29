@@ -3,7 +3,7 @@ Alpine.store("wishlist", {
     fetching: true,
 
     get count() {
-        return this.fetching ? FleetCart.wishlistCount : this.wishlist.length;
+        return this.fetching ? AestheticCart.wishlistCount : this.wishlist.length;
     },
 
     init() {
@@ -11,7 +11,7 @@ Alpine.store("wishlist", {
     },
 
     async fetchWishlist() {
-        if (FleetCart.loggedIn) {
+        if (AestheticCart.loggedIn) {
             try {
                 this.fetching = true;
 
@@ -47,7 +47,7 @@ Alpine.store("wishlist", {
     },
 
     async addToWishlist(id) {
-        if (FleetCart.loggedIn) {
+        if (AestheticCart.loggedIn) {
             this.wishlist.push(id);
 
             await axios.post("/account/wishlist/products", {

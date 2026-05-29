@@ -48,7 +48,7 @@ export function useDraggableSections() {
         }
 
         if (
-            FleetCart.data?.loyaltyEnabled &&
+            AestheticCart.data?.loyaltyEnabled &&
             !stored.includes("loyalty")
         ) {
             const pricingIndex = stored.indexOf("pricing");

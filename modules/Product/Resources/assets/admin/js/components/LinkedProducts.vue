@@ -93,11 +93,11 @@ import { ref, watch, onMounted } from "vue";
 import { useForm } from "../composables/useForm";
 import { useConfigs } from "../composables/useConfigs";
 
-const upSellProducts = ref(FleetCart.data["up-sell-products"] ?? []);
+const upSellProducts = ref(AestheticCart.data["up-sell-products"] ?? []);
 const upSellProductsField = ref(null);
-const crossSellProducts = ref(FleetCart.data["cross-sell-products"]);
+const crossSellProducts = ref(AestheticCart.data["cross-sell-products"]);
 const crossSellProductsField = ref(null);
-const relatedProducts = ref(FleetCart.data["related-products"]);
+const relatedProducts = ref(AestheticCart.data["related-products"]);
 const relatedProductsField = ref(null);
 
 const { form, shouldResetForm } = useForm();

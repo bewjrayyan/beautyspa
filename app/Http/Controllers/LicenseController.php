@@ -1,14 +1,14 @@
 <?php
 
-namespace FleetCart\Http\Controllers;
+namespace AestheticCart\Http\Controllers;
 
-use FleetCart\License;
+use AestheticCart\License;
 use Illuminate\Routing\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\Foundation\Application;
-use FleetCart\Http\Middleware\RedirectIfShouldNotCreateLicense;
+use AestheticCart\Http\Middleware\RedirectIfShouldNotCreateLicense;
 
 class LicenseController extends Controller
 {

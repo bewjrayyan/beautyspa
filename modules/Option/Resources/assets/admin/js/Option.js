@@ -4,11 +4,11 @@ export default class extends BaseOption {
     constructor() {
         super();
 
-        let values = FleetCart.data['option.values'];
+        let values = AestheticCart.data['option.values'];
 
         $('#type').on('change', (e) => {
             super.changeOptionType({ type: e.currentTarget.value, values });
-            super.addOptionsErrors(FleetCart.errors['option.values']);
+            super.addOptionsErrors(AestheticCart.errors['option.values']);
         });
 
         $('#type').trigger('change');

@@ -1,7 +1,7 @@
 {
     "name": "Admin",
     "alias": "admin",
-    "description": "The FleetCart Admin Module.",
+    "description": "The AestheticCart Admin Module.",
     "priority": 10,
     "providers": [
         "Maatwebsite\\Sidebar\\SidebarServiceProvider",

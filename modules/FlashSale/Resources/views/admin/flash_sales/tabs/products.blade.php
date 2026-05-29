@@ -107,11 +107,11 @@
 
 @push('globals')
     <script>
-        FleetCart.data['flash_sale.products'] = {!! old_json('products', $productsForJs) !!};
-        FleetCart.errors['flash_sale.products'] = @json($errors->get('products.*'), JSON_FORCE_OBJECT);
-        FleetCart.data['flash_sale.product_show_url'] = @json(url('admin/flash-sales/products'));
-        FleetCart.langs['product::products.table.virtual_treatment'] = @json(trans('product::products.table.virtual_treatment'));
-        FleetCart.langs['flashsale::flash_sales.products_tab.item_heading'] = @json(trans('flashsale::flash_sales.products_tab.item_heading'));
-        FleetCart.langs['flashsale::flash_sales.products_tab.sold_label'] = @json(trans('flashsale::flash_sales.products_tab.sold_label'));
+        AestheticCart.data['flash_sale.products'] = {!! old_json('products', $productsForJs) !!};
+        AestheticCart.errors['flash_sale.products'] = @json($errors->get('products.*'), JSON_FORCE_OBJECT);
+        AestheticCart.data['flash_sale.product_show_url'] = @json(url('admin/flash-sales/products'));
+        AestheticCart.langs['product::products.table.virtual_treatment'] = @json(trans('product::products.table.virtual_treatment'));
+        AestheticCart.langs['flashsale::flash_sales.products_tab.item_heading'] = @json(trans('flashsale::flash_sales.products_tab.item_heading'));
+        AestheticCart.langs['flashsale::flash_sales.products_tab.sold_label'] = @json(trans('flashsale::flash_sales.products_tab.sold_label'));
     </script>
 @endpush

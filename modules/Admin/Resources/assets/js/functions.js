@@ -1,7 +1,7 @@
 import { ohSnap } from "./ohsnap";
 
 export function trans(langKey, replace = {}) {
-    let line = window.FleetCart.langs[langKey];
+    let line = window.AestheticCart.langs[langKey];
 
     if (line === undefined || line === null) {
         return langKey;
@@ -15,7 +15,7 @@ export function trans(langKey, replace = {}) {
 }
 
 export function hasAccess(permission) {
-    return Object.keys(FleetCart.permissions).includes(permission);
+    return Object.keys(AestheticCart.permissions).includes(permission);
 }
 
 export function generateUid() {

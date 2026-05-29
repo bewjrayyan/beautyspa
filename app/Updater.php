@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart;
+namespace AestheticCart;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -67,7 +67,7 @@ class Updater
             $script = $file->getBasename('.php');
 
             if (!$previouslyRan->contains($script)) {
-                resolve("FleetCart\\Scripts\\{$script}")->run();
+                resolve("AestheticCart\\Scripts\\{$script}")->run();
 
                 $ran[] = ['script' => $script];
             }

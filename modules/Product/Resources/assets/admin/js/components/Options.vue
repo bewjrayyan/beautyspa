@@ -831,7 +831,7 @@ import draggable from "vuedraggable";
 
 const globalOptionId = ref("");
 const addingGlobalOption = ref(false);
-const globalOptions = ref(FleetCart.data["global-options"] ?? []);
+const globalOptions = ref(AestheticCart.data["global-options"] ?? []);
 
 const {
     form,

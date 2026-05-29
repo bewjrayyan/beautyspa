@@ -224,7 +224,7 @@ class MenuItem extends Model
             return $this->getAttributeFromArray('url');
         }
 
-        $url = fleetcart_strip_install_base_from_url($this->getAttributeFromArray('url'));
+        $url = aestheticcart_strip_install_base_from_url($this->getAttributeFromArray('url'));
 
         return localized_url(locale(), $url);
     }

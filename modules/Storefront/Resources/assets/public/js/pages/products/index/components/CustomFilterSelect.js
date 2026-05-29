@@ -1,6 +1,6 @@
 Alpine.data("CustomFilterSelect", () => ({
     open: false,
-    selected: FleetCart.data["initialSort"] || "latest",
+    selected: AestheticCart.data["initialSort"] || "latest",
     values: {},
 
     get activeClass() {

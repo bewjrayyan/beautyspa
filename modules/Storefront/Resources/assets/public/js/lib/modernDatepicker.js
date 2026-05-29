@@ -1,7 +1,7 @@
 import flatpickr from "flatpickr";
 
 /**
- * Shared Flatpickr options for FleetCart (storefront + vendor bundles).
+ * Shared Flatpickr options for AestheticCart (storefront + vendor bundles).
  */
 export function buildDatepickerOptions(el) {
     const enableTime = el.hasAttribute("data-time");

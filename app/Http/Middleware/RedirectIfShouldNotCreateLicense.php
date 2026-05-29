@@ -1,9 +1,9 @@
 <?php
 
-namespace FleetCart\Http\Middleware;
+namespace AestheticCart\Http\Middleware;
 
 use Closure;
-use FleetCart\License;
+use AestheticCart\License;
 use Illuminate\Http\Request;
 
 class RedirectIfShouldNotCreateLicense

@@ -5,9 +5,9 @@ export default class {
         Dropzone.autoDiscover = false;
 
         this.dropzone = new Dropzone(".dropzone", {
-            url: `${FleetCart.baseUrl}/admin/media`,
+            url: `${AestheticCart.baseUrl}/admin/media`,
             autoProcessQueue: true,
-            maxFilesize: FleetCart.maxFileSize,
+            maxFilesize: AestheticCart.maxFileSize,
         });
 
         this.dropzone.on('sending', this.sending);

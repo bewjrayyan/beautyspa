@@ -130,7 +130,7 @@
 
 @push('globals')
     <script>
-        FleetCart.langs['loyalty::members.index.search_placeholder'] = @json($membersSearchPlaceholder);
+        AestheticCart.langs['loyalty::members.index.search_placeholder'] = @json($membersSearchPlaceholder);
     </script>
 @endpush
 

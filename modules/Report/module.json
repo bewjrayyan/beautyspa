@@ -1,7 +1,7 @@
 {
     "name": "Report",
     "alias": "report",
-    "description": "The FleetCart Report Module.",
+    "description": "The AestheticCart Report Module.",
     "priority": 100,
     "providers": [
         "Modules\\Report\\Providers\\ReportServiceProvider"

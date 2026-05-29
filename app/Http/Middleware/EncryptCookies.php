@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Http\Middleware;
+namespace AestheticCart\Http\Middleware;
 
 use Illuminate\Cookie\Middleware\EncryptCookies as Middleware;
 

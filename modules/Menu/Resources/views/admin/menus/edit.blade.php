@@ -21,8 +21,8 @@
 
 @push('globals')
     <script>
-        FleetCart.langs['menu::messages.menu_item_deleted'] = '{{ trans('menu::messages.menu_item_deleted') }}';
-        FleetCart.langs['menu::messages.menu_items_order_updated'] = '{{ trans('menu::messages.menu_items_order_updated') }}';
+        AestheticCart.langs['menu::messages.menu_item_deleted'] = '{{ trans('menu::messages.menu_item_deleted') }}';
+        AestheticCart.langs['menu::messages.menu_items_order_updated'] = '{{ trans('menu::messages.menu_items_order_updated') }}';
     </script>
 
     @vite([

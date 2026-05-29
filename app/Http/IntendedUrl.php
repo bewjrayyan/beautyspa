@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Http;
+namespace AestheticCart\Http;
 
 use Modules\User\Entities\User;
 
@@ -29,7 +29,7 @@ class IntendedUrl
             $normalized .= '#' . $parts['fragment'];
         }
 
-        return fleetcart_apply_install_base_url($normalized);
+        return aestheticcart_apply_install_base_url($normalized);
     }
 
 

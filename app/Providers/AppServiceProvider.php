@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Providers;
+namespace AestheticCart\Providers;
 
 use Modules\Core\Providers\XamppCompatibleCacheServiceProvider;
 use Modules\Core\Support\WritableStorageBootstrap;

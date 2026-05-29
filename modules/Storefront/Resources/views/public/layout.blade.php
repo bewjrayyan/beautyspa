@@ -44,7 +44,7 @@
         {!! setting('custom_header_assets') !!}
 
         <script>
-            window.FleetCart = {
+            window.AestheticCart = {
                 appUrl: @json(rtrim(config('app.url'), '/')),
                 installPath: @json(parse_url(config('app.url'), PHP_URL_PATH) ?: ''),
                 baseUrl: @json(storefront_locale_base_url()),

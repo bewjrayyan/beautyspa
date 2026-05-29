@@ -65,7 +65,7 @@ export function useVariations() {
         Coloris({
             el: ".variation-color-picker",
             alpha: false,
-            rtl: FleetCart.rtl,
+            rtl: AestheticCart.rtl,
             theme: "large",
             wrap: true,
             format: "hex",

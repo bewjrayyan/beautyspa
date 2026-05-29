@@ -1,7 +1,7 @@
 {
     "name": "Core",
     "alias": "core",
-    "description": "The FleetCart Core Module.",
+    "description": "The AestheticCart Core Module.",
     "priority": 0,
     "providers": [
         "Modules\\Core\\Providers\\CoreServiceProvider",

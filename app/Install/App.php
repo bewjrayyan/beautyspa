@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Install;
+namespace AestheticCart\Install;
 
 use Modules\User\Entities\Role;
 use Modules\Setting\Entities\Setting;
@@ -58,7 +58,7 @@ class App
             'local_pickup_cost' => 0,
             'flat_rate_cost' => 0,
             'translatable' => [
-                'store_name' => 'FleetCart',
+                'store_name' => 'AestheticCart',
                 'pwa_direction' => 'auto',
                 'free_shipping_label' => 'Free Shipping',
                 'local_pickup_label' => 'Local Pickup',

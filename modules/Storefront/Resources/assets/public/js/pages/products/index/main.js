@@ -24,7 +24,7 @@ const {
     initialPage,
     initialPerPage,
     initialViewMode,
-} = FleetCart.data;
+} = AestheticCart.data;
 
 Alpine.data("ProductIndex", () => ({
     fetchingProducts: false,
@@ -97,7 +97,7 @@ Alpine.data("ProductIndex", () => ({
     initPriceFilter() {
         noUiSlider.create(this.$refs.priceRange, {
             connect: true,
-            direction: window.FleetCart.rtl ? "rtl" : "ltr",
+            direction: window.AestheticCart.rtl ? "rtl" : "ltr",
             start: [minPrice, maxPrice],
             range: {
                 min: [minPrice],
@@ -153,7 +153,7 @@ Alpine.data("ProductIndex", () => ({
 
     changeCategory(category) {
         const url = new URL(window.location.href);
-        const categoryUrl = FleetCart.url(
+        const categoryUrl = AestheticCart.url(
             `/categories/${category.slug}/products`
         );
 
@@ -177,7 +177,7 @@ Alpine.data("ProductIndex", () => ({
         if (onCategoryProductsPage || onProductsListingPage) {
             const absoluteCategoryUrl = categoryUrl.startsWith("http")
                 ? categoryUrl
-                : FleetCart.url(`/categories/${category.slug}/products`);
+                : AestheticCart.url(`/categories/${category.slug}/products`);
 
             window.history.replaceState(null, "", absoluteCategoryUrl);
 
@@ -199,7 +199,7 @@ Alpine.data("ProductIndex", () => ({
         this.fetchingProducts = true;
 
         try {
-            const response = await axios.get(FleetCart.url("/products"), {
+            const response = await axios.get(AestheticCart.url("/products"), {
                 params: {
                     ...this.queryParams,
                 },

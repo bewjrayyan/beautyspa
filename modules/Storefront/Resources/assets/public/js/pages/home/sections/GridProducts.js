@@ -10,7 +10,7 @@ Alpine.data("GridProducts", (tabs) => ({
     },
 
     url(tabIndex) {
-        return FleetCart.url(`/storefront/product-grid/tabs/${tabIndex + 1}`);
+        return AestheticCart.url(`/storefront/product-grid/tabs/${tabIndex + 1}`);
     },
 
     selector() {

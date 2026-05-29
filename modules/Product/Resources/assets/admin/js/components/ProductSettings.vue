@@ -245,12 +245,12 @@
 import { ref, watch, onMounted } from "vue";
 import { useForm } from "../composables/useForm";
 
-const brands = ref(FleetCart.data["brands"] ?? {});
-const treatmentCategories = ref(FleetCart.data["treatment-categories"] ?? []);
-const categories = ref(FleetCart.data["categories"] ?? {});
+const brands = ref(AestheticCart.data["brands"] ?? {});
+const treatmentCategories = ref(AestheticCart.data["treatment-categories"] ?? []);
+const categories = ref(AestheticCart.data["categories"] ?? {});
 const categoriesField = ref(null);
-const taxClasses = FleetCart.data["tax-classes"] ?? {};
-const tags = ref(FleetCart.data["tags"] ?? {});
+const taxClasses = AestheticCart.data["tax-classes"] ?? {};
+const tags = ref(AestheticCart.data["tags"] ?? {});
 const tagsField = ref(null);
 
 const { form, shouldResetForm, errors } = useForm();

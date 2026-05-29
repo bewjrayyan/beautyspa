@@ -1,5 +1,5 @@
 export function trans(langKey, replace = {}) {
-    let line = window.FleetCart.langs[langKey];
+    let line = window.AestheticCart.langs[langKey];
 
     for (let key in replace) {
         line = line.replace(`:${key}`, replace[key]);
@@ -9,12 +9,12 @@ export function trans(langKey, replace = {}) {
 }
 
 export function formatCurrency(amount) {
-    return new Intl.NumberFormat(FleetCart.locale.replace("_", "-"), {
-        ...(FleetCart.locale === "ar" && {
+    return new Intl.NumberFormat(AestheticCart.locale.replace("_", "-"), {
+        ...(AestheticCart.locale === "ar" && {
             numberingSystem: "arab",
         }),
         style: "currency",
-        currency: FleetCart.currency,
+        currency: AestheticCart.currency,
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(amount);

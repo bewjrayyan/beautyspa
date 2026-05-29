@@ -109,7 +109,7 @@ $("#check_payment_enabled").on("change", () => {
 $("#store_country").on("change", (e) => {
     let oldState = $("#store_state").val();
 
-    axios.get(FleetCart.apiUrl(`/countries/${e.currentTarget.value}/states`)).then(({data}) => {
+    axios.get(AestheticCart.apiUrl(`/countries/${e.currentTarget.value}/states`)).then(({data}) => {
         $(".store-state").addClass("hide");
 
         if (_.isEmpty(data)) {

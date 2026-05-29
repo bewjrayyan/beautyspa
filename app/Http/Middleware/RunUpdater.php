@@ -1,9 +1,9 @@
 <?php
 
-namespace FleetCart\Http\Middleware;
+namespace AestheticCart\Http\Middleware;
 
 use Closure;
-use FleetCart\Updater;
+use AestheticCart\Updater;
 use Illuminate\Http\Request;
 
 class RunUpdater

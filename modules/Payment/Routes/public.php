@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use FleetCart\Http\Middleware\VerifyCsrfToken;
+use AestheticCart\Http\Middleware\VerifyCsrfToken;
 use Modules\Payment\Http\Controllers\BkashPaymentController;
 use Modules\Payment\Http\Controllers\ChipWebhookController;
 

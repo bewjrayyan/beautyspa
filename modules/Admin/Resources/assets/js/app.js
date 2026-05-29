@@ -1,6 +1,6 @@
 import "flatpickr";
 import "mousetrap";
-import "./FleetCart";
+import "./AestheticCart";
 import "./jquery.keypressAction";
 import "./vendors/axios";
 

@@ -3,7 +3,7 @@ export default class {
         this.attributeId = 0;
         this.valuesCount = 0;
 
-        this.addOldValues(FleetCart.data["attribute.values"]);
+        this.addOldValues(AestheticCart.data["attribute.values"]);
 
         if (this.valuesCount === 0) {
             this.addAttributeValue();

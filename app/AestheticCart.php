@@ -1,11 +1,11 @@
 <?php
 
-namespace FleetCart;
+namespace AestheticCart;
 
-class FleetCart
+class AestheticCart
 {
     /**
-     * The FleetCart version.
+     * The AestheticCart version.
      *
      * @var string
      */

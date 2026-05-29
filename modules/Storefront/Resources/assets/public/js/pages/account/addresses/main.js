@@ -55,7 +55,7 @@ Alpine.data(
 
         async fetchStates(country, callback) {
             const response = await axios.get(
-                FleetCart.apiUrl(`/countries/${country}/states`),
+                AestheticCart.apiUrl(`/countries/${country}/states`),
             );
 
             this.states = response.data;

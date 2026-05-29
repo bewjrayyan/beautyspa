@@ -7,8 +7,8 @@
 
 @push('globals')
     <script>
-        FleetCart.data['option.values'] = {!! old_json('values', $option->values) !!};
-        FleetCart.errors['option.values'] = @json($errors->get('values.*'), JSON_FORCE_OBJECT);
+        AestheticCart.data['option.values'] = {!! old_json('values', $option->values) !!};
+        AestheticCart.errors['option.values'] = @json($errors->get('values.*'), JSON_FORCE_OBJECT);
     </script>
 @endpush
 

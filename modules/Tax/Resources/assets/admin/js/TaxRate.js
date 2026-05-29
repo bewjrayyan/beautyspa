@@ -37,7 +37,7 @@ export default class {
 
         let oldState = this.getStateField().val();
 
-        axios.get(FleetCart.apiUrl(`/countries/${countryCode}/states`)).then((response) => {
+        axios.get(AestheticCart.apiUrl(`/countries/${countryCode}/states`)).then((response) => {
             const states = response.data;
 
             this.getStateField()

@@ -1,4 +1,4 @@
-# FleetCart — Modul Membership & Loyalty Point (Imma Serilaris)
+# AestheticCart — Modul Membership & Loyalty Point (Imma Serilaris)
 
 **Versi dokumen:** 1.0  
 **Tarikh:** 2026-05-21  
@@ -8,7 +8,7 @@
 
 ## 1. Ringkasan
 
-Program ini menggabungkan **tier membership** (Silver / Gold / Platinum) dengan **wallet mata ganjaran** yang boleh ditebus semasa checkout. Reka bentuk mengikut best practice program spa & retail (Sephora Beauty Insider, Starbucks Rewards) dan diselaraskan dengan stack FleetCart sedia ada: `User`, `Order`, `Coupon`, `Checkout`, `Setting`, WhatsApp OTP.
+Program ini menggabungkan **tier membership** (Silver / Gold / Platinum) dengan **wallet mata ganjaran** yang boleh ditebus semasa checkout. Reka bentuk mengikut best practice program spa & retail (Sephora Beauty Insider, Starbucks Rewards) dan diselaraskan dengan stack AestheticCart sedia ada: `User`, `Order`, `Coupon`, `Checkout`, `Setting`, WhatsApp OTP.
 
 | Keputusan produk | Nilai lalai (MVP) |
 |------------------|-------------------|
@@ -63,7 +63,7 @@ modules/Loyalty/
 └── Providers/LoyaltyServiceProvider.php
 ```
 
-### Integrasi FleetCart
+### Integrasi AestheticCart
 
 | Modul | Integrasi |
 |-------|-----------|
@@ -307,4 +307,4 @@ Nilai disimpan pada `orders.loyalty_points_earned`; clawback menggunakan nilai t
 
 ---
 
-*Dokumen ini menjadi sumber rujukan rasmi untuk pembangunan modul Loyalty FleetCart / Imma Serilaris.*
+*Dokumen ini menjadi sumber rujukan rasmi untuk pembangunan modul Loyalty AestheticCart / Imma Serilaris.*

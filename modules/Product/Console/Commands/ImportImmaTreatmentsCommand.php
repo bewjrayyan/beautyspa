@@ -17,7 +17,7 @@ class ImportImmaTreatmentsCommand extends Command
                             {--sync-variants : Re-import variants for existing products}
                             {--purge-duplicates : Remove duplicate products (same name or slug suffix)}';
 
-    protected $description = 'Import treatments from immaserilaris.com (description from #tab-description) into FleetCart products';
+    protected $description = 'Import treatments from immaserilaris.com (description from #tab-description) into AestheticCart products';
 
     public function handle(): int
     {

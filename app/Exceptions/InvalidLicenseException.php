@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Exceptions;
+namespace AestheticCart\Exceptions;
 
 use Exception;
 use Illuminate\Http\RedirectResponse;

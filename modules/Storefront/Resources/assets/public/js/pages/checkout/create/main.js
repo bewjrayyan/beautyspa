@@ -223,8 +223,8 @@ Alpine.data(
                     }
 
                     if (
-                        FleetCart.stripeEnabled &&
-                        FleetCart.stripeIntegrationType === "embedded_form"
+                        AestheticCart.stripeEnabled &&
+                        AestheticCart.stripeIntegrationType === "embedded_form"
                     ) {
                         this.renderStripeElements();
                     }
@@ -367,7 +367,7 @@ Alpine.data(
 
             try {
                 const { data } = await axios.post(
-                    FleetCart.url("/checkout/check-email"),
+                    AestheticCart.url("/checkout/check-email"),
                     { email }
                 );
 
@@ -393,7 +393,7 @@ Alpine.data(
 
             try {
                 const { data } = await axios.post(
-                    FleetCart.url("/checkout/login"),
+                    AestheticCart.url("/checkout/login"),
                     {
                         email: this.form.customer_email,
                         password: this.accountLoginPassword,
@@ -403,7 +403,7 @@ Alpine.data(
                 notify(data.message);
 
                 window.location.href =
-                    data.redirect || FleetCart.url("/checkout");
+                    data.redirect || AestheticCart.url("/checkout");
             } catch (error) {
                 this.accountLoginError =
                     error.response?.data?.message ||
@@ -728,7 +728,7 @@ Alpine.data(
         },
 
         fetchStates(country, callback) {
-            axios.get(FleetCart.apiUrl(`/countries/${country}/states`)).then(callback);
+            axios.get(AestheticCart.apiUrl(`/countries/${country}/states`)).then(callback);
         },
 
         changeBillingState(state) {
@@ -869,7 +869,7 @@ Alpine.data(
                 return;
             }
 
-            if (this.accountEmailExists && !FleetCart.loggedIn) {
+            if (this.accountEmailExists && !AestheticCart.loggedIn) {
                 notify(
                     trans("storefront::checkout.please_login_to_continue")
                 );
@@ -880,7 +880,7 @@ Alpine.data(
             this.placingOrder = true;
 
             axios
-                .post(FleetCart.url("/checkout"), this.buildCheckoutPayload())
+                .post(AestheticCart.url("/checkout"), this.buildCheckoutPayload())
                 .then(({ data }) => {
                     if (data.redirectUrl) {
                         window.location.href = data.redirectUrl;
@@ -1001,12 +1001,12 @@ Alpine.data(
         },
 
         async renderStripeElements() {
-            this.stripe = Stripe(FleetCart.stripePublishableKey, {});
+            this.stripe = Stripe(AestheticCart.stripePublishableKey, {});
 
             this.stripeElements = this.stripe.elements({
                 mode: "payment",
                 amount: Math.round(this.$store.cart.total * 100),
-                currency: FleetCart.currency.toLowerCase(),
+                currency: AestheticCart.currency.toLowerCase(),
             });
 
             this.stripeElements.create("payment").mount("#stripe-element");
@@ -1055,7 +1055,7 @@ Alpine.data(
                     amount: amount,
                 },
                 merchant: {
-                    name: FleetCart.storeName,
+                    name: AestheticCart.storeName,
                     redirect: false,
                 },
                 handler: {
@@ -1096,11 +1096,11 @@ Alpine.data(
 
             new window.Razorpay({
                 key: razorpayOrder.razorpayKeyId,
-                name: FleetCart.storeName,
+                name: AestheticCart.storeName,
                 description: trans("storefront::checkout.payment_for_order", {
                     id: razorpayOrder.receipt,
                 }),
-                image: FleetCart.storeLogo,
+                image: AestheticCart.storeLogo,
                 order_id: razorpayOrder.id,
                 handler(response) {
                     vm.placingOrder = true;
@@ -1192,8 +1192,8 @@ Alpine.data(
                     name: this.form.billing.full_name,
                 },
                 customizations: {
-                    title: FleetCart.storeName,
-                    logo: FleetCart.storeLogo,
+                    title: AestheticCart.storeName,
+                    logo: AestheticCart.storeLogo,
                 },
                 onclose(incomplete) {
                     vm.placingOrder = false;

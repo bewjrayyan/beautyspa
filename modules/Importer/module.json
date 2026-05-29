@@ -1,7 +1,7 @@
 {
     "name": "Importer",
     "alias": "importer",
-    "description": "The FleetCart Importer Module.",
+    "description": "The AestheticCart Importer Module.",
     "priority": 100,
     "providers": [
         "Modules\\Importer\\Providers\\ImporterServiceProvider"

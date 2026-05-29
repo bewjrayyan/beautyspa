@@ -16,7 +16,7 @@
 
 @push('globals')
     <script type="module">
-        FleetCart.data['variation'] = {!! $variation_resource !!};
+        AestheticCart.data['variation'] = {!! $variation_resource !!};
     </script>
 
     @vite([

@@ -24,6 +24,6 @@
 
 @push('globals')
     <script>
-        FleetCart.data['attribute.values'] = {!! old_json('values', $attribute->values) !!};
+        AestheticCart.data['attribute.values'] = {!! old_json('values', $attribute->values) !!};
     </script>
 @endpush

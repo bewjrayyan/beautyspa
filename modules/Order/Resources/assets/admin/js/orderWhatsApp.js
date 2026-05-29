@@ -11,7 +11,7 @@ export function bindOrderWhatsAppSend() {
         return;
     }
 
-    const fleetCart = window.FleetCart || {};
+    const fleetCart = window.AestheticCart || {};
     const client = axios.create({
         baseURL: fleetCart.baseUrl ? `${fleetCart.baseUrl}/admin` : undefined,
         timeout: 120000,
@@ -42,7 +42,7 @@ export function bindOrderWhatsAppSend() {
 
             if (!sendUrl) {
                 window.error?.(
-                    window.FleetCart?.langs?.["order::whatsapp.not_configured"] ||
+                    window.AestheticCart?.langs?.["order::whatsapp.not_configured"] ||
                         "WhatsApp send URL is missing."
                 );
 

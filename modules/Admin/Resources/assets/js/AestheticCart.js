@@ -1,9 +1,9 @@
-$.FleetCart = {};
+$.AestheticCart = {};
 
 /* ----------------------------------
-   - FleetCart Options -
+   - AestheticCart Options -
    ---------------------------------- */
-$.FleetCart.options = {
+$.AestheticCart.options = {
     animationSpeed: 300,
     // Sidebar push menu toggle button selector
     sidebarToggleSelector: "[data-toggle='offcanvas']",
@@ -30,22 +30,22 @@ $.FleetCart.options = {
    ---------------------------------- */
 $(function () {
     // Easy access to options
-    var o = $.FleetCart.options;
+    var o = $.AestheticCart.options;
 
     // Set up the object
     _init();
 
     // Activate layout
-    $.FleetCart.layout.activate();
+    $.AestheticCart.layout.activate();
 
     // Enable sidebar tree view controls
     if (o.enableControlTreeView) {
-        $.FleetCart.tree(".sidebar");
+        $.AestheticCart.tree(".sidebar");
     }
 
     // Activate sidebar push menu
     if (o.sidebarPushMenu) {
-        $.FleetCart.pushMenu.activate(o.sidebarToggleSelector);
+        $.AestheticCart.pushMenu.activate(o.sidebarToggleSelector);
     }
 
     // Activate Bootstrap tooltip
@@ -58,11 +58,11 @@ $(function () {
 });
 
 /* ----------------------------------
-   - Initialize the FleetCart Object -
+   - Initialize the AestheticCart Object -
    ---------------------------------- */
 function _init() {
     // Layout
-    $.FleetCart.layout = {
+    $.AestheticCart.layout = {
         activate: function () {
             var _this = this;
             _this.fix();
@@ -79,9 +79,9 @@ function _init() {
     };
 
     // PushMenu
-    $.FleetCart.pushMenu = {
+    $.AestheticCart.pushMenu = {
         activate: function (toggleBtn) {
-            var screenSizes = $.FleetCart.options.screenSizes;
+            var screenSizes = $.AestheticCart.options.screenSizes;
 
             $(document).on("click", toggleBtn, function (e) {
                 e.preventDefault();
@@ -134,8 +134,8 @@ function _init() {
     };
 
     // Tree
-    $.FleetCart.tree = function (menu) {
-        var animationSpeed = $.FleetCart.options.animationSpeed;
+    $.AestheticCart.tree = function (menu) {
+        var animationSpeed = $.AestheticCart.options.animationSpeed;
 
         $(document)
             .off("click", menu + " li a")

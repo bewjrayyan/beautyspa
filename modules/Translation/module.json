@@ -1,7 +1,7 @@
 {
     "name": "Translation",
     "alias": "translation",
-    "description": "Module containing all FleetCart translations",
+    "description": "Module containing all AestheticCart translations",
     "priority": 1,
     "providers": [
         "Modules\\Translation\\Providers\\TranslationServiceProvider"

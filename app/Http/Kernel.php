@@ -1,26 +1,26 @@
 <?php
 
-namespace FleetCart\Http;
+namespace AestheticCart\Http;
 
-use FleetCart\Http\Middleware\RunUpdater;
-use FleetCart\Http\Middleware\TrimStrings;
-use FleetCart\Http\Middleware\TrustProxies;
-use FleetCart\Http\Middleware\EncryptCookies;
-use FleetCart\Http\Middleware\VerifyCsrfToken;
+use AestheticCart\Http\Middleware\RunUpdater;
+use AestheticCart\Http\Middleware\TrimStrings;
+use AestheticCart\Http\Middleware\TrustProxies;
+use AestheticCart\Http\Middleware\EncryptCookies;
+use AestheticCart\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ValidateSignature;
-use FleetCart\Http\Middleware\ConvertStringBooleans;
+use AestheticCart\Http\Middleware\ConvertStringBooleans;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use FleetCart\Http\Middleware\CheckForMaintenanceMode;
+use AestheticCart\Http\Middleware\CheckForMaintenanceMode;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use FleetCart\Http\Middleware\RedirectToInstallerIfNotInstalled;
+use AestheticCart\Http\Middleware\RedirectToInstallerIfNotInstalled;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Modules\Support\Http\Middleware\SecurityHeaders;
 

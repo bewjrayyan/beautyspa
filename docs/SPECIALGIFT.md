@@ -7,7 +7,7 @@ Standalone **send gift** flow like [immaserilaris.com/send-gift](https://immaser
 1. Customer opens **`/send-gift`**.
 2. Fills in: **Recipient name**, **Order number**, **WhatsApp number**, optional **Your name**.
 3. On submit the app:
-   - Validates the order exists in FleetCart (`orders.id`, with or without `#` prefix).
+   - Validates the order exists in AestheticCart (`orders.id`, with or without `#` prefix).
    - Generates a **personalised voucher JPEG** (name + order on admin-uploaded background).
    - Sends **WhatsApp image + caption** via **OneSender** (same API as order notifications).
 

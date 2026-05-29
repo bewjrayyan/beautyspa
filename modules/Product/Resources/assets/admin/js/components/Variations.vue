@@ -582,7 +582,7 @@ import draggable from "vuedraggable";
 
 const globalVariationId = ref("");
 const addingGlobalVariation = ref(false);
-const globalVariations = ref(FleetCart.data["global-variations"] ?? []);
+const globalVariations = ref(AestheticCart.data["global-variations"] ?? []);
 
 const {
     form,

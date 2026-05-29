@@ -43,7 +43,7 @@
                     url: $button.data('url'),
                     type: 'POST',
                     data: {
-                        _token: FleetCart.csrfToken,
+                        _token: AestheticCart.csrfToken,
                         _method: 'DELETE',
                     },
                 })
@@ -54,7 +54,7 @@
                         $button.prop('disabled', false);
 
                         const message = xhr.responseJSON?.message
-                            || FleetCart.langs['core::messages.something_went_wrong'];
+                            || AestheticCart.langs['core::messages.something_went_wrong'];
 
                         if (typeof notify === 'function') {
                             notify('error', message);

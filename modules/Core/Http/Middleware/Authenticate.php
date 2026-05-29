@@ -3,7 +3,7 @@
 namespace Modules\Core\Http\Middleware;
 
 use Closure;
-use FleetCart\Http\IntendedUrl;
+use AestheticCart\Http\IntendedUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 

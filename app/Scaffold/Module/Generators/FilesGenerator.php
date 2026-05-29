@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Scaffold\Module\Generators;
+namespace AestheticCart\Scaffold\Module\Generators;
 
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 

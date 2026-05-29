@@ -3,8 +3,8 @@
 @endphp
 
 <script>
-    window.FleetCart = {
-        version: '{{ fleetcart_version() }}',
+    window.AestheticCart = {
+        version: '{{ aestheticcart_version() }}',
         csrfToken: '{{ csrf_token() }}',
         baseUrl: '{{ $configuredBaseUrl }}',
         appUrl: @json(rtrim(config('app.url'), '/')),
@@ -23,47 +23,47 @@
 
     if (adminPathIndex !== -1) {
         const installPrefix = window.location.pathname.substring(0, adminPathIndex);
-        FleetCart.baseUrl = `${window.location.origin}${installPrefix}`.replace(/\/$/, '');
+        AestheticCart.baseUrl = `${window.location.origin}${installPrefix}`.replace(/\/$/, '');
     } else {
-        FleetCart.baseUrl = (FleetCart.baseUrl || window.location.origin).replace(/\/$/, '');
+        AestheticCart.baseUrl = (AestheticCart.baseUrl || window.location.origin).replace(/\/$/, '');
     }
 
-    FleetCart.langs['admin::admin.buttons.delete'] = '{{ trans('admin::admin.buttons.delete') }}';
-    FleetCart.langs['admin::admin.buttons.media_gallery'] = '{{ trans('admin::admin.buttons.media_gallery') }}';
-    FleetCart.langs['admin::admin.buttons.replace_image'] = '{{ trans('admin::admin.buttons.replace_image') }}';
-    FleetCart.langs['media::media.file_manager.title'] = '{{ trans('media::media.file_manager.title') }}';
-    FleetCart.langs['media::media.file_manager.insert'] = '{{ trans('media::media.file_manager.insert') }}';
-    FleetCart.langs['admin::admin.table.search_here'] = '{{ trans('admin::admin.table.search_here') }}';
-    FleetCart.langs['admin::admin.table.showing_start_end_total_entries'] = '{{ trans('admin::admin.table.showing_start_end_total_entries') }}';
-    FleetCart.langs['admin::admin.table.showing_empty_entries'] = '{{ trans('admin::admin.table.showing_empty_entries') }}';
-    FleetCart.langs['admin::admin.table.show_menu_entries'] = '{{ trans('admin::admin.table.show_menu_entries') }}';
-    FleetCart.langs['admin::admin.table.filtered_from_max_total_entries'] = '{{ trans('admin::admin.table.filtered_from_max_total_entries') }}';
-    FleetCart.langs['admin::admin.table.no_data_available_table'] = '{{ trans('admin::admin.table.no_data_available_table') }}';
-    FleetCart.langs['admin::admin.table.loading'] = '{{ trans('admin::admin.table.loading') }}';
-    FleetCart.langs['admin::admin.table.processing'] = '{{ trans('admin::admin.table.processing') }}';
-    FleetCart.langs['admin::admin.table.no_matching_records_found'] = '{{ trans('admin::admin.table.no_matching_records_found') }}';
-    FleetCart.langs['admin::admin.pagination.previous'] = '{{ trans('admin::admin.pagination.previous') }}';
-    FleetCart.langs['admin::admin.pagination.next'] = '{{ trans('admin::admin.pagination.next') }}';
-    FleetCart.langs['media::media.open_file'] = '{{ trans('media::media.open_file') }}';
-    FleetCart.langs['media::media.grid.select_all'] = '{{ trans('media::media.grid.select_all') }}';
-    FleetCart.langs['media::media.grid.unlinked_products'] = '{{ trans('media::media.grid.unlinked_products') }}';
-    FleetCart.langs['media::media.grid.unlinked_products_active'] = '{{ trans('media::media.grid.unlinked_products_active') }}';
-    FleetCart.langs['media::media.grid.unlinked_badge'] = '{{ trans('media::media.grid.unlinked_badge') }}';
-    FleetCart.langs['media::media.grid.unlinked_products_empty'] = '{{ trans('media::media.grid.unlinked_products_empty') }}';
-    FleetCart.langs['media::media.grid.deleting'] = '{{ trans('media::media.grid.deleting') }}';
-    FleetCart.langs['media::media.grid.delete_done'] = '{{ trans('media::media.grid.delete_done') }}';
-    FleetCart.langs['media::media.grid.delete_failed'] = '{{ trans('media::media.grid.delete_failed') }}';
-    FleetCart.langs['media::media.grid.delete_partial'] = '{{ trans('media::media.grid.delete_partial') }}';
-    FleetCart.langs['core::messages.something_went_wrong'] = '{{ trans('core::messages.something_went_wrong') }}';
+    AestheticCart.langs['admin::admin.buttons.delete'] = '{{ trans('admin::admin.buttons.delete') }}';
+    AestheticCart.langs['admin::admin.buttons.media_gallery'] = '{{ trans('admin::admin.buttons.media_gallery') }}';
+    AestheticCart.langs['admin::admin.buttons.replace_image'] = '{{ trans('admin::admin.buttons.replace_image') }}';
+    AestheticCart.langs['media::media.file_manager.title'] = '{{ trans('media::media.file_manager.title') }}';
+    AestheticCart.langs['media::media.file_manager.insert'] = '{{ trans('media::media.file_manager.insert') }}';
+    AestheticCart.langs['admin::admin.table.search_here'] = '{{ trans('admin::admin.table.search_here') }}';
+    AestheticCart.langs['admin::admin.table.showing_start_end_total_entries'] = '{{ trans('admin::admin.table.showing_start_end_total_entries') }}';
+    AestheticCart.langs['admin::admin.table.showing_empty_entries'] = '{{ trans('admin::admin.table.showing_empty_entries') }}';
+    AestheticCart.langs['admin::admin.table.show_menu_entries'] = '{{ trans('admin::admin.table.show_menu_entries') }}';
+    AestheticCart.langs['admin::admin.table.filtered_from_max_total_entries'] = '{{ trans('admin::admin.table.filtered_from_max_total_entries') }}';
+    AestheticCart.langs['admin::admin.table.no_data_available_table'] = '{{ trans('admin::admin.table.no_data_available_table') }}';
+    AestheticCart.langs['admin::admin.table.loading'] = '{{ trans('admin::admin.table.loading') }}';
+    AestheticCart.langs['admin::admin.table.processing'] = '{{ trans('admin::admin.table.processing') }}';
+    AestheticCart.langs['admin::admin.table.no_matching_records_found'] = '{{ trans('admin::admin.table.no_matching_records_found') }}';
+    AestheticCart.langs['admin::admin.pagination.previous'] = '{{ trans('admin::admin.pagination.previous') }}';
+    AestheticCart.langs['admin::admin.pagination.next'] = '{{ trans('admin::admin.pagination.next') }}';
+    AestheticCart.langs['media::media.open_file'] = '{{ trans('media::media.open_file') }}';
+    AestheticCart.langs['media::media.grid.select_all'] = '{{ trans('media::media.grid.select_all') }}';
+    AestheticCart.langs['media::media.grid.unlinked_products'] = '{{ trans('media::media.grid.unlinked_products') }}';
+    AestheticCart.langs['media::media.grid.unlinked_products_active'] = '{{ trans('media::media.grid.unlinked_products_active') }}';
+    AestheticCart.langs['media::media.grid.unlinked_badge'] = '{{ trans('media::media.grid.unlinked_badge') }}';
+    AestheticCart.langs['media::media.grid.unlinked_products_empty'] = '{{ trans('media::media.grid.unlinked_products_empty') }}';
+    AestheticCart.langs['media::media.grid.deleting'] = '{{ trans('media::media.grid.deleting') }}';
+    AestheticCart.langs['media::media.grid.delete_done'] = '{{ trans('media::media.grid.delete_done') }}';
+    AestheticCart.langs['media::media.grid.delete_failed'] = '{{ trans('media::media.grid.delete_failed') }}';
+    AestheticCart.langs['media::media.grid.delete_partial'] = '{{ trans('media::media.grid.delete_partial') }}';
+    AestheticCart.langs['core::messages.something_went_wrong'] = '{{ trans('core::messages.something_went_wrong') }}';
 
-    FleetCart.apiUrl = function (path) {
+    AestheticCart.apiUrl = function (path) {
         const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-        const appUrl = (FleetCart.appUrl || FleetCart.baseUrl || '').replace(/\/$/, '');
+        const appUrl = (AestheticCart.appUrl || AestheticCart.baseUrl || '').replace(/\/$/, '');
 
         return `${appUrl}${normalizedPath}`;
     };
 
-    FleetCart.resolveAdminBaseUrl = function () {
+    AestheticCart.resolveAdminBaseUrl = function () {
         const pathnameParts = (window.location.pathname || "").split("/").filter(Boolean);
         const adminIndex = pathnameParts.indexOf("admin");
 
@@ -72,7 +72,7 @@
         }
 
         try {
-            const appPath = new URL(FleetCart.appUrl || "").pathname.replace(/\/$/, "");
+            const appPath = new URL(AestheticCart.appUrl || "").pathname.replace(/\/$/, "");
 
             return `${window.location.origin}${appPath}`.replace(/\/$/, "");
         } catch (e) {
@@ -80,15 +80,15 @@
         }
     };
 
-    // Guard against stale cached bundles still using an outdated FleetCart.baseUrl.
+    // Guard against stale cached bundles still using an outdated AestheticCart.baseUrl.
     $(document).on("click", ".image-picker, .multiple-image-picker, .file-picker", function () {
-        FleetCart.baseUrl = FleetCart.resolveAdminBaseUrl();
+        AestheticCart.baseUrl = AestheticCart.resolveAdminBaseUrl();
     });
 
-    FleetCart.normalizeFileManagerIframeSrc = function (src) {
+    AestheticCart.normalizeFileManagerIframeSrc = function (src) {
         try {
             const url = new URL(src, window.location.origin);
-            const currentBase = FleetCart.resolveAdminBaseUrl();
+            const currentBase = AestheticCart.resolveAdminBaseUrl();
             const currentBasePath = new URL(currentBase).pathname.replace(/\/$/, "");
 
             if (!url.pathname.includes("/admin/file-manager")) {
@@ -127,7 +127,7 @@
                     return;
                 }
 
-                const normalizedSrc = FleetCart.normalizeFileManagerIframeSrc(currentSrc);
+                const normalizedSrc = AestheticCart.normalizeFileManagerIframeSrc(currentSrc);
 
                 if (normalizedSrc !== currentSrc) {
                     iframe.setAttribute("src", normalizedSrc);
@@ -155,7 +155,7 @@
         startFileManagerIframeObserver();
     }
 
-    FleetCart.patchMediaPickerGetFrame = function () {
+    AestheticCart.patchMediaPickerGetFrame = function () {
         if (!window.MediaPicker || !window.MediaPicker.prototype) {
             return false;
         }
@@ -174,7 +174,7 @@
                     ? `/${pathnameParts.slice(0, adminIndex).join("/")}`
                     : (() => {
                           try {
-                              return new URL(FleetCart.appUrl || "").pathname.replace(/\/$/, "");
+                              return new URL(AestheticCart.appUrl || "").pathname.replace(/\/$/, "");
                           } catch (e) {
                               return "";
                           }
@@ -199,9 +199,9 @@
     };
 
     // Ensure patch applies even if MediaPicker script loads later.
-    if (!FleetCart.patchMediaPickerGetFrame()) {
+    if (!AestheticCart.patchMediaPickerGetFrame()) {
         const patchInterval = setInterval(function () {
-            if (FleetCart.patchMediaPickerGetFrame()) {
+            if (AestheticCart.patchMediaPickerGetFrame()) {
                 clearInterval(patchInterval);
             }
         }, 100);

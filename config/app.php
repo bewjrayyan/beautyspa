@@ -10,7 +10,7 @@ return [
     | framework needs to place the application's name in a notification or
     | any other location as required by the application or its packages.
     */
-    'name' => env('APP_NAME', 'FleetCart'),
+    'name' => env('APP_NAME', 'AestheticCart'),
 
     'installed' => env('APP_INSTALLED', false),
 
@@ -177,8 +177,8 @@ return [
         /*
          * Application Service Providers...
          */
-        FleetCart\Providers\AppServiceProvider::class,
-        FleetCart\Providers\RouteServiceProvider::class,
+        AestheticCart\Providers\AppServiceProvider::class,
+        AestheticCart\Providers\RouteServiceProvider::class,
         Nwidart\Modules\LaravelModulesServiceProvider::class,
     ],
 

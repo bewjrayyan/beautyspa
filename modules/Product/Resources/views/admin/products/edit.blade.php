@@ -36,10 +36,10 @@
 
 @push('globals')
     <script>
-        FleetCart.data['product'] = {!! $product_resource !!};
-        FleetCart.data['up-sell-products'] = @json($product->upSellProducts ?? []);
-        FleetCart.data['cross-sell-products'] = @json($product->crossSellProducts ?? []);
-        FleetCart.data['related-products'] = @json($product->relatedProducts ?? []);
+        AestheticCart.data['product'] = {!! $product_resource !!};
+        AestheticCart.data['up-sell-products'] = @json($product->upSellProducts ?? []);
+        AestheticCart.data['cross-sell-products'] = @json($product->crossSellProducts ?? []);
+        AestheticCart.data['related-products'] = @json($product->relatedProducts ?? []);
     </script>
 
     @vite([

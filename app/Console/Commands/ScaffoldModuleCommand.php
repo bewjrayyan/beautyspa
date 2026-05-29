@@ -1,9 +1,9 @@
 <?php
 
-namespace FleetCart\Console\Commands;
+namespace AestheticCart\Console\Commands;
 
 use Illuminate\Console\Command;
-use FleetCart\Scaffold\Module\ModuleScaffold;
+use AestheticCart\Scaffold\Module\ModuleScaffold;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class ScaffoldModuleCommand extends Command

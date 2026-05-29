@@ -1,6 +1,6 @@
 <?php
 
-namespace FleetCart\Exceptions;
+namespace AestheticCart\Exceptions;
 
 use Throwable;
 use Illuminate\Http\Request;

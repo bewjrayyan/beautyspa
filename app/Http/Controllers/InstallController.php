@@ -1,25 +1,25 @@
 <?php
 
-namespace FleetCart\Http\Controllers;
+namespace AestheticCart\Http\Controllers;
 
 use Exception;
-use FleetCart\Install\App;
-use FleetCart\Install\Store;
+use AestheticCart\Install\App;
+use AestheticCart\Install\Store;
 use Illuminate\Http\Response;
-use FleetCart\Install\Database;
-use FleetCart\Install\Permission;
+use AestheticCart\Install\Database;
+use AestheticCart\Install\Permission;
 use Illuminate\Http\JsonResponse;
-use FleetCart\Install\Requirement;
+use AestheticCart\Install\Requirement;
 use Illuminate\Routing\Controller;
 use Illuminate\Contracts\View\View;
-use FleetCart\Install\AdminAccount;
+use AestheticCart\Install\AdminAccount;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
-use FleetCart\Http\Requests\InstallRequest;
+use AestheticCart\Http\Requests\InstallRequest;
 use Jackiedo\DotenvEditor\Facades\DotenvEditor;
 use Illuminate\Contracts\Foundation\Application;
-use FleetCart\Http\Middleware\RedirectIfInstalled;
+use AestheticCart\Http\Middleware\RedirectIfInstalled;
 
 class InstallController extends Controller
 {
@@ -58,7 +58,7 @@ class InstallController extends Controller
             Artisan::call('key:generate', ['--force' => true]);
 
             $success = true;
-            $message = "Congratulations! FleetCart installed successfully";
+            $message = "Congratulations! AestheticCart installed successfully";
         } catch (Exception $e) {
             $success = false;
             $message = $e->getMessage();

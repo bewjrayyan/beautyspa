@@ -70,23 +70,23 @@
 
 @push('globals')
     <script>
-        FleetCart.data['initialQuery'] = '{{ addslashes(request('query')) }}';
-        FleetCart.data['initialBrandName'] = '{{ addslashes($brandName ?? '') }}';
-        FleetCart.data['initialBrandBanner'] = '{{ addslashes($brandBanner ?? '') }}';
-        FleetCart.data['initialBrandSlug'] = '{{ addslashes(request('brand')) }}';
-        FleetCart.data['initialCategoryName'] = '{{ addslashes($categoryName ?? '') }}';
-        FleetCart.data['initialCategoryBanner'] = '{{ addslashes($categoryBanner ?? '') }}';
-        FleetCart.data['initialCategorySlug'] = '{{ addslashes(request('category')) }}';
-        FleetCart.data['initialTagName'] = '{{ addslashes($tagName ?? '') }}';
-        FleetCart.data['initialTagSlug'] = '{{ addslashes(request('tag')) }}';
-        FleetCart.data['initialAttribute'] = @json((object) request('attribute', []));
-        FleetCart.data['minPrice'] = {{ $minPrice }};
-        FleetCart.data['maxPrice'] = {{ $maxPrice }};
-        FleetCart.data['initialSort'] = '{{ addslashes(request('sort', 'latest')) }}';
-        FleetCart.data['initialPage'] = {{ addslashes(request('page', 1)) }};
-        FleetCart.data['initialPerPage'] = {{ addslashes(request('perPage', 20)) }};
-        FleetCart.data['initialViewMode'] = '{{ addslashes(request('viewMode', 'grid')) }}';
-        FleetCart.langs['storefront::products.showing_results'] = '{{ trans("storefront::products.showing_results") }}';
+        AestheticCart.data['initialQuery'] = '{{ addslashes(request('query')) }}';
+        AestheticCart.data['initialBrandName'] = '{{ addslashes($brandName ?? '') }}';
+        AestheticCart.data['initialBrandBanner'] = '{{ addslashes($brandBanner ?? '') }}';
+        AestheticCart.data['initialBrandSlug'] = '{{ addslashes(request('brand')) }}';
+        AestheticCart.data['initialCategoryName'] = '{{ addslashes($categoryName ?? '') }}';
+        AestheticCart.data['initialCategoryBanner'] = '{{ addslashes($categoryBanner ?? '') }}';
+        AestheticCart.data['initialCategorySlug'] = '{{ addslashes(request('category')) }}';
+        AestheticCart.data['initialTagName'] = '{{ addslashes($tagName ?? '') }}';
+        AestheticCart.data['initialTagSlug'] = '{{ addslashes(request('tag')) }}';
+        AestheticCart.data['initialAttribute'] = @json((object) request('attribute', []));
+        AestheticCart.data['minPrice'] = {{ $minPrice }};
+        AestheticCart.data['maxPrice'] = {{ $maxPrice }};
+        AestheticCart.data['initialSort'] = '{{ addslashes(request('sort', 'latest')) }}';
+        AestheticCart.data['initialPage'] = {{ addslashes(request('page', 1)) }};
+        AestheticCart.data['initialPerPage'] = {{ addslashes(request('perPage', 20)) }};
+        AestheticCart.data['initialViewMode'] = '{{ addslashes(request('viewMode', 'grid')) }}';
+        AestheticCart.langs['storefront::products.showing_results'] = '{{ trans("storefront::products.showing_results") }}';
     </script>
     
     @vite([

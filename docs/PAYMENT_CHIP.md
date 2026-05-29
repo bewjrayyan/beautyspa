@@ -1,6 +1,6 @@
 # CHIP Collect payment methods
 
-FleetCart integrates [CHIP Collect](https://github.com/CHIPAsia/chip-php-sdk) with optional **per-channel** checkout methods.
+AestheticCart integrates [CHIP Collect](https://github.com/CHIPAsia/chip-php-sdk) with optional **per-channel** checkout methods.
 
 ## Admin setup
 

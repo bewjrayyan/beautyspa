@@ -97,7 +97,7 @@ export default class {
 
         $("#confirmation-form").attr(
             "action",
-            `${window.FleetCart.baseUrl}/admin/categories/${category.id}`
+            `${window.AestheticCart.baseUrl}/admin/categories/${category.id}`
         );
 
         $("#id-field").removeClass("hide");
@@ -189,7 +189,7 @@ export default class {
 
             $("#category-form").attr(
                 "action",
-                `${window.FleetCart.baseUrl}/admin/categories/${selectedId}`
+                `${window.AestheticCart.baseUrl}/admin/categories/${selectedId}`
             );
         }
 

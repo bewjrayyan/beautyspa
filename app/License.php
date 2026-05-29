@@ -1,9 +1,9 @@
 <?php
 
-namespace FleetCart;
+namespace AestheticCart;
 
 use Carbon\Carbon;
-use FleetCart\Exceptions\InvalidLicenseException;
+use AestheticCart\Exceptions\InvalidLicenseException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
@@ -70,8 +70,8 @@ class License
         try {
             $client->post('/api/v2/licenses', [
                 'form_params' => [
-                    'item_id' => FleetCart::ITEM_ID,
-                    'version' => FleetCart::VERSION,
+                    'item_id' => AestheticCart::ITEM_ID,
+                    'version' => AestheticCart::VERSION,
                     'domain' => request()->root(),
                     'url' => request()->getSchemeAndHttpHost(),
                     'purchase_code' => $purchaseCode,

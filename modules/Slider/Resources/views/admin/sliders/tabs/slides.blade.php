@@ -12,6 +12,6 @@
 
 @push('globals')
     <script>
-        FleetCart.data['slider.slides'] = {!! old_json('slides', $slider->slides) !!};
+        AestheticCart.data['slider.slides'] = {!! old_json('slides', $slider->slides) !!};
     </script>
 @endpush

@@ -1,7 +1,7 @@
 {
     "name": "Slider",
     "alias": "slider",
-    "description": "The FleetCart Slider Module.",
+    "description": "The AestheticCart Slider Module.",
     "priority": 100,
     "providers": [
         "Modules\\Slider\\Providers\\SliderServiceProvider"

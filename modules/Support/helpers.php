@@ -1,6 +1,6 @@
 <?php
 
-use FleetCart\FleetCart;
+use AestheticCart\AestheticCart;
 use Modules\Support\Locale;
 use Modules\Support\RTLDetector;
 use Modules\Support\Services\HtmlSanitizer;
@@ -117,13 +117,13 @@ if (!function_exists('supported_locale_keys')) {
     }
 }
 
-if (!function_exists('fleetcart_strip_install_base_from_url')) {
+if (!function_exists('aestheticcart_strip_install_base_from_url')) {
     /**
      * Remove APP_URL subdirectory from a URL path before LaravelLocalization runs.
      */
-    function fleetcart_strip_install_base_from_url(string $url): string
+    function aestheticcart_strip_install_base_from_url(string $url): string
     {
-        $basePath = \FleetCart\Http\FixSubdirectoryRequest::basePath();
+        $basePath = \AestheticCart\Http\FixSubdirectoryRequest::basePath();
 
         if ($basePath === '') {
             return $url;
@@ -154,13 +154,13 @@ if (!function_exists('fleetcart_strip_install_base_from_url')) {
     }
 }
 
-if (!function_exists('fleetcart_normalize_install_url')) {
+if (!function_exists('aestheticcart_normalize_install_url')) {
     /**
      * Remove duplicate install subdirectory segments (e.g. /fleetcart/en/fleetcart/blog).
      */
-    function fleetcart_normalize_install_url(string $url): string
+    function aestheticcart_normalize_install_url(string $url): string
     {
-        $basePath = \FleetCart\Http\FixSubdirectoryRequest::basePath();
+        $basePath = \AestheticCart\Http\FixSubdirectoryRequest::basePath();
 
         if ($basePath === '') {
             return $url;
@@ -192,23 +192,23 @@ if (!function_exists('fleetcart_normalize_install_url')) {
 
         $parts['path'] = $path;
 
-        return fleetcart_build_url($parts);
+        return aestheticcart_build_url($parts);
     }
 }
 
-if (!function_exists('fleetcart_apply_install_base_url')) {
+if (!function_exists('aestheticcart_apply_install_base_url')) {
     /**
      * Prepend APP_URL subdirectory (e.g. /fleetcart) when localization strips it.
      */
-    function fleetcart_apply_install_base_url(string $url): string
+    function aestheticcart_apply_install_base_url(string $url): string
     {
-        $basePath = \FleetCart\Http\FixSubdirectoryRequest::basePath();
+        $basePath = \AestheticCart\Http\FixSubdirectoryRequest::basePath();
 
         if ($basePath === '') {
             return $url;
         }
 
-        $url = fleetcart_normalize_install_url($url);
+        $url = aestheticcart_normalize_install_url($url);
 
         $parts = parse_url($url);
 
@@ -217,20 +217,20 @@ if (!function_exists('fleetcart_apply_install_base_url')) {
         }
 
         if (str_starts_with($parts['path'], $basePath)) {
-            return fleetcart_build_url($parts);
+            return aestheticcart_build_url($parts);
         }
 
         $parts['path'] = rtrim($basePath, '/') . '/' . ltrim($parts['path'], '/');
 
-        return fleetcart_normalize_install_url(fleetcart_build_url($parts));
+        return aestheticcart_normalize_install_url(aestheticcart_build_url($parts));
     }
 }
 
-if (!function_exists('fleetcart_build_url')) {
+if (!function_exists('aestheticcart_build_url')) {
     /**
      * @param array<string, mixed> $parts
      */
-    function fleetcart_build_url(array $parts): string
+    function aestheticcart_build_url(array $parts): string
     {
         $scheme = $parts['scheme'] ?? 'http';
         $host = $parts['host'] ?? 'localhost';
@@ -278,7 +278,7 @@ if (! function_exists('storefront_route')) {
      */
     function storefront_route(string $name, array $parameters = [], bool $absolute = true): string
     {
-        return fleetcart_normalize_install_url(
+        return aestheticcart_normalize_install_url(
             localized_url(locale(), route($name, $parameters, $absolute))
         );
     }
@@ -296,12 +296,12 @@ if (!function_exists('localized_url')) {
     function localized_url($locale, $url = null)
     {
         $url = $url ?? request()->fullUrl();
-        $url = fleetcart_strip_install_base_from_url($url);
+        $url = aestheticcart_strip_install_base_from_url($url);
 
         $localized = LaravelLocalization::getLocalizedURL($locale, $url, [], true);
 
-        return fleetcart_normalize_install_url(
-            fleetcart_apply_install_base_url($localized)
+        return aestheticcart_normalize_install_url(
+            aestheticcart_apply_install_base_url($localized)
         );
     }
 }
@@ -317,9 +317,9 @@ if (!function_exists('non_localized_url')) {
     function non_localized_url($url = null)
     {
         $url = $url ?? request()->fullUrl();
-        $url = fleetcart_strip_install_base_from_url($url);
+        $url = aestheticcart_strip_install_base_from_url($url);
 
-        return fleetcart_apply_install_base_url(LaravelLocalization::getNonLocalizedURL($url));
+        return aestheticcart_apply_install_base_url(LaravelLocalization::getNonLocalizedURL($url));
     }
 }
 
@@ -406,22 +406,22 @@ if (!function_exists('v')) {
         if (config('app.env') === 'local') {
             $version = uniqid();
         } else {
-            $version = FleetCart::VERSION;
+            $version = AestheticCart::VERSION;
         }
 
         return "{$path}?v=" . $version;
     }
 }
 
-if (!function_exists('fleetcart_version')) {
+if (!function_exists('aestheticcart_version')) {
     /**
      * Get the fleetcart version.
      *
      * @return string
      */
-    function fleetcart_version()
+    function aestheticcart_version()
     {
-        return FleetCart::VERSION;
+        return AestheticCart::VERSION;
     }
 }
 

@@ -4,13 +4,13 @@ export default class {
     constructor() {
         this.rateCount = 0;
 
-        this.addTaxRates(FleetCart.data["tax_rates"]);
+        this.addTaxRates(AestheticCart.data["tax_rates"]);
 
         if (this.rateCount === 0) {
             this.addTaxRate();
         }
 
-        this.addTaxRatesErrors(FleetCart.errors["tax_rates"]);
+        this.addTaxRatesErrors(AestheticCart.errors["tax_rates"]);
 
         this.eventListeners();
         this.sortable();

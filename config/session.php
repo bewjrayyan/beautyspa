@@ -121,7 +121,7 @@ return [
     |
     */
 
-    'cookie' => 'fleetcart_session',
+    'cookie' => 'aestheticcart_session',
 
     /*
     |--------------------------------------------------------------------------

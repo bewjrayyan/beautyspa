@@ -1,6 +1,6 @@
 @extends('user::admin.auth.layout')
 
-@section('title', 'FleetCart Activation')
+@section('title', 'AestheticCart Activation')
 
 @section('content')
     <div class="bg-shape-layer"></div>
@@ -101,7 +101,7 @@
                     <div class="auth-form-header-content">
                         <h2>Activation</h2>
 
-                        <p>Activate and amplify your FleetCart experience!</p>
+                        <p>Activate and amplify your AestheticCart experience!</p>
                     </div>
                 </div>
 

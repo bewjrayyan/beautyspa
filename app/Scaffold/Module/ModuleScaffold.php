@@ -1,11 +1,11 @@
 <?php
 
-namespace FleetCart\Scaffold\Module;
+namespace AestheticCart\Scaffold\Module;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Artisan;
-use FleetCart\Scaffold\Module\Generators\FilesGenerator;
-use FleetCart\Scaffold\Module\Generators\EntityGenerator;
+use AestheticCart\Scaffold\Module\Generators\FilesGenerator;
+use AestheticCart\Scaffold\Module\Generators\EntityGenerator;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class ModuleScaffold
@@ -276,7 +276,7 @@ class ModuleScaffold
 
         foreach ($composerJsonFileAsArray as $lineNumber => $textLine) {
             if ($lineNumber === 2) {
-                $composerJsonText .= "    \"description\": \"The FleetCart {$moduleName} Module.\"," . PHP_EOL;
+                $composerJsonText .= "    \"description\": \"The AestheticCart {$moduleName} Module.\"," . PHP_EOL;
                 continue;
             } else if ($lineNumber >= 9 && $lineNumber <= 23) {
                 continue;
@@ -364,7 +364,7 @@ dump($moduleJson);
 JSON;
 
         $replace = <<<JSON
-"description": "The FleetCart {$moduleName} Module.",
+"description": "The AestheticCart {$moduleName} Module.",
 JSON;
 
         $moduleJson = str_replace($search, $replace, $moduleJson);

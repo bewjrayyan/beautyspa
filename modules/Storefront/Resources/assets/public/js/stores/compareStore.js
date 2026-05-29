@@ -11,7 +11,7 @@ Alpine.store("compare", {
 
     get count() {
         return this.fetchingCompareList
-            ? FleetCart.compareCount
+            ? AestheticCart.compareCount
             : this.compareList.length;
     },
 

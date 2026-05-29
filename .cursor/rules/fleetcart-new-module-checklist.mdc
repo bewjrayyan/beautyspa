@@ -1,9 +1,9 @@
 ---
-description: FleetCart checklist for new modules/features — translations (en/ms) and admin permissions
+description: AestheticCart checklist for new modules/features — translations (en/ms) and admin permissions
 alwaysApply: true
 ---
 
-# FleetCart: new module / feature checklist
+# AestheticCart: new module / feature checklist
 
 When adding a **new module**, **admin feature**, or **significant function**, complete all items before considering the work done.
 

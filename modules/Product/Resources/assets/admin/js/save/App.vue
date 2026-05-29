@@ -160,7 +160,7 @@ import LinkedProducts from "../components/LinkedProducts.vue";
 
 const productForm = ref(null);
 const formSubmissionType = ref(null);
-const loyaltyEnabled = Boolean(FleetCart.data?.loyaltyEnabled);
+const loyaltyEnabled = Boolean(AestheticCart.data?.loyaltyEnabled);
 
 const { form, prepareFormData, resetForm, errors, focusFirstErrorField } =
     useForm();
@@ -193,8 +193,8 @@ const actionUrl = computed(() =>
 
 const methodAction = computed(() => (form.id ? "PUT" : "POST"));
 
-if (FleetCart.data["product"]) {
-    Object.assign(form, prepareFormData(FleetCart.data["product"]));
+if (AestheticCart.data["product"]) {
+    Object.assign(form, prepareFormData(AestheticCart.data["product"]));
 }
 
 setDefaultVariantUid();
@@ -228,7 +228,7 @@ async function submit({ submissionType }) {
         });
 
         if (formSubmissionType.value === "save_and_exit") {
-            window.location.href = `${FleetCart.baseUrl}/admin/products`;
+            window.location.href = `${AestheticCart.baseUrl}/admin/products`;
 
             return;
         }

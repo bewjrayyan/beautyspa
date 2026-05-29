@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { useForm } from "./useForm";
 
-const attributeSets = ref(FleetCart.data["attribute-sets"] ?? {});
+const attributeSets = ref(AestheticCart.data["attribute-sets"] ?? {});
 
 export function useAttributes() {
     const { form, clearErrors } = useForm();

@@ -1,6 +1,6 @@
-# BeautySpa — FleetCart
+# BeautySpa — AestheticCart
 
-Private e-commerce and booking platform for a beauty / spa business, owned and customized by **MediaCreative Solution** (Bewj Rayyan). Built on **[FleetCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system)** (Laravel 11, modular architecture) with admin workflows for orders, reports, treatments, loyalty, and CHIP payments.
+Private e-commerce and booking platform for a beauty / spa business, owned and customized by **MediaCreative Solution** (Bewj Rayyan). Built on **[FleetCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system)** (Laravel 11, modular architecture), customized and rebranded as **AestheticCart**, with admin workflows for orders, reports, treatments, loyalty, and CHIP payments.
 
 > **Repository:** [github.com/bewjrayyan/beautyspa](https://github.com/bewjrayyan/beautyspa) (private)
 
@@ -153,7 +153,7 @@ Archived orders: **Orders** → **Show archived** → open order or use row acti
 ## Project structure (high level)
 
 ```
-app/                 # FleetCart core (install, license, middleware)
+app/                 # AestheticCart core (install, license, middleware)
 modules/             # Feature modules (Order, Report, Product, Loyalty, …)
 public/              # Web root (index.php, built assets after npm run build)
 resources/           # Global views / lang
@@ -244,6 +244,6 @@ git push -u origin feature/your-feature-name
 
 This is a **private** codebase for the BeautySpa business. Unauthorized copying, distribution, or use outside MediaCreative Solution / Bewj Rayyan is not permitted unless agreed in writing.
 
-The storefront platform is built on [FleetCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system) (Laravel eCommerce). The FleetCart core remains subject to its original Codecanyon / Envay Soft license; custom modules, themes, and business logic in this repo are maintained by **MediaCreative Solution**.
+The storefront platform is built on [AestheticCart](https://codecanyon.net/item/fleetcart-laravel-ecommerce-system) (Laravel eCommerce). The AestheticCart core remains subject to its original Codecanyon / Envay Soft license; custom modules, themes, and business logic in this repo are maintained by **MediaCreative Solution**.
 
 For support or changes, contact MediaCreative Solution or open an issue on this private repository.

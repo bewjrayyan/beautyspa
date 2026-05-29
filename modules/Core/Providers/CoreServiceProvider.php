@@ -7,7 +7,7 @@ use Modules\Core\Support\WritableStorageBootstrap;
 use Modules\Support\Locale;
 use Modules\Setting\Entities\Setting;
 use Illuminate\Support\ServiceProvider;
-use FleetCart\Http\Middleware\LicenseChecker;
+use AestheticCart\Http\Middleware\LicenseChecker;
 use Modules\Core\Http\Middleware\Authenticate;
 use Modules\Core\Http\Middleware\Authorization;
 use Modules\Core\Http\Middleware\GuestMiddleware;
@@ -253,7 +253,7 @@ class CoreServiceProvider extends ServiceProvider
         $host = trim((string) (setting('mail_host') ?: env('MAIL_HOST', '')));
 
         $this->app['config']->set('mail.from.address', setting('mail_from_address') ?: env('MAIL_FROM_ADDRESS', 'hello@example.com'));
-        $this->app['config']->set('mail.from.name', setting('mail_from_name') ?: env('MAIL_FROM_NAME', 'FleetCart'));
+        $this->app['config']->set('mail.from.name', setting('mail_from_name') ?: env('MAIL_FROM_NAME', 'AestheticCart'));
 
         if ($host === '') {
             $this->app['config']->set('mail.default', 'log');

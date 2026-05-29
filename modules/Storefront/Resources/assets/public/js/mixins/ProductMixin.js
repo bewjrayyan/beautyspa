@@ -11,7 +11,7 @@ export default function (product) {
         },
 
         get productUrl() {
-            let url = FleetCart.url(`/products/${this.product.slug}`);
+            let url = AestheticCart.url(`/products/${this.product.slug}`);
 
             if (this.hasAnyVariant) {
                 url += `?variant=${this.item.uid}`;
@@ -99,7 +99,7 @@ export default function (product) {
         get baseImage() {
             return this.hasBaseImage
                 ? this.item.base_image.path || this.product.base_image.path
-                : FleetCart.url('/build/assets/image-placeholder.png');
+                : AestheticCart.url('/build/assets/image-placeholder.png');
         },
 
         get baseImageSrcset() {

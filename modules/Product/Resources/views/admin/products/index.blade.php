@@ -262,7 +262,7 @@
                             confirmationModal.modal('hide');
 
                             axios
-                                .delete(window.FleetCart.baseUrl + '/admin/products/' + id)
+                                .delete(window.AestheticCart.baseUrl + '/admin/products/' + id)
                                 .then(function () {
                                     window.DataTable.reload('#products-table .table');
                                 })

@@ -33,7 +33,7 @@ export default class {
                 ? `/${pathnameParts.slice(0, adminIndex).join("/")}`
                 : (() => {
                       try {
-                          return new URL(FleetCart.appUrl || "").pathname.replace(
+                          return new URL(AestheticCart.appUrl || "").pathname.replace(
                               /\/$/,
                               ""
                           );

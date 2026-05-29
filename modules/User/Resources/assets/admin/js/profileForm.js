@@ -71,7 +71,7 @@ function initProfileAddressCountryState(form) {
         const oldState = stateText?.value || stateSelect?.value || "";
 
         axios
-            .get(FleetCart.apiUrl(`/countries/${countryCode}/states`))
+            .get(AestheticCart.apiUrl(`/countries/${countryCode}/states`))
             .then(({ data }) => {
                 stateInputWrap?.classList.add("hide");
                 stateSelectWrap?.classList.add("hide");

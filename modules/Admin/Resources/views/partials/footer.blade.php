@@ -39,7 +39,7 @@
 
         <span>
             <strong>
-                {{ fleetcart_version() }}
+                {{ aestheticcart_version() }}
             </strong>
         </span>
     </div>

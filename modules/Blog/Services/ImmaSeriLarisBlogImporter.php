@@ -90,7 +90,7 @@ class ImmaSeriLarisBlogImporter
     {
         $context = stream_context_create([
             'http' => [
-                'header' => "User-Agent: FleetCart-Blog-Importer/1.0\r\n",
+                'header' => "User-Agent: AestheticCart-Blog-Importer/1.0\r\n",
                 'timeout' => 30,
             ],
         ]);

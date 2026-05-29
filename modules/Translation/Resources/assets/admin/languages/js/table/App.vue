@@ -14,7 +14,7 @@
                     <td>
                         <a
                             :href="
-                                window.FleetCart.baseUrl +
+                                window.AestheticCart.baseUrl +
                                 '/admin/languages/' +
                                 locale['key'] +
                                 '/translations'
@@ -40,7 +40,7 @@
                     <td>
                         <a
                             :href="
-                                window.FleetCart.baseUrl +
+                                window.AestheticCart.baseUrl +
                                 '/admin/languages/' +
                                 locale['key'] +
                                 '/translations'
@@ -89,7 +89,7 @@ export default {
     },
 
     created() {
-        this.languages = FleetCart.data["languages"];
+        this.languages = AestheticCart.data["languages"];
 
         this.isDefault =
             this.languages.find((language) => language.is_default === true)

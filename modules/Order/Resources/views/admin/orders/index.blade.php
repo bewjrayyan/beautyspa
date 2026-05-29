@@ -301,7 +301,7 @@
 
                 new DataTable('#orders-table .table', {
                     ajax: {
-                        url: window.FleetCart.baseUrl + '/admin/orders/index/table',
+                        url: window.AestheticCart.baseUrl + '/admin/orders/index/table',
                         data: function (data) {
                             data.table = true;
                             data.archived = showArchived ? 1 : 0;
@@ -446,8 +446,8 @@
                             confirmationModal.modal('hide');
 
                             const deleteUrl = isPermanent
-                                ? window.FleetCart.baseUrl + '/admin/orders/' + id + '/force'
-                                : window.FleetCart.baseUrl + '/admin/orders/' + id;
+                                ? window.AestheticCart.baseUrl + '/admin/orders/' + id + '/force'
+                                : window.AestheticCart.baseUrl + '/admin/orders/' + id;
 
                             axios
                                 .delete(deleteUrl)

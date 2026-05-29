@@ -14,10 +14,10 @@ Route::post('checkout/login', 'CheckoutAccountController@login')
 
 Route::any('checkout/{orderId}/complete', 'CheckoutCompleteController@store')
     ->name('checkout.complete.store')
-    ->withoutMiddleware(\FleetCart\Http\Middleware\VerifyCsrfToken::class);
+    ->withoutMiddleware(\AestheticCart\Http\Middleware\VerifyCsrfToken::class);
 Route::get('checkout/complete', 'CheckoutCompleteController@show')->name('checkout.complete.show');
 Route::get('checkout/complete/invoice', 'CheckoutCompleteController@invoice')->name('checkout.complete.invoice');
 Route::post('checkout/complete/notify-beautician', 'CheckoutCompleteController@notifyBeautician')
     ->name('checkout.complete.notify_beautician');
 
-Route::any('checkout/{orderId}/payment-canceled', 'PaymentCanceledController@store')->name('checkout.payment_canceled.store')->withoutMiddleware(\FleetCart\Http\Middleware\VerifyCsrfToken::class);
+Route::any('checkout/{orderId}/payment-canceled', 'PaymentCanceledController@store')->name('checkout.payment_canceled.store')->withoutMiddleware(\AestheticCart\Http\Middleware\VerifyCsrfToken::class);

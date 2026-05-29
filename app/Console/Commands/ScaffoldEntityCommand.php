@@ -1,10 +1,10 @@
 <?php
 
-namespace FleetCart\Console\Commands;
+namespace AestheticCart\Console\Commands;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
-use FleetCart\Scaffold\Module\Generators\EntityGenerator;
+use AestheticCart\Scaffold\Module\Generators\EntityGenerator;
 
 class ScaffoldEntityCommand extends Command
 {

@@ -1,6 +1,6 @@
 {
     "name": "Account",
     "alias": "account",
-    "description": "The FleetCart Account Module.",
+    "description": "The AestheticCart Account Module.",
     "priority": 100
 }

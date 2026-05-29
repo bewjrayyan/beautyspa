@@ -4,7 +4,7 @@ export default class {
     constructor() {
         this.slideCount = 0;
 
-        this.addSlides(FleetCart.data['slider.slides']);
+        this.addSlides(AestheticCart.data['slider.slides']);
 
         if (this.slideCount === 0) {
             this.addSlide();
