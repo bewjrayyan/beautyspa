@@ -10,8 +10,58 @@
     ],
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/EnvaySoft/Laravel-Dotenv-Editor"
+            "type": "package",
+            "package": {
+                "name": "maatwebsite/laravel-sidebar",
+                "version": "3.1.0",
+                "dist": {
+                    "type": "zip",
+                    "url": "https://api.github.com/repos/Maatwebsite/Laravel-Sidebar/zipball/master"
+                },
+                "require": {
+                    "php": "^8.1",
+                    "illuminate/cache": "~10.0|~11.0",
+                    "illuminate/container": "~10.0|~11.0",
+                    "illuminate/contracts": "~10.0|~11.0",
+                    "illuminate/support": "~10.0|~11.0",
+                    "illuminate/routing": "~10.0|~11.0",
+                    "illuminate/view": "~10.0|~11.0"
+                },
+                "autoload": {
+                    "psr-4": {
+                        "Maatwebsite\\Sidebar\\": "src/"
+                    }
+                },
+                "extra": {
+                    "laravel": {
+                        "providers": [
+                            "Maatwebsite\\Sidebar\\SidebarServiceProvider"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "tinycolor/tinycolor",
+                "version": "1.0.1",
+                "dist": {
+                    "type": "zip",
+                    "url": "https://api.github.com/repos/ScoLib/tinycolor-php/zipball/master"
+                },
+                "require": {
+                    "php": "^8.1"
+                },
+                "autoload": {
+                    "psr-4": {
+                        "TinyColor\\": "src"
+                    },
+                    "files": [
+                        "./src/util.php"
+                    ]
+                }
+            }
         }
     ],
     "require": {
@@ -21,7 +71,7 @@
         "doctrine/dbal": "^4.0",
         "dompdf/dompdf": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
-        "jackiedo/dotenv-editor": "dev-master",
+        "koel/dotenv-editor": "^3.0",
         "laravel/framework": "^11.0",
         "laravel/helpers": "^1.7",
         "laravel/legacy-factories": "^1.0",
@@ -65,6 +115,7 @@
         "optimize-autoloader": true,
         "sort-packages": true,
         "preferred-install": "dist",
+        "github-protocols": ["https"],
         "platform": {
             "php": "8.2.0"
         },

@@ -7,15 +7,9 @@
             "email": "bewjrayyan@gmail.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/EnvaySoft/Laravel-Sidebar"
-        }
-    ],
     "require": {
         "php": "^8.2.0",
-        "maatwebsite/laravel-sidebar": "dev-master",
+        "maatwebsite/laravel-sidebar": "3.1.0",
         "yajra/laravel-datatables-oracle": "^11.0"
     },
     "autoload": {

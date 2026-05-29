@@ -7,15 +7,9 @@
             "email": "bewjrayyan@gmail.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/EnvaySoft/tinycolor-php"
-        }
-    ],
     "require": {
         "php": "^8.2.0",
-        "tinycolor/tinycolor": "dev-master"
+        "tinycolor/tinycolor": "1.0.1"
     },
     "autoload": {
         "psr-4": {
