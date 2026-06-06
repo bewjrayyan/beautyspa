@@ -5,6 +5,7 @@
     @include('report::admin.reports.filters.to')
     @include('report::admin.reports.filters.status')
     @include('report::admin.reports.filters.beautician')
+    @include('report::admin.reports.filters.spa_branch')
 @endsection
 
 @section('report_result')
@@ -24,6 +25,9 @@
                         <th>{{ trans('report::admin.table.customer') }}</th>
                         <th>{{ trans('report::admin.table.product') }}</th>
                         <th>{{ trans('report::admin.table.beautician') }}</th>
+                        @if (is_module_enabled('SpaBranch'))
+                            <th>{{ trans('report::admin.table.spa_branch') }}</th>
+                        @endif
                         <th>{{ trans('report::admin.table.contact') }}</th>
                         <th>{{ trans('report::admin.table.order_status') }}</th>
                         <th>{{ trans('report::admin.table.payment_status') }}</th>
@@ -52,6 +56,11 @@
                                     <span class="report-booking-role">{{ $booking->beautician_job_title }}</span>
                                 @endif
                             </td>
+                            @if (is_module_enabled('SpaBranch'))
+                                <td data-label="{{ trans('report::admin.table.spa_branch') }}">
+                                    {{ $booking->spa_branch_name ?: '—' }}
+                                </td>
+                            @endif
                             <td data-label="{{ trans('report::admin.table.contact') }}">
                                 @if ($booking->customer_phone)
                                     <span class="report-booking-phone">{{ $booking->customer_phone }}</span>
@@ -74,7 +83,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="empty" colspan="8">
+                            <td class="empty" colspan="{{ is_module_enabled('SpaBranch') ? 9 : 8 }}">
                                 <div class="report-empty-state">
                                     <i class="fa fa-calendar-o"></i>
                                     <p>{{ trans('report::admin.no_bookings') }}</p>

@@ -2,9 +2,13 @@
 
 namespace Modules\Report;
 
+use Modules\Report\Concerns\FiltersBySpaBranch;
+
 abstract class BeauticianAwareReport extends Report
 {
-    protected $filters = ['from', 'to', 'status', 'group', 'beautician_id'];
+    use FiltersBySpaBranch;
+
+    protected $filters = ['from', 'to', 'status', 'group', 'beautician_id', 'spa_branch_id'];
 
     protected $date = 'orders.created_at';
 

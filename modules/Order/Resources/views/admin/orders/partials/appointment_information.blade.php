@@ -1,4 +1,4 @@
-@if ($order->hasAppointmentDetails() || $order->beautician || ! empty($treatmentBooking?->beautician_notes))
+@if ($order->hasAppointmentDetails() || $order->beautician || $order->spaBranch || ! empty($treatmentBooking?->beautician_notes))
     <div class="order-show__card order-show__card--appointment">
         <div class="order-show__card-head">
             <h5><i class="fa fa-calendar-check-o" aria-hidden="true"></i> {{ trans('order::orders.appointment_information') }}</h5>
@@ -18,6 +18,13 @@
                         <strong>{{ $order->appointment_time }}</strong>
                     </div>
                 @endif
+            </div>
+        @endif
+
+        @if ($order->spaBranch)
+            <div class="order-show__appt-slot">
+                <span class="order-show__appt-slot-label">{{ trans('order::orders.spa_branch') }}</span>
+                <strong>{{ $order->spaBranch->name }}</strong>
             </div>
         @endif
 

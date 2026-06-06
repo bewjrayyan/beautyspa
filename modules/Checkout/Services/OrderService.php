@@ -168,6 +168,7 @@ class OrderService
             'beautician_id' => $booking['beautician_id'],
             'appointment_date' => $booking['appointment_date'],
             'appointment_time' => $booking['appointment_time'],
+            'spa_branch_id' => $request->input('spa_branch_id'),
         ]);
     }
 

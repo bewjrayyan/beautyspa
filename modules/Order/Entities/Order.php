@@ -22,6 +22,7 @@ use Modules\Shipping\Facades\ShippingMethod;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Transaction\Entities\Transaction;
 use Modules\Beautician\Entities\Beautician;
+use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\User\Entities\User;
 use Modules\User\Support\PhoneNumber;
 
@@ -92,6 +93,7 @@ class Order extends Model
         'beautician_id',
         'appointment_date',
         'appointment_time',
+        'spa_branch_id',
         'start_date',
         'end_date',
         'tracking_number',
@@ -301,6 +303,11 @@ class Order extends Model
     public function beautician()
     {
         return $this->belongsTo(Beautician::class);
+    }
+
+    public function spaBranch()
+    {
+        return $this->belongsTo(SpaBranch::class);
     }
 
     public function customer()
@@ -549,9 +556,10 @@ class Order extends Model
             'total',
             'status',
             'payment_status',
+            'spa_branch_id',
             'created_at',
             'deleted_at',
-        ]);
+        ])->with('spaBranch:id,name');
 
         if ($request->boolean('archived')) {
             $query->onlyTrashed();

@@ -166,6 +166,12 @@
             @endif
 
             <ul class="account-order-sidebar__list">
+                @if ($order->spaBranch)
+                    <li>
+                        <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.spa_branch') }}</span>
+                        <span class="account-order-sidebar__value">{{ $order->spaBranch->name }}</span>
+                    </li>
+                @endif
                 @if ($order->appointment_date)
                     <li>
                         <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.appointment_date') }}</span>

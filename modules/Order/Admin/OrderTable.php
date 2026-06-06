@@ -28,7 +28,7 @@ class OrderTable extends AdminTable
      */
     public function make()
     {
-        return $this->newTable()
+        $table = $this->newTable()
             ->editColumn('id', function ($order) {
                 $html = '#' . $order->id;
 
@@ -53,8 +53,15 @@ class OrderTable extends AdminTable
                 return '<span class="badge ' . payment_status_badge_class($order->payment_status) . '">'
                     . e($order->paymentStatusLabel())
                     . '</span>';
-            })
-            ->addColumn('action', function ($order) {
+            });
+
+        if (is_module_enabled('SpaBranch')) {
+            $table->addColumn('spa_branch', function ($order) {
+                return e($order->spaBranch?->name ?? '—');
+            });
+        }
+
+        return $table->addColumn('action', function ($order) {
                 return view('order::admin.orders.partials.table.action', compact('order'));
             });
     }

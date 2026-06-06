@@ -32,6 +32,7 @@ return [
     'gift_recipient_phone' => 'Recipient WhatsApp number',
     'gift_sender_name' => 'Your name',
     'gift_message' => 'Gift message',
+    'spa_branch_id' => 'Spa Branch',
     'beautician_id' => 'Beautician',
     'appointment_date' => 'Appointment Date',
     'appointment_time' => 'Appointment Time',

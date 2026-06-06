@@ -43,5 +43,6 @@
     "Importer": true,
     "Address": true,
     "Loyalty": true,
-    "SpecialGift": true
+    "SpecialGift": true,
+    "SpaBranch": true
 }

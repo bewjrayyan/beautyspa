@@ -36,6 +36,12 @@
                         <dd>{{ $order->shipping_method }}</dd>
                     </div>
                 @endif
+                @if ($order->spaBranch)
+                    <div class="order-show__dl-row">
+                        <dt>{{ trans('order::orders.spa_branch') }}</dt>
+                        <dd>{{ $order->spaBranch->name }}</dd>
+                    </div>
+                @endif
                 @if (app('modules')->isEnabled('Loyalty'))
                     <div class="order-show__dl-row">
                         <dt>{{ trans('loyalty::orders.points_earned') }}</dt>

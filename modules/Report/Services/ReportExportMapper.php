@@ -24,22 +24,24 @@ class ReportExportMapper
 
     private static function headings(string $type): array
     {
+        $spaBranchEnabled = is_module_enabled('SpaBranch');
+
         return match ($type) {
-            'sales_report' => static::t([
+            'sales_report' => static::t(static::withSpaBranch([
                 'order', 'order_date', 'customer_name', 'contact', 'beautician_appointment', 'order_status', 'payment_status',
                 'products', 'subtotal', 'shipping', 'discount', 'tax', 'grand_total',
-            ]),
+            ], $spaBranchEnabled, 'contact')),
             'coupons_report' => static::t([
                 'date', 'coupon_name', 'coupon_code', 'orders', 'unique_customers', 'discount', 'orders_total',
             ]),
-            'customers_order_report' => static::t([
+            'customers_order_report' => static::t(static::withSpaBranch([
                 'order', 'order_date', 'customer_name', 'customer_email', 'customer_phone', 'customer_group',
                 'beautician_appointment', 'order_status', 'payment_status', 'products', 'grand_total',
-            ]),
-            'products_purchase_report' => static::t([
+            ], $spaBranchEnabled, 'customer_group')),
+            'products_purchase_report' => static::t(static::withSpaBranch([
                 'order', 'order_date', 'product', 'qty', 'grand_total',
                 'customer_name', 'contact', 'beautician_appointment', 'order_status', 'payment_status',
-            ]),
+            ], $spaBranchEnabled, 'contact')),
             'products_view_report' => static::t([
                 'product', 'views',
             ]),
@@ -67,9 +69,9 @@ class ReportExportMapper
             'tax_report' => static::t([
                 'date', 'tax_name', 'orders', 'total',
             ]),
-            'beautician_bookings_report' => static::t([
+            'beautician_bookings_report' => static::t(static::withSpaBranch([
                 'appointment', 'customer', 'product', 'beautician', 'contact', 'order_status', 'payment_status', 'total',
-            ]),
+            ], $spaBranchEnabled, 'beautician')),
             'loyalty_report' => [
                 trans('loyalty::reports.date'),
                 trans('loyalty::reports.customer'),
@@ -85,8 +87,10 @@ class ReportExportMapper
 
     private static function mapRows(string $type, Collection $rows): array
     {
+        $spaBranchEnabled = is_module_enabled('SpaBranch');
+
         return match ($type) {
-            'sales_report' => $rows->map(fn ($row) => [
+            'sales_report' => $rows->map(fn ($row) => static::withSpaBranchRow([
                 '#' . $row->order_id,
                 ReportFormatters::orderDate($row->order_date),
                 ReportFormatters::customerName($row),
@@ -100,7 +104,7 @@ class ReportExportMapper
                 static::money($row->discount),
                 static::money($row->tax),
                 static::money($row->total),
-            ])->all(),
+            ], $spaBranchEnabled, $row, 4))->all(),
             'coupons_report' => $rows->map(fn ($row) => [
                 static::dateRange($row->start_date, $row->end_date),
                 $row->name,
@@ -110,7 +114,7 @@ class ReportExportMapper
                 static::money($row->total),
                 static::money($row->orders_total),
             ])->all(),
-            'customers_order_report' => $rows->map(fn ($row) => [
+            'customers_order_report' => $rows->map(fn ($row) => static::withSpaBranchRow([
                 '#' . $row->order_id,
                 ReportFormatters::orderDate($row->order_date),
                 ReportFormatters::customerName($row),
@@ -124,11 +128,11 @@ class ReportExportMapper
                 ReportFormatters::paymentStatus($row->payment_status),
                 $row->total_products,
                 static::money($row->total),
-            ])->all(),
-            'products_purchase_report' => $rows->map(function ($row) {
+            ], $spaBranchEnabled, $row, 6))->all(),
+            'products_purchase_report' => $rows->map(function ($row) use ($spaBranchEnabled) {
                 $lines = $row->products;
 
-                return [
+                return static::withSpaBranchRow([
                     '#' . $row->order_id,
                     ReportFormatters::orderDate($row->order_date),
                     ReportFormatters::orderProductsMultilineText($lines),
@@ -139,7 +143,7 @@ class ReportExportMapper
                     ReportFormatters::beauticianAppointment($row),
                     ReportFormatters::orderStatus($row->order_status),
                     ReportFormatters::paymentStatus($row->payment_status),
-                ];
+                ], $spaBranchEnabled, $row, 6);
             })->all(),
             'products_view_report' => $rows->map(fn ($row) => [
                 $row->name,
@@ -178,7 +182,7 @@ class ReportExportMapper
                 $row->total_orders,
                 static::money($row->total),
             ])->all(),
-            'beautician_bookings_report' => $rows->map(fn ($row) => [
+            'beautician_bookings_report' => $rows->map(fn ($row) => static::withSpaBranchRow([
                 static::appointment($row),
                 trim(($row->customer_first_name ?? '') . ' ' . ($row->customer_last_name ?? '')),
                 $row->products?->pluck('name')->filter()->unique()->implode(', ') ?: '—',
@@ -187,7 +191,7 @@ class ReportExportMapper
                 ReportFormatters::orderStatus($row->status),
                 ReportFormatters::paymentStatus($row->payment_status),
                 static::money($row->total),
-            ])->all(),
+            ], $spaBranchEnabled, $row, 4))->all(),
             'loyalty_report' => $rows->map(function ($row) {
                 $types = [
                     'earn' => trans('loyalty::reports.types.earn'),
@@ -217,6 +221,36 @@ class ReportExportMapper
         return ReportFormatters::contact($row);
     }
 
+
+    private static function withSpaBranch(array $keys, bool $enabled, string $after): array
+    {
+        if (! $enabled) {
+            return $keys;
+        }
+
+        $index = array_search($after, $keys, true);
+
+        if ($index === false) {
+            $keys[] = 'spa_branch';
+
+            return $keys;
+        }
+
+        array_splice($keys, $index + 1, 0, ['spa_branch']);
+
+        return $keys;
+    }
+
+    private static function withSpaBranchRow(array $row, bool $enabled, object $source, int $insertAt): array
+    {
+        if (! $enabled) {
+            return $row;
+        }
+
+        array_splice($row, $insertAt, 0, [ReportFormatters::spaBranchName($source)]);
+
+        return $row;
+    }
 
     private static function t(array $keys): array
     {

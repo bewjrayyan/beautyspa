@@ -4,6 +4,7 @@
     @include('report::admin.reports.filters.from')
     @include('report::admin.reports.filters.to')
     @include('report::admin.reports.filters.status')
+    @include('report::admin.reports.filters.spa_branch')
 
     @include('report::admin.reports.filters.product_select', [
         'id' => 'report-product-purchase',
@@ -43,6 +44,9 @@
                         <th>{{ trans('report::admin.table.grand_total') }}</th>
                         <th>{{ trans('report::admin.table.customer_name') }}</th>
                         <th>{{ trans('report::admin.table.contact') }}</th>
+                        @if (is_module_enabled('SpaBranch'))
+                            <th>{{ trans('report::admin.table.spa_branch') }}</th>
+                        @endif
                         <th>{{ trans('report::admin.table.beautician_appointment') }}</th>
                         <th>{{ trans('report::admin.table.order_status') }}</th>
                         <th>{{ trans('report::admin.table.payment_status') }}</th>
@@ -70,6 +74,9 @@
                             <td>{{ $order->total->format() }}</td>
                             <td>{{ ReportFormatters::customerName($order) }}</td>
                             @include('report::admin.reports.partials.contact', ['row' => $order])
+                            @if (is_module_enabled('SpaBranch'))
+                                @include('report::admin.reports.partials.spa_branch', ['row' => $order])
+                            @endif
                             @include('report::admin.reports.partials.beautician_appointment', ['row' => $order])
                             <td>
                                 <span class="report-status-pill report-status-pill--{{ $order->order_status }}">
@@ -82,7 +89,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="empty" colspan="10">{{ trans('report::admin.no_data') }}</td>
+                            <td class="empty" colspan="{{ is_module_enabled('SpaBranch') ? 11 : 10 }}">{{ trans('report::admin.no_data') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

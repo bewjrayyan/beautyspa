@@ -7,13 +7,15 @@ use Modules\Category\Entities\Category;
 use Modules\Order\Entities\Order;
 use Modules\Product\Entities\Product;
 use Illuminate\Support\Facades\DB;
+use Modules\Report\Concerns\FiltersBySpaBranch;
 use Modules\Report\Concerns\JoinsOrderReportDetails;
 
 class SalesReport extends Report
 {
+    use FiltersBySpaBranch;
     use JoinsOrderReportDetails;
 
-    protected $filters = ['from', 'to', 'status', 'category_id', 'product_id'];
+    protected $filters = ['from', 'to', 'status', 'category_id', 'product_id', 'spa_branch_id'];
 
     protected $date = 'orders.created_at';
 
@@ -39,6 +41,7 @@ class SalesReport extends Report
         return [
             'categories' => Category::treeList(),
             'selectedReportProduct' => $selectedReportProduct,
+            'spaBranches' => $this->spaBranchesForFilter(),
         ];
     }
 

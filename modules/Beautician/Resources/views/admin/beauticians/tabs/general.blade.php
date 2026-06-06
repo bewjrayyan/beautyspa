@@ -278,22 +278,78 @@
                                 <span class="text-muted">({{ trans('beautician::beauticians.form.portal_login_hint') }})</span>
                             </p>
 
-                            <form
-                                method="POST"
-                                action="{{ route('admin.beauticians.reset_portal_password', $beautician) }}"
-                                class="bp-portal-reset"
-                                onsubmit="return confirm(@json(trans('beautician::beauticians.form.portal_reset_password_help')));"
-                            >
-                                @csrf
-                                <button type="submit" class="btn btn-default btn-sm">
+                            <div class="bp-portal-reset">
+                                <button
+                                    type="submit"
+                                    class="btn btn-default btn-sm"
+                                    formaction="{{ route('admin.beauticians.reset_portal_password', $beautician) }}"
+                                    formmethod="post"
+                                    onclick="return confirm(@json(trans('beautician::beauticians.form.portal_reset_password_help')));"
+                                >
                                     <i class="fa fa-refresh"></i>
                                     {{ trans('beautician::beauticians.form.portal_reset_password') }}
                                 </button>
-                            </form>
+                            </div>
                         @endif
                     </div>
                 </div>
             </div>
+
+            @if (is_module_enabled('SpaBranch'))
+                <div class="bp-card">
+                    <div class="bp-card-header">
+                        <h3>{{ trans('beautician::beauticians.form.sections.branches') }}</h3>
+                        <p>{{ trans('beautician::beauticians.form.sections.branches_help') }}</p>
+                    </div>
+                    <div class="bp-card-body">
+                        @if (($spaBranches ?? collect())->isNotEmpty())
+                            @php
+                                $selectedSpaBranchIds = array_map('intval', (array) (
+                                    request()->session()->hasOldInput('spa_branches_present')
+                                        ? old('spa_branches', [])
+                                        : ($selectedSpaBranchIds ?? [])
+                                ));
+                            @endphp
+
+                            <div class="bp-spa-branches-field">
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label text-left">
+                                        {{ trans('beautician::attributes.spa_branches') }}
+                                    </label>
+                                    <div class="col-md-9">
+                                        <div class="bp-spa-branch-checkboxes">
+                                            @foreach ($spaBranches as $branchId => $branchName)
+                                                <label class="bp-spa-branch-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="spa_branches[]"
+                                                        value="{{ $branchId }}"
+                                                        {{ in_array((int) $branchId, $selectedSpaBranchIds, true) ? 'checked' : '' }}
+                                                    >
+                                                    <span>{{ $branchName }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+
+                                        @if ($errors->has('spa_branches'))
+                                            <span class="help-block text-red">{{ $errors->first('spa_branches') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <p class="bp-field-hint">{{ trans('beautician::beauticians.form.spa_branches_help') }}</p>
+                            </div>
+                        @else
+                            <p class="bp-field-hint">{{ trans('beautician::beauticians.form.no_spa_branches_yet') }}</p>
+                            @hasAccess('admin.spa_branches.create')
+                                <a href="{{ route('admin.spa_branches.create') }}" class="btn btn-default btn-sm">
+                                    {{ trans('beautician::beauticians.form.create_spa_branch') }}
+                                </a>
+                            @endHasAccess
+                        @endif
+                    </div>
+                </div>
+            @endif
 
             <div class="bp-card">
                 <div class="bp-card-header">
@@ -1070,6 +1126,39 @@
 
         .bp-form-grid .bp-field-stack .bp-field-hint {
             margin-top: 8px;
+        }
+
+        .bp-spa-branches-field .form-group {
+            margin-bottom: 0;
+        }
+
+        .bp-spa-branch-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 14px 16px;
+            background: #f9fafb;
+            border: 1px solid var(--bp-border);
+            border-radius: 12px;
+        }
+
+        .bp-spa-branch-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        .bp-spa-branch-checkbox input {
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .bp-spa-branch-checkbox span {
+            font-size: 14px;
+            color: var(--bp-text);
         }
 
         .bp-toggle-row {

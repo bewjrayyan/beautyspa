@@ -62,10 +62,16 @@
             </dl>
         </section>
 
-        @if ($order->beautician || $order->appointment_date || $order->appointment_time)
+        @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
             <section class="payment-receipt__block payment-receipt__block--muted">
                 <p class="payment-receipt__block-label">{{ trans('storefront::receipt.appointment') }}</p>
                 <dl class="payment-receipt__facts payment-receipt__facts--inline">
+                    @if ($order->spaBranch)
+                        <div class="payment-receipt__fact">
+                            <dt>{{ trans('storefront::account.view_order.spa_branch') }}</dt>
+                            <dd>{{ $order->spaBranch->name }}</dd>
+                        </div>
+                    @endif
                     @if ($order->beautician)
                         <div class="payment-receipt__fact">
                             <dt>{{ trans('storefront::receipt.beautician') }}</dt>

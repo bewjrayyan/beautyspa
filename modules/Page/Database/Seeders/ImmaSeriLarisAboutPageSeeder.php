@@ -131,6 +131,19 @@ HTML;
             $badges .= '<span class="imma-about-badge">' . e($badge) . '</span>';
         }
 
+        $stats = '';
+
+        foreach ($copy['stats'] as $stat) {
+            $stats .= <<<HTML
+            <div class="imma-about-stat">
+                <strong>{$stat['value']}</strong>
+                <span>{$stat['label']}</span>
+            </div>
+HTML;
+        }
+
+        $careersCtaUrl = e($copy['careers_cta_url']);
+
         return <<<HTML
 <div class="imma-about">
     <section class="imma-about-hero">
@@ -146,23 +159,31 @@ HTML;
         </div>
     </section>
 
-    <section class="imma-about-highlight">
-        <h2>{$copy['one_stop_title']}</h2>
+    <div class="imma-about-stats">{$stats}</div>
+
+    <section class="imma-about-section imma-about-highlight">
+        <div class="imma-about-section__head">
+            <span class="imma-about-kicker">{$copy['one_stop_kicker']}</span>
+            <h2>{$copy['one_stop_title']}</h2>
+        </div>
         <p>{$copy['one_stop_text']}</p>
     </section>
 
-    <section class="imma-about-split">
+    <section class="imma-about-section imma-about-split">
         <div class="imma-about-split__media">
             <img src="{$founder}" alt="{$copy['img_founder_alt']}" loading="lazy" width="480" height="640">
         </div>
         <div class="imma-about-split__text">
-            <h2>{$copy['story_title']}</h2>
+            <div class="imma-about-section__head">
+                <span class="imma-about-kicker">{$copy['story_kicker']}</span>
+                <h2>{$copy['story_title']}</h2>
+            </div>
             <p>{$copy['story_p1']}</p>
             <p>{$copy['story_p2']}</p>
         </div>
     </section>
 
-    <section class="imma-about-gallery">
+    <section class="imma-about-section imma-about-gallery">
         <img src="{$treatment}" alt="{$copy['img_treatment_alt']}" loading="lazy" width="800" height="500">
         <div class="imma-about-gallery__stack">
             <img src="{$spa}" alt="{$copy['img_spa_alt']}" loading="lazy" width="400" height="240">
@@ -170,23 +191,33 @@ HTML;
         </div>
     </section>
 
-    <section>
-        <h2>{$copy['services_title']}</h2>
+    <section class="imma-about-section">
+        <div class="imma-about-section__head">
+            <span class="imma-about-kicker">{$copy['services_kicker']}</span>
+            <h2>{$copy['services_title']}</h2>
+            <p>{$copy['services_intro']}</p>
+        </div>
         <div class="imma-about-grid">{$services}</div>
     </section>
 
-    <section class="imma-about-vm">
+    <section class="imma-about-section imma-about-vm">
         <div class="imma-about-vm__box">
-            <h2>{$copy['vision_title']}</h2>
+            <div class="imma-about-section__head">
+                <span class="imma-about-kicker">{$copy['vision_kicker']}</span>
+                <h2>{$copy['vision_title']}</h2>
+            </div>
             <ul>{$vision}</ul>
         </div>
         <div class="imma-about-vm__box">
-            <h2>{$copy['mission_title']}</h2>
+            <div class="imma-about-section__head">
+                <span class="imma-about-kicker">{$copy['mission_kicker']}</span>
+                <h2>{$copy['mission_title']}</h2>
+            </div>
             <ul>{$mission}</ul>
         </div>
     </section>
 
-    <section class="imma-about-info">
+    <section class="imma-about-section imma-about-info">
         <div class="imma-about-info__item">
             <h3>{$copy['facilities_title']}</h3>
             <p>{$copy['facilities_text']}</p>
@@ -207,9 +238,12 @@ HTML;
         </div>
     </section>
 
-    <section class="imma-about-highlight">
-        <h2>{$copy['careers_title']}</h2>
-        <p>{$copy['careers_text']}</p>
+    <section class="imma-about-section imma-about-cta">
+        <div>
+            <h2>{$copy['careers_title']}</h2>
+            <p>{$copy['careers_text']}</p>
+        </div>
+        <a href="{$careersCtaUrl}">{$copy['careers_cta_label']}</a>
     </section>
 
     <footer class="imma-about-footer">
@@ -231,12 +265,22 @@ HTML;
             'subtitle' => 'SPA &amp; Aesthetic · Muslimah-friendly · Patuh Syariah',
             'lead' => 'Established on <strong>11 March 2014</strong>, IMMA Seri Laris offers comprehensive <strong>aesthetic spa &amp; medispa</strong> services including aromatherapy massage, traditional and therapeutic massage, steam bath (sauna), herbal compress, facial and body treatments, manicure &amp; pedicure, makeup artistry, wellness consultation, and postnatal care.',
             'badges' => ['Since 2014', 'Muslimah-friendly', 'Patuh Syariah', 'One Stop Service'],
+            'stats' => [
+                ['value' => '2014', 'label' => 'Established'],
+                ['value' => '2', 'label' => 'Locations'],
+                ['value' => '6+', 'label' => 'Service areas'],
+                ['value' => '100%', 'label' => 'Muslimah-friendly'],
+            ],
+            'one_stop_kicker' => 'Our concept',
             'one_stop_title' => 'One Stop Service',
             'one_stop_text' => 'Our concept is designed as a relaxed, family-friendly spa where mothers and children are welcome. As a <strong>one-stop Muslimah &amp; Islamic beauty centre</strong>, we offer beauty and body care services plus Sharia-compliant products under one roof — at attractive prices.',
+            'story_kicker' => 'Since 2014',
             'story_title' => 'Our Story',
             'story_p1' => 'Inspired by our founder <strong>Madam IMMA</strong>, who brings strong passion and professional qualifications in beauty and wellness. With certified training and hands-on experience, we are confident in delivering services that delight and satisfy every client.',
             'story_p2' => 'Beauty and grooming are essential needs — especially for women who value their appearance at work and on special occasions. This trend strengthens IMMA Seri Laris as a competitive, sustainable brand in the Malaysian market.',
+            'services_kicker' => 'What we offer',
             'services_title' => 'Services',
+            'services_intro' => 'Comprehensive beauty, wellness and aesthetic care under one Muslimah-friendly roof.',
             'services' => [
                 ['icon' => '✨', 'title' => 'Aesthetic &amp; Laser', 'text' => 'Aesthetic treatments, Pico Laser &amp; eyewash for radiant, confident skin.'],
                 ['icon' => '💄', 'title' => 'Bridal &amp; Events', 'text' => 'Bridal and event makeup by skilled artists for your special day.'],
@@ -245,12 +289,14 @@ HTML;
                 ['icon' => '🏠', 'title' => 'Mobile Spa', 'text' => 'Home-to-home treatments, especially postnatal care.'],
                 ['icon' => '🌿', 'title' => 'Wellness', 'text' => 'Aromatherapy, traditional massage, sauna &amp; herbal compress therapies.'],
             ],
+            'vision_kicker' => 'Looking ahead',
             'vision_title' => 'Vision',
             'vision' => [
                 'Lead provider of SPA, salon &amp; aesthetic services',
                 'Skills training centre for beauty professionals',
                 'Nationwide wholesaler of beauty products',
             ],
+            'mission_kicker' => 'What we do',
             'mission_title' => 'Mission',
             'mission' => [
                 'Provide SPA, aesthetic &amp; salon centres that are Sharia-compliant (Muslimah)',
@@ -265,7 +311,9 @@ HTML;
             'location_hq' => '<strong>HQ (Kuala Lumpur):</strong> Plaza KLTS, Block D, Jln Gombak, Kampung Kuantan, Kuala Lumpur',
             'location_branch' => '<strong>Branch:</strong> Sungai Petani, Kedah',
             'careers_title' => 'Careers',
-            'careers_text' => 'Interested in joining our team? Email <a href="mailto:booking@immaserilaris.com">booking@immaserilaris.com</a> or <a href="' . $contactUrl . '">contact us</a>.',
+            'careers_text' => 'Interested in joining our team? Email <a href="mailto:booking@immaserilaris.com">booking@immaserilaris.com</a> or reach out through our contact page.',
+            'careers_cta_url' => $contactUrl,
+            'careers_cta_label' => 'Contact Us',
             'footer' => 'IMMA Seri Laris — treatment, spa &amp; aesthetic services at <a href="https://immaserilaris.com" target="_blank" rel="noopener">immaserilaris.com</a>',
             'img_hero_alt' => 'IMMA Seri Laris SPA & Aesthetic centre',
             'img_founder_alt' => 'Madam IMMA — founder of IMMA Seri Laris',
@@ -287,12 +335,22 @@ HTML;
             'subtitle' => 'SPA &amp; Estetik · Mesra Muslimah · Patuh Syariah',
             'lead' => 'Ditubuhkan pada <strong>11 Mac 2014</strong>, IMMA Seri Laris menawarkan perkhidmatan <strong>spa estetik &amp; medispa</strong> seperti urutan aromaterapi, urutan tradisional dan terapeutik, mandi wap (sauna), tungku herba, rawatan muka dan badan, rawatan kuku tangan dan kaki, solekan, khidmat runding kesihatan &amp; kecantikan, serta rawatan ibu selepas bersalin.',
             'badges' => ['Sejak 2014', 'Mesra Muslimah', 'Patuh Syariah', 'One Stop Service'],
+            'stats' => [
+                ['value' => '2014', 'label' => 'Ditubuhkan'],
+                ['value' => '2', 'label' => 'Lokasi'],
+                ['value' => '6+', 'label' => 'Bidang perkhidmatan'],
+                ['value' => '100%', 'label' => 'Mesra Muslimah'],
+            ],
+            'one_stop_kicker' => 'Konsep kami',
             'one_stop_title' => 'One Stop Service',
             'one_stop_text' => 'Konsep santai untuk ibu dan anak datang ke spa. Sebagai <strong>pusat kecantikan Muslimah &amp; Islamik one-stop</strong>, kami menawarkan rawatan kecantikan, rawatan badan dan produk patuh Syariah dalam satu bumbung — pada harga yang menarik.',
+            'story_kicker' => 'Sejak 2014',
             'story_title' => 'Latar Belakang',
             'story_p1' => 'Diilhamkan oleh pemilik <strong>Puan IMMA</strong> yang mempunyai minat serta kemahiran tinggi dalam bidang kecantikan dan wellness. Dengan kelayakan profesional dan latihan yang diikuti, kami yakin dapat memberi perkhidmatan yang memuaskan hati pelanggan.',
             'story_p2' => 'Penjagaan diri dan penampilan amat penting terutama bagi wanita — sama ada di tempat kerja atau majlis istimewa. Ini mewujudkan kelebihan daya saing IMMA Seri Laris di pasaran Malaysia.',
+            'services_kicker' => 'Apa yang kami tawarkan',
             'services_title' => 'Perkhidmatan',
+            'services_intro' => 'Penjagaan kecantikan, wellness dan estetik menyeluruh di bawah satu bumbung mesra Muslimah.',
             'services' => [
                 ['icon' => '✨', 'title' => 'Estetik &amp; Laser', 'text' => 'Rawatan estetik, Pico Laser &amp; eyewash untuk kulit lebih berseri.'],
                 ['icon' => '💄', 'title' => 'Pengantin &amp; Majlis', 'text' => 'Solekan pengantin dan majlis oleh pakar solek berpengalaman.'],
@@ -301,12 +359,14 @@ HTML;
                 ['icon' => '🏠', 'title' => 'Mobile Spa', 'text' => 'Rawatan dari rumah ke rumah, terutama lepas bersalin.'],
                 ['icon' => '🌿', 'title' => 'Wellness', 'text' => 'Aromaterapi, urutan tradisional, sauna &amp; tungku herba.'],
             ],
+            'vision_kicker' => 'Visi ke hadapan',
             'vision_title' => 'Visi',
             'vision' => [
                 'Menjadi peneraju perkhidmatan SPA, salon &amp; estetik',
                 'Menjadi pusat latihan kemahiran',
                 'Menjadi pemborong produk kecantikan di seluruh Malaysia',
             ],
+            'mission_kicker' => 'Apa yang kami lakukan',
             'mission_title' => 'Misi',
             'mission' => [
                 'Menyediakan pusat SPA, estetik &amp; salon berkonsepkan patuh Syariah (Muslimah)',
@@ -321,7 +381,9 @@ HTML;
             'location_hq' => '<strong>Ibu Pejabat (Kuala Lumpur):</strong> Plaza KLTS, Block D, Jln Gombak, Kampung Kuantan, Kuala Lumpur',
             'location_branch' => '<strong>Cawangan:</strong> Sungai Petani, Kedah',
             'careers_title' => 'Kerjaya',
-            'careers_text' => 'Berminat menyertai pasukan kami? E-mel <a href="mailto:booking@immaserilaris.com">booking@immaserilaris.com</a> atau <a href="' . $contactUrl . '">hubungi kami</a>.',
+            'careers_text' => 'Berminat menyertai pasukan kami? E-mel <a href="mailto:booking@immaserilaris.com">booking@immaserilaris.com</a> atau hubungi kami melalui halaman contact.',
+            'careers_cta_url' => $contactUrl,
+            'careers_cta_label' => 'Hubungi Kami',
             'footer' => 'IMMA Seri Laris — rawatan, spa &amp; estetik di <a href="https://immaserilaris.com" target="_blank" rel="noopener">immaserilaris.com</a>',
             'img_hero_alt' => 'Pusat SPA & Estetik IMMA Seri Laris',
             'img_founder_alt' => 'Puan IMMA — pengasas IMMA Seri Laris',

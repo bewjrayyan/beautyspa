@@ -51,7 +51,7 @@ class BeauticianTabs extends Tabs
         return tap(new Tab('general', trans('beautician::beauticians.tabs.general')), function (Tab $tab) {
             $tab->active();
             $tab->weight(5);
-            $tab->fields(['user_id', 'first_name', 'last_name', 'phone', 'profile_color', 'job_title', 'position', 'is_active']);
+            $tab->fields(['user_id', 'first_name', 'last_name', 'phone', 'profile_color', 'job_title', 'position', 'is_active', 'spa_branches']);
             $tab->view('beautician::admin.beauticians.tabs.general');
         });
     }

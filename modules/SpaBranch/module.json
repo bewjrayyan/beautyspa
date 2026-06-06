@@ -1,0 +1,11 @@
+{
+    "name": "SpaBranch",
+    "alias": "spabranch",
+    "description": "Spa branch management for multi-branch checkout.",
+    "keywords": [],
+    "priority": 110,
+    "providers": [
+        "Modules\\SpaBranch\\Providers\\SpaBranchServiceProvider"
+    ],
+    "files": []
+}

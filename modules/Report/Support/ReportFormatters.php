@@ -22,6 +22,13 @@ class ReportFormatters
         ]))) ?: '—';
     }
 
+    public static function spaBranchName(object $row): string
+    {
+        $name = trim((string) ($row->spa_branch_name ?? ''));
+
+        return $name !== '' ? $name : '—';
+    }
+
     public static function beauticianAppointment(object $row): string
     {
         $beautician = trim((string) ($row->beautician_name ?? ''));

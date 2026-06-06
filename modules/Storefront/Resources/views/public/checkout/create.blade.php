@@ -20,6 +20,8 @@
                             @include('storefront::public.checkout.create.form.shipping_details')
                         </div>
 
+                        @include('storefront::public.checkout.create.form.spa_branch')
+
                         @include('storefront::public.checkout.create.form.treatment_booking')
 
                         <div class="checkout-card checkout-card-payment">

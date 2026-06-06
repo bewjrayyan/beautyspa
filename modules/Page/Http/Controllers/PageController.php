@@ -5,6 +5,7 @@ namespace Modules\Page\Http\Controllers;
 use Illuminate\Http\Response;
 use Modules\Page\Entities\Page;
 use Modules\Media\Entities\File;
+use Modules\Product\Entities\Product;
 
 class PageController
 {
@@ -29,15 +30,29 @@ class PageController
                 'faqIntro' => $faq['intro'],
                 'faqSections' => $faq['sections'],
                 'faqCta' => $faq['cta'],
+                'latestProducts' => $this->latestProductsForSidebar(),
             ]);
         }
 
         if ($slug === 'terms-conditions') {
-            return $this->immaSeriLarisLegalView($page, $logo, $this->immaSeriLarisTermsContent());
+            return $this->immaSeriLarisLegalView(
+                $page,
+                $logo,
+                $this->immaSeriLarisTermsContent(),
+                ['latestProducts' => $this->latestProductsForSidebar()]
+            );
         }
 
         if ($slug === 'privacy-policy') {
             return $this->immaSeriLarisLegalView($page, $logo, $this->immaSeriLarisPrivacyContent());
+        }
+
+        if ($slug === 'about-us') {
+            return view('storefront::public.pages.about', [
+                'page' => $page,
+                'logo' => $logo,
+                'latestProducts' => $this->latestProductsForSidebar(),
+            ]);
         }
 
         return view('storefront::public.pages.show', compact('page', 'logo'));
@@ -88,9 +103,9 @@ class PageController
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    private function immaSeriLarisLegalView(Page $page, string $logo, array $content)
+    private function immaSeriLarisLegalView(Page $page, string $logo, array $content, array $extra = [])
     {
-        return view('storefront::public.pages.terms', [
+        return view('storefront::public.pages.terms', array_merge([
             'page' => $page,
             'logo' => $logo,
             'termsIntro' => $content['intro'],
@@ -98,7 +113,21 @@ class PageController
             'termsSections' => $content['sections'],
             'termsFooter' => $content['footer'],
             'termsContactLabel' => $content['contact_label'],
-        ]);
+        ], $extra));
+    }
+
+
+    /**
+     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     */
+    private function latestProductsForSidebar()
+    {
+        return Product::forCard()
+            ->take(5)
+            ->latest()
+            ->get()
+            ->map
+            ->clean();
     }
 
 

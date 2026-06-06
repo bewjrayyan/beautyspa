@@ -40,8 +40,14 @@
                     @endif
                 </td>
                 <td class="my-orders-table__appointment">
-                    @if ($order->beautician || $order->appointment_date || $order->appointment_time)
+                    @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
                         <div class="my-orders-table__appointment-inner">
+                            @if ($order->spaBranch)
+                                <span class="my-orders-table__branch">
+                                    <i class="las la-store" aria-hidden="true"></i>
+                                    {{ $order->spaBranch->name }}
+                                </span>
+                            @endif
                             @if ($order->beautician)
                                 <span class="my-orders-table__beautician">
                                     <i class="las la-user-circle" aria-hidden="true"></i>

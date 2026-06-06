@@ -55,6 +55,7 @@ return [
         'notify_beautician_hint' => 'Hantar WhatsApp kepada beautician dengan maklumat tempahan dan temujanji',
         'appointment_date' => 'Tarikh',
         'appointment_time' => 'Masa',
+        'spa_branch' => 'Cawangan spa',
         'copied' => 'Disalin',
         'pay_with_chip_alt' => 'Bayar dengan CHIP — kad, e-dompet dan perbankan dalam talian',
         'order_information' => 'Maklumat Pesanan',

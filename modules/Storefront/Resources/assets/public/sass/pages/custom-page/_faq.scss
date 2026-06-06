@@ -2,8 +2,34 @@
     padding-bottom: 60px;
 }
 
+.imma-faq-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+}
+
+.imma-faq-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.imma-faq-sidebar {
+    flex: 0 0 320px;
+    width: 320px;
+    position: sticky;
+    top: 110px;
+}
+
+.imma-faq-wrap .page-sidebar--latest-products {
+    padding: 24px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--color-white);
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+}
+
 .imma-faq-header {
-    max-width: 720px;
+    max-width: none;
     margin-bottom: 36px;
 
     h1 {
@@ -130,6 +156,16 @@
 
     .btn + .btn {
         margin-left: 12px;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .imma-faq-layout {
+        flex-direction: column;
+    }
+
+    .imma-faq-sidebar {
+        display: none;
     }
 }
 

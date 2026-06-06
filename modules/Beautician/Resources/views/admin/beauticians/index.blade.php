@@ -21,6 +21,9 @@
                 <th>{{ trans('beautician::beauticians.table.name') }}</th>
                 <th>{{ trans('beautician::beauticians.table.job_title') }}</th>
                 <th>{{ trans('beautician::beauticians.table.phone') }}</th>
+                @if (is_module_enabled('SpaBranch'))
+                    <th>{{ trans('beautician::beauticians.table.branches') }}</th>
+                @endif
                 <th>{{ trans('beautician::beauticians.table.status') }}</th>
                 <th data-sort>{{ trans('admin::admin.table.created') }}</th>
             </tr>
@@ -54,6 +57,9 @@
                 { data: 'name', name: 'name' },
                 { data: 'job_title', name: 'job_title', defaultContent: '' },
                 { data: 'phone', name: 'phone', defaultContent: '' },
+                @if (is_module_enabled('SpaBranch'))
+                { data: 'branches', name: 'branches', orderable: false, searchable: false, defaultContent: '' },
+                @endif
                 { data: 'status', name: 'is_active', orderable: false, searchable: false },
                 { data: 'created', name: 'created_at', width: '20%' },
             ],

@@ -1,8 +1,8 @@
 @if (app('modules')->isEnabled('TreatmentReservation'))
     <li>
         <a href="{{ route('treatment_reservations.booking.lookup') }}">
-            @isset($icon)
-                {!! $icon !!}
+            @isset($menuIcon)
+                {!! $menuIcon !!}
             @endisset
             {{ trans('treatmentreservation::public.nav_link') }}
         </a>

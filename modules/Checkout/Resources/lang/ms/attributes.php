@@ -32,6 +32,7 @@ return [
     'gift_recipient_phone' => 'Nombor WhatsApp penerima',
     'gift_sender_name' => 'Nama anda',
     'gift_message' => 'Mesej hadiah',
+    'spa_branch_id' => 'Cawangan Spa',
     'beautician_id' => 'Beautician',
     'appointment_date' => 'Tarikh Temujanji',
     'appointment_time' => 'Masa Temujanji',

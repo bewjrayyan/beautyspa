@@ -58,6 +58,16 @@
                             </a>
                         </li>
 
+                        @if (app('modules')->isEnabled('TreatmentReservation'))
+                            <li class="{{ request()->routeIs('treatment_reservations.booking.*') ? 'active' : '' }}">
+                                <a href="{{ route('treatment_reservations.booking.lookup') }}">
+                                    <i class="las la-calendar-check"></i>
+
+                                    {{ trans('treatmentreservation::public.nav_link') }}
+                                </a>
+                            </li>
+                        @endif
+
                         @if (app('modules')->isEnabled('Loyalty'))
                             <li class="{{ request()->routeIs('account.loyalty.index') ? 'active' : '' }}">
                                 <a href="{{ route('account.loyalty.index') }}">

@@ -48,6 +48,9 @@
                         <th>{{ trans('order::orders.table.customer_email') }}</th>
                         <th>{{ trans('admin::admin.table.status') }}</th>
                         <th>{{ trans('order::orders.table.payment_status') }}</th>
+                        @if (is_module_enabled('SpaBranch'))
+                            <th>{{ trans('order::orders.table.spa_branch') }}</th>
+                        @endif
                         <th>{{ trans('order::orders.table.total') }}</th>
                         <th data-sort>{{ trans('admin::admin.table.created') }}</th>
                         <th class="text-center">{{ trans('order::orders.table.actions') }}</th>
@@ -313,6 +316,9 @@
                         { data: 'customer_email' },
                         { data: 'status' },
                         { data: 'payment_status', orderable: false, searchable: false },
+                        @if (is_module_enabled('SpaBranch'))
+                        { data: 'spa_branch', orderable: false, searchable: false },
+                        @endif
                         { data: 'total' },
                         { data: 'created', name: 'created_at' },
                         {

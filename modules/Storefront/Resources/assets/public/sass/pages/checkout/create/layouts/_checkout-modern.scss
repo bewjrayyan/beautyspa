@@ -252,6 +252,12 @@ $checkout-text-muted: #4b5563;
         border-color: #e5e7eb;
         box-shadow: none;
     }
+
+    &.is-disabled,
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.72;
+    }
 }
 
 .beautician-selected-card-inner {
@@ -339,6 +345,13 @@ $checkout-text-muted: #4b5563;
     }
 }
 
+.beautician-picker-empty {
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: $checkout-text-muted;
+}
+
 .beautician-picker-option {
     display: flex;
     align-items: center;
@@ -356,6 +369,11 @@ $checkout-text-muted: #4b5563;
     &.is-active {
         background: $checkout-pink-soft;
     }
+}
+
+.spa-branch-picker-icon {
+    background: $checkout-pink;
+    font-size: 22px;
 }
 
 .address-card-wrap--modern {

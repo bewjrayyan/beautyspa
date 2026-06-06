@@ -21,7 +21,7 @@ class AccountOrdersController
     {
         $orders = auth()->user()
             ->orders()
-            ->with(['products', 'beautician'])
+            ->with(['products', 'beautician', 'spaBranch'])
             ->latest()
             ->paginate(20);
 
@@ -47,6 +47,7 @@ class AccountOrdersController
             'taxes',
             'transaction',
             'beautician',
+            'spaBranch',
         ]);
 
         $hasTreatmentBooking = $this->hasTreatmentBooking($order);
@@ -74,6 +75,7 @@ class AccountOrdersController
             'taxes',
             'transaction',
             'beautician',
+            'spaBranch',
         ]);
 
         $logo = null;
@@ -97,6 +99,7 @@ class AccountOrdersController
             'taxes',
             'transaction',
             'beautician',
+            'spaBranch',
         ]);
 
         $logo = null;

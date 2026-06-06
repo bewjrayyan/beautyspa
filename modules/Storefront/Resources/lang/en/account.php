@@ -55,6 +55,7 @@ return [
         'notify_beautician_hint' => 'Send WhatsApp to your beautician with booking and appointment details',
         'appointment_date' => 'Date',
         'appointment_time' => 'Time',
+        'spa_branch' => 'Spa branch',
         'copied' => 'Copied',
         'pay_with_chip_alt' => 'Pay with CHIP — cards, e-wallets and online banking',
         'order_information' => 'Order Information',

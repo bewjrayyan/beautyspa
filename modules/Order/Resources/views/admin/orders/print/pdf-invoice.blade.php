@@ -119,9 +119,10 @@
         <strong>{{ trans('order::print.order_status') }}:</strong> {{ $order->status() }}
     </p>
 
-    @if ($order->beautician || $order->appointment_date || $order->appointment_time)
+    @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
         <p>
             <strong>{{ trans('order::print.appointment') }}</strong><br>
+            @if ($order->spaBranch){{ trans('order::orders.spa_branch') }}: {{ $order->spaBranch->name }}<br>@endif
             @if ($order->beautician){{ trans('order::print.beautician') }}: {{ $order->beautician->name }}<br>@endif
             @if ($order->appointment_date){{ trans('order::print.appointment_date') }}: {{ $order->appointment_date->format('d M Y') }}<br>@endif
             @if ($order->appointment_time){{ trans('order::print.appointment_time') }}: {{ $order->appointment_time }}@endif

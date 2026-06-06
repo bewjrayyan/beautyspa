@@ -246,10 +246,16 @@
                     </dl>
                 </div>
 
-                @if ($order->beautician || $order->appointment_date || $order->appointment_time)
+                @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
                     <div class="order-invoice__meta-box order-invoice__meta-appointment">
                         <p class="order-invoice__meta-label">{{ trans('order::print.appointment') }}</p>
                         <div class="order-invoice__meta-box-rows">
+                            @if ($order->spaBranch)
+                                <dl class="order-invoice__meta-fact">
+                                    <dt>{{ trans('order::orders.spa_branch') }}</dt>
+                                    <dd>{{ $order->spaBranch->name }}</dd>
+                                </dl>
+                            @endif
                             @if ($order->beautician)
                                 <dl class="order-invoice__meta-fact">
                                     <dt>{{ trans('order::print.beautician') }}</dt>

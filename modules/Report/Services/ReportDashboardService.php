@@ -112,7 +112,7 @@ class ReportDashboardService
         }
 
         return Order::query()
-            ->with('beautician:id,first_name,last_name,job_title,phone')
+            ->with(['beautician:id,first_name,last_name,job_title,phone', 'spaBranch:id,name'])
             ->whereNotNull('beautician_id')
             ->whereNotNull('appointment_date')
             ->withoutCanceledOrders()
@@ -131,7 +131,7 @@ class ReportDashboardService
                 'appointment_date',
                 'appointment_time',
                 'status',
-                'total',
+                'spa_branch_id',
                 'created_at',
             ]);
     }

@@ -2,6 +2,7 @@
 
 namespace Modules\Beautician\Entities;
 
+use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\Beautician\Admin\BeauticianTable;
 use Modules\Media\Entities\File;
 use Modules\Support\Eloquent\Model;
@@ -51,6 +52,11 @@ class Beautician extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function spaBranches()
+    {
+        return $this->belongsToMany(SpaBranch::class, 'beautician_spa_branch');
+    }
+
 
     public static function findForUser(?int $userId): ?self
     {
@@ -87,7 +93,18 @@ class Beautician extends Model
      */
     public static function activeListForCheckout(): array
     {
-        return static::activeList()
+        $query = static::query()
+            ->with('files')
+            ->where('is_active', true)
+            ->orderBy('position')
+            ->orderBy('first_name')
+            ->orderBy('last_name');
+
+        if (is_module_enabled('SpaBranch')) {
+            $query->with('spaBranches:id');
+        }
+
+        return $query->get()
             ->map(fn (Beautician $beautician) => [
                 'id' => $beautician->id,
                 'name' => $beautician->name,
@@ -96,6 +113,9 @@ class Beautician extends Model
                 'profile_image' => $beautician->profile_image->exists
                     ? $beautician->profile_image->path
                     : null,
+                'spa_branch_ids' => is_module_enabled('SpaBranch')
+                    ? $beautician->spaBranches->pluck('id')->values()->all()
+                    : [],
             ])
             ->values()
             ->all();
@@ -145,11 +165,15 @@ class Beautician extends Model
     {
         $nameSql = static::sqlFullName();
 
-        return new BeauticianTable(
-            $this->newQuery()
-                ->with('files')
-                ->select('beauticians.*')
-                ->selectRaw("{$nameSql} as name")
-        );
+        $query = $this->newQuery()
+            ->with('files')
+            ->select('beauticians.*')
+            ->selectRaw("{$nameSql} as name");
+
+        if (is_module_enabled('SpaBranch')) {
+            $query->with('spaBranches');
+        }
+
+        return new BeauticianTable($query);
     }
 }

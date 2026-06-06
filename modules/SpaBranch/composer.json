@@ -1,0 +1,9 @@
+{
+    "name": "modules/spabranch",
+    "description": "Spa branch module for AestheticCart",
+    "autoload": {
+        "psr-4": {
+            "Modules\\SpaBranch\\": ""
+        }
+    }
+}

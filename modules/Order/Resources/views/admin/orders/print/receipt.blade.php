@@ -154,10 +154,13 @@
             @endif
         </dl>
 
-        @if ($order->beautician || $order->appointment_date || $order->appointment_time)
+        @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
             <div class="order-receipt__divider"></div>
             <section class="order-receipt__appointment">
                 <p class="order-receipt__label">{{ trans('order::print.appointment') }}</p>
+                @if ($order->spaBranch)
+                    <p class="order-receipt__value">{{ trans('order::orders.spa_branch') }}: {{ $order->spaBranch->name }}</p>
+                @endif
                 @if ($order->beautician)
                     <p class="order-receipt__value">{{ trans('order::print.beautician') }}: {{ $order->beautician->name }}</p>
                 @endif

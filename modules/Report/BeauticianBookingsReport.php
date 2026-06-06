@@ -18,6 +18,9 @@ class BeauticianBookingsReport extends BeauticianAwareReport
     {
         return Order::withTrashed()
             ->join('beauticians', 'orders.beautician_id', '=', 'beauticians.id')
+            ->when(is_module_enabled('SpaBranch'), function ($query) {
+                $query->leftJoin('spa_branches', 'orders.spa_branch_id', '=', 'spa_branches.id');
+            })
             ->whereNotNull('orders.beautician_id')
             ->whereNotNull('orders.appointment_date')
             ->withoutCanceledOrders()
@@ -37,6 +40,9 @@ class BeauticianBookingsReport extends BeauticianAwareReport
             ->selectRaw(Beautician::sqlFullName() . ' as beautician_name')
             ->selectRaw('beauticians.job_title as beautician_job_title')
             ->selectRaw('beauticians.phone as beautician_phone')
+            ->when(is_module_enabled('SpaBranch'), function ($query) {
+                $query->selectRaw('spa_branches.name as spa_branch_name');
+            })
             ->with(['products' => function ($query) {
                 $query->with('product');
             }])
@@ -48,6 +54,7 @@ class BeauticianBookingsReport extends BeauticianAwareReport
     {
         return [
             'beauticians' => $this->beauticiansForFilter(),
+            'spaBranches' => $this->spaBranchesForFilter(),
         ];
     }
 }

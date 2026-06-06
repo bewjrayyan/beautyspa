@@ -8,13 +8,15 @@ use Illuminate\Support\Facades\DB;
 use Modules\Order\Entities\Order;
 use Modules\Order\Entities\OrderProduct;
 use Modules\Product\Entities\Product;
+use Modules\Report\Concerns\FiltersBySpaBranch;
 use Modules\Report\Concerns\JoinsOrderReportDetails;
 
 class ProductsPurchaseReport extends Report
 {
+    use FiltersBySpaBranch;
     use JoinsOrderReportDetails;
 
-    protected $filters = ['from', 'to', 'status', 'product_id', 'sku'];
+    protected $filters = ['from', 'to', 'status', 'product_id', 'sku', 'spa_branch_id'];
 
     protected $date = 'orders.created_at';
 
@@ -39,7 +41,9 @@ class ProductsPurchaseReport extends Report
                 ->find(request('product_id'));
         }
 
-        return compact('selectedProduct');
+        return compact('selectedProduct') + [
+            'spaBranches' => $this->spaBranchesForFilter(),
+        ];
     }
 
 

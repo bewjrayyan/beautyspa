@@ -65,6 +65,9 @@
                             <th>{{ trans('report::admin.table.appointment') }}</th>
                             <th>{{ trans('report::admin.table.customer') }}</th>
                             <th>{{ trans('report::admin.table.beautician') }}</th>
+                            @if (is_module_enabled('SpaBranch'))
+                                <th>{{ trans('report::admin.table.spa_branch') }}</th>
+                            @endif
                             <th>{{ trans('report::admin.table.contact') }}</th>
                             <th>{{ trans('report::admin.table.status') }}</th>
                             <th class="text-right">{{ trans('report::admin.table.total') }}</th>
@@ -87,6 +90,9 @@
                                         <br><small class="text-muted">{{ $booking->beautician->job_title }}</small>
                                     @endif
                                 </td>
+                                @if (is_module_enabled('SpaBranch'))
+                                    <td>{{ $booking->spaBranch?->name ?? '—' }}</td>
+                                @endif
                                 <td>
                                     @if ($booking->customer_phone)
                                         <div><i class="fa fa-phone"></i> {{ $booking->customer_phone }}</div>
@@ -102,7 +108,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted empty">{{ trans('report::admin.no_bookings') }}</td>
+                                <td colspan="{{ is_module_enabled('SpaBranch') ? 7 : 6 }}" class="text-center text-muted empty">{{ trans('report::admin.no_bookings') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

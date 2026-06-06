@@ -12,6 +12,7 @@
         @include('report::admin.reports.filters.status')
         @include('report::admin.reports.filters.category_id')
         @include('report::admin.reports.filters.product')
+        @include('report::admin.reports.filters.spa_branch')
     @endcomponent
 
     @include('report::admin.reports.filters.product_options')
@@ -37,6 +38,9 @@
                         <th>{{ trans('report::admin.table.order_date') }}</th>
                         <th>{{ trans('report::admin.table.customer_name') }}</th>
                         <th>{{ trans('report::admin.table.contact') }}</th>
+                        @if (is_module_enabled('SpaBranch'))
+                            <th>{{ trans('report::admin.table.spa_branch') }}</th>
+                        @endif
                         <th>{{ trans('report::admin.table.beautician_appointment') }}</th>
                         <th>{{ trans('report::admin.table.order_status') }}</th>
                         <th>{{ trans('report::admin.table.payment_status') }}</th>
@@ -58,6 +62,9 @@
                             <td class="report-cell--nowrap">{{ ReportFormatters::orderDate($data->order_date) }}</td>
                             <td>{{ ReportFormatters::customerName($data) }}</td>
                             @include('report::admin.reports.partials.contact', ['row' => $data])
+                            @if (is_module_enabled('SpaBranch'))
+                                @include('report::admin.reports.partials.spa_branch', ['row' => $data])
+                            @endif
                             @include('report::admin.reports.partials.beautician_appointment', ['row' => $data])
                             <td>
                                 <span class="report-status-pill report-status-pill--{{ $data->order_status }}">
@@ -76,7 +83,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="empty" colspan="13">{{ trans('report::admin.no_data') }}</td>
+                            <td class="empty" colspan="{{ is_module_enabled('SpaBranch') ? 14 : 13 }}">{{ trans('report::admin.no_data') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

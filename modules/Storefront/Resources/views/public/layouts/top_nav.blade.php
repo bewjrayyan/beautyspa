@@ -115,7 +115,7 @@
                         @endif
 
                         @include('treatmentreservation::public.partials.my_booking_link_li', [
-                            'icon' => '<i class="las la-calendar-check"></i>',
+                            'menuIcon' => '<i class="las la-calendar-check"></i>',
                         ])
 
                         @auth

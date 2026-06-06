@@ -29,7 +29,7 @@
                     aria-hidden="true"
                 >
                     <option value="">{{ trans('storefront::checkout.select_beautician') }}</option>
-                    <template x-for="beautician in beauticians" :key="beautician.id">
+                    <template x-for="beautician in availableBeauticians" :key="beautician.id">
                         <option :value="beautician.id" x-text="beautician.name"></option>
                     </template>
                 </select>
@@ -37,8 +37,9 @@
                 <button
                     type="button"
                     class="beautician-selected-card"
-                    :class="{ 'is-open': beauticianPickerOpen, 'is-placeholder': !selectedBeautician }"
-                    @click="beauticianPickerOpen = !beauticianPickerOpen"
+                    :class="{ 'is-open': beauticianPickerOpen, 'is-placeholder': !selectedBeautician, 'is-disabled': hasSpaBranches && !hasSpaBranchSelected }"
+                    @click="spaBranchPickerOpen = false; hasSpaBranches && !hasSpaBranchSelected ? null : (beauticianPickerOpen = !beauticianPickerOpen)"
+                    :disabled="hasSpaBranches && !hasSpaBranchSelected"
                     :aria-expanded="beauticianPickerOpen"
                     aria-haspopup="listbox"
                 >
@@ -69,7 +70,12 @@
 
                     <template x-if="!selectedBeautician">
                         <span class="beautician-selected-placeholder">
-                            {{ trans('storefront::checkout.select_beautician') }}
+                            <template x-if="hasSpaBranches && !hasSpaBranchSelected">
+                                {{ trans('storefront::checkout.select_spa_branch_first') }}
+                            </template>
+                            <template x-if="!hasSpaBranches || hasSpaBranchSelected">
+                                {{ trans('storefront::checkout.select_beautician') }}
+                            </template>
                         </span>
                     </template>
 
@@ -78,11 +84,17 @@
 
                 <ul
                     x-cloak
-                    x-show="beauticianPickerOpen"
+                    x-show="beauticianPickerOpen && (!hasSpaBranches || hasSpaBranchSelected)"
                     class="beautician-picker-options"
                     role="listbox"
                 >
-                    <template x-for="beautician in beauticians" :key="beautician.id">
+                    <template x-if="hasSpaBranchSelected && !availableBeauticians.length">
+                        <li class="beautician-picker-empty" role="presentation">
+                            {{ trans('storefront::checkout.no_beauticians_at_branch') }}
+                        </li>
+                    </template>
+
+                    <template x-for="beautician in availableBeauticians" :key="beautician.id">
                         <li role="option">
                             <button
                                 type="button"

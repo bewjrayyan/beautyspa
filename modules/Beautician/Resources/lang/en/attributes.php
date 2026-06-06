@@ -13,4 +13,5 @@ return [
     'is_active' => 'Status',
     'sort_order' => 'Display Order',
     'position' => 'Display Order',
+    'spa_branches' => 'Spa Branches',
 ];

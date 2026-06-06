@@ -4,7 +4,9 @@ namespace Modules\Beautician\Http\Controllers\Admin;
 
 use Modules\Beautician\Entities\Beautician;
 use Modules\Admin\Traits\HasCrudActions;
+use Modules\Admin\Ui\Facades\TabManager;
 use Modules\Beautician\Http\Requests\SaveBeauticianRequest;
+use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\Beautician\Services\BeauticianPortalUserService;
 use Modules\TreatmentReservation\Services\ReservationDashboardService;
 use Modules\User\Entities\User;
@@ -24,6 +26,25 @@ class BeauticianController
     protected $validation = SaveBeauticianRequest::class;
 
 
+    public function edit($id)
+    {
+        $beautician = $this->getEntity($id);
+
+        if (is_module_enabled('SpaBranch')) {
+            $beautician->load('spaBranches');
+        }
+
+        $formData = $this->getFormData('edit', $id);
+
+        $data = array_merge([
+            'tabs' => TabManager::get($this->getModel()->getTable()),
+            $this->getResourceName() => $beautician,
+        ], $formData);
+
+        return view("{$this->viewPath}.edit", $data);
+    }
+
+
     public function store()
     {
         $this->disableSearchSyncing();
@@ -31,6 +52,7 @@ class BeauticianController
         $request = $this->getRequest('store');
         $beautician = $this->makeBeauticianFromRequest($request);
         $beautician->save();
+        $this->syncSpaBranches($beautician);
 
         $this->searchable($beautician);
 
@@ -49,8 +71,10 @@ class BeauticianController
         $this->applyPortalInput($entity, $request);
 
         $entity->update(
-            $request->except(array_merge(array_keys(request()->query()), $this->portalRequestKeys()))
+            $request->except(array_merge(array_keys(request()->query()), $this->relationRequestKeys()))
         );
+
+        $this->syncSpaBranches($entity);
 
         $entity->withoutEvents(function () use ($entity) {
             $entity->touch();
@@ -65,18 +89,24 @@ class BeauticianController
 
     protected function createFormData(): array
     {
-        return ['adminUsers' => $this->adminUsersForSelect()];
+        return array_merge(
+            ['adminUsers' => $this->adminUsersForSelect()],
+            $this->spaBranchFormData()
+        );
     }
 
 
     protected function editFormData($id): array
     {
-        return [
-            'adminUsers' => $this->adminUsersForSelect($id),
-            'scheduleStats' => is_module_enabled('TreatmentReservation')
-                ? app(ReservationDashboardService::class)->statsForBeauticianSchedule((int) $id)
-                : null,
-        ];
+        return array_merge(
+            [
+                'adminUsers' => $this->adminUsersForSelect($id),
+                'scheduleStats' => is_module_enabled('TreatmentReservation')
+                    ? app(ReservationDashboardService::class)->statsForBeauticianSchedule((int) $id)
+                    : null,
+            ],
+            $this->spaBranchFormData($this->getEntity($id))
+        );
     }
 
 
@@ -126,7 +156,7 @@ class BeauticianController
     private function makeBeauticianFromRequest(Request $request): Beautician
     {
         $beautician = $this->getModel()->make(
-            $request->except(array_merge(array_keys(request()->query()), $this->portalRequestKeys()))
+            $request->except(array_merge(array_keys(request()->query()), $this->relationRequestKeys()))
         );
 
         $this->applyPortalInput($beautician, $request);
@@ -147,8 +177,86 @@ class BeauticianController
     /**
      * @return array<int, string>
      */
+    private function relationRequestKeys(): array
+    {
+        return array_merge(
+            $this->portalRequestKeys(),
+            is_module_enabled('SpaBranch') ? ['spa_branches', 'spa_branches_present'] : []
+        );
+    }
+
+    /**
+     * @return array<int, string>
+     */
     private function portalRequestKeys(): array
     {
         return ['portal_password', 'portal_password_confirmation', 'portal_email'];
+    }
+
+    private function syncSpaBranches(Beautician $beautician): void
+    {
+        if (! is_module_enabled('SpaBranch') || ! request()->has('spa_branches_present')) {
+            return;
+        }
+
+        $beautician->spaBranches()->sync($this->spaBranchIdsFromRequest());
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function spaBranchIdsFromRequest(): array
+    {
+        if (! request()->has('spa_branches_present')) {
+            return [];
+        }
+
+        return array_values(array_map(
+            'intval',
+            array_filter((array) request()->input('spa_branches', []))
+        ));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function spaBranchFormData(?Beautician $beautician = null): array
+    {
+        if (! is_module_enabled('SpaBranch')) {
+            return [];
+        }
+
+        if ($beautician?->exists) {
+            $beautician->loadMissing('spaBranches');
+        }
+
+        return [
+            'spaBranches' => SpaBranch::query()
+                ->where('is_active', true)
+                ->orderBy('position')
+                ->orderBy('name')
+                ->pluck('name', 'id'),
+            'selectedSpaBranchIds' => $this->selectedSpaBranchIds($beautician),
+        ];
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function selectedSpaBranchIds(?Beautician $beautician = null): array
+    {
+        if (request()->session()->hasOldInput('spa_branches_present')) {
+            return array_values(array_map('intval', (array) old('spa_branches', [])));
+        }
+
+        if ($beautician?->exists) {
+            return $beautician->spaBranches
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->values()
+                ->all();
+        }
+
+        return [];
     }
 }

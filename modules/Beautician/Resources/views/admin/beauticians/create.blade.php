@@ -13,12 +13,18 @@
 @endsection
 
 @section('content')
-    <form method="POST" action="{{ route('admin.beauticians.store') }}" class="form-horizontal" novalidate>
+    <form method="POST" action="{{ route('admin.beauticians.store') }}" class="form-horizontal" id="beautician-form" novalidate>
         {{ csrf_field() }}
+
+        @if (is_module_enabled('SpaBranch'))
+            <input type="hidden" name="spa_branches_present" value="1">
+        @endif
 
         {!! $tabs->render([
             'beautician' => $beautician,
             'adminUsers' => $adminUsers ?? [],
+            'spaBranches' => $spaBranches ?? collect(),
+            'selectedSpaBranchIds' => $selectedSpaBranchIds ?? [],
         ]) !!}
     </form>
 @endsection

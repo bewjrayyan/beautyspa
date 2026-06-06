@@ -29,6 +29,24 @@ class BeauticianTable extends AdminTable
             })
             ->editColumn('job_title', function (Beautician $beautician) {
                 return e($beautician->job_title ?: '—');
+            })
+            ->addColumn('branches', function (Beautician $beautician) {
+                if (! is_module_enabled('SpaBranch')) {
+                    return '—';
+                }
+
+                $branches = $beautician->spaBranches
+                    ->sortBy('position')
+                    ->sortBy('name')
+                    ->pluck('name')
+                    ->filter()
+                    ->values();
+
+                if ($branches->isEmpty()) {
+                    return '—';
+                }
+
+                return e($branches->implode(', '));
             });
     }
 }

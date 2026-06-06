@@ -3,11 +3,22 @@
 namespace Modules\Report;
 
 use Modules\Order\Entities\Order;
+use Modules\Report\Concerns\FiltersBySpaBranch;
 use Modules\Report\Concerns\JoinsOrderReportDetails;
 
 class CustomersOrderReport extends Report
 {
+    use FiltersBySpaBranch;
     use JoinsOrderReportDetails;
+
+    protected $filters = ['from', 'to', 'status', 'group', 'spa_branch_id'];
+
+    protected function data()
+    {
+        return [
+            'spaBranches' => $this->spaBranchesForFilter(),
+        ];
+    }
 
     protected function view()
     {

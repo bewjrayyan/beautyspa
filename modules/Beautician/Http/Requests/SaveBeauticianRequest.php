@@ -16,6 +16,10 @@ class SaveBeauticianRequest extends Request
         if ($this->input('user_id') === '') {
             $this->merge(['user_id' => null]);
         }
+
+        if ($this->has('spa_branches_present') && ! $this->has('spa_branches')) {
+            $this->merge(['spa_branches' => []]);
+        }
     }
 
 
@@ -51,6 +55,11 @@ class SaveBeauticianRequest extends Request
             'job_title' => 'nullable|string|max:255',
             'is_active' => 'required|boolean',
             'position' => 'nullable|integer|min:0',
+            'spa_branches' => 'nullable|array',
+            'spa_branches.*' => [
+                'integer',
+                Rule::exists('spa_branches', 'id')->where('is_active', true),
+            ],
         ];
     }
 }

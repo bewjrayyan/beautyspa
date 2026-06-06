@@ -2,8 +2,61 @@
     padding-bottom: 60px;
 }
 
+.imma-legal-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+}
+
+.imma-legal-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.imma-legal-sidebar {
+    flex: 0 0 320px;
+    width: 320px;
+    position: sticky;
+    top: 110px;
+}
+
+.page-sidebar--latest-products {
+    padding: 24px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-default);
+    background: var(--color-white);
+}
+
+.page-sidebar--latest-products .vertical-products-header {
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-color-lite);
+}
+
+.page-sidebar--latest-products .section-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: var(--font-medium);
+    line-height: 1.3;
+    color: var(--color-black);
+}
+
+.vertical-products--static {
+    overflow: visible;
+}
+
+.vertical-products--static .vertical-products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.vertical-products--static .vertical-product-card {
+    margin-bottom: 0;
+}
+
 .imma-legal-header {
-    max-width: 800px;
+    max-width: none;
     margin-bottom: 32px;
 
     h1 {
@@ -28,7 +81,7 @@
 }
 
 .imma-legal-content {
-    max-width: 800px;
+    max-width: none;
 }
 
 .imma-legal-section {

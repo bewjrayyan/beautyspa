@@ -17,6 +17,7 @@ Alpine.data(
         beauticians = [],
         availabilitySlotsUrl = null,
         slotLabels = {},
+        spaBranches = [],
         loyaltyBalance = 0,
         loyaltyWorthRm = 0,
         loyaltyMaxPoints = 0,
@@ -29,6 +30,7 @@ Alpine.data(
         beauticians,
         availabilitySlotsUrl,
         slotLabels,
+        spaBranches,
         form: {
             customer_email: customerEmail,
             customer_phone: customerPhone,
@@ -42,6 +44,7 @@ Alpine.data(
             beautician_id: "",
             appointment_date: "",
             appointment_time: "",
+            spa_branch_id: "",
             order_note: "",
             terms_and_conditions: false,
             payment_method: "",
@@ -64,6 +67,7 @@ Alpine.data(
         loyaltyMaxPoints,
         placingOrder: false,
         beauticianPickerOpen: false,
+        spaBranchPickerOpen: false,
         appointmentSlots: [],
         loadingAppointmentSlots: false,
         stripe: null,
@@ -142,13 +146,41 @@ Alpine.data(
             return new Date().toISOString().split("T")[0];
         },
 
+        get hasSpaBranchSelected() {
+            return (
+                this.hasSpaBranches && String(this.form.spa_branch_id || "") !== ""
+            );
+        },
+
+        get availableBeauticians() {
+            if (!this.requiresTreatmentBooking) {
+                return [];
+            }
+
+            if (this.hasSpaBranches) {
+                if (!this.hasSpaBranchSelected) {
+                    return [];
+                }
+
+                const branchId = String(this.form.spa_branch_id);
+
+                return this.beauticians.filter((beautician) => {
+                    const branchIds = beautician.spa_branch_ids || [];
+
+                    return branchIds.some((id) => String(id) === branchId);
+                });
+            }
+
+            return this.beauticians;
+        },
+
         get selectedBeautician() {
             if (!this.form.beautician_id) {
                 return null;
             }
 
             return (
-                this.beauticians.find(
+                this.availableBeauticians.find(
                     (beautician) =>
                         String(beautician.id) ===
                         String(this.form.beautician_id)
@@ -156,9 +188,34 @@ Alpine.data(
             );
         },
 
+        get hasSpaBranches() {
+            return Array.isArray(this.spaBranches) && this.spaBranches.length > 0;
+        },
+
+        get selectedSpaBranch() {
+            if (!this.form.spa_branch_id) {
+                return null;
+            }
+
+            return (
+                this.spaBranches.find(
+                    (branch) =>
+                        String(branch.id) === String(this.form.spa_branch_id)
+                ) ?? null
+            );
+        },
+
+        selectSpaBranch(branch) {
+            this.form.spa_branch_id = String(branch.id);
+            this.spaBranchPickerOpen = false;
+            this.beauticianPickerOpen = false;
+            this.errors.clear("spa_branch_id");
+        },
+
         selectBeautician(beautician) {
             this.form.beautician_id = String(beautician.id);
             this.beauticianPickerOpen = false;
+            this.spaBranchPickerOpen = false;
             this.errors.clear("beautician_id");
             this.loadAppointmentSlots();
         },
@@ -304,6 +361,17 @@ Alpine.data(
 
             this.normalizeBillingCountry();
             this.initTreatmentBookingDefaults();
+            this.initSpaBranchDefaults();
+            this.syncBeauticianWithBranch();
+
+            if (this.hasSpaBranches) {
+                this.$watch("form.spa_branch_id", () => {
+                    this.beauticianPickerOpen = false;
+                    this.spaBranchPickerOpen = false;
+                    this.syncBeauticianWithBranch();
+                });
+            }
+
             this.initAppointmentPickers();
             this.setTabReminder();
 
@@ -524,6 +592,10 @@ Alpine.data(
                     : null;
             }
 
+            if (this.hasSpaBranches) {
+                payload.spa_branch_id = this.form.spa_branch_id || null;
+            }
+
             if (this.form.ship_to_a_different_address) {
                 payload.shipping = { ...this.form.shipping };
             }
@@ -550,13 +622,31 @@ Alpine.data(
             );
         },
 
-        initTreatmentBookingDefaults() {
+        syncBeauticianWithBranch() {
             if (!this.requiresTreatmentBooking) {
                 return;
             }
 
-            if (this.beauticians?.length && !this.form.beautician_id) {
-                this.form.beautician_id = String(this.beauticians[0].id);
+            const available = this.availableBeauticians;
+            const selectedStillValid =
+                this.form.beautician_id &&
+                available.some(
+                    (beautician) =>
+                        String(beautician.id) === String(this.form.beautician_id)
+                );
+
+            if (!selectedStillValid) {
+                this.form.beautician_id = "";
+                this.form.appointment_time = "";
+                this.appointmentSlots = [];
+            }
+
+            this.loadAppointmentSlots();
+        },
+
+        initTreatmentBookingDefaults() {
+            if (!this.requiresTreatmentBooking) {
+                return;
             }
 
             if (!this.form.appointment_date) {
@@ -565,6 +655,20 @@ Alpine.data(
 
             if (!this.availabilitySlotsUrl && !this.form.appointment_time) {
                 this.form.appointment_time = "10:00";
+            }
+        },
+
+        initSpaBranchDefaults() {
+            if (!this.hasSpaBranches || !this.form.spa_branch_id) {
+                return;
+            }
+
+            if (
+                !this.spaBranches.some(
+                    (branch) => String(branch.id) === String(this.form.spa_branch_id)
+                )
+            ) {
+                this.form.spa_branch_id = "";
             }
         },
 

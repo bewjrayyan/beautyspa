@@ -14,4 +14,5 @@ return [
     'is_active' => 'Status',
     'sort_order' => 'Susunan Paparan',
     'position' => 'Susunan Paparan',
+    'spa_branches' => 'Cawangan Spa',
 ];

@@ -74,6 +74,7 @@ class StoreOrderRequest extends Request
             ],
             $this->billingAddressRules(),
             $this->shippingAddressRules(),
+            $this->spaBranchRules(),
             $this->treatmentBookingRules()
         );
     }
@@ -92,9 +93,54 @@ class StoreOrderRequest extends Request
         }
 
         return [
-            'beautician_id' => ['required', Rule::exists('beauticians', 'id')->where('is_active', true)],
+            'beautician_id' => [
+                'required',
+                Rule::exists('beauticians', 'id')->where('is_active', true),
+                function ($attribute, $value, $fail) {
+                    if (! app('modules')->isEnabled('SpaBranch') || ! $this->filled('spa_branch_id')) {
+                        return;
+                    }
+
+                    $beautician = Beautician::with('spaBranches')->find($value);
+
+                    if (! $beautician) {
+                        return;
+                    }
+
+                    $branchIds = $beautician->spaBranches->pluck('id');
+
+                    if ($branchIds->isEmpty()) {
+                        $fail(trans('checkout::messages.beautician_not_assigned_to_branch'));
+
+                        return;
+                    }
+
+                    if (! $branchIds->contains((int) $this->input('spa_branch_id'))) {
+                        $fail(trans('checkout::messages.beautician_not_at_branch'));
+                    }
+                },
+            ],
             'appointment_date' => ['required', 'date', 'after_or_equal:today'],
             'appointment_time' => $appointmentTimeRules,
+        ];
+    }
+
+
+    private function spaBranchRules(): array
+    {
+        if (! app('modules')->isEnabled('SpaBranch')) {
+            return [];
+        }
+
+        if (! \Modules\SpaBranch\Entities\SpaBranch::query()->where('is_active', true)->exists()) {
+            return [];
+        }
+
+        return [
+            'spa_branch_id' => [
+                'required',
+                Rule::exists('spa_branches', 'id')->where('is_active', true),
+            ],
         ];
     }
 

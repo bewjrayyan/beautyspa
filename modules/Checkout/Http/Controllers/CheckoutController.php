@@ -31,6 +31,7 @@ use Modules\Order\Http\Requests\StoreOrderRequest;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Loyalty\Services\LoyaltyConfig;
 use Modules\Loyalty\Services\LoyaltyWalletService;
+use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\Coupon\Checkers\UsageLimitPerCustomer;
 use Modules\Cart\Http\Middleware\CheckCartItemsStock;
 use Modules\Cart\Http\Middleware\RedirectIfCartIsEmpty;
@@ -147,6 +148,9 @@ class CheckoutController extends Controller
                     'empty' => trans('treatmentreservation::public.no_slots'),
                     'select' => trans('storefront::checkout.select_appointment_time'),
                 ]
+                : [],
+            'spaBranches' => app('modules')->isEnabled('SpaBranch')
+                ? SpaBranch::activeListForCheckout()
                 : [],
             'loyaltyBalance' => $loyaltyBalance,
             'loyaltyWorthRm' => $loyaltyWorthRm,
