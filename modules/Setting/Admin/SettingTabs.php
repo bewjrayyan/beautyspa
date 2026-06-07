@@ -4,6 +4,8 @@ namespace Modules\Setting\Admin;
 
 use Modules\Admin\Ui\Tabs;
 use Modules\Setting\Admin\SettingTab;
+use Modules\Setting\Services\AppVersionService;
+use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Support\Locale;
 use Modules\Support\Country;
 use Modules\Support\TimeZone;
@@ -27,6 +29,7 @@ class SettingTabs extends Tabs
             ->add($this->general())
             ->add($this->logo())
             ->add($this->maintenance())
+            ->add($this->system())
             ->add($this->store())
             ->add($this->PWA())
             ->add($this->currency())
@@ -104,6 +107,25 @@ class SettingTabs extends Tabs
             $tab->weight(7);
 
             $tab->view('setting::admin.settings.tabs.maintenance');
+        });
+    }
+
+
+    private function system()
+    {
+        return tap(new SettingTab('system', trans('setting::settings.tabs.system')), function (SettingTab $tab) {
+            $tab->weight(8);
+
+            $appVersion = app(AppVersionService::class);
+            $artisanCommands = app(ArtisanCommandService::class);
+
+            $tab->view('setting::admin.settings.tabs.system', [
+                'appVersionMeta' => [
+                    'local_version' => $appVersion->codeVersion(),
+                    'git' => $appVersion->gitInfo(true),
+                ],
+                'artisanCommands' => $artisanCommands->buttons(),
+            ]);
         });
     }
 

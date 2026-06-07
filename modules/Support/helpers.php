@@ -406,7 +406,7 @@ if (!function_exists('v')) {
         if (config('app.env') === 'local') {
             $version = uniqid();
         } else {
-            $version = AestheticCart::VERSION;
+            $version = aestheticcart_version();
         }
 
         return "{$path}?v=" . $version;
@@ -421,6 +421,14 @@ if (!function_exists('aestheticcart_version')) {
      */
     function aestheticcart_version()
     {
+        if (config('app.installed')) {
+            $stored = setting('app_version');
+
+            if (is_string($stored) && trim($stored) !== '') {
+                return trim($stored);
+            }
+        }
+
         return AestheticCart::VERSION;
     }
 }

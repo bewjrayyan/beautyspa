@@ -11,6 +11,9 @@ return [
 
     'maintenance_mode' => 'Mod penyelenggaraan',
 
+    'app_version' => 'Versi diterbitkan',
+    'app_release_notes' => 'Nota release',
+
     'translatable.store_tagline' => 'Tagline kedai',
     'translatable.store_name' => 'Nama kedai',
     'translatable.store_description' => 'Penerangan kedai',

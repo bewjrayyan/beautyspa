@@ -11,6 +11,9 @@ return [
 
     'maintenance_mode' => 'Maintenance Mode',
 
+    'app_version' => 'Published Version',
+    'app_release_notes' => 'Release Notes',
+
     'translatable.store_tagline' => 'Store Tagline',
     'translatable.store_name' => 'Store Name',
     'translatable.store_description' => 'Store Description',

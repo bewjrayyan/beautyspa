@@ -2,11 +2,12 @@
 
 namespace Modules\Setting\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Modules\Support\Locale;
 use Modules\Support\Country;
 use Modules\Support\TimeZone;
 use Modules\Currency\Currency;
-use Illuminate\Validation\Rule;
+use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 
@@ -111,6 +112,18 @@ class UpdateSettingRequest extends Request
      */
     public function rules()
     {
+        if ($this->filled('artisan_action')) {
+            return [
+                'artisan_action' => ['required', 'in:'.implode(',', array_keys(app(ArtisanCommandService::class)->definitions()))],
+            ];
+        }
+
+        if ($this->filled('app_version_action')) {
+            return [
+                'app_version_action' => ['required', 'in:pull_latest'],
+            ];
+        }
+
         return [
             'supported_countries.*' => ['required', Rule::in(Country::codes())],
             'default_country' => 'required|in_array:supported_countries.*',
