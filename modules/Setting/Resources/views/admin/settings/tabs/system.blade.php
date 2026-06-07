@@ -2,9 +2,17 @@
     $meta = $appVersionMeta ?? [];
     $localVersion = $meta['local_version'] ?? \AestheticCart\AestheticCart::VERSION;
     $git = $meta['git'] ?? ['available' => false];
-    $remoteVersion = $git['remote_version'] ?? null;
-    $updateAvailable = ! empty($git['update_available']);
+    $github = $meta['github'] ?? null;
+    $gitRemoteVersion = $git['remote_version'] ?? null;
+    $githubRemoteVersion = $github['version'] ?? null;
+    $latestVersion = $gitRemoteVersion ?: $githubRemoteVersion;
+    $latestSource = $gitRemoteVersion ? 'git' : ($githubRemoteVersion ? 'github' : null);
+    $updateAvailable = $latestSource === 'git'
+        ? ! empty($git['update_available'])
+        : ($latestSource === 'github' ? ! empty($github['update_available']) : false);
     $commitsBehind = (int) ($git['commits_behind'] ?? 0);
+    $latestCommit = $git['remote_commit'] ?? ($github['commit'] ?? null);
+    $githubCheckedAt = $github['checked_at'] ?? null;
 @endphp
 
 <div class="settings-form">
@@ -21,23 +29,29 @@
                 <span class="app-version-card__hint">{{ trans('setting::settings.form.app_version_installed_help') }}</span>
             </div>
 
-            @if (! empty($git['available']) && $remoteVersion)
+            @if ($latestVersion)
                 <div class="app-version-card {{ $updateAvailable ? 'is-out-of-sync' : 'is-synced' }}">
                     <span class="app-version-card__label">{{ trans('setting::settings.form.app_version_latest') }}</span>
-                    <strong class="app-version-card__value">v{{ $remoteVersion }}</strong>
+                    <strong class="app-version-card__value">v{{ $latestVersion }}</strong>
                     <span class="app-version-card__hint">
-                        @if ($updateAvailable)
+                        @if ($updateAvailable && $latestSource === 'git')
                             {{ trans('setting::settings.form.app_version_update_available', ['count' => $commitsBehind]) }}
+                        @elseif ($updateAvailable && $latestSource === 'github')
+                            {{ trans('setting::settings.form.app_version_github_update_available') }}
                         @else
                             {{ trans('setting::settings.form.app_version_up_to_date') }}
                         @endif
+
+                        @if ($latestSource === 'github')
+                            · {{ trans('setting::settings.form.app_version_github_source') }}
+                        @endif
                     </span>
                 </div>
-            @elseif (! empty($git['available']))
+            @else
                 <div class="app-version-card">
                     <span class="app-version-card__label">{{ trans('setting::settings.form.app_version_latest') }}</span>
                     <strong class="app-version-card__value">—</strong>
-                    <span class="app-version-card__hint">{{ trans('setting::settings.form.app_version_latest_unknown') }}</span>
+                    <span class="app-version-card__hint">{{ trans('setting::settings.form.app_version_latest_check_github') }}</span>
                 </div>
             @endif
 
@@ -52,6 +66,17 @@
                         @endif
                     </span>
                 </div>
+            @elseif ($latestCommit)
+                <div class="app-version-card">
+                    <span class="app-version-card__label">{{ trans('setting::settings.form.app_version_github_commit') }}</span>
+                    <strong class="app-version-card__value">{{ $latestCommit }}</strong>
+                    <span class="app-version-card__hint">
+                        {{ trans('setting::settings.form.app_version_github_branch', ['branch' => $github['branch'] ?? 'main']) }}
+                        @if ($githubCheckedAt)
+                            · {{ trans('setting::settings.form.app_version_github_checked_at', ['time' => \Illuminate\Support\Carbon::parse($githubCheckedAt)->diffForHumans()]) }}
+                        @endif
+                    </span>
+                </div>
             @else
                 <div class="app-version-card">
                     <span class="app-version-card__label">{{ trans('setting::settings.form.app_version_git') }}</span>
@@ -60,6 +85,26 @@
                 </div>
             @endif
         </div>
+
+        <div class="app-version-actions">
+            <button
+                type="submit"
+                name="app_version_action"
+                value="check_github"
+                class="btn btn-default"
+                formnovalidate
+            >
+                <i class="fa fa-github"></i>
+                {{ trans('setting::settings.form.app_version_check_github') }}
+            </button>
+        </div>
+
+        @if (! empty($github['repository_url']))
+            <p class="help-block text-muted app-version-workflow">
+                {{ trans('setting::settings.form.app_version_github_repo', ['repo' => $github['repo'] ?? '']) }}
+                <a href="{{ $github['repository_url'] }}" target="_blank" rel="noopener noreferrer">{{ $github['repository_url'] }}</a>
+            </p>
+        @endif
     @endcomponent
 
     @if (! empty($git['available']))
@@ -83,6 +128,27 @@
             </div>
 
             <p class="help-block text-muted app-version-workflow">{{ trans('setting::settings.form.app_version_pull_workflow') }}</p>
+        @endcomponent
+    @else
+        @component('setting::admin.settings.partials.section', [
+            'icon' => 'fa-cloud-download',
+            'title' => trans('setting::settings.sections.app_version_deploy'),
+            'description' => trans('setting::settings.form.app_version_deploy_help'),
+        ])
+            <div class="app-version-actions">
+                <button
+                    type="submit"
+                    name="app_version_action"
+                    value="sync_version"
+                    class="btn btn-primary"
+                    formnovalidate
+                >
+                    <i class="fa fa-refresh"></i>
+                    {{ trans('setting::settings.form.app_version_sync_installed') }}
+                </button>
+            </div>
+
+            <p class="help-block text-muted app-version-workflow">{{ trans('setting::settings.form.app_version_deploy_workflow') }}</p>
         @endcomponent
     @endif
 

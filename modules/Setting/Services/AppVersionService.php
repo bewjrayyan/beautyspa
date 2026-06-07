@@ -99,11 +99,11 @@ class AppVersionService
         $commitsBehind = (int) ($gitBefore['commits_behind'] ?? 0);
 
         if ($commitsBehind === 0) {
-            $this->syncPublishedFromCode($beforeVersion);
+            $version = $this->syncPublishedVersion();
 
             return [
                 'updated' => false,
-                'version' => $beforeVersion,
+                'version' => $version,
                 'git' => $this->gitInfo(false),
             ];
         }
@@ -116,14 +116,21 @@ class AppVersionService
             ]));
         }
 
-        $afterVersion = $this->versionFromFile(base_path('app/AestheticCart.php'));
-        $this->syncPublishedFromCode($afterVersion);
+        $this->syncPublishedFromCode($this->versionFromFile(base_path('app/AestheticCart.php')));
 
         return [
             'updated' => true,
-            'version' => $afterVersion,
+            'version' => $this->codeVersion(),
             'git' => $this->gitInfo(false),
         ];
+    }
+
+    public function syncPublishedVersion(): string
+    {
+        $version = $this->codeVersion();
+        setting(['app_version' => $version]);
+
+        return $version;
     }
 
     private function syncPublishedFromCode(string $version): void

@@ -15,6 +15,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Modules\Setting\Http\Requests\UpdateSettingRequest;
 use Modules\Setting\Services\AppVersionService;
 use Modules\Setting\Services\ArtisanCommandService;
+use Modules\Setting\Services\GitHubVersionService;
 
 class SettingController
 {
@@ -47,7 +48,7 @@ class SettingController
         }
 
         if ($request->filled('app_version_action')) {
-            return $this->handleAppVersionAction($request, $appVersion);
+            return $this->handleAppVersionAction($request, $appVersion, app(GitHubVersionService::class));
         }
 
         $this->handleMaintenanceMode($request);
@@ -89,9 +90,36 @@ class SettingController
     }
 
 
-    private function handleAppVersionAction(UpdateSettingRequest $request, AppVersionService $appVersion): RedirectResponse
+    private function handleAppVersionAction(UpdateSettingRequest $request, AppVersionService $appVersion, GitHubVersionService $githubVersion): RedirectResponse
     {
         $redirect = redirect()->to(route('admin.settings.edit').'?tab=system');
+
+        if ($request->input('app_version_action') === 'check_github') {
+            try {
+                $result = $githubVersion->checkLatest($appVersion->codeVersion());
+            } catch (\Throwable $exception) {
+                return $redirect->with('error', $exception->getMessage());
+            }
+
+            session([$githubVersion->sessionKey() => $result]);
+
+            $message = $result['update_available']
+                ? trans('setting::messages.app_version_github_update_available', [
+                    'installed' => $appVersion->codeVersion(),
+                    'latest' => $result['version'],
+                ])
+                : trans('setting::messages.app_version_github_up_to_date', [
+                    'version' => $result['version'],
+                ]);
+
+            return $redirect->with('success', $message);
+        }
+
+        if ($request->input('app_version_action') === 'sync_version') {
+            $version = $appVersion->syncPublishedVersion();
+
+            return $redirect->with('success', trans('setting::messages.app_version_synced', ['version' => $version]));
+        }
 
         if ($request->input('app_version_action') !== 'pull_latest') {
             return $redirect;

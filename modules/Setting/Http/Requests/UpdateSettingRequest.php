@@ -120,7 +120,7 @@ class UpdateSettingRequest extends Request
 
         if ($this->filled('app_version_action')) {
             return [
-                'app_version_action' => ['required', 'in:pull_latest'],
+                'app_version_action' => ['required', 'in:pull_latest,check_github,sync_version'],
             ];
         }
 

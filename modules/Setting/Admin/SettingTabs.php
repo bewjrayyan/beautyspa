@@ -6,6 +6,7 @@ use Modules\Admin\Ui\Tabs;
 use Modules\Setting\Admin\SettingTab;
 use Modules\Setting\Services\AppVersionService;
 use Modules\Setting\Services\ArtisanCommandService;
+use Modules\Setting\Services\GitHubVersionService;
 use Modules\Support\Locale;
 use Modules\Support\Country;
 use Modules\Support\TimeZone;
@@ -118,11 +119,14 @@ class SettingTabs extends Tabs
 
             $appVersion = app(AppVersionService::class);
             $artisanCommands = app(ArtisanCommandService::class);
+            $githubVersion = app(GitHubVersionService::class);
+            $git = $appVersion->gitInfo(true);
 
             $tab->view('setting::admin.settings.tabs.system', [
                 'appVersionMeta' => [
                     'local_version' => $appVersion->codeVersion(),
-                    'git' => $appVersion->gitInfo(true),
+                    'git' => $git,
+                    'github' => $githubVersion->cachedCheck(),
                 ],
                 'artisanCommands' => $artisanCommands->buttons(),
             ]);
