@@ -5,8 +5,8 @@ namespace Modules\Tax\Entities;
 use Modules\Admin\Ui\AdminTable;
 use Modules\Address\StoreAddress;
 use Modules\Support\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
 use Modules\Product\Entities\Product;
+use Modules\Support\Cache\TaggedCache;
 use Modules\Support\Eloquent\Translatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -57,7 +57,7 @@ class TaxClass extends Model
      */
     public static function list()
     {
-        return Cache::tags('tax_classes')->rememberForever(md5('tax_classes.list:' . locale()), function () {
+        return TaggedCache::rememberForever('tax_classes', md5('tax_classes.list:' . locale()), function () {
             return self::all()->sortBy('label')->pluck('label', 'id');
         });
     }

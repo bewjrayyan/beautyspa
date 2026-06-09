@@ -60,6 +60,10 @@ class AppServiceProvider extends ServiceProvider
         if (Request::secure()) {
             URL::forceScheme('https');
         }
+
+        if (! config('app.debug')) {
+            config(['debugbar.enabled' => false]);
+        }
     }
 
 

@@ -27,10 +27,11 @@ class SettingServiceProvider extends ServiceProvider
             'setting.app_version'
         );
 
-        $this->mergeConfigFrom(
-            module_path('Setting', 'Config/catalog_sync.php'),
-            'setting.catalog_sync'
-        );
+        $catalogSyncConfig = module_path('Setting', 'Config/catalog_sync.php');
+
+        if (is_file($catalogSyncConfig)) {
+            $this->mergeConfigFrom($catalogSyncConfig, 'setting.catalog_sync');
+        }
     }
 
     /**
@@ -51,7 +52,11 @@ class SettingServiceProvider extends ServiceProvider
             }
 
             if (! $view->offsetExists('settings')) {
-                $view->with('settings', setting()->all());
+                try {
+                    $view->with('settings', setting()->all());
+                } catch (\Throwable) {
+                    $view->with('settings', []);
+                }
             }
         });
     }

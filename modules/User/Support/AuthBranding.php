@@ -2,8 +2,8 @@
 
 namespace Modules\User\Support;
 
-use Illuminate\Support\Facades\Cache;
 use Modules\Media\Entities\File;
+use Modules\Support\Cache\TaggedCache;
 
 class AuthBranding
 {
@@ -54,7 +54,7 @@ class AuthBranding
 
     private static function resolveFile(int|string $fileId): ?File
     {
-        $file = Cache::rememberForever(md5("files.{$fileId}"), function () use ($fileId) {
+        $file = TaggedCache::rememberPlainForever(md5("files.{$fileId}"), function () use ($fileId) {
             return File::find($fileId);
         });
 

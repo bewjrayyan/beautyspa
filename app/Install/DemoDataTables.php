@@ -71,8 +71,6 @@ class DemoDataTables
             'product_variations',
             'products',
             'related_products',
-            'role_translations',
-            'roles',
             'setting_translations',
             'settings',
             'slider_slide_translations',

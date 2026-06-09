@@ -8,6 +8,7 @@ use Mcamara\LaravelLocalization\Exceptions\UnsupportedLocaleException;
 use Modules\Core\Support\WritableStorageBootstrap;
 use Modules\Support\Locale;
 use Modules\Setting\Entities\Setting;
+use Modules\Support\Cache\CacheHealth;
 use Illuminate\Support\ServiceProvider;
 use AestheticCart\Http\Middleware\LicenseChecker;
 use Modules\Core\Http\Middleware\Authenticate;
@@ -69,6 +70,8 @@ class CoreServiceProvider extends ServiceProvider
         if (!config('app.installed')) {
             return;
         }
+
+        CacheHealth::apply();
 
         $this->prepareWritableStorage();
         $this->prepareCacheStorePath();

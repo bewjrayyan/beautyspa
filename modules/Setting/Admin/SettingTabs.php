@@ -136,7 +136,9 @@ class SettingTabs extends Tabs
                 $artisanButtons = [];
             }
 
-            $catalogSync = app(CatalogSyncService::class);
+            $catalogSync = class_exists(CatalogSyncService::class)
+                ? app(CatalogSyncService::class)
+                : null;
 
             $tab->view('setting::admin.settings.tabs.system', [
                 'appVersionMeta' => [
@@ -146,10 +148,10 @@ class SettingTabs extends Tabs
                 ],
                 'artisanCommands' => $artisanButtons,
                 'catalogSync' => [
-                    'export_url' => $catalogSync->exportUrl(),
+                    'export_url' => $catalogSync?->exportUrl(),
                     'token_configured' => trim((string) config('setting.catalog_sync.token')) !== '',
                     'source_url' => setting('catalog_sync_source_url') ?: config('setting.catalog_sync.default_source_url'),
-                    'bundle_exists' => $catalogSync->bundleExists(),
+                    'bundle_exists' => $catalogSync?->bundleExists() ?? false,
                 ],
             ]);
         });
