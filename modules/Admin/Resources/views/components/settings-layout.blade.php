@@ -7,6 +7,8 @@
 
     <div class="settings-main">
         <div class="settings-panel">
+            <input type="hidden" name="settings_tab" value="{{ $activeTab ?? 'general' }}">
+
             <div class="settings-panel__content tab-content clearfix settings-form">
                 {{ $contents }}
             </div>

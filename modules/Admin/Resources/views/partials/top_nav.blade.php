@@ -32,7 +32,7 @@
                         <h4>
                             <span>{{ $currentUser->first_name }} {{ $currentUser->last_name }}</span>
 
-                            <span>{{ $currentUser->roles->first()->name }}</span>
+                            <span>{{ $currentUser->roles->first()?->name ?? trans('user::users.user') }}</span>
                         </h4>
 
                         <span class="profile-email">{{ $currentUser->email }}</span>

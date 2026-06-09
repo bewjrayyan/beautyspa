@@ -5,21 +5,21 @@ import { bootModernPhoneInputs } from "../../../modules/Storefront/Resources/ass
 
 window.Alpine = Alpine;
 
-Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
+Alpine.data("App", ({ requirementSatisfied, permissionProvided, suggestedAppUrl }) => ({
     step: 1,
     formSubmitting: false,
     animateAlert: false,
     appInstalled: false,
     errorMessage: null,
     form: {
-        db_host: "127.0.0.1",
+        app_url: suggestedAppUrl,
+        db_host: "localhost",
         db_port: 3306,
-        store_search_engine: "mysql",
     },
     errors: new Errors(),
 
     get isShowPrev() {
-        return this.step === 2 || this.step === 3;
+        return this.step > 1 && this.step <= 4;
     },
 
     get isPrevDisabled() {
@@ -27,17 +27,19 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
     },
 
     get isNextDisabled() {
-        if (this.step === 1) {
-            return !requirementSatisfied || this.formSubmitting;
+        if (this.formSubmitting) {
+            return true;
         }
 
         if (this.step === 2) {
-            return !permissionProvided || this.formSubmitting;
+            return !requirementSatisfied;
         }
 
         if (this.step === 3) {
-            return this.formSubmitting;
+            return !permissionProvided;
         }
+
+        return false;
     },
 
     get hasErrorMessage() {
@@ -45,13 +47,11 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
     },
 
     prevStep() {
-        if (this.isPrevDisabled) {
+        if (this.isPrevDisabled || this.step <= 1) {
             return;
         }
 
-        if (this.step > 1) {
-            this.step--;
-        }
+        this.step--;
     },
 
     nextStep() {
@@ -59,7 +59,7 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
             return;
         }
 
-        if (this.step === 3) {
+        if (this.step === 4) {
             this.submitForm();
 
             return;
@@ -67,12 +67,13 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
 
         this.step++;
 
-        this.focusInitialFormField();
+        if (this.step === 4) {
+            this.focusInitialFormField();
+        }
     },
 
     setErrorMessage(message) {
         this.errorMessage = message;
-
         this.triggerAlertAnimation();
     },
 
@@ -89,21 +90,9 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
     },
 
     focusInitialFormField() {
-        if (this.step === 3) {
-            this.$nextTick(() => {
-                this.$refs.configurationForm.elements[0].focus();
-            });
-        }
-    },
-
-    focusSearchEngineInputField(value) {
-        if (value !== "mysql") {
-            this.$nextTick(() => {
-                const formFields = this.$refs.configurationForm.elements;
-
-                formFields[formFields.length - 2].focus();
-            });
-        }
+        this.$nextTick(() => {
+            this.$refs.configurationForm?.elements[0]?.focus();
+        });
     },
 
     focusFirstErrorField(errors) {
@@ -117,7 +106,7 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
     },
 
     scrollToTop() {
-        this.$refs.configurationContent.scroll({
+        this.$refs.configurationContent?.scroll({
             top: 0,
             behavior: "auto",
         });
@@ -125,9 +114,9 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
 
     resetForm() {
         this.form = {
-            db_host: "127.0.0.1",
+            app_url: suggestedAppUrl,
+            db_host: "localhost",
             db_port: 3306,
-            store_search_engine: "mysql",
         };
     },
 
@@ -135,7 +124,7 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
         this.$refs.configurationForm
             ?.querySelectorAll("input.modern-phone-input")
             .forEach((input) => {
-                if (! input._iti || ! input.name) {
+                if (!input._iti || !input.name) {
                     return;
                 }
 
@@ -155,7 +144,6 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
             .post(installUrl, this.form)
             .then(() => {
                 this.appInstalled = true;
-
                 this.resetForm();
                 this.resetErrorMessage();
                 this.errors.reset();
@@ -164,7 +152,8 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
                 if (!response) {
                     this.scrollToTop();
                     this.setErrorMessage(
-                        "Installation request failed. Check your network connection and try again."
+                        document.querySelector('meta[name="install-network-error"]')?.content ??
+                            "Installation request failed."
                     );
 
                     return;
@@ -185,7 +174,7 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
                 const message =
                     response.data?.message ||
                     (response.status === 404
-                        ? "Installation endpoint not found. Refresh the page and try again."
+                        ? document.querySelector('meta[name="install-not-found"]')?.content
                         : `Installation failed (HTTP ${response.status}).`);
 
                 this.setErrorMessage(message);
@@ -195,5 +184,9 @@ Alpine.data("App", ({ requirementSatisfied, permissionProvided }) => ({
             });
     },
 }));
+
+document.addEventListener("DOMContentLoaded", () => {
+    bootModernPhoneInputs(document);
+});
 
 Alpine.start();

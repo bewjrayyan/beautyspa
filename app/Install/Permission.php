@@ -4,6 +4,11 @@ namespace AestheticCart\Install;
 
 class Permission
 {
+    public function __construct(
+        private EnvironmentBootstrap $bootstrap
+    ) {
+    }
+
     public function provided(): bool
     {
         return collect($this->files())
@@ -11,11 +16,16 @@ class Permission
             ->every(fn ($item) => $item);
     }
 
+    public function prepare(): void
+    {
+        $this->bootstrap->ensureEnvFileExists();
+    }
+
 
     public function files(): array
     {
         return [
-            '.env' => is_writable(base_path('.env')),
+            '.env (writable)' => $this->bootstrap->isEnvWritable() || $this->bootstrap->canCreateEnv(),
         ];
     }
 
@@ -24,6 +34,7 @@ class Permission
     {
         return [
             'storage' => is_writable(storage_path()),
+            'storage/framework/sessions' => is_writable(storage_path('framework/sessions')),
             'bootstrap/cache' => is_writable(app()->bootstrapPath('cache')),
         ];
     }

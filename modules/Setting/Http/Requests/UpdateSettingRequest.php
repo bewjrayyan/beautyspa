@@ -8,6 +8,7 @@ use Modules\Support\Country;
 use Modules\Support\TimeZone;
 use Modules\Currency\Currency;
 use Modules\Setting\Services\ArtisanCommandService;
+use Modules\Setting\Support\SettingTabScope;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 
@@ -40,7 +41,9 @@ class UpdateSettingRequest extends Request
             ]);
         }
 
-        if (! $this->filled('onesender_api_key') && setting('onesender_api_key')) {
+        if (! $this->filled('onesender_api_key')
+            && setting('onesender_api_key')
+            && SettingTabScope::activeTab($this) === 'sms') {
             $this->merge(['onesender_api_key' => setting('onesender_api_key')]);
         }
     }
@@ -124,6 +127,18 @@ class UpdateSettingRequest extends Request
             ];
         }
 
+        $tab = SettingTabScope::activeTab($this);
+
+        if ($tab === null) {
+            return $this->allRules();
+        }
+
+        return SettingTabScope::filterRules($this->allRules(), SettingTabScope::fieldsForTab($tab));
+    }
+
+
+    private function allRules(): array
+    {
         return [
             'supported_countries.*' => ['required', Rule::in(Country::codes())],
             'default_country' => 'required|in_array:supported_countries.*',
@@ -324,10 +339,18 @@ class UpdateSettingRequest extends Request
      */
     public function validationData()
     {
-        foreach ($this->shouldCheck as $attribute) {
-            if (!$this->has($attribute)) {
-                $this->merge([$attribute => null]);
+        $tab = SettingTabScope::activeTab($this);
+
+        if ($tab === 'sms') {
+            foreach ($this->shouldCheck as $attribute) {
+                if (! $this->has($attribute)) {
+                    $this->merge([$attribute => null]);
+                }
             }
+        }
+
+        if ($tab === 'mail' && ! $this->has('email_order_statuses')) {
+            $this->merge(['email_order_statuses' => null]);
         }
 
         return $this->all();

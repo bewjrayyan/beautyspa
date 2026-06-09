@@ -13,6 +13,12 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        Commands\ApplyStorefrontDefaultsCommand::class,
+        Commands\RestoreAdminSettingsCommand::class,
+        Commands\RestoreDatabaseCommand::class,
+        Commands\SeedDemoDataCommand::class,
+        Commands\ExportDemoDataCommand::class,
+        Commands\ImportDemoDataCommand::class,
         Commands\ScaffoldModuleCommand::class,
         Commands\ScaffoldEntityCommand::class,
     ];

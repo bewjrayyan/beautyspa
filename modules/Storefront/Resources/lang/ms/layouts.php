@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'home' => 'Laman Utama',
     'contact' => 'Hubungi',
     'blog' => 'Blog',

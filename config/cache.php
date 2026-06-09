@@ -46,7 +46,7 @@ return [
 
         'file' => [
             'driver' => 'file',
-            'path' => env('FLEETCART_CACHE_PATH', storage_path('framework/cache/local-data')),
+            'path' => storage_path('framework/cache/data'),
             /*
              * Required for swayok/alternative-laravel-cache (Flysystem).
              * On XAMPP/macOS, CLI and Apache often use different users — see docs/PERFORMANCE.md.

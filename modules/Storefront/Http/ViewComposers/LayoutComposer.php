@@ -131,7 +131,11 @@ class LayoutComposer
 
     private function getHeaderLogo()
     {
-        return $this->getMedia(setting('storefront_header_logo'))->path;
+        $logoId = function_exists('storefront_header_logo_id')
+            ? storefront_header_logo_id()
+            : (setting('storefront_header_logo') ?: setting('admin_logo'));
+
+        return $this->getMedia($logoId)->path;
     }
 
 

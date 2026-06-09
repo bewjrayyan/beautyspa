@@ -5,8 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="install-url" content="{{ route('install.do') }}">
+        <meta name="install-network-error" content="{{ trans('install.messages.network_error') }}">
+        <meta name="install-not-found" content="{{ trans('install.messages.not_found') }}">
 
-        <title>AestheticCart - Installation</title>
+        <title>{{ trans('install.title') }} - AestheticCart</title>
 
         <link rel="shortcut icon" href="{{ asset('build/assets/favicon.ico') }}" type="image/x-icon">
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,11 +27,16 @@
     </head>
 
     <body class="ltr">
+        @php
+            $installAlpineConfig = [
+                'requirementSatisfied' => $requirement->satisfied(),
+                'permissionProvided' => $permission->provided(),
+                'suggestedAppUrl' => $suggestedAppUrl ?? url('/'),
+            ];
+        @endphp
+
         <div
-            x-data="App({
-                requirementSatisfied: {{ $requirement->satisfied() ? 'true' : 'false' }},
-                permissionProvided: {{ $permission->provided() ? 'true' : 'false' }}
-            })"
+            x-data='App(@json($installAlpineConfig))'
             class="wrapper"
         >
             <div class="installer-box d-flex flex-column flex-md-row">
@@ -52,110 +59,7 @@
                         </svg>
                     </div>
 
-                    <ul class="step-list list-inline">
-                        <li
-                            class="step-list-item d-flex position-relative active"
-                            :class="{
-                                'active': step === 1,
-                                'complete': step >= 2
-                            }"
-                        >
-                            <div class="icon d-flex justify-content-center align-items-center rounded-circle">
-                                <template x-if="step > 1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/>
-                                    </svg>
-                                </template> 
-                                
-                                <template x-if="!(step > 1)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>circle</title><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
-                                    </svg>
-                                </template>    
-                            </div>
-
-                            <div>
-                                <label class="title">Requirements</label>
-                                
-                                <span class="excerpt d-block">Check system requirements</span>
-                            </div>
-                        </li>
-
-                        <li
-                            class="step-list-item d-flex position-relative"
-                            :class="{
-                                'active': step === 2,
-                                'complete': step >= 3
-                            }"
-                        >
-                            <div class="icon d-flex justify-content-center align-items-center rounded-circle">
-                                <template x-if="step > 2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/>
-                                    </svg>
-                                </template> 
-                                
-                                <template x-if="!(step > 2)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>circle</title><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
-                                    </svg>
-                                </template>   
-                            </div>
-
-                            <div>
-                                <label class="title">Permissions</label>
-                                
-                                <span class="excerpt d-block">Obtain necessary permissions</span>
-                            </div>
-                        </li>
-
-                        <li
-                            class="step-list-item d-flex position-relative"
-                            :class="{
-                                'active': step === 3 && !appInstalled,
-                                'complete': appInstalled
-                            }"
-                        >
-                            <div class="icon d-flex justify-content-center align-items-center rounded-circle">
-                                <template x-if="appInstalled">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/>
-                                    </svg>
-                                </template> 
-                                
-                                <template x-if="!(appInstalled)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>circle</title><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
-                                    </svg>
-                                </template>   
-                            </div>
-
-                            <div>
-                                <label class="title">Configuration</label>
-                                
-                                <span class="excerpt d-block">Configure the application</span>
-                            </div>
-                        </li>
-
-                        <li
-                            class="step-list-item d-flex position-relative"
-                            :class="{
-                                'complete': appInstalled
-                            }"
-                        >
-                            <div class="icon d-flex justify-content-center align-items-center rounded-circle">
-                                <template x-if="appInstalled">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/>
-                                    </svg>
-                                </template> 
-                                
-                                <template x-if="!(appInstalled)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>circle</title><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
-                                    </svg>
-                                </template>   
-                            </div>
-
-                            <div>
-                                <label class="title">Complete</label>
-                                
-                                <span class="excerpt d-block">Installation successful</span>
-                            </div>
-                        </li>
-                    </ul>
+                    @include('install.partials.step-list')
 
                     <span class="app-version">
                         {{ aestheticcart_version() }}

@@ -2,6 +2,13 @@
 
 use Modules\Menu\MegaMenu\Menu;
 
+if (!function_exists('storefront_header_logo_id')) {
+    function storefront_header_logo_id()
+    {
+        return setting('storefront_header_logo') ?: setting('admin_logo');
+    }
+}
+
 if (!function_exists('resolve_theme_color')) {
     /**
      * Resolve color code by the given theme name.

@@ -94,6 +94,9 @@ class SettingTabs extends Tabs
     {
         return tap(new SettingTab('logo', trans('setting::settings.tabs.logo')), function (SettingTab $tab) {
             $tab->weight(10);
+
+            $tab->fields(['translatable.admin_logo', 'translatable.admin_small_logo']);
+
             $tab->view('setting::admin.settings.tabs.logo', [
                 'logo' => $this->getMedia(setting('admin_logo')),
                 'shortLogo' => $this->getMedia(setting('admin_small_logo')),
@@ -106,6 +109,8 @@ class SettingTabs extends Tabs
     {
         return tap(new SettingTab('maintenance', trans('setting::settings.tabs.maintenance')), function (SettingTab $tab) {
             $tab->weight(7);
+
+            $tab->fields(['maintenance_mode']);
 
             $tab->view('setting::admin.settings.tabs.maintenance');
         });
@@ -311,7 +316,19 @@ class SettingTabs extends Tabs
         return tap(new SettingTab('mail', trans('setting::settings.tabs.mail')), function (SettingTab $tab) {
             $tab->weight(30);
 
-            $tab->fields(['mail_from_address']);
+            $tab->fields([
+                'mail_from_address',
+                'mail_from_name',
+                'mail_host',
+                'mail_port',
+                'mail_username',
+                'mail_password',
+                'mail_encryption',
+                'welcome_email',
+                'admin_order_email',
+                'invoice_email',
+                'email_order_statuses',
+            ]);
 
             $tab->view('setting::admin.settings.tabs.mail', [
                 'encryptionProtocols' => $this->getMailEncryptionProtocols(),
@@ -355,6 +372,8 @@ class SettingTabs extends Tabs
     {
         return tap(new SettingTab('custom_css_js', trans('setting::settings.tabs.custom_css_js')), function (SettingTab $tab) {
             $tab->weight(40);
+
+            $tab->fields(['custom_header_assets', 'custom_footer_assets']);
 
             $tab->view('setting::admin.settings.tabs.custom_css_js');
         });

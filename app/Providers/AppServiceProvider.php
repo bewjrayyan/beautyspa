@@ -2,9 +2,11 @@
 
 namespace AestheticCart\Providers;
 
+use AestheticCart\Http\FixSubdirectoryRequest;
 use Modules\Core\Providers\XamppCompatibleCacheServiceProvider;
 use Modules\Core\Support\WritableStorageBootstrap;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Request;
@@ -35,8 +37,24 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::useBootstrap();
 
-        if ($appUrl = config('app.url')) {
+        $appUrl = FixSubdirectoryRequest::resolvedAppUrl() ?: config('app.url');
+        $basePath = FixSubdirectoryRequest::basePath();
+
+        if ($appUrl) {
             URL::forceRootUrl(rtrim($appUrl, '/'));
+        }
+
+        if ($basePath !== '') {
+            $root = rtrim($basePath, '/');
+
+            config([
+                'filesystems.disks.public.url' => $root.'/storage',
+                'filesystems.disks.local.url' => $root.'/storage',
+            ]);
+
+            Vite::createAssetPathsUsing(
+                fn (string $path) => $root.'/'.ltrim($path, '/')
+            );
         }
 
         if (Request::secure()) {
@@ -53,6 +71,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         WritableStorageBootstrap::apply();
+        WritableStorageBootstrap::syncConfigPaths();
+        $this->configureProductionStoragePaths();
+        $this->configureSessionForSubdirectory();
 
         if (WritableStorageBootstrap::isLocalEnvironment()) {
             $this->app['config']->set('logging.channels.single.path', WritableStorageBootstrap::logPath());
@@ -73,6 +94,43 @@ class AppServiceProvider extends ServiceProvider
 
         if (!config('app.installed')) {
             $this->app->register(DotenvEditorServiceProvider::class);
+        }
+    }
+
+
+    private function configureProductionStoragePaths(): void
+    {
+        if (WritableStorageBootstrap::isLocalEnvironment()) {
+            return;
+        }
+
+        $this->app['config']->set('logging.channels.single.path', storage_path('logs/laravel.log'));
+        $this->app['config']->set('logging.channels.daily.path', storage_path('logs/laravel.log'));
+        $this->app['config']->set('session.files', storage_path('framework/sessions'));
+        $this->app['config']->set('cache.stores.file.path', storage_path('framework/cache/local-data'));
+        $this->app['config']->set('view.compiled', storage_path('framework/views'));
+    }
+
+
+    private function configureSessionForSubdirectory(): void
+    {
+        $basePath = FixSubdirectoryRequest::basePath();
+
+        if ($basePath !== '') {
+            $this->app['config']->set('session.path', $basePath.'/');
+
+            $suffix = str_replace('/', '_', trim($basePath, '/'));
+
+            if ($suffix !== '') {
+                $this->app['config']->set('session.cookie', 'aestheticcart_session_'.$suffix);
+            }
+        }
+
+        $isHttps = (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+
+        if ($isHttps) {
+            $this->app['config']->set('session.secure', true);
         }
     }
 }

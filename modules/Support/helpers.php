@@ -50,6 +50,25 @@ if (!function_exists('is_rtl')) {
     }
 }
 
+if (!function_exists('supported_currencies')) {
+    /**
+     * Get supported currency codes with safe fallbacks.
+     *
+     * @return array<int, string>
+     */
+    function supported_currencies()
+    {
+        $defaultCurrency = setting('default_currency') ?: 'MYR';
+        $currencies = setting('supported_currencies');
+
+        if (! is_array($currencies) || $currencies === []) {
+            return [$defaultCurrency];
+        }
+
+        return $currencies;
+    }
+}
+
 if (!function_exists('currency')) {
     /**
      * Get current currency.
@@ -58,14 +77,16 @@ if (!function_exists('currency')) {
      */
     function currency()
     {
+        $defaultCurrency = setting('default_currency') ?: 'MYR';
+
         if (app('inAdminPanel')) {
-            return setting('default_currency');
+            return $defaultCurrency;
         }
 
         $currency = Cookie::get('currency');
 
-        if (!in_array($currency, setting('supported_currencies'))) {
-            $currency = setting('default_currency');
+        if (! in_array($currency, supported_currencies(), true)) {
+            $currency = $defaultCurrency;
         }
 
         return $currency;
@@ -343,7 +364,7 @@ if (!function_exists('is_multi_currency')) {
      */
     function is_multi_currency()
     {
-        return count(setting('supported_currencies')) > 1;
+        return count(supported_currencies()) > 1;
     }
 }
 

@@ -18,7 +18,7 @@
                     </div>
 
                     <a href="{{ storefront_home_url() }}" class="header-logo">
-                        @if (is_null($logo))
+                        @if (blank($logo))
                             <h3>{{ setting('store_name') }}</h3>
                         @else
                             <img src="{{ $logo }}" alt="{{ setting('store_name') ?? 'Logo' }}">

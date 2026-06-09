@@ -9,24 +9,24 @@ use Jackiedo\DotenvEditor\Facades\DotenvEditor;
 
 class App
 {
-    public function setup(): void
+    public function setup($request): void
     {
-        $this->setEnvVariables();
+        $this->setEnvVariables($request);
         $this->createCustomerRole();
-        $this->setAppSettings();
+        $this->setAppSettings($request);
         $this->createDefaultCurrencyRate();
-        $this->createStorageFolder();
     }
 
 
-    private function setEnvVariables(): void
+    private function setEnvVariables($request): void
     {
         $env = DotenvEditor::load();
 
         $env->setKey('APP_ENV', 'production');
         $env->setKey('APP_DEBUG', 'false');
         $env->setKey('APP_CACHE', 'true');
-        $env->setKey('APP_URL', url('/'));
+        $env->setKey('APP_URL', rtrim((string) $request['app_url'], '/'));
+        $env->setKey('APP_TIMEZONE', 'Asia/Kuala_Lumpur');
 
         $env->save();
     }
@@ -38,27 +38,28 @@ class App
     }
 
 
-    private function setAppSettings(): void
+    private function setAppSettings($request): void
     {
         Setting::setMany([
-            'supported_countries' => ['BD'],
-            'default_country' => 'BD',
-            'supported_locales' => ['en'],
+            'supported_countries' => ['MY'],
+            'default_country' => 'MY',
+            'supported_locales' => ['en', 'ms'],
             'default_locale' => 'en',
-            'default_timezone' => 'Asia/Dhaka',
+            'default_timezone' => 'Asia/Kuala_Lumpur',
             'customer_role' => 2,
             'reviews_enabled' => true,
-            'auto_approve_reviews' => true,
+            'auto_approve_reviews' => false,
             'cookie_bar_enabled' => true,
-            'supported_currencies' => ['USD'],
-            'default_currency' => 'USD',
+            'supported_currencies' => ['MYR'],
+            'default_currency' => 'MYR',
             'send_order_invoice_email' => false,
             'newsletter_enabled' => false,
             'search_engine' => 'mysql',
             'local_pickup_cost' => 0,
             'flat_rate_cost' => 0,
+            'app_version' => \AestheticCart\AestheticCart::VERSION,
             'translatable' => [
-                'store_name' => 'AestheticCart',
+                'store_name' => $request['store_name'],
                 'pwa_direction' => 'auto',
                 'free_shipping_label' => 'Free Shipping',
                 'local_pickup_label' => 'Local Pickup',
@@ -67,34 +68,10 @@ class App
                 'paypal_description' => 'Pay via your PayPal account.',
                 'stripe_label' => 'Stripe',
                 'stripe_description' => 'Pay via credit or debit card.',
-                'paytm_label' => 'Paytm',
-                'paytm_description' => 'The best payment gateway provider in India for e-payment through credit card, debit card & net banking.',
-                'razorpay_label' => 'Razorpay',
-                'razorpay_description' => 'Pay securely by Credit or Debit card or Internet Banking through Razorpay.',
-                'instamojo_label' => 'Instamojo',
-                'instamojo_description' => 'CC/DB/NB/Wallets',
-                'authorizenet_label' => 'Authorize.net',
-                'authorizenet_description' => 'Accept payments anytime, anywhere',
-                'paystack_label' => 'Paystack',
-                'paystack_description' => 'Modern online and offline payments for Africa',
-                'mercadopago_label' => 'Mercado Pago',
-                'mercadopago_description' => 'From now on, do more with your money',
-                'flutterwave_label' => 'Flutterwave',
-                'flutterwave_description' => 'Endless possibilities for every business',
-                'iyzico_label' => 'Iyzico',
-                'iyzico_description' => 'Pay for your shopping with iyzico',
-                'payfast_label' => 'Payfast',
-                'payfast_description' => 'Online Payments In South Africa',
-                'bkash_label' => 'bKash',
-                'bkash_description' => 'Pay via your bKash account.',
-                'nagad_label' => 'Nagad',
-                'nagad_description' => 'Pay via your Nagad account.',
-                'sslcommerz_label' => 'SSLCommerz',
-                'sslcommerz_description' => 'Pay via your SSLCommerz account.',
                 'cod_label' => 'Cash On Delivery',
                 'cod_description' => 'Pay with cash upon delivery.',
                 'bank_transfer_label' => 'Bank Transfer',
-                'bank_transfer_description' => 'Make your payment directly into our bank account. Please use your Order ID as the payment reference.',
+                'bank_transfer_description' => 'Make your payment directly into our bank account.',
                 'check_payment_label' => 'Check / Money Order',
                 'check_payment_description' => 'Please send a check to our store.',
             ],
@@ -105,14 +82,6 @@ class App
 
     private function createDefaultCurrencyRate(): void
     {
-        CurrencyRate::create(['currency' => 'USD', 'rate' => 1]);
-    }
-
-
-    private function createStorageFolder(): void
-    {
-        if (!is_dir(public_path('storage'))) {
-            mkdir(public_path('storage'));
-        }
+        CurrencyRate::create(['currency' => 'MYR', 'rate' => 1]);
     }
 }

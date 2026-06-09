@@ -95,7 +95,7 @@
                                     :class="{ active: open }"
                                 >
                                     <div class="dropdown-menu-scroll">
-                                        @foreach (setting('supported_currencies') as $currency)
+                                        @foreach (supported_currencies() as $currency)
                                             @if (currency() !== $currency)
                                                 <li
                                                     class="dropdown-item"

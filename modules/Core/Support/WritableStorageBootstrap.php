@@ -11,35 +11,51 @@ class WritableStorageBootstrap
 
     public static function apply(): void
     {
-        if (! static::isLocalEnvironment()) {
-            return;
-        }
-
         foreach (static::storageDirectories() as $directory) {
             static::ensureDirectory($directory);
         }
 
-        $logFile = static::logPath();
+        if (static::isLocalEnvironment()) {
+            $logFile = static::logPath();
 
-        if (! is_file($logFile)) {
-            @touch($logFile);
+            if (! is_file($logFile)) {
+                @touch($logFile);
+            }
+
+            @chmod($logFile, 0666);
+
+            static::chmodRecursive(static::fileCachePath(), 0777);
+
+            $sessionPath = static::sessionPath();
+
+            if (is_dir($sessionPath)) {
+                static::chmodRecursive($sessionPath, 0777);
+            }
+
+            $viewsPath = static::compiledViewsPath();
+
+            if (is_dir($viewsPath)) {
+                static::chmodRecursive($viewsPath, 0777);
+            }
+        }
+    }
+
+    /**
+     * Resolve an env override only when the target directory is usable on this server.
+     */
+    public static function resolvePath(string $envKey, string $default): string
+    {
+        if (! static::isLocalEnvironment()) {
+            return $default;
         }
 
-        @chmod($logFile, 0666);
+        $override = $_ENV[$envKey] ?? getenv($envKey);
 
-        static::chmodRecursive(static::fileCachePath(), 0777);
-
-        $sessionPath = static::sessionPath();
-
-        if (is_dir($sessionPath)) {
-            static::chmodRecursive($sessionPath, 0777);
+        if (is_string($override) && $override !== '' && static::isUsablePath($override)) {
+            return $override;
         }
 
-        $viewsPath = static::compiledViewsPath();
-
-        if (is_dir($viewsPath)) {
-            static::chmodRecursive($viewsPath, 0777);
-        }
+        return $default;
     }
 
     /**
@@ -108,13 +124,44 @@ class WritableStorageBootstrap
 
     private static function pathFromEnv(string $key, string $default): string
     {
-        $override = $_ENV[$key] ?? getenv($key);
+        return static::resolvePath($key, $default);
+    }
 
-        if (is_string($override) && $override !== '') {
-            return $override;
+
+    /**
+     * Force Laravel config to project storage paths (ignores stale FLEETCART_* / config:cache).
+     */
+    public static function syncConfigPaths(): void
+    {
+        if (! function_exists('config')) {
+            return;
         }
 
-        return $default;
+        config([
+            'view.compiled' => static::compiledViewsPath(),
+            'session.files' => static::sessionPath(),
+            'cache.stores.file.path' => static::fileCachePath(),
+            'logging.channels.single.path' => static::logPath(),
+            'logging.channels.daily.path' => static::logPath(),
+        ]);
+    }
+
+
+    private static function isUsablePath(string $path): bool
+    {
+        $directory = str_ends_with($path, '.log') ? dirname($path) : $path;
+
+        if ($directory === '' || $directory === '.') {
+            return false;
+        }
+
+        if (is_dir($directory)) {
+            return is_writable($directory);
+        }
+
+        $parent = dirname($directory);
+
+        return $parent !== $directory && is_dir($parent) && is_writable($parent);
     }
 
     private static function ensureDirectory(string $path): void

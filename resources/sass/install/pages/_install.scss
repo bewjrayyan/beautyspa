@@ -611,3 +611,26 @@
         }
     }
 }
+
+.install-checklist {
+    margin: 0;
+    padding-left: 18px;
+
+    li {
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+}
+
+.install-complete-checklist {
+    width: 100%;
+    max-width: 520px;
+    margin: 20px 0;
+    padding: 16px 18px;
+    text-align: left;
+
+    h5 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+}

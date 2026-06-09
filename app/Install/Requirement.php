@@ -22,14 +22,15 @@ class Requirement
     {
         return collect($this->php())
             ->merge($this->extensions())
-            ->every(fn($item) => $item);
+            ->merge($this->packages())
+            ->every(fn ($item) => $item);
     }
 
 
     public function php(): array
     {
         return [
-            'PHP >= 8.2.0' => version_compare(phpversion(), '8.2.0'),
+            'PHP >= 8.2.0' => version_compare(phpversion(), '8.2.0', '>='),
         ];
     }
 
@@ -39,9 +40,17 @@ class Requirement
         $extensions = [];
 
         foreach (self::extensions as $extension => $name) {
-            $extensions[$name . ' PHP Extension'] = extension_loaded($extension);
+            $extensions[$name.' PHP Extension'] = extension_loaded($extension);
         }
 
         return $extensions;
+    }
+
+    public function packages(): array
+    {
+        return [
+            'Composer dependencies (vendor/)' => is_file(base_path('vendor/autoload.php')),
+            'Frontend assets (public/build/)' => is_file(public_path('build/manifest.json')),
+        ];
     }
 }

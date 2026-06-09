@@ -36,7 +36,7 @@
 
             <div class="input-group">
                 <select name="currency" id="currency" class="form-control" onchange="location = this.value">
-                    @foreach (setting('supported_currencies') as $currency)
+                    @foreach (supported_currencies() as $currency)
                         <option
                             value="{{ route('current_currency.store', ['code' => $currency]) }}"
                             {{ currency() === $currency ? 'selected' : '' }}

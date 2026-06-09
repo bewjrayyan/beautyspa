@@ -15,7 +15,7 @@ class CurrentCurrencyController
      */
     public function store($currency)
     {
-        if (!in_array($currency, setting('supported_currencies'))) {
+        if (! in_array($currency, supported_currencies(), true)) {
             return back();
         }
 

@@ -2,31 +2,20 @@
 
 namespace AestheticCart\Http\Requests;
 
-use Illuminate\Validation\Rule;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 
 class InstallRequest extends Request
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules(): array
     {
         return [
+            'app_url' => 'required|url',
             'db_host' => 'required',
             'db_port' => 'required',
             'db_username' => 'required',
@@ -40,41 +29,26 @@ class InstallRequest extends Request
             'store_name' => 'required',
             'store_email' => 'required|email',
             'store_phone' => ['required', new ValidPhone()],
-            'store_search_engine' => ['required', Rule::in(['mysql', 'algolia', 'meilisearch'])],
-            'algolia_app_id' => 'required_if:store_search_engine,algolia',
-            'algolia_secret' => 'required_if:store_search_engine,algolia',
-            'meilisearch_host' => 'required_if:store_search_engine,meilisearch',
-            'meilisearch_key' => 'required_if:store_search_engine,meilisearch',
         ];
     }
 
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array
-     */
     public function attributes(): array
     {
         return [
-            'db_host' => 'host',
-            'db_port' => 'port',
-            'db_username' => 'username',
-            'db_password' => 'password',
-            'db_database' => 'datbase',
-            'admin_first_name' => 'first name',
-            'admin_last_name' => 'last name',
-            'admin_email' => 'email',
-            'admin_phone' => 'phone',
-            'admin_password' => 'password',
-            'store_name' => 'store name',
-            'store_email' => 'store email',
-            'store_phone' => 'store phone',
-            'store_search_engine' => 'search engine',
-            'algolia_app_id' => 'algolia application id',
-            'algolia_secret' => 'algolia admin api key',
-            'meilisearch_host' => 'meilisearch host',
-            'meilisearch_key' => 'meilisearch key',
+            'app_url' => trans('install.attributes.app_url'),
+            'db_host' => trans('install.attributes.db_host'),
+            'db_port' => trans('install.attributes.db_port'),
+            'db_username' => trans('install.attributes.db_username'),
+            'db_password' => trans('install.attributes.db_password'),
+            'db_database' => trans('install.attributes.db_database'),
+            'admin_first_name' => trans('install.attributes.admin_first_name'),
+            'admin_last_name' => trans('install.attributes.admin_last_name'),
+            'admin_email' => trans('install.attributes.admin_email'),
+            'admin_phone' => trans('install.attributes.admin_phone'),
+            'admin_password' => trans('install.attributes.admin_password'),
+            'store_name' => trans('install.attributes.store_name'),
+            'store_email' => trans('install.attributes.store_email'),
+            'store_phone' => trans('install.attributes.store_phone'),
         ];
     }
 }

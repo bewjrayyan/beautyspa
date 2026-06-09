@@ -54,6 +54,7 @@ class Database
 
     private function migrateDatabase(): void
     {
-        Artisan::call('migrate', ['--force' => true]);
+        // Always start from a clean schema during the web installer.
+        Artisan::call('migrate:fresh', ['--force' => true]);
     }
 }

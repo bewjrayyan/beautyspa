@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasColumn('products', 'is_virtual')) {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->boolean('is_virtual')->default(false)->before('is_active');
         });
@@ -26,6 +30,10 @@ return new class extends Migration
      */
     public function down()
     {
+        if (! Schema::hasColumn('products', 'is_virtual')) {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn('is_virtual');
         });

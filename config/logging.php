@@ -39,13 +39,13 @@ return [
 
         'single' => [
             'driver' => 'single',
-            'path' => env('FLEETCART_LOG_PATH', storage_path('logs/laravel.log')),
+            'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
         ],
 
         'daily' => [
             'driver' => 'daily',
-            'path' => env('FLEETCART_LOG_PATH', storage_path('logs/laravel.log')),
+            'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
             'days' => 7,
         ],

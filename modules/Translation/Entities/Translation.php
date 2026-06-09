@@ -43,9 +43,13 @@ class Translation extends Model
             return self::getTranslations();
         }
 
-        return Cache::tags('translations')->rememberForever(md5('translations.all'), function () {
+        try {
+            return Cache::tags('translations')->rememberForever(md5('translations.all'), function () {
+                return self::getTranslations();
+            });
+        } catch (\Throwable) {
             return self::getTranslations();
-        });
+        }
     }
 
 

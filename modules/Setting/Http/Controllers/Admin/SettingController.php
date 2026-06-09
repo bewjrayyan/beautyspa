@@ -2,20 +2,21 @@
 
 namespace Modules\Setting\Http\Controllers\Admin;
 
-use Illuminate\Http\Response;
-use Modules\Media\Entities\File;
-use Illuminate\Routing\Redirector;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Artisan;
 use Modules\Admin\Ui\Facades\TabManager;
-use Modules\Support\Services\PWAService;
-use Illuminate\Contracts\Foundation\Application;
+use Modules\Media\Entities\File;
 use Modules\Setting\Http\Requests\UpdateSettingRequest;
 use Modules\Setting\Services\AppVersionService;
 use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Setting\Services\GitHubVersionService;
+use Modules\Setting\Support\SettingTabScope;
+use Modules\Support\Services\PWAService;
 
 class SettingController
 {
@@ -51,17 +52,25 @@ class SettingController
             return $this->handleAppVersionAction($request, $appVersion, app(GitHubVersionService::class));
         }
 
-        $this->handleMaintenanceMode($request);
+        $tab = SettingTabScope::activeTab($request) ?? 'general';
+        $tabFields = SettingTabScope::fieldsForTab($tab);
 
-        if (setting('pwa_icon') !== request('pwa_icon')) {
+        if ($request->has('maintenance_mode')) {
+            $this->handleMaintenanceMode($request);
+        }
+
+        if ($tab === 'pwa' && setting('pwa_icon') !== request('pwa_icon')) {
             $file = File::find(request('pwa_icon'));
             $file && $PWAService->generateIcons($file);
             $PWAService->updatePWAVersionInServiceWorkerJs();
         }
 
-        setting($request->except('_token', '_method'));
+        if ($tabFields !== []) {
+            setting(SettingTabScope::filterRequestData($request, $tabFields));
+        }
 
-        return redirect(non_localized_url())
+        return redirect()
+            ->route('admin.settings.edit', ['tab' => $tab])
             ->with('success', trans('setting::messages.settings_updated'));
     }
 

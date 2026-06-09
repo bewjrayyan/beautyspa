@@ -17,7 +17,7 @@ class RedirectToInstallerIfNotInstalled
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!config('app.installed') && !$request->is('install')) {
+        if (!config('app.installed') && ! $request->is('install*')) {
             return redirect()->route('install.show');
         }
 

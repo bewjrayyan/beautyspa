@@ -67,11 +67,7 @@ class Setting extends Model
 
         try {
             return Cache::rememberForever(md5('settings.all:' . locale()), $loader);
-        } catch (\Throwable $e) {
-            if (! app()->environment('local')) {
-                throw $e;
-            }
-
+        } catch (\Throwable) {
             return $loader();
         }
     }
@@ -100,7 +96,7 @@ class Setting extends Model
      */
     public static function get($key, $default = null)
     {
-        return static::where('key', $key)->first()->value ?? $default;
+        return static::where('key', $key)->first()?->value ?? $default;
     }
 
 

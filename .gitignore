@@ -29,10 +29,12 @@ yarn-error.log
 #Local / vendor bundle (not part of the app source tree)
 /codecanyon-fleetcart-laravel-ecommerce-system-v4.7.11/
 /php-pear/
+/php-extensions/
 
 #Others
 *.map
 public/hot
+/public/storage
 public/sitemaps/*
 public/sitemap.xml
 .php-cs-fixer.cache

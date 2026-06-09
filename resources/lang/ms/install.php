@@ -1,0 +1,110 @@
+<?php
+
+return [
+    'title' => 'Wizard setup production',
+    'steps' => [
+        'welcome' => [
+            'title' => 'Selamat datang',
+            'excerpt' => 'Panduan upload untuk hosting live',
+        ],
+        'requirements' => [
+            'title' => 'Keperluan',
+            'excerpt' => 'Semakan pelayan dan pakej',
+        ],
+        'permissions' => [
+            'title' => 'Kebenaran',
+            'excerpt' => 'Fail dan folder boleh tulis',
+        ],
+        'configuration' => [
+            'title' => 'Konfigurasi',
+            'excerpt' => 'Pangkalan data, admin, dan kedai',
+        ],
+        'complete' => [
+            'title' => 'Selesai',
+            'excerpt' => 'Sedia untuk production',
+        ],
+    ],
+    'welcome' => [
+        'title' => 'Selamat datang ke Setup AestheticCart',
+        'lead' => 'Wizard ini menyediakan hosting live selepas anda upload folder aplikasi penuh ke public_html. Tiada sunting manual .env diperlukan.',
+        'upload_title' => 'Sebelum teruskan',
+        'upload_steps' => [
+            'Upload folder AestheticCart penuh ke hosting (contoh public_html).',
+            'Cipta pangkalan data MySQL kosong dari panel hosting (cPanel, Plesk, dll.).',
+            'Pastikan folder vendor/ dan public/build/ termasuk dalam upload.',
+            'Buka halaman setup ini: yourdomain.com/install',
+        ],
+        'detected_url' => 'URL laman dikesan',
+        'document_root' => 'Mod document root',
+        'document_root_public' => 'Folder public/ (disyorkan)',
+        'document_root_root' => 'Root projek (public_html dengan index.php)',
+        'document_root_unknown' => 'Tidak diketahui — teruskan jika laman boleh dimuat',
+        'packages_title' => 'Semakan pakej upload',
+    ],
+    'requirements' => [
+        'title' => 'Keperluan',
+        'excerpt' => 'Sahkan versi PHP, extension, dan pakej upload lengkap.',
+        'php' => 'PHP',
+        'extensions' => 'Extension',
+        'packages' => 'Fail aplikasi',
+    ],
+    'permissions' => [
+        'title' => 'Kebenaran',
+        'excerpt' => 'Installer akan cipta .env secara automatik dari .env.example jika boleh.',
+        'files' => 'Fail',
+        'directories' => 'Folder',
+    ],
+    'configuration' => [
+        'title' => 'Konfigurasi',
+        'excerpt' => 'Masukkan maklumat pangkalan data hosting live dan kedai. Default production Malaysia (MYR, en/ms) akan digunakan.',
+        'site' => 'URL laman',
+        'database' => 'Pangkalan data',
+        'admin' => 'Akaun admin',
+        'store' => 'Kedai',
+        'app_url_help' => 'URL kedai live tanpa slash di hujung.',
+    ],
+    'complete' => [
+        'title' => 'Pemasangan berjaya!',
+        'checklist_title' => 'Langkah seterusnya',
+        'checklist' => [
+            'Log masuk Admin → Settings untuk konfigurasi mail, bayaran, dan WhatsApp.',
+            'Tambah cron job untuk Laravel scheduler jika hosting menyokong.',
+            'Pastikan APP_DEBUG=false dalam production.',
+        ],
+        'admin_panel' => 'Panel Admin',
+        'storefront' => 'Storefront',
+    ],
+    'buttons' => [
+        'back' => 'Kembali',
+        'next' => 'Seterusnya',
+        'install' => 'Pasang sekarang',
+    ],
+    'attributes' => [
+        'app_url' => 'URL laman',
+        'db_host' => 'host',
+        'db_port' => 'port',
+        'db_username' => 'username',
+        'db_password' => 'password',
+        'db_database' => 'pangkalan data',
+        'admin_first_name' => 'nama pertama',
+        'admin_last_name' => 'nama akhir',
+        'admin_email' => 'emel',
+        'admin_phone' => 'telefon',
+        'admin_password' => 'kata laluan',
+        'admin_password_confirmation' => 'pengesahan kata laluan',
+        'store_name' => 'nama kedai',
+        'store_email' => 'emel kedai',
+        'store_phone' => 'telefon kedai',
+    ],
+    'messages' => [
+        'success' => 'Tahniah! AestheticCart sedia pada hosting live anda.',
+        'network_error' => 'Permintaan pemasangan gagal. Semak sambungan rangkaian dan cuba lagi.',
+        'not_found' => 'Endpoint pemasangan tidak dijumpai. Muat semula halaman dan cuba lagi.',
+        'failed' => 'Pemasangan gagal (HTTP :status).',
+    ],
+    'packages' => [
+        'vendor' => 'Dependencies Composer (vendor/)',
+        'build_assets' => 'Aset frontend (public/build/)',
+        'env_example' => 'Templat environment (.env.example)',
+    ],
+];

@@ -18,7 +18,7 @@ class PageController
      */
     public function show($slug)
     {
-        $logo = File::findOrNew(setting('storefront_header_logo'))->path;
+        $logo = File::findOrNew(storefront_header_logo_id())->path;
         $page = Page::where('slug', $slug)->firstOrFail();
 
         if ($slug === 'faq') {

@@ -3,6 +3,8 @@
 namespace Modules\Core\Providers;
 
 use Exception;
+use Throwable;
+use Mcamara\LaravelLocalization\Exceptions\UnsupportedLocaleException;
 use Modules\Core\Support\WritableStorageBootstrap;
 use Modules\Support\Locale;
 use Modules\Setting\Entities\Setting;
@@ -51,6 +53,7 @@ class CoreServiceProvider extends ServiceProvider
             return;
         }
 
+        $this->seedFallbackLocalizationConfig();
         $this->prepareWritableStorage();
         $this->prepareCacheStorePath();
     }
@@ -88,9 +91,16 @@ class CoreServiceProvider extends ServiceProvider
      */
     private function setupSupportedLocales()
     {
+        $locales = $this->getSupportedLocales();
+        $defaultLocale = $this->getDefaultLocale();
+
+        if (! in_array($defaultLocale, $locales, true)) {
+            array_unshift($locales, $defaultLocale);
+        }
+
         $supportedLocales = [];
 
-        foreach ($this->getSupportedLocales() as $locale) {
+        foreach ($locales as $locale) {
             $supportedLocales[$locale]['name'] = locale_display_name($locale);
         }
 
@@ -105,11 +115,52 @@ class CoreServiceProvider extends ServiceProvider
      */
     private function getSupportedLocales()
     {
+        $fallback = ['en', 'ms'];
+
         try {
-            return Setting::get('supported_locales', [config('app.locale')]);
-        } catch (Exception $e) {
-            return [config('app.locale')];
+            $locales = Setting::get('supported_locales', $fallback);
+        } catch (Throwable $e) {
+            return $fallback;
         }
+
+        if (! is_array($locales)) {
+            return $fallback;
+        }
+
+        $locales = array_values(array_filter($locales, fn ($locale) => is_string($locale) && $locale !== ''));
+
+        return $locales !== [] ? $locales : $fallback;
+    }
+
+
+    private function getDefaultLocale(): string
+    {
+        try {
+            $defaultLocale = Setting::get('default_locale', 'en');
+        } catch (Throwable $e) {
+            return 'en';
+        }
+
+        if (! is_string($defaultLocale) || $defaultLocale === '') {
+            return 'en';
+        }
+
+        return $defaultLocale;
+    }
+
+
+    private function seedFallbackLocalizationConfig(): void
+    {
+        $supportedLocales = $this->app['config']->get('laravellocalization.supportedLocales', []);
+
+        if ($supportedLocales !== []) {
+            return;
+        }
+
+        $this->app['config']->set('laravellocalization.supportedLocales', [
+            'en' => ['name' => 'English'],
+            'ms' => ['name' => 'Bahasa Melayu'],
+        ]);
     }
 
 
@@ -133,12 +184,23 @@ class CoreServiceProvider extends ServiceProvider
      */
     private function setupAppLocale()
     {
-        $this->app['config']->set('app.locale', $defaultLocale = Setting::get('default_locale'));
+        $defaultLocale = $this->getDefaultLocale();
+        $supportedLocaleKeys = array_keys($this->app['config']->get('laravellocalization.supportedLocales', []));
+
+        if ($supportedLocaleKeys !== [] && ! in_array($defaultLocale, $supportedLocaleKeys, true)) {
+            $defaultLocale = $supportedLocaleKeys[0];
+        }
+
+        $this->app['config']->set('app.locale', $defaultLocale);
         $this->app['config']->set('app.fallback_locale', $defaultLocale);
 
-        $locale = is_null(LaravelLocalization::setLocale()) ? $defaultLocale : null;
+        try {
+            $locale = is_null(LaravelLocalization::setLocale()) ? $defaultLocale : null;
 
-        LaravelLocalization::setLocale($locale);
+            LaravelLocalization::setLocale($locale);
+        } catch (UnsupportedLocaleException|Throwable $e) {
+            // Keep booting; storefront locale middleware will resolve on the request.
+        }
     }
 
 

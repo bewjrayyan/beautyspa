@@ -286,6 +286,32 @@ abstract class Tabs
 
 
     /**
+     * Get validation/save fields registered for a settings tab.
+     */
+    public function fieldsForTab(string $tabName): array
+    {
+        foreach ($this->tabs as $group) {
+            foreach ($group as $tab) {
+                if ($tab->name === $tabName) {
+                    return $tab->getFields();
+                }
+            }
+        }
+
+        return [];
+    }
+
+
+    /**
+     * @return \Illuminate\Support\Collection<int, string>
+     */
+    public function tabNames()
+    {
+        return $this->collect()->pluck('*.name')->flatten();
+    }
+
+
+    /**
      * Get sorted tabs.
      *
      * @return array

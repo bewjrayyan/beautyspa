@@ -42,7 +42,7 @@ class CurrencyRate extends Model
     {
         $fromCurrency = setting('default_currency');
 
-        foreach (setting('supported_currencies') as $toCurrency) {
+        foreach (supported_currencies() as $toCurrency) {
             $rate = $exchanger->exchange($fromCurrency, $toCurrency);
 
             static::where('currency', $toCurrency)->first()->update(['rate' => $rate]);

@@ -12,7 +12,7 @@ return [
     */
     'name' => env('APP_NAME', 'AestheticCart'),
 
-    'installed' => env('APP_INSTALLED', false),
+    'installed' => filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN),
 
     /*
    |--------------------------------------------------------------------------
@@ -21,7 +21,7 @@ return [
    | Set this to true to use the cache decorators, this will greatly improve
    | the application speed and performance
    */
-    'cache' => env('APP_CACHE', false),
+    'cache' => filter_var(env('APP_CACHE', false), FILTER_VALIDATE_BOOLEAN),
 
     /*
     |--------------------------------------------------------------------------
@@ -47,7 +47,7 @@ return [
     |
     */
 
-    'debug' => env('APP_DEBUG', false),
+    'debug' => filter_var(env('APP_DEBUG', false), FILTER_VALIDATE_BOOLEAN),
 
     /*
     |--------------------------------------------------------------------------

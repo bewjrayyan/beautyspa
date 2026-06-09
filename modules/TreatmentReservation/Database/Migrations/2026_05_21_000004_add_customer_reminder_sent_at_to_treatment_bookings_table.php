@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('treatment_bookings')
+            || Schema::hasColumn('treatment_bookings', 'customer_reminder_sent_at')) {
+            return;
+        }
+
         Schema::table('treatment_bookings', function (Blueprint $table) {
             $table->timestamp('customer_reminder_sent_at')->nullable()->after('reminder_sent_at');
         });
@@ -16,6 +21,11 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasTable('treatment_bookings')
+            || ! Schema::hasColumn('treatment_bookings', 'customer_reminder_sent_at')) {
+            return;
+        }
+
         Schema::table('treatment_bookings', function (Blueprint $table) {
             $table->dropColumn('customer_reminder_sent_at');
         });

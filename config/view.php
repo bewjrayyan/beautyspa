@@ -27,5 +27,5 @@ return [
     |
     */
 
-    'compiled' => env('FLEETCART_VIEW_COMPILED_PATH') ?: storage_path('framework/views'),
+    'compiled' => storage_path('framework/views'),
 ];

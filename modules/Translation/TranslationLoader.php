@@ -41,11 +41,7 @@ class TranslationLoader extends FileLoader
         try {
             return Cache::tags('translations')
                 ->rememberForever(md5("translation_loader.{$locale}.{$group}.{$namespace}"), $loader);
-        } catch (\Throwable $e) {
-            if (! app()->environment('local')) {
-                throw $e;
-            }
-
+        } catch (\Throwable) {
             return $loader();
         }
     }

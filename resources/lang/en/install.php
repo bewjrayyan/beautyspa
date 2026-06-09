@@ -1,0 +1,110 @@
+<?php
+
+return [
+    'title' => 'Production Setup Wizard',
+    'steps' => [
+        'welcome' => [
+            'title' => 'Welcome',
+            'excerpt' => 'Upload guide for live hosting',
+        ],
+        'requirements' => [
+            'title' => 'Requirements',
+            'excerpt' => 'Server and package checks',
+        ],
+        'permissions' => [
+            'title' => 'Permissions',
+            'excerpt' => 'Writable files and folders',
+        ],
+        'configuration' => [
+            'title' => 'Configuration',
+            'excerpt' => 'Database, admin, and store',
+        ],
+        'complete' => [
+            'title' => 'Complete',
+            'excerpt' => 'Ready for production',
+        ],
+    ],
+    'welcome' => [
+        'title' => 'Welcome to AestheticCart Setup',
+        'lead' => 'This wizard prepares your live hosting after you upload the full application folder to public_html. No manual .env editing is required.',
+        'upload_title' => 'Before you continue',
+        'upload_steps' => [
+            'Upload the entire AestheticCart folder to your hosting (for example public_html).',
+            'Create an empty MySQL database from your hosting control panel (cPanel, Plesk, etc.).',
+            'Make sure the vendor/ folder and public/build/ folder were included in your upload.',
+            'Open this setup page in your browser: yourdomain.com/install',
+        ],
+        'detected_url' => 'Detected site URL',
+        'document_root' => 'Document root mode',
+        'document_root_public' => 'public/ folder (recommended)',
+        'document_root_root' => 'Project root (public_html with index.php)',
+        'document_root_unknown' => 'Unknown — continue if the site loads correctly',
+        'packages_title' => 'Upload package checks',
+    ],
+    'requirements' => [
+        'title' => 'Requirements',
+        'excerpt' => 'Verify PHP version, extensions, and that the uploaded package is complete.',
+        'php' => 'PHP',
+        'extensions' => 'Extensions',
+        'packages' => 'Application files',
+    ],
+    'permissions' => [
+        'title' => 'Permissions',
+        'excerpt' => 'The installer will create .env automatically from .env.example when possible.',
+        'files' => 'Files',
+        'directories' => 'Directories',
+    ],
+    'configuration' => [
+        'title' => 'Configuration',
+        'excerpt' => 'Enter your live hosting database details and store information. Production defaults for Malaysia (MYR, en/ms) will be applied automatically.',
+        'site' => 'Site URL',
+        'database' => 'Database',
+        'admin' => 'Admin account',
+        'store' => 'Store',
+        'app_url_help' => 'Your live store URL without a trailing slash.',
+    ],
+    'complete' => [
+        'title' => 'Installed successfully!',
+        'checklist_title' => 'Recommended next steps',
+        'checklist' => [
+            'Log in to Admin → Settings to configure mail, payments, and WhatsApp.',
+            'Add a cron job for Laravel scheduler if your host supports it.',
+            'Keep APP_DEBUG=false in production.',
+        ],
+        'admin_panel' => 'Admin Panel',
+        'storefront' => 'Storefront',
+    ],
+    'buttons' => [
+        'back' => 'Back',
+        'next' => 'Next',
+        'install' => 'Install now',
+    ],
+    'attributes' => [
+        'app_url' => 'site URL',
+        'db_host' => 'host',
+        'db_port' => 'port',
+        'db_username' => 'username',
+        'db_password' => 'password',
+        'db_database' => 'database',
+        'admin_first_name' => 'first name',
+        'admin_last_name' => 'last name',
+        'admin_email' => 'email',
+        'admin_phone' => 'phone',
+        'admin_password' => 'password',
+        'admin_password_confirmation' => 'password confirmation',
+        'store_name' => 'store name',
+        'store_email' => 'store email',
+        'store_phone' => 'store phone',
+    ],
+    'messages' => [
+        'success' => 'Congratulations! AestheticCart is ready on your live hosting.',
+        'network_error' => 'Installation request failed. Check your network connection and try again.',
+        'not_found' => 'Installation endpoint not found. Refresh the page and try again.',
+        'failed' => 'Installation failed (HTTP :status).',
+    ],
+    'packages' => [
+        'vendor' => 'Composer dependencies (vendor/)',
+        'build_assets' => 'Frontend assets (public/build/)',
+        'env_example' => 'Environment template (.env.example)',
+    ],
+];

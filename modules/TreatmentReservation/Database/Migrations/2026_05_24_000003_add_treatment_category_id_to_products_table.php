@@ -8,13 +8,27 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('products')
+            || Schema::hasColumn('products', 'treatment_category_id')) {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
-            $table->unsignedInteger('treatment_category_id')->nullable()->after('is_virtual');
+            if (Schema::hasColumn('products', 'is_virtual')) {
+                $table->unsignedInteger('treatment_category_id')->nullable()->after('is_virtual');
+            } else {
+                $table->unsignedInteger('treatment_category_id')->nullable();
+            }
         });
     }
 
     public function down(): void
     {
+        if (! Schema::hasTable('products')
+            || ! Schema::hasColumn('products', 'treatment_category_id')) {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn('treatment_category_id');
         });
