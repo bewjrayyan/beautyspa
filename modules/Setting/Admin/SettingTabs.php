@@ -125,7 +125,15 @@ class SettingTabs extends Tabs
             $appVersion = app(AppVersionService::class);
             $artisanCommands = app(ArtisanCommandService::class);
             $githubVersion = app(GitHubVersionService::class);
-            $git = $appVersion->gitInfo(true);
+
+            try {
+                // Never fetch from origin on page load — shared hosting can timeout and return 500.
+                $git = $appVersion->gitInfo(false);
+                $artisanButtons = $artisanCommands->buttons();
+            } catch (\Throwable) {
+                $git = ['available' => false];
+                $artisanButtons = [];
+            }
 
             $tab->view('setting::admin.settings.tabs.system', [
                 'appVersionMeta' => [
@@ -133,7 +141,7 @@ class SettingTabs extends Tabs
                     'git' => $git,
                     'github' => $githubVersion->cachedCheck(),
                 ],
-                'artisanCommands' => $artisanCommands->buttons(),
+                'artisanCommands' => $artisanButtons,
             ]);
         });
     }
@@ -204,9 +212,13 @@ class SettingTabs extends Tabs
 
     private function getMedia($fileId)
     {
-        return Cache::rememberForever(md5("files.{$fileId}"), function () use ($fileId) {
+        try {
+            return Cache::rememberForever(md5("files.{$fileId}"), function () use ($fileId) {
+                return File::findOrNew($fileId);
+            });
+        } catch (\Throwable) {
             return File::findOrNew($fileId);
-        });
+        }
     }
 
 

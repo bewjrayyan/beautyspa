@@ -43,7 +43,11 @@ class AppVersionService
         }
 
         if ($fetchRemote) {
-            $this->runGit('fetch origin 2>&1');
+            try {
+                $this->runGit('fetch origin 2>&1');
+            } catch (\Throwable) {
+                // Ignore — fetch is optional and may be blocked on shared hosting.
+            }
         }
 
         $commit = $this->runGit('rev-parse --short HEAD 2>/dev/null');
@@ -71,7 +75,12 @@ class AppVersionService
         $info['remote_commit'] = $remoteCommit !== '' ? $remoteCommit : null;
         $info['commits_behind'] = max(0, $commitsBehind);
         $info['update_available'] = $commitsBehind > 0;
-        $info['remote_version'] = $this->remoteVersionFromUpstream($upstream);
+
+        try {
+            $info['remote_version'] = $this->remoteVersionFromUpstream($upstream);
+        } catch (\Throwable) {
+            $info['remote_version'] = null;
+        }
 
         return $info;
     }
