@@ -146,8 +146,8 @@ class GitHubVersionService
             return $configured;
         }
 
-        if (is_dir(base_path('.git'))) {
-            $branch = trim((string) shell_exec(
+        if (is_dir(base_path('.git')) && function_exists('shell_exec')) {
+            $branch = trim((string) \shell_exec(
                 'cd '.escapeshellarg(base_path()).' && git branch --show-current 2>/dev/null'
             ));
 
@@ -161,11 +161,11 @@ class GitHubVersionService
 
     private function gitRemoteUrl(): ?string
     {
-        if (! is_dir(base_path('.git'))) {
+        if (! is_dir(base_path('.git')) || ! function_exists('shell_exec')) {
             return null;
         }
 
-        $url = trim((string) shell_exec(
+        $url = trim((string) \shell_exec(
             'cd '.escapeshellarg(base_path()).' && git remote get-url origin 2>/dev/null'
         ));
 

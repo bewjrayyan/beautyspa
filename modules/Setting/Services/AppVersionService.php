@@ -38,16 +38,12 @@ class AppVersionService
     {
         $base = base_path();
 
-        if (! is_dir($base.'/.git')) {
+        if (! is_dir($base.'/.git') || ! $this->canRunShell()) {
             return ['available' => false];
         }
 
         if ($fetchRemote) {
-            try {
-                $this->runGit('fetch origin 2>&1');
-            } catch (\Throwable) {
-                // Ignore — fetch is optional and may be blocked on shared hosting.
-            }
+            $this->runGit('fetch origin 2>&1');
         }
 
         $commit = $this->runGit('rev-parse --short HEAD 2>/dev/null');
@@ -94,7 +90,7 @@ class AppVersionService
     {
         $base = base_path();
 
-        if (! is_dir($base.'/.git')) {
+        if (! is_dir($base.'/.git') || ! $this->canRunShell()) {
             throw new RuntimeException(trans('setting::settings.form.app_version_git_unavailable'));
         }
 
@@ -149,7 +145,11 @@ class AppVersionService
 
     private function remoteVersionFromUpstream(string $upstream): ?string
     {
-        $remoteFile = trim((string) shell_exec(
+        if (! $this->canRunShell()) {
+            return null;
+        }
+
+        $remoteFile = trim((string) \shell_exec(
             'cd '.escapeshellarg(base_path()).' && git show '.escapeshellarg($upstream).':app/AestheticCart.php 2>/dev/null'
         ));
 
@@ -181,8 +181,33 @@ class AppVersionService
 
     private function runGit(string $command): string
     {
-        return trim((string) shell_exec(
+        if (! $this->canRunShell()) {
+            return '';
+        }
+
+        return trim((string) \shell_exec(
             'cd '.escapeshellarg(base_path()).' && git '.$command
         ));
+    }
+
+
+    private function canRunShell(): bool
+    {
+        return function_exists('shell_exec') && ! in_array('shell_exec', $this->disabledFunctions(), true);
+    }
+
+
+    /**
+     * @return list<string>
+     */
+    private function disabledFunctions(): array
+    {
+        $disabled = ini_get('disable_functions');
+
+        if (! is_string($disabled) || trim($disabled) === '') {
+            return [];
+        }
+
+        return array_map('trim', explode(',', $disabled));
     }
 }
