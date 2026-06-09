@@ -182,4 +182,6 @@
             @endforeach
         </div>
     @endcomponent
+
+    @include('setting::admin.settings.partials.catalog_sync', ['catalogSync' => $catalogSync ?? []])
 </div>

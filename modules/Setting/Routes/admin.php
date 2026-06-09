@@ -61,3 +61,27 @@ Route::delete('settings/onesender-queue/{message}', [
     'uses' => 'OneSenderOutboundQueueController@destroy',
     'middleware' => 'can:admin.settings.edit',
 ]);
+
+Route::get('settings/catalog-sync/export', [
+    'as' => 'admin.catalog_sync.export',
+    'uses' => 'CatalogSyncController@export',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
+Route::post('settings/catalog-sync/import', [
+    'as' => 'admin.catalog_sync.import',
+    'uses' => 'CatalogSyncController@import',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
+Route::post('settings/catalog-sync/pull', [
+    'as' => 'admin.catalog_sync.pull',
+    'uses' => 'CatalogSyncController@pull',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
+Route::post('settings/catalog-sync/import-stored', [
+    'as' => 'admin.catalog_sync.import_stored',
+    'uses' => 'CatalogSyncController@importStored',
+    'middleware' => 'can:admin.settings.edit',
+]);

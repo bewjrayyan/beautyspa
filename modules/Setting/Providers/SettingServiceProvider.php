@@ -26,6 +26,11 @@ class SettingServiceProvider extends ServiceProvider
             module_path('Setting', 'Config/app_version.php'),
             'setting.app_version'
         );
+
+        $this->mergeConfigFrom(
+            module_path('Setting', 'Config/catalog_sync.php'),
+            'setting.catalog_sync'
+        );
     }
 
     /**

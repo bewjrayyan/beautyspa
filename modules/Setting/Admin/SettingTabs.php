@@ -6,6 +6,7 @@ use Modules\Admin\Ui\Tabs;
 use Modules\Setting\Admin\SettingTab;
 use Modules\Setting\Services\AppVersionService;
 use Modules\Setting\Services\ArtisanCommandService;
+use Modules\Setting\Services\CatalogSyncService;
 use Modules\Setting\Services\GitHubVersionService;
 use Modules\Support\Locale;
 use Modules\Support\Country;
@@ -135,6 +136,8 @@ class SettingTabs extends Tabs
                 $artisanButtons = [];
             }
 
+            $catalogSync = app(CatalogSyncService::class);
+
             $tab->view('setting::admin.settings.tabs.system', [
                 'appVersionMeta' => [
                     'local_version' => $appVersion->codeVersion(),
@@ -142,6 +145,12 @@ class SettingTabs extends Tabs
                     'github' => $githubVersion->cachedCheck(),
                 ],
                 'artisanCommands' => $artisanButtons,
+                'catalogSync' => [
+                    'export_url' => $catalogSync->exportUrl(),
+                    'token_configured' => trim((string) config('setting.catalog_sync.token')) !== '',
+                    'source_url' => setting('catalog_sync_source_url') ?: config('setting.catalog_sync.default_source_url'),
+                    'bundle_exists' => $catalogSync->bundleExists(),
+                ],
             ]);
         });
     }

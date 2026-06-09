@@ -233,6 +233,7 @@ return [
         'app_version_pull' => 'Pull versi terkini',
         'app_version_deploy' => 'Deploy kemas kini',
         'artisan_commands' => 'Perintah Artisan',
+        'catalog_sync' => 'Sync katalog (produk & data)',
     ],
     'form' => [
 
@@ -416,6 +417,23 @@ return [
         'artisan_run' => 'Jalankan',
         'artisan_command_invalid' => 'Perintah ini tidak dibenarkan.',
         'artisan_command_not_installed' => 'Aplikasi belum dipasang sepenuhnya.',
+        'catalog_sync_help' => 'Eksport semua produk, kategori, menu, halaman, tetapan, dan media dari laman tempatan dan import ke pelayan ini. Akaun admin dan pesanan tidak diganti.',
+        'catalog_sync_export_title' => '1. Eksport dari local (dev)',
+        'catalog_sync_export_help' => 'Muat turun bundle katalog dari pelayan ini. Jalankan di localhost/fleetcart selepas siap edit produk.',
+        'catalog_sync_export_button' => 'Muat turun bundle katalog',
+        'catalog_sync_export_url' => 'Production boleh pull dari URL ini (token sama dalam .env kedua-dua pelayan):',
+        'catalog_sync_token_hint' => 'Set CATALOG_SYNC_TOKEN dalam .env pada local dan production untuk URL eksport dan pull jarak jauh.',
+        'catalog_sync_import_title' => '2. Import ke production',
+        'catalog_sync_import_help' => 'Muat naik catalog-bundle.zip yang dieksport dari Admin → Tetapan → System di local.',
+        'catalog_sync_import_button' => 'Muat naik & import bundle',
+        'catalog_sync_import_stored_button' => 'Import bundle yang sudah ada di pelayan',
+        'catalog_sync_import_confirm' => 'Ini menggantikan kandungan katalog (produk, kategori, media, dll.). Login admin kekal. Teruskan?',
+        'catalog_sync_pull_title' => '3. Pull dari URL dev',
+        'catalog_sync_pull_help' => 'Ambil bundle terus dari URL eksport dev yang boleh diakses (perlukan CATALOG_SYNC_TOKEN).',
+        'catalog_sync_source_url' => 'URL eksport dev',
+        'catalog_sync_pull_button' => 'Pull & import dari URL',
+        'catalog_sync_pull_confirm' => 'Pull data katalog dari URL dev dan ganti kandungan katalog semasa?',
+        'catalog_sync_localhost_note' => 'http://localhost hanya berfungsi pada mesin yang sama. Untuk production jauh, eksport bundle di local dan muat naik, atau guna ngrok dan masukkan URL di sini.',
         'artisan_commands' => [
             'optimize_clear' => [
                 'label' => 'Kosongkan semua cache',
