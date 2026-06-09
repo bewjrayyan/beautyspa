@@ -1,4 +1,4 @@
-<section x-data="FeaturedCategories(@json($featuredCategories['categories']->pluck('name')->values()))" class="featured-categories-wrap">
+<section x-data="FeaturedCategories({{ $featuredCategories['categories']->pluck('name')->values()->toJson() }})" class="featured-categories-wrap">
     <div class="container">
         <div class="featured-categories-header">
             <div class="featured-categories-text">
