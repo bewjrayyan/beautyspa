@@ -82,19 +82,23 @@ class TranslationLoader extends FileLoader
      */
     private function databaseTranslations($locale, $group, $namespace)
     {
-        return Translation::where('key', 'LIKE', "{$namespace}::{$group}.%")
-            ->whereHas('translations', function ($query) use ($locale) {
-                $query->where('locale', $locale);
-            })->get()->mapWithKeys(function ($translation) use ($namespace, $group, $locale) {
-                $key = str_replace("{$namespace}::{$group}.", '', $translation->key);
-                $value = $translation->translate($locale)?->value;
+        try {
+            return Translation::where('key', 'LIKE', "{$namespace}::{$group}.%")
+                ->whereHas('translations', function ($query) use ($locale) {
+                    $query->where('locale', $locale);
+                })->get()->mapWithKeys(function ($translation) use ($namespace, $group, $locale) {
+                    $key = str_replace("{$namespace}::{$group}.", '', $translation->key);
+                    $value = $translation->translate($locale)?->value;
 
-                if ($key === '' || $value === null) {
-                    return [];
-                }
+                    if ($key === '' || $value === null) {
+                        return [];
+                    }
 
-                return [$key => $value];
-            })->all();
+                    return [$key => $value];
+                })->all();
+        } catch (\Throwable) {
+            return [];
+        }
     }
 
 

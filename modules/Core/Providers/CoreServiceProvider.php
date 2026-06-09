@@ -71,7 +71,9 @@ class CoreServiceProvider extends ServiceProvider
             return;
         }
 
-        CacheHealth::apply();
+        if (class_exists(CacheHealth::class)) {
+            CacheHealth::apply();
+        }
 
         $this->prepareWritableStorage();
         $this->prepareCacheStorePath();
