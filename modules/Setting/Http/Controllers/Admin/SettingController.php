@@ -130,6 +130,22 @@ class SettingController
             return $redirect->with('success', trans('setting::messages.app_version_synced', ['version' => $version]));
         }
 
+        if ($request->input('app_version_action') === 'github_update') {
+            try {
+                $result = $githubVersion->downloadAndApply();
+            } catch (\Throwable $exception) {
+                return $redirect->with('error', $exception->getMessage());
+            }
+
+            Artisan::call('config:clear');
+            Artisan::call('cache:clear');
+            Artisan::call('view:clear');
+
+            session()->forget($githubVersion->sessionKey());
+
+            return $redirect->with('success', trans('setting::messages.app_version_github_updated', ['version' => $result['version']]));
+        }
+
         if ($request->input('app_version_action') !== 'pull_latest') {
             return $redirect;
         }

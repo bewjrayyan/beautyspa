@@ -81,6 +81,174 @@ class GitHubVersionService
         ];
     }
 
+    /**
+     * Download the latest code zip from GitHub and overwrite app files in place.
+     * Designed for shared hosting where git/shell_exec are unavailable.
+     *
+     * @return array{version: string, repo: string, branch: string}
+     */
+    public function downloadAndApply(): array
+    {
+        if (! class_exists(\ZipArchive::class)) {
+            throw new RuntimeException(trans('setting::settings.form.app_version_github_zip_unavailable'));
+        }
+
+        [$owner, $repo] = $this->resolveRepository();
+        $branch = $this->resolveBranch();
+
+        $workDir = storage_path('app/app-update');
+        $this->resetDirectory($workDir);
+
+        $zipPath = $workDir.'/update.zip';
+
+        $request = Http::timeout(180)
+            ->withHeaders($this->requestHeaders())
+            ->sink($zipPath);
+
+        if ($this->hasToken()) {
+            $request = $request->withToken((string) config('setting.app_version.github_token'));
+        }
+
+        $response = $request->get("https://api.github.com/repos/{$owner}/{$repo}/zipball/{$branch}");
+
+        if ($response->status() === 404 && ! $this->hasToken()) {
+            throw new RuntimeException(trans('setting::settings.form.app_version_github_private_repo'));
+        }
+
+        if (! $response->successful() || ! is_file($zipPath) || filesize($zipPath) === 0) {
+            throw new RuntimeException(trans('setting::settings.form.app_version_github_download_failed', [
+                'status' => $response->status(),
+            ]));
+        }
+
+        $extractDir = $workDir.'/extracted';
+        @mkdir($extractDir, 0775, true);
+
+        $zip = new \ZipArchive();
+
+        if ($zip->open($zipPath) !== true || ! $zip->extractTo($extractDir)) {
+            $zip->close();
+            throw new RuntimeException(trans('setting::settings.form.app_version_github_extract_failed'));
+        }
+
+        $zip->close();
+
+        $sourceRoot = $this->firstSubdirectory($extractDir);
+
+        if ($sourceRoot === null) {
+            throw new RuntimeException(trans('setting::settings.form.app_version_github_extract_failed'));
+        }
+
+        $this->copyTreeOverApp($sourceRoot, base_path());
+
+        $this->resetDirectory($workDir, false);
+
+        $version = $this->parseVersionFromContent(
+            (string) @file_get_contents(base_path((string) config('setting.app_version.version_file', 'app/AestheticCart.php')))
+        );
+
+        if ($version === null) {
+            throw new RuntimeException(trans('setting::settings.form.app_version_github_version_missing'));
+        }
+
+        setting(['app_version' => $version]);
+
+        return [
+            'version' => $version,
+            'repo' => "{$owner}/{$repo}",
+            'branch' => $branch,
+        ];
+    }
+
+    /**
+     * Copy every top-level entry from the extracted source into the app root,
+     * skipping paths that must never be overwritten from a release zip.
+     */
+    private function copyTreeOverApp(string $source, string $destination): void
+    {
+        $protected = ['.git', '.github', '.env', 'storage', 'vendor', 'node_modules'];
+
+        foreach (scandir($source) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..' || in_array($entry, $protected, true)) {
+                continue;
+            }
+
+            $this->recursiveCopy($source.'/'.$entry, $destination.'/'.$entry);
+        }
+    }
+
+    private function recursiveCopy(string $source, string $destination): void
+    {
+        if (is_dir($source)) {
+            if (! is_dir($destination) && ! @mkdir($destination, 0775, true) && ! is_dir($destination)) {
+                throw new RuntimeException(trans('setting::settings.form.app_version_github_write_failed', [
+                    'path' => $destination,
+                ]));
+            }
+
+            foreach (scandir($source) ?: [] as $entry) {
+                if ($entry === '.' || $entry === '..') {
+                    continue;
+                }
+
+                $this->recursiveCopy($source.'/'.$entry, $destination.'/'.$entry);
+            }
+
+            return;
+        }
+
+        if (! @copy($source, $destination)) {
+            throw new RuntimeException(trans('setting::settings.form.app_version_github_write_failed', [
+                'path' => $destination,
+            ]));
+        }
+    }
+
+    private function firstSubdirectory(string $path): ?string
+    {
+        foreach (scandir($path) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $full = $path.'/'.$entry;
+
+            if (is_dir($full)) {
+                return $full;
+            }
+        }
+
+        return null;
+    }
+
+    private function resetDirectory(string $path, bool $recreate = true): void
+    {
+        if (is_dir($path)) {
+            $this->deleteDirectory($path);
+        }
+
+        if ($recreate && ! @mkdir($path, 0775, true) && ! is_dir($path)) {
+            throw new RuntimeException(trans('setting::settings.form.app_version_github_write_failed', [
+                'path' => $path,
+            ]));
+        }
+    }
+
+    private function deleteDirectory(string $path): void
+    {
+        foreach (scandir($path) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $full = $path.'/'.$entry;
+
+            is_dir($full) ? $this->deleteDirectory($full) : @unlink($full);
+        }
+
+        @rmdir($path);
+    }
+
     private function fetchVersionFromGitHub(string $owner, string $repo, string $branch, string $versionFile): ?string
     {
         if (! $this->hasToken()) {

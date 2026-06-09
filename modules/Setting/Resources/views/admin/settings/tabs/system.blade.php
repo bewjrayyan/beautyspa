@@ -139,8 +139,20 @@
                 <button
                     type="submit"
                     name="app_version_action"
-                    value="sync_version"
+                    value="github_update"
                     class="btn btn-primary"
+                    formnovalidate
+                    onclick="return confirm(@json(trans('setting::settings.form.app_version_github_update_confirm')));"
+                >
+                    <i class="fa fa-cloud-download"></i>
+                    {{ trans('setting::settings.form.app_version_github_update') }}
+                </button>
+
+                <button
+                    type="submit"
+                    name="app_version_action"
+                    value="sync_version"
+                    class="btn btn-default"
                     formnovalidate
                 >
                     <i class="fa fa-refresh"></i>
@@ -148,6 +160,7 @@
                 </button>
             </div>
 
+            <p class="help-block text-muted app-version-workflow">{{ trans('setting::settings.form.app_version_github_update_workflow') }}</p>
             <p class="help-block text-muted app-version-workflow">{{ trans('setting::settings.form.app_version_deploy_workflow') }}</p>
         @endcomponent
     @endif
