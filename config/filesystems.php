@@ -55,7 +55,8 @@ return [
 
         'public_storage' => [
             'driver' => 'local',
-            'root' => public_path('storage'),
+            // Same physical root as "public" — avoids Flysystem trying to mkdir public/storage.
+            'root' => storage_path('app/public'),
             'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],

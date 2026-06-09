@@ -1,4 +1,4 @@
-<section x-data="FeaturedCategories({{ $featuredCategories['categories'] }})" class="featured-categories-wrap">
+<section x-data="FeaturedCategories(@json($featuredCategories['categories']->pluck('name')->values()))" class="featured-categories-wrap">
     <div class="container">
         <div class="featured-categories-header">
             <div class="featured-categories-text">
@@ -15,9 +15,9 @@
                         @click="changeTab({{ $key }})"
                     >
                         <div class="featured-category-image">
-                            @if ($tab['logo']->path)
+                            @if ($tab['logo_path'])
                                 <img
-                                    src="{{ $tab['logo']->path }}"
+                                    src="{{ $tab['logo_path'] }}"
                                     alt="Category logo"
                                     loading="lazy"
                                 />

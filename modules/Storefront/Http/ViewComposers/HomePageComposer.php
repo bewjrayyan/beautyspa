@@ -11,6 +11,7 @@ use Modules\Blog\Entities\BlogPost;
 use Modules\Slider\Entities\Slider;
 use Illuminate\Support\Facades\Cache;
 use Modules\Category\Entities\Category;
+use Modules\Media\Entities\File;
 use Modules\Storefront\Support\GoogleReviewsSettings;
 
 class HomePageComposer
@@ -73,9 +74,13 @@ class HomePageComposer
             })
             ->get()
             ->map(function ($category) {
+                $file = $category->files->where('pivot.zone', 'logo')->first();
+
                 return [
                     'name' => $category->name,
-                    'logo' => $category->logo,
+                    'logo_path' => $file && $file->getRawOriginal('path')
+                        ? File::publicUrl($file->getRawOriginal('path'), $file->disk)
+                        : null,
                 ];
             });
     }

@@ -75,9 +75,29 @@ class File extends Model
      */
     public function getPathAttribute($path)
     {
-        if (!is_null($path)) {
-            return cdn_url(Storage::disk($this->disk)->url($path), 'media');
+        if (is_null($path)) {
+            return null;
         }
+
+        try {
+            return cdn_url(Storage::disk($this->disk)->url($path), 'media');
+        } catch (\Throwable) {
+            return static::publicUrl($path, $this->disk);
+        }
+    }
+
+
+    /**
+     * Build a public media URL without initializing the filesystem disk.
+     */
+    public static function publicUrl(string $path, ?string $diskName = null): string
+    {
+        $diskName = $diskName ?: 'public_storage';
+        $baseUrl = config("filesystems.disks.{$diskName}.url")
+            ?? config('filesystems.disks.public.url')
+            ?? rtrim((string) config('app.url'), '/') . '/storage';
+
+        return cdn_url(rtrim($baseUrl, '/') . '/' . ltrim($path, '/'), 'media');
     }
 
 
@@ -91,7 +111,12 @@ class File extends Model
         }
 
         $entries = [];
-        $disk = Storage::disk($this->disk);
+
+        try {
+            $disk = Storage::disk($this->disk);
+        } catch (\Throwable) {
+            return '';
+        }
 
         foreach ($this->normalizedResponsivePaths() as $width => $variantPath) {
             if (is_string($variantPath) && $variantPath !== '') {

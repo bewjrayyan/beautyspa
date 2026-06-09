@@ -15,6 +15,8 @@ class WritableStorageBootstrap
             static::ensureDirectory($directory);
         }
 
+        static::ensurePublicStorageLink();
+
         if (static::isLocalEnvironment()) {
             $logFile = static::logPath();
 
@@ -172,6 +174,36 @@ class WritableStorageBootstrap
 
         @chmod($path, 0777);
     }
+
+
+    /**
+     * Ensure public/storage points at storage/app/public so /storage/* URLs work.
+     */
+    public static function ensurePublicStorageLink(): void
+    {
+        $link = public_path('storage');
+        $target = storage_path('app/public');
+
+        static::ensureDirectory($target);
+
+        if (is_link($link)) {
+            $resolved = @realpath($link);
+            $targetResolved = @realpath($target);
+
+            if ($resolved !== false && $targetResolved !== false && $resolved === $targetResolved) {
+                return;
+            }
+
+            @unlink($link);
+        }
+
+        if (is_dir($link) || is_file($link)) {
+            return;
+        }
+
+        @symlink($target, $link);
+    }
+
 
     private static function chmodRecursive(string $path, int $mode): void
     {

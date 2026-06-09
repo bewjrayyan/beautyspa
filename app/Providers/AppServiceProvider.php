@@ -49,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
 
             config([
                 'filesystems.disks.public.url' => $root.'/storage',
+                'filesystems.disks.public_storage.url' => $root.'/storage',
                 'filesystems.disks.local.url' => $root.'/storage',
             ]);
 
