@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.40' => [
+        'en' => [
+            'summary' => 'Fix admin users list status, profile hero avatar, and access layout.',
+            'changes' => [
+                'Show activation status correctly on the users index (Sentinel, not is_active).',
+                'Fix profile hero avatar photo display and live sync when uploading a photo.',
+                'Lay out Roles and Activated side by side on the user edit account tab.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki status senarai pengguna admin, avatar hero profil, dan susun atur akses.',
+            'changes' => [
+                'Papar status pengaktifan dengan betul pada indeks pengguna (Sentinel, bukan is_active).',
+                'Baiki paparan foto avatar hero profil dan sync langsung semasa muat naik foto.',
+                'Susun Peranan dan Diaktifkan sebelah menyebelah pada tab akaun edit pengguna.',
+            ],
+        ],
+    ],
     '4.7.39' => [
         'en' => [
             'summary' => 'Restore hidden admin menus (Beauticians, Spa Branches, and other new modules).',

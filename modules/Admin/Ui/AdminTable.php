@@ -29,6 +29,13 @@ class AdminTable implements Responsable
     ];
 
     /**
+     * Whether to render the default is_active status badge column.
+     *
+     * @var bool
+     */
+    protected bool $editDefaultStatusColumn = true;
+
+    /**
      * Source of the table.
      *
      * @var Builder
@@ -83,15 +90,20 @@ class AdminTable implements Responsable
      */
     public function newTable()
     {
-        return datatables($this->source)
+        $builder = datatables($this->source)
             ->addColumn('checkbox', function ($entity) {
                 return view('admin::partials.table.checkbox', compact('entity'));
-            })
-            ->editColumn('status', function ($entity) {
+            });
+
+        if ($this->editDefaultStatusColumn) {
+            $builder->editColumn('status', function ($entity) {
                 return $entity->is_active
                     ? '<span class="badge badge-success">' . trans('admin::admin.table.active') . '</span>'
                     : '<span class="badge badge-danger">' . trans('admin::admin.table.inactive') . '</span>';
-            }) 
+            });
+        }
+
+        return $builder
             ->editColumn('created', function ($entity) {
                 return view('admin::partials.table.date')->with('date', $entity->created_at);
             })

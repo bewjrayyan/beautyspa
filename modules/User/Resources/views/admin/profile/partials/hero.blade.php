@@ -7,6 +7,7 @@
     }
 
     $accent = $user->avatarBackgroundColor();
+    $heroAvatarUrl = $user->avatarUrl();
     $beauticianProfile = $user->beauticianProfile ?? null;
     $memberSince = $user->created_at
         ? $user->created_at->timezone(config('app.timezone'))->format('d M Y')
@@ -18,10 +19,28 @@
 
 <header class="admin-profile-hero" style="--profile-accent: {{ $accent }};">
     <div class="admin-profile-hero__main">
-        @include('user::admin.partials.avatar', [
-            'user' => $user,
-            'class' => 'admin-profile-hero__avatar profile-first-letter',
-        ])
+        @if ($heroAvatarUrl)
+            <span
+                class="admin-profile-hero__avatar admin-profile-hero__avatar--photo"
+                data-admin-profile-hero-avatar
+                data-initial="{{ $user->avatarInitial() }}"
+                data-accent="{{ $accent }}"
+            >
+                <img
+                    src="{{ $heroAvatarUrl }}"
+                    alt="{{ $user->full_name }}"
+                    data-admin-profile-hero-avatar-img
+                >
+            </span>
+        @else
+            <span
+                class="admin-profile-hero__avatar admin-profile-hero__avatar--initial"
+                data-admin-profile-hero-avatar
+                data-initial="{{ $user->avatarInitial() }}"
+                data-accent="{{ $accent }}"
+                style="background-color: {{ $accent }};"
+            >{{ $user->avatarInitial() }}</span>
+        @endif
         <div class="admin-profile-hero__text">
             <h1 class="admin-profile-hero__name">{{ $user->full_name }}</h1>
             <p class="admin-profile-hero__email">{{ $user->email }}</p>

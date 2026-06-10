@@ -156,11 +156,11 @@
                 <p class="admin-profile-card__lead">{{ trans('user::users.profile_page.admin_access_lead') }}</p>
             </div>
 
-            <div class="admin-profile-card__grid admin-profile-form">
-                <div class="admin-profile-card__field admin-profile-card__field--full">
+            <div class="admin-profile-card__grid admin-profile-card__grid--access admin-profile-form">
+                <div class="admin-profile-card__field admin-profile-card__field--roles">
                     {{ Form::select('roles', trans('user::attributes.users.roles'), $errors, $roles ?? [], $accountUser, ['multiple' => true, 'required' => true, 'class' => 'selectize prevent-creation']) }}
                 </div>
-                <div class="admin-profile-card__field admin-profile-card__field--full">
+                <div class="admin-profile-card__field admin-profile-card__field--status">
                     {{ Form::checkbox('activated', trans('user::attributes.users.activated'), trans('user::users.form.activated'), $errors, $accountUser, [
                         'disabled' => $accountUser->id === $currentUser->id,
                         'checked' => old('activated', $accountUser->isActivated()),

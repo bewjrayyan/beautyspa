@@ -116,6 +116,9 @@ $profile-text: #1a202c;
     }
 
     &__avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 88px;
         height: 88px;
         border-radius: 50%;
@@ -124,18 +127,15 @@ $profile-text: #1a202c;
         overflow: hidden;
         flex-shrink: 0;
 
-        > span,
-        .profile-first-letter {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            width: 100% !important;
-            height: 100% !important;
-            min-width: 0;
-            border-radius: 50%;
+        &--initial {
             font-size: 32px;
             font-weight: 700;
             color: #fff;
+            line-height: 1;
+        }
+
+        &--photo {
+            background: transparent;
         }
 
         img {
@@ -406,6 +406,32 @@ $profile-text: #1a202c;
 
     &__grid--password {
         max-width: 480px;
+    }
+
+    &__grid--access {
+        align-items: start;
+    }
+
+    &__field--status {
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .checkbox {
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding-top: 0;
+        }
+
+        .checkbox label {
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: normal;
+            color: $profile-text;
+        }
     }
 }
 

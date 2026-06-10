@@ -9,6 +9,13 @@ use Illuminate\Http\JsonResponse;
 class UserTable extends AdminTable
 {
     /**
+     * Users use Sentinel activation, not an is_active column.
+     *
+     * @var bool
+     */
+    protected bool $editDefaultStatusColumn = false;
+
+    /**
      * Raw columns that will not be escaped.
      *
      * @var array

@@ -139,6 +139,40 @@ function initProfileAddressCountryState(form) {
     }
 }
 
+function syncHeroAvatar(previewUrl, { removed = false } = {}) {
+    const hero = document.querySelector("[data-admin-profile-hero-avatar]");
+
+    if (!hero) {
+        return;
+    }
+
+    const accent = hero.dataset.accent || "#2584f0";
+    const initial = hero.dataset.initial || "?";
+
+    if (removed || !previewUrl) {
+        hero.className = "admin-profile-hero__avatar admin-profile-hero__avatar--initial";
+        hero.style.backgroundColor = accent;
+        hero.textContent = initial;
+
+        return;
+    }
+
+    hero.className = "admin-profile-hero__avatar admin-profile-hero__avatar--photo";
+    hero.style.backgroundColor = "";
+
+    let img = hero.querySelector("[data-admin-profile-hero-avatar-img]");
+
+    if (!img) {
+        hero.innerHTML = "";
+        img = document.createElement("img");
+        img.dataset.adminProfileHeroAvatarImg = "";
+        img.alt = "";
+        hero.appendChild(img);
+    }
+
+    img.src = previewUrl;
+}
+
 function initProfilePhoto(form) {
     const root = form.querySelector("[data-admin-profile-photo]");
 
@@ -152,6 +186,7 @@ function initProfilePhoto(form) {
     const preview = root.querySelector("[data-admin-profile-photo-preview]");
     const previewWrap = root.querySelector(".admin-profile-photo__preview");
     const removedHint = root.dataset.removedHint || "";
+    const initialPreviewHtml = previewWrap?.innerHTML || "";
 
     if (input) {
         input.addEventListener("change", () => {
@@ -176,7 +211,9 @@ function initProfilePhoto(form) {
                 previewWrap.appendChild(img);
             }
 
-            img.src = URL.createObjectURL(file);
+            const previewUrl = URL.createObjectURL(file);
+            img.src = previewUrl;
+            syncHeroAvatar(previewUrl);
         });
     }
 
@@ -190,7 +227,9 @@ function initProfilePhoto(form) {
 
             previewWrap.innerHTML = removedHint
                 ? `<span class="admin-profile-photo__removed">${removedHint}</span>`
-                : "";
+                : initialPreviewHtml;
+
+            syncHeroAvatar(null, { removed: true });
         });
     }
 }
