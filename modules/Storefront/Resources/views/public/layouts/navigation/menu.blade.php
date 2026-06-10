@@ -5,9 +5,11 @@
         target="{{ $menu->target() }}"
         title="{{ $menu->name() }}"
     >
-        @if ($menu->hasIcon())
+        @php($menuIcon = $menu->hasIcon() ? $menu->icon() : (($type ?? null) === 'category_menu' ? 'las la-tag' : null))
+
+        @if ($menuIcon)
             <span class="menu-item-icon">
-                <i class="{{ $menu->icon() }}"></i>
+                <i class="{{ $menuIcon }}"></i>
             </span>
         @endif
 
