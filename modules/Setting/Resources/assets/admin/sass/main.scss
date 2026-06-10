@@ -22,6 +22,15 @@ $settings-block-max: none;
     }
 }
 
+.settings-autofill-guard {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .settings-shell {
     margin: -4px 0 0;
     padding: 4px 0 24px;
@@ -128,6 +137,10 @@ $settings-block-max: none;
     font-family: "Inter", sans-serif;
     font-size: 14px;
     animation: settings-fade-in 0.4s ease;
+
+    .settings-main {
+        min-width: 0;
+    }
 
     &[data-active-tab="system"] .settings-panel__footer {
         display: none;

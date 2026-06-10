@@ -144,7 +144,28 @@ $(function () {
         return;
     }
 
+    const allowAutofillPattern = /store_email|mail_from_address|mail_from_name|mail_username|mail_password/i;
+
+    form.querySelectorAll("input, textarea, select").forEach((field) => {
+        const name = field.getAttribute("name") || "";
+        const type = (field.getAttribute("type") || "").toLowerCase();
+
+        if (type === "hidden" || type === "checkbox" || type === "radio" || type === "color" || type === "file") {
+            return;
+        }
+
+        if (!allowAutofillPattern.test(name)) {
+            field.setAttribute("autocomplete", "off");
+            field.setAttribute("data-lpignore", "true");
+            field.setAttribute("data-1p-ignore", "true");
+        }
+    });
+
     const searchInput = document.getElementById("settings-nav-search");
+
+    if (searchInput) {
+        searchInput.value = "";
+    }
     const navGroups = document.getElementById("settings-nav-groups");
     const unsavedBadge = document.getElementById("settings-unsaved-badge");
     let formDirty = false;

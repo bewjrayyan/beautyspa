@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.33' => [
+        'en' => [
+            'summary' => 'Stop browser autofill from injecting admin login email into settings fields.',
+            'changes' => [
+                'Move settings sidebar search outside the save form and block password-manager autofill on unrelated inputs.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hentikan autofill pelayar daripada memasukkan e-mel log masuk admin ke medan tetapan.',
+            'changes' => [
+                'Alihkan carian sidebar tetapan keluar dari borang simpan dan sekat autofill pengurus kata laluan pada input yang tidak berkaitan.',
+            ],
+        ],
+    ],
     '4.7.32' => [
         'en' => [
             'summary' => 'Fix duplicate error when restoring homepage blog section settings.',

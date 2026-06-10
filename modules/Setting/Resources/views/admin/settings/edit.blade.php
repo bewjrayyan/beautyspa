@@ -34,12 +34,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.settings.update') }}" class="form-horizontal admin-settings-page" id="settings-edit-form" novalidate>
-            {{ csrf_field() }}
-            {{ method_field('put') }}
-
-            {!! $tabs->render(compact('settings')) !!}
-        </form>
+        {!! $tabs->render(compact('settings')) !!}
     </div>
 @endsection
 
