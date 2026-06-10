@@ -1815,6 +1815,80 @@ $settings-sidebar-offset: 16px;
     margin-bottom: 0;
 }
 
+.app-release-notes-block {
+    margin-bottom: 16px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &__label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: $settings-muted;
+    }
+}
+
+.app-release-notes {
+    padding: 14px 16px;
+    border: 1px solid $settings-border;
+    border-radius: 12px;
+    background: $settings-bg;
+
+    &.is-highlight {
+        border-color: color-mix(in srgb, #d97706 35%, $settings-border);
+        background: color-mix(in srgb, #d97706 8%, #fff);
+    }
+
+    &__version {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 16px;
+        color: $settings-text;
+    }
+
+    &__summary {
+        margin: 0 0 10px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: $settings-text;
+    }
+
+    &__list {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 13px;
+        line-height: 1.55;
+        color: $settings-muted;
+
+        li + li {
+            margin-top: 6px;
+        }
+    }
+}
+
+.app-release-notes-history {
+    margin-top: 12px;
+
+    summary {
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        color: $settings-primary;
+        user-select: none;
+    }
+
+    &__body {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+    }
+}
+
 @media (max-width: 991px) {
     .app-version-grid {
         grid-template-columns: 1fr;

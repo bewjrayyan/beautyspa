@@ -8,6 +8,7 @@ use Modules\Setting\Services\AppVersionService;
 use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Setting\Services\CatalogSyncService;
 use Modules\Setting\Services\GitHubVersionService;
+use Modules\Setting\Services\ReleaseNotesService;
 use Modules\Support\Locale;
 use Modules\Support\Country;
 use Modules\Support\TimeZone;
@@ -126,6 +127,7 @@ class SettingTabs extends Tabs
             $appVersion = app(AppVersionService::class);
             $artisanCommands = app(ArtisanCommandService::class);
             $githubVersion = app(GitHubVersionService::class);
+            $releaseNotes = app(ReleaseNotesService::class);
 
             try {
                 // Never fetch from origin on page load — shared hosting can timeout and return 500.
@@ -140,11 +142,22 @@ class SettingTabs extends Tabs
                 ? app(CatalogSyncService::class)
                 : null;
 
+            $localVersion = $appVersion->codeVersion();
+            $github = $githubVersion->cachedCheck();
+            $latestVersion = $git['remote_version'] ?? ($github['version'] ?? null);
+            $updateAvailable = ! empty($git['update_available']) || ! empty($github['update_available']);
+            $pendingNotes = ($updateAvailable && is_string($latestVersion) && $latestVersion !== '' && $latestVersion !== $localVersion)
+                ? $releaseNotes->forVersion($latestVersion)
+                : null;
+
             $tab->view('setting::admin.settings.tabs.system', [
                 'appVersionMeta' => [
-                    'local_version' => $appVersion->codeVersion(),
+                    'local_version' => $localVersion,
                     'git' => $git,
-                    'github' => $githubVersion->cachedCheck(),
+                    'github' => $github,
+                    'installed_notes' => $releaseNotes->forVersion($localVersion),
+                    'pending_notes' => $pendingNotes,
+                    'recent_notes' => $releaseNotes->recent(6),
                 ],
                 'artisanCommands' => $artisanButtons,
                 'catalogSync' => [

@@ -13,6 +13,9 @@
     $commitsBehind = (int) ($git['commits_behind'] ?? 0);
     $latestCommit = $git['remote_commit'] ?? ($github['commit'] ?? null);
     $githubCheckedAt = $github['checked_at'] ?? null;
+    $installedNotes = $meta['installed_notes'] ?? null;
+    $pendingNotes = $meta['pending_notes'] ?? null;
+    $recentNotes = $meta['recent_notes'] ?? [];
 @endphp
 
 <div class="settings-form">
@@ -106,6 +109,40 @@
             </p>
         @endif
     @endcomponent
+
+    @if ($installedNotes || $pendingNotes || ! empty($recentNotes))
+        @component('setting::admin.settings.partials.section', [
+            'icon' => 'fa-list-alt',
+            'title' => trans('setting::settings.sections.app_release_notes'),
+            'description' => trans('setting::settings.form.app_version_release_notes_help'),
+            'class' => 'st-section--release-notes',
+        ])
+            @if ($installedNotes)
+                <div class="app-release-notes-block">
+                    <span class="app-release-notes-block__label">{{ trans('setting::settings.form.app_version_installed_notes') }}</span>
+                    @include('setting::admin.settings.partials.release-notes', ['entry' => $installedNotes])
+                </div>
+            @endif
+
+            @if ($pendingNotes)
+                <div class="app-release-notes-block">
+                    <span class="app-release-notes-block__label">{{ trans('setting::settings.form.app_version_pending_notes') }}</span>
+                    @include('setting::admin.settings.partials.release-notes', ['entry' => $pendingNotes, 'highlight' => true])
+                </div>
+            @endif
+
+            @if (! empty($recentNotes))
+                <details class="app-release-notes-history">
+                    <summary>{{ trans('setting::settings.form.app_version_release_history') }}</summary>
+                    <div class="app-release-notes-history__body">
+                        @foreach ($recentNotes as $note)
+                            @include('setting::admin.settings.partials.release-notes', ['entry' => $note])
+                        @endforeach
+                    </div>
+                </details>
+            @endif
+        @endcomponent
+    @endif
 
     @if (! empty($git['available']))
         @component('setting::admin.settings.partials.section', [

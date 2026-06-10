@@ -16,6 +16,7 @@ use Modules\Setting\Http\Requests\UpdateSettingRequest;
 use Modules\Setting\Services\AppVersionService;
 use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Setting\Services\GitHubVersionService;
+use Modules\Setting\Services\ReleaseNotesService;
 use Modules\Setting\Support\SettingTabScope;
 use Modules\Support\Services\PWAService;
 
@@ -100,8 +101,12 @@ class SettingController
     }
 
 
-    private function handleAppVersionAction(UpdateSettingRequest $request, AppVersionService $appVersion, GitHubVersionService $githubVersion): RedirectResponse
-    {
+    private function handleAppVersionAction(
+        UpdateSettingRequest $request,
+        AppVersionService $appVersion,
+        GitHubVersionService $githubVersion,
+        ReleaseNotesService $releaseNotes,
+    ): RedirectResponse {
         $redirect = redirect()->to(route('admin.settings.edit').'?tab=system');
 
         if ($request->input('app_version_action') === 'check_github') {
@@ -128,7 +133,11 @@ class SettingController
         if ($request->input('app_version_action') === 'sync_version') {
             $version = $appVersion->syncPublishedVersion();
 
-            return $redirect->with('success', trans('setting::messages.app_version_synced', ['version' => $version]));
+            return $redirect->with('success', $releaseNotes->messageWithNotes(
+                'setting::messages.app_version_synced',
+                ['version' => $version],
+                $version
+            ));
         }
 
         if ($request->input('app_version_action') === 'github_update') {
@@ -146,7 +155,11 @@ class SettingController
 
             session()->forget($githubVersion->sessionKey());
 
-            return $redirect->with('success', trans('setting::messages.app_version_github_updated', ['version' => $result['version']]));
+            return $redirect->with('success', $releaseNotes->messageWithNotes(
+                'setting::messages.app_version_github_updated',
+                ['version' => $result['version']],
+                $result['version']
+            ));
         }
 
         if ($request->input('app_version_action') !== 'pull_latest') {
@@ -159,10 +172,14 @@ class SettingController
             return $redirect->with('error', $exception->getMessage());
         }
 
-        $message = $result['updated']
-            ? trans('setting::messages.app_version_pulled', ['version' => $result['version']])
-            : trans('setting::messages.app_version_already_latest', ['version' => $result['version']]);
+        $messageKey = $result['updated']
+            ? 'setting::messages.app_version_pulled'
+            : 'setting::messages.app_version_already_latest';
 
-        return $redirect->with('success', $message);
+        return $redirect->with('success', $releaseNotes->messageWithNotes(
+            $messageKey,
+            ['version' => $result['version']],
+            $result['version']
+        ));
     }
 }
