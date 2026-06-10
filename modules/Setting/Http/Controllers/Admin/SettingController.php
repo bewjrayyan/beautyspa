@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
+use AestheticCart\Updater;
 use Illuminate\Support\Facades\Artisan;
 use Modules\Admin\Ui\Facades\TabManager;
 use Modules\Media\Entities\File;
@@ -137,9 +138,11 @@ class SettingController
                 return $redirect->with('error', $exception->getMessage());
             }
 
-            Artisan::call('config:clear');
-            Artisan::call('cache:clear');
-            Artisan::call('view:clear');
+            Artisan::call('optimize:clear');
+
+            if (config('app.installed')) {
+                Updater::run();
+            }
 
             session()->forget($githubVersion->sessionKey());
 
