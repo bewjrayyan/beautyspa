@@ -63,7 +63,7 @@ class GitHubVersionService
             ]));
         }
 
-        $version = $this->fetchVersionFromGitHub($owner, $repo, $branch, $versionFile);
+        $version = $this->fetchVersionFromGitHub($owner, $repo, $versionFile, $sha);
 
         if ($version === null) {
             throw new RuntimeException(trans('setting::settings.form.app_version_github_version_missing'));
@@ -249,35 +249,39 @@ class GitHubVersionService
         @rmdir($path);
     }
 
-    private function fetchVersionFromGitHub(string $owner, string $repo, string $branch, string $versionFile): ?string
+    /**
+     * Read VERSION from a specific commit/ref so the result matches the commit SHA
+     * returned by the GitHub API (raw branch URLs can lag behind on CDN cache).
+     */
+    private function fetchVersionFromGitHub(string $owner, string $repo, string $versionFile, string $ref): ?string
     {
-        if (! $this->hasToken()) {
-            $rawResponse = Http::timeout(20)
-                ->withHeaders(['User-Agent' => $this->userAgent()])
-                ->get("https://raw.githubusercontent.com/{$owner}/{$repo}/{$branch}/{$versionFile}");
+        $contentsResponse = $this->githubRequest(
+            "https://api.github.com/repos/{$owner}/{$repo}/contents/{$versionFile}",
+            ['ref' => $ref]
+        );
 
-            if ($rawResponse->successful()) {
-                return $this->parseVersionFromContent($rawResponse->body());
+        if ($contentsResponse->successful()) {
+            $encoded = (string) $contentsResponse->json('content', '');
+            $decoded = base64_decode(str_replace(["\n", "\r"], '', $encoded), true);
+
+            if (is_string($decoded) && $decoded !== '') {
+                $version = $this->parseVersionFromContent($decoded);
+
+                if ($version !== null) {
+                    return $version;
+                }
             }
         }
 
-        $contentsResponse = $this->githubRequest(
-            "https://api.github.com/repos/{$owner}/{$repo}/contents/{$versionFile}",
-            ['ref' => $branch]
-        );
+        $rawResponse = Http::timeout(20)
+            ->withHeaders(['User-Agent' => $this->userAgent()])
+            ->get("https://raw.githubusercontent.com/{$owner}/{$repo}/{$ref}/{$versionFile}");
 
-        if (! $contentsResponse->successful()) {
-            throw new RuntimeException(trans('setting::settings.form.app_version_github_file_failed'));
+        if ($rawResponse->successful()) {
+            return $this->parseVersionFromContent($rawResponse->body());
         }
 
-        $encoded = (string) $contentsResponse->json('content', '');
-        $decoded = base64_decode(str_replace(["\n", "\r"], '', $encoded), true);
-
-        if (! is_string($decoded) || $decoded === '') {
-            throw new RuntimeException(trans('setting::settings.form.app_version_github_file_failed'));
-        }
-
-        return $this->parseVersionFromContent($decoded);
+        throw new RuntimeException(trans('setting::settings.form.app_version_github_file_failed'));
     }
 
     /**
