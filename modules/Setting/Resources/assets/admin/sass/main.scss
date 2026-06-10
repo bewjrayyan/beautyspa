@@ -134,10 +134,13 @@ $settings-block-max: none;
     }
 }
 
+$settings-sidebar-offset: 16px;
+
 .settings-sidebar {
     position: sticky;
-    top: 72px;
+    top: $settings-sidebar-offset;
     align-self: start;
+    max-height: calc(100vh - #{$settings-sidebar-offset * 2});
 }
 
 .settings-page-header {
@@ -166,7 +169,8 @@ $settings-block-max: none;
     background: #fff;
     box-shadow: $settings-shadow-md;
     padding: 12px 10px 14px;
-    max-height: calc(100vh - 96px);
+    height: calc(100vh - #{$settings-sidebar-offset * 2});
+    max-height: calc(100vh - #{$settings-sidebar-offset * 2});
     overflow: hidden;
 }
 
@@ -871,13 +875,16 @@ $settings-block-max: none;
     }
 
     &__body {
-        > .row > .col-md-8 {
+        > .row > .col-md-8,
+        > .row > .col-md-12,
+        > .st-fields-grid--sections {
             max-width: 100%;
             padding: 0;
         }
 
         // Legacy tabs: first checkbox as enable card
-        > .row:not(.st-gateway) > .col-md-8 > .form-group:first-child {
+        > .row:not(.st-gateway) > .col-md-8 > .form-group:first-child,
+        > .row:not(.st-gateway) > .col-md-12 > .form-group:first-child {
             max-width: 100%;
             margin-bottom: 16px;
             padding: 12px 14px;
@@ -973,6 +980,79 @@ $settings-block-max: none;
     }
 
     &__body .form-group {
+        max-width: 100%;
+    }
+}
+
+.st-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 28px;
+    align-items: start;
+
+    &__col {
+        min-width: 0;
+    }
+
+    &__full {
+        grid-column: 1 / -1;
+    }
+
+    &__state {
+        .store-state.hide {
+            display: none;
+        }
+    }
+
+    &__help {
+        margin: 0;
+        padding-top: 28px;
+    }
+
+    .form-group {
+        max-width: 100%;
+        margin-bottom: 12px;
+    }
+
+    &--sections {
+        align-items: stretch;
+        gap: 16px;
+
+        > .st-fields-grid__col > .st-section,
+        > .st-fields-grid__col > .box-content {
+            height: 100%;
+            margin-bottom: 0;
+        }
+
+        > .st-fields-grid__col > .st-section {
+            margin-bottom: 0;
+        }
+    }
+
+    &--credentials {
+        > .form-group {
+            max-width: 100%;
+            margin-bottom: 12px;
+        }
+
+        > .st-notice,
+        > .help-block,
+        > p.help-block {
+            grid-column: 1 / -1;
+        }
+    }
+
+    &--in-section {
+        > .form-group,
+        > .checkbox {
+            max-width: 100%;
+            margin-bottom: 12px;
+        }
+    }
+}
+
+.st-section--media {
+    .st-section__body .single-image-wrapper {
         max-width: 100%;
     }
 }
@@ -1516,6 +1596,20 @@ $settings-block-max: none;
 }
 
 @media screen and (max-width: 991px) {
+    .st-fields-grid,
+    .st-fields-grid--credentials {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .st-fields-grid--sections {
+        gap: 12px;
+    }
+
+    .st-fields-grid__help {
+        padding-top: 0;
+    }
+
     .loyalty-settings__grid,
     .loyalty-settings__wa-grid {
         grid-template-columns: 1fr;
@@ -1546,7 +1640,12 @@ $settings-block-max: none;
         position: static;
     }
 
+    .settings-sidebar {
+        max-height: none;
+    }
+
     .settings-sidebar__inner {
+        height: auto;
         max-height: none;
         padding: 8px;
         overflow: visible;

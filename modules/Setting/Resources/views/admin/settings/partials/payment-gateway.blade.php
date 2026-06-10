@@ -8,7 +8,7 @@
 @endphp
 
 <div class="row st-gateway">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <div class="st-enable-card">
             {{ Form::checkbox("{$prefix}_enabled", ' ', $enableLabel, $errors, $settings, ['labelCol' => 0]) }}
         </div>
@@ -18,12 +18,22 @@
             'title' => trans('setting::settings.sections.display'),
             'class' => 'st-section--compact',
         ])
-            {{ Form::text("translatable[{$prefix}_label]", trans("setting::attributes.translatable.{$prefix}_label"), $errors, $settings, ['required' => true]) }}
-            {{ Form::textarea("translatable[{$prefix}_description]", trans("setting::attributes.translatable.{$prefix}_description"), $errors, $settings, ['rows' => 3, 'required' => true]) }}
-            @if ($hasSandbox)
-                {{ Form::checkbox("{$prefix}_test_mode", trans("setting::attributes.{$prefix}_test_mode"), trans('setting::settings.form.use_sandbox_for_test_payments'), $errors, $settings) }}
-            @endif
-            {{ $display ?? '' }}
+            @component('setting::admin.settings.partials.fields-grid')
+                @slot('left')
+                    {{ Form::text("translatable[{$prefix}_label]", trans("setting::attributes.translatable.{$prefix}_label"), $errors, $settings, ['required' => true]) }}
+                    @if ($hasSandbox)
+                        {{ Form::checkbox("{$prefix}_test_mode", trans("setting::attributes.{$prefix}_test_mode"), trans('setting::settings.form.use_sandbox_for_test_payments'), $errors, $settings) }}
+                    @endif
+                    {{ $displayLeft ?? '' }}
+                @endslot
+                @slot('right')
+                    {{ $displayRight ?? '' }}
+                @endslot
+                @slot('full')
+                    {{ Form::textarea("translatable[{$prefix}_description]", trans("setting::attributes.translatable.{$prefix}_description"), $errors, $settings, ['rows' => 3, 'required' => true]) }}
+                    {{ $display ?? '' }}
+                @endslot
+            @endcomponent
         @endcomponent
 
         <div class="{{ old("{$prefix}_enabled", array_get($settings, "{$prefix}_enabled")) ? '' : 'hide' }}" id="{{ $fieldsId }}">
@@ -31,7 +41,9 @@
                 'icon' => 'fa-key',
                 'title' => trans('setting::settings.sections.credentials'),
             ])
-                {{ $credentials ?? '' }}
+                <div class="st-fields-grid st-fields-grid--credentials">
+                    {{ $credentials ?? '' }}
+                </div>
             @endcomponent
         </div>
     </div>

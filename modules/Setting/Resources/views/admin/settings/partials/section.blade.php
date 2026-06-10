@@ -21,6 +21,12 @@
     @endif
 
     <div class="st-section__body">
-        {{ $slot }}
+        @if (! empty($columns) && (int) $columns === 2)
+            <div class="st-fields-grid st-fields-grid--in-section">
+                {{ $slot }}
+            </div>
+        @else
+            {{ $slot }}
+        @endif
     </div>
 </section>

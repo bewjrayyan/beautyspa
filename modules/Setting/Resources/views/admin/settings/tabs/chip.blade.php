@@ -2,7 +2,7 @@
     <p class="st-tab__lead">{{ trans('setting::settings.tab_leads.chip') }}</p>
 
     <div class="row st-gateway chip-settings">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="st-enable-card">
                 {{ Form::checkbox('chip_enabled', trans('setting::attributes.chip_enabled'), trans('setting::settings.form.enable_chip'), $errors, $settings) }}
             </div>
