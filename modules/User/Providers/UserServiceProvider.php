@@ -81,7 +81,7 @@ class UserServiceProvider extends ServiceProvider
     private function registerBladeDirectives()
     {
         Blade::directive('hasAccess', function ($permissions) {
-            return "<?php if (\$currentUser->hasAccess($permissions)) : ?>";
+            return "<?php if ((\$currentUser ?? null)?->hasAccess($permissions)) : ?>";
         });
 
         Blade::directive('endHasAccess', function () {
@@ -89,7 +89,7 @@ class UserServiceProvider extends ServiceProvider
         });
 
         Blade::directive('hasAnyAccess', function ($permissions) {
-            return "<?php if (\$currentUser->hasAnyAccess($permissions)) : ?>";
+            return "<?php if ((\$currentUser ?? null)?->hasAnyAccess($permissions)) : ?>";
         });
 
         Blade::directive('endHasAnyAccess', function () {

@@ -48,7 +48,15 @@ class SettingServiceProvider extends ServiceProvider
             'setting::admin.settings.partials.*',
         ], function ($view) {
             if (! $view->offsetExists('errors')) {
-                $view->with('errors', request()->session()->get('errors') ?: new ViewErrorBag());
+                try {
+                    $errors = request()->hasSession()
+                        ? (request()->session()->get('errors') ?: new ViewErrorBag())
+                        : new ViewErrorBag();
+                } catch (\Throwable) {
+                    $errors = new ViewErrorBag();
+                }
+
+                $view->with('errors', $errors);
             }
 
             if (! $view->offsetExists('settings')) {

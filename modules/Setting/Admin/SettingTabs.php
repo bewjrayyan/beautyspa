@@ -124,49 +124,79 @@ class SettingTabs extends Tabs
         return tap(new SettingTab('system', trans('setting::settings.tabs.system')), function (SettingTab $tab) {
             $tab->weight(8);
 
-            $appVersion = app(AppVersionService::class);
-            $artisanCommands = app(ArtisanCommandService::class);
-            $githubVersion = app(GitHubVersionService::class);
-            $releaseNotes = app(ReleaseNotesService::class);
+            $viewData = [
+                'appVersionMeta' => [
+                    'local_version' => \AestheticCart\AestheticCart::VERSION,
+                    'git' => ['available' => false],
+                    'github' => null,
+                    'installed_notes' => null,
+                    'pending_notes' => null,
+                    'recent_notes' => [],
+                ],
+                'artisanCommands' => [],
+                'catalogSync' => [
+                    'export_url' => null,
+                    'token_configured' => false,
+                    'source_url' => '',
+                    'bundle_exists' => false,
+                ],
+            ];
 
             try {
+                $appVersion = app(AppVersionService::class);
+                $artisanCommands = app(ArtisanCommandService::class);
+                $githubVersion = app(GitHubVersionService::class);
+                $releaseNotes = class_exists(ReleaseNotesService::class)
+                    ? app(ReleaseNotesService::class)
+                    : null;
+
                 // Never fetch from origin on page load — shared hosting can timeout and return 500.
-                $git = $appVersion->gitInfo(false);
-                $artisanButtons = $artisanCommands->buttons();
+                try {
+                    $git = $appVersion->gitInfo(false);
+                } catch (\Throwable) {
+                    $git = ['available' => false];
+                }
+
+                try {
+                    $artisanButtons = $artisanCommands->buttons();
+                } catch (\Throwable) {
+                    $artisanButtons = [];
+                }
+
+                $catalogSync = class_exists(CatalogSyncService::class)
+                    ? app(CatalogSyncService::class)
+                    : null;
+
+                $localVersion = $appVersion->codeVersion();
+                $github = $githubVersion->cachedCheck();
+                $latestVersion = $git['remote_version'] ?? ($github['version'] ?? null);
+                $updateAvailable = ! empty($git['update_available']) || ! empty($github['update_available']);
+                $pendingNotes = ($releaseNotes && $updateAvailable && is_string($latestVersion) && $latestVersion !== '' && $latestVersion !== $localVersion)
+                    ? $releaseNotes->forVersion($latestVersion)
+                    : null;
+
+                $viewData = [
+                    'appVersionMeta' => [
+                        'local_version' => $localVersion,
+                        'git' => $git,
+                        'github' => $github,
+                        'installed_notes' => $releaseNotes?->forVersion($localVersion),
+                        'pending_notes' => $pendingNotes,
+                        'recent_notes' => $releaseNotes?->recent(6) ?? [],
+                    ],
+                    'artisanCommands' => $artisanButtons,
+                    'catalogSync' => [
+                        'export_url' => $catalogSync?->exportUrl(),
+                        'token_configured' => trim((string) config('setting.catalog_sync.token')) !== '',
+                        'source_url' => setting('catalog_sync_source_url') ?: config('setting.catalog_sync.default_source_url'),
+                        'bundle_exists' => $catalogSync?->bundleExists() ?? false,
+                    ],
+                ];
             } catch (\Throwable) {
-                $git = ['available' => false];
-                $artisanButtons = [];
+                // Partial deploy or shared-hosting failures must not take down the whole settings page.
             }
 
-            $catalogSync = class_exists(CatalogSyncService::class)
-                ? app(CatalogSyncService::class)
-                : null;
-
-            $localVersion = $appVersion->codeVersion();
-            $github = $githubVersion->cachedCheck();
-            $latestVersion = $git['remote_version'] ?? ($github['version'] ?? null);
-            $updateAvailable = ! empty($git['update_available']) || ! empty($github['update_available']);
-            $pendingNotes = ($updateAvailable && is_string($latestVersion) && $latestVersion !== '' && $latestVersion !== $localVersion)
-                ? $releaseNotes->forVersion($latestVersion)
-                : null;
-
-            $tab->view('setting::admin.settings.tabs.system', [
-                'appVersionMeta' => [
-                    'local_version' => $localVersion,
-                    'git' => $git,
-                    'github' => $github,
-                    'installed_notes' => $releaseNotes->forVersion($localVersion),
-                    'pending_notes' => $pendingNotes,
-                    'recent_notes' => $releaseNotes->recent(6),
-                ],
-                'artisanCommands' => $artisanButtons,
-                'catalogSync' => [
-                    'export_url' => $catalogSync?->exportUrl(),
-                    'token_configured' => trim((string) config('setting.catalog_sync.token')) !== '',
-                    'source_url' => setting('catalog_sync_source_url') ?: config('setting.catalog_sync.default_source_url'),
-                    'bundle_exists' => $catalogSync?->bundleExists() ?? false,
-                ],
-            ]);
+            $tab->view('setting::admin.settings.tabs.system', $viewData);
         });
     }
 

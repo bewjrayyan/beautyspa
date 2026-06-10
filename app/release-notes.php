@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.34' => [
+        'en' => [
+            'summary' => 'Fix admin Settings page 500 errors on production shared hosting.',
+            'changes' => [
+                'Harden System tab boot when release notes, catalog sync, or session data is unavailable.',
+                'Guard @hasAccess Blade directives when the admin user context is missing.',
+                'Skip catalog-sync route links when routes are not registered after a partial deploy.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki ralat 500 halaman Tetapan admin pada production shared hosting.',
+            'changes' => [
+                'Kukuhkan tab System apabila nota release, catalog sync, atau data sesi tidak tersedia.',
+                'Lindungi arahan Blade @hasAccess apabila konteks pengguna admin tiada.',
+                'Langkau pautan route catalog-sync jika route belum didaftarkan selepas deploy separa.',
+            ],
+        ],
+    ],
     '4.7.33' => [
         'en' => [
             'summary' => 'Stop browser autofill from injecting admin login email into settings fields.',
