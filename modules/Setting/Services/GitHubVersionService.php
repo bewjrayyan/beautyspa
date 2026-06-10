@@ -179,6 +179,10 @@ class GitHubVersionService
 
     private function recursiveCopy(string $source, string $destination): void
     {
+        if (basename($source) === '.htaccess') {
+            return;
+        }
+
         if (is_dir($source)) {
             if (! is_dir($destination) && ! @mkdir($destination, 0775, true) && ! is_dir($destination)) {
                 throw new RuntimeException(trans('setting::settings.form.app_version_github_write_failed', [
