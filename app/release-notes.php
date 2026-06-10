@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.35' => [
+        'en' => [
+            'summary' => 'Fix 500 when using Check on GitHub or Update from GitHub in Settings.',
+            'changes' => [
+                'Pass ReleaseNotesService into the app version action handler (was missing and caused ArgumentCountError).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki 500 semasa guna Semak di GitHub atau Kemas kini dari GitHub dalam Tetapan.',
+            'changes' => [
+                'Hantar ReleaseNotesService ke handler tindakan versi app (tiada sebelum ini dan menyebabkan ArgumentCountError).',
+            ],
+        ],
+    ],
     '4.7.34' => [
         'en' => [
             'summary' => 'Fix admin Settings page 500 errors on production shared hosting.',

@@ -56,7 +56,12 @@ class SettingController
         }
 
         if ($request->filled('app_version_action')) {
-            return $this->handleAppVersionAction($request, $appVersion, app(GitHubVersionService::class));
+            return $this->handleAppVersionAction(
+                $request,
+                $appVersion,
+                app(GitHubVersionService::class),
+                class_exists(ReleaseNotesService::class) ? app(ReleaseNotesService::class) : null,
+            );
         }
 
         $tab = SettingTabScope::activeTab($request) ?? 'general';
@@ -110,7 +115,7 @@ class SettingController
         UpdateSettingRequest $request,
         AppVersionService $appVersion,
         GitHubVersionService $githubVersion,
-        ReleaseNotesService $releaseNotes,
+        ?ReleaseNotesService $releaseNotes = null,
     ): RedirectResponse {
         $redirect = redirect()->to(route('admin.settings.edit').'?tab=system');
 
@@ -138,7 +143,8 @@ class SettingController
         if ($request->input('app_version_action') === 'sync_version') {
             $version = $appVersion->syncPublishedVersion();
 
-            return $redirect->with('success', $releaseNotes->messageWithNotes(
+            return $redirect->with('success', $this->versionFlashMessage(
+                $releaseNotes,
                 'setting::messages.app_version_synced',
                 ['version' => $version],
                 $version
@@ -160,7 +166,8 @@ class SettingController
 
             session()->forget($githubVersion->sessionKey());
 
-            return $redirect->with('success', $releaseNotes->messageWithNotes(
+            return $redirect->with('success', $this->versionFlashMessage(
+                $releaseNotes,
                 'setting::messages.app_version_github_updated',
                 ['version' => $result['version']],
                 $result['version']
@@ -181,10 +188,25 @@ class SettingController
             ? 'setting::messages.app_version_pulled'
             : 'setting::messages.app_version_already_latest';
 
-        return $redirect->with('success', $releaseNotes->messageWithNotes(
+        return $redirect->with('success', $this->versionFlashMessage(
+            $releaseNotes,
             $messageKey,
             ['version' => $result['version']],
             $result['version']
         ));
+    }
+
+
+    private function versionFlashMessage(
+        ?ReleaseNotesService $releaseNotes,
+        string $messageKey,
+        array $replace,
+        string $version,
+    ): string {
+        if ($releaseNotes === null) {
+            return trans($messageKey, $replace);
+        }
+
+        return $releaseNotes->messageWithNotes($messageKey, $replace, $version);
     }
 }
