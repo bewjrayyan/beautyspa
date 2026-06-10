@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.31' => [
+        'en' => [
+            'summary' => 'Fix Restore blog posts button in admin System settings.',
+            'changes' => [
+                'Register Blog Artisan commands for web requests so Restore blog posts works from the admin panel.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki butang Restore blog posts dalam tetapan System admin.',
+            'changes' => [
+                'Daftarkan perintah Artisan Blog untuk permintaan web supaya Restore blog posts berfungsi dari panel admin.',
+            ],
+        ],
+    ],
     '4.7.30' => [
         'en' => [
             'summary' => 'Fix empty PWA color picker console warnings in admin settings.',

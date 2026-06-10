@@ -12,13 +12,11 @@ class BlogServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                ImportImmaBlogPostCommand::class,
-                SyncTreatmentBlogCategoriesCommand::class,
-                GenerateTreatmentBlogPostsCommand::class,
-                AssignBlogFeaturedImagesCommand::class,
-            ]);
-        }
+        $this->commands([
+            ImportImmaBlogPostCommand::class,
+            SyncTreatmentBlogCategoriesCommand::class,
+            GenerateTreatmentBlogPostsCommand::class,
+            AssignBlogFeaturedImagesCommand::class,
+        ]);
     }
 }
