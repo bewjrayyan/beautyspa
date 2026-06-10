@@ -77,8 +77,8 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->prepareWritableStorage();
         $this->prepareCacheStorePath();
-        $this->setupSupportedLocales();
         $this->registerSetting();
+        $this->setupSupportedLocales();
         $this->setupAppLocale();
         $this->hideDefaultLocaleInURL();
         $this->ignoreAdminUrlsFromLocalization();
@@ -123,7 +123,7 @@ class CoreServiceProvider extends ServiceProvider
         $fallback = ['en', 'ms'];
 
         try {
-            $locales = Setting::get('supported_locales', $fallback);
+            $locales = $this->bootSettings()['supported_locales'] ?? $fallback;
         } catch (Throwable $e) {
             return $fallback;
         }
@@ -141,7 +141,7 @@ class CoreServiceProvider extends ServiceProvider
     private function getDefaultLocale(): string
     {
         try {
-            $defaultLocale = Setting::get('default_locale', 'en');
+            $defaultLocale = $this->bootSettings()['default_locale'] ?? 'en';
         } catch (Throwable $e) {
             return 'en';
         }
@@ -151,6 +151,17 @@ class CoreServiceProvider extends ServiceProvider
         }
 
         return $defaultLocale;
+    }
+
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function bootSettings(): array
+    {
+        static $settings;
+
+        return $settings ??= Setting::allCached();
     }
 
 

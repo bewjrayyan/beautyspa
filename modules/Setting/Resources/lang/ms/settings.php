@@ -453,6 +453,11 @@ return [
                 'description' => 'Jalankan php artisan optimize:clear (config, route, view, dan cache aplikasi).',
                 'confirm' => '',
             ],
+            'optimize' => [
+                'label' => 'Segarkan cache production',
+                'description' => 'Jalankan config:cache dan view:cache untuk respons admin dan storefront yang lebih pantas.',
+                'confirm' => '',
+            ],
             'migrate' => [
                 'label' => 'Jalankan migrasi',
                 'description' => 'Jalankan php artisan migrate --force untuk migrasi pangkalan data yang belum selesai.',

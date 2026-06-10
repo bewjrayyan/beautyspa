@@ -3,13 +3,13 @@
         class="banner"
         target="{{ $sliderBanners['banner_1']->open_in_new_window ? '_blank' : '_self' }}"
     >
-        <img src="{{ $sliderBanners['banner_1']->image->path }}" alt="Banner">
+        <img src="{{ $sliderBanners['banner_1']->image->path }}" alt="Banner" loading="lazy" decoding="async">
     </a>
 
     <a href="{{ $sliderBanners['banner_2']->call_to_action_url }}"
         class="banner"
         target="{{ $sliderBanners['banner_2']->open_in_new_window ? '_blank' : '_self' }}"
     >
-        <img src="{{ $sliderBanners['banner_2']->image->path }}" alt="Banner">
+        <img src="{{ $sliderBanners['banner_2']->image->path }}" alt="Banner" loading="lazy" decoding="async">
     </a>
 </div>

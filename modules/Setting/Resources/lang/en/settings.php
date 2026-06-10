@@ -443,6 +443,11 @@ return [
                 'description' => 'Runs php artisan optimize:clear (config, route, view, and application cache).',
                 'confirm' => '',
             ],
+            'optimize' => [
+                'label' => 'Warm production caches',
+                'description' => 'Runs config:cache and view:cache for faster admin and storefront responses.',
+                'confirm' => '',
+            ],
             'migrate' => [
                 'label' => 'Run migrations',
                 'description' => 'Runs php artisan migrate --force for pending database migrations.',

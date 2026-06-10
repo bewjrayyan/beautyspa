@@ -3,6 +3,7 @@
 namespace Modules\Admin\Http\Controllers\Admin;
 
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Modules\Order\Entities\Order;
 
 class SalesAnalyticsController
@@ -16,10 +17,14 @@ class SalesAnalyticsController
      */
     public function index(Order $order)
     {
-        return response()->json([
-            'labels' => $this->previousDays(),
-            'data' => $order->salesAnalytics(),
-        ]);
+        $payload = Cache::remember('admin.dashboard.sales_analytics', now()->addMinutes(5), function () use ($order) {
+            return [
+                'labels' => $this->previousDays(),
+                'data' => $order->salesAnalytics(),
+            ];
+        });
+
+        return response()->json($payload);
     }
 
     private function previousDays()

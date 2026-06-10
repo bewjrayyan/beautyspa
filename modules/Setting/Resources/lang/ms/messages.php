@@ -8,6 +8,7 @@ return [
     'app_version_github_update_available' => 'Kemas kini tersedia di GitHub: terpasang :installed, terkini :latest.',
     'app_version_synced' => 'Versi terpasang disync ke :version.',
     'app_version_github_updated' => 'Dikemas kini dari GitHub ke versi :version. Jalankan Tugas selepas kemas kini di bawah untuk selesai.',
+    'artisan_optimize_success' => 'Cache production disegarkan (config + view yang dikompil).',
     'artisan_command_success' => 'Perintah selesai: :command',
     'artisan_command_success_with_output' => 'Perintah selesai. :output',
     'artisan_post_update_success' => 'Tugas selepas kemas kini berjaya diselesaikan.',

@@ -19,6 +19,10 @@ class ArtisanCommandService
                 'command' => 'optimize:clear',
                 'confirm' => false,
             ],
+            'optimize' => [
+                'handler' => 'optimizeApp',
+                'confirm' => false,
+            ],
             'migrate' => [
                 'command' => 'migrate',
                 'parameters' => ['--force' => true],
@@ -87,6 +91,10 @@ class ArtisanCommandService
             return $this->restoreBlogPosts();
         }
 
+        if (($definition['handler'] ?? null) === 'optimizeApp') {
+            return $this->optimizeApp();
+        }
+
         Artisan::call(
             (string) $definition['command'],
             $definition['parameters'] ?? []
@@ -107,6 +115,15 @@ class ArtisanCommandService
      * Runs without --force so existing posts are never overwritten;
      * only missing categories and posts are recreated.
      */
+    private function optimizeApp(): string
+    {
+        Artisan::call('config:cache');
+        Artisan::call('view:cache');
+
+        return trans('setting::messages.artisan_optimize_success');
+    }
+
+
     private function restoreBlogPosts(): string
     {
         Artisan::call('blog:sync-treatment-categories', ['--assign-posts' => true]);

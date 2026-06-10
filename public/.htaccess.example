@@ -49,9 +49,9 @@
         Header set Cache-Control "max-age=10368000, public"
     </FilesMatch>
 
-    # CSS and JS – 1 year
+    # CSS and JS – 1 year (Vite filenames are content-hashed)
     <FilesMatch "\.(css|js)$">
-        Header set Cache-Control "max-age=31536000, public"
+        Header set Cache-Control "max-age=31536000, public, immutable"
     </FilesMatch>
 </IfModule>
 

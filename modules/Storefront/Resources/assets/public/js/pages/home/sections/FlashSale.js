@@ -1,17 +1,24 @@
 import Swiper from "swiper";
 import { Navigation } from "swiper/modules";
+import { whenVisible } from "../../../support/whenVisible";
 import "./flash-sale/FlashSaleProductCard";
 import "./flash-sale/VerticalProducts";
 
 Alpine.data("FlashSale", () => ({
     products: [],
+    productsLoaded: false,
 
     get hasAnyProduct() {
         return this.products.length !== 0;
     },
 
     init() {
-        this.fetchProducts();
+        whenVisible(this.$el, () => {
+            if (!this.productsLoaded) {
+                this.productsLoaded = true;
+                this.fetchProducts();
+            }
+        });
     },
 
     async fetchProducts() {

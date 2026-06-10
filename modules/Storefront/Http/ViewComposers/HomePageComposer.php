@@ -25,10 +25,17 @@ class HomePageComposer
      */
     public function compose($view)
     {
+        $sliderId = setting('storefront_slider');
+        $sliderSideBannersEnabled = (bool) (int) setting('storefront_slider_banners_enabled', 1);
+
         $view->with([
-            'slider' => Slider::findWithSlides(setting('storefront_slider')),
-            'sliderBanners' => Banner::getSliderBanners(),
-            'features' => Feature::all(),
+            'slider' => $sliderId ? Slider::findWithSlides($sliderId) : null,
+            'sliderBanners' => ($sliderId && $sliderSideBannersEnabled)
+                ? Banner::getSliderBanners()
+                : null,
+            'features' => setting('storefront_features_section_enabled')
+                ? Feature::all()
+                : collect(),
             'featuredCategories' => $this->featuredCategoriesSection(),
             'threeColumnFullWidthBanners' => $this->threeColumnFullWidthBanners(),
             'productTabsOne' => $this->productTabsOne(),
@@ -39,7 +46,9 @@ class HomePageComposer
             'threeColumnBanners' => $this->threeColumnBanners(),
             'productTabsTwo' => $this->productTabsTwo(),
             'oneColumnBanner' => $this->oneColumnBanner(),
-            'googleReviews' => GoogleReviewsSettings::forHomePage(),
+            'googleReviews' => setting('storefront_google_reviews_section_enabled')
+                ? GoogleReviewsSettings::forHomePage()
+                : null,
             'blog' => $this->blog(),
         ]);
     }
@@ -141,6 +150,10 @@ class HomePageComposer
 
     private function flashSale()
     {
+        if (! setting('storefront_flash_sale_and_vertical_products_section_enabled')) {
+            return null;
+        }
+
         return [
             'title' => setting('storefront_flash_sale_title'),
             'vertical_products_1_title' => setting('storefront_vertical_products_1_title'),

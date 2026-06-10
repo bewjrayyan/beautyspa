@@ -18,6 +18,7 @@ class Updater
         self::clearRouteCache();
         self::clearAppCache();
         self::runScripts();
+        self::warmProductionCaches();
 
         File::delete(storage_path('app/update'));
     }
@@ -52,6 +53,21 @@ class Updater
     private static function clearAppCache(): void
     {
         Artisan::call('cache:clear');
+    }
+
+
+    private static function warmProductionCaches(): void
+    {
+        if (! app()->environment('production')) {
+            return;
+        }
+
+        try {
+            Artisan::call('config:cache');
+            Artisan::call('view:cache');
+        } catch (\Throwable) {
+            // Shared hosting may block cache writes; deploy still succeeds.
+        }
     }
 
 

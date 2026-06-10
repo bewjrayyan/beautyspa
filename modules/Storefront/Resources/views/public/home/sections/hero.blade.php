@@ -19,8 +19,11 @@
                                     <div
                                         class="slider-bg-image"
                                         data-swiper-parallax-x="50%"
-                                        style="background-image: url({{ $slide->file->path }})"
-                                        @if ($loop->first) fetchpriority="high" @endif
+                                        @if ($loop->first)
+                                            style="background-image: url({{ $slide->file->path }})"
+                                        @else
+                                            data-bg="{{ $slide->file->path }}"
+                                        @endif
                                     >
                                     </div>
 

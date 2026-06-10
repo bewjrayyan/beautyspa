@@ -4,6 +4,7 @@ namespace Modules\TreatmentReservation\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 
@@ -32,14 +33,16 @@ class UpcomingJobUrgencyService
 
     public function forAdminTeam(): array
     {
-        return $this->buildPayload(
-            $this->actionableBookings(),
-            route('admin.treatment_reservations.index', ['view' => 'kanban']),
-            TrLang::trans('admin.urgency.open_job_sheet'),
-            'team',
-            TrLang::trans('admin.urgency.team_headline'),
-            TrLang::trans('admin.urgency.team_lead'),
-        );
+        return Cache::remember('admin.treatment_urgency.team', now()->addMinutes(2), function () {
+            return $this->buildPayload(
+                $this->actionableBookings(),
+                route('admin.treatment_reservations.index', ['view' => 'kanban']),
+                TrLang::trans('admin.urgency.open_job_sheet'),
+                'team',
+                TrLang::trans('admin.urgency.team_headline'),
+                TrLang::trans('admin.urgency.team_lead'),
+            );
+        });
     }
 
     public function forBeautician(int $beauticianId): array

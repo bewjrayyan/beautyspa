@@ -3,14 +3,42 @@ import { Autoplay, Navigation, Pagination, Parallax } from "swiper/modules";
 
 Alpine.data("Hero", () => ({
     init() {
-        this.initHeroSlider(); 
+        this.initHeroSlider();
+    },
+
+    loadSlideBackground(slideEl) {
+        const bg = slideEl?.querySelector?.(".slider-bg-image");
+
+        if (!bg?.dataset?.bg || bg.style.backgroundImage) {
+            return;
+        }
+
+        bg.style.backgroundImage = `url(${bg.dataset.bg})`;
+    },
+
+    loadVisibleSlideBackgrounds(swiper) {
+        if (!swiper?.slides?.length) {
+            return;
+        }
+
+        const indices = new Set([
+            swiper.activeIndex,
+            swiper.activeIndex + 1,
+            swiper.activeIndex - 1,
+        ]);
+
+        indices.forEach((index) => {
+            if (index >= 0 && index < swiper.slides.length) {
+                this.loadSlideBackground(swiper.slides[index]);
+            }
+        });
     },
 
     initHeroSlider() {
         const { speed, autoplay, autoplaySpeed, dots, arrows } =
             $(".home-slider").data();
 
-        new Swiper(".home-slider", {
+        const swiper = new Swiper(".home-slider", {
             modules: [Autoplay, Navigation, Pagination, Parallax],
             slidesPerView: 1,
             speed,
@@ -24,7 +52,7 @@ Alpine.data("Hero", () => ({
             ...(arrows && {
                 navigation: {
                     nextEl: ".swiper-button-next",
-                    prevEl: ".swiper-button-prev", 
+                    prevEl: ".swiper-button-prev",
                 },
             }),
             ...(dots && {
@@ -33,6 +61,12 @@ Alpine.data("Hero", () => ({
                     clickable: true,
                 },
             }),
+            on: {
+                init: (instance) => this.loadVisibleSlideBackgrounds(instance),
+                slideChange: (instance) => this.loadVisibleSlideBackgrounds(instance),
+            },
         });
+
+        this.loadVisibleSlideBackgrounds(swiper);
     },
 }));

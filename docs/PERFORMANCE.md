@@ -18,6 +18,14 @@ Panduan ringkas untuk mempercepat storefront dan mengurangkan beban database.
 | CMS page HTML cache | `CacheStaticResponse` middleware (opt-in `RESPONSE_CACHE_ENABLED`) |
 | `CACHE_DRIVER` | `CoreServiceProvider` menghormati Redis/file dari `.env` |
 | Queue tables | Migration `jobs` / `failed_jobs` untuk `QUEUE_DRIVER=database` |
+| Homepage composer | Query slider/features/banners hanya bila section aktif |
+| Hero slider | Slide 2+ lazy-load background (kurang muat turun imej pada LCP) |
+| Flash sale API | Fetch produk bila section kelihatan (IntersectionObserver) |
+| Admin dashboard | Stat agregat cache 5 minit; carta jualan cache 5 minit |
+| Treatment urgency | Alert dashboard cache 2 minit |
+| Boot settings | `Setting::allCached()` untuk locale (elak query DB setiap request) |
+| Admin → Warm production caches | Butang `config:cache` + `view:cache` selepas deploy |
+| `public/build/` dalam Git | Deploy GitHub tidak perlu npm di server |
 
 ## 0. XAMPP / macOS: storage permissions & `Unable to set visibility for file cache`
 
