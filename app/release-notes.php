@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.32' => [
+        'en' => [
+            'summary' => 'Fix duplicate error when restoring homepage blog section settings.',
+            'changes' => [
+                'Blog section seeder uses updateOrInsert for translations so Restore blog posts can run repeatedly.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki ralat duplicate semasa restore tetapan seksyen blog laman utama.',
+            'changes' => [
+                'Seeder seksyen blog guna updateOrInsert untuk terjemahan supaya Restore blog posts boleh dijalankan berulang kali.',
+            ],
+        ],
+    ],
     '4.7.31' => [
         'en' => [
             'summary' => 'Fix Restore blog posts button in admin System settings.',

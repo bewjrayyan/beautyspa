@@ -4,6 +4,7 @@ namespace Modules\Storefront\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Setting;
 
 /**
@@ -33,14 +34,21 @@ class ImmaSeriLarisBlogSectionSeeder extends Seeder
      */
     private function setTranslatableSetting(string $key, array $values): void
     {
-        $setting = Setting::firstOrNew(['key' => $key]);
-        $setting->is_translatable = true;
-        $setting->save();
+        $setting = Setting::firstOrCreate(
+            ['key' => $key],
+            ['is_translatable' => true]
+        );
+
+        $setting->update(['is_translatable' => true]);
 
         foreach ($values as $locale => $value) {
-            $setting->translateOrNew($locale)->value = $value;
+            DB::table('setting_translations')->updateOrInsert(
+                [
+                    'setting_id' => $setting->id,
+                    'locale' => $locale,
+                ],
+                ['value' => serialize($value)]
+            );
         }
-
-        $setting->save();
     }
 }
