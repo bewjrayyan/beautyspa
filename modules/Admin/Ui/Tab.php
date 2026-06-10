@@ -157,6 +157,21 @@ class Tab
 
 
     /**
+     * Optional Font Awesome icon class for settings sidebar navigation.
+     */
+    protected function navIcon(): ?string
+    {
+        return null;
+    }
+
+
+    public function settingsNavIcon(): ?string
+    {
+        return $this->navIcon();
+    }
+
+
+    /**
      * Navigation item for the modern admin settings layout.
      */
     public function getSettingsNav(string $baseUrl): string
@@ -165,14 +180,21 @@ class Tab
         $hasError = $this->errors->hasAny($this->fields) ? ' has-error' : '';
         $separator = str_contains($baseUrl, '?') ? '&' : '?';
         $url = $baseUrl.$separator.'tab='.urlencode($this->name);
+        $icon = $this->navIcon();
+        $iconHtml = $icon
+            ? '<span class="settings-nav__icon-wrap" aria-hidden="true">'
+                .'<i class="fa '.e($icon).' settings-nav__icon"></i>'
+            .'</span>'
+            : '';
 
         $errorIcon = $hasError
             ? '<i class="fa fa-exclamation-circle settings-nav__error" aria-hidden="true"></i>'
             : '';
 
-        return '<li class="settings-nav__item'.$isActive.$hasError.'">'
+        return '<li class="settings-nav__item'.$isActive.$hasError.'" data-settings-tab="'.e($this->name).'">'
             .'<a href="'.e($url).'" class="settings-nav__link">'
-            .'<span class="settings-nav__label">'.$this->label.'</span>'
+            .$iconHtml
+            .'<span class="settings-nav__label">'.e($this->label).'</span>'
             .$errorIcon
             .'</a></li>';
     }

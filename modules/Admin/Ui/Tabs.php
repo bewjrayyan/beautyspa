@@ -152,7 +152,42 @@ abstract class Tabs
             'contents' => $this->contents($data),
             'buttonOffset' => $this->buttonOffset,
             'activeTab' => $this->activeTabName(),
+            'activeTabMeta' => $this->activeTabMeta(),
         ]);
+    }
+
+
+    /**
+     * @return array{name: string, label: string, group: string, lead: ?string, icon: ?string}
+     */
+    protected function activeTabMeta(): array
+    {
+        foreach ($this->groups as $groupName => $options) {
+            foreach ($this->tabs[$groupName] ?? [] as $tab) {
+                if (! $tab->active) {
+                    continue;
+                }
+
+                $leadKey = "setting::settings.tab_leads.{$tab->name}";
+                $lead = trans($leadKey);
+
+                return [
+                    'name' => $tab->name,
+                    'label' => $tab->label,
+                    'group' => $options['title'] ?? $groupName,
+                    'lead' => $lead === $leadKey ? null : $lead,
+                    'icon' => $tab->settingsNavIcon(),
+                ];
+            }
+        }
+
+        return [
+            'name' => 'general',
+            'label' => '',
+            'group' => '',
+            'lead' => null,
+            'icon' => null,
+        ];
     }
 
 
@@ -207,9 +242,12 @@ abstract class Tabs
         foreach ($this->groups as $groupName => $options) {
             $title = $options['title'] ?? $groupName;
 
-            $html .= '<div class="settings-nav-group">';
-            $html .= '<h4 class="settings-nav-group__title">'.e($title).'</h4>';
-            $html .= '<ul class="settings-nav">';
+            $html .= '<div class="settings-nav-group is-expanded" data-settings-group>';
+            $html .= '<button type="button" class="settings-nav-group__toggle" aria-expanded="true">';
+            $html .= '<span class="settings-nav-group__title">'.e($title).'</span>';
+            $html .= '<i class="fa fa-chevron-down settings-nav-group__chevron" aria-hidden="true"></i>';
+            $html .= '</button>';
+            $html .= '<ul class="settings-nav settings-nav-group__list">';
 
             foreach ($this->group($groupName)->getSortedTabs() as $tab) {
                 $html .= $tab->getSettingsNav($baseUrl);

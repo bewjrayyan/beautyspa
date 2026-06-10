@@ -136,3 +136,160 @@ $("#store_country").on("change", (e) => {
 $(function () {
     $("#store_country").trigger("change");
 });
+
+(function initSettingsPageUx() {
+    const form = document.getElementById("settings-edit-form");
+
+    if (!form || !form.classList.contains("admin-settings-page")) {
+        return;
+    }
+
+    const searchInput = document.getElementById("settings-nav-search");
+    const navGroups = document.getElementById("settings-nav-groups");
+    const unsavedBadge = document.getElementById("settings-unsaved-badge");
+    let formDirty = false;
+
+    const markDirty = () => {
+        if (formDirty) {
+            return;
+        }
+
+        formDirty = true;
+        unsavedBadge?.classList.remove("is-hidden");
+    };
+
+    form.addEventListener("input", markDirty, true);
+    form.addEventListener("change", markDirty, true);
+
+    form.addEventListener("submit", () => {
+        formDirty = false;
+        unsavedBadge?.classList.add("is-hidden");
+    });
+
+    window.addEventListener("beforeunload", (event) => {
+        if (!formDirty) {
+            return;
+        }
+
+        event.preventDefault();
+        event.returnValue = "";
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "s") {
+            return;
+        }
+
+        if (!form.contains(document.activeElement) && document.activeElement !== document.body) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const submitButton = form.querySelector('.settings-panel__footer button[type="submit"]');
+
+        if (submitButton && !submitButton.disabled) {
+            submitButton.click();
+        }
+    });
+
+    document.querySelectorAll("[data-settings-group]").forEach((group) => {
+        const toggle = group.querySelector(".settings-nav-group__toggle");
+
+        if (!toggle) {
+            return;
+        }
+
+        toggle.addEventListener("click", () => {
+            const expanded = group.classList.toggle("is-expanded");
+            toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        });
+    });
+
+    if (searchInput && navGroups) {
+        const noResultsText =
+            searchInput.dataset.noResults ||
+            "No settings match your search.";
+        const searchKbd = document.querySelector(".settings-sidebar__search-kbd");
+
+        const emptyState = document.createElement("p");
+        emptyState.className = "settings-sidebar__empty is-hidden";
+        emptyState.textContent = noResultsText;
+        navGroups.appendChild(emptyState);
+
+        const filterNav = () => {
+            const query = searchInput.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            if (searchKbd) {
+                searchKbd.classList.toggle("is-hidden", query !== "");
+            }
+
+            navGroups.querySelectorAll(".settings-nav__item").forEach((item) => {
+                const label = item
+                    .querySelector(".settings-nav__label")
+                    ?.textContent?.toLowerCase() || "";
+                const groupTitle =
+                    item
+                        .closest(".settings-nav-group")
+                        ?.querySelector(".settings-nav-group__title")
+                        ?.textContent?.toLowerCase() || "";
+                const haystack = `${label} ${groupTitle}`;
+                const match = query === "" || haystack.includes(query);
+
+                item.classList.toggle("is-filtered-out", !match);
+
+                if (match) {
+                    visibleCount++;
+                }
+            });
+
+            navGroups.querySelectorAll(".settings-nav-group").forEach((group) => {
+                const hasVisible = group.querySelector(
+                    ".settings-nav__item:not(.is-filtered-out)"
+                );
+                group.classList.toggle("is-filtered-out", !hasVisible);
+
+                if (query !== "" && hasVisible) {
+                    group.classList.add("is-expanded");
+                    group
+                        .querySelector(".settings-nav-group__toggle")
+                        ?.setAttribute("aria-expanded", "true");
+                }
+            });
+
+            emptyState.classList.toggle("is-hidden", visibleCount > 0);
+        };
+
+        searchInput.addEventListener("input", filterNav);
+
+        searchInput.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                searchInput.value = "";
+                filterNav();
+                searchInput.blur();
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (
+                event.key === "/"
+                && !event.ctrlKey
+                && !event.metaKey
+                && !["INPUT", "TEXTAREA", "SELECT"].includes(
+                    document.activeElement?.tagName || ""
+                )
+            ) {
+                event.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+        });
+    }
+
+    const activeItem = document.querySelector(".settings-nav__item.is-active");
+
+    if (activeItem) {
+        activeItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+})();

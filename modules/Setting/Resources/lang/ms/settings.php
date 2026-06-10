@@ -187,6 +187,7 @@ return [
         'general' => 'Lokal kedai, lalai pelanggan, dan tingkah laku storefront.',
         'logo' => 'Branding panel admin pada sidebar dan skrin log masuk.',
         'maintenance' => 'Hadkan akses storefront semasa anda membuat kemas kini.',
+        'system' => 'Versi aplikasi, deploy GitHub, penyelenggaraan Artisan, dan sync katalog.',
         'store' => 'Butiran hubungan dan alamat yang dipaparkan kepada pelanggan.',
         'pwa' => 'Ikon pemasangan PWA, warna, dan mod paparan.',
         'currency' => 'Mata wang disokong dan kemas kini kadar pertukaran automatik.',
@@ -237,6 +238,11 @@ return [
     ],
     'form' => [
 
+        'page_subtitle' => 'Konfigurasi kedai, integrasi, penghantaran dan pembayaran di satu tempat.',
+        'search_settings' => 'Cari tetapan…',
+        'search_no_results' => 'Tiada tetapan sepadan dengan carian anda.',
+        'unsaved_changes' => 'Perubahan belum disimpan',
+        'save_shortcut' => 'untuk simpan',
         'logo' => 'Logo',
         'small_logo' => 'Logo kecil',
         'enable_pwa' => 'Dayakan PWA',
