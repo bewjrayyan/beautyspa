@@ -11,6 +11,11 @@
 .env
 /storage/dotenv-editor/
 
+# Apache rewrite rules are per-server (local /fleetcart vs production /v2).
+# Never ship or overwrite these via GitHub deploy.
+/.htaccess
+/public/.htaccess
+
 #Dependencies
 node_modules/
 /vendor/

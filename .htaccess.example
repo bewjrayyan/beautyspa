@@ -1,3 +1,5 @@
+# Local XAMPP example only — copy to .htaccess and adjust RewriteBase for your install path.
+# Production (immaserilaris.com/v2): use your own .htaccess; do NOT copy this file as-is.
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /fleetcart/

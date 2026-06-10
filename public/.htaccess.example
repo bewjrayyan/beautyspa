@@ -1,3 +1,4 @@
+# Copy to public/.htaccess on new installs. Production servers keep their own copy.
 # ==============================
 # PHP Settings (if running as Apache module)
 # ==============================
