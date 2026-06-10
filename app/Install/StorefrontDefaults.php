@@ -25,7 +25,8 @@ class StorefrontDefaults
             'storefront_featured_categories_section_enabled' => true,
             'storefront_product_tabs_1_section_enabled' => true,
             'storefront_product_grid_section_enabled' => true,
-            'storefront_blogs_section_enabled' => false,
+            'storefront_blogs_section_enabled' => true,
+            'storefront_recent_blogs' => 5,
             'storefront_slider_banners_enabled' => 1,
             'storefront_feature_1_icon' => 'las la-spa',
             'storefront_feature_2_icon' => 'las la-user-md',
@@ -49,6 +50,7 @@ class StorefrontDefaults
                 'storefront_product_tabs_1_section_tab_2_title' => 'Popular Treatments',
                 'storefront_product_grid_section_tab_1_title' => 'Our Treatments',
                 'storefront_product_grid_section_tab_2_title' => 'New Arrivals',
+                'storefront_blogs_section_title' => 'From Our Blog',
             ],
         ];
 

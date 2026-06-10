@@ -18,13 +18,13 @@
                 <li class="d-flex align-items-center">
                     <i class="las la-user"></i>
 
-                    {{ $blogPost->username }}
+                    {{ $blogPost->user_name }}
                 </li>
 
                 <li class="d-flex align-items-center">
                     <i class="las la-calendar"></i>
 
-                    {{ (new \DateTime())->format('d M, Y') }}
+                    {{ $blogPost->created_at->format('d M, Y') }}
                 </li>
             </ul>
 

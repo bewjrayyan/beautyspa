@@ -115,7 +115,13 @@ class ArtisanCommandService
         Artisan::call('blog:generate-treatment-posts');
         $postOutput = trim(Artisan::output());
 
-        $output = trim($categoryOutput . "\n" . $postOutput);
+        Artisan::call('db:seed', [
+            '--class' => 'Modules\\Storefront\\Database\\Seeders\\ImmaSeriLarisBlogSectionSeeder',
+            '--force' => true,
+        ]);
+        $sectionOutput = trim(Artisan::output());
+
+        $output = trim($categoryOutput . "\n" . $postOutput . "\n" . $sectionOutput);
 
         return $output !== ''
             ? trans('setting::messages.artisan_command_success_with_output', ['output' => $output])

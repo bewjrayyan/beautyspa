@@ -55,7 +55,7 @@
         @include('storefront::public.home.sections.google_reviews')
     @endif
 
-    @if (setting('storefront_blogs_section_enabled'))
+    @if (setting('storefront_blogs_section_enabled') && ! empty($blog['blogPosts']) && $blog['blogPosts']->isNotEmpty())
         @include('storefront::public.home.sections.blog')
     @endif
 @endsection

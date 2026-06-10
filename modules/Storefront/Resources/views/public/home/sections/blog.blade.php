@@ -13,7 +13,7 @@
                 <div class="swiper-wrapper">
                     @foreach($blog['blogPosts'] as $blogPost)
                         <div class="swiper-slide">
-                            @include('storefront::public.partials.blog_post_card', $blogPost)
+                            @include('storefront::public.partials.blog_post_card', ['blogPost' => $blogPost])
                         </div>
                     @endforeach
                 </div>
