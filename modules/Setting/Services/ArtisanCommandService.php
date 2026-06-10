@@ -37,6 +37,10 @@ class ArtisanCommandService
                 'handler' => 'postUpdate',
                 'confirm' => true,
             ],
+            'restore_blog_posts' => [
+                'handler' => 'restoreBlogPosts',
+                'confirm' => true,
+            ],
         ];
     }
 
@@ -79,6 +83,10 @@ class ArtisanCommandService
             return trans('setting::messages.artisan_post_update_success');
         }
 
+        if (($definition['handler'] ?? null) === 'restoreBlogPosts') {
+            return $this->restoreBlogPosts();
+        }
+
         Artisan::call(
             (string) $definition['command'],
             $definition['parameters'] ?? []
@@ -91,5 +99,26 @@ class ArtisanCommandService
             : trans('setting::messages.artisan_command_success', [
                 'command' => $definition['command'],
             ]);
+    }
+
+    /**
+     * Recreate the built-in blog categories and treatment blog posts.
+     *
+     * Runs without --force so existing posts are never overwritten;
+     * only missing categories and posts are recreated.
+     */
+    private function restoreBlogPosts(): string
+    {
+        Artisan::call('blog:sync-treatment-categories', ['--assign-posts' => true]);
+        $categoryOutput = trim(Artisan::output());
+
+        Artisan::call('blog:generate-treatment-posts');
+        $postOutput = trim(Artisan::output());
+
+        $output = trim($categoryOutput . "\n" . $postOutput);
+
+        return $output !== ''
+            ? trans('setting::messages.artisan_command_success_with_output', ['output' => $output])
+            : trans('setting::messages.artisan_command_success', ['command' => 'blog:generate-treatment-posts']);
     }
 }

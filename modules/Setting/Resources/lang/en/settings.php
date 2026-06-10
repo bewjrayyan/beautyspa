@@ -457,6 +457,11 @@ return [
                 'description' => 'Migrate, clear caches, and run updater scripts (same as after deploy).',
                 'confirm' => 'Run all post-update tasks now?',
             ],
+            'restore_blog_posts' => [
+                'label' => 'Restore blog posts',
+                'description' => 'Recreates the built-in blog categories and treatment articles. Existing posts are kept; only missing ones are added.',
+                'confirm' => 'Restore the built-in blog categories and posts now? Existing posts will not be overwritten.',
+            ],
         ],
     ],
     'validation' => [

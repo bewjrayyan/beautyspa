@@ -467,6 +467,11 @@ return [
                 'description' => 'Migrasi, kosongkan cache, dan jalankan skrip updater (sama seperti selepas deploy).',
                 'confirm' => 'Jalankan semua tugas selepas kemas kini sekarang?',
             ],
+            'restore_blog_posts' => [
+                'label' => 'Pulihkan pos blog',
+                'description' => 'Cipta semula kategori blog dan artikel rawatan terbina dalam. Pos sedia ada dikekalkan; hanya yang hilang ditambah.',
+                'confirm' => 'Pulihkan kategori dan pos blog terbina dalam sekarang? Pos sedia ada tidak akan ditimpa.',
+            ],
         ],
     ],
     'validation' => [
