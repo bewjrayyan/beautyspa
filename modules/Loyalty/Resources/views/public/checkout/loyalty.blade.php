@@ -1,7 +1,22 @@
 @if (auth()->check() && app('modules')->isEnabled('Loyalty'))
     <div class="loyalty-wrap loyalty-wrap--modern">
         <label class="checkout-promo-label">
-            {{ trans('loyalty::checkout.rewards') }}
+            <svg
+                class="checkout-promo-label__icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+            >
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75"/>
+                <path
+                    d="M12 7.25l1.47 2.98 3.29.48-2.38 2.32.56 3.28L12 14.77l-2.94 1.54.56-3.28-2.38-2.32 3.29-.48L12 7.25Z"
+                    fill="currentColor"
+                />
+            </svg>
+            <span>{{ trans('loyalty::checkout.rewards') }}</span>
         </label>
 
         <p class="loyalty-balance-text">

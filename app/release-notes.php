@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.38' => [
+        'en' => [
+            'summary' => 'Checkout rewards section: star icon and light yellow highlight.',
+            'changes' => [
+                'Add reward points SVG icon beside the checkout loyalty label.',
+                'Style the loyalty redeem block with a light yellow background and amber border.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Bahagian ganjaran checkout: ikon bintang dan latar kuning lembut.',
+            'changes' => [
+                'Tambah ikon SVG mata ganjaran di sebelah label loyalty pada checkout.',
+                'Gaya blok tebus mata dengan latar kuning lembut dan sempadan amber.',
+            ],
+        ],
+    ],
     '4.7.37' => [
         'en' => [
             'summary' => 'Checkout and account UX: billing autofill, loyalty card on profile, CHIP settings restore.',
