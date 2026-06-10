@@ -27,6 +27,35 @@ trait InputFields
     }
 
 
+    protected function colorField($name, $value, $class, $attributes, $options)
+    {
+        $default = array_pull($options, 'color_default', '#000000');
+
+        if (! $this->isValidHexColor($default)) {
+            $default = '#000000';
+        }
+
+        if (! $this->isValidHexColor($value)) {
+            $value = e($default);
+            $attributes .= " data-color-empty='1' ";
+        }
+
+        return $this->inputField($name, $value, $class, $attributes, $options);
+    }
+
+
+    private function isValidHexColor($value): bool
+    {
+        if (! is_string($value)) {
+            return false;
+        }
+
+        $value = trim(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
+
+        return $value !== '' && preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $value) === 1;
+    }
+
+
     protected function textareaField($name, $value, $class, $attributes, $options)
     {
         $readonly = array_pull($options, 'readonly', false);

@@ -22,9 +22,9 @@
                 'icon' => 'fa-paint-brush',
                 'title' => trans('setting::settings.sections.pwa_appearance'),
             ])
-                {{ Form::color('pwa_theme_color', trans('setting::attributes.pwa_theme_color'), $errors, $settings) }}
-                {{ Form::color('pwa_background_color', trans('setting::attributes.pwa_background_color'), $errors, $settings) }}
-                {{ Form::color('pwa_status_bar', trans('setting::attributes.pwa_status_bar'), $errors, $settings) }}
+                {{ Form::color('pwa_theme_color', trans('setting::attributes.pwa_theme_color'), $errors, $settings, ['default' => config('pwa.manifest.theme_color', '#0068e1')]) }}
+                {{ Form::color('pwa_background_color', trans('setting::attributes.pwa_background_color'), $errors, $settings, ['default' => config('pwa.manifest.background_color', '#ffffff')]) }}
+                {{ Form::color('pwa_status_bar', trans('setting::attributes.pwa_status_bar'), $errors, $settings, ['default' => config('pwa.manifest.status_bar', '#0068e1')]) }}
             @endcomponent
         @endslot
         @slot('full')

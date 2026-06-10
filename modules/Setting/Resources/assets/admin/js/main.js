@@ -174,7 +174,17 @@ $(function () {
         document.addEventListener("DOMContentLoaded", enableDirtyTracking);
     }
 
+    form.querySelectorAll('input[type="color"][data-color-empty]').forEach((input) => {
+        input.addEventListener("input", () => {
+            input.removeAttribute("data-color-empty");
+        });
+    });
+
     form.addEventListener("submit", () => {
+        form.querySelectorAll('input[type="color"][data-color-empty]').forEach((input) => {
+            input.disabled = true;
+        });
+
         formDirty = false;
         unsavedBadge?.classList.add("is-hidden");
     });

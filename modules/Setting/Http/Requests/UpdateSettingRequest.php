@@ -154,9 +154,9 @@ class UpdateSettingRequest extends Request
 
             'pwa_enabled' => 'required',
             'pwa_icon' => 'required_if:pwa_enabled,1',
-            'pwa_theme_color' => ['regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-            'pwa_background_color' => ['regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-            'pwa_status_bar' => ['regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'pwa_theme_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'pwa_background_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'pwa_status_bar' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
 
             'fixer_access_key' => 'required_if:currency_rate_exchange_service,fixer',
             'forge_api_key' => 'required_if:currency_rate_exchange_service,forge',

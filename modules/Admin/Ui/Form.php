@@ -8,7 +8,7 @@ class Form
 {
     use InputFields;
 
-    protected $unnecessaryAttributes = ['disabled', 'readonly', 'checked'];
+    protected $unnecessaryAttributes = ['disabled', 'readonly', 'checked', 'default', 'color_default'];
 
 
     public function text($name, $title, $errors, $entity = null, $options = [])
@@ -57,7 +57,16 @@ class Form
 
     public function color($name, $title, $errors, $entity = null, $options = [])
     {
-        return $this->input($name, $title, $errors, $entity, array_merge($options, ['type' => 'color']));
+        $default = array_pull($options, 'default', '#000000');
+
+        return $this->field(
+            $name,
+            $title,
+            $errors,
+            $entity,
+            array_merge(['type' => 'color', 'color_default' => $default], $options),
+            [$this, 'colorField']
+        );
     }
 
 

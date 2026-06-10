@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.30' => [
+        'en' => [
+            'summary' => 'Fix empty PWA color picker console warnings in admin settings.',
+            'changes' => [
+                'Color inputs use valid #rrggbb defaults when database values are empty.',
+                'Unset PWA colors are not submitted on save until you pick a value.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki amaran konsol pemilih warna PWA kosong dalam tetapan admin.',
+            'changes' => [
+                'Input warna guna default #rrggbb sah apabila nilai pangkalan data kosong.',
+                'Warna PWA yang belum diset tidak dihantar semasa simpan sehingga anda pilih nilai.',
+            ],
+        ],
+    ],
     '4.7.29' => [
         'en' => [
             'summary' => 'General settings single-column layout and version changelog in System tab.',
