@@ -44,11 +44,15 @@ class DemoDataRestorer
             $log("  ✗ ImmaSeriLarisCategoryMenuSeeder: {$e->getMessage()}");
         }
 
-        foreach (['loyalty:grant-admin-permissions', 'spabranch:grant-admin-permissions'] as $command) {
-            try {
-                Artisan::call($command);
-            } catch (\Throwable) {
-                // Optional modules.
+        try {
+            Artisan::call('admin:sync-module-permissions');
+        } catch (\Throwable) {
+            foreach (['loyalty:grant-admin-permissions', 'spabranch:grant-admin-permissions', 'beautician:grant-admin-permissions'] as $command) {
+                try {
+                    Artisan::call($command);
+                } catch (\Throwable) {
+                    // Optional modules.
+                }
             }
         }
 

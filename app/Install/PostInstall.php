@@ -76,7 +76,8 @@ class PostInstall
 
     private function grantModulePermissions(): void
     {
-        $role = Role::find(1);
+        $role = Role::whereTranslation('name', 'Admin')->first()
+            ?? Role::query()->orderBy('id')->first();
 
         if (! $role) {
             return;

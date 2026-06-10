@@ -1,31 +1,31 @@
 <?php
 
-namespace Modules\SpaBranch\Console;
+namespace Modules\Beautician\Console;
 
 use Illuminate\Console\Command;
 use Modules\User\Entities\Role;
 
-class GrantSpaBranchPermissionsCommand extends Command
+class GrantBeauticianPermissionsCommand extends Command
 {
-    protected $signature = 'spabranch:grant-admin-permissions {role? : Role ID (defaults to Admin role)}';
+    protected $signature = 'beautician:grant-admin-permissions {role? : Role ID (defaults to Admin role)}';
 
-    protected $description = 'Grant spa branch admin permissions to a role.';
+    protected $description = 'Grant beautician admin permissions to a role.';
 
     public function handle(): int
     {
         $role = $this->resolveRole();
 
         $permissions = [
-            'admin.spa_branches.index' => true,
-            'admin.spa_branches.create' => true,
-            'admin.spa_branches.edit' => true,
-            'admin.spa_branches.destroy' => true,
+            'admin.beauticians.index' => true,
+            'admin.beauticians.create' => true,
+            'admin.beauticians.edit' => true,
+            'admin.beauticians.destroy' => true,
         ];
 
         $role->permissions = array_merge($role->permissions ?? [], $permissions);
         $role->save();
 
-        $this->info("Spa branch permissions granted to role #{$role->id} ({$role->name}).");
+        $this->info("Beautician permissions granted to role #{$role->id} ({$role->name}).");
 
         return self::SUCCESS;
     }

@@ -19,6 +19,7 @@ class RestoreAdminSettingsCommand extends Command
             (bool) $this->option('force-contact')
         );
 
+        Artisan::call('admin:sync-module-permissions');
         Artisan::call('optimize:clear');
 
         $this->info('Admin settings restored (' . count($applied) . ' keys).');

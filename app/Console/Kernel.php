@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\ApplyStorefrontDefaultsCommand::class,
         Commands\RestoreAdminSettingsCommand::class,
+        Commands\SyncAdminModulePermissionsCommand::class,
         Commands\RestoreDatabaseCommand::class,
         Commands\SeedDemoDataCommand::class,
         Commands\ExportDemoDataCommand::class,

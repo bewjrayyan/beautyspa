@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.39' => [
+        'en' => [
+            'summary' => 'Restore hidden admin menus (Beauticians, Spa Branches, and other new modules).',
+            'changes' => [
+                'Add admin:sync-module-permissions to merge all module permissions into the Admin role.',
+                'Run permission sync during settings:restore-imma and demo data restore.',
+                'Add beautician:grant-admin-permissions; fix grant commands to target the Admin role by name.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pulih menu admin tersembunyi (Beautician, Cawangan Spa, dan modul baharu lain).',
+            'changes' => [
+                'Tambah admin:sync-module-permissions untuk gabung semua kebenaran modul ke role Admin.',
+                'Jalankan sync kebenaran semasa settings:restore-imma dan pemulihan data demo.',
+                'Tambah beautician:grant-admin-permissions; baiki arahan grant supaya sasarkan role Admin mengikut nama.',
+            ],
+        ],
+    ],
     '4.7.38' => [
         'en' => [
             'summary' => 'Checkout rewards section: star icon and light yellow highlight.',
