@@ -12,10 +12,18 @@ class AccountAddressController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
         return view('storefront::public.account.addresses.index', [
-            'addresses' => auth()->user()->addresses->keyBy('id'),
-            'defaultAddress' => auth()->user()->defaultAddress,
-            'countries' => Country::supported(),
+            'addressesConfig' => [
+                'initialAddresses' => $user->addresses->keyBy('id'),
+                'initialDefaultAddress' => $user->defaultAddress,
+                'countries' => Country::supported(),
+                'profileDefaults' => [
+                    'first_name' => $user->first_name ?? '',
+                    'last_name' => $user->last_name ?? '',
+                ],
+            ],
         ]);
     }
 

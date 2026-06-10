@@ -2,10 +2,16 @@ import Errors from "../../../components/Errors";
 
 Alpine.data(
     "Addresses",
-    ({ initialAddresses, initialDefaultAddress, countries }) => ({
+    ({
+        initialAddresses,
+        initialDefaultAddress,
+        countries,
+        profileDefaults = {},
+    }) => ({
         addresses: initialAddresses,
         defaultAddress: initialDefaultAddress,
         countries,
+        profileDefaults,
         formOpen: false,
         editing: false,
         loading: false,
@@ -26,7 +32,30 @@ Alpine.data(
         },
 
         init() {
+            this.applyProfileDefaults();
             this.changeCountry(this.firstCountry);
+        },
+
+        applyProfileDefaults() {
+            if (this.editing) {
+                return;
+            }
+
+            if (!this.form.first_name && this.profileDefaults.first_name) {
+                this.form.first_name = this.profileDefaults.first_name;
+            }
+
+            if (!this.form.last_name && this.profileDefaults.last_name) {
+                this.form.last_name = this.profileDefaults.last_name;
+            }
+        },
+
+        openNewAddress() {
+            this.editing = false;
+            this.errors.reset();
+            this.resetForm();
+            this.changeCountry(this.firstCountry);
+            this.formOpen = true;
         },
 
         changeDefaultAddress(address) {
@@ -168,7 +197,11 @@ Alpine.data(
         },
 
         resetForm() {
-            this.form = { state: "" };
+            this.form = {
+                state: "",
+                first_name: this.profileDefaults.first_name ?? "",
+                last_name: this.profileDefaults.last_name ?? "",
+            };
         },
     })
 );

@@ -9,6 +9,7 @@ Alpine.data(
     ({
         customerEmail,
         customerPhone,
+        customerBilling = null,
         addresses,
         defaultAddress,
         gateways,
@@ -24,6 +25,7 @@ Alpine.data(
     }) => ({
         addresses,
         defaultAddress,
+        customerBilling,
         gateways,
         countries,
         requiresTreatmentBooking,
@@ -346,18 +348,7 @@ Alpine.data(
                 }
             });
 
-            if (this.defaultAddress.address_id) {
-                this.form.billingAddressId = this.defaultAddress.address_id;
-                this.form.shippingAddressId = this.defaultAddress.address_id;
-
-                this.mergeSavedBillingAddress();
-                this.mergeSavedShippingAddress();
-            }
-
-            if (!this.hasAddress) {
-                this.form.newBillingAddress = true;
-                this.form.newShippingAddress = true;
-            }
+            this.initBillingDefaults();
 
             this.normalizeBillingCountry();
             this.initTreatmentBookingDefaults();
@@ -762,11 +753,64 @@ Alpine.data(
             });
         },
 
+        initBillingDefaults() {
+            if (this.defaultAddress?.address_id) {
+                this.form.billingAddressId = this.defaultAddress.address_id;
+                this.form.shippingAddressId = this.defaultAddress.address_id;
+                this.mergeSavedBillingAddress();
+                this.mergeSavedShippingAddress();
+
+                return;
+            }
+
+            if (this.hasAddress) {
+                const firstAddress = Object.values(this.addresses)[0];
+
+                if (firstAddress?.id) {
+                    this.form.billingAddressId = firstAddress.id;
+                    this.form.shippingAddressId = firstAddress.id;
+                    this.mergeSavedBillingAddress();
+                    this.mergeSavedShippingAddress();
+                }
+
+                return;
+            }
+
+            if (!this.customerBilling) {
+                this.form.newBillingAddress = true;
+                this.form.newShippingAddress = true;
+
+                return;
+            }
+
+            this.form.billing = { ...this.customerBilling };
+            this.form.newBillingAddress = true;
+            this.form.newShippingAddress = true;
+        },
+
+        resolveSavedAddress(addressId) {
+            if (!addressId) {
+                return null;
+            }
+
+            return (
+                this.addresses[addressId] ??
+                this.addresses[String(addressId)] ??
+                null
+            );
+        },
+
         mergeSavedBillingAddress() {
             this.resetAddressErrors("billing");
 
             if (!this.form.newBillingAddress && this.form.billingAddressId) {
-                this.form.billing = this.addresses[this.form.billingAddressId];
+                const address = this.resolveSavedAddress(
+                    this.form.billingAddressId
+                );
+
+                if (address) {
+                    this.form.billing = address;
+                }
             }
         },
 
@@ -778,8 +822,13 @@ Alpine.data(
                 !this.form.newShippingAddress &&
                 this.form.shippingAddressId
             ) {
-                this.form.shipping =
-                    this.addresses[this.form.shippingAddressId];
+                const address = this.resolveSavedAddress(
+                    this.form.shippingAddressId
+                );
+
+                if (address) {
+                    this.form.shipping = address;
+                }
             }
         },
 

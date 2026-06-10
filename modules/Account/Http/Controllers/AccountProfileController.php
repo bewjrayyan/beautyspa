@@ -4,6 +4,8 @@ namespace Modules\Account\Http\Controllers;
 
 use Illuminate\Http\Response;
 use Modules\Account\Services\ProfileAvatarService;
+use Modules\Loyalty\Services\LoyaltyConfig;
+use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\User\Http\Requests\UpdateProfileRequest;
 
 class AccountProfileController
@@ -23,8 +25,24 @@ class AccountProfileController
         $account = auth()->user();
         $account->load('files');
 
+        $loyaltyWallet = null;
+        $loyaltyBalanceRm = 0;
+        $loyaltyEarnRate = 0;
+
+        if (app('modules')->isEnabled('Loyalty')) {
+            $loyaltyWallet = app(LoyaltyWalletService::class)->getOrCreateForUser($account);
+            $loyaltyWallet->load('tier');
+
+            $loyaltyConfig = app(LoyaltyConfig::class);
+            $loyaltyBalanceRm = $loyaltyConfig->pointsToRm($loyaltyWallet->balance);
+            $loyaltyEarnRate = $loyaltyConfig->earnRatePerRm();
+        }
+
         return view('storefront::public.account.profile.edit', [
             'account' => $account,
+            'loyaltyWallet' => $loyaltyWallet,
+            'loyaltyBalanceRm' => $loyaltyBalanceRm,
+            'loyaltyEarnRate' => $loyaltyEarnRate,
         ]);
     }
 

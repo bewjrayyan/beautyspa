@@ -8,11 +8,7 @@
 
 @section('panel')
     <div
-        x-data="Addresses({
-            initialAddresses: {{ $addresses }},
-            initialDefaultAddress: {{ $defaultAddress }},
-            countries: {{ json_encode($countries) }}
-        })"
+        x-data="Addresses(@js($addressesConfig))"
         class="panel"
     >
         <div class="panel-header">
@@ -86,7 +82,7 @@
                                 <button
                                     type="button"
                                     class="btn btn-lg btn-default btn-add-new-address"
-                                    @click="formOpen = true"
+                                    @click="openNewAddress()"
                                 >
                                     {{ trans('storefront::account.addresses.add_new_address') }}
                                 </button>

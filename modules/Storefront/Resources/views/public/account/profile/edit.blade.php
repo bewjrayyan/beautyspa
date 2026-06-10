@@ -256,6 +256,15 @@
                 </main>
 
                 <aside class="account-profile-show__sidebar">
+                @if (app('modules')->isEnabled('Loyalty') && $loyaltyWallet)
+                    @include('loyalty::public.account.partials.profile-sidebar', [
+                        'account' => $account,
+                        'loyaltyWallet' => $loyaltyWallet,
+                        'loyaltyBalanceRm' => $loyaltyBalanceRm,
+                        'loyaltyEarnRate' => $loyaltyEarnRate,
+                    ])
+                @endif
+
                 <div class="account-profile-sidebar__card">
                     <h2 class="account-profile-sidebar__title">
                         <i class="las la-info-circle"></i>

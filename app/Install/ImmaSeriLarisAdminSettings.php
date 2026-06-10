@@ -5,6 +5,7 @@ namespace AestheticCart\Install;
 use AestheticCart\AestheticCart;
 use Modules\Currency\Entities\CurrencyRate;
 use Modules\Loyalty\Support\LoyaltySettingsDefaults;
+use Modules\Payment\Support\ChipPaymentSettingsDefaults;
 use Modules\Setting\Entities\Setting;
 use Modules\Setting\Support\WhatsAppNotificationDefaults;
 use Modules\User\Entities\Role;
@@ -34,6 +35,7 @@ class ImmaSeriLarisAdminSettings
 
         $applied = array_merge($applied, WhatsAppNotificationDefaults::applyMissingOnly());
         $applied = array_merge($applied, LoyaltySettingsDefaults::applyMissingOnly());
+        $applied = array_merge($applied, ChipPaymentSettingsDefaults::applyMissingOnly());
 
         if (CurrencyRate::where('currency', 'MYR')->doesntExist()) {
             CurrencyRate::create(['currency' => 'MYR', 'rate' => 1]);

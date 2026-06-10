@@ -20,7 +20,8 @@ use Modules\User\Services\CustomerService;
 use Modules\Checkout\Services\CheckoutCompletionGuard;
 use Modules\Checkout\Services\OrderService;
 use Modules\Coupon\Checkers\AlreadyApplied;
-use Modules\Account\Entities\DefaultAddress;
+use Modules\Address\Entities\DefaultAddress;
+use Modules\Checkout\Services\CheckoutBillingDefaults;
 use Modules\Coupon\Checkers\ExcludedProducts;
 use Modules\Coupon\Checkers\ApplicableProducts;
 use Modules\Coupon\Checkers\ExcludedCategories;
@@ -128,11 +129,18 @@ class CheckoutController extends Controller
         int $loyaltyBalance,
         float $loyaltyWorthRm,
     ): array {
+        $user = auth()->user();
+
+        if ($user) {
+            $user->loadMissing(['defaultAddress', 'addresses']);
+        }
+
         return [
-            'customerEmail' => auth()->user()?->email,
-            'customerPhone' => auth()->user()?->phone,
+            'customerEmail' => $user?->email,
+            'customerPhone' => $user?->phone,
+            'customerBilling' => app(CheckoutBillingDefaults::class)->forUser($user),
             'addresses' => $this->getAddresses(),
-            'defaultAddress' => auth()->user()?->defaultAddress ?? new DefaultAddress(),
+            'defaultAddress' => $user?->defaultAddress ?? new DefaultAddress(),
             'gateways' => Gateway::all(),
             'countries' => Country::supported(),
             'requiresTreatmentBooking' => $requiresTreatmentBooking,

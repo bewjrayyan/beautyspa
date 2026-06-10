@@ -20,4 +20,5 @@ return [
     'how_it_works' => 'Rewards summary',
     'date_of_birth' => 'Date of birth',
     'date_of_birth_help' => 'Add your birthday to receive annual bonus points.',
+    'profile_view_rewards' => 'View rewards & activity',
 ];

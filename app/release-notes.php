@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.37' => [
+        'en' => [
+            'summary' => 'Checkout and account UX: billing autofill, loyalty card on profile, CHIP settings restore.',
+            'changes' => [
+                'Auto-fill checkout billing from saved address, last order, or profile when logged in.',
+                'Auto-fill first and last name on My Addresses; fix Alpine x-data JSON on that page.',
+                'Show loyalty membership card and reward points in the profile sidebar.',
+                'Restore missing CHIP payment settings via seeder and settings:restore-imma.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UX checkout & akaun: autofill bil, kad loyalty pada profil, pulih tetapan CHIP.',
+            'changes' => [
+                'Autofill bil checkout dari alamat simpanan, pesanan terakhir, atau profil apabila log masuk.',
+                'Autofill nama pertama & akhir pada Alamat Saya; baiki JSON x-data Alpine pada halaman itu.',
+                'Paparkan kad keahlian loyalty dan mata ganjaran di sidebar profil.',
+                'Pulih tetapan pembayaran CHIP yang hilang melalui seeder dan settings:restore-imma.',
+            ],
+        ],
+    ],
     '4.7.36' => [
         'en' => [
             'summary' => 'Fix false "Unsaved changes" badge when switching settings tabs.',

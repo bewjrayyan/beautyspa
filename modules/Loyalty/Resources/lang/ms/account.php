@@ -20,4 +20,5 @@ return [
     'how_it_works' => 'Ringkasan ganjaran',
     'date_of_birth' => 'Tarikh lahir',
     'date_of_birth_help' => 'Tambah tarikh lahir untuk menerima mata bonus tahunan.',
+    'profile_view_rewards' => 'Lihat ganjaran & aktiviti',
 ];
