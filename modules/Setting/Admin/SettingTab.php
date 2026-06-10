@@ -9,6 +9,8 @@ class SettingTab extends Tab
     protected bool $usesCustomLayout = false;
 
     /**
+     * Font Awesome 4.7 icon classes (admin bundle does not ship FA5).
+     *
      * @var array<string, string>
      */
     private const NAV_ICONS = [
@@ -16,32 +18,32 @@ class SettingTab extends Tab
         'logo' => 'fa-image',
         'maintenance' => 'fa-wrench',
         'system' => 'fa-server',
-        'store' => 'fa-store',
-        'pwa' => 'fa-mobile-alt',
-        'currency' => 'fa-money-bill-wave',
-        'sms' => 'fa-comment-dots',
+        'store' => 'fa-shopping-bag',
+        'pwa' => 'fa-mobile',
+        'currency' => 'fa-money',
+        'sms' => 'fa-comments',
         'google_sheets' => 'fa-table',
-        'google_calendar' => 'fa-calendar-alt',
+        'google_calendar' => 'fa-calendar',
         'mail' => 'fa-envelope',
-        'newsletter' => 'fa-newspaper',
-        'google_recaptcha' => 'fa-shield-alt',
+        'newsletter' => 'fa-newspaper-o',
+        'google_recaptcha' => 'fa-shield',
         'custom_css_js' => 'fa-code',
         'facebook' => 'fa-facebook',
         'google' => 'fa-google',
         'whatsapp_otp' => 'fa-whatsapp',
         'loyalty' => 'fa-gift',
-        'specialgift' => 'fa-ticket-alt',
+        'specialgift' => 'fa-ticket',
         'free_shipping' => 'fa-truck',
-        'local_pickup' => 'fa-map-marker-alt',
-        'flat_rate' => 'fa-shipping-fast',
+        'local_pickup' => 'fa-map-marker',
+        'flat_rate' => 'fa-send',
         'paypal' => 'fa-paypal',
         'stripe' => 'fa-credit-card',
         'authorizenet' => 'fa-credit-card',
         'flutterwave' => 'fa-credit-card',
-        'chip' => 'fa-wallet',
-        'cod' => 'fa-money-bill',
+        'chip' => 'fa-bank',
+        'cod' => 'fa-money',
         'bank_transfer' => 'fa-university',
-        'check_payment' => 'fa-money-check',
+        'check_payment' => 'fa-check-square-o',
     ];
 
     protected function navIcon(): ?string

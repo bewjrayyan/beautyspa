@@ -8,7 +8,7 @@
         <div class="settings-sidebar__inner">
             <div class="settings-sidebar__brand">
                 <span class="settings-sidebar__brand-icon" aria-hidden="true">
-                    <i class="fa fa-sliders-h"></i>
+                    <i class="fa fa-sliders"></i>
                 </span>
                 <span class="settings-sidebar__brand-text">{{ trans('setting::settings.settings') }}</span>
             </div>

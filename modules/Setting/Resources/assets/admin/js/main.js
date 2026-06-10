@@ -148,9 +148,10 @@ $(function () {
     const navGroups = document.getElementById("settings-nav-groups");
     const unsavedBadge = document.getElementById("settings-unsaved-badge");
     let formDirty = false;
+    let dirtyTrackingEnabled = false;
 
     const markDirty = () => {
-        if (formDirty) {
+        if (!dirtyTrackingEnabled || formDirty) {
             return;
         }
 
@@ -160,6 +161,18 @@ $(function () {
 
     form.addEventListener("input", markDirty, true);
     form.addEventListener("change", markDirty, true);
+
+    // jQuery ready handlers (e.g. #store_country trigger) run after this script;
+    // enable dirty tracking only once those programmatic updates have finished.
+    const enableDirtyTracking = () => {
+        dirtyTrackingEnabled = true;
+    };
+
+    if (typeof $ !== "undefined") {
+        $(enableDirtyTracking);
+    } else {
+        document.addEventListener("DOMContentLoaded", enableDirtyTracking);
+    }
 
     form.addEventListener("submit", () => {
         formDirty = false;
