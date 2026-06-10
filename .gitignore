@@ -21,7 +21,7 @@ node_modules/
 /vendor/
 
 #Assets
-public/build/
+# public/build/ is tracked in git so shared hosting deploys work without npm on the server.
 public/pwa/
 modules/*/Resources/assets/public/fonts/*
 

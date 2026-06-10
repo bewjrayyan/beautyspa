@@ -76,7 +76,7 @@ npm install
 npm run build
 ```
 
-> `public/build/` is not in git — you must run `npm run build` after clone.
+> `public/build/` is committed with each release so shared hosting deploys work without npm on the server. Run `npm run build` locally before pushing when frontend assets change.
 
 ### 3. Environment
 

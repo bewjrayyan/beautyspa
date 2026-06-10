@@ -1,0 +1,1 @@
+$("form").on("submit",t=>{$(t.currentTarget).find(":input").filter((r,e)=>!e.value).attr("disabled","disabled")});$("#report-type").on("change",t=>{const r=t.currentTarget.closest("form");r&&r.submit()});
