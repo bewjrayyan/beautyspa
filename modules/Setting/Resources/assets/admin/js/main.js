@@ -113,23 +113,27 @@ $("#store_country").on("change", (e) => {
         $(".store-state").addClass("hide");
 
         if (_.isEmpty(data)) {
-            return $(".store-state.input")
+            $(".store-state.input")
                 .removeClass("hide")
                 .find("input")
                 .val(oldState);
+        } else {
+            let options = "";
+
+            for (let code in data) {
+                options += `<option value="${code}">${data[code]}</option>`;
+            }
+
+            $(".store-state.select")
+                .removeClass("hide")
+                .find("select")
+                .html(options)
+                .val(oldState);
         }
 
-        let options = "";
-
-        for (let code in data) {
-            options += `<option value="${code}">${data[code]}</option>`;
+        if (typeof window.scheduleSettingsFormBaseline === "function") {
+            window.scheduleSettingsFormBaseline(300);
         }
-
-        $(".store-state.select")
-            .removeClass("hide")
-            .find("select")
-            .html(options)
-            .val(oldState);
     });
 });
 
@@ -170,29 +174,111 @@ $(function () {
     const unsavedBadge = document.getElementById("settings-unsaved-badge");
     let formDirty = false;
     let dirtyTrackingEnabled = false;
+    let baselineSnapshot = "";
+    let baselineTimer = null;
 
-    const markDirty = () => {
-        if (!dirtyTrackingEnabled || formDirty) {
+    const getFormSnapshot = () => {
+        const parts = [];
+
+        form.querySelectorAll("input, select, textarea").forEach((field) => {
+            const name = field.getAttribute("name");
+
+            if (!name || name === "_token" || name === "_method") {
+                return;
+            }
+
+            if (field.disabled) {
+                return;
+            }
+
+            const type = (field.type || "").toLowerCase();
+
+            if (type === "submit" || type === "button" || type === "file") {
+                return;
+            }
+
+            if (type === "checkbox") {
+                parts.push(`${name}=${field.checked ? "1" : "0"}`);
+
+                return;
+            }
+
+            if (type === "radio") {
+                if (field.checked) {
+                    parts.push(`${name}=${field.value}`);
+                }
+
+                return;
+            }
+
+            if (field.tagName === "SELECT" && field.multiple) {
+                const selected = Array.from(field.selectedOptions);
+
+                if (selected.length === 0) {
+                    parts.push(`${name}[]=`);
+                } else {
+                    selected.forEach((option) => {
+                        parts.push(`${name}[]=${option.value}`);
+                    });
+                }
+
+                return;
+            }
+
+            parts.push(`${name}=${field.value}`);
+        });
+
+        return parts.sort().join("\n");
+    };
+
+    const updateDirtyState = () => {
+        if (!dirtyTrackingEnabled) {
             return;
         }
 
-        formDirty = true;
-        unsavedBadge?.classList.remove("is-hidden");
+        const dirty = getFormSnapshot() !== baselineSnapshot;
+
+        formDirty = dirty;
+        unsavedBadge?.classList.toggle("is-hidden", !dirty);
+    };
+
+    const establishBaseline = () => {
+        baselineSnapshot = getFormSnapshot();
+        dirtyTrackingEnabled = true;
+        updateDirtyState();
+    };
+
+    const scheduleBaseline = (delay = 500) => {
+        if (baselineTimer) {
+            clearTimeout(baselineTimer);
+        }
+
+        baselineTimer = setTimeout(() => {
+            baselineTimer = null;
+            establishBaseline();
+        }, delay);
+    };
+
+    const markDirty = () => {
+        if (!dirtyTrackingEnabled) {
+            scheduleBaseline(500);
+
+            return;
+        }
+
+        updateDirtyState();
     };
 
     form.addEventListener("input", markDirty, true);
     form.addEventListener("change", markDirty, true);
 
-    // jQuery ready handlers (e.g. #store_country trigger) run after this script;
-    // enable dirty tracking only once those programmatic updates have finished.
-    const enableDirtyTracking = () => {
-        dirtyTrackingEnabled = true;
-    };
+    // Defer baseline until programmatic init settles (#store_country axios, toggles, etc.).
+    window.scheduleSettingsFormBaseline = scheduleBaseline;
 
     if (typeof $ !== "undefined") {
-        $(enableDirtyTracking);
+        $(() => scheduleBaseline(500));
     } else {
-        document.addEventListener("DOMContentLoaded", enableDirtyTracking);
+        document.addEventListener("DOMContentLoaded", () => scheduleBaseline(500));
     }
 
     form.querySelectorAll('input[type="color"][data-color-empty]').forEach((input) => {

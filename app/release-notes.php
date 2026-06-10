@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.36' => [
+        'en' => [
+            'summary' => 'Fix false "Unsaved changes" badge when switching settings tabs.',
+            'changes' => [
+                'Compare form snapshot to a post-init baseline instead of flagging the first programmatic change.',
+                'Re-baseline after store country state options load from the API.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki lencana "Perubahan belum disimpan" palsu semasa tukar tab tetapan.',
+            'changes' => [
+                'Bandingkan snapshot borang dengan baseline selepas init, bukan tandakan perubahan programatik pertama.',
+                'Tetapkan semula baseline selepas pilihan negeri kedai dimuatkan dari API.',
+            ],
+        ],
+    ],
     '4.7.35' => [
         'en' => [
             'summary' => 'Fix 500 when using Check on GitHub or Update from GitHub in Settings.',
