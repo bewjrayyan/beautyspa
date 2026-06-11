@@ -21,7 +21,7 @@ Alpine.data("Cart", () => ({
     },
 
     hideSkeleton() {
-        document.querySelector(".cart-skeleton").remove();
+        document.querySelector(".cart-skeleton")?.remove();
     },
 
     clearCart() {

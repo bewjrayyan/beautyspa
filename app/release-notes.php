@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.43' => [
+        'en' => [
+            'summary' => 'Fix cart page JS error when the cart is empty.',
+            'changes' => [
+                'Guard hideSkeleton on cart and compare pages when the skeleton element is not rendered.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki ralat JS halaman cart apabila troli kosong.',
+            'changes' => [
+                'Lindungi hideSkeleton pada halaman cart dan compare apabila elemen skeleton tidak dipaparkan.',
+            ],
+        ],
+    ],
     '4.7.42' => [
         'en' => [
             'summary' => 'Tighter admin desktop density at 100% zoom.',
