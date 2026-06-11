@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.42' => [
+        'en' => [
+            'summary' => 'Tighter admin desktop density at 100% zoom.',
+            'changes' => [
+                'Add desktop-density styles for smaller typography, forms, sidebar, and tables.',
+                'Compact spa branch and user profile layouts so content fits desktop screens.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Ketumpatan desktop admin lebih padat pada zoom 100%.',
+            'changes' => [
+                'Tambah gaya desktop-density untuk tipografi, borang, sidebar, dan jadual yang lebih kecil.',
+                'Padatkan susun atur cawangan spa dan profil pengguna supaya muat pada skrin desktop.',
+            ],
+        ],
+    ],
     '4.7.41' => [
         'en' => [
             'summary' => 'Add spa branch and beautician demo seeders for local restore.',

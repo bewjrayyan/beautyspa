@@ -1,0 +1,382 @@
+// Tighter admin typography and spacing on desktop (100% zoom).
+@media (min-width: 992px) {
+    body {
+        font-size: 13px;
+    }
+
+    h1 {
+        font-size: 28px;
+        line-height: 32px;
+    }
+
+    h2 {
+        font-size: 22px;
+        line-height: 28px;
+    }
+
+    h3 {
+        font-size: 18px;
+        line-height: 24px;
+    }
+
+    h4 {
+        font-size: 16px;
+        line-height: 22px;
+    }
+
+    h5 {
+        font-size: 15px;
+        line-height: 22px;
+    }
+
+    h6 {
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    .content {
+        padding: 16px;
+    }
+
+    .content-header {
+        padding: 14px 16px 0;
+
+        > h3 {
+            font-size: 18px;
+            line-height: 24px;
+            font-weight: 600;
+        }
+
+        > .breadcrumb {
+            font-size: 11px;
+            padding: 5px 4px;
+        }
+    }
+
+    .box {
+        margin-bottom: 16px;
+    }
+
+    .accordion-content {
+        padding: 16px 4px;
+    }
+
+    .form-control {
+        font-size: 13px;
+        height: 34px;
+        padding: 4px 10px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+
+        textarea {
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+
+        label,
+        optgroup {
+            font-size: 13px;
+        }
+    }
+
+    .form-wrap {
+        > .row {
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+    }
+
+    .btn {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+
+    .btn-sm {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    .sidebar-menu {
+        > li.header {
+            font-size: 11px;
+            padding: 16px 20px 6px 15px;
+            letter-spacing: 0.06em;
+        }
+
+        > li > a {
+            font-size: 13px;
+            padding: 11px 14px;
+
+            > .fa {
+                font-size: 16px;
+                line-height: 20px;
+                width: 20px;
+            }
+        }
+    }
+
+    .selectize-input {
+        font-size: 13px !important;
+        min-height: 34px !important;
+        padding: 6px 10px !important;
+    }
+
+    .selectize-dropdown {
+        font-size: 13px !important;
+    }
+
+    table.dataTable {
+        font-size: 13px;
+
+        thead th,
+        tbody td {
+            padding: 8px 10px !important;
+        }
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        font-size: 12px;
+    }
+
+    .tab-pane#general:has(.spa-branch-page) {
+        padding: 16px;
+    }
+
+    .spa-branch-page {
+        margin: -6px 0 6px;
+
+        .sb-hero {
+            gap: 16px 20px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+        }
+
+        .sb-hero-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            font-size: 24px;
+        }
+
+        .sb-hero-name {
+            font-size: 18px;
+        }
+
+        .sb-hero-meta {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .sb-hero-insights {
+            gap: 8px;
+            max-width: 480px;
+        }
+
+        .sb-hero-insight {
+            gap: 8px;
+            padding: 10px 12px;
+        }
+
+        .sb-hero-insight-icon {
+            width: 30px;
+            height: 30px;
+            font-size: 13px;
+        }
+
+        .sb-hero-insight-label {
+            font-size: 10px;
+        }
+
+        .sb-hero-insight-value {
+            font-size: 12px;
+        }
+
+        .sb-hero-stats {
+            gap: 10px;
+            min-width: 170px;
+        }
+
+        .sb-hero-stat-label {
+            font-size: 10px;
+        }
+
+        .sb-hero-stat-value {
+            font-size: 12px;
+        }
+
+        .sb-card {
+            margin-bottom: 14px;
+        }
+
+        .sb-card-header {
+            padding: 14px 18px 0;
+
+            h3 {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+
+            p {
+                font-size: 12px;
+            }
+        }
+
+        .sb-card-body {
+            padding: 14px 18px 16px;
+        }
+
+        .sb-layout-sidebar .sb-card-header {
+            padding: 12px 14px 0;
+        }
+
+        .sb-layout-sidebar .sb-card-body {
+            padding: 12px 14px 14px;
+        }
+
+        .sb-input,
+        .sb-textarea {
+            font-size: 13px;
+        }
+
+        .sb-input {
+            height: 36px;
+        }
+
+        .sb-textarea {
+            min-height: 110px;
+        }
+
+        .sb-field-hint {
+            font-size: 11px;
+        }
+
+        .sb-form-split {
+            gap: 0 28px;
+            padding: 2px 4px 0;
+        }
+
+        .sb-toggle-row {
+            padding: 12px 14px;
+        }
+
+        .sb-toggle-copy strong {
+            font-size: 13px;
+        }
+
+        .sb-toggle-copy span {
+            font-size: 12px;
+        }
+
+        .sb-beautician-card {
+            padding: 10px 12px;
+        }
+
+        .sb-beautician-card-avatar {
+            width: 40px;
+            height: 40px;
+            font-size: 15px;
+        }
+
+        .sb-beautician-card-name {
+            font-size: 13px;
+        }
+
+        .sb-beautician-card-title {
+            font-size: 11px;
+        }
+
+        .sb-form-actions {
+            padding: 14px 0 2px;
+        }
+
+        .sb-form-actions .btn-primary {
+            min-width: 100px;
+            height: 36px;
+        }
+    }
+
+    .admin-profile-page {
+        .admin-profile-hero {
+            gap: 18px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+
+        .admin-profile-hero__avatar {
+            width: 72px;
+            height: 72px;
+
+            &--initial {
+                font-size: 26px;
+            }
+        }
+
+        .admin-profile-hero__name {
+            font-size: 18px;
+        }
+
+        .admin-profile-hero__email {
+            font-size: 13px;
+        }
+
+        .admin-profile-hero__role {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .admin-profile-hero__insight {
+            padding: 10px 12px;
+            min-width: 90px;
+        }
+
+        .admin-profile-hero__insight-value {
+            font-size: 12px;
+        }
+
+        .admin-profile-hero__insight-label {
+            font-size: 9px;
+        }
+
+        .admin-profile-card {
+            padding: 16px 18px 4px;
+        }
+
+        .admin-profile-card__title {
+            font-size: 15px;
+        }
+
+        .admin-profile-card__lead {
+            font-size: 13px;
+        }
+
+        .admin-profile-card__grid {
+            gap: 0 16px;
+        }
+
+        .admin-profile-form .form-group > label.control-label {
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+
+        .admin-profile-form .form-control {
+            height: 38px;
+        }
+
+        .admin-profile-photo__preview {
+            width: 72px;
+            height: 72px;
+        }
+
+        .admin-profile-photo__img--initial {
+            font-size: 26px !important;
+        }
+    }
+}
