@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.41' => [
+        'en' => [
+            'summary' => 'Add spa branch and beautician demo seeders for local restore.',
+            'changes' => [
+                'Add SpaBranchDatabaseSeeder with IMMA Seri Laris Kajang branch and beautician links.',
+                'Run beautician and spa branch seeders during demo data restore.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah seeder demo cawangan spa dan beautician untuk pemulihan tempatan.',
+            'changes' => [
+                'Tambah SpaBranchDatabaseSeeder dengan cawangan IMMA Seri Laris Kajang dan pautan beautician.',
+                'Jalankan seeder beautician dan cawangan spa semasa pemulihan data demo.',
+            ],
+        ],
+    ],
     '4.7.40' => [
         'en' => [
             'summary' => 'Fix admin users list status, profile hero avatar, and access layout.',

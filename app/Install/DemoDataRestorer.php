@@ -139,6 +139,8 @@ class DemoDataRestorer
             'Modules\\Category\\Database\\Seeders\\SpaAestheticCategoriesSeeder',
             'Modules\\Category\\Database\\Seeders\\CosmetikCategorySeeder',
             'Modules\\TreatmentReservation\\Database\\Seeders\\TreatmentReservationDatabaseSeeder',
+            'Modules\\Beautician\\Database\\Seeders\\BeauticianDatabaseSeeder',
+            'Modules\\SpaBranch\\Database\\Seeders\\SpaBranchDatabaseSeeder',
             'Modules\\Currency\\Database\\Seeders\\CurrencyDatabaseSeeder',
             'Modules\\Loyalty\\Database\\Seeders\\LoyaltyDatabaseSeeder',
             'Modules\\Menu\\Database\\Seeders\\MenuDatabaseSeeder',
