@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.44' => [
+        'en' => [
+            'summary' => 'Treatment booking slot clash prevention and loyalty tiers admin UI refresh.',
+            'changes' => [
+                'Block double-booking the same beautician, date, and time using orders and treatment bookings with a checkout lock.',
+                'Redesign membership tiers admin page: distribution chart, full-width ladder, search table, and BM translations.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pencegahan pertembungan slot tempahan rawatan dan UI admin peringkat keahlian baharu.',
+            'changes' => [
+                'Sekat tempahan berganda beautician/tarikh/masa melalui pesanan dan tempahan dengan kunci semasa checkout.',
+                'Reka semula halaman admin peringkat keahlian: carta taburan, tangga lebar penuh, jadual carian, dan terjemahan BM.',
+            ],
+        ],
+    ],
     '4.7.43' => [
         'en' => [
             'summary' => 'Fix cart page JS error when the cart is empty.',
