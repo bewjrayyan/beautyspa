@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.45' => [
+        'en' => [
+            'summary' => 'Polish loyalty tier edit page translations and preview labels.',
+            'changes' => [
+                'Use translated tier names in edit breadcrumbs and live preview.',
+                'Replace monospace slug display with labelled slug meta; align members label with tiers table.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perbaiki terjemahan dan pratonton halaman sunting peringkat keahlian.',
+            'changes' => [
+                'Guna nama peringkat terjemahan dalam breadcrumb dan pratonton langsung.',
+                'Ganti paparan slug monospace dengan label Slug; selaraskan label ahli dengan jadual peringkat.',
+            ],
+        ],
+    ],
     '4.7.44' => [
         'en' => [
             'summary' => 'Treatment booking slot clash prevention and loyalty tiers admin UI refresh.',

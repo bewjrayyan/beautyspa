@@ -2,7 +2,7 @@
 
 @component('admin::components.page.header')
     @slot('title', trans('admin::resource.edit', ['resource' => trans('loyalty::tiers.tier')]))
-    @slot('subtitle', $tier->name)
+    @slot('subtitle', $tier->translatedName())
 
     <li><a href="{{ route('admin.loyalty.tiers.index') }}">{{ trans('loyalty::tiers.tiers') }}</a></li>
     <li class="active">{{ trans('admin::resource.edit', ['resource' => trans('loyalty::tiers.tier')]) }}</li>

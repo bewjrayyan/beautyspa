@@ -2129,12 +2129,23 @@ $lm-purple-soft: #f5f3ff;
     }
 
     &__slug {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         padding: 4px 10px;
         border-radius: 6px;
         background: rgba(15, 23, 42, 0.06);
         font-size: 12px;
         color: $lm-muted;
+    }
+
+    &__slug-label {
+        font-weight: 600;
+        color: $lm-text;
+    }
+
+    &__slug-value {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
     &__status {

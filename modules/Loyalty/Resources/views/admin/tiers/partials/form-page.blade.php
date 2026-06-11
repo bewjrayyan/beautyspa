@@ -24,7 +24,7 @@
                 {{ $lt('tiers.tier') }}
             </p>
             <h1 class="loyalty-page-hero__title loyalty-tier-form__title" id="tier-preview-name">
-                {{ $tier->name ?: $lt('tiers.form.new_tier_title') }}
+                {{ $isEdit ? $tier->translatedName() : ($tier->name ?: $lt('tiers.form.new_tier_title')) }}
             </h1>
             <p class="loyalty-page-hero__lead">
                 @if ($isEdit)
@@ -34,7 +34,10 @@
                 @endif
             </p>
             <div class="loyalty-tier-form__hero-meta">
-                <code class="loyalty-tier-form__slug" id="tier-preview-slug">{{ $tier->slug ?: '—' }}</code>
+                <span class="loyalty-tier-form__slug" id="tier-preview-slug">
+                    <span class="loyalty-tier-form__slug-label">{{ $lt('tiers.form.slug') }}:</span>
+                    <span class="loyalty-tier-form__slug-value" data-preview="slug">{{ $tier->slug ?: '—' }}</span>
+                </span>
                 <span
                     class="loyalty-tier-form__status loyalty-tier-form__status--{{ ($tier->is_active ?? true) ? 'active' : 'inactive' }}"
                     id="tier-preview-status"
@@ -95,9 +98,8 @@
                                 {{ number_format((float) old('earn_multiplier', $tier->earn_multiplier ?? 1), 2) }}×
                             </span>
                             <h3 class="loyalty-tier-card__name" data-preview="name">
-                                {{ $tier->name ?: $lt('tiers.form.new_tier_title') }}
+                                {{ $isEdit ? $tier->translatedName() : ($tier->name ?: $lt('tiers.form.new_tier_title')) }}
                             </h3>
-                            <p class="loyalty-tier-card__slug" data-preview="slug">{{ $tier->slug ?: 'tier-slug' }}</p>
                             <ul class="loyalty-tier-card__meta">
                                 <li>
                                     <span>{{ $lt('tiers.table.min_spend') }}</span>
@@ -108,7 +110,7 @@
                                 </li>
                                 @if ($isEdit)
                                     <li>
-                                        <span>{{ $lt('reports.members') }}</span>
+                                        <span>{{ $lt('tiers.table.members') }}</span>
                                         <strong>
                                             {{ __('loyalty::tiers.index.members_count', ['count' => number_format($tier->wallets_count ?? 0)]) }}
                                         </strong>
@@ -221,9 +223,8 @@
                 const isActive = fields.active?.checked ?? true;
 
                 preview.title.textContent = name;
-                preview.slug.textContent = slug || '—';
+                preview.slugNodes.forEach((node) => { node.textContent = slug || '—'; });
                 preview.nameNodes.forEach((node) => { node.textContent = name; });
-                preview.slugNodes.forEach((node) => { node.textContent = slug; });
 
                 if (preview.multiplier) {
                     preview.multiplier.innerHTML =
