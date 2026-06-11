@@ -29,6 +29,20 @@ class PhoneNumber
     }
 
 
+    public static function toE164(?string $phone): string
+    {
+        $trimmed = preg_replace('/\s+/', '', trim((string) $phone));
+
+        if ($trimmed !== '' && preg_match('/^\+[1-9]\d{6,14}$/', $trimmed)) {
+            return $trimmed;
+        }
+
+        $normalized = self::normalize($phone);
+
+        return $normalized !== '' ? '+' . $normalized : '';
+    }
+
+
     /**
      * @return array<int, string>
      */

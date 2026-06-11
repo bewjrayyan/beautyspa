@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.46' => [
+        'en' => [
+            'summary' => 'Checkout reliability fixes, loyalty tier card preview, and cart translations.',
+            'changes' => [
+                'Fix checkout Alpine errors, phone E.164 validation, and offline payment (COD/bank transfer) completion in one step.',
+                'Show editable phone field for logged-in customers; fix payment-method guard using raw order slug.',
+                'Loyalty tier edit live preview uses real credit-card dimensions; empty cart BM copy for browsing treatments.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pembaikan checkout, pratonton kad peringkat keahlian, dan terjemahan troli.',
+            'changes' => [
+                'Baiki ralat Alpine checkout, validasi telefon E.164, dan lengkapkan bayaran offline (COD/pemindahan bank) dalam satu langkah.',
+                'Paparkan medan telefon boleh sunting untuk pelanggan log masuk; betulkan guard kaedah bayaran menggunakan slug pesanan.',
+                'Pratonton sunting peringkat guna saiz kad kredit sebenar; salinan BM troli kosong untuk cari rawatan.',
+            ],
+        ],
+    ],
     '4.7.45' => [
         'en' => [
             'summary' => 'Polish loyalty tier edit page translations and preview labels.',

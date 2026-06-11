@@ -196,6 +196,58 @@
 @endguest
 
 @auth
-    <input type="hidden" name="customer_email" :value="form.customer_email">
-    <input type="hidden" name="customer_phone" :value="form.customer_phone">
+    @php
+        $authPhoneE164 = auth()->user()?->phone
+            ? \Modules\User\Support\PhoneNumber::toE164(auth()->user()->phone)
+            : '';
+    @endphp
+
+    <div class="checkout-card checkout-card-account account-details">
+        <div class="checkout-card-header">
+            <div class="checkout-card-heading">
+                <span class="checkout-card-icon"><i class="las la-user"></i></span>
+                <h4 class="checkout-card-title">{{ trans('storefront::checkout.account_details') }}</h4>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-9">
+                <div class="form-group">
+                    <label for="customer-email">
+                        {{ trans('checkout::attributes.customer_email') }}<span>*</span>
+                    </label>
+
+                    <input
+                        type="email"
+                        name="customer_email"
+                        id="customer-email"
+                        class="form-control"
+                        autocomplete="email"
+                        readonly
+                        x-model="form.customer_email"
+                    >
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="form-group">
+                    <label for="customer-phone">
+                        {{ trans('checkout::attributes.customer_phone') }}<span>*</span>
+                    </label>
+
+                    @include('storefront::public.partials.phone_input', [
+                        'name' => 'customer_phone',
+                        'id' => 'customer-phone',
+                        'value' => $authPhoneE164,
+                        'required' => true,
+                        'extraAttributes' => '@phone:change="form.customer_phone = $event.detail.number"',
+                    ])
+
+                    <template x-if="errors.has('customer_phone')">
+                        <span class="error-message" x-text="errors.get('customer_phone')"></span>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
 @endauth

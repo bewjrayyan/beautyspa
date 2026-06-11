@@ -202,9 +202,13 @@ class CheckoutCompleteController
 
         event(new OrderPlaced($order));
 
-        if (!request()->ajax()) {
+        if (! request()->ajax()) {
             return redirect()->route('checkout.complete.show');
         }
+
+        return response()->json([
+            'redirectUrl' => storefront_route('checkout.complete.show'),
+        ]);
     }
 
 

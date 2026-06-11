@@ -62,6 +62,48 @@ export function initModernPhoneInputs(root = document) {
     });
 }
 
+export function getPhoneInputE164(input) {
+    if (!input) {
+        return "";
+    }
+
+    if (input._iti) {
+        return input._iti.getNumber() || "";
+    }
+
+    return input.dataset.fullNumber || input.value || "";
+}
+
+export function formatPhoneE164(phone) {
+    const raw = String(phone || "").trim();
+
+    if (!raw) {
+        return "";
+    }
+
+    const compact = raw.replace(/\s+/g, "");
+
+    if (/^\+[1-9]\d{6,14}$/.test(compact)) {
+        return compact;
+    }
+
+    let digits = raw.replace(/\D+/g, "");
+
+    if (!digits) {
+        return "";
+    }
+
+    if (digits.startsWith("00")) {
+        digits = digits.slice(2);
+    } else if (digits.startsWith("0")) {
+        digits = "60" + digits.slice(1);
+    } else if (digits.startsWith("61") && !digits.startsWith("60")) {
+        digits = "60" + digits.slice(1);
+    }
+
+    return digits ? `+${digits}` : "";
+}
+
 export function normalizePhoneInputsOnSubmit(root = document) {
     root.querySelectorAll("form").forEach((form) => {
         if (form.dataset.phoneSubmitBound) {

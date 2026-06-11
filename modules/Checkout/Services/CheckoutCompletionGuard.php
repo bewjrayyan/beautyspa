@@ -9,12 +9,19 @@ class CheckoutCompletionGuard
 {
     private const OFFLINE_METHODS = ['cod', 'bank_transfer', 'check_payment'];
 
+    public static function isOfflineMethod(string $paymentMethod): bool
+    {
+        return in_array($paymentMethod, self::OFFLINE_METHODS, true);
+    }
+
     /**
      * @throws Exception
      */
     public static function assertCanComplete(Order $order, string $paymentMethod): void
     {
-        if ($order->payment_method !== $paymentMethod) {
+        $orderPaymentMethod = (string) $order->getRawOriginal('payment_method');
+
+        if ($orderPaymentMethod !== $paymentMethod) {
             throw new Exception(trans('payment::messages.payment_method_mismatch'));
         }
 
@@ -26,7 +33,7 @@ class CheckoutCompletionGuard
             throw new Exception(trans('payment::messages.order_not_payable'));
         }
 
-        if (in_array($paymentMethod, self::OFFLINE_METHODS, true)) {
+        if (self::isOfflineMethod($paymentMethod)) {
             self::assertOfflineCheckoutSession($order);
         }
     }

@@ -11,6 +11,7 @@ use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 use Modules\Checkout\Exceptions\CheckoutException;
 use Modules\Beautician\Entities\Beautician;
+use Modules\User\Support\PhoneNumber;
 
 class StoreOrderRequest extends Request
 {
@@ -50,6 +51,14 @@ class StoreOrderRequest extends Request
             $billing['state'] = '';
 
             $this->merge(['billing' => $billing]);
+        }
+
+        if ($this->has('customer_phone')) {
+            $e164 = PhoneNumber::toE164($this->input('customer_phone'));
+
+            if ($e164 !== '') {
+                $this->merge(['customer_phone' => $e164]);
+            }
         }
     }
 

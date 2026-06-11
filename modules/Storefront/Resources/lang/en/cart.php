@@ -19,6 +19,7 @@ return [
     'total' => 'Total',
     'proceed_to_checkout' => 'Proceed to Checkout',
     'your_cart_is_empty' => 'Your cart is empty',
-    'looks_like_you_haven\'t_made_any_choice_yet' => 'Looks like you haven\'t made any choice yet.',
+    'looks_like_you_haven\'t_made_any_choice_yet' => 'You haven\'t picked a treatment yet.',
     'continue_shopping' => 'Continue Shopping',
+    'browse_treatments' => 'Browse treatments',
 ];

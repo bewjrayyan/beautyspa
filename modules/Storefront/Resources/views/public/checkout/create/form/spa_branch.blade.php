@@ -40,27 +40,23 @@
                     :aria-expanded="spaBranchPickerOpen"
                     aria-haspopup="listbox"
                 >
-                    <template x-if="selectedSpaBranch">
-                        <span class="beautician-selected-card-inner">
-                            <span class="beautician-selected-avatar spa-branch-picker-icon">
-                                <i class="las la-store"></i>
-                            </span>
-                            <span class="beautician-selected-text">
-                                <span class="beautician-selected-name" x-text="selectedSpaBranch.name"></span>
-                                <span
-                                    class="beautician-selected-title"
-                                    x-show="selectedSpaBranch.code"
-                                    x-text="selectedSpaBranch.code"
-                                ></span>
-                            </span>
+                    <span x-show="selectedSpaBranch" x-cloak class="beautician-selected-card-inner">
+                        <span class="beautician-selected-avatar spa-branch-picker-icon">
+                            <i class="las la-store"></i>
                         </span>
-                    </template>
+                        <span class="beautician-selected-text">
+                            <span class="beautician-selected-name" x-text="selectedSpaBranch?.name"></span>
+                            <span
+                                class="beautician-selected-title"
+                                x-show="selectedSpaBranch?.code"
+                                x-text="selectedSpaBranch?.code"
+                            ></span>
+                        </span>
+                    </span>
 
-                    <template x-if="!selectedSpaBranch">
-                        <span class="beautician-selected-placeholder">
-                            {{ trans('storefront::checkout.please_select') }}
-                        </span>
-                    </template>
+                    <span x-show="!selectedSpaBranch" x-cloak class="beautician-selected-placeholder">
+                        {{ trans('storefront::checkout.please_select') }}
+                    </span>
 
                     <i class="las la-angle-down beautician-selected-chevron" :class="{ 'is-open': spaBranchPickerOpen }"></i>
                 </button>

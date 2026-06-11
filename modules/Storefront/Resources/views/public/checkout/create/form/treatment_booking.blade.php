@@ -43,41 +43,35 @@
                     :aria-expanded="beauticianPickerOpen"
                     aria-haspopup="listbox"
                 >
-                    <template x-if="selectedBeautician">
-                        <span class="beautician-selected-card-inner">
-                            <img
-                                x-show="selectedBeautician.profile_image"
-                                :src="selectedBeautician.profile_image"
-                                :alt="selectedBeautician.name"
-                                class="beautician-selected-avatar beautician-selected-avatar--photo"
-                            >
+                    <span x-show="selectedBeautician" x-cloak class="beautician-selected-card-inner">
+                        <img
+                            x-show="selectedBeautician?.profile_image"
+                            :src="selectedBeautician?.profile_image"
+                            :alt="selectedBeautician?.name"
+                            class="beautician-selected-avatar beautician-selected-avatar--photo"
+                        >
+                        <span
+                            x-show="selectedBeautician && !selectedBeautician.profile_image"
+                            class="beautician-selected-avatar"
+                            :style="{ backgroundColor: selectedBeautician?.profile_color || '#f274ac' }"
+                            x-text="selectedBeautician?.name?.charAt(0)?.toUpperCase()"
+                        ></span>
+                        <span class="beautician-selected-text">
+                            <span class="beautician-selected-name" x-text="selectedBeautician?.name"></span>
                             <span
-                                x-show="!selectedBeautician.profile_image"
-                                class="beautician-selected-avatar"
-                                :style="{ backgroundColor: selectedBeautician.profile_color || '#f274ac' }"
-                                x-text="selectedBeautician.name.charAt(0).toUpperCase()"
+                                class="beautician-selected-title"
+                                x-show="selectedBeautician?.job_title"
+                                x-text="selectedBeautician?.job_title"
                             ></span>
-                            <span class="beautician-selected-text">
-                                <span class="beautician-selected-name" x-text="selectedBeautician.name"></span>
-                                <span
-                                    class="beautician-selected-title"
-                                    x-show="selectedBeautician.job_title"
-                                    x-text="selectedBeautician.job_title"
-                                ></span>
-                            </span>
                         </span>
-                    </template>
+                    </span>
 
-                    <template x-if="!selectedBeautician">
-                        <span class="beautician-selected-placeholder">
-                            <template x-if="hasSpaBranches && !hasSpaBranchSelected">
-                                {{ trans('storefront::checkout.select_spa_branch_first') }}
-                            </template>
-                            <template x-if="!hasSpaBranches || hasSpaBranchSelected">
-                                {{ trans('storefront::checkout.select_beautician') }}
-                            </template>
-                        </span>
-                    </template>
+                    <span
+                        x-show="!selectedBeautician"
+                        x-cloak
+                        class="beautician-selected-placeholder"
+                        x-text="beauticianPlaceholderText"
+                    ></span>
 
                     <i class="las la-angle-down beautician-selected-chevron" :class="{ 'is-open': beauticianPickerOpen }"></i>
                 </button>
@@ -88,11 +82,13 @@
                     class="beautician-picker-options"
                     role="listbox"
                 >
-                    <template x-if="hasSpaBranchSelected && !availableBeauticians.length">
-                        <li class="beautician-picker-empty" role="presentation">
-                            {{ trans('storefront::checkout.no_beauticians_at_branch') }}
-                        </li>
-                    </template>
+                    <li
+                        x-cloak
+                        x-show="hasSpaBranchSelected && !availableBeauticians.length"
+                        class="beautician-picker-empty"
+                        role="presentation"
+                        x-text="slotLabels.no_beauticians_at_branch"
+                    ></li>
 
                     <template x-for="beautician in availableBeauticians" :key="beautician.id">
                         <li role="option">
@@ -173,14 +169,8 @@
                                     :disabled="loadingAppointmentSlots || !appointmentSlots.length"
                                     required
                                 >
-                                    <template x-if="loadingAppointmentSlots">
-                                        <option value="" disabled x-text="slotLabels.loading || 'Loading…'"></option>
-                                    </template>
-                                    <template x-if="!loadingAppointmentSlots && !appointmentSlots.length">
-                                        <option value="" disabled x-text="slotLabels.empty || 'No available times'"></option>
-                                    </template>
-                                    <template x-for="slot in appointmentSlots" :key="slot">
-                                        <option :value="slot" x-text="formatAppointmentSlot(slot)"></option>
+                                    <template x-for="opt in appointmentTimeSelectOptions" :key="opt.key">
+                                        <option :value="opt.value" :disabled="opt.disabled" x-text="opt.label"></option>
                                     </template>
                                 </select>
                             </div>

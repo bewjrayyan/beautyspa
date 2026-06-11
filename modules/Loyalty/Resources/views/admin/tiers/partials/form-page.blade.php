@@ -4,12 +4,6 @@
     $lt = fn (string $key): string => LoyaltyLang::get($key);
     $isEdit = $isEdit ?? $tier->exists;
     $currencySymbol = $currencySymbol ?? currency_symbol(setting('default_currency'));
-    $tierAccent = match ($tier->slug) {
-        'gold' => 3,
-        'platinum' => 4,
-        'silver' => 1,
-        default => 2,
-    };
     $benefitsLines = old('benefits_text')
         ? preg_split('/\r\n|\r|\n/', (string) old('benefits_text'))
         : (is_array($tier->benefits) ? $tier->benefits : []);
@@ -33,6 +27,8 @@
                     {{ $lt('tiers.form.create_lead') }}
                 @endif
             </p>
+        </div>
+        <div class="loyalty-page-hero__aside loyalty-tier-form__hero-aside">
             <div class="loyalty-tier-form__hero-meta">
                 <span class="loyalty-tier-form__slug" id="tier-preview-slug">
                     <span class="loyalty-tier-form__slug-label">{{ $lt('tiers.form.slug') }}:</span>
@@ -47,12 +43,12 @@
                         : $lt('tiers.form.status_inactive') }}
                 </span>
             </div>
-        </div>
-        <div class="loyalty-page-hero__actions">
-            <a href="{{ route('admin.loyalty.tiers.index') }}" class="btn btn-default loyalty-page-hero__btn">
-                <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                {{ $lt('tiers.form.back') }}
-            </a>
+            <div class="loyalty-page-hero__actions">
+                <a href="{{ route('admin.loyalty.tiers.index') }}" class="btn btn-default loyalty-page-hero__btn">
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                    {{ $lt('tiers.form.back') }}
+                </a>
+            </div>
         </div>
     </header>
 
@@ -89,52 +85,7 @@
                         <h2>{{ $lt('tiers.form.preview_title') }}</h2>
                     </div>
                     <div class="loyalty-page-card__body">
-                        <div
-                            class="loyalty-tier-card loyalty-tier-card--preview loyalty-tier-card--{{ $tierAccent }} {{ ($tier->is_active ?? true) ? '' : 'loyalty-tier-card--inactive' }}"
-                            id="tier-preview-card"
-                        >
-                            <span class="loyalty-tier-card__badge" id="tier-preview-multiplier">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                {{ number_format((float) old('earn_multiplier', $tier->earn_multiplier ?? 1), 2) }}×
-                            </span>
-                            <h3 class="loyalty-tier-card__name" data-preview="name">
-                                {{ $isEdit ? $tier->translatedName() : ($tier->name ?: $lt('tiers.form.new_tier_title')) }}
-                            </h3>
-                            <ul class="loyalty-tier-card__meta">
-                                <li>
-                                    <span>{{ $lt('tiers.table.min_spend') }}</span>
-                                    <strong id="tier-preview-min-spend">
-                                        {{ $currencySymbol }}
-                                        {{ number_format((float) old('min_lifetime_spend', $tier->min_lifetime_spend ?? 0), 2) }}
-                                    </strong>
-                                </li>
-                                @if ($isEdit)
-                                    <li>
-                                        <span>{{ $lt('tiers.table.members') }}</span>
-                                        <strong>
-                                            {{ __('loyalty::tiers.index.members_count', ['count' => number_format($tier->wallets_count ?? 0)]) }}
-                                        </strong>
-                                    </li>
-                                @endif
-                                <li>
-                                    <span>{{ $lt('tiers.form.sort_order') }}</span>
-                                    <strong id="tier-preview-sort">{{ old('sort_order', $tier->sort_order ?? 0) }}</strong>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="loyalty-tier-form__benefits-preview">
-                                <h3>{{ $lt('tiers.form.benefits') }}</h3>
-                                <ul class="loyalty-tier-form__benefits-list" id="tier-preview-benefits">
-                                    @forelse ($benefitsLines as $line)
-                                        <li>{{ $line }}</li>
-                                    @empty
-                                        <li class="loyalty-tier-form__benefits-empty">
-                                            {{ $lt('tiers.form.benefits_empty') }}
-                                        </li>
-                                    @endforelse
-                                </ul>
-                            </div>
+                        @include('loyalty::admin.tiers.partials.tier-preview-membership-card')
                     </div>
                 </div>
 
@@ -177,8 +128,8 @@
                 title: document.getElementById('tier-preview-name'),
                 slug: document.getElementById('tier-preview-slug'),
                 status: document.getElementById('tier-preview-status'),
-                card: document.getElementById('tier-preview-card'),
-                multiplier: document.getElementById('tier-preview-multiplier'),
+                cards: form.querySelectorAll('[data-tier-preview-card]'),
+                multiplierNodes: form.querySelectorAll('[data-preview="multiplier"]'),
                 minSpend: document.getElementById('tier-preview-min-spend'),
                 sort: document.getElementById('tier-preview-sort'),
                 benefits: document.getElementById('tier-preview-benefits'),
@@ -198,12 +149,12 @@
                 return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
 
-            function slugAccent(slug) {
-                if (slug === 'gold') return 3;
-                if (slug === 'platinum') return 4;
-                if (slug === 'silver') return 1;
-                return 2;
+            function slugTheme(slug) {
+                if (slug === 'silver' || slug === 'gold' || slug === 'platinum') return slug;
+                return 'default';
             }
+
+            const themeClasses = ['silver', 'gold', 'platinum', 'default'];
 
             function updateBenefitsList() {
                 if (!preview.benefits || !fields.benefits) return;
@@ -214,7 +165,7 @@
 
                 preview.benefits.innerHTML = lines.length
                     ? lines.map((line) => '<li>' + line.replace(/</g, '&lt;') + '</li>').join('')
-                    : '<li class="loyalty-tier-form__benefits-empty">' + benefitsEmpty + '</li>';
+                    : '<li class="loyalty-tier-form__benefits-empty">' + benefitsEmpty.replace(/</g, '&lt;') + '</li>';
             }
 
             function syncPreview() {
@@ -226,10 +177,12 @@
                 preview.slugNodes.forEach((node) => { node.textContent = slug || '—'; });
                 preview.nameNodes.forEach((node) => { node.textContent = name; });
 
-                if (preview.multiplier) {
-                    preview.multiplier.innerHTML =
-                        '<i class="fa fa-star" aria-hidden="true"></i> ' + formatMultiplier(fields.multiplier?.value) + '×';
-                }
+                const multiplierText = formatMultiplier(fields.multiplier?.value) + '×';
+                const multiplierSubText = '×' + formatMultiplier(fields.multiplier?.value);
+
+                preview.multiplierNodes.forEach((node) => {
+                    node.textContent = node.hasAttribute('id') ? multiplierText : multiplierSubText;
+                });
 
                 if (preview.minSpend) {
                     preview.minSpend.textContent = formatMoney(fields.minSpend?.value);
@@ -245,11 +198,13 @@
                     preview.status.classList.toggle('loyalty-tier-form__status--inactive', !isActive);
                 }
 
-                if (preview.card) {
-                    preview.card.classList.toggle('loyalty-tier-card--inactive', !isActive);
-                    [1, 2, 3, 4].forEach((n) => preview.card.classList.remove('loyalty-tier-card--' + n));
-                    preview.card.classList.add('loyalty-tier-card--' + slugAccent(slug));
-                }
+                const theme = slugTheme(slug);
+
+                preview.cards.forEach((card) => {
+                    card.classList.toggle('loyalty-membership-card--inactive', !isActive);
+                    themeClasses.forEach((name) => card.classList.remove('loyalty-membership-card--' + name));
+                    card.classList.add('loyalty-membership-card--' + theme);
+                });
 
                 updateBenefitsList();
             }

@@ -703,6 +703,21 @@ $lm-purple-soft: #f5f3ff;
         opacity: 0.16;
     }
 
+    &--inactive {
+        filter: grayscale(0.8) saturate(0.65);
+        opacity: 0.78;
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: rgba(255, 255, 255, 0.12);
+            pointer-events: none;
+            z-index: 2;
+        }
+    }
+
     &__top {
         display: flex;
         align-items: center;
@@ -2120,12 +2135,20 @@ $lm-purple-soft: #f5f3ff;
         margin-bottom: 4px !important;
     }
 
+    &__hero-aside {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
     &__hero-meta {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
+        justify-content: flex-end;
         gap: 10px;
-        margin-top: 12px;
     }
 
     &__slug {
@@ -2169,7 +2192,7 @@ $lm-purple-soft: #f5f3ff;
 
     &__layout {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 320px;
+        grid-template-columns: minmax(0, 1fr) 380px;
         gap: 20px;
         align-items: start;
     }
@@ -2406,42 +2429,63 @@ $lm-purple-soft: #f5f3ff;
         }
 
         .loyalty-page-card__body {
-            padding: 16px;
+            padding: 16px 14px 18px;
         }
     }
 
-    &__benefits-preview {
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid $lm-border;
-
-        h3 {
-            margin: 0 0 10px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            color: $lm-muted;
-        }
+    &__wallet-preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
     }
 
-    &__benefits-list {
+    &__wallet-item {
+        width: 100%;
+        max-width: 324px;
+    }
+
+    &__wallet-label {
+        display: block;
+        margin: 0 0 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: $lm-muted;
+    }
+
+    &__wallet-item .loyalty-membership-card {
+        width: 100%;
+        max-width: 324px;
+        margin: 0 auto;
+    }
+
+    &__card-meta {
         margin: 0;
-        padding: 0 0 0 18px;
-        font-size: 13px;
-        color: $lm-text;
-        line-height: 1.5;
+        font-size: 12px;
+        font-weight: 600;
+        color: $lm-muted;
+        text-align: center;
+    }
 
-        li + li {
-            margin-top: 6px;
-        }
+    &__card-dimensions {
+        margin: 0;
+        font-size: 10px;
+        line-height: 1.4;
+        color: $lm-muted;
+        text-align: center;
     }
 
     &__benefits-empty {
         list-style: none;
-        margin-left: -18px;
-        color: $lm-muted;
+        padding-left: 0 !important;
+        color: rgba(248, 250, 252, 0.55);
         font-style: italic;
+
+        &::before {
+            display: none !important;
+        }
     }
 
     &__tips {
@@ -2478,6 +2522,11 @@ $lm-purple-soft: #f5f3ff;
 
 .loyalty-page-hero--tier-form {
     margin-bottom: 20px;
+    align-items: flex-start;
+
+    .loyalty-page-hero__aside .loyalty-page-hero__actions {
+        justify-content: flex-end;
+    }
 }
 
 .loyalty-tier-table {

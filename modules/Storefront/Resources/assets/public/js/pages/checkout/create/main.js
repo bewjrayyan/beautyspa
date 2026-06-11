@@ -1,6 +1,10 @@
 import flatpickr from "flatpickr";
 import { buildDatepickerOptions } from "../../../lib/modernDatepicker";
-import { bootModernPhoneInputs } from "../../../lib/modernPhoneInput";
+import {
+    bootModernPhoneInputs,
+    formatPhoneE164,
+    getPhoneInputE164,
+} from "../../../lib/modernPhoneInput";
 import Errors from "../../../components/Errors";
 import "../../../components/CartItem";
 
@@ -192,6 +196,48 @@ Alpine.data(
 
         get hasSpaBranches() {
             return Array.isArray(this.spaBranches) && this.spaBranches.length > 0;
+        },
+
+        get beauticianPlaceholderText() {
+            if (this.hasSpaBranches && !this.hasSpaBranchSelected) {
+                return (
+                    this.slotLabels.select_spa_branch_first ||
+                    "Select a spa branch first"
+                );
+            }
+
+            return this.slotLabels.select_beautician || "Select beautician";
+        },
+
+        get appointmentTimeSelectOptions() {
+            if (this.loadingAppointmentSlots) {
+                return [
+                    {
+                        key: "loading",
+                        value: "",
+                        label: this.slotLabels.loading || "Loading…",
+                        disabled: true,
+                    },
+                ];
+            }
+
+            if (!this.appointmentSlots.length) {
+                return [
+                    {
+                        key: "empty",
+                        value: "",
+                        label: this.slotLabels.empty || "No available times",
+                        disabled: true,
+                    },
+                ];
+            }
+
+            return this.appointmentSlots.map((slot, index) => ({
+                key: `slot-${index}-${slot}`,
+                value: slot,
+                label: this.formatAppointmentSlot(slot),
+                disabled: false,
+            }));
         },
 
         get selectedSpaBranch() {
@@ -555,13 +601,29 @@ Alpine.data(
             }
         },
 
+        resolveCustomerPhone() {
+            const input = this.$el?.querySelector(
+                '#customer-phone, input.modern-phone-input[name="customer_phone"]'
+            );
+            const fromInput = getPhoneInputE164(input);
+
+            if (fromInput) {
+                return fromInput;
+            }
+
+            return formatPhoneE164(this.form.customer_phone);
+        },
+
         buildCheckoutPayload() {
             this.normalizeBillingCountry();
             this.initTreatmentBookingDefaults();
 
+            const customerPhone = this.resolveCustomerPhone();
+            this.form.customer_phone = customerPhone;
+
             const payload = {
                 customer_email: this.form.customer_email,
-                customer_phone: this.form.customer_phone,
+                customer_phone: customerPhone,
                 create_an_account: this.form.create_an_account ? 1 : 0,
                 password: this.form.password,
                 ship_to_a_different_address: this.form
@@ -1088,8 +1150,10 @@ Alpine.data(
                         ...params,
                     },
                 })
-                .then(() => {
-                    window.location.href = "/checkout/complete";
+                .then(({ data }) => {
+                    window.location.href =
+                        data?.redirectUrl ||
+                        AestheticCart.url("/checkout/complete");
                 })
                 .catch((error) => {
                     this.placingOrder = false;

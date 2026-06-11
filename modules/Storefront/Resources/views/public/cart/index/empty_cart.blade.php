@@ -98,5 +98,5 @@
     <span>{{ trans('storefront::cart.looks_like_you_haven\'t_made_any_choice_yet') }}</span>
 
     <a href="{{ route('home') }}"
-        class="btn btn-default btn-continue-shopping">{{ trans('storefront::cart.continue_shopping') }}</a>
+        class="btn btn-default btn-continue-shopping">{{ trans('storefront::cart.browse_treatments') }}</a>
 </div>

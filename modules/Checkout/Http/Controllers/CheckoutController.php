@@ -17,6 +17,7 @@ use Modules\Coupon\Checkers\CouponExists;
 use Modules\Coupon\Checkers\MinimumSpend;
 use Modules\Coupon\Checkers\MaximumSpend;
 use Modules\User\Services\CustomerService;
+use Modules\Checkout\Events\OrderPlaced;
 use Modules\Checkout\Services\CheckoutCompletionGuard;
 use Modules\Checkout\Services\OrderService;
 use Modules\Coupon\Checkers\AlreadyApplied;
@@ -87,7 +88,31 @@ class CheckoutController extends Controller
             ], 403);
         }
 
+        if (CheckoutCompletionGuard::isOfflineMethod($request->payment_method)) {
+            return $this->completeOfflineOrder($order, $gateway, $request->payment_method, $response);
+        }
+
         return response()->json($response);
+    }
+
+
+    private function completeOfflineOrder($order, $gateway, string $paymentMethod, $purchaseResponse): JsonResponse
+    {
+        try {
+            CheckoutCompletionGuard::assertCanComplete($order, $paymentMethod);
+            $completionResponse = $gateway->complete($order);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 403);
+        }
+
+        $order->storeTransaction($completionResponse);
+        event(new OrderPlaced($order));
+
+        return response()->json(array_merge($purchaseResponse->toArray(), [
+            'redirectUrl' => storefront_route('checkout.complete.show'),
+        ]));
     }
 
 
@@ -137,7 +162,9 @@ class CheckoutController extends Controller
 
         return [
             'customerEmail' => $user?->email,
-            'customerPhone' => $user?->phone,
+            'customerPhone' => $user?->phone
+                ? \Modules\User\Support\PhoneNumber::toE164($user->phone)
+                : null,
             'customerBilling' => app(CheckoutBillingDefaults::class)->forUser($user),
             'addresses' => $this->getAddresses(),
             'defaultAddress' => $user?->defaultAddress ?? new DefaultAddress(),
@@ -150,13 +177,20 @@ class CheckoutController extends Controller
             'availabilitySlotsUrl' => $requiresTreatmentBooking && app('modules')->isEnabled('TreatmentReservation')
                 ? route('treatment_reservations.availability.slots', ['beautician' => '__BEAUTICIAN__'])
                 : null,
-            'slotLabels' => $requiresTreatmentBooking && app('modules')->isEnabled('TreatmentReservation')
-                ? [
-                    'loading' => trans('treatmentreservation::public.loading_slots'),
-                    'empty' => trans('treatmentreservation::public.no_slots'),
-                    'select' => trans('storefront::checkout.select_appointment_time'),
-                ]
-                : [],
+            'slotLabels' => array_merge(
+                [
+                    'select_beautician' => trans('storefront::checkout.select_beautician'),
+                    'select_spa_branch_first' => trans('storefront::checkout.select_spa_branch_first'),
+                    'no_beauticians_at_branch' => trans('storefront::checkout.no_beauticians_at_branch'),
+                ],
+                $requiresTreatmentBooking && app('modules')->isEnabled('TreatmentReservation')
+                    ? [
+                        'loading' => trans('treatmentreservation::public.loading_slots'),
+                        'empty' => trans('treatmentreservation::public.no_slots'),
+                        'select' => trans('storefront::checkout.select_appointment_time'),
+                    ]
+                    : []
+            ),
             'spaBranches' => app('modules')->isEnabled('SpaBranch')
                 ? SpaBranch::activeListForCheckout()
                 : [],
