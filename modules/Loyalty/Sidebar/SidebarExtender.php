@@ -18,6 +18,7 @@ class SidebarExtender extends BaseSidebarExtender
                 $item->authorize(
                     $this->auth->hasAccess('admin.loyalty.members.index')
                     || $this->auth->hasAccess('admin.loyalty.tiers.index')
+                    || $this->auth->hasAccess('admin.loyalty.stamp_programs.index')
                     || $this->auth->hasAccess('admin.loyalty.reports.index')
                 );
 
@@ -33,8 +34,14 @@ class SidebarExtender extends BaseSidebarExtender
                     $child->authorize($this->auth->hasAccess('admin.loyalty.tiers.index'));
                 });
 
-                $item->item(trans('loyalty::sidebar.reports'), function (Item $child) {
+                $item->item(trans('loyalty::sidebar.stamp_programs'), function (Item $child) {
                     $child->weight(3);
+                    $child->route('admin.loyalty.stamp_programs.index');
+                    $child->authorize($this->auth->hasAccess('admin.loyalty.stamp_programs.index'));
+                });
+
+                $item->item(trans('loyalty::sidebar.reports'), function (Item $child) {
+                    $child->weight(4);
                     $child->route('admin.loyalty.reports.index');
                     $child->authorize($this->auth->hasAccess('admin.loyalty.reports.index'));
                 });

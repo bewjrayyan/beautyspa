@@ -56,7 +56,7 @@ class ChipPaymentSettingsDefaults
             'chip_webhook_url' => '',
             'chip_webhook_secret' => '',
             'chip_fpx_enabled' => true,
-            'chip_fpx_surcharge' => 0,
+            'chip_fpx_surcharge' => 100,
             'chip_fpx_whitelist' => '',
             'chip_card_enabled' => true,
             'chip_card_surcharge' => 0,

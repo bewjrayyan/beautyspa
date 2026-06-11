@@ -10,6 +10,7 @@ use Modules\Loyalty\Services\LoyaltyConfig;
 use Modules\Loyalty\Services\LoyaltyLifetimeSpendService;
 use Modules\Loyalty\Services\LoyaltyTierService;
 use Modules\Loyalty\Services\MemberPurchaseAnalyticsService;
+use Modules\Loyalty\Services\LoyaltyStampAdminService;
 use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\Loyalty\Http\Requests\AdjustMemberPointsRequest;
 use Modules\Loyalty\Support\MemberUserSearch;
@@ -22,6 +23,7 @@ class MemberController
         private LoyaltyLifetimeSpendService $lifetimeSpend,
         private LoyaltyTierService $tiers,
         private MemberPurchaseAnalyticsService $purchaseAnalytics,
+        private LoyaltyStampAdminService $stampAdmin,
     ) {}
 
 
@@ -38,7 +40,15 @@ class MemberController
 
         $outstandingPoints = (int) LoyaltyWallet::sum('balance');
 
+        $stampLookup = null;
+
+        if ($request->filled('code')) {
+            $stampLookup = $this->stampAdmin->lookupByCode((string) $request->get('code'));
+        }
+
         return view('loyalty::admin.members.index', [
+            'stampLookup' => $stampLookup,
+            'pendingStampRedemptions' => $this->stampAdmin->pendingRedemptions(),
             'stats' => [
                 'total' => LoyaltyWallet::count(),
                 'active' => LoyaltyWallet::where('balance', '>', 0)->count(),
@@ -84,10 +94,15 @@ class MemberController
                 ->get();
         }
 
+        $stampData = $user
+            ? $this->stampAdmin->memberStampData($user)
+            : ['active_cards' => collect(), 'ready_to_redeem' => collect(), 'redemptions' => collect()];
+
         return view('loyalty::admin.members.show', [
             'member' => $wallet,
             'memberOrders' => $memberOrders,
             'purchaseAnalytics' => $this->purchaseAnalytics->forCustomer($user),
+            'stampData' => $stampData,
             'stats' => [
                 'earned' => (int) $transactions->where('points', '>', 0)->sum('points'),
                 'redeemed' => (int) abs($transactions->where('points', '<', 0)->sum('points')),

@@ -2,10 +2,12 @@
 
 namespace Modules\Payment\Services;
 
+use Modules\Order\Entities\Order;
 use Modules\Payment\Libraries\Chip\ChipCollectClient;
 
 class ChipPaymentMethodsResolver
 {
+    public function __construct(private ChipSurchargeCalculator $fees) {}
     /**
      * @return list<string>
      */
@@ -34,15 +36,9 @@ class ChipPaymentMethodsResolver
         return $config['default_whitelist'];
     }
 
-    public function surchargeSubunit(string $gatewayKey): int
+    public function surchargeSubunit(string $gatewayKey, ?Order $order = null, ?int $amountSubunit = null): int
     {
-        $config = ChipPaymentMethodConfig::configFor($gatewayKey);
-
-        if ($config === null) {
-            return 0;
-        }
-
-        return max(0, (int) setting($config['surcharge_setting'], $config['default_surcharge']));
+        return $this->fees->forGateway($gatewayKey, $order, $amountSubunit);
     }
 
     /**

@@ -2,6 +2,54 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::post('loyalty/stamp-redemptions/lookup', [
+    'as' => 'admin.loyalty.stamp_redemptions.lookup',
+    'uses' => 'StampRedemptionController@lookup',
+    'middleware' => 'can:admin.loyalty.members.index',
+]);
+
+Route::post('loyalty/stamp-redemptions/{wallet}/fulfill', [
+    'as' => 'admin.loyalty.stamp_redemptions.fulfill',
+    'uses' => 'StampRedemptionController@fulfill',
+    'middleware' => 'can:admin.loyalty.members.show',
+]);
+
+Route::get('loyalty/stamp-programs', [
+    'as' => 'admin.loyalty.stamp_programs.index',
+    'uses' => 'StampProgramController@index',
+    'middleware' => 'can:admin.loyalty.stamp_programs.index',
+]);
+
+Route::get('loyalty/stamp-programs/create', [
+    'as' => 'admin.loyalty.stamp_programs.create',
+    'uses' => 'StampProgramController@create',
+    'middleware' => 'can:admin.loyalty.stamp_programs.create',
+]);
+
+Route::post('loyalty/stamp-programs', [
+    'as' => 'admin.loyalty.stamp_programs.store',
+    'uses' => 'StampProgramController@store',
+    'middleware' => 'can:admin.loyalty.stamp_programs.create',
+]);
+
+Route::get('loyalty/stamp-programs/{id}/edit', [
+    'as' => 'admin.loyalty.stamp_programs.edit',
+    'uses' => 'StampProgramController@edit',
+    'middleware' => 'can:admin.loyalty.stamp_programs.edit',
+]);
+
+Route::put('loyalty/stamp-programs/{id}', [
+    'as' => 'admin.loyalty.stamp_programs.update',
+    'uses' => 'StampProgramController@update',
+    'middleware' => 'can:admin.loyalty.stamp_programs.edit',
+]);
+
+Route::delete('loyalty/stamp-programs/{ids?}', [
+    'as' => 'admin.loyalty.stamp_programs.destroy',
+    'uses' => 'StampProgramController@destroy',
+    'middleware' => 'can:admin.loyalty.stamp_programs.destroy',
+]);
+
 Route::get('loyalty/tiers', [
     'as' => 'admin.loyalty.tiers.index',
     'uses' => 'TierController@index',

@@ -101,13 +101,74 @@ class ChipCollectClient
             : $http->{$method}($uri, $payload);
 
         if ($response->failed()) {
-            $message = $response->json('message')
-                ?? $response->json('error')
-                ?? $response->body();
-
-            throw new Exception(trim((string) $message) ?: 'CHIP API request failed.');
+            throw new Exception($this->formatErrorMessage($response));
         }
 
         return $response->json() ?? [];
+    }
+
+
+    private function formatErrorMessage($response): string
+    {
+        $body = $response->json();
+
+        if (is_string($body)) {
+            return trim($body) ?: 'CHIP API request failed.';
+        }
+
+        if (! is_array($body)) {
+            return trim((string) $response->body()) ?: 'CHIP API request failed.';
+        }
+
+        foreach (['message', 'error', 'detail'] as $key) {
+            if (! empty($body[$key]) && is_string($body[$key])) {
+                return trim($body[$key]);
+            }
+        }
+
+        $flattened = $this->flattenChipErrors($body);
+
+        if ($flattened !== []) {
+            return implode(' ', $flattened);
+        }
+
+        return trim((string) $response->body()) ?: 'CHIP API request failed.';
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    private function flattenChipErrors(array $data, string $prefix = ''): array
+    {
+        $messages = [];
+
+        foreach ($data as $key => $value) {
+            $path = $prefix === '' ? (string) $key : $prefix . '.' . $key;
+
+            if (is_array($value)) {
+                if (isset($value['message']) && is_string($value['message'])) {
+                    $messages[] = trim($value['message']);
+
+                    continue;
+                }
+
+                if (array_is_list($value) && isset($value[0]['message']) && is_string($value[0]['message'])) {
+                    $messages[] = trim($value[0]['message']);
+
+                    continue;
+                }
+
+                $messages = array_merge($messages, $this->flattenChipErrors($value, $path));
+
+                continue;
+            }
+
+            if (is_string($value) && $value !== '') {
+                $messages[] = trim($value);
+            }
+        }
+
+        return array_values(array_unique(array_filter($messages)));
     }
 }

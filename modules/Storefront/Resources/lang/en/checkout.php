@@ -33,6 +33,7 @@ return [
     'apply' => 'Apply',
     'coupon' => 'Coupon',
     'shipping_cost' => 'Shipping Cost',
+    'payment_processing_fee' => 'Payment processing fee',
     'free' => 'Free',
     'total' => 'Total',
     'i_agree_to_the' => 'I agree to the',

@@ -152,6 +152,13 @@
                             </span>
                         </li>
                     </template>
+
+                    <template x-if="chipPaymentFee > 0">
+                        <li>
+                            <label>{{ trans('storefront::checkout.payment_processing_fee') }}</label>
+                            <span x-text="formatCurrency(chipPaymentFee)"></span>
+                        </li>
+                    </template>
                 </ul>
             </template>
 
@@ -161,7 +168,7 @@
                 <div class="order-summary-total order-summary-total--highlight">
                     <label>{{ trans('storefront::checkout.total') }}</label>
 
-                    <span x-text="formatCurrency($store.cart.total)"></span>
+                    <span x-text="formatCurrency(checkoutTotal)"></span>
                 </div>
             </template>
         </div>

@@ -40,11 +40,27 @@ class ChipGateway implements GatewayInterface
 
         $client = $this->client();
         $resolver = app(ChipPaymentMethodsResolver::class);
-        $surcharge = $resolver->surchargeSubunit($this->gatewayKey);
 
-        $order->loadMissing(['products.variations', 'products.options.values', 'taxes']);
+        $order = $order->fresh();
+        $order->loadMissing([
+            'products.product',
+            'products.variations',
+            'products.options.values',
+            'taxes',
+        ]);
+
+        if ($order->products->isEmpty()) {
+            throw new Exception(trans('payment::messages.chip_order_products_missing'));
+        }
+
+        $surcharge = $resolver->surchargeSubunit($this->gatewayKey, $order);
 
         $products = (new ChipPurchaseProductsBuilder())->build($order, $surcharge);
+
+        if ($products === []) {
+            throw new Exception(trans('payment::messages.chip_zero_amount'));
+        }
+
         $purchaseTotal = $this->purchaseTotalSubunit($order, $products);
 
         $payload = [
@@ -64,9 +80,7 @@ class ChipGateway implements GatewayInterface
             'cancel_redirect' => $this->failureRedirectUrl($order),
         ];
 
-        if ($surcharge > 0) {
-            $payload['purchase']['total_override'] = $purchaseTotal;
-        }
+        $payload['purchase']['total_override'] = $purchaseTotal;
 
         $whitelist = $resolver->resolveWhitelist($this->gatewayKey);
 

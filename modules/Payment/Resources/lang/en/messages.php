@@ -20,4 +20,7 @@ return [
     'invalid_checkout_session' => 'Invalid checkout session. Please place your order again.',
     'chip_webhook_unauthorized' => 'Unauthorized CHIP webhook request.',
     'chip_payment_fee' => 'Payment processing fee',
+    'chip_order_line' => 'Order #:id',
+    'chip_zero_amount' => 'This order total is RM 0.00. Please choose Cash on Delivery or Bank Transfer instead of online payment.',
+    'chip_order_products_missing' => 'Order items are not ready for CHIP payment. Please try again.',
 ];

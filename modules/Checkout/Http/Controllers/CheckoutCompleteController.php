@@ -233,11 +233,19 @@ class CheckoutCompleteController
             && $order->beautician_id
             && setting('whatsapp_completed_beautician_enabled', true);
 
+        $orderRewards = null;
+
+        if (app('modules')->isEnabled('Loyalty')) {
+            $orderRewards = app(\Modules\Loyalty\Services\LoyaltyOrderCompleteRewardsService::class)
+                ->forOrder($order);
+        }
+
         return view('storefront::public.checkout.complete.show', compact(
             'order',
             'googleCalendarUrl',
             'hasTreatmentBooking',
             'canNotifyBeautician',
+            'orderRewards',
         ));
     }
 

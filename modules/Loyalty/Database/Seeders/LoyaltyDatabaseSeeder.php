@@ -3,6 +3,7 @@
 namespace Modules\Loyalty\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Loyalty\Entities\LoyaltyStampProgram;
 use Modules\Loyalty\Entities\LoyaltyTier;
 
 class LoyaltyDatabaseSeeder extends Seeder
@@ -52,5 +53,17 @@ class LoyaltyDatabaseSeeder extends Seeder
                 array_merge($tier, ['is_active' => true])
             );
         }
+
+        LoyaltyStampProgram::updateOrCreate(
+            ['name' => '7 Times Free 1 Basic Wash'],
+            [
+                'reward_description' => '7 lawatan rawatan — 1 cucian asas percuma',
+                'stamps_required' => 7,
+                'validity_days' => 30,
+                'virtual_treatments_only' => true,
+                'sort_order' => 1,
+                'is_active' => true,
+            ]
+        );
     }
 }

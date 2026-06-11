@@ -144,6 +144,26 @@ Alpine.data(
             return this.cart.coupon?.free_shipping ?? false;
         },
 
+        get chipPaymentFee() {
+            const gateway = this.gateways[this.form.payment_method];
+
+            if (!gateway) {
+                return 0;
+            }
+
+            if (gateway.surcharge_subunit) {
+                return gateway.surcharge_subunit / 100;
+            }
+
+            return 0;
+        },
+
+        get checkoutTotal() {
+            const cartTotal = Number(this.$store.cart.total ?? 0);
+
+            return cartTotal + this.chipPaymentFee;
+        },
+
         get firstShippingMethod() {
             return Object.keys(this.cart.availableShippingMethods)[0];
         },

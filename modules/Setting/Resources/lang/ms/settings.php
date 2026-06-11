@@ -373,9 +373,9 @@ return [
         'chip_webhook_secret_help' => 'Rahsia kongsi pilihan dalam header X-Signature atau X-Chip-Signature. Jika ditetapkan, permintaan webhook tanpa tandatangan yang sepadan akan ditolak.',
         'chip_credentials_help' => 'Dapatkan Brand ID dan API Key daripada',
         'chip_collect_methods_heading' => 'Kaedah bayaran CHIP Collect',
-        'chip_collect_methods_help' => 'Dayakan pilihan checkout khusus (FPX, kad, Atome). Setiap kaedah menggunakan payment_method_whitelist CHIP. Caj tambahan dalam sen (MYR): 100 = RM1.00.',
+        'chip_collect_methods_help' => 'Dayakan pilihan checkout khusus (FPX, kad, Atome). Setiap kaedah menggunakan payment_method_whitelist CHIP. Tetapkan yuran pemprosesan setiap kaedah di bawah (sen): 100 = RM1.00 — jumlah ini ditambah pada jumlah checkout pelanggan.',
         'chip_all_methods_enable' => 'Tunjuk checkout generik “CHIP — semua kaedah” (tanpa whitelist)',
-        'chip_surcharge_help' => 'Jumlah tambahan pada jumlah checkout CHIP, dalam sen (MYR). Contoh: 100 = RM1.00.',
+        'chip_surcharge_help' => 'Yuran pemprosesan yang ditanggung pelanggan, dalam sen (MYR). Contoh: 100 = RM1.00 ditambah pada jumlah checkout mereka.',
         'chip_whitelist_help' => 'Pilihan. Kod kaedah CHIP dipisahkan koma daripada GET /payment_methods/. Kosongkan untuk lalai (fpx, card, atome).',
         'chip_whitelist_placeholder' => [
             'fpx' => 'fpx',

@@ -33,7 +33,7 @@ class ChipPaymentMethodConfig
                 'surcharge_setting' => 'chip_fpx_surcharge',
                 'whitelist_setting' => 'chip_fpx_whitelist',
                 'default_whitelist' => ['fpx'],
-                'default_surcharge' => 0,
+                'default_surcharge' => 100,
             ],
             self::METHOD_CARD => [
                 'label_setting' => 'chip_card_label',

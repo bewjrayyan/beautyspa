@@ -36,6 +36,42 @@
             </div>
         </header>
 
+        <div class="loyalty-members__stamp-tools">
+            @include('loyalty::admin.members.partials.stamp-lookup', [
+                'stampLookup' => $stampLookup ?? null,
+            ])
+
+            @if (($pendingStampRedemptions ?? collect())->isNotEmpty())
+                <div class="loyalty-member-card loyalty-stamp-pending">
+                    <div class="loyalty-member-card__head">
+                        <h3>
+                            <i class="fa fa-clock-o" aria-hidden="true"></i>
+                            {{ trans('loyalty::members.stamps.pending_queue_title') }}
+                        </h3>
+                        <p>{{ trans('loyalty::members.stamps.pending_queue_lead') }}</p>
+                    </div>
+                    <div class="loyalty-member-card__body loyalty-stamp-pending__body">
+                        @foreach ($pendingStampRedemptions as $pending)
+                            <div class="loyalty-stamp-pending__item">
+                                <div>
+                                    <strong>{{ $pending->user?->full_name }}</strong>
+                                    <span class="text-muted">· {{ $pending->program?->name }}</span>
+                                    <br>
+                                    <code>{{ $pending->redemption_code }}</code>
+                                </div>
+                                <a
+                                    href="{{ route('admin.loyalty.members.index', ['code' => $pending->redemption_code]) }}"
+                                    class="btn btn-default btn-xs"
+                                >
+                                    {{ trans('loyalty::members.stamps.verify') }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+
         <div class="loyalty-page-stats loyalty-page-stats--4">
             <div class="loyalty-page-stats__stat">
                 <span class="loyalty-page-stats__icon loyalty-page-stats__icon--primary">

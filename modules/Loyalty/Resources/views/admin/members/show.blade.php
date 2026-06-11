@@ -200,6 +200,10 @@
             </aside>
 
             <div class="loyalty-member-layout__main">
+                @include('loyalty::admin.members.partials.stamp-cards', [
+                    'stampData' => $stampData,
+                ])
+
                 @include('loyalty::admin.members.partials.purchase-analytics', [
                     'purchaseAnalytics' => $purchaseAnalytics,
                 ])

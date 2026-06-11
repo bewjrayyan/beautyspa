@@ -363,9 +363,9 @@ return [
         'chip_webhook_secret_help' => 'Optional shared secret sent in the X-Signature or X-Chip-Signature header. When set, webhook requests without a matching signature are rejected. Leave empty only if your server verifies CHIP callbacks by other means.',
         'chip_credentials_help' => 'Get your Brand ID and API Key from the',
         'chip_collect_methods_heading' => 'CHIP Collect payment methods',
-        'chip_collect_methods_help' => 'Enable specific checkout options (FPX, cards, Atome). Each method uses CHIP payment_method_whitelist so customers only see that channel on the CHIP hosted page. Surcharges are in minor units (MYR sen): 100 = RM1.00.',
+        'chip_collect_methods_help' => 'Enable specific checkout options (FPX, cards, Atome). Each method uses CHIP payment_method_whitelist so customers only see that channel on the CHIP hosted page. Set the processing fee per method below (sen): 100 = RM1.00 — this amount is added to the customer checkout total.',
         'chip_all_methods_enable' => 'Show generic “CHIP — all methods” checkout (no whitelist)',
-        'chip_surcharge_help' => 'Extra amount added to the CHIP checkout total, in sen (MYR). Example: 100 = RM1.00.',
+        'chip_surcharge_help' => 'Processing fee passed to the customer, in sen (MYR). Example: 100 = RM1.00 added to their checkout total.',
         'chip_whitelist_help' => 'Optional. Comma-separated CHIP method codes from GET /payment_methods/. Leave empty to use defaults (fpx, card, atome).',
         'chip_whitelist_placeholder' => [
             'fpx' => 'fpx',

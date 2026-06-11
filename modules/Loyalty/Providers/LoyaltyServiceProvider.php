@@ -3,8 +3,10 @@
 namespace Modules\Loyalty\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\User\Events\CustomerRegistered;
+use Modules\Loyalty\Listeners\AwardStampsOnOrderPlaced;
 use Modules\Loyalty\Console\ExpireLoyaltyPointsCommand;
 use Modules\Loyalty\Console\AwardBirthdayBonusCommand;
 use Modules\Loyalty\Console\GrantLoyaltyPermissionsCommand;
@@ -31,6 +33,11 @@ class LoyaltyServiceProvider extends ServiceProvider
         $this->app['events']->listen(
             OrderStatusChanged::class,
             ProcessLoyaltyOnOrderStatusChanged::class
+        );
+
+        $this->app['events']->listen(
+            OrderPlaced::class,
+            AwardStampsOnOrderPlaced::class
         );
 
         $this->app['events']->listen(

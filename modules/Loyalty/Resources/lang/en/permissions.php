@@ -15,4 +15,10 @@ return [
     'reports' => [
         'index' => 'View loyalty reports',
     ],
+    'stamp_programs' => [
+        'index' => 'View stamp card programs',
+        'create' => 'Create stamp card programs',
+        'edit' => 'Edit stamp card programs',
+        'destroy' => 'Delete stamp card programs',
+    ],
 ];

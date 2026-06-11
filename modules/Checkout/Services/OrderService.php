@@ -27,13 +27,17 @@ class OrderService
         $this->saveAddress($request);
         $this->addShippingMethodToCart($request);
 
-        return tap($this->store($request), function ($order) use ($request) {
+        return DB::transaction(function () use ($request) {
+            $order = $this->persistOrder($request);
+
             $this->storeOrderProducts($order);
             $this->storeOrderDownloads($order);
             $this->storeFlashSaleProductOrders($order);
             $this->incrementCouponUsage($order);
             $this->attachTaxes($order);
             $this->reduceStock();
+
+            return $order->fresh(['products.product', 'products.variations', 'products.options.values', 'taxes']);
         });
     }
 
@@ -127,14 +131,13 @@ class OrderService
     }
 
 
-    private function store($request)
+    private function persistOrder($request): Order
     {
-        return DB::transaction(function () use ($request) {
-            $booking = $this->treatmentBookingData($request);
+        $booking = $this->treatmentBookingData($request);
 
-            $this->assertTreatmentSlotAvailable($request, $booking);
+        $this->assertTreatmentSlotAvailable($request, $booking);
 
-            return Order::create([
+        return Order::create([
                 'customer_id' => auth()->id(),
                 'customer_email' => $request->customer_email,
                 'customer_phone' => PhoneNumber::normalize($request->customer_phone) ?: $request->customer_phone,
@@ -176,7 +179,6 @@ class OrderService
                 'appointment_time' => $booking['appointment_time'],
                 'spa_branch_id' => $request->input('spa_branch_id'),
             ]);
-        });
     }
 
 

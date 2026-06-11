@@ -15,4 +15,10 @@ return [
     'reports' => [
         'index' => 'Lihat laporan kesetiaan',
     ],
+    'stamp_programs' => [
+        'index' => 'Lihat program kad setem',
+        'create' => 'Cipta program kad setem',
+        'edit' => 'Sunting program kad setem',
+        'destroy' => 'Padam program kad setem',
+    ],
 ];

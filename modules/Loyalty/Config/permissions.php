@@ -15,4 +15,10 @@ return [
     'admin.loyalty.reports' => [
         'index' => 'loyalty::permissions.reports.index',
     ],
+    'admin.loyalty.stamp_programs' => [
+        'index' => 'loyalty::permissions.stamp_programs.index',
+        'create' => 'loyalty::permissions.stamp_programs.create',
+        'edit' => 'loyalty::permissions.stamp_programs.edit',
+        'destroy' => 'loyalty::permissions.stamp_programs.destroy',
+    ],
 ];

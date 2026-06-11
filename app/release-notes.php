@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.47' => [
+        'en' => [
+            'summary' => 'Loyalty stamp cards, CHIP checkout improvements, and per-method processing fees.',
+            'changes' => [
+                'Add stamp card programs with admin CRUD, customer account progress, redemption codes, and counter verification.',
+                'Show stamp and loyalty rewards on order complete; award stamps automatically when orders are placed.',
+                'CHIP checkout sends real product line items, per-method surcharges (FPX/card/Atome), and checkout fee display.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kad setem keahlian, penambahbaikan checkout CHIP, dan yuran pemprosesan setiap kaedah.',
+            'changes' => [
+                'Tambah program kad setem dengan CRUD admin, kemajuan akaun pelanggan, kod tebusan, dan pengesahan kaunter.',
+                'Paparkan ganjaran setem dan mata pada pesanan selesai; anugerah setem automatik apabila pesanan dibuat.',
+                'Checkout CHIP hantar baris produk sebenar, caj tambahan setiap kaedah (FPX/kad/Atome), dan paparan yuran checkout.',
+            ],
+        ],
+    ],
     '4.7.46' => [
         'en' => [
             'summary' => 'Checkout reliability fixes, loyalty tier card preview, and cart translations.',

@@ -119,6 +119,10 @@
                     </div>
                 </div>
 
+                @if (! empty($orderRewards))
+                    @include('loyalty::public.order_complete.rewards', ['orderRewards' => $orderRewards])
+                @endif
+
                 <div class="order-complete-actions">
                     <a
                         href="{{ route('checkout.complete.invoice') }}"

@@ -14,6 +14,32 @@
     @endphp
 
     <div class="account-loyalty-show">
+        @if (session('success'))
+            <div class="account-loyalty-alert account-loyalty-alert--success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="account-loyalty-alert account-loyalty-alert--error">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if (session('stamp_redeemed_code'))
+            <div class="account-loyalty-redeem-success" id="stamp-redeem-success">
+                <div class="account-loyalty-redeem-success__icon">
+                    <i class="las la-check-circle"></i>
+                </div>
+                <div>
+                    <h2 class="account-loyalty-redeem-success__title">{{ trans('loyalty::account.stamp_redeemed_title') }}</h2>
+                    <p class="account-loyalty-redeem-success__lead">{{ trans('loyalty::account.stamp_redeemed_lead') }}</p>
+                    <p class="account-loyalty-redeem-success__code">{{ session('stamp_redeemed_code') }}</p>
+                    <p class="account-loyalty-redeem-success__hint">{{ trans('loyalty::account.stamp_redeemed_show_code') }}</p>
+                </div>
+            </div>
+        @endif
+
         <header class="account-loyalty-show__hero">
             <div class="account-loyalty-show__hero-main">
                 <h1 class="account-loyalty-show__title">
@@ -52,6 +78,21 @@
 
         <div class="account-loyalty-show__layout">
             <main class="account-loyalty-show__main">
+                @if (! empty($stampCards))
+                    <section class="account-loyalty-show__section account-loyalty-show__section--stamps" id="stamp-cards">
+                        <h2 class="account-loyalty-show__section-title">
+                            <i class="las la-ticket-alt"></i>
+                            {{ trans('loyalty::account.stamp_cards') }}
+                        </h2>
+                        <p class="account-loyalty-show__section-lead">{{ trans('loyalty::account.stamp_cards_lead') }}</p>
+
+                        @include('loyalty::public.partials.stamp-cards', [
+                            'stampCards' => $stampCards,
+                            'showRedeemActions' => true,
+                        ])
+                    </section>
+                @endif
+
                 <div class="account-loyalty-show__cards">
                     <div class="account-loyalty-stat-card">
                         <h2 class="account-loyalty-stat-card__title">
@@ -146,6 +187,26 @@
             </main>
 
             <aside class="account-loyalty-show__sidebar">
+                @if (($stampRedemptions ?? collect())->isNotEmpty())
+                    <div class="account-loyalty-sidebar__card">
+                        <h2 class="account-loyalty-sidebar__title">
+                            <i class="las la-history"></i>
+                            {{ trans('loyalty::account.stamp_redemptions') }}
+                        </h2>
+                        <ul class="account-loyalty-sidebar__list account-loyalty-sidebar__list--stamps">
+                            @foreach ($stampRedemptions as $redemption)
+                                <li>
+                                    <span class="account-loyalty-sidebar__label">{{ $redemption->program?->name }}</span>
+                                    <span class="account-loyalty-sidebar__value">
+                                        <code>{{ $redemption->redemption_code }}</code>
+                                        <small>{{ $redemption->redeemed_at?->format('d M Y') }}</small>
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @if ($referralEnabled ?? false)
                     <div
                         class="account-loyalty-sidebar__card account-loyalty-sidebar__card--referral"

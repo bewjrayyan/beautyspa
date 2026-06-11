@@ -20,4 +20,7 @@ return [
     'invalid_checkout_session' => 'Sesi checkout tidak sah. Sila buat pesanan semula.',
     'chip_webhook_unauthorized' => 'Permintaan webhook CHIP tidak dibenarkan.',
     'chip_payment_fee' => 'Yuran pemprosesan bayaran',
+    'chip_order_line' => 'Pesanan #:id',
+    'chip_zero_amount' => 'Jumlah pesanan ini RM 0.00. Sila pilih Bayar semasa penghantaran atau Pindahan bank, bukan bayaran dalam talian.',
+    'chip_order_products_missing' => 'Item pesanan belum sedia untuk bayaran CHIP. Sila cuba lagi.',
 ];

@@ -8,6 +8,11 @@ Route::middleware('auth')->group(function () {
         'as' => 'account.loyalty.index',
     ]);
 
+    Route::post('account/loyalty/stamp-cards/{wallet}/redeem', [
+        'uses' => 'AccountLoyaltyController@redeemStamp',
+        'as' => 'account.loyalty.stamp_cards.redeem',
+    ]);
+
     Route::get('cart/loyalty/quote', [
         'uses' => 'CartLoyaltyController@quote',
         'as' => 'cart.loyalty.quote',

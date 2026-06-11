@@ -10,7 +10,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\View\View;
+use Modules\Cart\Facades\Cart;
 use Modules\Payment\Facades\Gateway;
+use Modules\Payment\Services\ChipPaymentMethodConfig;
+use Modules\Payment\Services\ChipPaymentMethodsResolver;
+use Modules\Support\Money;
 use Illuminate\Contracts\View\Factory;
 use Modules\Coupon\Checkers\ValidCoupon;
 use Modules\Coupon\Checkers\CouponExists;
@@ -168,7 +172,7 @@ class CheckoutController extends Controller
             'customerBilling' => app(CheckoutBillingDefaults::class)->forUser($user),
             'addresses' => $this->getAddresses(),
             'defaultAddress' => $user?->defaultAddress ?? new DefaultAddress(),
-            'gateways' => Gateway::all(),
+            'gateways' => $this->checkoutGateways(),
             'countries' => Country::supported(),
             'requiresTreatmentBooking' => $requiresTreatmentBooking,
             'beauticians' => $requiresTreatmentBooking
@@ -206,6 +210,29 @@ class CheckoutController extends Controller
      *
      * @return Collection
      */
+    private function checkoutGateways(): array
+    {
+        $resolver = app(ChipPaymentMethodsResolver::class);
+
+        return Gateway::all()
+            ->map(function ($gateway, string $name) use ($resolver) {
+                $data = [
+                    'label' => $gateway->label ?? '',
+                    'description' => $gateway->description ?? '',
+                    'instructions' => $gateway->instructions ?? null,
+                ];
+
+                if (ChipPaymentMethodConfig::isChipPaymentMethod($name)) {
+                    $cartSubunit = Money::inCurrentCurrency(Cart::total()->amount())->subunit();
+                    $data['surcharge_subunit'] = $resolver->surchargeSubunit($name, null, $cartSubunit);
+                }
+
+                return $data;
+            })
+            ->all();
+    }
+
+
     private function getAddresses()
     {
         if (auth()->guest()) {
