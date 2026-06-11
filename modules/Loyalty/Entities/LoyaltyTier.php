@@ -59,8 +59,29 @@ class LoyaltyTier extends Model
     }
 
 
+    public function slugThemeClass(): string
+    {
+        return in_array($this->slug, ['silver', 'gold', 'platinum'], true)
+            ? $this->slug
+            : 'default';
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    public function benefitLines(int $limit = 2): array
+    {
+        $benefits = is_array($this->benefits) ? $this->benefits : [];
+
+        return array_values(array_slice(array_filter(array_map('trim', $benefits)), 0, $limit));
+    }
+
+
     public function table()
     {
-        return new TierTable($this->newQuery());
+        return new TierTable(
+            $this->newQuery()->withCount('wallets')
+        );
     }
 }

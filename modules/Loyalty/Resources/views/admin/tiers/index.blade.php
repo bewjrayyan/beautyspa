@@ -8,7 +8,11 @@
 
 @section('content')
     @php
+        use Modules\Loyalty\Support\LoyaltyLang;
+
         $currencySymbol = currency_symbol(setting('default_currency'));
+        $totalMembers = max(1, (int) $stats['total_members']);
+        $tiersSearchPlaceholder = LoyaltyLang::get('tiers.index.search_placeholder');
     @endphp
 
     <div class="loyalty-admin loyalty-tiers">
@@ -27,6 +31,10 @@
                         {{ trans('admin::resource.create', ['resource' => trans('loyalty::tiers.tier')]) }}
                     </a>
                 @endHasAccess
+                <a href="{{ route('admin.loyalty.members.index') }}" class="btn btn-default loyalty-page-hero__btn">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    {{ trans('loyalty::members.members') }}
+                </a>
                 <a href="{{ route('admin.loyalty.reports.index') }}" class="btn btn-default loyalty-page-hero__btn">
                     <i class="fa fa-bar-chart" aria-hidden="true"></i>
                     {{ trans('loyalty::sidebar.reports') }}
@@ -42,6 +50,7 @@
                 <div>
                     <span class="loyalty-page-stats__label">{{ trans('loyalty::tiers.index.stats_total') }}</span>
                     <strong class="loyalty-page-stats__value">{{ number_format($stats['total']) }}</strong>
+                    <span class="loyalty-page-stats__hint">{{ trans('loyalty::tiers.index.stats_total_hint') }}</span>
                 </div>
             </div>
             <div class="loyalty-page-stats__stat">
@@ -51,6 +60,7 @@
                 <div>
                     <span class="loyalty-page-stats__label">{{ trans('loyalty::tiers.index.stats_active') }}</span>
                     <strong class="loyalty-page-stats__value">{{ number_format($stats['active']) }}</strong>
+                    <span class="loyalty-page-stats__hint">{{ trans('loyalty::tiers.index.stats_active_hint') }}</span>
                 </div>
             </div>
             <div class="loyalty-page-stats__stat">
@@ -60,66 +70,115 @@
                 <div>
                     <span class="loyalty-page-stats__label">{{ trans('loyalty::tiers.index.stats_members') }}</span>
                     <strong class="loyalty-page-stats__value">{{ number_format($stats['total_members']) }}</strong>
+                    <span class="loyalty-page-stats__hint">{{ trans('loyalty::tiers.index.stats_members_hint') }}</span>
                 </div>
             </div>
         </div>
 
         @if ($tiers->isNotEmpty())
+            @if ($stats['total_members'] > 0)
+                <section class="loyalty-page-card loyalty-tiers-distribution" aria-label="{{ trans('loyalty::tiers.index.distribution_title') }}">
+                    <div class="loyalty-page-card__head">
+                        <div>
+                            <h2><i class="fa fa-pie-chart" aria-hidden="true"></i> {{ trans('loyalty::tiers.index.distribution_title') }}</h2>
+                            <p>{{ trans('loyalty::tiers.index.distribution_lead') }}</p>
+                        </div>
+                    </div>
+                    <div class="loyalty-page-card__body loyalty-tiers-distribution__grid">
+                        @foreach ($tiers as $tier)
+                            @php
+                                $pct = round(($tier->wallets_count / $totalMembers) * 100, 1);
+                            @endphp
+                            <div class="loyalty-tiers-distribution__col loyalty-tiers-distribution__col--{{ $tier->slugThemeClass() }}">
+                                <div class="loyalty-tiers-distribution__col-head">
+                                    <span class="loyalty-tier-table__pill loyalty-tier-table__pill--{{ $tier->slugThemeClass() }}">
+                                        {{ $tier->translatedName() }}
+                                    </span>
+                                    <strong class="loyalty-tiers-distribution__pct">{{ $pct }}%</strong>
+                                </div>
+                                <p class="loyalty-tiers-distribution__count">
+                                    {{ trans('loyalty::tiers.index.members_count', ['count' => number_format($tier->wallets_count)]) }}
+                                </p>
+                                <div class="loyalty-tiers-distribution__bar">
+                                    <span
+                                        class="loyalty-tiers-distribution__fill loyalty-tiers-distribution__fill--{{ $tier->slugThemeClass() }}"
+                                        style="width: {{ max($pct, $tier->wallets_count > 0 ? 4 : 0) }}%"
+                                    ></span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+
             <section class="loyalty-tier-ladder" aria-label="{{ trans('loyalty::tiers.index.pipeline_title') }}">
                 <div class="loyalty-page-card__head loyalty-tier-ladder__head">
                     <div>
-                        <h2>{{ trans('loyalty::tiers.index.pipeline_title') }}</h2>
+                        <h2><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> {{ trans('loyalty::tiers.index.pipeline_title') }}</h2>
                         <p>{{ trans('loyalty::tiers.index.pipeline_lead') }}</p>
                     </div>
                 </div>
-                <div class="loyalty-tier-ladder__track">
-                    @foreach ($tiers as $index => $tier)
-                        <a
-                            href="{{ route('admin.loyalty.tiers.edit', $tier) }}"
-                            class="loyalty-tier-card loyalty-tier-card--{{ ($index % 4) + 1 }} {{ $tier->is_active ? '' : 'loyalty-tier-card--inactive' }}"
-                        >
-                            <span class="loyalty-tier-card__badge">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                {{ $tier->earn_multiplier }}×
+                @php
+                    $tierCount = $tiers->count();
+                    $tierLadderFullWidth = $tierCount <= 3;
+                @endphp
+                <div class="loyalty-tier-ladder__track-wrap {{ $tierLadderFullWidth ? 'loyalty-tier-ladder__track-wrap--full' : '' }}">
+                    <div
+                        class="loyalty-tier-ladder__track {{ $tierLadderFullWidth ? 'loyalty-tier-ladder__track--full' : '' }}"
+                        style="--tier-count: {{ $tierCount }}"
+                    >
+                    @foreach ($tiers as $tier)
+                        @if (! $loop->first)
+                            <span class="loyalty-tier-ladder__connector" aria-hidden="true">
+                                <i class="fa fa-long-arrow-right"></i>
                             </span>
-                            <h3 class="loyalty-tier-card__name">{{ $tier->name }}</h3>
-                            <p class="loyalty-tier-card__slug">{{ $tier->slug }}</p>
-                            <ul class="loyalty-tier-card__meta">
-                                <li>
-                                    <span>{{ trans('loyalty::tiers.table.min_spend') }}</span>
-                                    <strong>{{ $currencySymbol }} {{ number_format($tier->min_lifetime_spend, 2) }}</strong>
-                                </li>
-                                <li>
-                                    <span>{{ trans('loyalty::reports.members') }}</span>
-                                    <strong>{{ trans('loyalty::tiers.index.members_count', ['count' => number_format($tier->wallets_count)]) }}</strong>
-                                </li>
-                            </ul>
-                            @unless ($tier->is_active)
-                                <span class="loyalty-tier-card__status">{{ trans('loyalty::tiers.index.inactive') }}</span>
-                            @endunless
-                        </a>
+                        @endif
+
+                        @include('loyalty::admin.tiers.partials.ladder-card', [
+                            'tier' => $tier,
+                            'currencySymbol' => $currencySymbol,
+                            'totalMembers' => $totalMembers,
+                            'step' => $loop->iteration,
+                        ])
                     @endforeach
+                    </div>
                 </div>
             </section>
+        @else
+            <div class="loyalty-tiers-empty">
+                <span class="loyalty-tiers-empty__icon" aria-hidden="true">
+                    <i class="fa fa-star"></i>
+                </span>
+                <h2>{{ trans('loyalty::tiers.index.empty_title') }}</h2>
+                <p>{{ trans('loyalty::tiers.index.empty_lead') }}</p>
+                @hasAccess('admin.loyalty.tiers.create')
+                    <a href="{{ route('admin.loyalty.tiers.create') }}" class="btn btn-primary">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        {{ trans('admin::resource.create', ['resource' => trans('loyalty::tiers.tier')]) }}
+                    </a>
+                @endHasAccess
+            </div>
         @endif
 
-        <div class="loyalty-page-card loyalty-page-card--table">
+        <div class="loyalty-page-card loyalty-page-card--table loyalty-tiers-table-card">
             <div class="loyalty-page-card__head">
-                <div>
+                <div class="loyalty-page-card__head-text">
                     <h2><i class="fa fa-list" aria-hidden="true"></i> {{ trans('loyalty::tiers.index.table_title') }}</h2>
+                    <p>{{ trans('loyalty::tiers.index.table_lead') }}</p>
                 </div>
+                <div class="loyalty-tiers-table-card__search" id="loyalty-tiers-table-search"></div>
             </div>
             <div class="loyalty-page-card__body index-table" id="loyalty-tiers-table">
                 @component('admin::components.table')
                     @slot('thead')
                         <tr>
-                            @include('admin::partials.table.select_all')
-
                             <th data-sort>{{ trans('admin::admin.table.id') }}</th>
                             <th>{{ trans('loyalty::tiers.table.name') }}</th>
-                            <th>{{ trans('loyalty::tiers.table.min_spend') }}</th>
-                            <th>{{ trans('loyalty::tiers.table.multiplier') }}</th>
+                            <th class="text-right">{{ trans('loyalty::tiers.table.min_spend') }}</th>
+                            <th class="text-center">{{ trans('loyalty::tiers.table.multiplier') }}</th>
+                            <th class="text-right">{{ trans('loyalty::tiers.table.members') }}</th>
                             <th>{{ trans('admin::admin.table.status') }}</th>
+                            <th class="text-right loyalty-tiers-table__col-actions">{{ trans('loyalty::tiers.index.actions') }}</th>
                         </tr>
                     @endslot
                 @endcomponent
@@ -127,6 +186,12 @@
         </div>
     </div>
 @endsection
+
+@push('globals')
+    <script>
+        AestheticCart.langs['loyalty::tiers.index.search_placeholder'] = @json($tiersSearchPlaceholder);
+    </script>
+@endpush
 
 @push('scripts')
     <script type="module">
@@ -139,16 +204,63 @@
             },
         });
 
-        new DataTable('#loyalty-tiers-table .table', {
-            columns: [
-                { data: 'checkbox', orderable: false, searchable: false, width: '3%' },
-                { data: 'id', width: '5%' },
-                { data: 'name' },
-                { data: 'min_spend', name: 'min_lifetime_spend', searchable: false },
-                { data: 'multiplier', name: 'earn_multiplier', searchable: false },
-                { data: 'status', name: 'is_active', searchable: false },
-            ],
-        });
+        new DataTable(
+            '#loyalty-tiers-table .table',
+            {
+                layout: {
+                    topEnd: {
+                        search: {
+                            placeholder: trans('loyalty::tiers.index.search_placeholder'),
+                        },
+                    },
+                },
+                columns: [
+                    { data: 'id', width: '5%', searchable: false },
+                    { data: 'name' },
+                    {
+                        data: 'min_spend',
+                        name: 'min_lifetime_spend',
+                        searchable: false,
+                        className: 'text-right',
+                    },
+                    {
+                        data: 'multiplier',
+                        name: 'earn_multiplier',
+                        searchable: false,
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'members',
+                        name: 'wallets_count',
+                        searchable: false,
+                        className: 'text-right',
+                    },
+                    {
+                        data: 'status',
+                        name: 'is_active',
+                        searchable: false,
+                    },
+                    {
+                        data: 'actions',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-right loyalty-tiers-table__col-actions',
+                    },
+                ],
+            },
+            function () {
+                const $container = this.element.closest('.dt-container');
+                const $search = $container.find('.dt-search');
+                const $mount = $('#loyalty-tiers-table-search');
+                const $searchInput = $search.find('input');
+
+                if ($mount.length && $search.length) {
+                    $search.appendTo($mount);
+                }
+
+                $container.find('.dt-layout-row').first().find('.dt-layout-end').empty();
+            }
+        );
     </script>
 @endpush
 

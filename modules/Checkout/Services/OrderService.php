@@ -13,7 +13,10 @@ use Modules\Account\Entities\DefaultAddress;
 use Modules\Shipping\Facades\ShippingMethod;
 use Modules\Beautician\Entities\Beautician;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Modules\Checkout\Exceptions\CheckoutException;
 use Modules\Loyalty\Services\LoyaltyOrderService;
+use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\User\Support\PhoneNumber;
 
 class OrderService
@@ -126,50 +129,86 @@ class OrderService
 
     private function store($request)
     {
-        $booking = $this->treatmentBookingData($request);
+        return DB::transaction(function () use ($request) {
+            $booking = $this->treatmentBookingData($request);
 
-        return Order::create([
-            'customer_id' => auth()->id(),
-            'customer_email' => $request->customer_email,
-            'customer_phone' => PhoneNumber::normalize($request->customer_phone) ?: $request->customer_phone,
-            'customer_first_name' => $request->billing['first_name'],
-            'customer_last_name' => $request->billing['last_name'],
-            'billing_first_name' => $request->billing['first_name'],
-            'billing_last_name' => $request->billing['last_name'],
-            'billing_address_1' => $request->billing['address_1'],
-            'billing_address_2' => $request->billing['address_2'] ?? null,
-            'billing_city' => $request->billing['city'],
-            'billing_state' => $request->billing['state'],
-            'billing_zip' => $request->billing['zip'],
-            'billing_country' => $request->billing['country'],
-            'shipping_first_name' => $request->shipping['first_name'],
-            'shipping_last_name' => $request->shipping['last_name'],
-            'shipping_address_1' => $request->shipping['address_1'],
-            'shipping_address_2' => $request->shipping['address_2'] ?? null,
-            'shipping_city' => $request->shipping['city'],
-            'shipping_state' => $request->shipping['state'],
-            'shipping_zip' => $request->shipping['zip'],
-            'shipping_country' => $request->shipping['country'],
-            'sub_total' => Cart::subTotal()->amount(),
-            'shipping_method' => Cart::shippingMethod()->name(),
-            'shipping_cost' => Cart::shippingCost()->amount(),
-            'coupon_id' => Cart::coupon()->id(),
-            'discount' => Cart::discount()->amount(),
-            'loyalty_points_redeemed' => Cart::hasLoyalty() ? Cart::loyalty()->points() : 0,
-            'loyalty_discount_amount' => Cart::hasLoyalty() ? Cart::loyalty()->value()->amount() : 0,
-            'total' => Cart::total()->amount(),
-            'payment_method' => $request->payment_method,
-            'currency' => currency(),
-            'currency_rate' => CurrencyRate::for(currency()),
-            'locale' => locale(),
-            'status' => Order::PENDING_PAYMENT,
-            'payment_status' => Order::PAYMENT_PENDING,
-            'note' => $this->buildOrderNote($request, $booking),
-            'beautician_id' => $booking['beautician_id'],
-            'appointment_date' => $booking['appointment_date'],
-            'appointment_time' => $booking['appointment_time'],
-            'spa_branch_id' => $request->input('spa_branch_id'),
-        ]);
+            $this->assertTreatmentSlotAvailable($request, $booking);
+
+            return Order::create([
+                'customer_id' => auth()->id(),
+                'customer_email' => $request->customer_email,
+                'customer_phone' => PhoneNumber::normalize($request->customer_phone) ?: $request->customer_phone,
+                'customer_first_name' => $request->billing['first_name'],
+                'customer_last_name' => $request->billing['last_name'],
+                'billing_first_name' => $request->billing['first_name'],
+                'billing_last_name' => $request->billing['last_name'],
+                'billing_address_1' => $request->billing['address_1'],
+                'billing_address_2' => $request->billing['address_2'] ?? null,
+                'billing_city' => $request->billing['city'],
+                'billing_state' => $request->billing['state'],
+                'billing_zip' => $request->billing['zip'],
+                'billing_country' => $request->billing['country'],
+                'shipping_first_name' => $request->shipping['first_name'],
+                'shipping_last_name' => $request->shipping['last_name'],
+                'shipping_address_1' => $request->shipping['address_1'],
+                'shipping_address_2' => $request->shipping['address_2'] ?? null,
+                'shipping_city' => $request->shipping['city'],
+                'shipping_state' => $request->shipping['state'],
+                'shipping_zip' => $request->shipping['zip'],
+                'shipping_country' => $request->shipping['country'],
+                'sub_total' => Cart::subTotal()->amount(),
+                'shipping_method' => Cart::shippingMethod()->name(),
+                'shipping_cost' => Cart::shippingCost()->amount(),
+                'coupon_id' => Cart::coupon()->id(),
+                'discount' => Cart::discount()->amount(),
+                'loyalty_points_redeemed' => Cart::hasLoyalty() ? Cart::loyalty()->points() : 0,
+                'loyalty_discount_amount' => Cart::hasLoyalty() ? Cart::loyalty()->value()->amount() : 0,
+                'total' => Cart::total()->amount(),
+                'payment_method' => $request->payment_method,
+                'currency' => currency(),
+                'currency_rate' => CurrencyRate::for(currency()),
+                'locale' => locale(),
+                'status' => Order::PENDING_PAYMENT,
+                'payment_status' => Order::PAYMENT_PENDING,
+                'note' => $this->buildOrderNote($request, $booking),
+                'beautician_id' => $booking['beautician_id'],
+                'appointment_date' => $booking['appointment_date'],
+                'appointment_time' => $booking['appointment_time'],
+                'spa_branch_id' => $request->input('spa_branch_id'),
+            ]);
+        });
+    }
+
+
+    /**
+     * @param array{beautician_id: ?int, appointment_date: ?string, appointment_time: ?string, beautician_name: ?string} $booking
+     */
+    private function assertTreatmentSlotAvailable($request, array $booking): void
+    {
+        if (
+            ! Cart::hasVirtualTreatment()
+            || ! app('modules')->isEnabled('TreatmentReservation')
+            || ! $booking['beautician_id']
+            || ! $booking['appointment_date']
+            || ! $request->appointment_time
+        ) {
+            return;
+        }
+
+        $availability = app(BeauticianAvailabilityService::class);
+
+        $availability->lockAppointmentsForDate(
+            (int) $booking['beautician_id'],
+            $booking['appointment_date']
+        );
+
+        if (! $availability->isSlotAvailable(
+            (int) $booking['beautician_id'],
+            $booking['appointment_date'],
+            (string) $request->appointment_time
+        )) {
+            throw new CheckoutException(trans('treatmentreservation::public.slot_unavailable'));
+        }
     }
 
 

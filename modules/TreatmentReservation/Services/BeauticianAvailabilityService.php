@@ -4,6 +4,8 @@ namespace Modules\TreatmentReservation\Services;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\BeauticianBlockedTime;
 use Modules\TreatmentReservation\Entities\BeauticianWorkingHour;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
@@ -164,7 +166,60 @@ class BeauticianAvailabilityService
             $slots[] = $start;
         }
 
-        return $slots;
+        return $this->filterPastSlots($slots, $date);
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    public function slotBlockingOrderStatuses(): array
+    {
+        return [
+            Order::PENDING_PAYMENT,
+            Order::PENDING,
+            Order::PROCESSING,
+            Order::ON_HOLD,
+            Order::COMPLETED,
+        ];
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    public function slotBlockingBookingStatuses(): array
+    {
+        return [
+            TreatmentBooking::STATUS_PENDING,
+            TreatmentBooking::STATUS_IN_PROGRESS,
+        ];
+    }
+
+
+    /**
+     * Lock existing appointments for a beautician on a date (call inside a DB transaction).
+     */
+    public function lockAppointmentsForDate(int $beauticianId, string $date): void
+    {
+        if (DB::transactionLevel() === 0) {
+            return;
+        }
+
+        TreatmentBooking::query()
+            ->where('beautician_id', $beauticianId)
+            ->whereDate('appointment_date', $date)
+            ->whereIn('status', $this->slotBlockingBookingStatuses())
+            ->lockForUpdate()
+            ->get();
+
+        Order::query()
+            ->where('beautician_id', $beauticianId)
+            ->whereDate('appointment_date', $date)
+            ->whereNotNull('appointment_time')
+            ->whereIn('status', $this->slotBlockingOrderStatuses())
+            ->lockForUpdate()
+            ->get();
     }
 
 
@@ -229,31 +284,87 @@ class BeauticianAvailabilityService
             return true;
         }
 
+        $excludeOrderId = $this->excludedOrderIdForBooking($excludeBookingId);
+
+        $orders = Order::query()
+            ->where('beautician_id', $beauticianId)
+            ->whereDate('appointment_date', $date)
+            ->whereNotNull('appointment_time')
+            ->whereIn('status', $this->slotBlockingOrderStatuses())
+            ->when($excludeOrderId, fn ($q) => $q->where('id', '!=', $excludeOrderId))
+            ->get();
+
+        foreach ($orders as $order) {
+            if ($this->intervalsOverlap($startMin, $endMin, $order->appointment_time)) {
+                return true;
+            }
+        }
+
         $bookings = TreatmentBooking::query()
             ->where('beautician_id', $beauticianId)
             ->whereDate('appointment_date', $date)
-            ->whereIn('status', [
-                TreatmentBooking::STATUS_PENDING,
-                TreatmentBooking::STATUS_IN_PROGRESS,
-            ])
+            ->whereIn('status', $this->slotBlockingBookingStatuses())
             ->when($excludeBookingId, fn ($q) => $q->where('id', '!=', $excludeBookingId))
+            ->when($excludeOrderId, fn ($q) => $q->where(function ($query) use ($excludeOrderId) {
+                $query->whereNull('order_id')
+                    ->orWhere('order_id', '!=', $excludeOrderId);
+            }))
             ->get();
 
         foreach ($bookings as $booking) {
-            $bookingStart = $this->minutesFromTime($booking->appointment_time);
-
-            if ($bookingStart === null) {
-                continue;
-            }
-
-            $bookingEnd = $bookingStart + self::SLOT_MINUTES;
-
-            if ($startMin < $bookingEnd && $endMin > $bookingStart) {
+            if ($this->intervalsOverlap($startMin, $endMin, $booking->appointment_time)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+
+    private function excludedOrderIdForBooking(?int $excludeBookingId): ?int
+    {
+        if (! $excludeBookingId) {
+            return null;
+        }
+
+        $orderId = TreatmentBooking::query()
+            ->where('id', $excludeBookingId)
+            ->value('order_id');
+
+        return $orderId ? (int) $orderId : null;
+    }
+
+
+    private function intervalsOverlap(int $startMin, int $endMin, mixed $appointmentTime): bool
+    {
+        $bookingStart = $this->minutesFromTime($appointmentTime);
+
+        if ($bookingStart === null) {
+            return false;
+        }
+
+        $bookingEnd = $bookingStart + self::SLOT_MINUTES;
+
+        return $startMin < $bookingEnd && $endMin > $bookingStart;
+    }
+
+
+    /**
+     * @param array<int, string> $slots
+     * @return array<int, string>
+     */
+    private function filterPastSlots(array $slots, string $date): array
+    {
+        if (! Carbon::parse($date)->isToday()) {
+            return $slots;
+        }
+
+        $nowMinutes = (now()->hour * 60) + now()->minute;
+
+        return array_values(array_filter(
+            $slots,
+            fn (string $slot) => ($this->minutesFromTime($slot) ?? 0) > $nowMinutes
+        ));
     }
 
 

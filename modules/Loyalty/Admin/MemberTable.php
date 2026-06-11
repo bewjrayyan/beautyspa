@@ -36,13 +36,13 @@ class MemberTable extends AdminTable
                     . '</span></div>';
             })
             ->addColumn('tier', function ($wallet) {
-                if (! $wallet->tier?->name) {
+                if (! $wallet->tier) {
                     return '<span class="text-muted">—</span>';
                 }
 
                 return '<span class="loyalty-members-table__tier">'
                     . '<i class="fa fa-star" aria-hidden="true"></i> '
-                    . e($wallet->tier->name)
+                    . e($wallet->tier->translatedName())
                     . '</span>';
             })
             ->addColumn('balance', function ($wallet) {
