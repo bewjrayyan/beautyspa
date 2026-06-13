@@ -1,0 +1,1 @@
+import{r as l}from"./get-intrinsic-DRI8tq3c-v4.7.48.js";import{r as c}from"./call-bind-apply-helpers-B8EV3BYd-v4.7.48.js";var i,o;function d(){if(o)return i;o=1;var n=l(),t=c(),a=t([n("%String.prototype.indexOf%")]);return i=function(e,u){var r=n(e,!!u);return typeof r=="function"&&a(e,".prototype.")>-1?t([r]):r},i}export{d as r};

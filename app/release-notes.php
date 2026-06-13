@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.48' => [
+        'en' => [
+            'summary' => 'Modernized admin users index, create, and edit account flows.',
+            'changes' => [
+                'Refresh users list with stats, role chips, avatars, and improved search layout.',
+                'Redesign create and edit account pages with hero headers, top tab navigation, and sidebar tips.',
+                'Add password strength meter, auto-generate password, and modern new-password tab for user accounts.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pengurusan pengguna admin baharu untuk senarai, cipta, dan sunting akaun.',
+            'changes' => [
+                'Kemas kini senarai pengguna dengan statistik, cip peranan, avatar, dan susun atur carian lebih baik.',
+                'Reka bentuk semula halaman cipta dan sunting akaun dengan hero, tab atas, dan tip sidebar.',
+                'Tambah penunjuk kekuatan kata laluan, jana automatik, dan tab kata laluan baharu yang moden.',
+            ],
+        ],
+    ],
     '4.7.47' => [
         'en' => [
             'summary' => 'Loyalty stamp cards, CHIP checkout improvements, and per-method processing fees.',
