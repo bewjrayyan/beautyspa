@@ -9,6 +9,7 @@
     $lastLogin = $accountUser->last_login
         ? $accountUser->last_login->timezone(config('app.timezone'))->format('d M Y, H:i')
         : trans('user::users.profile_page.never_logged_in');
+    $isActivated = $accountUser->isActivated();
 @endphp
 
 <aside class="admin-profile-account-info-sidebar">
@@ -22,7 +23,24 @@
         </p>
     </div>
 
+    <div
+        @class([
+            'admin-profile-account-info-sidebar__status',
+            'admin-profile-account-info-sidebar__status--active' => $isActivated,
+            'admin-profile-account-info-sidebar__status--inactive' => ! $isActivated,
+        ])
+    >
+        <i class="fa {{ $isActivated ? 'fa-check-circle' : 'fa-pause-circle' }}" aria-hidden="true"></i>
+        <span>{{ trans($isActivated ? 'user::users.edit_page.status_active' : 'user::users.edit_page.status_inactive') }}</span>
+    </div>
+
     <dl class="admin-profile-readonly admin-profile-readonly--sidebar">
+        @if ($showAdminFields)
+            <div>
+                <dt>{{ trans('user::users.edit_page.user_id') }}</dt>
+                <dd>#{{ $accountUser->id }}</dd>
+            </div>
+        @endif
         <div>
             <dt>{{ trans('user::users.profile_page.member_since') }}</dt>
             <dd>{{ $memberSince }}</dd>

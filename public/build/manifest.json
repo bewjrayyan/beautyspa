@@ -1504,12 +1504,7 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.47.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
-    "isEntry": true,
-    "name": "main",
-    "names": [
-      "main.css"
-    ]
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
     "file": "assets/main-BQSdC1Zi-v4.7.47.css",
@@ -1517,7 +1512,12 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-BAhEvM-N-v4.7.47.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss"
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss",
+    "isEntry": true,
+    "name": "main",
+    "names": [
+      "main.css"
+    ]
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/profile/main.scss": {
     "file": "assets/main-RKtCd6xc-v4.7.47.css",
@@ -1737,7 +1737,7 @@
     "isEntry": true
   },
   "modules/User/Resources/assets/admin/js/profileForm.js": {
-    "file": "assets/profileForm-DYCar7Sj-v4.7.47.js",
+    "file": "assets/profileForm-MtvMX9b7-v4.7.47.js",
     "name": "profileForm",
     "src": "modules/User/Resources/assets/admin/js/profileForm.js",
     "isEntry": true,
@@ -1751,7 +1751,7 @@
     "src": "modules/User/Resources/assets/admin/sass/auth/main.scss"
   },
   "modules/User/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-CEnU8qK_-v4.7.47.css",
+    "file": "assets/main-wV6DiHGL-v4.7.47.css",
     "src": "modules/User/Resources/assets/admin/sass/main.scss"
   },
   "modules/Variation/Resources/assets/admin/js/create.js": {

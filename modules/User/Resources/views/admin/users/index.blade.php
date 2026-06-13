@@ -1,14 +1,30 @@
 @extends('admin::layout')
 
-@component('admin::components.page.header')
-    @slot('title', trans('user::users.users'))
+@section('title', trans('user::users.users'))
 
-    <li class="active">{{ trans('user::users.users') }}</li>
-@endcomponent
+@section('content_header')
+    <nav class="admin-users-breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+            <li>
+                <a href="{{ route('admin.dashboard.index') }}" class="breadcrumb-home-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 18V15" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10.07 2.81997L3.13999 8.36997C2.35999 8.98997 1.85999 10.3 2.02999 11.28L3.35999 19.24C3.59999 20.66 4.95999 21.81 6.39999 21.81H17.6C19.03 21.81 20.4 20.65 20.64 19.24L21.97 11.28C22.13 10.3 21.63 8.98997 20.86 8.36997L13.93 2.82997C12.86 1.96997 11.13 1.96997 10.07 2.81997Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </li>
+            <li class="active">{{ trans('user::users.users') }}</li>
+        </ol>
+    </nav>
+@endsection
 
 @section('content')
+    @php
+        $inactiveCount = max(0, (int) $stats['total'] - (int) $stats['activated']);
+    @endphp
+
     <div class="admin-users-page">
-        <header class="admin-users-hero">
+        <header class="admin-users-hero admin-users-hero--team">
             <div class="admin-users-hero__main">
                 <h1 class="admin-users-hero__title">
                     <i class="fa fa-users" aria-hidden="true"></i>
@@ -51,6 +67,11 @@
                 <div>
                     <span class="admin-users-stats__label">{{ trans('user::users.index.stats_active') }}</span>
                     <strong class="admin-users-stats__value">{{ number_format($stats['activated']) }}</strong>
+                    @if ($inactiveCount > 0)
+                        <span class="admin-users-stats__hint">
+                            {{ trans('user::users.index.stats_active_hint', ['count' => number_format($inactiveCount)]) }}
+                        </span>
+                    @endif
                 </div>
             </div>
             <div class="admin-users-stats__stat">
@@ -74,15 +95,29 @@
             </div>
         </div>
 
-        <div class="admin-users-card admin-users-card--table">
+        @if ($role_breakdown->isNotEmpty())
+            <div class="admin-users-role-chips">
+                <span class="admin-users-role-chips__label">{{ trans('user::users.index.by_role') }}</span>
+                @foreach ($role_breakdown as $role)
+                    <span class="admin-users-role-chips__chip" title="{{ $role->name }}">
+                        <i class="fa fa-shield" aria-hidden="true"></i>
+                        {{ $role->name }}
+                        <strong>{{ number_format($role->users_count) }}</strong>
+                    </span>
+                @endforeach
+            </div>
+        @endif
+
+        <div class="admin-users-card admin-users-card--table admin-users-table-card">
             <div class="admin-users-card__head">
-                <div>
+                <div class="admin-users-card__head-text">
                     <h2>
                         <i class="fa fa-list" aria-hidden="true"></i>
                         {{ trans('user::users.index.table_title') }}
                     </h2>
                     <p>{{ trans('user::users.index.table_lead') }}</p>
                 </div>
+                <div class="admin-users-table-card__search" id="admin-users-table-search"></div>
             </div>
 
             <div class="admin-users-card__body index-table" id="users-table">
@@ -97,6 +132,7 @@
                             <th>{{ trans('user::users.index.column_status') }}</th>
                             <th>{{ trans('user::users.table.last_login') }}</th>
                             <th data-sort>{{ trans('admin::admin.table.created') }}</th>
+                            <th class="text-right admin-users-table__col-actions">{{ trans('user::users.index.actions') }}</th>
                         </tr>
                     @endslot
                 @endcomponent
@@ -105,13 +141,14 @@
     </div>
 @endsection
 
-@include('user::admin.users.partials.shortcuts')
+@push('globals')
+    @include('user::admin.partials.lang-globals')
+@endpush
 
 @push('scripts')
     <script type="module">
         keypressAction([
             { key: 'c', route: '{{ route('admin.users.create') }}' },
-            { key: 'b', route: '{{ route('admin.users.index') }}' },
         ]);
 
         Mousetrap.bind('del', function () {
@@ -131,66 +168,92 @@
             },
         });
 
-        new DataTable('#users-table .table', {
-            columns: [
-                {
-                    data: 'checkbox',
-                    orderable: false,
-                    searchable: false,
-                    width: '3%',
-                    title: '',
+        new DataTable(
+            '#users-table .table',
+            {
+                layout: {
+                    topEnd: {
+                        search: {
+                            placeholder: trans('user::users.index.search_placeholder'),
+                        },
+                    },
                 },
-                {
-                    data: 'id',
-                    width: '5%',
-                    title: @json(trans('admin::admin.table.id')),
-                },
-                {
-                    data: 'user',
-                    orderable: false,
-                    searchable: false,
-                    title: @json(trans('user::users.index.column_user')),
-                },
-                {
-                    data: 'roles',
-                    orderable: false,
-                    searchable: false,
-                    title: @json(trans('user::users.index.column_roles')),
-                },
-                {
-                    data: 'status',
-                    orderable: false,
-                    searchable: false,
-                    title: @json(trans('user::users.index.column_status')),
-                },
-                {
-                    data: 'last_login',
-                    name: 'last_login',
-                    searchable: false,
-                    title: @json(trans('user::users.table.last_login')),
-                },
-                {
-                    data: 'created',
-                    name: 'created_at',
-                    title: @json(trans('admin::admin.table.created')),
-                },
-                { data: 'first_name', name: 'first_name', visible: false, title: '' },
-                { data: 'last_name', name: 'last_name', visible: false, title: '' },
-                { data: 'email', name: 'email', visible: false, title: '' },
-            ],
-        });
+                columns: [
+                    {
+                        data: 'checkbox',
+                        orderable: false,
+                        searchable: false,
+                        width: '3%',
+                        title: '',
+                    },
+                    {
+                        data: 'id',
+                        width: '5%',
+                        title: @json(trans('admin::admin.table.id')),
+                    },
+                    {
+                        data: 'user',
+                        orderable: false,
+                        searchable: false,
+                        title: @json(trans('user::users.index.column_user')),
+                    },
+                    {
+                        data: 'roles',
+                        orderable: false,
+                        searchable: false,
+                        title: @json(trans('user::users.index.column_roles')),
+                    },
+                    {
+                        data: 'status',
+                        orderable: false,
+                        searchable: false,
+                        title: @json(trans('user::users.index.column_status')),
+                    },
+                    {
+                        data: 'last_login',
+                        name: 'last_login',
+                        searchable: false,
+                        title: @json(trans('user::users.table.last_login')),
+                    },
+                    {
+                        data: 'created',
+                        name: 'created_at',
+                        title: @json(trans('admin::admin.table.created')),
+                    },
+                    {
+                        data: 'actions',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-right admin-users-table__col-actions',
+                        title: @json(trans('user::users.index.actions')),
+                    },
+                    { data: 'first_name', name: 'first_name', visible: false, title: '' },
+                    { data: 'last_name', name: 'last_name', visible: false, title: '' },
+                    { data: 'email', name: 'email', visible: false, title: '' },
+                ],
+            },
+            function () {
+                const $container = this.element.closest('.dt-container');
+                const $search = $container.find('.dt-search');
+                const $mount = $('#admin-users-table-search');
+                const $searchInput = $search.find('input');
+
+                if ($mount.length && $search.length) {
+                    $search.appendTo($mount);
+                }
+
+                $container.find('.dt-layout-row').first().find('.dt-layout-end').empty();
+
+                const query = new URLSearchParams(window.location.search).get('search');
+
+                if (query && $searchInput.length) {
+                    $searchInput.val(query).trigger('input');
+                }
+            }
+        );
     </script>
 @endpush
 
-@push('globals')
-    <script>
-        @foreach (array_keys(__('user::users.index')) as $indexKey)
-            AestheticCart.langs['user::users.index.{{ $indexKey }}'] = @json(__('user::users.index.' . $indexKey));
-        @endforeach
-    </script>
-
-    @vite([
-        'modules/User/Resources/assets/admin/sass/main.scss',
-        'modules/User/Resources/assets/admin/js/main.js',
-    ])
+@push('styles')
+    @vite(['modules/User/Resources/assets/admin/sass/main.scss'])
 @endpush

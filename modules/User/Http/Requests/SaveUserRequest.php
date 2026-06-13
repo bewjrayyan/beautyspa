@@ -54,6 +54,7 @@ class SaveUserRequest extends Request
         } else {
             $rules['password'] = ['required', 'confirmed', 'min:6'];
             $rules['roles'] = ['required', Rule::exists('roles', 'id')];
+            $rules['activated'] = ['nullable', 'in:0,1'];
         }
 
         return $rules;

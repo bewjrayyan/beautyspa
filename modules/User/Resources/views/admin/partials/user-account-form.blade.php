@@ -5,13 +5,16 @@
     $dobValue = old('date_of_birth', $accountUser->date_of_birth?->format('Y-m-d'));
     $addressPrefix = $addressPrefix ?? 'profile';
     $showAdminFields = $showAdminFields ?? false;
+    $isCreate = ! $accountUser->exists;
     $addressModel = ($profileAddress ?? null) ?? new \Modules\Address\Entities\Address([
         'country' => setting('default_country', 'MY'),
     ]);
     $addressStateValue = old('state', $addressModel->state);
+    $photoInSidebar = request()->routeIs('admin.users.create', 'admin.users.edit');
 @endphp
 
 <div class="admin-profile-account">
+    @unless ($isCreate || $photoInSidebar)
     <div class="admin-profile-card">
         <div class="admin-profile-card__head">
             <h2 class="admin-profile-card__title">
@@ -74,6 +77,7 @@
             @enderror
         </div>
     </div>
+    @endunless
 
     <div class="admin-profile-card">
         <div class="admin-profile-card__head">
@@ -147,7 +151,7 @@
     </div>
 
     @if ($showAdminFields)
-        <div class="admin-profile-card">
+        <div class="admin-profile-card admin-profile-access">
             <div class="admin-profile-card__head">
                 <h2 class="admin-profile-card__title">
                     <i class="fa fa-shield" aria-hidden="true"></i>
@@ -156,20 +160,43 @@
                 <p class="admin-profile-card__lead">{{ trans('user::users.profile_page.admin_access_lead') }}</p>
             </div>
 
-            <div class="admin-profile-card__grid admin-profile-card__grid--access admin-profile-form">
-                <div class="admin-profile-card__field admin-profile-card__field--roles">
+            <div class="admin-profile-access__body">
+                <div class="admin-profile-access__roles admin-profile-form">
                     {{ Form::select('roles', trans('user::attributes.users.roles'), $errors, $roles ?? [], $accountUser, ['multiple' => true, 'required' => true, 'class' => 'selectize prevent-creation']) }}
                 </div>
-                <div class="admin-profile-card__field admin-profile-card__field--status">
-                    {{ Form::checkbox('activated', trans('user::attributes.users.activated'), trans('user::users.form.activated'), $errors, $accountUser, [
-                        'disabled' => $accountUser->id === $currentUser->id,
-                        'checked' => old('activated', $accountUser->isActivated()),
-                    ]) }}
+
+                <div class="admin-profile-access__status admin-profile-form">
+                    <div class="admin-profile-status-card">
+                        <div class="admin-profile-status-card__copy">
+                            <span class="admin-profile-status-card__title">
+                                {{ trans('user::users.edit_page.status_card_title') }}
+                            </span>
+                            <p class="admin-profile-status-card__lead">
+                                {{ trans('user::users.edit_page.status_card_lead') }}
+                            </p>
+                        </div>
+                        <div class="admin-profile-status-card__control">
+                            {{ Form::checkbox('activated', trans('user::attributes.users.activated'), trans('user::users.form.activated'), $errors, $accountUser, [
+                                'disabled' => $accountUser->id === $currentUser->id,
+                                'checked' => old('activated', $isCreate ? true : $accountUser->isActivated()),
+                            ]) }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     @endif
 
+    @if ($isCreate)
+        @include('user::admin.partials.password-panel', [
+            'passwordPanelId' => 'create_password',
+            'passwordRequired' => true,
+            'passwordTitle' => trans('user::users.create_page.password_title'),
+            'passwordLead' => trans('user::users.create_page.password_lead'),
+        ])
+    @endif
+
+    @unless ($isCreate)
     <div class="admin-profile-card admin-profile-address" data-admin-profile-address>
         <div class="admin-profile-card__head">
             <h2 class="admin-profile-card__title">
@@ -177,50 +204,72 @@
                 {{ trans('user::users.profile_page.address_title') }}
             </h2>
             <p class="admin-profile-card__lead">{{ trans('user::users.profile_page.address_lead') }}</p>
+            <p class="admin-profile-card__tip">
+                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                {{ trans('user::users.edit_page.address_tip') }}
+            </p>
         </div>
 
-        <div class="admin-profile-card__grid admin-profile-form">
-            <div class="admin-profile-card__field admin-profile-card__field--full">
-                {{ Form::text('address_1', trans('user::attributes.users.address_1'), $errors, $addressModel) }}
-            </div>
-            <div class="admin-profile-card__field admin-profile-card__field--full">
-                {{ Form::text('address_2', trans('user::attributes.users.address_2'), $errors, $addressModel) }}
-            </div>
-            <div class="admin-profile-card__field">
-                {{ Form::text('city', trans('user::attributes.users.city'), $errors, $addressModel) }}
-            </div>
-            <div class="admin-profile-card__field">
-                {{ Form::text('zip', trans('user::attributes.users.zip'), $errors, $addressModel) }}
-            </div>
-            <div class="admin-profile-card__field">
-                {{ Form::select('country', trans('user::attributes.users.country'), $errors, $countries ?? [], $addressModel, [
-                    'id' => $addressPrefix . '_address_country',
-                    'class' => 'custom-select-black',
-                    'data-profile-address-country' => true,
-                ]) }}
-            </div>
-            <div class="admin-profile-card__field">
-                <div class="admin-profile-address-state admin-profile-address-state--input">
-                    {{ Form::text('state', trans('user::attributes.users.state'), $errors, $addressModel, [
-                        'id' => $addressPrefix . '_address_state_text',
-                        'value' => $addressStateValue,
-                        'data-profile-address-state-text' => true,
-                    ]) }}
+        <div class="admin-profile-address__sections">
+            <div class="admin-profile-address__section">
+                <h3 class="admin-profile-address__section-title">
+                    <i class="fa fa-home" aria-hidden="true"></i>
+                    {{ trans('user::users.edit_page.address_section_street') }}
+                </h3>
+                <div class="admin-profile-card__grid admin-profile-form">
+                    <div class="admin-profile-card__field admin-profile-card__field--full">
+                        {{ Form::text('address_1', trans('user::attributes.users.address_1'), $errors, $addressModel) }}
+                    </div>
+                    <div class="admin-profile-card__field admin-profile-card__field--full">
+                        {{ Form::text('address_2', trans('user::attributes.users.address_2'), $errors, $addressModel) }}
+                    </div>
                 </div>
-                <div class="admin-profile-address-state admin-profile-address-state--select hide">
-                    <div class="form-group">
-                        <label for="{{ $addressPrefix }}_address_state_select" class="control-label text-left">
-                            {{ trans('user::attributes.users.state') }}
-                        </label>
-                        <select
-                            id="{{ $addressPrefix }}_address_state_select"
-                            class="form-control custom-select-black"
-                            disabled
-                            data-profile-address-state-select
-                        ></select>
+            </div>
+
+            <div class="admin-profile-address__section">
+                <h3 class="admin-profile-address__section-title">
+                    <i class="fa fa-globe" aria-hidden="true"></i>
+                    {{ trans('user::users.edit_page.address_section_region') }}
+                </h3>
+                <div class="admin-profile-card__grid admin-profile-form">
+                    <div class="admin-profile-card__field">
+                        {{ Form::text('city', trans('user::attributes.users.city'), $errors, $addressModel) }}
+                    </div>
+                    <div class="admin-profile-card__field">
+                        {{ Form::text('zip', trans('user::attributes.users.zip'), $errors, $addressModel) }}
+                    </div>
+                    <div class="admin-profile-card__field">
+                        {{ Form::select('country', trans('user::attributes.users.country'), $errors, $countries ?? [], $addressModel, [
+                            'id' => $addressPrefix . '_address_country',
+                            'class' => 'custom-select-black',
+                            'data-profile-address-country' => true,
+                        ]) }}
+                    </div>
+                    <div class="admin-profile-card__field">
+                        <div class="admin-profile-address-state admin-profile-address-state--input">
+                            {{ Form::text('state', trans('user::attributes.users.state'), $errors, $addressModel, [
+                                'id' => $addressPrefix . '_address_state_text',
+                                'value' => $addressStateValue,
+                                'data-profile-address-state-text' => true,
+                            ]) }}
+                        </div>
+                        <div class="admin-profile-address-state admin-profile-address-state--select hide">
+                            <div class="form-group">
+                                <label for="{{ $addressPrefix }}_address_state_select" class="control-label text-left">
+                                    {{ trans('user::attributes.users.state') }}
+                                </label>
+                                <select
+                                    id="{{ $addressPrefix }}_address_state_select"
+                                    class="form-control custom-select-black"
+                                    disabled
+                                    data-profile-address-state-select
+                                ></select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    @endunless
 </div>

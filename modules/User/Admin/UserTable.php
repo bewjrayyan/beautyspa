@@ -20,7 +20,7 @@ class UserTable extends AdminTable
      *
      * @var array
      */
-    protected array $rawColumns = ['user', 'roles', 'status', 'last_login'];
+    protected array $rawColumns = ['user', 'roles', 'status', 'last_login', 'actions'];
 
 
     /**
@@ -32,25 +32,16 @@ class UserTable extends AdminTable
     {
         return $this->newTable()
             ->addColumn('user', function ($user) {
-                $name = e($user->full_name);
-                $email = e($user->email);
-                $avatarUrl = $user->avatarUrl();
-
-                if ($avatarUrl) {
-                    $avatar = '<span class="admin-users-table__avatar admin-users-table__avatar--photo">'
-                        . '<img src="' . e($avatarUrl) . '" alt="">'
-                        . '</span>';
-                } else {
-                    $avatar = '<span class="admin-users-table__avatar" style="background-color: '
-                        . e($user->avatarBackgroundColor())
-                        . ';">' . e($user->avatarInitial()) . '</span>';
-                }
+                $avatar = view('user::admin.partials.avatar', [
+                    'user' => $user,
+                    'class' => 'admin-users-table__avatar',
+                ])->render();
 
                 return '<div class="admin-users-table__user">'
                     . $avatar
                     . '<span class="admin-users-table__identity">'
-                    . '<strong class="admin-users-table__name">' . $name . '</strong>'
-                    . '<small class="admin-users-table__email">' . $email . '</small>'
+                    . '<strong class="admin-users-table__name">' . e($user->full_name) . '</strong>'
+                    . '<small class="admin-users-table__email">' . e($user->email) . '</small>'
                     . '</span></div>';
             })
             ->addColumn('roles', function ($user) {
@@ -91,6 +82,18 @@ class UserTable extends AdminTable
                 }
 
                 return view('admin::partials.table.date')->with('date', $lastLogin);
+            })
+            ->addColumn('actions', function ($user) {
+                if (! auth()->user()->hasAccess('admin.users.edit')) {
+                    return '';
+                }
+
+                $url = route('admin.users.edit', $user);
+
+                return '<a href="' . e($url) . '" class="btn btn-default btn-sm admin-users-table__edit" onclick="event.stopPropagation()">'
+                    . '<i class="fa fa-pencil" aria-hidden="true"></i> '
+                    . e(trans('user::users.index.edit'))
+                    . '</a>';
             })
             ->rawColumns(array_merge($this->rawColumns, $this->defaultRawColumns));
     }

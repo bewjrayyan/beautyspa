@@ -25,23 +25,35 @@ class UserTabs extends Tabs
             $tab->active();
             $tab->weight(10);
 
-            $tab->fields([
+            $fields = [
                 'first_name',
                 'last_name',
                 'identity_number',
                 'date_of_birth',
                 'email',
                 'phone',
-                'address_1',
-                'address_2',
-                'city',
-                'state',
-                'zip',
-                'country',
                 'avatar',
                 'activated',
                 'roles',
-            ]);
+            ];
+
+            if (! request()->routeIs('admin.users.create')) {
+                $fields = array_merge($fields, [
+                    'address_1',
+                    'address_2',
+                    'city',
+                    'state',
+                    'zip',
+                    'country',
+                ]);
+            }
+
+            if (request()->routeIs('admin.users.create')) {
+                $fields[] = 'password';
+                $fields[] = 'password_confirmation';
+            }
+
+            $tab->fields($fields);
 
             $tab->view('user::admin.users.tabs.account');
         });

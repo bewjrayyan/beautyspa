@@ -1,22 +1,10 @@
-<div class="admin-profile-card" id="new_password">
-    <div class="admin-profile-card__head">
-        <h2 class="admin-profile-card__title">
-            <i class="fa fa-lock" aria-hidden="true"></i>
-            {{ trans('user::users.profile_page.password_title') }}
-        </h2>
-        <p class="admin-profile-card__lead">{{ trans('user::users.profile_page.password_lead') }}</p>
-        <p class="admin-profile-card__tip">
-            <i class="fa fa-info-circle" aria-hidden="true"></i>
-            {{ trans('user::users.profile_page.password_tip') }}
-        </p>
-    </div>
-
-    <div class="admin-profile-card__grid admin-profile-card__grid--password admin-profile-form">
-        <div class="admin-profile-card__field">
-            {{ Form::password('password', trans('user::attributes.users.new_password'), $errors) }}
-        </div>
-        <div class="admin-profile-card__field">
-            {{ Form::password('password_confirmation', trans('user::attributes.users.confirm_new_password'), $errors) }}
-        </div>
-    </div>
-</div>
+@include('user::admin.partials.password-panel', [
+    'passwordPanelId' => 'new_password',
+    'passwordRequired' => false,
+    'passwordTitle' => trans('user::users.profile_page.password_title'),
+    'passwordLead' => trans('user::users.profile_page.password_lead'),
+    'passwordTip' => trans('user::users.profile_page.password_tip'),
+    'passwordLabel' => trans('user::attributes.users.new_password'),
+    'passwordConfirmLabel' => trans('user::attributes.users.confirm_new_password'),
+    'passwordGeneratedHint' => trans('user::users.profile_page.password_generated_hint'),
+])

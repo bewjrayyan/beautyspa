@@ -312,7 +312,13 @@ class User extends EloquentUser implements AuthenticatableContract
             return $beautician->profile_image->path;
         }
 
-        return null;
+        $orphanedProfile = File::query()
+            ->where('user_id', $this->id)
+            ->where('path', 'like', 'media/profile/%')
+            ->latest('id')
+            ->first();
+
+        return $orphanedProfile?->path;
     }
 
 
@@ -421,6 +427,6 @@ class User extends EloquentUser implements AuthenticatableContract
      */
     public function table()
     {
-        return new UserTable($this->newQuery()->with(['roles', 'files']));
+        return new UserTable($this->newQuery()->with(['roles', 'files', 'beauticianProfile.files']));
     }
 }

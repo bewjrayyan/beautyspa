@@ -82,6 +82,24 @@ class UserController
                 'recent_login' => User::where('last_login', '>=', now()->subDays(30))->count(),
                 'new_this_month' => User::where('created_at', '>=', now()->startOfMonth())->count(),
             ],
+            'role_breakdown' => Role::query()
+                ->withCount('users')
+                ->having('users_count', '>', 0)
+                ->orderByDesc('users_count')
+                ->limit(8)
+                ->get(),
+        ]);
+    }
+
+
+    public function create()
+    {
+        $user = $this->getModel();
+
+        return view("{$this->viewPath}.create", [
+            'tabs' => TabManager::get($this->getModel()->getTable()),
+            'user' => $user,
+            'roles' => Role::list(),
         ]);
     }
 
@@ -122,13 +140,30 @@ class UserController
     {
         $request->merge(['password' => bcrypt($request->password)]);
 
-        $user = User::create($request->except(['permissions']));
+        $user = User::create($request->except(['permissions', 'avatar', 'remove_avatar']));
 
         $user->roles()->attach($request->roles);
 
         $this->syncPermissions($user, $request);
 
-        Activation::complete($user, Activation::create($user)->code);
+        $this->avatars->syncFromRequest(
+            $user,
+            $request->file('avatar'),
+            $request->boolean('remove_avatar')
+        );
+
+        $this->addresses->syncFromRequest($user, $request->only([
+            'address_1',
+            'address_2',
+            'city',
+            'state',
+            'zip',
+            'country',
+        ]));
+
+        if ($request->input('activated') === '1') {
+            Activation::complete($user, Activation::create($user)->code);
+        }
 
         $this->syncBeauticianProfile($user);
 
