@@ -181,7 +181,7 @@ return [
     ],
     'tab_leads' => [
         'general' => 'Store locale, customer defaults, and storefront behaviour.',
-        'logo' => 'Admin panel branding shown in the sidebar and login screens.',
+        'logo' => 'Admin logos and sidebar colours for the admin panel.',
         'maintenance' => 'Restrict storefront access while you perform updates.',
         'system' => 'App version, GitHub deploy, Artisan maintenance, and catalog sync.',
         'store' => 'Contact details and address shown to customers.',
@@ -227,6 +227,7 @@ return [
         'credentials' => 'API credentials',
         'display' => 'Checkout display',
         'instructions' => 'Payment instructions',
+        'admin_sidebar_appearance' => 'Admin sidebar colours',
         'pwa_appearance' => 'Colours & theme',
         'pwa_behavior' => 'Display & orientation',
         'otp_timing' => 'OTP expiry',

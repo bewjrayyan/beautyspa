@@ -30,6 +30,7 @@
 
         @stack('styles')
 
+        @include('admin::partials.theme')
         @include('admin::partials.globals')
     </head>
 

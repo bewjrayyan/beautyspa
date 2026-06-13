@@ -28,6 +28,9 @@ return [
     'store_phone_hide' => 'Sembunyikan telefon kedai',
     'store_email_hide' => 'Sembunyikan e-mel kedai',
 
+    'admin_sidebar_color' => 'Latar sidebar',
+    'admin_sidebar_accent_color' => 'Warna aksen sidebar',
+
     'pwa_enabled' => 'Status',
     'pwa_icon' => 'Ikon',
     'pwa_theme_color' => 'Warna tema',

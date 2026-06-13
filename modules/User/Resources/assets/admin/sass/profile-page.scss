@@ -489,9 +489,9 @@ $profile-text: #1a202c;
 }
 
 .admin-profile-layout {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 4fr);
+    align-items: start;
     gap: 20px;
 
     &::before,
@@ -500,17 +500,16 @@ $profile-text: #1a202c;
     }
 
     &__sidebar {
-        flex: 0 0 340px;
-        width: 340px;
-        max-width: 38%;
         float: none;
+        width: auto;
+        max-width: none;
+        min-width: 0;
     }
 
     &__main {
-        flex: 1 1 0;
-        min-width: 0;
-        width: auto;
         float: none;
+        width: auto;
+        min-width: 0;
     }
 
     .admin-profile-sidebar {
@@ -519,23 +518,8 @@ $profile-text: #1a202c;
         gap: 16px;
     }
 
-    @media (min-width: 1200px) {
-        &__sidebar {
-            flex-basis: 380px;
-            width: 380px;
-            max-width: 40%;
-        }
-    }
-
     @media screen and (max-width: 991px) {
-        flex-wrap: wrap;
-
-        &__sidebar,
-        &__main {
-            flex: 1 1 100%;
-            width: 100%;
-            max-width: 100%;
-        }
+        grid-template-columns: 1fr;
     }
 }
 

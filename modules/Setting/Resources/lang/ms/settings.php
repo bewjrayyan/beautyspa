@@ -185,7 +185,7 @@ return [
     ],
     'tab_leads' => [
         'general' => 'Lokal kedai, lalai pelanggan, dan tingkah laku storefront.',
-        'logo' => 'Branding panel admin pada sidebar dan skrin log masuk.',
+        'logo' => 'Logo dan warna sidebar panel admin.',
         'maintenance' => 'Hadkan akses storefront semasa anda membuat kemas kini.',
         'system' => 'Versi aplikasi, deploy GitHub, penyelenggaraan Artisan, dan sync katalog.',
         'store' => 'Butiran hubungan dan alamat yang dipaparkan kepada pelanggan.',
@@ -231,6 +231,7 @@ return [
         'credentials' => 'Kelayakan API',
         'display' => 'Paparan checkout',
         'instructions' => 'Arahan pembayaran',
+        'admin_sidebar_appearance' => 'Warna sidebar admin',
         'pwa_appearance' => 'Warna & tema',
         'pwa_behavior' => 'Paparan & orientasi',
         'otp_timing' => 'Tamat tempoh OTP',

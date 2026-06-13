@@ -1,5 +1,7 @@
 $admin-sidebar-width: 250px;
 $admin-sidebar-mini-width: 55px;
+$admin-sidebar-bg-default: #222530;
+$admin-sidebar-accent-default: #475aff;
 
 html {
     min-width: 320px;
@@ -256,7 +258,7 @@ strong {
     width: $admin-sidebar-width;
     display: flex;
     align-items: center;
-    background: #222530;
+    background: var(--admin-sidebar-bg, #{$admin-sidebar-bg-default});
     transition: 150ms ease-in-out;
     z-index: 1050;
 
@@ -284,7 +286,7 @@ strong {
         top: 50%;
         right: -18px;
         transform: translateY(-50%);
-        background: #222530;
+        background: var(--admin-sidebar-bg, #{$admin-sidebar-bg-default});
         padding: 5px;
         outline: 0;
         width: 25px;
@@ -478,7 +480,7 @@ strong {
     flex-grow: 0;
     padding: 0;
     width: $admin-sidebar-width;
-    background: #222530;
+    background: var(--admin-sidebar-bg, #{$admin-sidebar-bg-default});
     transition: 150ms ease-in-out;
     z-index: 15;
 }
@@ -507,7 +509,7 @@ strong {
                     transform: translateY(-50%);
                     width: 4px;
                     height: 20px;
-                    background: #475aff;
+                    background: var(--admin-sidebar-accent, #{$admin-sidebar-accent-default});
                     border-radius: 3px;
                 }
             }
@@ -549,7 +551,7 @@ strong {
             font-size: 15px;
             display: block;
             padding: 14px 15px;
-            background: #222530;
+            background: var(--admin-sidebar-bg, #{$admin-sidebar-bg-default});
             text-decoration: none;
             outline: 0;
             transition: 150ms ease-in-out;
@@ -600,7 +602,7 @@ strong {
         &.active {
             > a {
                 color: lighten(#8aa4af, 15%);
-                background: lighten(#222530, 4%);
+                background: color-mix(in srgb, var(--admin-sidebar-bg, #{$admin-sidebar-bg-default}) 96%, #fff);
                 border-left-color: transparent;
                 font-weight: 600;
             }
@@ -612,7 +614,7 @@ strong {
 
         &.selected > a,
         > a:hover {
-            background: lighten(#222530, 4%);
+            background: color-mix(in srgb, var(--admin-sidebar-bg, #{$admin-sidebar-bg-default}) 96%, #fff);
         }
 
         > .treeview-menu {
@@ -669,7 +671,7 @@ strong {
     bottom: 0;
     height: 100%;
     width: $admin-sidebar-width;
-    background: #222530;
+    background: var(--admin-sidebar-bg, #{$admin-sidebar-bg-default});
     padding: 0;
 }
 
@@ -794,7 +796,7 @@ strong {
             font-size: 13px;
             display: block;
             color: #8aa4af;
-            background: darken(#222530, 4%);
+            background: color-mix(in srgb, var(--admin-sidebar-bg, #{$admin-sidebar-bg-default}) 96%, #000);
             padding: 12px 15px 12px 40px;
             text-decoration: none;
             transition: 150ms ease-in-out;
@@ -847,7 +849,7 @@ strong {
 
         &.active a span {
             display: block;
-            background: #2a2e3c;
+            background: color-mix(in srgb, var(--admin-sidebar-bg, #{$admin-sidebar-bg-default}) 85%, #fff);
             padding: 9px 12px;
             border-radius: 8px;
         }
@@ -863,7 +865,7 @@ strong {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #475aff;
+            background: var(--admin-sidebar-accent, #{$admin-sidebar-accent-default});
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
@@ -888,14 +890,14 @@ strong {
         > li > a {
             font-size: 14px;
             padding: 10px 20px 10px 50px;
-            background: #1c212a;
+            background: color-mix(in srgb, var(--admin-sidebar-bg, #{$admin-sidebar-bg-default}) 88%, #000);
 
             .fa {
                 font-size: 16px;
             }
 
             &:hover {
-                background: #2d323d;
+                background: color-mix(in srgb, var(--admin-sidebar-bg, #{$admin-sidebar-bg-default}) 78%, #fff);
             }
         }
     }

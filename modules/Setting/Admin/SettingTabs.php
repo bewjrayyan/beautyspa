@@ -97,7 +97,12 @@ class SettingTabs extends Tabs
         return tap(new SettingTab('logo', trans('setting::settings.tabs.logo')), function (SettingTab $tab) {
             $tab->weight(10);
 
-            $tab->fields(['translatable.admin_logo', 'translatable.admin_small_logo']);
+            $tab->fields([
+                'translatable.admin_logo',
+                'translatable.admin_small_logo',
+                'admin_sidebar_color',
+                'admin_sidebar_accent_color',
+            ]);
 
             $tab->view('setting::admin.settings.tabs.logo', [
                 'logo' => $this->getMedia(setting('admin_logo')),

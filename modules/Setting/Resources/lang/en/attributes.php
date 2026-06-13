@@ -28,6 +28,9 @@ return [
     'store_phone_hide' => 'Hide Store Phone',
     'store_email_hide' => 'Hide Store Email',
 
+    'admin_sidebar_color' => 'Sidebar Background',
+    'admin_sidebar_accent_color' => 'Sidebar Accent',
+
     'pwa_enabled' => 'Status',
     'pwa_icon' => 'Icon',
     'pwa_theme_color' => 'Theme Color',
