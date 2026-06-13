@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.49' => [
+        'en' => [
+            'summary' => 'Configurable admin sidebar colours and wider user account edit layout.',
+            'changes' => [
+                'Add sidebar background and accent colour pickers under Settings → Logo for admin panel branding.',
+                'Apply saved sidebar colours across the admin menu, header, and submenu via CSS variables.',
+                'Widen user create/edit main panel to an 80/20 layout so form tabs get more horizontal space.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Warna sidebar admin boleh dikonfigurasi dan layout sunting akaun pengguna lebih lebar.',
+            'changes' => [
+                'Tambah pemilih warna latar dan aksen sidebar di Tetapan → Logo untuk penjenamaan panel admin.',
+                'Guna warna sidebar tersimpan pada menu admin, header, dan submenu melalui pembolehubah CSS.',
+                'Lebarkan panel utama cipta/sunting pengguna kepada layout 80/20 supaya tab borang dapat lebih ruang.',
+            ],
+        ],
+    ],
     '4.7.48' => [
         'en' => [
             'summary' => 'Modernized admin users index, create, and edit account flows.',
