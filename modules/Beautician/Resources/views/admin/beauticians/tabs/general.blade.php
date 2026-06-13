@@ -220,6 +220,21 @@
                     <p>{{ trans('beautician::beauticians.form.sections.portal_help') }}</p>
                 </div>
                 <div class="bp-card-body">
+                    @if ($beautician->exists)
+                        <div class="bp-portal-actions">
+                            <a
+                                href="{{ route('admin.beauticians.portal', $beautician) }}"
+                                class="btn btn-primary btn-sm"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <i class="fa fa-external-link"></i>
+                                {{ trans('beautician::beauticians.form.open_beautician_portal') }}
+                            </a>
+                            <p class="bp-field-hint">{{ trans('beautician::beauticians.form.open_beautician_portal_help') }}</p>
+                        </div>
+                    @endif
+
                     <div class="bp-portal-fields">
                         <div class="bp-portal-field">
                             <label for="beautician-user-id">{{ trans('beautician::attributes.user_id') }}</label>
@@ -270,14 +285,6 @@
                         <p class="bp-field-hint">{{ trans('beautician::beauticians.form.portal_password_help') }}</p>
 
                         @if ($beautician->user_id)
-                            <p class="bp-field-hint bp-portal-links">
-                                <a href="{{ route('admin.treatment_reservations.portal') }}" target="_blank">
-                                    <i class="fa fa-external-link"></i>
-                                    {{ trans('beautician::beauticians.form.open_job_sheet') }}
-                                </a>
-                                <span class="text-muted">({{ trans('beautician::beauticians.form.portal_login_hint') }})</span>
-                            </p>
-
                             <div class="bp-portal-reset">
                                 <button
                                     type="submit"
@@ -406,12 +413,10 @@
                         </div>
 
                         <div class="bp-form-split__col">
-                            <div class="bp-field-stack bp-field-stack--job-title">
-                                {{ Form::select('job_title', trans('beautician::attributes.job_title'), $errors, $jobTitleOptions, $beautician, [
-                                    'class' => 'bp-job-title-select',
-                                ]) }}
-                                <p class="bp-field-hint">{{ trans('beautician::beauticians.form.job_title_help') }}</p>
-                            </div>
+                            @include('beautician::admin.partials.job_title_field', [
+                                'beautician' => $beautician,
+                                'jobTitleOptions' => $jobTitleOptions,
+                            ])
 
                             {{ Form::number('position', trans('beautician::attributes.sort_order'), $errors, $beautician, [
                                 'min' => 0,
@@ -574,6 +579,17 @@
 
         .beautician-profile-page .bp-portal-fields .bp-field-hint:last-child {
             margin-bottom: 0;
+        }
+
+        .beautician-profile-page .bp-portal-actions {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e8edf3;
+
+            .btn {
+                width: 100%;
+                font-weight: 600;
+            }
         }
 
         .beautician-profile-page .bp-portal-links {
@@ -1330,9 +1346,7 @@
                 }
 
                 if (heroTitle) {
-                    const titleValue = titleSelect?.selectize
-                        ? (titleSelect.selectize.getValue() || '').trim()
-                        : (titleSelect?.value || '').trim();
+                    const titleValue = (titleSelect?.value || '').trim();
 
                     heroTitle.textContent = titleValue || defaultTitle;
                 }
@@ -1443,69 +1457,7 @@
             positionInput?.addEventListener('input', syncHeroText);
             activeInput?.addEventListener('change', syncHeroText);
             userSelect?.addEventListener('change', syncHeroPortal);
-
-            const initJobTitleSelectize = () => {
-                if (!titleSelect || titleSelect.selectize || !window.jQuery?.fn?.selectize) {
-                    return titleSelect?.selectize ?? null;
-                }
-
-                const $title = window.jQuery(titleSelect);
-
-                $title.selectize({
-                    create: true,
-                    allowEmptyOption: true,
-                    selectOnTab: true,
-                    openOnFocus: true,
-                    copyClassesToDropdown: false,
-                    plugins: ['remove_button', 'restore_on_backspace'],
-                });
-
-                const control = $title[0].selectize;
-
-                control.$control.removeClass('form-control custom-select-black');
-
-                const $caret = window.jQuery(
-                    '<button type="button" class="bp-job-title-caret" tabindex="-1" aria-label="Toggle job titles">'
-                    + '<i class="fa fa-chevron-down"></i></button>'
-                );
-
-                control.$control.append($caret);
-
-                $caret.on('mousedown', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    if (control.isOpen) {
-                        control.close();
-                    } else {
-                        control.open();
-                    }
-                });
-
-                control.on('dropdown_open', () => {
-                    $caret.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
-                });
-
-                control.on('dropdown_close', () => {
-                    $caret.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-                });
-
-                return control;
-            };
-
-            const bindJobTitleHeroSync = () => {
-                if (titleSelect?.selectize) {
-                    titleSelect.selectize.on('change', syncHeroText);
-                    titleSelect.selectize.on('type', syncHeroText);
-
-                    return;
-                }
-
-                titleSelect?.addEventListener('change', syncHeroText);
-            };
-
-            initJobTitleSelectize();
-            bindJobTitleHeroSync();
+            titleSelect?.addEventListener('change', syncHeroText);
             colorInput?.addEventListener('input', () => {
                 syncHeroColor();
                 syncHeroAvatar();

@@ -3,13 +3,31 @@
 @section('title', trans('admin::resource.edit', ['resource' => trans('beautician::beauticians.beautician')]))
 
 @section('content_header')
-    <h3>{{ $beautician->name }}</h3>
+    <div class="clearfix">
+        <div class="pull-left">
+            <h3>{{ $beautician->name }}</h3>
 
-    <ol class="breadcrumb">
-        <li><a href="{{ route('admin.dashboard.index') }}">{{ trans('admin::dashboard.dashboard') }}</a></li>
-        <li><a href="{{ route('admin.beauticians.index') }}">{{ trans('beautician::beauticians.beauticians') }}</a></li>
-        <li class="active">{{ trans('beautician::beauticians.form.edit_profile') }}</li>
-    </ol>
+            <ol class="breadcrumb">
+                <li><a href="{{ route('admin.dashboard.index') }}">{{ trans('admin::dashboard.dashboard') }}</a></li>
+                <li><a href="{{ route('admin.beauticians.index') }}">{{ trans('beautician::beauticians.beauticians') }}</a></li>
+                <li class="active">{{ trans('beautician::beauticians.form.edit_profile') }}</li>
+            </ol>
+        </div>
+
+        @hasAccess('admin.beauticians.edit')
+            <div class="pull-right" style="margin-top: 4px;">
+                <a
+                    href="{{ route('admin.beauticians.portal', $beautician) }}"
+                    class="btn btn-primary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <i class="fa fa-external-link"></i>
+                    {{ trans('beautician::beauticians.form.open_beautician_portal') }}
+                </a>
+            </div>
+        @endHasAccess
+    </div>
 @endsection
 
 @section('content')

@@ -20,6 +20,10 @@ class GrantBeauticianPermissionsCommand extends Command
             'admin.beauticians.create' => true,
             'admin.beauticians.edit' => true,
             'admin.beauticians.destroy' => true,
+            'admin.beautician_job_titles.index' => true,
+            'admin.beautician_job_titles.create' => true,
+            'admin.beautician_job_titles.edit' => true,
+            'admin.beautician_job_titles.destroy' => true,
         ];
 
         $role->permissions = array_merge($role->permissions ?? [], $permissions);

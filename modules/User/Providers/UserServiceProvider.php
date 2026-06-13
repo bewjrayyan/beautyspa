@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Admin\Ui\Facades\TabManager;
 use Modules\User\Contracts\Authentication;
+use Modules\User\Sentinel\PortalPreviewAuthentication;
 use Modules\User\Sentinel\SentinelAuthentication;
 use Modules\User\Console\ProcessOneSenderOutboundQueueCommand;
 use Modules\User\Http\ViewComposers\AuthLayoutComposer;
@@ -56,7 +57,12 @@ class UserServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(Authentication::class, SentinelAuthentication::class);
+        $this->app->bind(Authentication::class, function ($app) {
+            return new PortalPreviewAuthentication(
+                new SentinelAuthentication(),
+                $app->make(\Modules\TreatmentReservation\Services\AdminPortalPreview::class),
+            );
+        });
     }
 
 

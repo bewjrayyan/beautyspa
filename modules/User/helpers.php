@@ -1,5 +1,25 @@
 <?php
 
+use Modules\TreatmentReservation\Services\AdminPortalPreview;
+use Modules\User\Entities\User;
+
+if (! function_exists('effective_admin_user')) {
+    /**
+     * User whose portal experience (sidebar, layout) should be rendered.
+     * During admin beautician portal preview, returns the linked portal user.
+     */
+    function effective_admin_user(): ?User
+    {
+        $preview = app(AdminPortalPreview::class);
+
+        if ($preview->isActive()) {
+            return $preview->effectiveUser();
+        }
+
+        return auth()->user();
+    }
+}
+
 if (! function_exists('permission_module_label')) {
     /**
      * Module title on the role permissions tab (keys may contain dots; avoid trans dot nesting).

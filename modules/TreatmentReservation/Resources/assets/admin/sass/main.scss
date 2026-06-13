@@ -96,6 +96,13 @@ $tr-kanban-status-colors: (
     }
 }
 
+.tr-portal-admin-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
 .tr-portal-header {
     display: flex;
     align-items: center;

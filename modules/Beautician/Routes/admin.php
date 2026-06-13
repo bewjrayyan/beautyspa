@@ -44,6 +44,80 @@ Route::delete('beauticians/{ids?}', [
     'middleware' => 'can:admin.beauticians.destroy',
 ]);
 
+Route::get('beautician-job-titles', [
+    'as' => 'admin.beautician_job_titles.index',
+    'uses' => 'BeauticianJobTitleController@index',
+    'middleware' => 'can:admin.beautician_job_titles.index',
+]);
+
+Route::get('beautician-job-titles/create', [
+    'as' => 'admin.beautician_job_titles.create',
+    'uses' => 'BeauticianJobTitleController@create',
+    'middleware' => 'can:admin.beautician_job_titles.create',
+]);
+
+Route::post('beautician-job-titles', [
+    'as' => 'admin.beautician_job_titles.store',
+    'uses' => 'BeauticianJobTitleController@store',
+    'middleware' => 'can:admin.beautician_job_titles.create',
+]);
+
+Route::get('beautician-job-titles/{id}/edit', [
+    'as' => 'admin.beautician_job_titles.edit',
+    'uses' => 'BeauticianJobTitleController@edit',
+    'middleware' => 'can:admin.beautician_job_titles.edit',
+]);
+
+Route::put('beautician-job-titles/{id}', [
+    'as' => 'admin.beautician_job_titles.update',
+    'uses' => 'BeauticianJobTitleController@update',
+    'middleware' => 'can:admin.beautician_job_titles.edit',
+]);
+
+Route::delete('beautician-job-titles/{ids?}', [
+    'as' => 'admin.beautician_job_titles.destroy',
+    'uses' => 'BeauticianJobTitleController@destroy',
+    'middleware' => 'can:admin.beautician_job_titles.destroy',
+]);
+
+Route::get('beautician-job-titles/index/table', [
+    'as' => 'admin.beautician_job_titles.table',
+    'uses' => 'BeauticianJobTitleController@table',
+    'middleware' => 'can:admin.beautician_job_titles.index',
+]);
+
+Route::middleware(['can:admin.beauticians.edit', 'beautician.portal.from_route'])->group(function () {
+    Route::get('beauticians/{id}/portal', [
+        'as' => 'admin.beauticians.portal',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@jobSheet',
+    ]);
+
+    Route::get('beauticians/{id}/portal/kanban', [
+        'as' => 'admin.beauticians.portal.kanban',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@kanbanBoard',
+    ]);
+
+    Route::get('beauticians/{id}/portal/calendar/events', [
+        'as' => 'admin.beauticians.portal.calendar',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@calendarEvents',
+    ]);
+
+    Route::patch('beauticians/{id}/portal/{booking}/status', [
+        'as' => 'admin.beauticians.portal.update_status',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@updateStatus',
+    ]);
+
+    Route::patch('beauticians/{id}/portal/{booking}/notes', [
+        'as' => 'admin.beauticians.portal.update_notes',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@updateBeauticianNotes',
+    ]);
+
+    Route::post('beauticians/{id}/portal/{booking}/whatsapp', [
+        'as' => 'admin.beauticians.portal.send_whatsapp',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@sendCustomerWhatsApp',
+    ]);
+});
+
 Route::get('beauticians/index/table', [
     'as' => 'admin.beauticians.table',
     'uses' => 'BeauticianController@table',

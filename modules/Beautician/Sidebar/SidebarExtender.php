@@ -17,8 +17,27 @@ class SidebarExtender extends BaseSidebarExtender
                 $item->weight(18);
                 $item->route('admin.beauticians.index');
                 $item->authorize(
-                    $this->auth->hasAccess('admin.beauticians.index')
+                    $this->auth->hasAnyAccess([
+                        'admin.beauticians.index',
+                        'admin.beautician_job_titles.index',
+                    ])
                 );
+
+                $item->item(trans('beautician::sidebar.beauticians'), function (Item $item) {
+                    $item->weight(5);
+                    $item->route('admin.beauticians.index');
+                    $item->authorize(
+                        $this->auth->hasAccess('admin.beauticians.index')
+                    );
+                });
+
+                $item->item(trans('beautician::sidebar.job_titles'), function (Item $item) {
+                    $item->weight(10);
+                    $item->route('admin.beautician_job_titles.index');
+                    $item->authorize(
+                        $this->auth->hasAccess('admin.beautician_job_titles.index')
+                    );
+                });
             });
         });
     }

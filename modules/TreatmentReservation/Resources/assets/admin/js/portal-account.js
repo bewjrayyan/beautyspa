@@ -1,7 +1,4 @@
-import { initJobTitleSelectize } from "../../../../../Beautician/Resources/assets/admin/js/job-title-selectize.js";
-
 document.addEventListener("DOMContentLoaded", () => {
-    initJobTitleSelectize(document.querySelector('[name="job_title"]'));
 
     const copyBtn = document.getElementById("tr-ical-copy-btn");
     const input = document.getElementById("tr-ical-url");

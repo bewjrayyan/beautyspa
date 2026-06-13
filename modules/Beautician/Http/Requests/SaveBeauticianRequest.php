@@ -3,6 +3,7 @@
 namespace Modules\Beautician\Http\Requests;
 
 use Illuminate\Validation\Rule;
+use Modules\Beautician\Support\JobTitleOptions;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 
@@ -52,7 +53,12 @@ class SaveBeauticianRequest extends Request
             'last_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', new ValidPhone()],
             'profile_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-            'job_title' => 'nullable|string|max:255',
+            'job_title' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::in(JobTitleOptions::activeNames()),
+            ],
             'is_active' => 'required|boolean',
             'position' => 'nullable|integer|min:0',
             'spa_branches' => 'nullable|array',

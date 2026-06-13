@@ -15,17 +15,35 @@
         </div>
         <div class="tr-portal-header__actions">
             @include('treatmentreservation::admin.portal.partials.avatar', ['beautician' => $beautician])
-            <a href="{{ route('admin.treatment_reservations.portal.account') }}" class="btn btn-default btn-sm tr-portal-account-btn">
-                <i class="fa fa-user"></i> {{ trans('treatmentreservation::admin.portal.account_title') }}
-            </a>
-            <a href="{{ route('admin.treatment_reservations.portal.availability') }}" class="btn btn-default btn-sm">
-                <i class="fa fa-clock-o"></i> {{ trans('treatmentreservation::admin.availability.title') }}
-            </a>
+
+            @if (! empty($adminPortalPreview) && ! empty($backUrl))
+                <a href="{{ $backUrl }}" class="btn btn-default btn-sm">
+                    <i class="fa fa-arrow-left"></i> {{ trans('beautician::beauticians.form.back_to_beautician_profile') }}
+                </a>
+            @else
+                <a href="{{ route('admin.treatment_reservations.portal.account') }}" class="btn btn-default btn-sm tr-portal-account-btn">
+                    <i class="fa fa-user"></i> {{ trans('treatmentreservation::admin.portal.account_title') }}
+                </a>
+                <a href="{{ route('admin.treatment_reservations.portal.availability') }}" class="btn btn-default btn-sm">
+                    <i class="fa fa-clock-o"></i> {{ trans('treatmentreservation::admin.availability.title') }}
+                </a>
+            @endif
         </div>
     </div>
 @endsection
 
 @section('content')
+    @if (! empty($adminPortalPreview))
+        <div class="alert alert-info tr-portal-admin-preview">
+            <i class="fa fa-eye"></i>
+            @if (app(\Modules\TreatmentReservation\Services\AdminPortalPreview::class)->isActive())
+                {{ trans('beautician::beauticians.form.admin_portal_preview_banner', ['name' => $beautician->name]) }}
+            @else
+                {{ trans('beautician::beauticians.form.admin_portal_preview_no_user') }}
+            @endif
+        </div>
+    @endif
+
     @include('treatmentreservation::admin.partials.urgency-alerts', [
         'urgencyAlertsAsModal' => true,
     ])
@@ -34,11 +52,11 @@
         class="tr-portal tr-reservations{{ $calendarFocus ? ' tr-portal--calendar-focus' : '' }}"
         id="tr-portal-app"
         data-active-view="{{ $activeView }}"
-        data-calendar-url="{{ route('admin.treatment_reservations.portal.calendar') }}"
-        data-kanban-url="{{ route('admin.treatment_reservations.portal.kanban') }}"
-        data-status-url="{{ route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']) }}"
-        data-notes-url="{{ route('admin.treatment_reservations.portal.update_notes', ['id' => '__ID__']) }}"
-        data-whatsapp-url="{{ route('admin.treatment_reservations.portal.send_whatsapp', ['id' => '__ID__']) }}"
+        data-calendar-url="{{ $portalApiRoutes['calendar'] }}"
+        data-kanban-url="{{ $portalApiRoutes['kanban'] }}"
+        data-status-url="{{ $portalApiRoutes['update_status'] }}"
+        data-notes-url="{{ $portalApiRoutes['update_notes'] }}"
+        data-whatsapp-url="{{ $portalApiRoutes['send_whatsapp'] }}"
         data-initial-bookings='@json($todayBookingsPayload)'
         data-initial-month="{{ now()->format('Y-m') }}"
         data-initial-beautician="{{ $beautician->id }}"
@@ -198,9 +216,13 @@
             <div class="tr-portal-panel" data-schedule-panel="calendar" hidden>
                 @include('treatmentreservation::admin.reservations.partials.calendar', [
                     'embedded' => true,
-                    'fullViewUrl' => $calendarFocus
-                        ? route('admin.treatment_reservations.portal')
-                        : route('admin.treatment_reservations.portal', ['view' => 'calendar', 'focus' => 1]),
+                    'fullViewUrl' => ! empty($adminPortalPreview)
+                        ? ($calendarFocus
+                            ? route('admin.beauticians.portal', $beautician->id)
+                            : route('admin.beauticians.portal', ['id' => $beautician->id, 'view' => 'calendar', 'focus' => 1]))
+                        : ($calendarFocus
+                            ? route('admin.treatment_reservations.portal')
+                            : route('admin.treatment_reservations.portal', ['view' => 'calendar', 'focus' => 1])),
                     'fullViewIcon' => $calendarFocus ? 'fa-compress' : 'fa-expand',
                     'fullViewLabel' => $calendarFocus
                         ? trans('treatmentreservation::admin.portal.back_to_job_sheet')

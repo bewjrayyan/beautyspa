@@ -34,7 +34,7 @@
         @include('admin::partials.globals')
     </head>
 
-    <body class="skin-blue sidebar-mini offcanvas clearfix {{ is_rtl() ? 'rtl' : 'ltr' }} {{ auth()->user()?->isBeauticianOnly() ? 'tr-beautician-portal-user' : '' }}" dir>
+    <body class="skin-blue sidebar-mini offcanvas clearfix {{ is_rtl() ? 'rtl' : 'ltr' }} {{ effective_admin_user()?->isBeauticianOnly() ? 'tr-beautician-portal-user' : '' }}" dir>
         <div class="left-side"></div>
 
         @include('admin::partials.sidebar')

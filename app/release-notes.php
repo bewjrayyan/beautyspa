@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.51' => [
+        'en' => [
+            'summary' => 'Beautician job titles master data, portal preview, and admin UX fixes.',
+            'changes' => [
+                'Add Job titles CRUD under Beauticians with permissions, sidebar submenu, and 29 default titles seeded.',
+                'Load beautician Job Title field from master data using a standard dropdown instead of Selectize.',
+                'Add Open beautician portal preview from the beautician edit form with role-based sidebar menu visibility.',
+                'Auto-format job title names to Title Case on blur and save.',
+                'Fix beautician portal preview 404, job titles DataTable loading, and table route selector mismatch.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Master data jawatan beautician, pratonton portal, dan pembetulan UX admin.',
+            'changes' => [
+                'Tambah CRUD Jawatan beautician di bawah Beauticians dengan kebenaran, submenu sidebar, dan 29 jawatan lalai.',
+                'Medan Jawatan beautician kini memuatkan senarai dari master data menggunakan dropdown standard.',
+                'Tambah pratonton portal beautician dari borang sunting dengan menu sidebar ikut peranan pengguna portal.',
+                'Auto-format nama jawatan kepada Title Case semasa blur dan simpan.',
+                'Baiki 404 pratonton portal, jadual Job titles kosong, dan pemilih route DataTable.',
+            ],
+        ],
+    ],
     '4.7.50' => [
         'en' => [
             'summary' => 'White sidebar menu labels and section headings in the admin panel.',

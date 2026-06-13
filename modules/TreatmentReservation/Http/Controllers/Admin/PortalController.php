@@ -32,7 +32,9 @@ class PortalController extends Controller
 
         $calendarFocus = $request->boolean('focus') && $activeView === 'calendar';
 
-        return view('treatmentreservation::admin.portal.job_sheet', [
+        $portalContext = $this->portalContext($request, $beautician);
+
+        return view('treatmentreservation::admin.portal.job_sheet', array_merge([
             'beautician' => $beautician,
             'stats' => $this->dashboard->statsForBeauticianSchedule($beautician->id),
             'performanceStats' => $this->dashboard->statsForBeautician($beautician->id),
@@ -40,7 +42,42 @@ class PortalController extends Controller
             'todayBookingsPayload' => $todayAppointments->map->toKanbanPayload()->values(),
             'activeView' => $activeView,
             'calendarFocus' => $calendarFocus,
-        ]);
+        ], $portalContext));
+    }
+
+
+    /**
+     * @return array{adminPortalPreview: bool, portalApiRoutes: array<string, string>, backUrl: string|null}
+     */
+    private function portalContext(Request $request, Beautician $beautician): array
+    {
+        if (! $request->routeIs('admin.beauticians.portal')) {
+            return [
+                'adminPortalPreview' => false,
+                'portalApiRoutes' => [
+                    'calendar' => route('admin.treatment_reservations.portal.calendar'),
+                    'kanban' => route('admin.treatment_reservations.portal.kanban'),
+                    'update_status' => route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']),
+                    'update_notes' => route('admin.treatment_reservations.portal.update_notes', ['id' => '__ID__']),
+                    'send_whatsapp' => route('admin.treatment_reservations.portal.send_whatsapp', ['id' => '__ID__']),
+                ],
+                'backUrl' => null,
+            ];
+        }
+
+        $routeParams = ['id' => $beautician->id];
+
+        return [
+            'adminPortalPreview' => true,
+            'portalApiRoutes' => [
+                'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
+                'kanban' => route('admin.beauticians.portal.kanban', $routeParams),
+                'update_status' => route('admin.beauticians.portal.update_status', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'update_notes' => route('admin.beauticians.portal.update_notes', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'send_whatsapp' => route('admin.beauticians.portal.send_whatsapp', ['id' => $beautician->id, 'booking' => '__ID__']),
+            ],
+            'backUrl' => route('admin.beauticians.edit', $beautician),
+        ];
     }
 
 
@@ -95,7 +132,7 @@ class PortalController extends Controller
 
         $booking = TreatmentBooking::query()
             ->where('beautician_id', $beautician->id)
-            ->findOrFail($id);
+            ->findOrFail($this->bookingIdFromRoute($request, $id));
 
         $previousStatus = $booking->status;
         $booking->update(['status' => $request->input('status')]);
@@ -130,7 +167,7 @@ class PortalController extends Controller
 
         $booking = TreatmentBooking::query()
             ->where('beautician_id', $beautician->id)
-            ->findOrFail($id);
+            ->findOrFail($this->bookingIdFromRoute($request, $id));
 
         $previousNotes = $booking->beautician_notes;
         $booking->update([
@@ -163,7 +200,7 @@ class PortalController extends Controller
         $booking = TreatmentBooking::query()
             ->with(['beautician', 'product'])
             ->where('beautician_id', $beautician->id)
-            ->findOrFail($id);
+            ->findOrFail($this->bookingIdFromRoute($request, $id));
 
         try {
             $whatsapp->send($booking, $request->input('message'));
@@ -183,5 +220,13 @@ class PortalController extends Controller
             'message' => trans('treatmentreservation::admin.calendar.whatsapp_sent'),
             'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
         ]);
+    }
+
+
+    private function bookingIdFromRoute(Request $request, int $fallback): int
+    {
+        $booking = $request->route('booking');
+
+        return $booking !== null ? (int) $booking : $fallback;
     }
 }

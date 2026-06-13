@@ -12,11 +12,13 @@ use Modules\TreatmentReservation\Console\SendCustomerFollowUpNotificationsComman
 use Modules\TreatmentReservation\Console\SyncTreatmentBookingsCommand;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalMiddleware;
+use Modules\TreatmentReservation\Http\Middleware\PortalBeauticianFromRouteMiddleware;
 use Modules\TreatmentReservation\Http\Middleware\RestrictBeauticianPortalMiddleware;
 use Modules\TreatmentReservation\Listeners\SyncTreatmentBookingFromOrder;
 use Modules\Beautician\Entities\Beautician;
 use Modules\TreatmentReservation\Observers\OrderTreatmentBookingObserver;
 use Modules\TreatmentReservation\Observers\TreatmentBookingObserver;
+use Modules\TreatmentReservation\Services\AdminPortalPreview;
 use Modules\TreatmentReservation\Services\UpcomingJobUrgencyService;
 use Nwidart\Modules\Facades\Module;
 
@@ -24,7 +26,10 @@ class TreatmentReservationServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        $this->app->singleton(AdminPortalPreview::class);
+
         $this->app['router']->aliasMiddleware('beautician.portal', BeauticianPortalMiddleware::class);
+        $this->app['router']->aliasMiddleware('beautician.portal.from_route', PortalBeauticianFromRouteMiddleware::class);
         $this->app['router']->aliasMiddleware('beautician.portal.restrict', RestrictBeauticianPortalMiddleware::class);
 
         Order::observe(OrderTreatmentBookingObserver::class);
@@ -51,6 +56,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
             }
 
             $user = auth()->user();
+            $portalPreview = app(AdminPortalPreview::class);
 
             if (! $user) {
                 $view->with('jobUrgencyAlerts', $service->emptyPayload());
@@ -58,7 +64,9 @@ class TreatmentReservationServiceProvider extends ServiceProvider
                 return;
             }
 
-            if ($user->isBeauticianOnly()) {
+            if ($portalPreview->isActive() && $portalPreview->beautician()) {
+                $alerts = $service->forBeautician($portalPreview->beautician()->id);
+            } elseif ($user->isBeauticianOnly()) {
                 $beautician = Beautician::findForUser($user->id);
                 $alerts = $beautician
                     ? $service->forBeautician($beautician->id)
