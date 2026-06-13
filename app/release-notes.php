@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.50' => [
+        'en' => [
+            'summary' => 'White sidebar menu labels and section headings in the admin panel.',
+            'changes' => [
+                'Style sidebar group headings (System, Content) with the menu-title class in white.',
+                'Set all main and submenu sidebar link text to white for better contrast on custom sidebar colours.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Label menu sidebar putih dan tajuk bahagian dalam panel admin.',
+            'changes' => [
+                'Gaya tajuk kumpulan sidebar (Sistem, Kandungan) dengan kelas menu-title berwarna putih.',
+                'Set semua teks pautan menu utama dan submenu sidebar kepada putih untuk kontras lebih baik.',
+            ],
+        ],
+    ],
     '4.7.49' => [
         'en' => [
             'summary' => 'Configurable admin sidebar colours and wider user account edit layout.',
