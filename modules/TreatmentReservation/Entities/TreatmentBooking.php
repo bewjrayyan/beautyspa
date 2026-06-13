@@ -25,8 +25,16 @@ class TreatmentBooking extends Model
 
     public const STATUS_CANCELED = 'canceled';
 
+    public const SOURCE_CHECKOUT = 'checkout';
+
+    public const SOURCE_ADMIN_MANUAL = 'admin_manual';
+
+    public const SOURCE_PORTAL_MANUAL = 'portal_manual';
+
     protected $fillable = [
         'order_id',
+        'source',
+        'created_by_user_id',
         'beautician_id',
         'treatment_category_id',
         'product_id',
@@ -61,6 +69,31 @@ class TreatmentBooking extends Model
             self::STATUS_IN_PROGRESS,
             self::STATUS_COMPLETED,
         ];
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    public static function manualSources(): array
+    {
+        return [
+            self::SOURCE_ADMIN_MANUAL,
+            self::SOURCE_PORTAL_MANUAL,
+        ];
+    }
+
+
+    public function isManualBooking(): bool
+    {
+        return in_array($this->source, self::manualSources(), true);
+    }
+
+
+    public function isManualEditable(): bool
+    {
+        return $this->isManualBooking()
+            && in_array($this->status, [self::STATUS_PENDING, self::STATUS_IN_PROGRESS], true);
     }
 
 
@@ -109,6 +142,12 @@ class TreatmentBooking extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+
+    public function createdBy()
+    {
+        return $this->belongsTo(\Modules\User\Entities\User::class, 'created_by_user_id');
     }
 
 
@@ -296,6 +335,14 @@ class TreatmentBooking extends Model
             'order_url' => $this->order_id
                 ? route('admin.orders.show', $this->order_id)
                 : null,
+            'source' => $this->source ?? self::SOURCE_CHECKOUT,
+            'is_manual' => $this->isManualBooking(),
+            'can_edit_manual' => $this->isManualEditable(),
+            'can_cancel_manual' => $this->isManualEditable(),
+            'customer_first_name' => $this->customer_first_name,
+            'customer_last_name' => $this->customer_last_name,
+            'product_id' => $this->product_id,
+            'appointment_date_value' => $this->appointment_date?->format('Y-m-d'),
         ];
     }
 

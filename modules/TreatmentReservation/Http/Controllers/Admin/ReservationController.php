@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\View\View;
 use Modules\Beautician\Entities\Beautician;
+use Modules\Product\Entities\Product;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Entities\TreatmentCategory;
 use Modules\TreatmentReservation\Services\ReservationDashboardService;
@@ -37,6 +38,9 @@ class ReservationController extends Controller
         $reportTo = $request->input('to', $defaults['to']);
         $beauticianId = $request->integer('beautician_id') ?: null;
         $categoryId = $request->integer('treatment_category_id') ?: null;
+        $source = in_array($request->input('source'), ['manual', 'checkout'], true)
+            ? $request->input('source')
+            : null;
         $analyticsDays = TreatmentReservationAnalyticsService::DEFAULT_DAYS;
 
         return view('treatmentreservation::admin.reservations.index', [
@@ -54,16 +58,22 @@ class ReservationController extends Controller
                 ? $this->analytics->chartPayload($analyticsDays)
                 : null,
             'reportSummary' => $view === 'reports'
-                ? $this->report->summary($reportFrom, $reportTo, $beauticianId, $categoryId)
+                ? $this->report->summary($reportFrom, $reportTo, $beauticianId, $categoryId, $source)
                 : null,
             'beauticians' => Beautician::activeList(),
             'categories' => TreatmentCategory::active()->ordered()->get(),
+            'treatmentProducts' => Product::query()
+                ->where('is_virtual', true)
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->get(['id', 'treatment_category_id', 'selling_price']),
             'filters' => [
                 'beautician_id' => $beauticianId,
                 'treatment_category_id' => $categoryId,
                 'month' => $request->input('month', now()->format('Y-m')),
                 'from' => $reportFrom,
                 'to' => $reportTo,
+                'source' => $source,
             ],
         ]);
     }
@@ -179,15 +189,20 @@ class ReservationController extends Controller
             'to' => ['nullable', 'date', 'after_or_equal:from'],
             'beautician_id' => ['nullable', 'integer'],
             'treatment_category_id' => ['nullable', 'integer'],
+            'source' => ['nullable', 'in:manual,checkout'],
         ]);
 
         $defaults = TreatmentBookingsReportService::defaultDateRange();
+        $source = in_array($request->input('source'), ['manual', 'checkout'], true)
+            ? $request->input('source')
+            : null;
 
         return $this->report->exportCsv(
             $request->input('from', $defaults['from']),
             $request->input('to', $defaults['to']),
             $request->integer('beautician_id') ?: null,
-            $request->integer('treatment_category_id') ?: null
+            $request->integer('treatment_category_id') ?: null,
+            $source
         );
     }
 
@@ -199,6 +214,7 @@ class ReservationController extends Controller
             'to' => ['nullable', 'date', 'after_or_equal:from'],
             'beautician_id' => ['nullable', 'integer'],
             'treatment_category_id' => ['nullable', 'integer'],
+            'source' => ['nullable', 'in:manual,checkout'],
         ]);
 
         $defaults = TreatmentBookingsReportService::defaultDateRange();
@@ -206,13 +222,16 @@ class ReservationController extends Controller
         $to = $request->input('to', $defaults['to']);
         $beauticianId = $request->integer('beautician_id') ?: null;
         $categoryId = $request->integer('treatment_category_id') ?: null;
+        $source = in_array($request->input('source'), ['manual', 'checkout'], true)
+            ? $request->input('source')
+            : null;
 
         return view('treatmentreservation::admin.reservations.print.report', [
             'from' => $from,
             'to' => $to,
-            'summary' => $this->report->summary($from, $to, $beauticianId, $categoryId),
-            'bookings' => $this->report->bookings($from, $to, $beauticianId, $categoryId),
-            'breakdown' => $this->report->beauticianBreakdown($from, $to, $beauticianId, $categoryId),
+            'summary' => $this->report->summary($from, $to, $beauticianId, $categoryId, $source),
+            'bookings' => $this->report->bookings($from, $to, $beauticianId, $categoryId, $source),
+            'breakdown' => $this->report->beauticianBreakdown($from, $to, $beauticianId, $categoryId, $source),
             'generatedAt' => now(),
         ]);
     }

@@ -45,11 +45,11 @@ class UpcomingJobUrgencyService
         });
     }
 
-    public function forBeautician(int $beauticianId): array
+    public function forBeautician(int $beauticianId, ?string $actionUrl = null): array
     {
         return $this->buildPayload(
             $this->actionableBookings($beauticianId),
-            route('admin.treatment_reservations.portal', ['view' => 'kanban']),
+            $actionUrl ?? route('admin.treatment_reservations.portal', ['view' => 'kanban']),
             TrLang::trans('admin.urgency.open_my_jobs'),
             'beautician',
             TrLang::trans('admin.urgency.beautician_headline'),

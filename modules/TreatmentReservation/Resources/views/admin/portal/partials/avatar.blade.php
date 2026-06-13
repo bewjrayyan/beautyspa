@@ -1,6 +1,9 @@
 @php
-    $avatarUrl = $beautician->profile_image->exists ? $beautician->profile_image->path : null;
-    $profileColor = $beautician->profile_color ?? '#6366f1';
+    $portalUser = $user ?? $beautician->user ?? null;
+    $avatarUrl = $beautician->profile_image->exists
+        ? $beautician->profile_image->path
+        : $portalUser?->avatarUrl();
+    $profileColor = $beautician->profile_color ?? $portalUser?->avatarBackgroundColor() ?? '#6366f1';
     $avatarClass = trim('tr-portal-avatar' . ($class ?? '') . ($avatarUrl ? ' tr-portal-avatar--photo' : ''));
 @endphp
 

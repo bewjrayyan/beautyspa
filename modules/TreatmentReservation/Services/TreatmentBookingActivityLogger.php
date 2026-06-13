@@ -48,4 +48,26 @@ class TreatmentBookingActivityLogger
             'to_value' => $booking->customer_phone,
         ]);
     }
+
+
+    public function logCreated(TreatmentBooking $booking, ?int $userId = null): void
+    {
+        TreatmentBookingActivity::create([
+            'treatment_booking_id' => $booking->id,
+            'user_id' => $userId ?? auth()->id(),
+            'action' => TreatmentBookingActivity::ACTION_CREATED,
+            'to_value' => $booking->source,
+        ]);
+    }
+
+
+    public function logUpdated(TreatmentBooking $booking, ?int $userId = null): void
+    {
+        TreatmentBookingActivity::create([
+            'treatment_booking_id' => $booking->id,
+            'user_id' => $userId ?? auth()->id(),
+            'action' => TreatmentBookingActivity::ACTION_UPDATED,
+            'to_value' => $booking->appointment_date?->format('Y-m-d') . ' ' . $booking->appointment_time,
+        ]);
+    }
 }

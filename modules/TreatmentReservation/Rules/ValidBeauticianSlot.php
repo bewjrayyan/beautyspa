@@ -17,7 +17,15 @@ class ValidBeauticianSlot implements ValidationRule
             return;
         }
 
-        if (! app(BeauticianAvailabilityService::class)->isSlotAvailable($beauticianId, $date, (string) $value)) {
+        $excludeBookingId = request()->route('booking')?->id
+            ?? (request()->filled('booking_id') ? request()->integer('booking_id') : null);
+
+        if (! app(BeauticianAvailabilityService::class)->isSlotAvailable(
+            $beauticianId,
+            $date,
+            (string) $value,
+            $excludeBookingId ?: null
+        )) {
             $fail(trans('treatmentreservation::public.slot_unavailable'));
         }
     }

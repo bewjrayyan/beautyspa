@@ -35,6 +35,19 @@
                 </select>
             </div>
 
+            <div class="tr-filters__field">
+                <label for="tr-source">{{ trans('treatmentreservation::admin.reports.source') }}</label>
+                <select name="source" id="tr-source" class="custom-select-black">
+                    <option value="">{{ trans('treatmentreservation::admin.reports.source_all') }}</option>
+                    <option value="checkout" {{ ($filters['source'] ?? null) === 'checkout' ? 'selected' : '' }}>
+                        {{ trans('treatmentreservation::admin.reports.source_checkout') }}
+                    </option>
+                    <option value="manual" {{ ($filters['source'] ?? null) === 'manual' ? 'selected' : '' }}>
+                        {{ trans('treatmentreservation::admin.reports.source_manual') }}
+                    </option>
+                </select>
+            </div>
+
             <div class="tr-filters__field tr-filters__field--action">
                 <label class="tr-filters__action-label">&nbsp;</label>
                 <button type="submit" class="btn btn-primary tr-filters__submit">
@@ -74,13 +87,13 @@
             <div class="tr-reports-panel__exports">
                 <span class="tr-reports-panel__exports-label">{{ trans('treatmentreservation::admin.reports.export_label') }}</span>
                 <a
-                    href="{{ route('admin.treatment_reservations.export', request()->only(['from', 'to', 'beautician_id', 'treatment_category_id'])) }}"
+                    href="{{ route('admin.treatment_reservations.export', request()->only(['from', 'to', 'beautician_id', 'treatment_category_id', 'source'])) }}"
                     class="btn btn-default"
                 >
                     <i class="fa fa-download" aria-hidden="true"></i> {{ trans('treatmentreservation::admin.reports.export_csv') }}
                 </a>
                 <a
-                    href="{{ route('admin.treatment_reservations.export_pdf', request()->only(['from', 'to', 'beautician_id', 'treatment_category_id'])) }}"
+                    href="{{ route('admin.treatment_reservations.export_pdf', request()->only(['from', 'to', 'beautician_id', 'treatment_category_id', 'source'])) }}"
                     class="btn btn-default"
                     target="_blank"
                     rel="noopener"

@@ -13,6 +13,7 @@ import {
 import { initTreatmentAnalytics } from "./analytics.js";
 import "./portal-account.js";
 import "./portal-availability.js";
+import "./manual-booking.js";
 
 const TR_KANBAN_STATUS_ACCENT = {
     pending: "#ea580c",
@@ -67,6 +68,13 @@ class TreatmentReservationsApp {
                 });
 
                 this.activateView(view);
+
+                if (button.hasAttribute("data-scroll-schedule")) {
+                    this.root.querySelector("#tr-portal-schedule")?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                    });
+                }
             });
         });
     }
@@ -470,10 +478,24 @@ function buildCalendarPreviewLabels(root) {
         statusPending: root.dataset.calStatusPending || "Pending",
         statusInProgress: root.dataset.calStatusInProgress || "In Progress",
         statusCompleted: root.dataset.calStatusCompleted || "Completed",
+        editManual: root.dataset.calPreviewEditManual || "Edit appointment",
+        cancelManual: root.dataset.calPreviewCancelManual || "Cancel appointment",
+        cancelManualConfirm: root.dataset.calPreviewCancelManualConfirm || "Cancel this manual appointment?",
+        cancelManualSuccess: root.dataset.calPreviewCancelManualSuccess || "Appointment canceled",
+        cancelManualFailed: root.dataset.calPreviewCancelManualFailed || "Failed to cancel appointment",
     };
 }
 
 function buildCalendarPreviewOptions(root) {
+    const manualBookingOptions = root.dataset.manualBookingEdit === "1"
+        ? {
+              manualBookingEditEnabled: true,
+              manualBookingCancelUrlTemplate: root.dataset.manualBookingCancelUrl || "",
+              manualBookingModalSelector:
+                  root.id === "tr-portal-app" ? "#tr-portal-manual-booking-modal" : "#tr-manual-booking-modal",
+          }
+        : {};
+
     if (root.id === "tr-portal-app") {
         return {
             hideOrderLink: true,
@@ -482,6 +504,7 @@ function buildCalendarPreviewOptions(root) {
             allowBeauticianNotes: true,
             notesUrlTemplate: root.dataset.notesUrl || "",
             whatsappUrlTemplate: root.dataset.whatsappUrl || "",
+            ...manualBookingOptions,
         };
     }
 
@@ -490,10 +513,11 @@ function buildCalendarPreviewOptions(root) {
             showActivityLog: true,
             showWhatsApp: true,
             whatsappUrlTemplate: root.dataset.whatsappUrl || "",
+            ...manualBookingOptions,
         };
     }
 
-    return {};
+    return manualBookingOptions;
 }
 
 const calendarPreviewRoot =

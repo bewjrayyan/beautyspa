@@ -2,6 +2,8 @@
 @import "../../../../../Beautician/Resources/assets/admin/sass/job-title-select";
 
 @import "portal-account-page";
+@import "portal-dashboard";
+@import "manual-booking";
 
 $tr-kanban-status-colors: (
     pending: (
@@ -494,7 +496,7 @@ $tr-kanban-status-colors: (
     .tr-portal-today,
     .tr-stats-panel,
     .tr-portal-hint,
-    .tr-portal-tabs {
+    .tr-portal-tabs:not(.tr-portal-tabs--modern) {
         display: none;
     }
 

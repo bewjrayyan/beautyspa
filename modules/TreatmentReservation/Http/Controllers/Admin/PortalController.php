@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Beautician\Entities\Beautician;
+use Modules\Product\Entities\Product;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Services\ReservationDashboardService;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
@@ -42,6 +43,11 @@ class PortalController extends Controller
             'todayBookingsPayload' => $todayAppointments->map->toKanbanPayload()->values(),
             'activeView' => $activeView,
             'calendarFocus' => $calendarFocus,
+            'treatmentProducts' => Product::query()
+                ->where('is_virtual', true)
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->get(['id', 'treatment_category_id', 'selling_price']),
         ], $portalContext));
     }
 
@@ -51,7 +57,7 @@ class PortalController extends Controller
      */
     private function portalContext(Request $request, Beautician $beautician): array
     {
-        if (! $request->routeIs('admin.beauticians.portal')) {
+        if (! $request->routeIs('admin.beauticians.portal*')) {
             return [
                 'adminPortalPreview' => false,
                 'portalApiRoutes' => [

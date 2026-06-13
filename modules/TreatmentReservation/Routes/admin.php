@@ -8,6 +8,36 @@ Route::get('treatment-reservations', [
     'middleware' => 'can:admin.treatment_reservations.index',
 ]);
 
+Route::get('treatment-reservations/manual-bookings/slots', [
+    'as' => 'admin.treatment_reservations.manual_bookings.slots',
+    'uses' => 'ManualBookingController@slots',
+    'middleware' => 'can:admin.treatment_reservations.index',
+]);
+
+Route::get('treatment-reservations/manual-bookings/customers', [
+    'as' => 'admin.treatment_reservations.manual_bookings.customers',
+    'uses' => 'ManualBookingController@customers',
+    'middleware' => 'can:admin.treatment_reservations.index',
+]);
+
+Route::post('treatment-reservations/manual-bookings', [
+    'as' => 'admin.treatment_reservations.manual_bookings.store',
+    'uses' => 'ManualBookingController@store',
+    'middleware' => 'can:admin.treatment_reservations.create',
+]);
+
+Route::put('treatment-reservations/manual-bookings/{booking}', [
+    'as' => 'admin.treatment_reservations.manual_bookings.update',
+    'uses' => 'ManualBookingController@update',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
+Route::patch('treatment-reservations/manual-bookings/{booking}/cancel', [
+    'as' => 'admin.treatment_reservations.manual_bookings.cancel',
+    'uses' => 'ManualBookingController@cancel',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
 Route::get('treatment-reservations/calendar/events', [
     'as' => 'admin.treatment_reservations.calendar',
     'uses' => 'ReservationController@calendarEvents',
@@ -78,6 +108,36 @@ Route::middleware(['beautician.portal'])->group(function () {
     Route::post('my/job-sheet/{id}/whatsapp', [
         'as' => 'admin.treatment_reservations.portal.send_whatsapp',
         'uses' => 'PortalController@sendCustomerWhatsApp',
+    ]);
+
+    Route::get('my/job-sheet/manual-bookings/slots', [
+        'as' => 'admin.treatment_reservations.portal.manual_bookings.slots',
+        'uses' => 'PortalManualBookingController@slots',
+        'middleware' => 'can:admin.treatment_reservations.portal.create',
+    ]);
+
+    Route::get('my/job-sheet/manual-bookings/customers', [
+        'as' => 'admin.treatment_reservations.portal.manual_bookings.customers',
+        'uses' => 'PortalManualBookingController@customers',
+        'middleware' => 'can:admin.treatment_reservations.portal.create',
+    ]);
+
+    Route::post('my/job-sheet/manual-bookings', [
+        'as' => 'admin.treatment_reservations.portal.manual_bookings.store',
+        'uses' => 'PortalManualBookingController@store',
+        'middleware' => 'can:admin.treatment_reservations.portal.create',
+    ]);
+
+    Route::put('my/job-sheet/manual-bookings/{booking}', [
+        'as' => 'admin.treatment_reservations.portal.manual_bookings.update',
+        'uses' => 'PortalManualBookingController@update',
+        'middleware' => 'can:admin.treatment_reservations.portal.create',
+    ]);
+
+    Route::patch('my/job-sheet/manual-bookings/{booking}/cancel', [
+        'as' => 'admin.treatment_reservations.portal.manual_bookings.cancel',
+        'uses' => 'PortalManualBookingController@cancel',
+        'middleware' => 'can:admin.treatment_reservations.portal.create',
     ]);
 
     Route::get('my/account', [

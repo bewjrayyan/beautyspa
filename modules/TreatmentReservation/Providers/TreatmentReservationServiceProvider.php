@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
+use Modules\TreatmentReservation\Console\GrantManualBookingPermissionsCommand;
 use Modules\TreatmentReservation\Console\SendBeauticianAppointmentRemindersCommand;
 use Modules\TreatmentReservation\Console\SendCustomerAppointmentRemindersCommand;
 use Modules\TreatmentReservation\Console\SendCustomerFollowUpNotificationsCommand;
@@ -24,10 +25,14 @@ use Nwidart\Modules\Facades\Module;
 
 class TreatmentReservationServiceProvider extends ServiceProvider
 {
-    public function boot(): void
+    public function register(): void
     {
         $this->app->singleton(AdminPortalPreview::class);
+    }
 
+
+    public function boot(): void
+    {
         $this->app['router']->aliasMiddleware('beautician.portal', BeauticianPortalMiddleware::class);
         $this->app['router']->aliasMiddleware('beautician.portal.from_route', PortalBeauticianFromRouteMiddleware::class);
         $this->app['router']->aliasMiddleware('beautician.portal.restrict', RestrictBeauticianPortalMiddleware::class);
@@ -65,7 +70,11 @@ class TreatmentReservationServiceProvider extends ServiceProvider
             }
 
             if ($portalPreview->isActive() && $portalPreview->beautician()) {
-                $alerts = $service->forBeautician($portalPreview->beautician()->id);
+                $beautician = $portalPreview->beautician();
+                $alerts = $service->forBeautician(
+                    $beautician->id,
+                    route('admin.beauticians.portal', ['id' => $beautician->id, 'view' => 'kanban']),
+                );
             } elseif ($user->isBeauticianOnly()) {
                 $beautician = Beautician::findForUser($user->id);
                 $alerts = $beautician
@@ -102,6 +111,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
                 SendBeauticianAppointmentRemindersCommand::class,
                 SendCustomerAppointmentRemindersCommand::class,
                 SendCustomerFollowUpNotificationsCommand::class,
+                GrantManualBookingPermissionsCommand::class,
             ]);
         }
     }

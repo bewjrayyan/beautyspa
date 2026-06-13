@@ -15,7 +15,8 @@ class TreatmentBookingsReportService
         ?string $from = null,
         ?string $to = null,
         ?int $beauticianId = null,
-        ?int $categoryId = null
+        ?int $categoryId = null,
+        ?string $source = null
     ): Builder {
         $query = TreatmentBooking::query()
             ->withTreatmentProduct()
@@ -25,6 +26,11 @@ class TreatmentBookingsReportService
             ->when($to, fn (Builder $q) => $q->whereDate('appointment_date', '<=', $to))
             ->when($beauticianId, fn (Builder $q) => $q->where('beautician_id', $beauticianId))
             ->when($categoryId, fn (Builder $q) => $q->where('treatment_category_id', $categoryId))
+            ->when($source === 'manual', fn (Builder $q) => $q->whereIn('source', TreatmentBooking::manualSources()))
+            ->when($source === 'checkout', fn (Builder $q) => $q->where(function (Builder $inner) {
+                $inner->whereNull('source')
+                    ->orWhere('source', TreatmentBooking::SOURCE_CHECKOUT);
+            }))
             ->orderBy('appointment_date')
             ->orderBy('appointment_time');
 
@@ -46,9 +52,10 @@ class TreatmentBookingsReportService
         ?string $from = null,
         ?string $to = null,
         ?int $beauticianId = null,
-        ?int $categoryId = null
+        ?int $categoryId = null,
+        ?string $source = null
     ): array {
-        $base = $this->baseQuery($from, $to, $beauticianId, $categoryId);
+        $base = $this->baseQuery($from, $to, $beauticianId, $categoryId, $source);
 
         return [
             'total' => (clone $base)->count(),
@@ -69,16 +76,18 @@ class TreatmentBookingsReportService
         ?string $from = null,
         ?string $to = null,
         ?int $beauticianId = null,
-        ?int $categoryId = null
+        ?int $categoryId = null,
+        ?string $source = null
     ): StreamedResponse {
         $filename = 'treatment-bookings-' . now()->format('Y-m-d-His') . '.csv';
 
-        return response()->streamDownload(function () use ($from, $to, $beauticianId, $categoryId) {
+        return response()->streamDownload(function () use ($from, $to, $beauticianId, $categoryId, $source) {
             $handle = fopen('php://output', 'w');
 
             fputcsv($handle, [
                 'ID',
                 'Order ID',
+                'Source',
                 'Customer',
                 'Phone',
                 'Email',
@@ -92,12 +101,13 @@ class TreatmentBookingsReportService
                 'Currency',
             ]);
 
-            $this->baseQuery($from, $to, $beauticianId, $categoryId)
+            $this->baseQuery($from, $to, $beauticianId, $categoryId, $source)
                 ->chunkById(100, function ($bookings) use ($handle) {
                     foreach ($bookings as $booking) {
                         fputcsv($handle, [
                             $booking->id,
                             $booking->order_id,
+                            $booking->source ?? TreatmentBooking::SOURCE_CHECKOUT,
                             $booking->customer_full_name,
                             $booking->customer_phone,
                             $booking->customer_email,
@@ -124,9 +134,10 @@ class TreatmentBookingsReportService
         ?string $from = null,
         ?string $to = null,
         ?int $beauticianId = null,
-        ?int $categoryId = null
+        ?int $categoryId = null,
+        ?string $source = null
     ): Collection {
-        return $this->baseQuery($from, $to, $beauticianId, $categoryId)->get();
+        return $this->baseQuery($from, $to, $beauticianId, $categoryId, $source)->get();
     }
 
 
@@ -137,9 +148,10 @@ class TreatmentBookingsReportService
         ?string $from = null,
         ?string $to = null,
         ?int $beauticianId = null,
-        ?int $categoryId = null
+        ?int $categoryId = null,
+        ?string $source = null
     ): Collection {
-        return $this->baseQuery($from, $to, $beauticianId, $categoryId)
+        return $this->baseQuery($from, $to, $beauticianId, $categoryId, $source)
             ->where('status', TreatmentBooking::STATUS_COMPLETED)
             ->get()
             ->groupBy('beautician_id')

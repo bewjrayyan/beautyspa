@@ -3,6 +3,7 @@
 
     $urgencyAsModal = $urgencyAlertsAsModal ?? (
         request()->routeIs('admin.dashboard.index')
+        || request()->routeIs('admin.beauticians.portal*')
         || request()->routeIs('admin.treatment_reservations.portal')
         || request()->routeIs('admin.treatment_reservations.portal.account')
         || request()->routeIs('admin.treatment_reservations.portal.availability')
@@ -91,7 +92,11 @@
         @if ($urgencyAsModal)
             <div class="tr-urgency-alerts__footer">
                 @if (! empty($jobUrgencyAlerts['action_url']))
-                    <a href="{{ $jobUrgencyAlerts['action_url'] }}" class="btn btn-primary">
+                    <a
+                        href="{{ $jobUrgencyAlerts['action_url'] }}"
+                        class="btn btn-primary"
+                        data-urgency-action
+                    >
                         <i class="fa fa-columns" aria-hidden="true"></i>
                         {{ $jobUrgencyAlerts['action_label'] }}
                     </a>
@@ -131,6 +136,12 @@
 
                     modal.querySelectorAll('[data-dismiss-urgency]').forEach((button) => {
                         button.addEventListener('click', closeUrgencyModal);
+                    });
+
+                    modal.querySelectorAll('[data-urgency-action]').forEach((link) => {
+                        link.addEventListener('click', () => {
+                            document.body.classList.remove('tr-urgency-modal-open');
+                        });
                     });
 
                     document.addEventListener('keydown', function onEscape(event) {

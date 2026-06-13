@@ -34,6 +34,15 @@
         data-cal-preview-whatsapp-sent="{{ trans('treatmentreservation::admin.calendar.preview_whatsapp_sent') }}"
         data-cal-preview-whatsapp-failed="{{ trans('treatmentreservation::admin.calendar.preview_whatsapp_failed') }}"
         data-cal-preview-whatsapp-customer="{{ trans('treatmentreservation::admin.calendar.preview_whatsapp_customer') }}"
+        data-cal-preview-edit-manual="{{ trans('treatmentreservation::admin.manual_booking.edit_title') }}"
+        data-cal-preview-cancel-manual="{{ trans('treatmentreservation::admin.manual_booking.cancel') }}"
+        data-cal-preview-cancel-manual-confirm="{{ trans('treatmentreservation::admin.manual_booking.cancel_confirm') }}"
+        data-cal-preview-cancel-manual-success="{{ trans('treatmentreservation::admin.manual_booking.canceled') }}"
+        @hasAccess('admin.treatment_reservations.edit')
+            data-manual-booking-edit="1"
+            data-manual-booking-update-url="{{ route('admin.treatment_reservations.manual_bookings.update', ['booking' => '__ID__']) }}"
+            data-manual-booking-cancel-url="{{ route('admin.treatment_reservations.manual_bookings.cancel', ['booking' => '__ID__']) }}"
+        @endHasAccess
         data-initial-month="{{ $filters['month'] }}"
         data-initial-beautician="{{ $filters['beautician_id'] }}"
         data-initial-category="{{ $filters['treatment_category_id'] }}"
@@ -49,7 +58,20 @@
                 </div>
             </div>
 
-            <div class="tr-reservations-hero__pipeline">
+            <div class="tr-reservations-hero__actions">
+                @hasAccess('admin.treatment_reservations.create')
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm tr-manual-booking-open-btn"
+                        data-toggle="modal"
+                        data-target="#tr-manual-booking-modal"
+                    >
+                        <i class="fa fa-plus"></i>
+                        {{ trans('treatmentreservation::admin.manual_booking.open') }}
+                    </button>
+                @endHasAccess
+
+                <div class="tr-reservations-hero__pipeline">
                 <div class="tr-reservations-hero__metric tr-reservations-hero__metric--pending">
                     <span class="tr-reservations-hero__metric-value">{{ number_format($stats['pending']) }}</span>
                     <span class="tr-reservations-hero__metric-label">{{ trans('treatmentreservation::admin.kanban.pending') }}</span>
@@ -68,8 +90,21 @@
                         <span class="tr-reservations-hero__metric-label">{{ trans('treatmentreservation::admin.hero.today') }}</span>
                     </div>
                 @endif
+                </div>
             </div>
         </header>
+
+        @hasAnyAccess('admin.treatment_reservations.create', 'admin.treatment_reservations.edit')
+            @include('treatmentreservation::admin.reservations.partials.manual-booking-modal', [
+                'beauticians' => $beauticians,
+                'treatmentProducts' => $treatmentProducts,
+                'slotsUrl' => route('admin.treatment_reservations.manual_bookings.slots'),
+                'storeUrl' => route('admin.treatment_reservations.manual_bookings.store'),
+                'customersUrl' => route('admin.treatment_reservations.manual_bookings.customers'),
+                'updateUrlTemplate' => route('admin.treatment_reservations.manual_bookings.update', ['booking' => '__ID__']),
+                'cancelUrlTemplate' => route('admin.treatment_reservations.manual_bookings.cancel', ['booking' => '__ID__']),
+            ])
+        @endHasAnyAccess
 
         @if ($activeView !== 'dashboard')
             <p class="tr-view-back">

@@ -11,10 +11,19 @@ class BeauticianPortalMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $beautician = Beautician::findForUser(auth()->id());
+        $beautician = $request->attributes->get('portal_beautician')
+            ?? Beautician::findForUser(auth()->id());
 
         if (! $beautician) {
-            abort(403, 'No beautician profile is linked to your account.');
+            $user = auth()->user();
+
+            if ($user?->hasAccess('admin.treatment_reservations.index')) {
+                return redirect()->route('admin.treatment_reservations.index', [
+                    'view' => 'kanban',
+                ]);
+            }
+
+            abort(403, trans('treatmentreservation::admin.portal.no_beautician_profile'));
         }
 
         $request->attributes->set('portal_beautician', $beautician);

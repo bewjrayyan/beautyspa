@@ -1,8 +1,11 @@
 @php
     $profileColor = $beautician->profile_color ?? '#6366f1';
-    $hasPhoto = $beautician->profile_image->exists;
-    $isActive = (bool) $beautician->is_active;
     $portalUser = $user ?? auth()->user();
+    $hasPhoto = $beautician->profile_image->exists || $portalUser?->avatarUrl();
+    $avatarUrl = $beautician->profile_image->exists
+        ? $beautician->profile_image->path
+        : $portalUser?->avatarUrl();
+    $isActive = (bool) $beautician->is_active;
     $heroInsights = $heroInsights ?? [];
     $heroStats = $heroStats ?? null;
 @endphp
@@ -12,7 +15,7 @@
         <div class="bp-hero-avatar-block">
             <div class="bp-hero-avatar">
                 @if ($hasPhoto)
-                    <img src="{{ $beautician->profile_image->path }}" alt="">
+                    <img src="{{ $avatarUrl }}" alt="">
                 @else
                     <span class="bp-hero-initial" style="background-color: {{ $profileColor }};">
                         {{ $beautician->initials }}
