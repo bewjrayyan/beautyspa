@@ -519,16 +519,21 @@ function buildCalendarPreviewLabels(root) {
         reminderSent: root.dataset.calPreviewReminderSent || "Reminder sent",
         reminderDue: root.dataset.calPreviewReminderDue || "Due for reminder",
         duration: root.dataset.calPreviewDuration || "Duration",
-        durationMinutes: root.dataset.calPreviewDurationMinutes || "(:count min)",
+        durationMinutes: root.dataset.calPreviewDurationMinutes || ":count min",
         payment: root.dataset.calPreviewPayment || "Payment",
         total: root.dataset.calPreviewTotal || "Total",
         source: root.dataset.calPreviewSource || "Source",
         branch: root.dataset.calPreviewBranch || "Branch",
-        bookingId: root.dataset.calPreviewBookingId || "Booking ID",
+        bookingId: root.dataset.calPreviewBookingId || "Ref",
         session: root.dataset.calPreviewSession || "Session",
         status: root.dataset.calPreviewStatus || "Status",
         reschedule: root.dataset.calPreviewReschedule || "Reschedule",
         statusUpdateFailed: root.dataset.calPreviewStatusUpdateFailed || "Failed to update status",
+        sectionSchedule: root.dataset.calPreviewSectionSchedule || "Schedule",
+        sectionCustomer: root.dataset.calPreviewSectionCustomer || "Customer",
+        sectionTreatment: root.dataset.calPreviewSectionTreatment || "Treatment & payment",
+        sectionNotes: root.dataset.calPreviewSectionNotes || "Notes",
+        sectionStaff: root.dataset.calPreviewSectionStaff || "Specialist",
     };
 }
 
