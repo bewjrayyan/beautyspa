@@ -15,6 +15,12 @@ class CurrentUserComposer
      */
     public function compose($view)
     {
-        $view->with('currentUser', effective_admin_user() ?? auth()->user());
+        $user = auth()->user();
+
+        if ($user && request()->is('*admin*')) {
+            $user = effective_admin_user() ?? $user;
+        }
+
+        $view->with('currentUser', $user);
     }
 }

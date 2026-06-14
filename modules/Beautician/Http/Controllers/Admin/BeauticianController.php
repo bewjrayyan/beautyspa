@@ -118,8 +118,17 @@ class BeauticianController
 
     public function resetPortalPassword(int $id): RedirectResponse
     {
+        $request = request();
+
+        $request->validate([
+            'portal_password' => ['nullable', 'string', 'min:6', 'confirmed'],
+        ]);
+
         $beautician = Beautician::findOrFail($id);
-        $credentials = app(BeauticianPortalUserService::class)->resetPortalPassword($beautician);
+        $credentials = app(BeauticianPortalUserService::class)->resetPortalPassword(
+            $beautician,
+            $request->input('portal_password'),
+        );
 
         if (! $credentials) {
             return back()->withError(trans('beautician::beauticians.form.portal_reset_no_account'));

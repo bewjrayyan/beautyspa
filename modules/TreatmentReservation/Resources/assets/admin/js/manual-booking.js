@@ -1,3 +1,129 @@
+import flatpickr from "flatpickr";
+import {
+    getPhoneInputE164,
+    initModernPhoneInputs,
+} from "../../../../../Storefront/Resources/assets/public/js/lib/modernPhoneInput.js";
+import { initBeauticianPickers, resetBeauticianPicker, setBeauticianPickerValue } from "./beautician-picker.js";
+import { initManualBookingProducts } from "./manual-booking-products.js";
+
+function readProductCatalog(form) {
+    const script = form.querySelector(".tr-manual-booking-product-catalog-data");
+
+    if (!script) {
+        return [];
+    }
+
+    try {
+        return JSON.parse(script.textContent || "[]");
+    } catch (error) {
+        return [];
+    }
+}
+
+function buildAppointmentDateOptions(input, onDateChange) {
+    const options = {
+        mode: "single",
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d M Y",
+        disableMobile: true,
+        animate: true,
+        minDate: input.dataset.minDate || "today",
+        defaultDate: input.value || null,
+        appendTo: document.body,
+        onReady: (_selectedDates, _dateStr, instance) => {
+            instance.calendarContainer.classList.add("tr-manual-booking-datepicker-calendar");
+        },
+        onOpen: (_selectedDates, _dateStr, instance) => {
+            instance.config.positionElement = instance.altInput || instance.input;
+        },
+        onChange: (_selectedDates, dateStr) => {
+            input.value = dateStr;
+            onDateChange?.();
+        },
+    };
+
+    if (input.dataset.maxDate) {
+        options.maxDate = input.dataset.maxDate;
+    }
+
+    return options;
+}
+
+function initAppointmentDatePicker(input, onDateChange) {
+    if (!input || input._flatpickr) {
+        return input?._flatpickr || null;
+    }
+
+    return flatpickr(input, buildAppointmentDateOptions(input, onDateChange));
+}
+
+function setAppointmentDate(input, dateStr = "") {
+    if (!input) {
+        return;
+    }
+
+    const picker = input._flatpickr;
+
+    if (picker) {
+        if (dateStr) {
+            picker.setDate(dateStr, false);
+        } else {
+            picker.clear();
+        }
+
+        return;
+    }
+
+    input.value = dateStr;
+}
+
+function clearAppointmentDate(input) {
+    setAppointmentDate(input, "");
+}
+
+function setPhoneInputValue(input, phone = "") {
+    if (!input) {
+        return;
+    }
+
+    if (input._iti) {
+        input._iti.setNumber(phone);
+        input.dataset.fullNumber = input._iti.getNumber() || "";
+    } else {
+        input.value = phone;
+        input.dataset.fullNumber = phone;
+    }
+}
+
+function clearPhoneInput(input) {
+    setPhoneInputValue(input, "");
+}
+
+function resolvePhoneLookupQuery(input) {
+    const raw = getPhoneInputE164(input) || input?.value || "";
+
+    return raw.replace(/\D/g, "");
+}
+
+function escapeLookupHtml(value = "") {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function debounce(fn, delay = 350) {
+    let timer = null;
+
+    return (...args) => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => fn(...args), delay);
+    };
+}
+
 function initManualBookingModal() {
     document.querySelectorAll(".tr-manual-booking-modal").forEach((modal) => {
         bindManualBookingModal(modal);
@@ -15,8 +141,11 @@ function bindManualBookingModal(modal) {
 
     const portalMode = modal.dataset.portalMode === "1";
     const fixedBeauticianId = modal.dataset.fixedBeauticianId || "";
+    const beauticianPicker = form.querySelector(".tr-beautician-picker");
     const beauticianField = form.querySelector('[name="beautician_id"]');
+    const defaultBeauticianId = modal.dataset.defaultBeauticianId || "";
     const dateInput = form.querySelector('[name="appointment_date"]');
+    const appointmentDatePicker = initAppointmentDatePicker(dateInput, () => loadSlots());
     const timeInput = form.querySelector('[name="appointment_time"]');
     const bookingIdInput = form.querySelector(".tr-manual-booking-id");
     const slotsRoot = form.querySelector(".tr-manual-booking-slots");
@@ -24,14 +153,20 @@ function bindManualBookingModal(modal) {
     const submitBtn = form.querySelector('[type="submit"]');
     const titleEl = modal.querySelector(".modal-title");
     const phoneInput = form.querySelector('[name="customer_phone"]');
+    const firstNameInput = form.querySelector('[name="customer_first_name"]');
+    const lastNameInput = form.querySelector('[name="customer_last_name"]');
+    const emailInput = form.querySelector('[name="customer_email"]');
     const lookupRoot = form.querySelector(".tr-manual-booking-customer-lookup");
     const lookupList = lookupRoot?.querySelector(".tr-manual-booking-customer-lookup__list");
     const slotsUrl = modal.dataset.slotsUrl;
     const storeUrl = modal.dataset.storeUrl;
     const customersUrl = modal.dataset.customersUrl || "";
     const updateUrlTemplate = modal.dataset.updateUrlTemplate || "";
+    const productCatalog = readProductCatalog(form);
+    const productPicker = initManualBookingProducts(form, productCatalog);
     let slotsRequestId = 0;
     let lookupRequestId = 0;
+    let suppressCustomerLookup = false;
 
     const setError = (message = "") => {
         if (!errorBox) {
@@ -157,8 +292,8 @@ function bindManualBookingModal(modal) {
     };
 
     const resolveBeauticianId = () => {
-        if (portalMode) {
-            return fixedBeauticianId || beauticianField?.value || "";
+        if (portalMode && fixedBeauticianId) {
+            return fixedBeauticianId;
         }
 
         return beauticianField?.value || "";
@@ -180,7 +315,7 @@ function bindManualBookingModal(modal) {
 
         const params = { date };
 
-        if (!portalMode) {
+        if (!portalMode || !fixedBeauticianId) {
             params.beautician_id = beauticianId;
         }
 
@@ -233,9 +368,7 @@ function bindManualBookingModal(modal) {
     };
 
     const applyCustomer = (customer) => {
-        const firstNameInput = form.querySelector('[name="customer_first_name"]');
-        const lastNameInput = form.querySelector('[name="customer_last_name"]');
-        const emailInput = form.querySelector('[name="customer_email"]');
+        suppressCustomerLookup = true;
 
         if (firstNameInput) {
             firstNameInput.value = customer.customer_first_name || "";
@@ -246,7 +379,7 @@ function bindManualBookingModal(modal) {
         }
 
         if (phoneInput) {
-            phoneInput.value = customer.customer_phone || "";
+            setPhoneInputValue(phoneInput, customer.customer_phone || "");
         }
 
         if (emailInput) {
@@ -254,6 +387,24 @@ function bindManualBookingModal(modal) {
         }
 
         hideCustomerLookup();
+
+        window.setTimeout(() => {
+            suppressCustomerLookup = false;
+        }, 0);
+    };
+
+    const formatCustomerLookupMeta = (customer) => {
+        const parts = [];
+
+        if (customer.customer_phone) {
+            parts.push(customer.customer_phone);
+        }
+
+        if (customer.customer_email) {
+            parts.push(customer.customer_email);
+        }
+
+        return parts.join(" · ");
     };
 
     const renderCustomerLookup = (customers) => {
@@ -262,23 +413,26 @@ function bindManualBookingModal(modal) {
         }
 
         if (!Array.isArray(customers) || customers.length === 0) {
-            lookupList.innerHTML = `<li class="tr-manual-booking-customer-lookup__empty">${modal.dataset.customerLookupEmpty || "No matching customers found."}</li>`;
+            lookupList.innerHTML = `<li class="tr-manual-booking-customer-lookup__empty">${escapeLookupHtml(modal.dataset.customerLookupEmpty || "No matching customers found.")}</li>`;
             lookupRoot.hidden = false;
 
             return;
         }
 
         lookupList.innerHTML = customers
-            .map(
-                (customer) => `
+            .map((customer) => {
+                const fullName = `${customer.customer_first_name || ""} ${customer.customer_last_name || ""}`.trim();
+                const meta = formatCustomerLookupMeta(customer);
+
+                return `
                     <li>
                         <button type="button" class="tr-manual-booking-customer-lookup__item" data-customer='${JSON.stringify(customer).replace(/'/g, "&#39;")}'>
-                            <strong>${customer.customer_first_name || ""} ${customer.customer_last_name || ""}</strong>
-                            <span>${customer.customer_phone || ""}</span>
+                            <strong>${escapeLookupHtml(fullName)}</strong>
+                            ${meta ? `<span>${escapeLookupHtml(meta)}</span>` : ""}
                         </button>
                     </li>
-                `
-            )
+                `;
+            })
             .join("");
 
         lookupRoot.hidden = false;
@@ -298,7 +452,7 @@ function bindManualBookingModal(modal) {
         if (!customersUrl || query.length < 3) {
             hideCustomerLookup();
 
-            return;
+            return [];
         }
 
         const requestId = ++lookupRequestId;
@@ -307,48 +461,111 @@ function bindManualBookingModal(modal) {
             const response = await axios.get(customersUrl, { params: { q: query } });
 
             if (requestId !== lookupRequestId) {
-                return;
+                return [];
             }
 
-            renderCustomerLookup(response.data?.customers || []);
+            const customers = response.data?.customers || [];
+
+            if (customers.length === 1) {
+                applyCustomer(customers[0]);
+
+                return customers;
+            }
+
+            renderCustomerLookup(customers);
+
+            return customers;
         } catch (error) {
             if (requestId !== lookupRequestId) {
-                return;
+                return [];
             }
 
             hideCustomerLookup();
+
+            return [];
         }
     };
 
+    const resolveCustomerLookupQuery = (fieldName) => {
+        if (fieldName === "customer_phone") {
+            return resolvePhoneLookupQuery(phoneInput);
+        }
+
+        if (fieldName === "customer_email") {
+            return (emailInput?.value || "").trim();
+        }
+
+        if (fieldName === "customer_first_name") {
+            return (firstNameInput?.value || "").trim();
+        }
+
+        if (fieldName === "customer_last_name") {
+            return (lastNameInput?.value || "").trim();
+        }
+
+        return "";
+    };
+
+    const triggerCustomerLookup = (fieldName) => {
+        if (suppressCustomerLookup) {
+            return;
+        }
+
+        const query = resolveCustomerLookupQuery(fieldName);
+
+        if (query.length < 3) {
+            hideCustomerLookup();
+
+            return;
+        }
+
+        searchCustomers(query);
+    };
+
+    const debouncedCustomerLookup = debounce((fieldName) => {
+        triggerCustomerLookup(fieldName);
+    });
+
     const resetForm = () => {
+        suppressCustomerLookup = true;
         form.reset();
         setCreateMode();
 
-        if (portalMode && beauticianField) {
+        if (beauticianPicker) {
+            resetBeauticianPicker(
+                beauticianPicker,
+                portalMode && defaultBeauticianId ? defaultBeauticianId : ""
+            );
+        } else if (portalMode && beauticianField && fixedBeauticianId) {
             beauticianField.value = fixedBeauticianId;
         }
 
+        clearAppointmentDate(dateInput);
+        clearPhoneInput(phoneInput);
+        productPicker?.reset();
         clearSelectedSlot();
         setError("");
         hideCustomerLookup();
         renderSlotsMessage(modal.dataset.selectSchedule || "Select beautician and date first");
+        window.setTimeout(() => {
+            suppressCustomerLookup = false;
+        }, 0);
     };
 
     const fillFormForEdit = (booking) => {
+        suppressCustomerLookup = true;
         setEditMode(booking.id);
 
-        if (beauticianField && booking.beautician_id) {
+        if (beauticianPicker && booking.beautician_id) {
+            setBeauticianPickerValue(beauticianPicker, String(booking.beautician_id));
+        } else if (beauticianField && booking.beautician_id) {
             beauticianField.value = String(booking.beautician_id);
         }
 
         if (dateInput && booking.appointment_date_value) {
-            dateInput.value = booking.appointment_date_value;
+            setAppointmentDate(dateInput, booking.appointment_date_value);
         }
 
-        const firstNameInput = form.querySelector('[name="customer_first_name"]');
-        const lastNameInput = form.querySelector('[name="customer_last_name"]');
-        const emailInput = form.querySelector('[name="customer_email"]');
-        const productInput = form.querySelector('[name="product_id"]');
         const notesInput = form.querySelector('[name="notes"]');
 
         if (firstNameInput) {
@@ -360,16 +577,14 @@ function bindManualBookingModal(modal) {
         }
 
         if (phoneInput) {
-            phoneInput.value = booking.customer_phone || "";
+            setPhoneInputValue(phoneInput, booking.customer_phone || "");
         }
 
         if (emailInput) {
             emailInput.value = booking.customer_email || "";
         }
 
-        if (productInput && booking.product_id) {
-            productInput.value = String(booking.product_id);
-        }
+        productPicker?.fillFromBooking(booking);
 
         if (notesInput) {
             notesInput.value = booking.notes || "";
@@ -382,18 +597,33 @@ function bindManualBookingModal(modal) {
         setError("");
         hideCustomerLookup();
         loadSlots(booking.appointment_time || "");
+        window.setTimeout(() => {
+            suppressCustomerLookup = false;
+        }, 0);
+    };
+
+    const bindCustomerLookupField = (input, fieldName) => {
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener("input", () => debouncedCustomerLookup(fieldName));
+        input.addEventListener("blur", () => {
+            window.setTimeout(hideCustomerLookup, 150);
+        });
     };
 
     beauticianField?.addEventListener("change", () => loadSlots());
-    dateInput?.addEventListener("change", () => loadSlots());
 
-    phoneInput?.addEventListener("input", (event) => {
-        searchCustomers(event.target.value.trim());
-    });
+    if (!appointmentDatePicker) {
+        dateInput?.addEventListener("change", () => loadSlots());
+    }
 
-    phoneInput?.addEventListener("blur", () => {
-        window.setTimeout(hideCustomerLookup, 150);
-    });
+    bindCustomerLookupField(firstNameInput, "customer_first_name");
+    bindCustomerLookupField(lastNameInput, "customer_last_name");
+    bindCustomerLookupField(emailInput, "customer_email");
+    bindCustomerLookupField(phoneInput, "customer_phone");
+    phoneInput?.addEventListener("countrychange", () => debouncedCustomerLookup("customer_phone"));
 
     modal.addEventListener("hidden.bs.modal", resetForm);
 
@@ -407,8 +637,26 @@ function bindManualBookingModal(modal) {
             return;
         }
 
+        if (phoneInput?._iti && !phoneInput._iti.isValidNumber()) {
+            setError(modal.dataset.invalidPhone || "Please enter a valid phone number.");
+
+            return;
+        }
+
+        if (phoneInput?._iti) {
+            phoneInput.value = getPhoneInputE164(phoneInput) || phoneInput.value;
+        }
+
+        const productError = productPicker?.validate() || "";
+
+        if (productError) {
+            setError(productError);
+
+            return;
+        }
+
         const formData = new FormData(form);
-        const payload = Object.fromEntries(formData.entries());
+        productPicker?.appendToFormData(formData);
         const editing = isEditMode();
         const bookingId = bookingIdInput?.value || "";
 
@@ -422,9 +670,14 @@ function bindManualBookingModal(modal) {
 
             if (editing && updateUrlTemplate && bookingId) {
                 const updateUrl = updateUrlTemplate.replace("__ID__", bookingId);
-                response = await axios.put(updateUrl, payload);
+                formData.append("_method", "PUT");
+                response = await axios.post(updateUrl, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
             } else {
-                response = await axios.post(storeUrl, payload);
+                response = await axios.post(storeUrl, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
             }
 
             const redirect = response.data?.booking?.redirect;
@@ -469,6 +722,9 @@ function bindManualBookingModal(modal) {
             modal.style.display = "block";
         }
     };
+
+    initBeauticianPickers(form);
+    initModernPhoneInputs(form);
 }
 
 function openManualBookingEditor(booking, modalSelector = "") {

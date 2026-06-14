@@ -128,6 +128,18 @@ class Beautician extends Model
     }
 
 
+    public function displayAvatarUrl(): ?string
+    {
+        if ($this->profile_image->exists) {
+            return $this->profile_image->path;
+        }
+
+        $this->loadMissing('user');
+
+        return $this->user?->avatarUrl();
+    }
+
+
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->last_name}");

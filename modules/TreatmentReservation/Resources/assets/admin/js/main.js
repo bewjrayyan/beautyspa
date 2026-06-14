@@ -11,6 +11,7 @@ import {
     upsertBooking,
 } from "./kanban-helpers.js";
 import { initTreatmentAnalytics } from "./analytics.js";
+import { initCrmDashboard } from "./dashboard.js";
 import "./portal-account.js";
 import "./portal-availability.js";
 import "./manual-booking.js";
@@ -37,6 +38,7 @@ class TreatmentReservationsApp {
         this.categoryId = root.dataset.initialCategory || "";
         this.calendarInitialized = false;
         this.kanbanInitialized = false;
+        this.lastCalendarBookings = [];
 
         if (this.root.querySelector("[data-schedule-panel]")) {
             this.initScheduleTabs();
@@ -124,6 +126,7 @@ class TreatmentReservationsApp {
         this.monthLabel = document.getElementById("tr-cal-month-label");
         this.monthInput = document.getElementById("tr-month");
         this.emptyCalendarLabel = this.root.dataset.calEmptyLabel || "";
+        this.compactCalendar = !!document.querySelector("[data-crm-compact-calendar]");
 
         document.getElementById("tr-cal-prev")?.addEventListener("click", () => this.shiftMonth(-1));
         document.getElementById("tr-cal-next")?.addEventListener("click", () => this.shiftMonth(1));
@@ -165,10 +168,12 @@ class TreatmentReservationsApp {
         const response = await axios.get(`${this.calendarUrl}?${params.toString()}`);
         const bookings = response.data.bookings || [];
 
+        this.lastCalendarBookings = bookings;
         setCalendarBookings(bookings);
         this.renderCalendar(bookings);
         this.renderCalendarLegend(bookings);
         this.grid.classList.remove("tr-calendar-grid--loading");
+        this.refreshAgendaPanel?.();
     }
 
     renderCalendarLegend(bookings) {
@@ -241,26 +246,48 @@ class TreatmentReservationsApp {
                 dayBookings.length ? "tr-cal-day--has-events" : "",
             ].filter(Boolean).join(" ");
 
-            const events = dayBookings
-                .map((booking) => this.renderCalendarEvent(booking))
-                .join("");
+            const events = this.compactCalendar
+                ? this.renderCompactDayContent(dayBookings)
+                : dayBookings.map((booking) => this.renderCalendarEvent(booking)).join("");
 
-            const countBadge = dayBookings.length
+            const countBadge = !this.compactCalendar && dayBookings.length
                 ? `<span class="tr-cal-day-count">${dayBookings.length}</span>`
                 : "";
 
             cells.push(`
-                <div class="${dayClasses}">
+                <div class="${dayClasses}" data-date="${dateStr}" role="button" tabindex="0" aria-label="${dayBookings.length} bookings">
                     <div class="tr-cal-day-head">
                         <div class="tr-cal-day-num ${isToday ? "tr-cal-day-num--today" : ""}">${day}</div>
                         ${countBadge}
                     </div>
-                    <div class="tr-cal-day-events">${events || `<span class="tr-cal-empty">${this.emptyLabel()}</span>`}</div>
+                    <div class="tr-cal-day-events">${events || (this.compactCalendar ? "" : `<span class="tr-cal-empty">${this.emptyLabel()}</span>`)}</div>
                 </div>
             `);
         }
 
         this.grid.innerHTML = cells.join("");
+    }
+
+    renderCompactDayContent(dayBookings) {
+        const counts = {
+            pending: 0,
+            in_progress: 0,
+            completed: 0,
+            canceled: 0,
+        };
+
+        dayBookings.forEach((booking) => {
+            const status = booking.status || "pending";
+
+            if (counts[status] !== undefined) {
+                counts[status] += 1;
+            }
+        });
+
+        return Object.entries(counts)
+            .filter(([, count]) => count > 0)
+            .map(([status, count]) => `<span class="tr-cal-dot tr-cal-dot--${status}" title="${status}">${count}</span>`)
+            .join("");
     }
 
     renderCalendarEvent(booking) {
@@ -431,7 +458,9 @@ class TreatmentReservationsApp {
 const root = document.getElementById("tr-reservations-app");
 
 if (root) {
-    new TreatmentReservationsApp(root);
+    const reservationsApp = new TreatmentReservationsApp(root);
+    window.TRResolveBooking = resolveBooking;
+    initCrmDashboard(reservationsApp);
 }
 
 const beauticianScheduleRoot = document.getElementById("tr-beautician-schedule-app");
@@ -483,6 +512,11 @@ function buildCalendarPreviewLabels(root) {
         cancelManualConfirm: root.dataset.calPreviewCancelManualConfirm || "Cancel this manual appointment?",
         cancelManualSuccess: root.dataset.calPreviewCancelManualSuccess || "Appointment canceled",
         cancelManualFailed: root.dataset.calPreviewCancelManualFailed || "Failed to cancel appointment",
+        viewProfile: root.dataset.calPreviewViewProfile || "View profile",
+        sendReminder: root.dataset.calPreviewSendReminder || "Send reminder",
+        resendReminder: root.dataset.calPreviewResendReminder || "Resend reminder",
+        reminderSent: root.dataset.calPreviewReminderSent || "Reminder sent",
+        reminderDue: root.dataset.calPreviewReminderDue || "Due for reminder",
     };
 }
 

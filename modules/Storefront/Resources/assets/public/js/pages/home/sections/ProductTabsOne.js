@@ -1,12 +1,13 @@
 import { Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
+import { whenVisible } from "../../../support/whenVisible";
 import "../../../components/ProductCard";
 
 Alpine.data("ProductTabsOne", (tabs) => ({
     ...ProductTabsMixin(tabs),
 
     init() {
-        this.changeTab(0);
+        whenVisible(this.$el, () => this.changeTab(0));
     },
 
     url(tabIndex) {

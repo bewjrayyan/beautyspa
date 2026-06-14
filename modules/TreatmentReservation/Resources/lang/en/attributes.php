@@ -11,5 +11,9 @@ return [
         'appointment_date' => 'appointment date',
         'appointment_time' => 'appointment time',
         'notes' => 'notes',
+        'payment_status' => 'payment status',
+        'payment_receipt' => 'payment receipt',
+        'options' => 'treatment options',
+        'variations' => 'treatment variants',
     ],
 ];

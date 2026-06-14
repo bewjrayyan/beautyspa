@@ -10,6 +10,9 @@ use Modules\Order\Entities\OrderProduct;
 use Modules\Product\Entities\Product;
 use Modules\Support\Eloquent\Model;
 use Modules\Support\Money;
+use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
+use Modules\TreatmentReservation\Services\BookingCrmInsightService;
+use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 use Modules\User\Services\OneSenderWhatsAppService;
 use Modules\User\Support\PhoneNumber;
 
@@ -31,6 +34,12 @@ class TreatmentBooking extends Model
 
     public const SOURCE_PORTAL_MANUAL = 'portal_manual';
 
+    public const PAYMENT_DEPOSIT = 'deposit';
+
+    public const PAYMENT_PARTIAL = 'partial_payment';
+
+    public const PAYMENT_FULL_PAID = 'full_paid';
+
     protected $fillable = [
         'order_id',
         'source',
@@ -38,6 +47,9 @@ class TreatmentBooking extends Model
         'beautician_id',
         'treatment_category_id',
         'product_id',
+        'variant_id',
+        'product_options',
+        'product_variations',
         'customer_first_name',
         'customer_last_name',
         'customer_phone',
@@ -47,6 +59,8 @@ class TreatmentBooking extends Model
         'status',
         'total',
         'currency',
+        'payment_status',
+        'payment_receipt_file_id',
         'notes',
         'beautician_notes',
     ];
@@ -54,6 +68,8 @@ class TreatmentBooking extends Model
     protected $casts = [
         'appointment_date' => 'date',
         'total' => 'float',
+        'product_options' => 'array',
+        'product_variations' => 'array',
         'deleted_at' => 'datetime',
         'reminder_sent_at' => 'datetime',
         'customer_reminder_sent_at' => 'datetime',
@@ -81,6 +97,45 @@ class TreatmentBooking extends Model
             self::SOURCE_ADMIN_MANUAL,
             self::SOURCE_PORTAL_MANUAL,
         ];
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    public static function manualPaymentStatuses(): array
+    {
+        return [
+            self::PAYMENT_DEPOSIT,
+            self::PAYMENT_PARTIAL,
+            self::PAYMENT_FULL_PAID,
+        ];
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    public static function manualPaymentStatusesRequiringReceipt(): array
+    {
+        return [
+            self::PAYMENT_PARTIAL,
+            self::PAYMENT_FULL_PAID,
+        ];
+    }
+
+
+    public static function normalizeManualPaymentStatus(?string $status): string
+    {
+        if (in_array($status, self::manualPaymentStatuses(), true)) {
+            return $status;
+        }
+
+        return match ($status) {
+            Order::PAYMENT_PAID => self::PAYMENT_FULL_PAID,
+            Order::PAYMENT_PROCESSING => self::PAYMENT_PARTIAL,
+            default => self::PAYMENT_DEPOSIT,
+        };
     }
 
 
@@ -139,6 +194,12 @@ class TreatmentBooking extends Model
     }
 
 
+    public function paymentReceipt()
+    {
+        return $this->belongsTo(\Modules\Media\Entities\File::class, 'payment_receipt_file_id');
+    }
+
+
     public function order()
     {
         return $this->belongsTo(Order::class);
@@ -170,7 +231,7 @@ class TreatmentBooking extends Model
             ->values()
             ->all();
 
-        return $payload;
+        return app(BookingCrmInsightService::class)->enrichPayload($this, $payload);
     }
 
 
@@ -225,7 +286,14 @@ class TreatmentBooking extends Model
         return $query
             ->withActiveOrder()
             ->withTreatmentProduct()
-            ->with(['beautician.files', 'category', 'product'])
+            ->with([
+                'beautician.files',
+                'beautician.user',
+                'beautician.spaBranches',
+                'category',
+                'product.attributes.attribute',
+                'product.attributes.values.attributeValue',
+            ])
             ->whereNotNull('appointment_date')
             ->whereBetween('appointment_date', [$start->toDateString(), $end->toDateString()])
             ->whereNot('status', self::STATUS_CANCELED)
@@ -241,7 +309,7 @@ class TreatmentBooking extends Model
         return $query
             ->withActiveOrder()
             ->withTreatmentProduct()
-            ->with(['beautician.files', 'category', 'product', 'order.products.product'])
+            ->with(['beautician.files', 'beautician.user', 'beautician.spaBranches', 'category', 'product', 'order.products.product'])
             ->whereIn('status', self::kanbanStatuses())
             ->when($beauticianId, fn (Builder $q) => $q->where('beautician_id', $beauticianId))
             ->when($categoryId, fn (Builder $q) => $q->where('treatment_category_id', $categoryId))
@@ -281,6 +349,7 @@ class TreatmentBooking extends Model
             self::STATUS_PENDING => '#ea580c',
             self::STATUS_IN_PROGRESS => '#4338ca',
             self::STATUS_COMPLETED => '#047857',
+            self::STATUS_CANCELED => '#b91c1c',
             default => '#94a3b8',
         };
     }
@@ -301,6 +370,7 @@ class TreatmentBooking extends Model
     public function sharedDetailPayload(): array
     {
         $treatmentLine = $this->treatmentLineMeta();
+        $slotDurationMinutes = $this->resolveSlotDurationMinutes();
 
         return [
             'id' => $this->id,
@@ -313,22 +383,27 @@ class TreatmentBooking extends Model
             'treatment_name' => $treatmentLine['product_name'],
             'product_name' => $treatmentLine['product_name'],
             'treatment_selection' => $treatmentLine['treatment_selection'],
+            'treatment_subtitle' => $this->agendaSubtitleLine($treatmentLine, $slotDurationMinutes),
+            'slot_duration_minutes' => $slotDurationMinutes,
+            'duration_session_label' => TrLang::trans('admin.crm.agenda_duration_session', ['count' => $slotDurationMinutes]),
             'appointment_date' => $this->appointment_date?->format('d M Y'),
             'appointment_time' => $this->appointment_time,
             'time' => $this->appointment_time,
+            'appointment_end_time' => $this->appointmentEndTime(),
+            'appointment_time_range' => $this->appointmentTimeRange(),
             'beautician_id' => $this->beautician_id,
             'beautician_name' => $this->beautician?->name ?? '—',
             'beautician_job_title' => filled(trim((string) ($this->beautician?->job_title ?? '')))
                 ? trim((string) $this->beautician->job_title)
                 : null,
             'beautician_color' => $this->beautician?->profile_color ?: '#6366f1',
-            'beautician_avatar' => $this->beautician?->profile_image->exists
-                ? $this->beautician->profile_image->path
-                : null,
+            'beautician_avatar' => $this->beautician?->displayAvatarUrl(),
             'beautician_initial' => $this->beautician?->initials ?? '?',
             'category_name' => $this->category?->name,
             'category_color' => $this->category?->color ?? '#6366f1',
             'status_accent' => self::statusAccentColor($this->status),
+            'total_formatted' => Money::inDefaultCurrency($this->total ?? 0)->format(),
+            'payment_status_label' => $this->paymentStatusLabel(),
             'notes' => $this->notes,
             'beautician_notes' => $this->beautician_notes,
             'order_id' => $this->order_id,
@@ -336,14 +411,205 @@ class TreatmentBooking extends Model
                 ? route('admin.orders.show', $this->order_id)
                 : null,
             'source' => $this->source ?? self::SOURCE_CHECKOUT,
+            'source_label' => $this->sourceLabel(),
+            'spa_branch_name' => $this->spaBranchLabel(),
             'is_manual' => $this->isManualBooking(),
             'can_edit_manual' => $this->isManualEditable(),
             'can_cancel_manual' => $this->isManualEditable(),
             'customer_first_name' => $this->customer_first_name,
             'customer_last_name' => $this->customer_last_name,
             'product_id' => $this->product_id,
+            'variant_id' => $this->variant_id,
+            'product_options' => $this->product_options ?? [],
+            'product_variations' => $this->product_variations ?? [],
+            'payment_status' => $this->isManualBooking()
+                ? self::normalizeManualPaymentStatus($this->payment_status)
+                : $this->payment_status,
+            'payment_receipt_url' => $this->paymentReceipt?->path,
             'appointment_date_value' => $this->appointment_date?->format('Y-m-d'),
         ];
+    }
+
+
+    public function formattedAppointmentTime(): string
+    {
+        if (! filled($this->appointment_time)) {
+            return '';
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($this->appointment_time)->format('H:i');
+        } catch (\Throwable) {
+            return (string) $this->appointment_time;
+        }
+    }
+
+
+    public function displayAppointmentTime(): string
+    {
+        return filled($this->appointment_time) ? trim((string) $this->appointment_time) : '';
+    }
+
+
+    public function appointmentEndTime(): ?string
+    {
+        $start = $this->displayAppointmentTime();
+
+        if ($start === '') {
+            return null;
+        }
+
+        try {
+            $minutes = $this->resolveSlotDurationMinutes();
+            $parsed = \Illuminate\Support\Carbon::parse($start);
+
+            return $parsed->copy()->addMinutes($minutes)->format(
+                preg_match('/[AP]M/i', $start) ? 'g:i A' : 'H:i'
+            );
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+
+    public function appointmentTimeRange(): ?string
+    {
+        $start = $this->displayAppointmentTime();
+
+        if ($start === '') {
+            return null;
+        }
+
+        $end = $this->appointmentEndTime();
+
+        return $end ? $start . ' – ' . $end : $start;
+    }
+
+
+    public function sourceLabel(): string
+    {
+        return match ($this->source ?? self::SOURCE_CHECKOUT) {
+            self::SOURCE_ADMIN_MANUAL => TrLang::trans('admin.crm.source_admin_manual'),
+            self::SOURCE_PORTAL_MANUAL => TrLang::trans('admin.crm.source_portal_manual'),
+            default => TrLang::trans('admin.crm.source_checkout'),
+        };
+    }
+
+
+    public function spaBranchLabel(): ?string
+    {
+        if (! is_module_enabled('SpaBranch')) {
+            return null;
+        }
+
+        $this->loadMissing('beautician.spaBranches');
+
+        $names = $this->beautician?->spaBranches
+            ->pluck('name')
+            ->filter(fn ($name) => filled(trim((string) $name)))
+            ->values();
+
+        if ($names->isEmpty()) {
+            return null;
+        }
+
+        return $names->implode(', ');
+    }
+
+
+    public function ledgerLineTotal(): Money
+    {
+        if ($this->total !== null && (float) $this->total > 0) {
+            return Money::inDefaultCurrency($this->total);
+        }
+
+        $line = $this->resolveTreatmentOrderProduct();
+
+        if ($line?->line_total) {
+            return $line->line_total;
+        }
+
+        $this->loadMissing('product');
+
+        if ($this->product) {
+            return $this->product->selling_price;
+        }
+
+        return Money::inDefaultCurrency(0);
+    }
+
+
+    public function paymentStatusLabel(): string
+    {
+        $status = $this->payment_status;
+
+        if ($this->isManualBooking()) {
+            $status = self::normalizeManualPaymentStatus($status);
+            $key = 'treatmentreservation::admin.manual_booking.payment_statuses.' . $status;
+
+            return trans($key) === $key
+                ? ucfirst(str_replace('_', ' ', $status))
+                : trans($key);
+        }
+
+        $status = $status ?: Order::PAYMENT_PENDING;
+        $key = 'order::payment_statuses.' . $status;
+
+        return trans($key) === $key
+            ? ucfirst(str_replace('_', ' ', $status))
+            : trans($key);
+    }
+
+
+    public function resolveSlotDurationMinutes(): int
+    {
+        $this->loadMissing([
+            'product.attributes.attribute',
+            'product.attributes.values.attributeValue',
+        ]);
+
+        foreach ($this->product?->attributes ?? [] as $productAttribute) {
+            $slug = $productAttribute->attribute?->slug ?? '';
+
+            if (! in_array($slug, ['spa-duration', 'duration'], true)) {
+                continue;
+            }
+
+            $value = $productAttribute->values->first()?->value ?? '';
+
+            if (preg_match('/(\d+)/', (string) $value, $matches)) {
+                return max(1, (int) $matches[1]);
+            }
+        }
+
+        return BeauticianAvailabilityService::SLOT_MINUTES;
+    }
+
+
+    /**
+     * @param  array{product_name: string, treatment_selection: string|null}  $treatmentLine
+     */
+    private function agendaSubtitleLine(array $treatmentLine, int $slotDurationMinutes): ?string
+    {
+        $parts = array_values(array_filter([
+            $treatmentLine['treatment_selection'] ?? null,
+            TrLang::trans('admin.crm.agenda_duration_session', ['count' => $slotDurationMinutes]),
+        ]));
+
+        if ($parts !== []) {
+            return implode(' · ', $parts);
+        }
+
+        $fallback = array_values(array_filter([
+            $this->category?->name,
+            TrLang::trans('admin.crm.agenda_duration_session', ['count' => $slotDurationMinutes]),
+        ]));
+
+        if ($fallback !== []) {
+            return implode(' · ', $fallback);
+        }
+
+        return null;
     }
 
 
@@ -384,12 +650,74 @@ class TreatmentBooking extends Model
                     }
                 }
             }
+        } elseif ($this->isManualBooking()) {
+            $selectionParts = $this->manualSelectionSummary();
         }
 
         return [
             'product_name' => $productName,
             'treatment_selection' => $selectionParts !== [] ? implode(' · ', $selectionParts) : null,
         ];
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    private function manualSelectionSummary(): array
+    {
+        $parts = [];
+        $product = $this->relationLoaded('product')
+            ? $this->product
+            : Product::with(['options.values', 'variations.values'])->find($this->product_id);
+
+        if (! $product) {
+            return $parts;
+        }
+
+        $variations = $this->product_variations ?? [];
+
+        foreach ($product->variations as $variation) {
+            $selectedUid = $variations[$variation->uid] ?? null;
+
+            if (! $selectedUid) {
+                continue;
+            }
+
+            $value = $variation->values->firstWhere('uid', $selectedUid);
+
+            if ($value) {
+                $parts[] = $value->label;
+            }
+        }
+
+        $options = $this->product_options ?? [];
+
+        foreach ($product->options as $option) {
+            $selected = $options[$option->id] ?? null;
+
+            if ($selected === null || $selected === '') {
+                continue;
+            }
+
+            if (in_array($option->type, ['field', 'textarea', 'date', 'date_time', 'time'], true)) {
+                $parts[] = (string) $selected;
+
+                continue;
+            }
+
+            $selectedValues = is_array($selected) ? $selected : [$selected];
+
+            foreach ($selectedValues as $selectedValue) {
+                $value = $option->values->firstWhere('id', (int) $selectedValue);
+
+                if ($value) {
+                    $parts[] = $value->label;
+                }
+            }
+        }
+
+        return $parts;
     }
 
 

@@ -3,6 +3,24 @@
 use Modules\TreatmentReservation\Services\AdminPortalPreview;
 use Modules\User\Entities\User;
 
+if (! function_exists('admin_portal_preview')) {
+    /**
+     * Resolve the admin beautician portal preview service when available.
+     */
+    function admin_portal_preview(): ?AdminPortalPreview
+    {
+        if (! class_exists(AdminPortalPreview::class)) {
+            return null;
+        }
+
+        try {
+            return app(AdminPortalPreview::class);
+        } catch (Throwable) {
+            return null;
+        }
+    }
+}
+
 if (! function_exists('effective_admin_user')) {
     /**
      * User whose portal experience (sidebar, layout) should be rendered.
@@ -10,9 +28,9 @@ if (! function_exists('effective_admin_user')) {
      */
     function effective_admin_user(): ?User
     {
-        $preview = app(AdminPortalPreview::class);
+        $preview = admin_portal_preview();
 
-        if ($preview->isActive()) {
+        if ($preview?->isActive()) {
             return $preview->effectiveUser();
         }
 

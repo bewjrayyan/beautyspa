@@ -247,15 +247,16 @@
         @hasAccess('admin.treatment_reservations.portal.create')
             @include('treatmentreservation::admin.reservations.partials.manual-booking-modal', [
                 'portalMode' => true,
-                'lockedBeautician' => $beautician,
-                'treatmentProducts' => $treatmentProducts,
+                'allowBeauticianSelect' => true,
+                'beauticianPickerOptions' => $beauticianPickerOptions,
+                'defaultBeauticianId' => $beautician->id,
+                'manualBookingProductCatalog' => $manualBookingProductCatalog,
                 'modalId' => 'tr-portal-manual-booking-modal',
                 'slotsUrl' => route('admin.treatment_reservations.portal.manual_bookings.slots'),
                 'storeUrl' => route('admin.treatment_reservations.portal.manual_bookings.store'),
                 'customersUrl' => route('admin.treatment_reservations.portal.manual_bookings.customers'),
                 'updateUrlTemplate' => route('admin.treatment_reservations.portal.manual_bookings.update', ['booking' => '__ID__']),
                 'cancelUrlTemplate' => route('admin.treatment_reservations.portal.manual_bookings.cancel', ['booking' => '__ID__']),
-                'beauticians' => collect(),
             ])
         @endHasAccess
     @endif

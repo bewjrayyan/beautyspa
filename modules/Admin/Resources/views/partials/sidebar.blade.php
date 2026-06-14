@@ -1,6 +1,6 @@
 @php
     $adminHomeRoute = effective_admin_user()?->adminHomeRoute()
-        ?? (app(\Modules\TreatmentReservation\Services\AdminPortalPreview::class)->homeRoute())
+        ?? admin_portal_preview()?->homeRoute()
         ?? route('admin.dashboard.index');
 @endphp
 <aside class="main-sidebar">

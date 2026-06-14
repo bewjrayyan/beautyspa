@@ -1,28 +1,33 @@
 <?php
 
 return [
+
     'spa_branch' => 'Cawangan Spa',
     'spa_branches' => 'Cawangan Spa',
     'active' => 'Aktif',
     'inactive' => 'Tidak aktif',
     'table' => [
+
         'name' => 'Nama',
         'code' => 'Kod',
         'phone' => 'Telefon',
     ],
     'tabs' => [
+
         'group' => [
+
             'spa_branch_information' => 'Maklumat Cawangan Spa',
         ],
         'general' => 'Umum',
     ],
     'form' => [
+
         'new_branch' => 'Cawangan spa baharu',
         'no_code' => 'Tiada kod cawangan',
         'no_phone' => 'Tiada nombor telefon',
         'no_email' => 'Tiada e-mel',
         'no_address' => 'Tiada alamat lagi',
-        'hero_checkout' => 'Checkout',
+        'hero_checkout' => 'Bayar',
         'hero_visible_at_checkout' => 'Kelihatan di checkout',
         'hero_hidden_at_checkout' => 'Disembunyikan dari checkout',
         'hero_beauticians' => 'Pasukan',
@@ -31,6 +36,7 @@ return [
         'hero_created' => 'Dicipta',
         'hero_not_saved_yet' => 'Belum disimpan',
         'sections' => [
+
             'basic' => 'Butiran cawangan',
             'basic_help' => 'Nama dan kod dipaparkan kepada pelanggan semasa memilih cawangan spa.',
             'contact' => 'Hubungan & lokasi',

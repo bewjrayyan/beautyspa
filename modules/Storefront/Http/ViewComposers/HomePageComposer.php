@@ -12,6 +12,7 @@ use Modules\Slider\Entities\Slider;
 use Illuminate\Support\Facades\Cache;
 use Modules\Category\Entities\Category;
 use Modules\Media\Entities\File;
+use Modules\Meta\Support\OpenGraph;
 use Modules\Storefront\Support\GoogleReviewsSettings;
 
 class HomePageComposer
@@ -28,8 +29,15 @@ class HomePageComposer
         $sliderId = setting('storefront_slider');
         $sliderSideBannersEnabled = (bool) (int) setting('storefront_slider_banners_enabled', 1);
 
+        $slider = $sliderId ? Slider::findWithSlides($sliderId) : null;
+        $logoPath = File::find(
+            function_exists('storefront_header_logo_id')
+                ? storefront_header_logo_id()
+                : (setting('storefront_header_logo') ?: setting('admin_logo'))
+        )?->path;
+
         $view->with([
-            'slider' => $sliderId ? Slider::findWithSlides($sliderId) : null,
+            'slider' => $slider,
             'sliderBanners' => ($sliderId && $sliderSideBannersEnabled)
                 ? Banner::getSliderBanners()
                 : null,
@@ -50,6 +58,8 @@ class HomePageComposer
                 ? GoogleReviewsSettings::forHomePage()
                 : null,
             'blog' => $this->blog(),
+            'openGraph' => OpenGraph::forStore($logoPath),
+            'lcpImageUrl' => OpenGraph::absoluteUrl($slider?->slides->first()?->file?->path ?? null),
         ]);
     }
 

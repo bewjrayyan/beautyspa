@@ -4,6 +4,8 @@ namespace Modules\Storefront\Http\ViewComposers;
 
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
+use Illuminate\Support\Str;
+use Modules\Meta\Support\OpenGraph;
 use Modules\Storefront\Banner;
 use Modules\Storefront\Feature;
 use Illuminate\Support\Collection;
@@ -28,7 +30,31 @@ class ProductShowPageComposer
             'banner' => Banner::getProductPageBanner(),
             'productSchemaMarkup' => $this->schemaMarkup($product),
             'categoryBreadcrumb' => $this->getCategoryBreadCrumb($product->categories->nest()),
+            'openGraph' => $this->openGraph($product),
         ]);
+    }
+
+
+    private function openGraph(Product $product): OpenGraph
+    {
+        $variant = $product->variant;
+        $imagePath = ($variant && $variant->base_image->id)
+            ? $variant->base_image->path
+            : ($product->base_image->path ?: null);
+
+        $description = $product->meta->meta_description ?: $product->short_description;
+
+        return OpenGraph::make(
+            title: $product->meta->meta_title ?: $product->name,
+            description: $description ? (string) $description : $product->name,
+            url: $variant?->url() ?? $product->url(),
+            type: 'product',
+            image: $imagePath,
+            imageAlt: $product->name,
+            priceAmount: (string) ($variant?->selling_price->convertToCurrentCurrency()->amount()
+                ?? $product->selling_price->convertToCurrentCurrency()->amount()),
+            priceCurrency: currency(),
+        );
     }
 
 

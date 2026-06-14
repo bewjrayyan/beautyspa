@@ -4,6 +4,7 @@ namespace Modules\TreatmentReservation\Http\Controllers\Admin;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 use Modules\Beautician\Entities\Beautician;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Requests\StoreManualBookingRequest;
@@ -68,9 +69,18 @@ class ManualBookingController extends Controller
     {
         try {
             $booking = $this->manualBookings->create(
-                $request->validated(),
+                array_merge($request->validated(), [
+                    'payment_receipt' => $request->file('payment_receipt'),
+                    'options' => $request->input('options', []),
+                    'variations' => $request->input('variations', []),
+                ]),
                 $request->user(),
             );
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => collect($exception->errors())->flatten()->first(),
+                'errors' => $exception->errors(),
+            ], 422);
         } catch (\InvalidArgumentException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
@@ -92,16 +102,25 @@ class ManualBookingController extends Controller
         try {
             $booking = $this->manualBookings->update(
                 $booking,
-                $request->validated(),
+                array_merge($request->validated(), [
+                    'payment_receipt' => $request->file('payment_receipt'),
+                    'options' => $request->input('options', []),
+                    'variations' => $request->input('variations', []),
+                ]),
                 $request->user(),
             );
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => collect($exception->errors())->flatten()->first(),
+                'errors' => $exception->errors(),
+            ], 422);
         } catch (\InvalidArgumentException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
             ], 422);
         }
 
-        $freshBooking = $booking->fresh(['beautician.files', 'product', 'category']);
+        $freshBooking = $booking->fresh(['beautician.files', 'product', 'category', 'paymentReceipt']);
 
         return response()->json([
             'message' => trans('treatmentreservation::admin.manual_booking.updated'),

@@ -514,6 +514,20 @@ if (!function_exists('html_attrs')) {
     }
 }
 
+if (!function_exists('currency_symbol_fallback')) {
+    function currency_symbol_fallback(string $currencyCode): string
+    {
+        return match ($currencyCode) {
+            'MYR' => 'RM',
+            'USD' => '$',
+            'SGD' => 'S$',
+            'EUR' => '€',
+            'GBP' => '£',
+            default => $currencyCode,
+        };
+    }
+}
+
 if (!function_exists('currency_symbol')) {
     /**
      * Convert currency code to currency symbol.
@@ -525,7 +539,15 @@ if (!function_exists('currency_symbol')) {
 
     function currency_symbol(string $currencyCode): string
     {
-        return Currencies::getSymbol($currencyCode);
+        if (! class_exists(\NumberFormatter::class)) {
+            return currency_symbol_fallback($currencyCode);
+        }
+
+        try {
+            return Currencies::getSymbol($currencyCode);
+        } catch (\Throwable) {
+            return currency_symbol_fallback($currencyCode);
+        }
     }
 }
 

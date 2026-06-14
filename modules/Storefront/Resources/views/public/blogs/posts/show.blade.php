@@ -1,22 +1,6 @@
 @extends('storefront::public.layout')
 
-@section('title', trans('storefront::blog.blog_posts.blog_post'))
 @section('title', $blogPost->title)
-
- @push('meta')
-    <meta name="title" content="{{ $blogPost->meta->meta_title }}">
-    <meta name="description" content="{{ $blogPost->meta->meta_description }}">
-    <meta name="twitter:card" content="summary">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="{{ $blogPost->meta->meta_title }}">
-    <meta property="og:description" content="{{ $blogPost->meta->meta_description }}">
-    <meta property="og:image" content="{{ $blogPost->featuredImage->path }}">
-    <meta property="og:locale" content="{{ locale() }}">
-
-    @foreach (supported_locale_keys() as $code)
-        <meta property="og:locale:alternate" content="{{ $code }}">
-    @endforeach
-@endpush
 
 @section('content')
     <section class="blog-post-wrap">

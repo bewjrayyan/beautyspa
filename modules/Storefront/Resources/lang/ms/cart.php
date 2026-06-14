@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     'cart' => 'Troli',
     'my_cart' => 'Troli saya',
     '01' => '01',
@@ -9,6 +10,7 @@ return [
     'checkout' => 'Bayaran',
     'order_complete' => 'Pesanan selesai',
     'table' => [
+
         'image' => 'Imej',
         'product_name' => 'Nama rawatan/produk',
         'unit_price' => 'Harga seunit',
@@ -22,14 +24,4 @@ return [
     'looks_like_you_haven\'t_made_any_choice_yet' => 'Nampaknya anda belum memilih sebarang rawatan.',
     'continue_shopping' => 'Teruskan membeli-belah',
     'browse_treatments' => 'Cari rawatan',
-    // Legacy keys (older views / seeders)
-    'your_cart' => 'Troli anda',
-    'product' => 'Produk',
-    'price' => 'Harga',
-    'quantity' => 'Kuantiti',
-    'subtotal' => 'Jumlah kecil',
-    'coupon' => 'Kupon',
-    'apply_coupon' => 'Guna kupon',
-    'empty_cart' => 'Troli anda kosong.',
-    'empty_cart_message' => 'Tiada item dalam troli anda.',
 ];

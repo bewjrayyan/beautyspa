@@ -1,4 +1,5 @@
 @php
+    $seoMetaRendered = true;
     $seo = $seo ?? \Modules\Meta\Support\PageSeo::for($page, $fallbackImageUrl ?? null);
     $title = $seo->title();
     $description = $seo->description();

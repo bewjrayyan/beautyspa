@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Product\Entities\Product;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Services\ManualBookingProductCatalogService;
 use Modules\TreatmentReservation\Services\ReservationDashboardService;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
 use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
@@ -43,11 +44,8 @@ class PortalController extends Controller
             'todayBookingsPayload' => $todayAppointments->map->toKanbanPayload()->values(),
             'activeView' => $activeView,
             'calendarFocus' => $calendarFocus,
-            'treatmentProducts' => Product::query()
-                ->where('is_virtual', true)
-                ->where('is_active', true)
-                ->orderBy('id')
-                ->get(['id', 'treatment_category_id', 'selling_price']),
+            'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
+            'beauticianPickerOptions' => Beautician::activeListForCheckout(),
         ], $portalContext));
     }
 

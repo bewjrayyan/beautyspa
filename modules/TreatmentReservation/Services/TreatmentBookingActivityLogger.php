@@ -50,6 +50,17 @@ class TreatmentBookingActivityLogger
     }
 
 
+    public function logReminderSent(TreatmentBooking $booking): void
+    {
+        TreatmentBookingActivity::create([
+            'treatment_booking_id' => $booking->id,
+            'user_id' => auth()->id(),
+            'action' => TreatmentBookingActivity::ACTION_REMINDER_SENT,
+            'to_value' => $booking->customer_phone,
+        ]);
+    }
+
+
     public function logCreated(TreatmentBooking $booking, ?int $userId = null): void
     {
         TreatmentBookingActivity::create([

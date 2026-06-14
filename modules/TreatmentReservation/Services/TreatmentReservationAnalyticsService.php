@@ -138,14 +138,33 @@ class TreatmentReservationAnalyticsService
 
 
   /**
-   * @return array{labels: array<int, string>, amounts: array<int, float>, formatted: array<int, string>}
+   * @return array{
+   *     title: string,
+   *     metric: string,
+   *     labels: array<int, string>,
+   *     amounts: array<int, float>,
+   *     formatted: array<int, string>,
+   *     bookingCounts: array<int, int>,
+   *     currency: string
+   * }
    */
   public function revenueByBeautician(int $days = self::DEFAULT_DAYS, int $limit = 5): array
   {
     $from = Carbon::now()->subDays($days - 1)->startOfDay()->toDateString();
     $to = Carbon::now()->endOfDay()->toDateString();
 
-    $rows = TreatmentBooking::query()
+    $bookingRows = TreatmentBooking::query()
+      ->withTreatmentProduct()
+      ->selectRaw('beautician_id, COUNT(*) as booking_total')
+      ->whereDate('appointment_date', '>=', $from)
+      ->whereDate('appointment_date', '<=', $to)
+      ->whereNot('status', TreatmentBooking::STATUS_CANCELED)
+      ->whereNotNull('beautician_id')
+      ->groupBy('beautician_id')
+      ->get()
+      ->keyBy('beautician_id');
+
+    $revenueRows = TreatmentBooking::query()
       ->withTreatmentProduct()
       ->selectRaw('beautician_id, SUM(total) as revenue_total')
       ->where('status', TreatmentBooking::STATUS_COMPLETED)
@@ -153,27 +172,75 @@ class TreatmentReservationAnalyticsService
       ->whereDate('appointment_date', '<=', $to)
       ->whereNotNull('beautician_id')
       ->groupBy('beautician_id')
-      ->orderByDesc('revenue_total')
-      ->limit($limit)
-      ->get();
+      ->get()
+      ->keyBy('beautician_id');
+
+    $beauticianIds = $bookingRows->keys()
+      ->merge($revenueRows->keys())
+      ->unique()
+      ->values();
+
+    if ($beauticianIds->isEmpty()) {
+      return [
+        'title' => trans('treatmentreservation::admin.analytics.revenue_by_beautician'),
+        'metric' => 'revenue',
+        'labels' => [],
+        'amounts' => [],
+        'formatted' => [],
+        'bookingCounts' => [],
+        'currency' => setting('default_currency'),
+      ];
+    }
 
     $beauticians = Beautician::query()
-      ->whereIn('id', $rows->pluck('beautician_id'))
-      ->select('beauticians.id')
-      ->selectRaw(Beautician::sqlFullName() . ' as name')
-      ->pluck('name', 'id');
+      ->whereIn('id', $beauticianIds)
+      ->orderBy('first_name')
+      ->orderBy('last_name')
+      ->get(['id', 'first_name', 'last_name'])
+      ->mapWithKeys(fn (Beautician $beautician) => [$beautician->id => $beautician->name]);
 
+    $rows = $beauticianIds
+      ->map(function ($beauticianId) use ($bookingRows, $revenueRows) {
+        return [
+          'beautician_id' => (int) $beauticianId,
+          'booking_total' => (int) ($bookingRows[$beauticianId]->booking_total ?? 0),
+          'revenue_total' => (float) ($revenueRows[$beauticianId]->revenue_total ?? 0),
+        ];
+      })
+      ->sortByDesc(fn (array $row) => $row['revenue_total'] > 0 ? $row['revenue_total'] : $row['booking_total'])
+      ->take($limit)
+      ->values();
+
+    $useRevenueMetric = $rows->sum('revenue_total') > 0;
     $labels = [];
     $amounts = [];
     $formatted = [];
+    $bookingCounts = [];
 
     foreach ($rows as $row) {
-      $labels[] = $beauticians[$row->beautician_id] ?? ('#' . $row->beautician_id);
-      $amounts[] = (float) $row->revenue_total;
-      $formatted[] = Money::inDefaultCurrency($row->revenue_total)->format();
+      $labels[] = $beauticians[$row['beautician_id']] ?? ('#' . $row['beautician_id']);
+      $bookingCounts[] = $row['booking_total'];
+
+      if ($useRevenueMetric) {
+        $amounts[] = $row['revenue_total'];
+        $formatted[] = Money::inDefaultCurrency($row['revenue_total'])->format();
+      } else {
+        $amounts[] = (float) $row['booking_total'];
+        $formatted[] = (string) $row['booking_total'];
+      }
     }
 
-    return compact('labels', 'amounts', 'formatted');
+    return [
+      'title' => $useRevenueMetric
+        ? trans('treatmentreservation::admin.analytics.revenue_by_beautician')
+        : trans('treatmentreservation::admin.analytics.bookings_by_beautician'),
+      'metric' => $useRevenueMetric ? 'revenue' : 'bookings',
+      'labels' => $labels,
+      'amounts' => $amounts,
+      'formatted' => $formatted,
+      'bookingCounts' => $bookingCounts,
+      'currency' => setting('default_currency'),
+    ];
   }
 
 

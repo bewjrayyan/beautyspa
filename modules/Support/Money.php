@@ -182,18 +182,31 @@ class Money implements JsonSerializable
         $currency = $currency ?: currency();
         $locale = $locale ?: locale();
 
-        $numberFormatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+        if (class_exists(NumberFormatter::class)) {
+            $numberFormatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
 
-        $amount = $numberFormatter->formatCurrency($this->amount, $currency);
+            $amount = $numberFormatter->formatCurrency($this->amount, $currency);
 
-        /**
-         * Fix: Hungarian Forint outputs wrong currency format
-         */
-        if (currency() === 'HUF') {
-            $amount = str_replace(',00', '', $amount);
+            /**
+             * Fix: Hungarian Forint outputs wrong currency format
+             */
+            if (currency() === 'HUF') {
+                $amount = str_replace(',00', '', $amount);
+            }
+
+            return $amount;
         }
 
-        return $amount;
+        return $this->formatWithoutIntl($currency);
+    }
+
+
+    private function formatWithoutIntl(string $currency): string
+    {
+        $precision = Currency::subunit($currency);
+        $formatted = number_format((float) $this->amount, $precision, '.', ',');
+
+        return currency_symbol_fallback($currency) . $formatted;
     }
 
 

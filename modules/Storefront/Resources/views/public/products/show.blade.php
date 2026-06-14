@@ -2,25 +2,6 @@
 
 @section('title', $product->name)
 
-@push('meta')
-    <meta name="title" content="{{ $product->meta->meta_title ?: $product->name }}">
-    <meta name="description" content="{{ $product->meta->meta_description ?: $product->short_description }}">
-    <meta name="twitter:card" content="summary">
-    <meta property="og:type" content="product">
-    <meta property="og:url" content="{{ $product->variant?->url() ?? $product->url() }}">
-    <meta property="og:title" content="{{ $product->meta->meta_title ?: $product->name }}">
-    <meta property="og:description" content="{{ $product->meta->meta_description ?: $product->short_description }}">
-    <meta property="og:image" content="{{ ($product->variant && $product->variant->base_image->id) ? $product->variant->base_image?->path : $product->base_image?->path ?? asset('build/assets/image-placeholder.png') }}">
-    <meta property="og:locale" content="{{ locale() }}">
-
-    @foreach (supported_locale_keys() as $code)
-        <meta property="og:locale:alternate" content="{{ $code }}">
-    @endforeach
-
-    <meta property="product:price:amount" content="{{ $product->variant?->selling_price->convertToCurrentCurrency()->amount() ?? $product->selling_price->convertToCurrentCurrency()->amount() }}">
-    <meta property="product:price:currency" content="{{ currency() }}">
-@endpush
-
 @section('breadcrumb')
     @if (!$categoryBreadcrumb)
         <li><a href="{{ storefront_route('products.index') }}">{{ products_listing_title() }}</a></li>

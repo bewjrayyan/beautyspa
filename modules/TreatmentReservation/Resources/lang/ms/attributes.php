@@ -11,5 +11,9 @@ return [
         'appointment_date' => 'tarikh temujanji',
         'appointment_time' => 'masa temujanji',
         'notes' => 'nota',
+        'payment_status' => 'status bayaran',
+        'payment_receipt' => 'resit bayaran',
+        'options' => 'pilihan rawatan',
+        'variations' => 'varian rawatan',
     ],
 ];

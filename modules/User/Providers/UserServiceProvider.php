@@ -17,6 +17,7 @@ use Modules\User\Sentinel\SentinelAuthentication;
 use Modules\User\Console\ProcessOneSenderOutboundQueueCommand;
 use Modules\User\Http\ViewComposers\AuthLayoutComposer;
 use Modules\User\Http\ViewComposers\CurrentUserComposer;
+use Throwable;
 
 class UserServiceProvider extends ServiceProvider
 {
@@ -58,10 +59,20 @@ class UserServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(Authentication::class, function ($app) {
-            return new PortalPreviewAuthentication(
-                new SentinelAuthentication(),
-                $app->make(\Modules\TreatmentReservation\Services\AdminPortalPreview::class),
-            );
+            $auth = new SentinelAuthentication();
+
+            if (! class_exists(\Modules\TreatmentReservation\Services\AdminPortalPreview::class)) {
+                return $auth;
+            }
+
+            try {
+                return new PortalPreviewAuthentication(
+                    $auth,
+                    $app->make(\Modules\TreatmentReservation\Services\AdminPortalPreview::class),
+                );
+            } catch (Throwable) {
+                return $auth;
+            }
         });
     }
 

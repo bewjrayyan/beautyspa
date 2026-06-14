@@ -14,6 +14,8 @@ class BeauticianAvailabilityService
 {
     public const SLOT_MINUTES = 60;
 
+    public const CRM_DAY_OFF_NOTE = 'crm_dashboard_day_off';
+
     /**
      * @return array<int, array{day_of_week: int, start_time: string, end_time: string}>
      */
@@ -111,6 +113,48 @@ class BeauticianAvailabilityService
             ->where('beautician_id', $beauticianId)
             ->where('id', $blockId)
             ->delete();
+    }
+
+
+    public function hasCrmDayOff(int $beauticianId, ?string $date = null): bool
+    {
+        $date = $date ?? today()->toDateString();
+
+        return BeauticianBlockedTime::query()
+            ->where('beautician_id', $beauticianId)
+            ->whereDate('block_date', $date)
+            ->where('note', self::CRM_DAY_OFF_NOTE)
+            ->exists();
+    }
+
+
+    public function setCrmDayOff(int $beauticianId, string $date, bool $off): void
+    {
+        $existing = BeauticianBlockedTime::query()
+            ->where('beautician_id', $beauticianId)
+            ->whereDate('block_date', $date)
+            ->where('note', self::CRM_DAY_OFF_NOTE)
+            ->first();
+
+        if ($off) {
+            if ($existing) {
+                return;
+            }
+
+            $hours = $this->workingHoursFor($beauticianId)
+                ->firstWhere('day_of_week', \Illuminate\Support\Carbon::parse($date)->dayOfWeek);
+
+            $start = $hours?->start_time ?? '06:00';
+            $end = $hours?->end_time ?? '22:00';
+
+            $this->addBlockedTime($beauticianId, $date, $start, $end, self::CRM_DAY_OFF_NOTE);
+
+            return;
+        }
+
+        if ($existing) {
+            $this->removeBlockedTime($beauticianId, $existing->id);
+        }
     }
 
 

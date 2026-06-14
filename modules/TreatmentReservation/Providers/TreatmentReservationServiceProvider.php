@@ -11,6 +11,7 @@ use Modules\TreatmentReservation\Console\SendBeauticianAppointmentRemindersComma
 use Modules\TreatmentReservation\Console\SendCustomerAppointmentRemindersCommand;
 use Modules\TreatmentReservation\Console\SendCustomerFollowUpNotificationsCommand;
 use Modules\TreatmentReservation\Console\SyncTreatmentBookingsCommand;
+use Modules\TreatmentReservation\Console\SyncTreatmentProductDurationsCommand;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalMiddleware;
 use Modules\TreatmentReservation\Http\Middleware\PortalBeauticianFromRouteMiddleware;
@@ -112,6 +113,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
                 SendCustomerAppointmentRemindersCommand::class,
                 SendCustomerFollowUpNotificationsCommand::class,
                 GrantManualBookingPermissionsCommand::class,
+                SyncTreatmentProductDurationsCommand::class,
             ]);
         }
     }

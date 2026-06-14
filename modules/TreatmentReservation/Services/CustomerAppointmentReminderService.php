@@ -5,6 +5,7 @@ namespace Modules\TreatmentReservation\Services;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 use Modules\User\Services\OneSenderWhatsAppService;
 
 class CustomerAppointmentReminderService
@@ -40,13 +41,91 @@ class CustomerAppointmentReminderService
                         continue;
                     }
 
-                    if ($this->sendReminder($booking)) {
+                    if ($this->deliverReminder($booking)) {
                         $sent++;
                     }
                 }
             });
 
         return $sent;
+    }
+
+
+    public function sendManualReminder(TreatmentBooking $booking, bool $resend = false): bool
+    {
+        if (! setting('whatsapp_customer_reminder_enabled', true)) {
+            throw new \InvalidArgumentException(TrLang::trans('admin.crm.reminder_disabled'));
+        }
+
+        if (! OneSenderWhatsAppService::isConfigured()) {
+            throw new \InvalidArgumentException(TrLang::trans('admin.calendar.whatsapp_not_configured'));
+        }
+
+        if (! $this->canSendReminder($booking)) {
+            throw new \InvalidArgumentException(TrLang::trans('admin.crm.reminder_not_eligible'));
+        }
+
+        if ($resend && $booking->customer_reminder_sent_at) {
+            TreatmentBooking::query()
+                ->whereKey($booking->id)
+                ->update(['customer_reminder_sent_at' => null]);
+
+            $booking->refresh();
+        }
+
+        return $this->deliverReminder($booking, logActivity: true);
+    }
+
+
+    public function canSendReminder(TreatmentBooking $booking): bool
+    {
+        $phone = trim((string) $booking->customer_phone);
+
+        if ($phone === ''
+            || ! $booking->appointment_date
+            || ! $booking->appointment_time
+            || ! in_array($booking->status, [
+                TreatmentBooking::STATUS_PENDING,
+                TreatmentBooking::STATUS_IN_PROGRESS,
+            ], true)) {
+            return false;
+        }
+
+        return OneSenderWhatsAppService::isConfigured()
+            && (bool) setting('whatsapp_customer_reminder_enabled', true);
+    }
+
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function reminderMeta(TreatmentBooking $booking): array
+    {
+        $sentAt = $booking->customer_reminder_sent_at;
+
+        return [
+            'customer_reminder_sent_at' => $sentAt?->toIso8601String(),
+            'customer_reminder_sent_label' => $sentAt
+                ? $sentAt->format('d M Y, H:i')
+                : null,
+            'reminder_sent' => $sentAt !== null,
+            'reminder_due' => $this->isDueForAutomaticReminder($booking),
+            'can_send_reminder' => $this->canSendReminder($booking),
+            'can_resend_reminder' => $this->canSendReminder($booking) && $sentAt !== null,
+        ];
+    }
+
+
+    private function isDueForAutomaticReminder(TreatmentBooking $booking): bool
+    {
+        if ($booking->customer_reminder_sent_at || ! $this->canSendReminder($booking)) {
+            return false;
+        }
+
+        $leadMinutes = max(15, (int) setting('whatsapp_customer_reminder_minutes', 120));
+        $windowEnd = now()->addMinutes($leadMinutes);
+
+        return $this->startsWithinWindow($booking, $windowEnd);
     }
 
 
@@ -62,7 +141,7 @@ class CustomerAppointmentReminderService
     }
 
 
-    private function sendReminder(TreatmentBooking $booking): bool
+    private function deliverReminder(TreatmentBooking $booking, bool $logActivity = false): bool
     {
         $phone = trim((string) $booking->customer_phone);
 
@@ -76,7 +155,7 @@ class CustomerAppointmentReminderService
                 $this->buildMessage($booking),
                 [
                     'source' => 'treatment.booking.reminder',
-                    'dedupe_key' => 'booking:' . $booking->id . ':reminder',
+                    'dedupe_key' => 'booking:' . $booking->id . ':reminder:' . now()->format('YmdHi'),
                 ]
             );
 
@@ -84,6 +163,10 @@ class CustomerAppointmentReminderService
                 $this->releaseReminderClaim($booking);
 
                 return false;
+            }
+
+            if ($logActivity) {
+                app(TreatmentBookingActivityLogger::class)->logReminderSent($booking);
             }
 
             return true;
@@ -94,7 +177,7 @@ class CustomerAppointmentReminderService
                 'message' => $exception->getMessage(),
             ]);
 
-            return false;
+            throw $exception;
         }
     }
 

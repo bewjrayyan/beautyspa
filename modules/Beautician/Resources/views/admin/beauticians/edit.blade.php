@@ -65,6 +65,18 @@
             'selectedSpaBranchIds' => $selectedSpaBranchIds ?? [],
         ]) !!}
     </form>
+
+    <form
+        id="beautician-reset-portal-form"
+        method="POST"
+        action="{{ route('admin.beauticians.reset_portal_password', $beautician) }}"
+        class="hidden"
+        hidden
+    >
+        @csrf
+        <input type="hidden" name="portal_password" value="">
+        <input type="hidden" name="portal_password_confirmation" value="">
+    </form>
 @endsection
 
 @push('globals')

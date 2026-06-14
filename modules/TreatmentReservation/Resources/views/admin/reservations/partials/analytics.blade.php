@@ -41,7 +41,14 @@
         ])
     </div>
 
-    <div class="tr-analytics-charts box" id="tr-analytics">
+    <div
+        class="tr-analytics-charts box"
+        id="tr-analytics"
+        data-chart-empty="{{ trans('treatmentreservation::admin.analytics.chart_empty') }}"
+        data-chart-revenue-trend-empty="{{ trans('treatmentreservation::admin.analytics.revenue_trend_empty') }}"
+        data-chart-label-revenue="{{ trans('treatmentreservation::admin.analytics.chart_label_revenue') }}"
+        data-chart-label-bookings="{{ trans('treatmentreservation::admin.analytics.chart_label_bookings') }}"
+    >
         <div class="tr-analytics-charts__grid">
             <div class="tr-analytics-chart">
                 <h5>{{ trans('treatmentreservation::admin.analytics.revenue_trend') }}</h5>

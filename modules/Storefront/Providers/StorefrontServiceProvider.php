@@ -12,6 +12,7 @@ use Modules\Storefront\Http\ViewComposers\LayoutComposer;
 use Modules\Storefront\Http\ViewComposers\HomePageComposer;
 use Modules\Storefront\Http\ViewComposers\AuthLayoutComposer;
 use Modules\Storefront\Http\ViewComposers\StorefrontTabsComposer;
+use Modules\Storefront\Http\ViewComposers\BlogPostShowComposer;
 use Modules\Storefront\Http\ViewComposers\ProductShowPageComposer;
 use Modules\Storefront\Http\ViewComposers\ProductIndexPageComposer;
 
@@ -39,6 +40,7 @@ class StorefrontServiceProvider extends ServiceProvider
         View::composer('storefront::public.home.index', HomePageComposer::class);
         View::composer('storefront::public.products.index', ProductIndexPageComposer::class);
         View::composer('storefront::public.products.show', ProductShowPageComposer::class);
+        View::composer('storefront::public.blogs.posts.show', BlogPostShowComposer::class);
         View::composer('storefront::admin.storefront.tabs.*', StorefrontTabsComposer::class);
 
         Paginator::defaultView('storefront::public.pagination');

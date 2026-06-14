@@ -229,6 +229,23 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
         booking.can_cancel_manual && options.manualBookingEditEnabled
             ? `<button type="button" class="btn btn-danger btn-sm tr-calendar-event-preview__cancel-manual" data-booking-id="${escapeHtml(String(booking.id))}"><i class="fa fa-times"></i> ${escapeHtml(labels.cancelManual || "Cancel appointment")}</button>`
             : "";
+    const profileBtn = booking.customer_phone || booking.id
+        ? `<button type="button" class="btn btn-default btn-sm tr-calendar-event-preview__profile" data-customer-profile data-booking-id="${escapeHtml(String(booking.id))}"><i class="fa fa-user"></i> ${escapeHtml(labels.viewProfile || "View profile")}</button>`
+        : "";
+    const reminderBtn = booking.can_send_reminder && options.manualBookingEditEnabled
+        ? `<button type="button" class="btn btn-warning btn-sm tr-calendar-event-preview__reminder" data-send-reminder data-booking-id="${escapeHtml(String(booking.id))}" data-resend="${booking.reminder_sent ? "1" : "0"}"><i class="fa fa-bell"></i> ${escapeHtml(booking.reminder_sent ? (labels.resendReminder || "Resend reminder") : (labels.sendReminder || "Send reminder"))}</button>`
+        : "";
+    const insightBlock = (booking.customer_history_label || booking.loyalty_tier_name)
+        ? `<div class="tr-calendar-event-preview__insights">
+            ${booking.customer_history_label ? `<span>${escapeHtml(booking.customer_history_label)}</span>` : ""}
+            ${booking.loyalty_tier_name ? `<span><i class="fa fa-star"></i> ${escapeHtml(booking.loyalty_tier_name)}</span>` : ""}
+        </div>`
+        : "";
+    const reminderStatus = booking.reminder_sent
+        ? `<div class="tr-calendar-event-preview__reminder-status tr-calendar-event-preview__reminder-status--sent">${escapeHtml(labels.reminderSent || "Reminder sent")}${booking.customer_reminder_sent_label ? ` · ${escapeHtml(booking.customer_reminder_sent_label)}` : ""}</div>`
+        : (booking.reminder_due
+            ? `<div class="tr-calendar-event-preview__reminder-status tr-calendar-event-preview__reminder-status--due">${escapeHtml(labels.reminderDue || "Due for reminder")}</div>`
+            : "");
     const notesSection = options.allowBeauticianNotes
         ? `
             <div class="tr-calendar-event-preview__notes">
@@ -264,6 +281,8 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             <div class="tr-calendar-event-preview__header">
                 <span class="tr-calendar-event-preview__status tr-calendar-event-preview__status--${status}">${escapeHtml(statusText)}</span>
             </div>
+            ${insightBlock}
+            ${reminderStatus}
             ${beauticianBlock}
             <dl class="tr-calendar-event-preview__details">
                 <div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.date)}</dt><dd>${escapeHtml(booking.appointment_date || booking.date || "—")}</dd></div>
@@ -277,8 +296,10 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             </dl>
             ${notesSection}
             <div class="tr-calendar-event-preview__actions">
+                ${profileBtn}
                 ${manualEditBtn}
                 ${manualCancelBtn}
+                ${reminderBtn}
                 ${whatsappBtn}
                 ${orderLink}
             </div>
@@ -326,7 +347,7 @@ let previewResolveBooking = null;
 
 function findClickableBookingTarget(target) {
     return target.closest(
-        ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable"
+        ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable, .tr-crm-appointment, .tr-crm-ledger__row--clickable, .tr-crm-drawer-booking, .tr-crm-agenda-card__body"
     );
 }
 
@@ -350,6 +371,39 @@ function openBookingPreviewFromElement(element) {
     openCalendarEventPreview(booking, previewLabels, previewOptions);
 }
 
+export async function sendBookingWhatsApp(bookingId, { whatsappUrlTemplate = "", labels = {} } = {}) {
+    if (!bookingId || !whatsappUrlTemplate || !window.axios) {
+        return {
+            ok: false,
+            message: labels.whatsappFailed || "Failed to send WhatsApp message",
+        };
+    }
+
+    try {
+        const url = whatsappUrlTemplate.replace("__ID__", bookingId);
+        const response = await window.axios.post(url);
+        const booking = response.data?.booking;
+
+        if (booking) {
+            upsertBooking(booking);
+        }
+
+        return {
+            ok: true,
+            message: response.data?.message || labels.whatsappSent || "WhatsApp message sent",
+            booking,
+        };
+    } catch (error) {
+        return {
+            ok: false,
+            message:
+                error.response?.data?.message ||
+                labels.whatsappFailed ||
+                "Failed to send WhatsApp message",
+        };
+    }
+}
+
 async function sendCustomerWhatsApp(button) {
     const bookingId = button.dataset.bookingId;
     const whatsappUrlTemplate = previewOptions.whatsappUrlTemplate;
@@ -363,26 +417,21 @@ async function sendCustomerWhatsApp(button) {
     button.disabled = true;
     button.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${escapeHtml(previewLabels.whatsappSending || "Sending…")}`;
 
-    try {
-        const url = whatsappUrlTemplate.replace("__ID__", bookingId);
-        const response = await window.axios.post(url);
-        const booking = response.data?.booking;
+    const result = await sendBookingWhatsApp(bookingId, {
+        whatsappUrlTemplate,
+        labels: previewLabels,
+    });
 
-        if (booking) {
-            upsertBooking(booking);
-            openCalendarEventPreview(booking, previewLabels, previewOptions);
+    if (result.ok) {
+        if (result.booking) {
+            openCalendarEventPreview(result.booking, previewLabels, previewOptions);
         }
 
-        const message = response.data?.message || previewLabels.whatsappSent || "WhatsApp message sent";
-
-        window.notify?.success?.(message) || alert(message);
-    } catch (error) {
-        const message =
-            error.response?.data?.message ||
-            previewLabels.whatsappFailed ||
-            "Failed to send WhatsApp message";
-
-        window.notify?.error?.(message) || alert(message);
+        window.notify?.success?.(result.message) || alert(result.message);
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    } else {
+        window.notify?.error?.(result.message) || alert(result.message);
         button.disabled = false;
         button.innerHTML = originalHtml;
     }
@@ -496,6 +545,10 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
             return;
         }
 
+        if (event.target.closest("[data-agenda-status], [data-agenda-status-wrap]")) {
+            return;
+        }
+
         const saveButton = event.target.closest(".tr-calendar-event-preview__save-notes");
 
         if (saveButton) {
@@ -553,7 +606,7 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
 
     document.addEventListener("keydown", (event) => {
         const card = event.target.closest(
-            ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable"
+            ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable, .tr-crm-appointment, .tr-crm-ledger__row--clickable, .tr-crm-drawer-booking, .tr-crm-agenda-card__body"
         );
         const bookingId = getBookingIdFromElement(card);
 

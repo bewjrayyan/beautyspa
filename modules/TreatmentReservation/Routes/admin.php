@@ -74,6 +74,24 @@ Route::post('treatment-reservations/{id}/whatsapp', [
     'middleware' => 'can:admin.treatment_reservations.edit',
 ]);
 
+Route::get('treatment-reservations/crm/customers/profile', [
+    'as' => 'admin.treatment_reservations.crm.customer_profile',
+    'uses' => 'ReservationController@customerProfile',
+    'middleware' => 'can:admin.treatment_reservations.index',
+]);
+
+Route::post('treatment-reservations/{id}/reminder', [
+    'as' => 'admin.treatment_reservations.send_reminder',
+    'uses' => 'ReservationController@sendCustomerReminder',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
+Route::patch('treatment-reservations/crm/specialists/{beautician}/availability', [
+    'as' => 'admin.treatment_reservations.crm.specialist_availability',
+    'uses' => 'ReservationController@toggleSpecialistAvailability',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
 // Legacy / mistaken URL (route name suggests treatment-reservations/portal).
 Route::get('treatment-reservations/portal', function () {
     return redirect()->route('admin.treatment_reservations.portal');

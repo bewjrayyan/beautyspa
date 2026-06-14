@@ -5,6 +5,48 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.53' => [
+        'en' => [
+            'summary' => 'Treatment Reservations CRM dashboard with customer profiles and appointment reminders.',
+            'changes' => [
+                'Add CRM dashboard aligned with mockup: KPIs, pipeline, specialists, ledger, calendar agenda.',
+                'Enrich agenda cards with duration, clinical context, loyalty tier, visit history, and inline alerts.',
+                'Add specialist availability toggle, WhatsApp quick actions, and pipeline drag-and-drop.',
+                'Add customer CRM profile drawer with visit history, upcoming bookings, and reminder queue.',
+                'Add manual WhatsApp appointment reminders with status badges and activity logging.',
+                'Add CRM polish: date-filter-aware labels, permission gates, search UX, and validation command.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Papan pemuka CRM Tempahan Rawatan dengan profil pelanggan dan peringatan temujanji.',
+            'changes' => [
+                'Tambah papan pemuka CRM selaras mockup: KPI, pipeline, pakar, lejar, agenda kalendar.',
+                'Perkaya kad agenda dengan tempoh, konteks klinikal, tier loyalty, sejarah lawatan, dan amaran inline.',
+                'Tambah togol ketersediaan pakar, tindakan WhatsApp pantas, dan seret-lepas pipeline.',
+                'Tambah laci profil pelanggan CRM dengan sejarah lawatan, temujanji akan datang, dan giliran peringatan.',
+                'Tambah peringatan temujanji WhatsApp manual dengan lencana status dan log aktiviti.',
+                'Tambah polish CRM: label ikut penapis tarikh, kawalan kebenaran, carian, dan arahan pengesahan.',
+            ],
+        ],
+    ],
+    '4.7.52' => [
+        'en' => [
+            'summary' => 'Hotfix for production 500 errors after v4.7.51.',
+            'changes' => [
+                'Fix duplicate Cart import in CheckoutController that could fatal-error checkout routes.',
+                'Harden portal preview helpers so storefront and admin keep working if preview services are unavailable.',
+                'Register AdminPortalPreview earlier and only apply effective_admin_user on admin requests.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hotfix ralat 500 production selepas v4.7.51.',
+            'changes' => [
+                'Baiki import Cart pendua dalam CheckoutController yang boleh menyebabkan fatal error pada checkout.',
+                'Kukuhkan helper pratonton portal supaya storefront dan admin kekal berfungsi jika servis pratonton tidak tersedia.',
+                'Daftar AdminPortalPreview lebih awal dan gunakan effective_admin_user hanya pada permintaan admin.',
+            ],
+        ],
+    ],
     '4.7.51' => [
         'en' => [
             'summary' => 'Beautician job titles master data, portal preview, and admin UX fixes.',

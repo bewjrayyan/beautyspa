@@ -3,6 +3,7 @@
 
 @import "portal-account-page";
 @import "portal-dashboard";
+@import "beautician-picker";
 @import "manual-booking";
 
 $tr-kanban-status-colors: (
@@ -2444,6 +2445,38 @@ body.tr-calendar-event-preview-open {
             max-width: 360px;
             margin: 0 auto;
         }
+
+        &.is-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            border: 1px dashed #e2e8f0;
+        }
+    }
+
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 24px;
+        text-align: center;
+        color: #64748b;
+
+        i {
+            font-size: 28px;
+            color: #94a3b8;
+        }
+
+        p {
+            margin: 0;
+            max-width: 280px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
     }
 }
 
@@ -2499,3 +2532,4 @@ body.tr-calendar-event-preview-open {
 }
 
 @import "urgency-alerts";
+@import "dashboard-crm";

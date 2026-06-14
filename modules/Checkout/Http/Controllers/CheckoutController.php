@@ -10,7 +10,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\View\View;
-use Modules\Cart\Facades\Cart;
 use Modules\Payment\Facades\Gateway;
 use Modules\Payment\Services\ChipPaymentMethodConfig;
 use Modules\Payment\Services\ChipPaymentMethodsResolver;

@@ -15,6 +15,7 @@ use Modules\Media\Entities\File;
 use Modules\Menu\MegaMenu\MegaMenu;
 use Illuminate\Support\Facades\Cache;
 use Modules\Category\Entities\Category;
+use Modules\Meta\Support\OpenGraph;
 use Modules\Product\Entities\SearchTerm;
 use Modules\Product\Services\SearchTermService;
 
@@ -65,7 +66,14 @@ class LayoutComposer
             'copyrightText' => $this->getCopyrightText(),
             'acceptedPaymentMethodsImage' => $this->getAcceptedPaymentMethodsImage(),
             'schemaMarkup' => $this->getSchemaMarkup(),
+            'openGraph' => $this->getOpenGraph(),
         ]);
+    }
+
+
+    private function getOpenGraph(): OpenGraph
+    {
+        return OpenGraph::forStore($this->getHeaderLogo());
     }
 
 

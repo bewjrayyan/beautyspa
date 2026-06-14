@@ -5,6 +5,7 @@ namespace Modules\TreatmentReservation\Services;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 
@@ -56,6 +57,72 @@ class UpcomingJobUrgencyService
             TrLang::trans('admin.urgency.beautician_lead'),
         );
     }
+
+
+    /**
+     * @return array<int, array{level: string, label: string}>
+     */
+    public function inlineAlertsFor(TreatmentBooking $booking): array
+    {
+        if (in_array($booking->status, [TreatmentBooking::STATUS_COMPLETED, TreatmentBooking::STATUS_CANCELED], true)) {
+            return [];
+        }
+
+        $now = now()->timezone(config('app.timezone'));
+        $startsAt = $this->appointmentStartsAt($booking);
+        $urgency = $this->resolveUrgency($booking, $startsAt, $now);
+        $alerts = [];
+
+        if (! $booking->beautician_id) {
+            $alerts[] = [
+                'level' => 'warning',
+                'label' => TrLang::trans('admin.crm.alert_unassigned'),
+            ];
+        }
+
+        if ($this->needsPaymentAttention($booking)) {
+            $alerts[] = [
+                'level' => 'warning',
+                'label' => TrLang::trans('admin.crm.alert_payment_due'),
+            ];
+        }
+
+        if ($urgency === 'critical') {
+            $alerts[] = [
+                'level' => 'critical',
+                'label' => TrLang::trans('admin.crm.alert_overdue'),
+            ];
+        } elseif ($urgency === 'warning') {
+            $alerts[] = [
+                'level' => 'warning',
+                'label' => $booking->status === TreatmentBooking::STATUS_IN_PROGRESS
+                    ? TrLang::trans('admin.crm.alert_running_long')
+                    : TrLang::trans('admin.crm.alert_starting_soon'),
+            ];
+        }
+
+        return $alerts;
+    }
+
+
+    private function needsPaymentAttention(TreatmentBooking $booking): bool
+    {
+        if ($booking->isManualBooking()) {
+            return ! in_array(
+                TreatmentBooking::normalizeManualPaymentStatus($booking->payment_status),
+                [TreatmentBooking::PAYMENT_FULL_PAID],
+                true
+            );
+        }
+
+        return in_array($booking->payment_status, [
+            Order::PAYMENT_PENDING,
+            Order::PAYMENT_PROCESSING,
+            null,
+            '',
+        ], true);
+    }
+
 
     private function actionableBookings(?int $beauticianId = null): Collection
     {

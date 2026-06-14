@@ -17,6 +17,11 @@
         </title>
 
         @stack('meta')
+
+        @if (empty($seoMetaRendered ?? null) && ! empty($openGraph))
+            @include('meta::public.open_graph', ['openGraph' => $openGraph])
+        @endif
+
         @PWA
 
         <link rel="shortcut icon" href="{{ $favicon }}" type="image/x-icon">
@@ -104,10 +109,6 @@
         {!! $schemaMarkup->toScript() !!}
 
         @stack('globals')
-
-        <script type="module">
-            Alpine.start();
-        </script>
     </head>
 
     <body
@@ -148,6 +149,10 @@
 
         @stack('pre-scripts')
         @stack('scripts')
+
+        <script type="module">
+            Alpine.start();
+        </script>
 
         {!! setting('custom_footer_assets') !!}
     </body>

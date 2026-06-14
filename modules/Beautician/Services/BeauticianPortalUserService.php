@@ -68,21 +68,29 @@ class BeauticianPortalUserService
 
 
     /**
-     * @return array{email: string, password: string}|null
+     * @return array{email: string, password?: string, password_updated?: bool}|null
      */
-    public function resetPortalPassword(Beautician $beautician): ?array
+    public function resetPortalPassword(Beautician $beautician, ?string $password = null): ?array
     {
         if (! $beautician->user_id || ! $beautician->user) {
             return null;
         }
 
-        $password = Str::password(12);
+        $providedPassword = $this->normalizePassword($password);
+        $password = $providedPassword ?: Str::password(12);
 
         $beautician->user->update([
             'password' => bcrypt($password),
         ]);
 
         $this->ensureBeauticianRole($beautician->user);
+
+        if ($providedPassword) {
+            return [
+                'email' => $beautician->user->email,
+                'password_updated' => true,
+            ];
+        }
 
         return [
             'email' => $beautician->user->email,

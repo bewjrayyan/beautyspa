@@ -284,20 +284,28 @@
                         ]) }}
                         <p class="bp-field-hint">{{ trans('beautician::beauticians.form.portal_password_help') }}</p>
 
-                        @if ($beautician->user_id)
-                            <div class="bp-portal-reset">
-                                <button
-                                    type="submit"
-                                    class="btn btn-default btn-sm"
-                                    formaction="{{ route('admin.beauticians.reset_portal_password', $beautician) }}"
-                                    formmethod="post"
-                                    onclick="return confirm(@json(trans('beautician::beauticians.form.portal_reset_password_help')));"
-                                >
-                                    <i class="fa fa-refresh"></i>
-                                    {{ trans('beautician::beauticians.form.portal_reset_password') }}
+                        <div class="bp-portal-actions-bar">
+                            <p class="bp-portal-actions-bar__hint">{{ trans('beautician::beauticians.form.portal_save_account_help') }}</p>
+
+                            <div class="bp-portal-actions-bar__buttons">
+                                <button type="submit" class="btn btn-primary" data-loading>
+                                    <i class="fa fa-save"></i>
+                                    {{ trans('beautician::beauticians.form.portal_save_account') }}
                                 </button>
+
+                                @if ($beautician->user_id)
+                                    <button
+                                        type="submit"
+                                        form="beautician-reset-portal-form"
+                                        class="btn btn-default"
+                                        id="beautician-reset-portal-btn"
+                                    >
+                                        <i class="fa fa-refresh"></i>
+                                        {{ trans('beautician::beauticians.form.portal_reset_password') }}
+                                    </button>
+                                @endif
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -433,8 +441,9 @@
     </div>
 
     <div class="bp-form-actions">
+        <span class="bp-form-actions__hint">{{ trans('beautician::beauticians.form.save_all_changes_help') }}</span>
         <button type="submit" class="btn btn-primary" data-loading>
-            {{ trans('admin::admin.buttons.save') }}
+            {{ trans('beautician::beauticians.form.save_all_changes') }}
         </button>
     </div>
 </div>
@@ -598,6 +607,37 @@
 
         .beautician-profile-page .bp-portal-reset {
             margin-top: 4px;
+        }
+
+        .beautician-profile-page .bp-portal-actions-bar {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e8edf3;
+        }
+
+        .beautician-profile-page .bp-portal-actions-bar__hint {
+            margin: 0 0 12px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #64748b;
+        }
+
+        .beautician-profile-page .bp-portal-actions-bar__buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .beautician-profile-page .bp-portal-actions-bar__buttons .btn {
+            width: 100%;
+            min-height: 40px;
+            border-radius: 10px;
+            font-weight: 600;
+            white-space: normal;
+        }
+
+        .beautician-profile-page .bp-portal-actions-bar__buttons .btn-primary {
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
         }
 
         .beautician-profile-page .bp-field-block {
@@ -789,10 +829,20 @@
 
         .bp-form-actions {
             display: flex;
-            justify-content: flex-end;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
             margin-top: 4px;
             padding: 20px 0 4px;
             border-top: 1px solid var(--bp-border);
+        }
+
+        .bp-form-actions__hint {
+            margin: 0;
+            max-width: 720px;
+            font-size: 13px;
+            line-height: 1.45;
+            color: #64748b;
         }
 
         .bp-form-actions .btn-primary {
@@ -1471,6 +1521,37 @@
             syncHeroText();
             syncHeroColor();
             syncHeroAvatar();
+
+            const resetPortalBtn = document.getElementById('beautician-reset-portal-btn');
+            const resetPortalForm = document.getElementById('beautician-reset-portal-form');
+            const portalPasswordInput = document.getElementById('portal_password');
+            const portalPasswordConfirmInput = document.getElementById('portal_password_confirmation');
+            const passwordMismatchMessage = @json(trans('validation.confirmed', ['attribute' => trans('beautician::attributes.portal_password')]));
+            const resetApplyMessage = @json(trans('beautician::beauticians.form.portal_reset_password_apply_help'));
+            const resetGenerateMessage = @json(trans('beautician::beauticians.form.portal_reset_password_help'));
+
+            resetPortalBtn?.addEventListener('click', function (event) {
+                if (!resetPortalForm) {
+                    return;
+                }
+
+                const password = portalPasswordInput?.value || '';
+                const confirmation = portalPasswordConfirmInput?.value || '';
+
+                resetPortalForm.querySelector('[name="portal_password"]').value = password;
+                resetPortalForm.querySelector('[name="portal_password_confirmation"]').value = confirmation;
+
+                if (password && password !== confirmation) {
+                    event.preventDefault();
+                    window.alert(passwordMismatchMessage);
+
+                    return;
+                }
+
+                if (!window.confirm(password ? resetApplyMessage : resetGenerateMessage)) {
+                    event.preventDefault();
+                }
+            });
         });
     </script>
 @endpush

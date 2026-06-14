@@ -5,6 +5,8 @@ namespace Modules\TreatmentReservation\Http\Controllers\Admin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Modules\Beautician\Entities\Beautician;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Requests\StorePortalManualBookingRequest;
@@ -12,6 +14,7 @@ use Modules\TreatmentReservation\Http\Requests\UpdatePortalManualBookingRequest;
 use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\TreatmentReservation\Services\CustomerLookupService;
 use Modules\TreatmentReservation\Services\ManualBookingService;
+use Modules\User\Entities\User;
 
 class PortalManualBookingController extends Controller
 {
@@ -24,10 +27,12 @@ class PortalManualBookingController extends Controller
 
     public function slots(Request $request): JsonResponse
     {
-        /** @var Beautician $beautician */
-        $beautician = $request->attributes->get('portal_beautician');
-
         $data = $request->validate([
+            'beautician_id' => [
+                'required',
+                'integer',
+                Rule::exists('beauticians', 'id')->where('is_active', true),
+            ],
             'date' => ['required', 'date', 'after_or_equal:today'],
             'booking_id' => ['nullable', 'integer'],
         ]);
@@ -36,7 +41,7 @@ class PortalManualBookingController extends Controller
 
         return response()->json([
             'slots' => $this->availability->availableSlots(
-                $beautician->id,
+                (int) $data['beautician_id'],
                 $data['date'],
                 $excludeBookingId
             ),
@@ -58,19 +63,21 @@ class PortalManualBookingController extends Controller
 
     public function store(StorePortalManualBookingRequest $request): JsonResponse
     {
-        /** @var Beautician $beautician */
-        $beautician = $request->attributes->get('portal_beautician');
-
-        $payload = array_merge($request->validated(), [
-            'beautician_id' => $beautician->id,
-        ]);
-
         try {
             $booking = $this->manualBookings->create(
-                $payload,
+                array_merge($request->validated(), [
+                    'payment_receipt' => $request->file('payment_receipt'),
+                    'options' => $request->input('options', []),
+                    'variations' => $request->input('variations', []),
+                ]),
                 $request->user(),
                 TreatmentBooking::SOURCE_PORTAL_MANUAL,
             );
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => collect($exception->errors())->flatten()->first(),
+                'errors' => $exception->errors(),
+            ], 422);
         } catch (\InvalidArgumentException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
@@ -89,31 +96,31 @@ class PortalManualBookingController extends Controller
 
     public function update(UpdatePortalManualBookingRequest $request, TreatmentBooking $booking): JsonResponse
     {
-        /** @var Beautician $beautician */
-        $beautician = $request->attributes->get('portal_beautician');
-
-        if ((int) $booking->beautician_id !== (int) $beautician->id) {
-            abort(403);
-        }
-
-        $payload = array_merge($request->validated(), [
-            'beautician_id' => $beautician->id,
-        ]);
+        $this->assertCanManagePortalBooking($booking, $request);
 
         try {
             $booking = $this->manualBookings->update(
                 $booking,
-                $payload,
+                array_merge($request->validated(), [
+                    'payment_receipt' => $request->file('payment_receipt'),
+                    'options' => $request->input('options', []),
+                    'variations' => $request->input('variations', []),
+                ]),
                 $request->user(),
-                allowBeauticianChange: false,
+                allowBeauticianChange: true,
             );
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => collect($exception->errors())->flatten()->first(),
+                'errors' => $exception->errors(),
+            ], 422);
         } catch (\InvalidArgumentException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
             ], 422);
         }
 
-        $freshBooking = $booking->fresh(['beautician.files', 'product', 'category']);
+        $freshBooking = $booking->fresh(['beautician.files', 'product', 'category', 'paymentReceipt']);
 
         return response()->json([
             'message' => trans('treatmentreservation::admin.manual_booking.updated'),
@@ -124,12 +131,7 @@ class PortalManualBookingController extends Controller
 
     public function cancel(Request $request, TreatmentBooking $booking): JsonResponse
     {
-        /** @var Beautician $beautician */
-        $beautician = $request->attributes->get('portal_beautician');
-
-        if ((int) $booking->beautician_id !== (int) $beautician->id) {
-            abort(403);
-        }
+        $this->assertCanManagePortalBooking($booking, $request);
 
         try {
             $booking = $this->manualBookings->cancel($booking, $request->user());
@@ -145,5 +147,21 @@ class PortalManualBookingController extends Controller
             'message' => trans('treatmentreservation::admin.manual_booking.canceled'),
             'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
         ]);
+    }
+
+
+    private function assertCanManagePortalBooking(TreatmentBooking $booking, Request $request): void
+    {
+        /** @var Beautician $portalBeautician */
+        $portalBeautician = $request->attributes->get('portal_beautician');
+        /** @var User $user */
+        $user = $request->user();
+
+        $ownsBooking = (int) $booking->beautician_id === (int) $portalBeautician->id;
+        $createdBooking = (int) $booking->created_by_user_id === (int) $user->id;
+
+        if (! $ownsBooking && ! $createdBooking) {
+            abort(403);
+        }
     }
 }
