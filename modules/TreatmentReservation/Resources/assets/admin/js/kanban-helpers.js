@@ -173,14 +173,23 @@ function getCalendarEventPreviewOverlay() {
         return overlay;
     }
 
-    overlay = document.createElement("div");
+    overlay = document.createElement("aside");
     overlay.id = "tr-calendar-event-preview";
     overlay.className = "tr-calendar-event-preview";
     overlay.hidden = true;
+    overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
         <div class="tr-calendar-event-preview__backdrop" data-dismiss></div>
-        <div class="tr-calendar-event-preview__dialog" role="dialog" aria-modal="true">
-            <button type="button" class="tr-calendar-event-preview__close" data-dismiss aria-label="Close">&times;</button>
+        <div class="tr-calendar-event-preview__panel" role="dialog" aria-modal="true" aria-labelledby="tr-calendar-event-preview-title">
+            <header class="tr-calendar-event-preview__head">
+                <div class="tr-calendar-event-preview__head-text">
+                    <p class="tr-calendar-event-preview__eyebrow" id="tr-calendar-event-preview-eyebrow"></p>
+                    <h3 class="tr-calendar-event-preview__title" id="tr-calendar-event-preview-title"></h3>
+                </div>
+                <button type="button" class="tr-calendar-event-preview__close" data-dismiss aria-label="Close">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </button>
+            </header>
             <div class="tr-calendar-event-preview__body"></div>
         </div>
     `;
@@ -200,20 +209,77 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
     const status = calendarStatusClass(booking.status);
     const color = booking.beautician_color || "#6366f1";
     const statusText = statusLabel(status, labels);
+    const timeRange = (booking.appointment_time_range || booking.time || booking.appointment_time || "—").trim();
+    const durationMinutes = Number(booking.slot_duration_minutes) || 0;
+    const durationLabel = durationMinutes > 0
+        ? (labels.durationMinutes || "(:count min)").replace(":count", String(durationMinutes))
+        : (booking.duration_session_label || booking.treatment_subtitle || "");
+    const paymentLabel = (booking.payment_status_label || "").trim();
+    const totalFormatted = (booking.total_formatted || "").trim();
     const beauticianBlock = booking.beautician_name && !options.hideBeautician
-        ? `<div class="tr-calendar-event-preview__beautician">${beauticianAvatarMarkup(booking, "tr-beautician-avatar--md")}<span>${escapeHtml(booking.beautician_name)}</span></div>`
+        ? `<div class="tr-calendar-event-preview__beautician">${beauticianAvatarMarkup(booking, "tr-beautician-avatar--md")}<div class="tr-calendar-event-preview__beautician-text"><strong>${escapeHtml(booking.beautician_name)}</strong>${booking.beautician_job_title ? `<span>${escapeHtml(booking.beautician_job_title)}</span>` : ""}</div></div>`
         : "";
     const categoryRow = booking.category_name
         ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.category)}</dt><dd>${escapeHtml(booking.category_name)}</dd></div>`
         : "";
     const phoneRow = booking.customer_phone
-        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.phone || "Phone")}</dt><dd>${escapeHtml(booking.customer_phone)}</dd></div>`
+        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.phone || "Phone")}</dt><dd><a href="tel:${escapeHtml(booking.customer_phone.replace(/[^\d+]/g, ""))}">${escapeHtml(booking.customer_phone)}</a></dd></div>`
         : "";
     const emailRow = booking.customer_email
         ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.email || "Email")}</dt><dd>${escapeHtml(booking.customer_email)}</dd></div>`
         : "";
+    const durationRow = durationLabel
+        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.duration || "Duration")}</dt><dd>${escapeHtml(durationLabel)}</dd></div>`
+        : "";
+    const paymentRow = paymentLabel
+        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.payment || "Payment")}</dt><dd>${escapeHtml(paymentLabel)}</dd></div>`
+        : "";
+    const totalRow = totalFormatted
+        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.total || "Total")}</dt><dd>${escapeHtml(totalFormatted)}</dd></div>`
+        : "";
+    const sourceRow = booking.source_label
+        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.source || "Source")}</dt><dd>${escapeHtml(booking.source_label)}</dd></div>`
+        : "";
+    const branchRow = booking.spa_branch_name
+        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.branch || "Branch")}</dt><dd>${escapeHtml(booking.spa_branch_name)}</dd></div>`
+        : "";
+    const bookingIdRow = booking.id
+        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.bookingId || "Booking ID")}</dt><dd>B${escapeHtml(String(booking.id))}</dd></div>`
+        : "";
+    const treatmentSubtitle = (booking.treatment_subtitle || booking.duration_session_label || "").trim();
+    const treatmentSubtitleRow = treatmentSubtitle
+        ? `<div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.session || "Session")}</dt><dd>${escapeHtml(treatmentSubtitle)}</dd></div>`
+        : "";
     const orderNotesRow = booking.notes
         ? `<div class="tr-calendar-event-preview__row tr-calendar-event-preview__row--notes"><dt>${escapeHtml(labels.orderNotes || "Order notes")}</dt><dd>${escapeHtml(booking.notes)}</dd></div>`
+        : "";
+    const alerts = Array.isArray(booking.inline_alerts) ? booking.inline_alerts : [];
+    const alertsBlock = alerts.length
+        ? `<div class="tr-calendar-event-preview__alerts">
+            ${alerts.map((alert) => `
+                <span class="tr-calendar-event-preview__alert tr-calendar-event-preview__alert--${escapeHtml(alert.level || "info")}">
+                    ${escapeHtml(alert.label || "")}
+                </span>
+            `).join("")}
+        </div>`
+        : "";
+    const statusControl = status !== "canceled" && options.crmCanEdit && options.statusUrlTemplate
+        ? `
+            <div class="tr-calendar-event-preview__status-control">
+                <label for="tr-preview-status-${escapeHtml(String(booking.id))}">${escapeHtml(labels.status || "Status")}</label>
+                <select
+                    id="tr-preview-status-${escapeHtml(String(booking.id))}"
+                    class="tr-calendar-event-preview__status-select tr-calendar-event-preview__status-select--${escapeHtml(status)}"
+                    data-preview-status
+                    data-booking-id="${escapeHtml(String(booking.id))}"
+                    data-current-status="${escapeHtml(status)}"
+                >
+                    <option value="pending"${status === "pending" ? " selected" : ""}>${escapeHtml(labels.statusPending || "Pending")}</option>
+                    <option value="in_progress"${status === "in_progress" ? " selected" : ""}>${escapeHtml(labels.statusInProgress || "In Progress")}</option>
+                    <option value="completed"${status === "completed" ? " selected" : ""}>${escapeHtml(labels.statusCompleted || "Completed")}</option>
+                </select>
+            </div>
+        `
         : "";
     const whatsappBtn = booking.can_whatsapp_customer && options.showWhatsApp
         ? `<button type="button" class="btn btn-success btn-sm tr-calendar-event-preview__whatsapp" data-booking-id="${escapeHtml(String(booking.id))}"><i class="fa fa-whatsapp"></i> ${escapeHtml(labels.whatsappCustomer || "WhatsApp customer")}</button>`
@@ -224,6 +290,10 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
     const manualEditBtn =
         booking.can_edit_manual && options.manualBookingEditEnabled
             ? `<button type="button" class="btn btn-default btn-sm tr-calendar-event-preview__edit-manual" data-booking-id="${escapeHtml(String(booking.id))}"><i class="fa fa-pencil"></i> ${escapeHtml(labels.editManual || "Edit appointment")}</button>`
+            : "";
+    const rescheduleBtn =
+        booking.can_reschedule_manual && options.manualBookingEditEnabled
+            ? `<button type="button" class="btn btn-default btn-sm tr-calendar-event-preview__reschedule" data-preview-reschedule data-booking-id="${escapeHtml(String(booking.id))}"><i class="fa fa-calendar"></i> ${escapeHtml(labels.reschedule || "Reschedule")}</button>`
             : "";
     const manualCancelBtn =
         booking.can_cancel_manual && options.manualBookingEditEnabled
@@ -281,22 +351,32 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             <div class="tr-calendar-event-preview__header">
                 <span class="tr-calendar-event-preview__status tr-calendar-event-preview__status--${status}">${escapeHtml(statusText)}</span>
             </div>
+            ${statusControl}
             ${insightBlock}
             ${reminderStatus}
+            ${alertsBlock}
             ${beauticianBlock}
             <dl class="tr-calendar-event-preview__details">
                 <div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.date)}</dt><dd>${escapeHtml(booking.appointment_date || booking.date || "—")}</dd></div>
-                <div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.time)}</dt><dd>${escapeHtml(booking.time || booking.appointment_time || "—")}</dd></div>
+                <div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.time)}</dt><dd>${escapeHtml(timeRange)}</dd></div>
+                ${durationRow}
                 <div class="tr-calendar-event-preview__row"><dt>${escapeHtml(labels.customer)}</dt><dd>${escapeHtml(booking.customer_name || "—")}</dd></div>
                 ${phoneRow}
                 ${emailRow}
                 <div class="tr-calendar-event-preview__row tr-calendar-event-preview__row--treatment"><dt>${escapeHtml(labels.treatment)}</dt><dd>${escapeHtml(booking.treatment_name || "—")}</dd></div>
+                ${treatmentSubtitleRow}
+                ${totalRow}
+                ${paymentRow}
                 ${categoryRow}
+                ${sourceRow}
+                ${branchRow}
+                ${bookingIdRow}
                 ${orderNotesRow}
             </dl>
             ${notesSection}
             <div class="tr-calendar-event-preview__actions">
                 ${profileBtn}
+                ${rescheduleBtn}
                 ${manualEditBtn}
                 ${manualCancelBtn}
                 ${reminderBtn}
@@ -313,6 +393,16 @@ export function openCalendarEventPreview(booking, labels, options = {}) {
     previewOptions = options;
 
     const overlay = getCalendarEventPreviewOverlay();
+    const eyebrow = overlay.querySelector("#tr-calendar-event-preview-eyebrow");
+    const title = overlay.querySelector("#tr-calendar-event-preview-title");
+
+    if (eyebrow) {
+        eyebrow.textContent = labels.previewTitle || "Appointment details";
+    }
+
+    if (title) {
+        title.textContent = booking.customer_name || booking.treatment_name || "—";
+    }
 
     overlay.querySelector(".tr-calendar-event-preview__body").innerHTML = buildCalendarEventPreviewHtml(
         booking,
@@ -320,6 +410,7 @@ export function openCalendarEventPreview(booking, labels, options = {}) {
         options
     );
     overlay.hidden = false;
+    overlay.setAttribute("aria-hidden", "false");
     document.body.classList.add("tr-calendar-event-preview-open");
     overlay.querySelector(".tr-calendar-event-preview__close")?.focus();
 }
@@ -332,6 +423,7 @@ export function closeCalendarEventPreview() {
     }
 
     overlay.hidden = true;
+    overlay.setAttribute("aria-hidden", "true");
     document.body.classList.remove("tr-calendar-event-preview-open");
 }
 
@@ -347,7 +439,7 @@ let previewResolveBooking = null;
 
 function findClickableBookingTarget(target) {
     return target.closest(
-        ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable, .tr-crm-appointment, .tr-crm-ledger__row--clickable, .tr-crm-drawer-booking, .tr-crm-agenda-card__body"
+        ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable, .tr-crm-appointment, .tr-crm-ledger__row--clickable, .tr-crm-drawer-booking, .tr-crm-agenda-card__compact"
     );
 }
 
@@ -545,7 +637,7 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
             return;
         }
 
-        if (event.target.closest("[data-agenda-status], [data-agenda-status-wrap]")) {
+        if (event.target.closest("[data-agenda-status], [data-agenda-status-wrap], [data-preview-status], .tr-calendar-event-preview__status-control")) {
             return;
         }
 
@@ -576,6 +668,15 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
             return;
         }
 
+        const rescheduleButton = event.target.closest("[data-preview-reschedule]");
+
+        if (rescheduleButton) {
+            event.preventDefault();
+            openManualBookingEditorFromPreview(rescheduleButton);
+
+            return;
+        }
+
         const cancelManualButton = event.target.closest(".tr-calendar-event-preview__cancel-manual");
 
         if (cancelManualButton) {
@@ -593,6 +694,10 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
             return;
         }
 
+        if (event.target.closest(".tr-calendar-event-preview__panel")) {
+            return;
+        }
+
         const card = findClickableBookingTarget(event.target);
 
         if (!card) {
@@ -604,9 +709,47 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
         openBookingPreviewFromElement(card);
     });
 
+    document.addEventListener("change", async (event) => {
+        const select = event.target.closest("[data-preview-status]");
+
+        if (!select || !previewOptions.statusUrlTemplate || !window.axios) {
+            return;
+        }
+
+        const bookingId = select.dataset.bookingId;
+        const nextStatus = select.value;
+        const previousStatus = select.dataset.currentStatus;
+
+        if (!bookingId || !nextStatus || nextStatus === previousStatus) {
+            return;
+        }
+
+        select.disabled = true;
+
+        try {
+            const url = previewOptions.statusUrlTemplate.replace("__ID__", bookingId);
+            const response = await window.axios.patch(url, { status: nextStatus });
+            const booking = response.data?.booking;
+
+            if (booking) {
+                upsertBooking(booking);
+                openCalendarEventPreview(booking, previewLabels, previewOptions);
+                document.dispatchEvent(new CustomEvent("tr-crm-booking-updated", {
+                    detail: { booking },
+                }));
+            }
+        } catch (error) {
+            select.value = previousStatus;
+            const message = previewLabels.statusUpdateFailed || "Failed to update status";
+            window.notify?.error?.(message) || alert(message);
+        } finally {
+            select.disabled = false;
+        }
+    });
+
     document.addEventListener("keydown", (event) => {
         const card = event.target.closest(
-            ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable, .tr-crm-appointment, .tr-crm-ledger__row--clickable, .tr-crm-drawer-booking, .tr-crm-agenda-card__body"
+            ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable, .tr-crm-appointment, .tr-crm-ledger__row--clickable, .tr-crm-drawer-booking, .tr-crm-agenda-card__compact"
         );
         const bookingId = getBookingIdFromElement(card);
 

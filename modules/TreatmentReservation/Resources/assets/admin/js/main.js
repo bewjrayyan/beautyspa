@@ -485,6 +485,7 @@ if (portalRoot) {
 
 function buildCalendarPreviewLabels(root) {
     return {
+        previewTitle: root.dataset.calPreviewTitle || "Appointment details",
         date: root.dataset.calPreviewDate || "Date",
         time: root.dataset.calPreviewTime || "Time",
         customer: root.dataset.calPreviewCustomer || "Customer",
@@ -517,10 +518,22 @@ function buildCalendarPreviewLabels(root) {
         resendReminder: root.dataset.calPreviewResendReminder || "Resend reminder",
         reminderSent: root.dataset.calPreviewReminderSent || "Reminder sent",
         reminderDue: root.dataset.calPreviewReminderDue || "Due for reminder",
+        duration: root.dataset.calPreviewDuration || "Duration",
+        durationMinutes: root.dataset.calPreviewDurationMinutes || "(:count min)",
+        payment: root.dataset.calPreviewPayment || "Payment",
+        total: root.dataset.calPreviewTotal || "Total",
+        source: root.dataset.calPreviewSource || "Source",
+        branch: root.dataset.calPreviewBranch || "Branch",
+        bookingId: root.dataset.calPreviewBookingId || "Booking ID",
+        session: root.dataset.calPreviewSession || "Session",
+        status: root.dataset.calPreviewStatus || "Status",
+        reschedule: root.dataset.calPreviewReschedule || "Reschedule",
+        statusUpdateFailed: root.dataset.calPreviewStatusUpdateFailed || "Failed to update status",
     };
 }
 
 function buildCalendarPreviewOptions(root) {
+    const crmDashboard = document.getElementById("tr-crm-dashboard");
     const manualBookingOptions = root.dataset.manualBookingEdit === "1"
         ? {
               manualBookingEditEnabled: true,
@@ -547,6 +560,8 @@ function buildCalendarPreviewOptions(root) {
             showActivityLog: true,
             showWhatsApp: true,
             whatsappUrlTemplate: root.dataset.whatsappUrl || "",
+            statusUrlTemplate: root.dataset.statusUrl || "",
+            crmCanEdit: crmDashboard?.dataset.crmCanEdit === "1",
             ...manualBookingOptions,
         };
     }

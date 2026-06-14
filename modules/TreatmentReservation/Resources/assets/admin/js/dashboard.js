@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getCalendarBooking, sendBookingWhatsApp, setCalendarBookings, upsertBooking } from "./kanban-helpers.js";
+import { getCalendarBooking, setCalendarBookings, upsertBooking } from "./kanban-helpers.js";
 import { initCustomerProfileDrawer } from "./customer-profile.js";
 import { openManualBookingEditor } from "./manual-booking.js";
 
@@ -53,12 +53,6 @@ function getCrmDashboardLabels() {
 
 function manualBookingEditEnabled() {
     return document.getElementById("tr-reservations-app")?.dataset.manualBookingEdit === "1";
-}
-
-function crmEditEnabled() {
-    const root = document.getElementById("tr-crm-dashboard");
-
-    return root?.dataset.crmCanEdit === "1" || manualBookingEditEnabled();
 }
 
 function initDashboardSearch() {
@@ -147,205 +141,6 @@ function formatAgendaTime(booking) {
     return (booking.appointment_time_range || booking.time || booking.appointment_time || "—").trim();
 }
 
-function renderAgendaCustomerInsight(booking) {
-    const history = (booking.customer_history_label || "").trim();
-    const tier = (booking.loyalty_tier_name || "").trim();
-    const parts = [];
-
-    if (history) {
-        parts.push(`<span class="tr-crm-agenda-card__insight">${escapeHtml(history)}</span>`);
-    }
-
-    if (tier) {
-        parts.push(`<span class="tr-crm-agenda-card__insight tr-crm-agenda-card__insight--loyalty"><i class="fa fa-star" aria-hidden="true"></i> ${escapeHtml(tier)}</span>`);
-    }
-
-    if (parts.length === 0) {
-        return "";
-    }
-
-    return `<div class="tr-crm-agenda-card__customer-insight">${parts.join("")}</div>`;
-}
-
-function renderAgendaAlerts(booking) {
-    const alerts = Array.isArray(booking.inline_alerts) ? booking.inline_alerts : [];
-
-    if (alerts.length === 0) {
-        return "";
-    }
-
-    return `
-        <div class="tr-crm-agenda-card__alerts">
-            ${alerts.map((alert) => `
-                <span class="tr-crm-agenda-card__alert tr-crm-agenda-card__alert--${escapeHtml(alert.level || "info")}">
-                    ${escapeHtml(alert.label || "")}
-                </span>
-            `).join("")}
-        </div>
-    `;
-}
-
-function renderAgendaQuickActions(booking, labels) {
-    const actions = [];
-
-    if (booking.order_url) {
-        actions.push(`
-            <a
-                href="${escapeHtml(booking.order_url)}"
-                class="tr-crm-agenda-card__action"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                <i class="fa fa-external-link" aria-hidden="true"></i>
-                ${escapeHtml(labels.viewOrder)}
-            </a>
-        `);
-    }
-
-    if (manualBookingEditEnabled() && booking.can_reschedule_manual) {
-        actions.push(`
-            <button
-                type="button"
-                class="tr-crm-agenda-card__action"
-                data-agenda-reschedule
-                data-booking-id="${escapeHtml(booking.id)}"
-            >
-                <i class="fa fa-calendar" aria-hidden="true"></i>
-                ${escapeHtml(labels.reschedule)}
-            </button>
-        `);
-    }
-
-    if (manualBookingEditEnabled() && booking.can_edit_manual) {
-        actions.push(`
-            <button
-                type="button"
-                class="tr-crm-agenda-card__action"
-                data-agenda-edit-manual
-                data-booking-id="${escapeHtml(booking.id)}"
-            >
-                <i class="fa fa-pencil" aria-hidden="true"></i>
-                ${escapeHtml(labels.editManual)}
-            </button>
-        `);
-    }
-
-    if (manualBookingEditEnabled() && booking.can_whatsapp_customer) {
-        actions.push(`
-            <button
-                type="button"
-                class="tr-crm-agenda-card__action tr-crm-agenda-card__action--whatsapp"
-                data-agenda-whatsapp
-                data-booking-id="${escapeHtml(booking.id)}"
-            >
-                <i class="fa fa-whatsapp" aria-hidden="true"></i>
-                ${escapeHtml(labels.whatsapp)}
-            </button>
-        `);
-    }
-
-    if (booking.customer_phone || booking.id) {
-        actions.push(`
-            <button
-                type="button"
-                class="tr-crm-agenda-card__action"
-                data-customer-profile
-                data-booking-id="${escapeHtml(booking.id)}"
-            >
-                <i class="fa fa-user" aria-hidden="true"></i>
-                ${escapeHtml(labels.viewProfile)}
-            </button>
-        `);
-    }
-
-    if (manualBookingEditEnabled() && booking.can_send_reminder) {
-        actions.push(`
-            <button
-                type="button"
-                class="tr-crm-agenda-card__action tr-crm-agenda-card__action--reminder"
-                data-send-reminder
-                data-booking-id="${escapeHtml(booking.id)}"
-                data-resend="${booking.reminder_sent ? "1" : "0"}"
-            >
-                <i class="fa fa-bell" aria-hidden="true"></i>
-                ${escapeHtml(booking.reminder_sent ? labels.resendReminder : labels.sendReminder)}
-            </button>
-        `);
-    }
-
-    if (actions.length === 0) {
-        return "";
-    }
-
-    return `<div class="tr-crm-agenda-card__actions">${actions.join("")}</div>`;
-}
-
-function renderAgendaMeta(booking) {
-    const chips = [];
-    const source = (booking.source_label || "").trim();
-    const branch = (booking.spa_branch_name || "").trim();
-    const category = (booking.category_name || "").trim();
-
-    if (source) {
-        const sourceKey = booking.source || "checkout";
-        chips.push(`<span class="tr-crm-agenda-card__chip tr-crm-agenda-card__chip--source-${escapeHtml(sourceKey)}">${escapeHtml(source)}</span>`);
-    }
-
-    if (branch) {
-        chips.push(`<span class="tr-crm-agenda-card__chip tr-crm-agenda-card__chip--branch">${escapeHtml(branch)}</span>`);
-    }
-
-    if (category) {
-        chips.push(`<span class="tr-crm-agenda-card__chip tr-crm-agenda-card__chip--category">${escapeHtml(category)}</span>`);
-    }
-
-    if (chips.length === 0) {
-        return "";
-    }
-
-    return `<div class="tr-crm-agenda-card__meta">${chips.join("")}</div>`;
-}
-
-function renderAgendaNotes(booking, labels) {
-    const orderNotes = (booking.notes || "").trim();
-    const beauticianNotes = (booking.beautician_notes || "").trim();
-    const blocks = [];
-
-    if (orderNotes) {
-        blocks.push(`
-            <div class="tr-crm-agenda-card__notes-block">
-                <span class="tr-crm-agenda-card__notes-label">${escapeHtml(labels.orderNotesLabel)}</span>
-                <blockquote class="tr-crm-agenda-card__notes">"${escapeHtml(orderNotes)}"</blockquote>
-            </div>
-        `);
-    }
-
-    if (beauticianNotes) {
-        blocks.push(`
-            <div class="tr-crm-agenda-card__notes-block">
-                <span class="tr-crm-agenda-card__notes-label">${escapeHtml(labels.beauticianNotesLabel)}</span>
-                <blockquote class="tr-crm-agenda-card__notes tr-crm-agenda-card__notes--clinical">"${escapeHtml(beauticianNotes)}"</blockquote>
-            </div>
-        `);
-    }
-
-    return blocks.join("");
-}
-
-function renderAgendaSpecialistSubtitle(booking) {
-    const jobTitle = (booking.beautician_job_title || "").trim();
-
-    if (jobTitle) {
-        return `<span>${escapeHtml(jobTitle)}</span>`;
-    }
-
-    if (booking.category_name) {
-        return `<span>${escapeHtml(booking.category_name)}</span>`;
-    }
-
-    return "";
-}
-
 function formatAgendaDuration(booking, labels) {
     const minutes = Number(booking.slot_duration_minutes) || 60;
 
@@ -363,57 +158,51 @@ function renderAgendaAvatar(booking) {
     return `<span class="tr-crm-agenda-card__avatar" style="background-color:${escapeHtml(color)}">${escapeHtml(booking.beautician_initial || "?")}</span>`;
 }
 
-function renderAgendaStatusControl(status, labels, bookingId) {
-    if (status === "canceled" || !crmEditEnabled()) {
-        const label = status === "canceled"
-            ? labels.canceled
-            : (labels[status] || labels.pending);
+function renderAgendaStatusPill(status, labels) {
+    const label = status === "canceled"
+        ? labels.canceled
+        : (labels[status] || labels.pending);
 
-        return `<span class="tr-crm-agenda-card__status-badge tr-crm-agenda-card__status-badge--${escapeHtml(status)}">${escapeHtml(label)}</span>`;
-    }
-
-    const statuses = ["pending", "in_progress", "completed"];
-    const options = statuses.map((key) => `
-        <option value="${key}"${status === key ? " selected" : ""}>${escapeHtml(labels[key] || key)}</option>
-    `).join("");
-
-    return `
-        <div class="tr-crm-agenda-card__status-wrap tr-crm-agenda-card__status-wrap--${escapeHtml(status)}" data-agenda-status-wrap>
-            <select
-                class="tr-crm-agenda-card__status-select"
-                data-agenda-status
-                data-booking-id="${escapeHtml(bookingId)}"
-                data-current-status="${escapeHtml(status)}"
-                aria-label="${escapeHtml(labels.updateStatusAria)}"
-            >
-                ${options}
-            </select>
-            <i class="fa fa-chevron-down tr-crm-agenda-card__status-chevron" aria-hidden="true"></i>
-        </div>
-    `;
+    return `<span class="tr-crm-agenda-card__status-pill tr-crm-agenda-card__status-pill--${escapeHtml(status)}">${escapeHtml(label)}</span>`;
 }
 
-function renderAgendaPhone(booking) {
-    const phone = (booking.customer_phone || "").trim();
+function renderAgendaCompactAlertDot(booking) {
+    const alerts = Array.isArray(booking.inline_alerts) ? booking.inline_alerts : [];
 
-    if (! phone) {
+    if (alerts.length === 0) {
         return "";
     }
 
-    const telHref = `tel:${phone.replace(/[^\d+]/g, "")}`;
+    const level = alerts.some((alert) => alert.level === "critical")
+        ? "critical"
+        : (alerts.some((alert) => alert.level === "warning") ? "warning" : "info");
+    const title = alerts.map((alert) => alert.label).filter(Boolean).join(" · ");
 
-    return `
-        <div class="tr-crm-agenda-card__contact">
-            <a href="${escapeHtml(telHref)}" class="tr-crm-agenda-card__phone">${escapeHtml(phone)}</a>
-        </div>
-    `;
+    return `<span class="tr-crm-agenda-card__alert-dot tr-crm-agenda-card__alert-dot--${level}" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${alerts.length}</span>`;
+}
+
+function renderAgendaCompactReminderDot(booking, labels) {
+    if (booking.reminder_sent) {
+        return `<span class="tr-crm-agenda-card__reminder-dot tr-crm-agenda-card__reminder-dot--sent" title="${escapeHtml(labels.reminderSent)}"><i class="fa fa-bell" aria-hidden="true"></i></span>`;
+    }
+
+    if (booking.reminder_due) {
+        return `<span class="tr-crm-agenda-card__reminder-dot tr-crm-agenda-card__reminder-dot--due" title="${escapeHtml(labels.sendReminder)}"><i class="fa fa-bell-o" aria-hidden="true"></i></span>`;
+    }
+
+    return "";
+}
+
+function formatAgendaShortTime(booking) {
+    const time = formatAgendaTime(booking);
+    const match = time.match(/^(\d{1,2}:\d{2}\s*(?:AM|PM)?)/i);
+
+    return match ? match[1].trim() : time.split("–")[0].trim();
 }
 
 function renderAgendaBooking(booking, labels) {
     const status = booking.status || "pending";
     const price = booking.total_formatted || "";
-    const treatmentLine = [booking.treatment_name || booking.product_name || "—", price].filter(Boolean).join(" • ");
-    const subtitle = booking.treatment_subtitle || booking.duration_session_label || "";
     const paymentLabel = (booking.payment_status_label || "").trim();
     const time = formatAgendaTime(booking);
     const searchHaystack = [
@@ -440,98 +229,45 @@ function renderAgendaBooking(booking, labels) {
 
     return `
         <li
-            class="tr-crm-agenda-card"
+            class="tr-crm-agenda-card tr-crm-agenda-card--compact"
             data-booking-id="${escapeHtml(booking.id)}"
             data-search="${escapeHtml(searchHaystack)}"
         >
-            <div class="tr-crm-agenda-card__top">
-                <div class="tr-crm-agenda-card__time-wrap">
-                    <i class="fa fa-clock-o tr-crm-agenda-card__time-icon" aria-hidden="true"></i>
-                    <span class="tr-crm-agenda-card__time">${escapeHtml(time)}</span>
-                    <span class="tr-crm-agenda-card__duration">${escapeHtml(formatAgendaDuration(booking, labels))}</span>
-                </div>
-                ${renderAgendaStatusControl(status, labels, booking.id)}
-                ${booking.reminder_sent
-                    ? `<span class="tr-crm-agenda-card__reminder tr-crm-agenda-card__reminder--sent">${escapeHtml(labels.reminderSent)}</span>`
-                    : (booking.reminder_due
-                        ? `<span class="tr-crm-agenda-card__reminder tr-crm-agenda-card__reminder--due">${escapeHtml(labels.sendReminder)}</span>`
-                        : "")}
-            </div>
-            <div class="tr-crm-agenda-card__body" data-agenda-open data-booking-id="${escapeHtml(booking.id)}" role="button" tabindex="0">
-                <strong
-                    class="tr-crm-agenda-card__customer tr-crm-agenda-card__customer--link"
-                    data-customer-profile
-                    data-booking-id="${escapeHtml(booking.id)}"
-                >${escapeHtml(booking.customer_name || "—")}</strong>
-                ${renderAgendaCustomerInsight(booking)}
-                ${renderAgendaAlerts(booking)}
-                ${renderAgendaPhone(booking)}
-                <p class="tr-crm-agenda-card__treatment">${escapeHtml(treatmentLine)}</p>
-                ${subtitle ? `<p class="tr-crm-agenda-card__subtitle">${escapeHtml(subtitle)}</p>` : ""}
-                ${paymentLabel ? `<span class="tr-crm-agenda-card__payment">${escapeHtml(paymentLabel)}</span>` : ""}
-                ${renderAgendaMeta(booking)}
-                <div class="tr-crm-agenda-card__footer">
-                    <div class="tr-crm-agenda-card__specialist">
-                        ${renderAgendaAvatar(booking)}
-                        <div class="tr-crm-agenda-card__specialist-text">
-                            <strong>${escapeHtml(booking.beautician_name || "—")}</strong>
-                            ${renderAgendaSpecialistSubtitle(booking)}
-                        </div>
+            <div
+                class="tr-crm-agenda-card__compact"
+                data-agenda-open
+                data-booking-id="${escapeHtml(booking.id)}"
+                role="button"
+                tabindex="0"
+                aria-label="${escapeHtml((booking.customer_name || "—") + ", " + (booking.treatment_name || booking.product_name || "—"))}"
+            >
+                <div class="tr-crm-agenda-card__compact-row">
+                    <div class="tr-crm-agenda-card__compact-time">
+                        <span class="tr-crm-agenda-card__time-short">${escapeHtml(formatAgendaShortTime(booking))}</span>
+                        <span class="tr-crm-agenda-card__duration-short">${escapeHtml(formatAgendaDuration(booking, labels))}</span>
                     </div>
-                    <span class="tr-crm-agenda-card__id">${escapeHtml(labels.idLabel)}: B${escapeHtml(booking.id)}</span>
+                    <div class="tr-crm-agenda-card__compact-info">
+                        <strong class="tr-crm-agenda-card__customer-compact">${escapeHtml(booking.customer_name || "—")}</strong>
+                        <span class="tr-crm-agenda-card__treatment-compact">${escapeHtml(booking.treatment_name || booking.product_name || "—")}</span>
+                    </div>
+                    <div class="tr-crm-agenda-card__compact-badges">
+                        ${renderAgendaStatusPill(status, labels)}
+                        ${renderAgendaCompactAlertDot(booking)}
+                    </div>
                 </div>
-                ${renderAgendaNotes(booking, labels)}
+                <div class="tr-crm-agenda-card__compact-footer">
+                    <div class="tr-crm-agenda-card__compact-specialist">
+                        ${renderAgendaAvatar(booking)}
+                        <span class="tr-crm-agenda-card__specialist-name">${escapeHtml(booking.beautician_name || "—")}</span>
+                    </div>
+                    <div class="tr-crm-agenda-card__compact-meta">
+                        ${renderAgendaCompactReminderDot(booking, labels)}
+                        <span class="tr-crm-agenda-card__open-hint"><i class="fa fa-chevron-right" aria-hidden="true"></i></span>
+                    </div>
+                </div>
             </div>
-            ${renderAgendaQuickActions(booking, labels)}
         </li>
     `;
-}
-
-async function handleAgendaStatusChange(select, app, labels) {
-    const bookingId = select.dataset.bookingId;
-    const nextStatus = select.value;
-    const previousStatus = select.dataset.currentStatus;
-
-    if (!bookingId || !nextStatus || nextStatus === previousStatus || !app?.statusUrlTemplate) {
-        return;
-    }
-
-    const url = app.statusUrlTemplate.replace("__ID__", bookingId);
-    const wrap = select.closest("[data-agenda-status-wrap]");
-
-    select.disabled = true;
-
-    try {
-        const response = await axios.patch(url, { status: nextStatus });
-
-        if (response.data?.booking) {
-            upsertBooking(response.data.booking);
-
-            const index = (app.lastCalendarBookings || []).findIndex(
-                (booking) => String(booking.id) === String(bookingId)
-            );
-
-            if (index >= 0) {
-                app.lastCalendarBookings[index] = {
-                    ...app.lastCalendarBookings[index],
-                    ...response.data.booking,
-                };
-            }
-
-            select.dataset.currentStatus = nextStatus;
-
-            if (wrap) {
-                wrap.className = `tr-crm-agenda-card__status-wrap tr-crm-agenda-card__status-wrap--${nextStatus}`;
-            }
-
-            app.refreshAgendaPanel?.();
-        }
-    } catch (error) {
-        select.value = previousStatus;
-        window.notify?.error?.(labels.statusUpdateFailed) || alert(labels.statusUpdateFailed);
-    } finally {
-        select.disabled = false;
-    }
 }
 
 function initAgendaPanel(app) {
@@ -616,71 +352,6 @@ function initAgendaPanel(app) {
 
         event.preventDefault();
         openAgendaForDay(day);
-    });
-
-    list?.addEventListener("change", (event) => {
-        const select = event.target.closest("[data-agenda-status]");
-
-        if (!select) {
-            return;
-        }
-
-        event.stopPropagation();
-        handleAgendaStatusChange(select, app, labels);
-    });
-
-    list?.addEventListener("click", async (event) => {
-        const whatsappButton = event.target.closest("[data-agenda-whatsapp]");
-
-        if (whatsappButton) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const appRoot = document.getElementById("tr-reservations-app");
-            const whatsappUrlTemplate = appRoot?.dataset.whatsappUrl || "";
-            const bookingId = whatsappButton.dataset.bookingId;
-            const originalHtml = whatsappButton.innerHTML;
-
-            whatsappButton.disabled = true;
-            whatsappButton.innerHTML = `<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> ${escapeHtml(labels.whatsappSending)}`;
-
-            const result = await sendBookingWhatsApp(bookingId, {
-                whatsappUrlTemplate,
-                labels,
-            });
-
-            if (result.ok) {
-                window.notify?.success?.(result.message) || alert(result.message);
-                whatsappButton.disabled = false;
-                whatsappButton.innerHTML = originalHtml;
-                app.refreshAgendaPanel?.();
-            } else {
-                window.notify?.error?.(result.message) || alert(result.message);
-                whatsappButton.disabled = false;
-                whatsappButton.innerHTML = originalHtml;
-            }
-
-            return;
-        }
-
-        const rescheduleButton = event.target.closest("[data-agenda-reschedule], [data-agenda-edit-manual]");
-
-        if (rescheduleButton) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const booking = getCalendarBooking(rescheduleButton.dataset.bookingId);
-
-            if (booking) {
-                openManualBookingEditor(booking);
-            }
-
-            return;
-        }
-
-        if (event.target.closest("[data-agenda-status], [data-agenda-status-wrap], .tr-crm-agenda-card__phone, .tr-crm-agenda-card__actions, .tr-crm-agenda-card__action, [data-customer-profile], [data-send-reminder], .tr-crm-agenda-card__customer--link")) {
-            event.stopPropagation();
-        }
     });
 
     app.refreshAgendaPanel = () => {
