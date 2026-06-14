@@ -510,32 +510,6 @@ function initSpecialistToggles() {
     });
 }
 
-function initLedgerActions() {
-    const ledger = document.querySelector(".tr-crm-ledger");
-
-    if (!ledger) {
-        return;
-    }
-
-    ledger.addEventListener("click", (event) => {
-        const rescheduleButton = event.target.closest("[data-ledger-reschedule]");
-
-        if (!rescheduleButton) {
-            return;
-        }
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        const booking = getPipelineBooking(rescheduleButton.dataset.bookingId)
-            || getCalendarBooking(rescheduleButton.dataset.bookingId);
-
-        if (booking) {
-            openManualBookingEditor(booking);
-        }
-    });
-}
-
 function initPipelineActions(app) {
     const root = document.querySelector("[data-crm-pipeline]");
 
@@ -626,7 +600,6 @@ export function initCrmDashboard(app) {
     initAgendaPanel(app);
     initPipelineSortable(app);
     initPipelineActions(app);
-    initLedgerActions();
     initSpecialistToggles();
     initCustomerProfileDrawer();
 

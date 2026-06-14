@@ -22,8 +22,7 @@
             <thead>
                 <tr>
                     <th>{{ TrLang::trans('admin.crm.ledger_client') }}</th>
-                    <th>{{ TrLang::trans('admin.crm.ledger_treatment') }}</th>
-                    <th>{{ TrLang::trans('admin.crm.ledger_datetime') }}</th>
+                    <th>{{ TrLang::trans('admin.crm.ledger_appointment') }}</th>
                     <th>{{ TrLang::trans('admin.crm.ledger_specialist') }}</th>
                     <th class="tr-crm-ledger__amount">{{ TrLang::trans('admin.crm.ledger_subtotal') }}</th>
                     <th class="tr-crm-ledger__status">{{ TrLang::trans('admin.crm.ledger_status') }}</th>
@@ -34,64 +33,66 @@
                     <tr
                         class="tr-crm-ledger__row tr-crm-ledger__row--clickable"
                         data-booking-id="{{ $row['id'] ?? '' }}"
-                        data-search="{{ strtolower(($row['customer_name'] ?? '') . ' ' . ($row['treatment_name'] ?? '') . ' ' . ($row['treatment_subtitle'] ?? '') . ' ' . ($row['beautician_name'] ?? '') . ' ' . ($row['beautician_job_title'] ?? '') . ' ' . ($row['source_label'] ?? '') . ' ' . ($row['spa_branch_name'] ?? '') . ' ' . ($row['status_label'] ?? '')) }}"
+                        data-search="{{ strtolower(($row['customer_name'] ?? '') . ' ' . ($row['customer_phone'] ?? '') . ' ' . ($row['treatment_name'] ?? '') . ' ' . ($row['treatment_subtitle'] ?? '') . ' ' . ($row['appointment_date'] ?? '') . ' ' . ($row['appointment_time_range'] ?? $row['appointment_time'] ?? '') . ' ' . ($row['beautician_name'] ?? '') . ' ' . ($row['beautician_job_title'] ?? '') . ' ' . ($row['source_label'] ?? '') . ' ' . ($row['spa_branch_name'] ?? '') . ' ' . ($row['status_label'] ?? '') . ' ' . ($row['total_formatted'] ?? '') . ' ' . ($row['id'] ?? '')) }}"
                         role="button"
                         tabindex="0"
+                        aria-label="{{ ($row['customer_name'] ?? TrLang::trans('admin.crm.ledger_unknown_client')) . ', ' . ($row['treatment_name'] ?? TrLang::trans('admin.crm.ledger_unknown_treatment')) }}"
                     >
-                        <td>
+                        <td class="tr-crm-ledger__cell tr-crm-ledger__cell--client">
                             <div class="tr-crm-ledger__client">
                                 <span
                                     class="tr-crm-ledger__avatar tr-crm-ledger__avatar--client"
                                     style="background-color: {{ $row['customer_color'] ?? '#4a0e2e' }}"
                                 >{{ $row['customer_initial'] ?? '?' }}</span>
                                 <div class="tr-crm-ledger__client-text">
-                                    <strong>
-                                        <button
-                                            type="button"
-                                            class="tr-crm-ledger__customer-link"
-                                            data-customer-profile
-                                            data-booking-id="{{ $row['id'] ?? '' }}"
-                                            onclick="event.stopPropagation()"
-                                        >{{ $row['customer_name'] ?? '—' }}</button>
-                                    </strong>
-                                    <span>{{ $row['customer_phone'] ?? TrLang::trans('admin.crm.ledger_no_phone') }}</span>
+                                    <button
+                                        type="button"
+                                        class="tr-crm-ledger__customer-link"
+                                        data-customer-profile
+                                        data-booking-id="{{ $row['id'] ?? '' }}"
+                                        onclick="event.stopPropagation()"
+                                    >{{ $row['customer_name'] ?? TrLang::trans('admin.crm.ledger_unknown_client') }}</button>
+                                    <span class="tr-crm-ledger__client-phone">{{ $row['customer_phone'] ?? TrLang::trans('admin.crm.ledger_no_phone') }}</span>
                                     @if (! empty($row['customer_history_label']) || ! empty($row['loyalty_tier_name']))
-                                        <span class="tr-crm-ledger__insight">
+                                        <span class="tr-crm-ledger__chip-row">
                                             @if (! empty($row['customer_history_label']))
-                                                {{ $row['customer_history_label'] }}
+                                                <span class="tr-crm-ledger__chip">{{ $row['customer_history_label'] }}</span>
                                             @endif
                                             @if (! empty($row['loyalty_tier_name']))
-                                                @if (! empty($row['customer_history_label']))
-                                                    ·
-                                                @endif
-                                                <i class="fa fa-star" aria-hidden="true"></i> {{ $row['loyalty_tier_name'] }}
+                                                <span class="tr-crm-ledger__chip tr-crm-ledger__chip--loyalty">
+                                                    <i class="fa fa-star" aria-hidden="true"></i> {{ $row['loyalty_tier_name'] }}
+                                                </span>
                                             @endif
                                         </span>
                                     @endif
                                 </div>
                             </div>
                         </td>
-                        <td class="tr-crm-ledger__treatment">
-                            <strong>{{ $row['treatment_name'] ?? '—' }}</strong>
-                            @if (! empty($row['treatment_subtitle']))
-                                <span class="tr-crm-ledger__category">{{ $row['treatment_subtitle'] }}</span>
-                            @endif
-                        </td>
-                        <td class="tr-crm-ledger__datetime">
-                            <strong>{{ $row['appointment_date'] ?? '—' }}</strong>
-                            <span>{{ $row['appointment_time_range'] ?? $row['appointment_time'] ?? '—' }}</span>
-                            @if (! empty($row['source_label']) || ! empty($row['spa_branch_name']))
-                                <span class="tr-crm-ledger__meta">
-                                    @if (! empty($row['source_label']))
-                                        <span class="tr-crm-ledger__chip tr-crm-ledger__chip--source">{{ $row['source_label'] }}</span>
-                                    @endif
-                                    @if (! empty($row['spa_branch_name']))
-                                        <span class="tr-crm-ledger__chip tr-crm-ledger__chip--branch">{{ $row['spa_branch_name'] }}</span>
-                                    @endif
+                        <td class="tr-crm-ledger__cell tr-crm-ledger__cell--appointment">
+                            <div class="tr-crm-ledger__appointment">
+                                <strong class="tr-crm-ledger__treatment-name">{{ $row['treatment_name'] ?? TrLang::trans('admin.crm.ledger_unknown_treatment') }}</strong>
+                                @if (! empty($row['treatment_subtitle']))
+                                    <span class="tr-crm-ledger__treatment-sub">{{ $row['treatment_subtitle'] }}</span>
+                                @endif
+                                <span class="tr-crm-ledger__schedule">
+                                    <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                                    {{ $row['appointment_date'] ?? TrLang::trans('admin.crm.ledger_unscheduled') }}
+                                    <span class="tr-crm-ledger__schedule-sep">·</span>
+                                    {{ $row['appointment_time_range'] ?? $row['appointment_time'] ?? TrLang::trans('admin.crm.ledger_time_tbc') }}
                                 </span>
-                            @endif
+                                @if (! empty($row['source_label']) || ! empty($row['spa_branch_name']))
+                                    <span class="tr-crm-ledger__chip-row">
+                                        @if (! empty($row['source_label']))
+                                            <span class="tr-crm-ledger__chip tr-crm-ledger__chip--source">{{ $row['source_label'] }}</span>
+                                        @endif
+                                        @if (! empty($row['spa_branch_name']))
+                                            <span class="tr-crm-ledger__chip tr-crm-ledger__chip--branch">{{ $row['spa_branch_name'] }}</span>
+                                        @endif
+                                    </span>
+                                @endif
+                            </div>
                         </td>
-                        <td>
+                        <td class="tr-crm-ledger__cell tr-crm-ledger__cell--specialist">
                             <span class="tr-crm-ledger__specialist{{ empty($row['beautician_assigned']) ? ' tr-crm-ledger__specialist--unassigned' : '' }}">
                                 @if (! empty($row['beautician_avatar']))
                                     <img
@@ -113,55 +114,39 @@
                                 </span>
                             </span>
                         </td>
-                        <td class="tr-crm-ledger__amount">{{ $row['total_formatted'] ?? '—' }}</td>
-                        <td class="tr-crm-ledger__status">
-                            <span
-                                class="tr-crm-status-pill tr-crm-status-pill--{{ $row['status'] ?? 'pending' }}"
-                                style="--tr-status-color: {{ $row['status_accent'] ?? '#94a3b8' }}"
-                            >
-                                {{ $row['status_label'] ?? '—' }}
-                            </span>
-                            @if (! empty($row['inline_alerts']))
-                                <span class="tr-crm-ledger__alerts">
-                                    @foreach ($row['inline_alerts'] as $alert)
-                                        <span class="tr-crm-ledger__alert tr-crm-ledger__alert--{{ $alert['level'] ?? 'info' }}">
-                                            {{ $alert['label'] ?? '' }}
-                                        </span>
-                                    @endforeach
-                                </span>
+                        <td class="tr-crm-ledger__cell tr-crm-ledger__cell--amount">
+                            <span class="tr-crm-ledger__amount-value">{{ $row['total_formatted'] ?? '—' }}</span>
+                            @if (! empty($row['id']))
+                                <span class="tr-crm-ledger__ref">B{{ $row['id'] }}</span>
                             @endif
-                            @if (! empty($row['order_url']) || ! empty($row['can_reschedule_manual']))
-                                <span class="tr-crm-ledger__quick-actions">
-                                    @if (! empty($row['order_url']))
-                                        <a
-                                            href="{{ $row['order_url'] }}"
-                                            class="tr-crm-ledger__quick-action"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onclick="event.stopPropagation()"
-                                        >
-                                            {{ TrLang::trans('admin.crm.action_view_order') }}
-                                        </a>
-                                    @endif
-                                    @if (! empty($row['can_reschedule_manual']))
-                                        <button
-                                            type="button"
-                                            class="tr-crm-ledger__quick-action"
-                                            data-ledger-reschedule
-                                            data-booking-id="{{ $row['id'] }}"
-                                            onclick="event.stopPropagation()"
-                                        >
-                                            {{ TrLang::trans('admin.crm.action_reschedule') }}
-                                        </button>
-                                    @endif
+                        </td>
+                        <td class="tr-crm-ledger__cell tr-crm-ledger__cell--status">
+                            <div class="tr-crm-ledger__status-wrap">
+                                <span
+                                    class="tr-crm-ledger__status-pill tr-crm-ledger__status-pill--{{ $row['status'] ?? 'pending' }}"
+                                >
+                                    {{ $row['status_label'] ?? '—' }}
                                 </span>
-                            @endif
+                                @if (! empty($row['inline_alerts']))
+                                    <span class="tr-crm-ledger__chip-row tr-crm-ledger__chip-row--alerts">
+                                        @foreach (array_slice($row['inline_alerts'], 0, 2) as $alert)
+                                            <span class="tr-crm-ledger__chip tr-crm-ledger__chip--{{ $alert['level'] ?? 'info' }}">
+                                                {{ $alert['label'] ?? '' }}
+                                            </span>
+                                        @endforeach
+                                    </span>
+                                @endif
+                                <span class="tr-crm-ledger__open-hint" aria-hidden="true">
+                                    <i class="fa fa-chevron-right"></i>
+                                </span>
+                            </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="tr-crm-ledger__empty">
-                            {{ TrLang::trans('admin.crm.ledger_empty') }}
+                        <td colspan="5" class="tr-crm-ledger__empty">
+                            <i class="fa fa-inbox" aria-hidden="true"></i>
+                            <span>{{ TrLang::trans('admin.crm.ledger_empty') }}</span>
                         </td>
                     </tr>
                 @endforelse

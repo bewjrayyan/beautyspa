@@ -2589,7 +2589,7 @@
     "src": "modules/Translation/Resources/assets/admin/translations/sass/main.scss"
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-D_5yJK5C-v4.7.53.js",
+    "file": "assets/main-DMhrLFiI-v4.7.53.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -2603,7 +2603,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BnOgjWOn-v4.7.53.css",
+    "file": "assets/main-BK-Do6QQ-v4.7.53.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/images/login-page-bg.png": {
