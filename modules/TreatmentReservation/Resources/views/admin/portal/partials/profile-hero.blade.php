@@ -1,10 +1,8 @@
 @php
     $profileColor = $beautician->profile_color ?? '#6366f1';
-    $portalUser = $user ?? auth()->user();
-    $hasPhoto = $beautician->profile_image->exists || $portalUser?->avatarUrl();
-    $avatarUrl = $beautician->profile_image->exists
-        ? $beautician->profile_image->path
-        : $portalUser?->avatarUrl();
+    $portalUser = $beautician->user ?? ($user ?? auth()->user());
+    $avatarUrl = $beautician->displayAvatarUrl();
+    $hasPhoto = filled($avatarUrl);
     $isActive = (bool) $beautician->is_active;
     $heroInsights = $heroInsights ?? [];
     $heroStats = $heroStats ?? null;
@@ -39,7 +37,12 @@
                 </p>
             @endif
 
-            @if ($portalUser?->phone)
+            @if ($beautician->phone)
+                <p class="bp-hero-meta">
+                    <i class="fa fa-phone"></i>
+                    <span>{{ $beautician->phone }}</span>
+                </p>
+            @elseif ($portalUser?->phone)
                 <p class="bp-hero-meta">
                     <i class="fa fa-phone"></i>
                     <span>{{ $portalUser->phone }}</span>

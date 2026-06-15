@@ -8,7 +8,7 @@
     data-booking-id="{{ $booking['id'] ?? '' }}"
     role="button"
     tabindex="0"
-    data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '')) }}"
+    data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['customer_phone'] ?? '') . ' ' . ($booking['customer_email'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '')) }}"
 >
     <span class="tr-crm-appointment__time">{{ $booking['appointment_time'] ?? '—' }}</span>
     <div class="tr-crm-appointment__main">

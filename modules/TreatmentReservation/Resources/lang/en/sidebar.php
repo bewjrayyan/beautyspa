@@ -2,6 +2,6 @@
 
 return [
     'reservations' => 'Reservations',
-    'my_job_sheet' => 'My Job Sheet',
+    'my_job_sheet' => 'My Dashboard',
     'my_account' => 'My Account',
 ];

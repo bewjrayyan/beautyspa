@@ -53,6 +53,6 @@ class AdminPortalPreview
             return null;
         }
 
-        return route('admin.beauticians.portal', $this->beautician->id);
+        return route('admin.beauticians.portal.dashboard', $this->beautician->id);
     }
 }

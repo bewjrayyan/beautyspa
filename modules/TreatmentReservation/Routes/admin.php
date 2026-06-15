@@ -104,9 +104,29 @@ Route::get('treatment-reservations/portal', function () {
 });
 
 Route::middleware(['beautician.portal'])->group(function () {
-    Route::get('my/job-sheet', [
+    Route::get('my/dashboard', [
         'as' => 'admin.treatment_reservations.portal',
+        'uses' => 'PortalController@dashboard',
+    ]);
+
+    Route::get('my/job-sheet', [
+        'as' => 'admin.treatment_reservations.portal.job_sheet',
         'uses' => 'PortalController@jobSheet',
+    ]);
+
+    Route::get('my/dashboard/customers/profile', [
+        'as' => 'admin.treatment_reservations.portal.customer_profile',
+        'uses' => 'PortalController@customerProfile',
+    ]);
+
+    Route::patch('my/dashboard/specialist-availability', [
+        'as' => 'admin.treatment_reservations.portal.specialist_availability',
+        'uses' => 'PortalController@toggleOwnAvailability',
+    ]);
+
+    Route::post('my/job-sheet/{id}/reminder', [
+        'as' => 'admin.treatment_reservations.portal.send_reminder',
+        'uses' => 'PortalController@sendCustomerReminder',
     ]);
 
     Route::get('my/job-sheet/kanban', [

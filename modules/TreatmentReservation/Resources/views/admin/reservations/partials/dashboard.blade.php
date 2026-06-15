@@ -34,10 +34,14 @@
         'all' => TrLang::trans('admin.crm.kpi_completed_all_subhint'),
         default => TrLang::trans('admin.crm.kpi_completed_subhint'),
     };
+    $crmCanEdit = $crmCanEdit ?? auth()->user()?->hasAccess('admin.treatment_reservations.edit');
+    $crmSpecialistToggleUrl = $crmSpecialistToggleUrl ?? route('admin.treatment_reservations.crm.specialist_availability', ['beautician' => '__ID__']);
+    $crmSpecialistToggleEnabled = $crmSpecialistToggleEnabled ?? $crmCanEdit;
+    $pipelineOnly = ! empty($pipelineOnly);
 @endphp
 
 <div
-    class="tr-crm-dashboard"
+    class="tr-crm-dashboard{{ $pipelineOnly ? ' tr-crm-dashboard--pipeline-only' : '' }}"
     id="tr-crm-dashboard"
     data-crm-dashboard="1"
     data-initial-bookings='@json($pipeline['all'] ?? [])'
@@ -64,13 +68,15 @@
     data-agenda-resend-reminder="{{ TrLang::trans('admin.crm.action_resend_reminder') }}"
     data-agenda-reminder-sent="{{ TrLang::trans('admin.crm.reminder_sent_label') }}"
     data-agenda-initial-date="{{ $filterDateValue }}"
-    @hasAccess('admin.treatment_reservations.edit')
+    @if ($crmCanEdit)
         data-crm-can-edit="1"
-        data-specialist-toggle-enabled="1"
-        data-specialist-toggle-url="{{ route('admin.treatment_reservations.crm.specialist_availability', ['beautician' => '__ID__']) }}"
+        @if ($crmSpecialistToggleEnabled)
+            data-specialist-toggle-enabled="1"
+            data-specialist-toggle-url="{{ $crmSpecialistToggleUrl }}"
+        @endif
     @else
         data-crm-can-edit="0"
-    @endHasAccess
+    @endif
     data-specialist-toggle-date="{{ $filterDateValue }}"
     data-search-no-results="{{ TrLang::trans('admin.crm.search_no_results') }}"
     data-specialist-unavailable="{{ TrLang::trans('admin.crm.specialist_unavailable') }}"
@@ -79,6 +85,7 @@
     data-specialist-toggle-failed="{{ TrLang::trans('admin.crm.specialist_toggle_failed') }}"
     data-pipeline-status-failed="{{ TrLang::trans('admin.crm.agenda_status_update_failed') }}"
 >
+    @unless ($pipelineOnly)
     <section class="tr-crm-dashboard__kpis" aria-label="{{ TrLang::trans('admin.crm.kpi_aria') }}">
         @include('treatmentreservation::admin.reservations.partials.dashboard.kpi-card', [
             'variant' => 'today',
@@ -140,6 +147,8 @@
                 'filterDateValue' => $filterDateValue,
                 'filterDateLabel' => $filterDateLabel,
                 'dateFilter' => $dateFilter,
+                'crmShowSpecialistToggle' => $crmSpecialistToggleEnabled ?? false,
+                'crmSpecialistProfileUrl' => $crmSpecialistProfileUrl ?? null,
             ])
             @include('treatmentreservation::admin.reservations.partials.dashboard.alerts-feed', [
                 'alerts' => $alerts,
@@ -153,6 +162,17 @@
     <div class="tr-crm-dashboard__calendar">
         @include('treatmentreservation::admin.reservations.partials.dashboard.calendar-agenda')
     </div>
+    @else
+        @include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
+            'pipeline' => $pipeline,
+            'filterDateLabel' => $filterDateLabel,
+            'dateFilter' => $dateFilter,
+            'queueCount' => $queueCount,
+        ])
+    @endunless
 
-    @include('treatmentreservation::admin.reservations.partials.dashboard.customer-profile-drawer')
+    @include('treatmentreservation::admin.reservations.partials.dashboard.customer-profile-drawer', [
+        'crmCustomerProfileUrl' => $crmCustomerProfileUrl ?? null,
+        'crmReminderUrlTemplate' => $crmReminderUrlTemplate ?? null,
+    ])
 </div>

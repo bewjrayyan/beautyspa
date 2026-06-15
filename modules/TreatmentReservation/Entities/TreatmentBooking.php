@@ -225,6 +225,71 @@ class TreatmentBooking extends Model
     }
 
 
+    public function sessionStartedAt(): ?\Illuminate\Support\Carbon
+    {
+        $fromActivity = $this->statusChangedAt(self::STATUS_IN_PROGRESS);
+
+        if ($fromActivity) {
+            return $fromActivity;
+        }
+
+        if ($this->status !== self::STATUS_IN_PROGRESS) {
+            return null;
+        }
+
+        if ($this->appointment_date && $this->appointment_time) {
+            try {
+                return \Illuminate\Support\Carbon::parse(
+                    $this->appointment_date->format('Y-m-d') . ' ' . $this->appointment_time
+                );
+            } catch (\Throwable) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+
+    public function sessionFinishedAt(): ?\Illuminate\Support\Carbon
+    {
+        if ($this->status !== self::STATUS_COMPLETED) {
+            return null;
+        }
+
+        return $this->statusChangedAt(self::STATUS_COMPLETED);
+    }
+
+
+    public function sessionDurationSeconds(): ?int
+    {
+        $finishedAt = $this->sessionFinishedAt();
+        $startedAt = $this->statusChangedAt(self::STATUS_IN_PROGRESS);
+
+        if (! $finishedAt || ! $startedAt || $finishedAt->lessThanOrEqualTo($startedAt)) {
+            return null;
+        }
+
+        return (int) $startedAt->diffInSeconds($finishedAt);
+    }
+
+
+    private function statusChangedAt(string $toStatus): ?\Illuminate\Support\Carbon
+    {
+        if (! $this->relationLoaded('activities')) {
+            return null;
+        }
+
+        $activity = $this->activities
+            ->where('action', TreatmentBookingActivity::ACTION_STATUS_CHANGED)
+            ->where('to_value', $toStatus)
+            ->sortByDesc(fn (TreatmentBookingActivity $entry) => $entry->created_at?->timestamp ?? 0)
+            ->first();
+
+        return $activity?->created_at;
+    }
+
+
     /**
      * @return array<string, mixed>
      */
@@ -298,6 +363,7 @@ class TreatmentBooking extends Model
                 'beautician.user',
                 'beautician.spaBranches',
                 'category',
+                'paymentReceipt',
                 'product.attributes.attribute',
                 'product.attributes.values.attributeValue',
             ])
@@ -316,7 +382,7 @@ class TreatmentBooking extends Model
         return $query
             ->withActiveOrder()
             ->withTreatmentProduct()
-            ->with(['beautician.files', 'beautician.user', 'beautician.spaBranches', 'category', 'product', 'order.products.product'])
+            ->with(['beautician.files', 'beautician.user', 'beautician.spaBranches', 'category', 'paymentReceipt', 'product', 'order.products.product'])
             ->whereIn('status', self::kanbanStatuses())
             ->when($beauticianId, fn (Builder $q) => $q->where('beautician_id', $beauticianId))
             ->when($categoryId, fn (Builder $q) => $q->where('treatment_category_id', $categoryId))

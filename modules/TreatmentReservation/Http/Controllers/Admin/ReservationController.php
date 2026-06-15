@@ -70,10 +70,10 @@ class ReservationController extends Controller
             'activeView' => $view,
             'stats' => $this->dashboard->stats($beauticianId, $categoryId, $spaBranchId),
             'todayBookings' => $this->dashboard->todayCount($beauticianId, $categoryId, $spaBranchId),
-            'dashboardData' => $view === 'dashboard'
+            'dashboardData' => in_array($view, ['dashboard', 'kanban'], true)
                 ? $this->dashboard->crmPayload($beauticianId, $categoryId, $spaBranchId, $dateFilter, $urgencyPayload, $customFilterDate)
                 : null,
-            'urgency' => $view === 'dashboard' ? $urgencyPayload : null,
+            'urgency' => in_array($view, ['dashboard', 'kanban'], true) ? $urgencyPayload : null,
             'analytics' => $view === 'dashboard'
                 ? $this->analytics->overview($analyticsDays)
                 : null,

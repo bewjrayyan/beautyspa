@@ -52,7 +52,7 @@ class TreatmentReservationsApp {
             this.calendarInitialized = true;
         }
 
-        if (this.activeView === "kanban") {
+        if (this.activeView === "kanban" && ! document.getElementById("tr-crm-dashboard")) {
             this.initKanban();
             this.kanbanInitialized = true;
         }
@@ -97,7 +97,7 @@ class TreatmentReservationsApp {
             }
         }
 
-        if (view === "kanban") {
+        if (view === "kanban" && ! document.getElementById("tr-crm-dashboard")) {
             if (!this.kanbanInitialized) {
                 this.initKanban();
                 this.kanbanInitialized = true;
@@ -529,6 +529,8 @@ function buildCalendarPreviewLabels(root) {
         duration: root.dataset.calPreviewDuration || "Duration",
         durationMinutes: root.dataset.calPreviewDurationMinutes || ":count min",
         payment: root.dataset.calPreviewPayment || "Payment",
+        paymentReceipt: root.dataset.calPreviewPaymentReceipt || "Payment receipt",
+        viewReceipt: root.dataset.calPreviewViewReceipt || "View receipt",
         total: root.dataset.calPreviewTotal || "Total",
         source: root.dataset.calPreviewSource || "Source",
         branch: root.dataset.calPreviewBranch || "Branch",

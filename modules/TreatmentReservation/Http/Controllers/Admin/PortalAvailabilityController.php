@@ -17,18 +17,19 @@ class PortalAvailabilityController extends Controller
     ) {}
 
 
-    public function edit(): View
+    public function edit(Request $request): View
     {
         /** @var Beautician $beautician */
-        $beautician = request()->attributes->get('portal_beautician');
+        $beautician = $request->attributes->get('portal_beautician');
+        $beautician->loadMissing(['files', 'user']);
 
-        return view('treatmentreservation::admin.portal.availability', [
+        return view('treatmentreservation::admin.portal.availability', array_merge([
             'beautician' => $beautician,
-            'user' => auth()->user(),
+            'user' => $beautician->user ?? auth()->user(),
             'workingHours' => $this->availability->workingHoursFor($beautician->id),
             'blockedTimes' => $this->availability->upcomingBlocksFor($beautician->id),
             'days' => $this->dayLabels(),
-        ]);
+        ], $this->availabilityContext($request, $beautician)));
     }
 
 
@@ -105,6 +106,39 @@ class PortalAvailabilityController extends Controller
                 $request->input('date')
             ),
         ]);
+    }
+
+
+    /**
+     * @return array{
+     *     adminPortalPreview: bool,
+     *     availabilityRoutes: array{hours: string, blocks: string},
+     *     backUrl: string|null
+     * }
+     */
+    private function availabilityContext(Request $request, Beautician $beautician): array
+    {
+        if (! $request->routeIs('admin.beauticians.portal.availability*')) {
+            return [
+                'adminPortalPreview' => false,
+                'availabilityRoutes' => [
+                    'hours' => route('admin.treatment_reservations.portal.availability.hours'),
+                    'blocks' => route('admin.treatment_reservations.portal.availability.blocks'),
+                ],
+                'backUrl' => null,
+            ];
+        }
+
+        $routeParams = ['id' => $beautician->id];
+
+        return [
+            'adminPortalPreview' => true,
+            'availabilityRoutes' => [
+                'hours' => route('admin.beauticians.portal.availability.hours', $routeParams),
+                'blocks' => route('admin.beauticians.portal.availability.blocks', $routeParams),
+            ],
+            'backUrl' => route('admin.beauticians.edit', $beautician),
+        ];
     }
 
 

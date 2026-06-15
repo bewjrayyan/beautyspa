@@ -7,32 +7,40 @@ use Modules\User\Entities\Role;
 
 class GrantManualBookingPermissionsCommand extends Command
 {
-    protected $signature = 'treatment-reservation:grant-create-permission
-                            {role? : Role ID (defaults to Admin or Beautician role)}
-                            {--portal : Grant beautician portal create permission}';
+    protected $signature = 'treatment-reservation:grant-admin-permissions
+                            {role? : Role ID (defaults to Admin role)}
+                            {--portal : Grant beautician portal create permission only}';
 
-    protected $description = 'Grant manual appointment create permission to a role.';
+    protected $description = 'Grant treatment reservation admin permissions to a role.';
+
+    protected $aliases = [
+        'treatment-reservation:grant-create-permission',
+    ];
+
 
     public function handle(): int
     {
-        $role = $this->resolveRole((bool) $this->option('portal'));
+        $role = $this->resolveRole();
 
-        $permission = $this->option('portal')
-            ? 'admin.treatment_reservations.portal.create'
-            : 'admin.treatment_reservations.create';
+        $permissions = $this->option('portal')
+            ? ['admin.treatment_reservations.portal.create' => true]
+            : [
+                'admin.treatment_reservations.index' => true,
+                'admin.treatment_reservations.create' => true,
+                'admin.treatment_reservations.edit' => true,
+            ];
 
-        $role->permissions = array_merge($role->permissions ?? [], [
-            $permission => true,
-        ]);
+        $role->permissions = array_merge($role->permissions ?? [], $permissions);
         $role->save();
 
-        $this->info("Granted {$permission} to role #{$role->id} ({$role->name}).");
+        $this->info('Granted treatment reservation permissions to role #' . $role->id . ' (' . $role->name . '):');
+        $this->line(implode(', ', array_keys($permissions)));
 
         return self::SUCCESS;
     }
 
 
-    private function resolveRole(bool $portal): Role
+    private function resolveRole(): Role
     {
         $roleId = $this->argument('role');
 
@@ -40,9 +48,7 @@ class GrantManualBookingPermissionsCommand extends Command
             return Role::findOrFail($roleId);
         }
 
-        $defaultName = $portal ? 'Beautician' : 'Admin';
-
-        return Role::whereTranslation('name', $defaultName)->first()
+        return Role::whereTranslation('name', 'Admin')->first()
             ?? Role::query()->orderBy('id')->firstOrFail();
     }
 }

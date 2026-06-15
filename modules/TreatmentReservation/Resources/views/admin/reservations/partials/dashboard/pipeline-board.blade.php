@@ -63,7 +63,7 @@
                         <li
                             class="tr-crm-pipeline-card tr-crm-pipeline-card--{{ $status }} tr-crm-appointment tr-crm-appointment--clickable"
                             data-booking-id="{{ $booking['id'] ?? '' }}"
-                            data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '') . ' ' . ($booking['beautician_job_title'] ?? '') . ' ' . ($booking['source_label'] ?? '') . ' ' . ($booking['spa_branch_name'] ?? '') . ' ' . ($booking['appointment_date'] ?? '') . ' ' . ($booking['appointment_time_range'] ?? $booking['appointment_time'] ?? '')) }}"
+                            data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['customer_phone'] ?? '') . ' ' . ($booking['customer_email'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '') . ' ' . ($booking['beautician_job_title'] ?? '') . ' ' . ($booking['source_label'] ?? '') . ' ' . ($booking['spa_branch_name'] ?? '') . ' ' . ($booking['appointment_date'] ?? '') . ' ' . ($booking['appointment_time_range'] ?? $booking['appointment_time'] ?? '')) }}"
                             role="button"
                             tabindex="0"
                         >
@@ -82,7 +82,30 @@
                             </header>
 
                             <div class="tr-crm-pipeline-card__body">
-                                <strong class="tr-crm-pipeline-card__customer">{{ $booking['customer_name'] ?? '—' }}</strong>
+                                <div class="tr-crm-pipeline-card__body-top">
+                                    <strong class="tr-crm-pipeline-card__customer">{{ $booking['customer_name'] ?? '—' }}</strong>
+
+                                    @if ($status === 'in_progress' && ! empty($booking['session_started_at']))
+                                        <div
+                                            class="tr-crm-pipeline-card__timer"
+                                            data-pipeline-timer
+                                            data-started-at="{{ $booking['session_started_at'] }}"
+                                            data-duration-minutes="{{ (int) ($booking['slot_duration_minutes'] ?? 60) }}"
+                                            aria-live="polite"
+                                        >
+                                            <span class="tr-crm-pipeline-card__timer-value">00:00</span>
+                                            <span class="tr-crm-pipeline-card__timer-label">{{ TrLang::trans('admin.crm.pipeline_timer_live') }}</span>
+                                        </div>
+                                    @elseif ($status === 'completed' && ! empty($booking['session_finished_at_label']))
+                                        <div class="tr-crm-pipeline-card__timer tr-crm-pipeline-card__timer--finished">
+                                            <span class="tr-crm-pipeline-card__timer-value">{{ $booking['session_finished_at_label'] }}</span>
+                                            <span class="tr-crm-pipeline-card__timer-label">{{ TrLang::trans('admin.crm.pipeline_timer_finished') }}</span>
+                                            @if (! empty($booking['session_duration_label']))
+                                                <span class="tr-crm-pipeline-card__timer-duration">{{ $booking['session_duration_label'] }}</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
 
                                 @if (! empty($booking['customer_history_label']) || ! empty($booking['loyalty_tier_name']))
                                     <p class="tr-crm-pipeline-card__insight">

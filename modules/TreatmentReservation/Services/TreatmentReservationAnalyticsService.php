@@ -28,12 +28,12 @@ class TreatmentReservationAnalyticsService
    *     revenueFormatted: string
    * }
    */
-  public function overview(int $days = self::DEFAULT_DAYS): array
+  public function overview(int $days = self::DEFAULT_DAYS, ?int $beauticianId = null): array
   {
     $from = Carbon::now()->subDays($days - 1)->startOfDay()->toDateString();
     $to = Carbon::now()->endOfDay()->toDateString();
 
-    $base = $this->periodBase($from, $to);
+    $base = $this->periodBase($from, $to, $beauticianId);
     $total = (clone $base)->count();
     $canceled = (clone $base)->where('status', TreatmentBooking::STATUS_CANCELED)->count();
     $completed = (clone $base)->where('status', TreatmentBooking::STATUS_COMPLETED)->count();
@@ -41,6 +41,7 @@ class TreatmentReservationAnalyticsService
 
     $pastBase = TreatmentBooking::query()
       ->withTreatmentProduct()
+      ->when($beauticianId, fn ($query) => $query->where('beautician_id', $beauticianId))
       ->whereDate('appointment_date', '<', today())
       ->whereNot('status', TreatmentBooking::STATUS_CANCELED);
 
@@ -87,7 +88,7 @@ class TreatmentReservationAnalyticsService
    *     peakFormatted: string
    * }
    */
-  public function revenueTrend(int $days = self::REVENUE_TREND_DAYS): array
+  public function revenueTrend(int $days = self::REVENUE_TREND_DAYS, ?int $beauticianId = null): array
   {
     $labels = [];
     $amounts = [];
@@ -97,6 +98,7 @@ class TreatmentReservationAnalyticsService
       $date = today()->subDays($i);
       $sum = (float) TreatmentBooking::query()
         ->withTreatmentProduct()
+        ->when($beauticianId, fn ($query) => $query->where('beautician_id', $beauticianId))
         ->where('status', TreatmentBooking::STATUS_COMPLETED)
         ->whereDate('appointment_date', $date)
         ->sum('total');
@@ -125,11 +127,11 @@ class TreatmentReservationAnalyticsService
   /**
    * @return array{labels: array<int, string>, counts: array<int, int>}
    */
-  public function statusBreakdown(int $days = self::DEFAULT_DAYS): array
+  public function statusBreakdown(int $days = self::DEFAULT_DAYS, ?int $beauticianId = null): array
   {
     $from = Carbon::now()->subDays($days - 1)->startOfDay()->toDateString();
     $to = Carbon::now()->endOfDay()->toDateString();
-    $base = $this->periodBase($from, $to);
+    $base = $this->periodBase($from, $to, $beauticianId);
 
     return [
       'labels' => [
@@ -263,21 +265,22 @@ class TreatmentReservationAnalyticsService
    *     revenueByBeautician: array<string, mixed>
    * }
    */
-  public function chartPayload(int $days = self::DEFAULT_DAYS): array
+  public function chartPayload(int $days = self::DEFAULT_DAYS, ?int $beauticianId = null): array
   {
     return [
-      'overview' => $this->overview($days),
-      'revenueTrend' => $this->revenueTrend(self::REVENUE_TREND_DAYS),
-      'statusBreakdown' => $this->statusBreakdown($days),
+      'overview' => $this->overview($days, $beauticianId),
+      'revenueTrend' => $this->revenueTrend(self::REVENUE_TREND_DAYS, $beauticianId),
+      'statusBreakdown' => $this->statusBreakdown($days, $beauticianId),
       'revenueByBeautician' => $this->revenueByBeautician($days),
     ];
   }
 
 
-  private function periodBase(string $from, string $to)
+  private function periodBase(string $from, string $to, ?int $beauticianId = null)
   {
     return TreatmentBooking::query()
       ->withTreatmentProduct()
+      ->when($beauticianId, fn ($query) => $query->where('beautician_id', $beauticianId))
       ->whereDate('appointment_date', '>=', $from)
       ->whereDate('appointment_date', '<=', $to);
   }

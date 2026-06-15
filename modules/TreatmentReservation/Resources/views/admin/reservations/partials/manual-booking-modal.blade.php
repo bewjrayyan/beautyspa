@@ -149,7 +149,7 @@
                         <div class="row">
                             <div class="{{ $scheduleColumnClass }}">
                                 <div class="form-group tr-manual-booking-field">
-                                    <label for="{{ $beauticianFieldId }}">
+                                    <label for="{{ $beauticianFieldId }}" id="{{ $beauticianFieldId }}-label">
                                         {{ trans('treatmentreservation::admin.manual_booking.beautician_id') }}
                                     </label>
 
@@ -158,6 +158,8 @@
                                             'pickerId' => $beauticianFieldId,
                                             'pickerOptions' => $beauticianPickerOptions,
                                             'selectedId' => $defaultBeauticianId,
+                                            'placeholder' => trans('treatmentreservation::admin.manual_booking.select_beautician'),
+                                            'placeholderHint' => trans('treatmentreservation::admin.manual_booking.select_beautician_hint'),
                                         ])
                                     @else
                                         <input type="hidden" name="beautician_id" id="{{ $beauticianFieldId }}" value="{{ $lockedBeautician->id }}">
@@ -299,8 +301,6 @@
                         data-choose-option="{{ trans('treatmentreservation::admin.manual_booking.choose_option') }}"
                         data-product-required="{{ trans('treatmentreservation::admin.manual_booking.product_required') }}"
                         data-option-required="{{ trans('cart::validation.this_field_is_required') }}"
-                        data-receipt-required="{{ trans('treatmentreservation::admin.manual_booking.receipt_required') }}"
-                        data-receipt-required-statuses="{{ implode(',', \Modules\TreatmentReservation\Entities\TreatmentBooking::manualPaymentStatusesRequiringReceipt()) }}"
                         data-view-receipt="{{ trans('treatmentreservation::admin.manual_booking.view_receipt') }}"
                     >
                         <header class="tr-manual-booking-section__head">
@@ -367,7 +367,7 @@
                                                 name="payment_receipt"
                                                 accept="image/*,.pdf"
                                             >
-                                            <p class="help-block tr-manual-booking-receipt__hint" hidden>
+                                            <p class="help-block tr-manual-booking-receipt__hint">
                                                 {{ trans('treatmentreservation::admin.manual_booking.receipt_help') }}
                                             </p>
                                             <div class="tr-manual-booking-receipt__preview" hidden></div>

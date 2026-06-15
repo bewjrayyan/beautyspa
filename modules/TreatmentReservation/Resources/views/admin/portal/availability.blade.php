@@ -3,6 +3,21 @@
         fn ($label, $index) => $workingHours->firstWhere('day_of_week', $index)
     )->count();
 
+    $availabilityRoutes = $availabilityRoutes ?? [
+        'hours' => route('admin.treatment_reservations.portal.availability.hours'),
+        'blocks' => route('admin.treatment_reservations.portal.availability.blocks'),
+    ];
+    $destroyBlockUrl = function (int $blockId) use ($adminPortalPreview, $beautician) {
+        if (! empty($adminPortalPreview)) {
+            return route('admin.beauticians.portal.availability.blocks.destroy', [
+                'id' => $beautician->id,
+                'blockId' => $blockId,
+            ]);
+        }
+
+        return route('admin.treatment_reservations.portal.availability.blocks.destroy', $blockId);
+    };
+
     $heroInsights = [
         [
             'icon' => 'fa-calendar-check-o',
@@ -54,12 +69,29 @@
     <h3>{{ $beautician->name }}</h3>
 
     <ol class="breadcrumb">
-        <li><a href="{{ route('admin.treatment_reservations.portal') }}">{{ trans('treatmentreservation::admin.portal.title') }}</a></li>
-        <li class="active">{{ trans('treatmentreservation::admin.availability.title') }}</li>
+        @if (! empty($adminPortalPreview))
+            <li><a href="{{ route('admin.dashboard.index') }}">{{ trans('admin::dashboard.dashboard') }}</a></li>
+            <li><a href="{{ route('admin.beauticians.index') }}">{{ trans('beautician::beauticians.beauticians') }}</a></li>
+            <li><a href="{{ route('admin.beauticians.edit', $beautician) }}">{{ trans('beautician::beauticians.form.edit_profile') }}</a></li>
+            <li class="active">{{ trans('treatmentreservation::admin.availability.title') }}</li>
+        @else
+            <li><a href="{{ route('admin.treatment_reservations.portal') }}">{{ trans('treatmentreservation::admin.portal.title') }}</a></li>
+            <li class="active">{{ trans('treatmentreservation::admin.availability.title') }}</li>
+        @endif
     </ol>
 @endsection
 
 @section('content')
+    @if (! empty($adminPortalPreview))
+        <div class="alert alert-info tr-portal-admin-preview">
+            <i class="fa fa-eye"></i>
+            @if (admin_portal_preview()?->isActive())
+                {{ trans('beautician::beauticians.form.admin_portal_preview_banner', ['name' => $beautician->name]) }}
+            @else
+                {{ trans('beautician::beauticians.form.admin_portal_preview_no_user') }}
+            @endif
+        </div>
+    @endif
     @include('treatmentreservation::admin.partials.urgency-alerts', [
         'urgencyAlertsAsModal' => true,
     ])
@@ -130,7 +162,7 @@
             </div>
 
             <div class="col-lg-9 bp-layout-main">
-                <form method="POST" action="{{ route('admin.treatment_reservations.portal.availability.hours') }}" id="tr-availability-hours-form">
+                <form method="POST" action="{{ $availabilityRoutes['hours'] }}" id="tr-availability-hours-form">
                     @csrf
                     @method('PUT')
 
@@ -205,7 +237,7 @@
                         <p>{{ trans('treatmentreservation::admin.availability.blocked_times_help') }}</p>
                     </div>
                     <div class="bp-card-body">
-                        <form method="POST" action="{{ route('admin.treatment_reservations.portal.availability.blocks') }}" class="bp-block-form">
+                        <form method="POST" action="{{ $availabilityRoutes['blocks'] }}" class="bp-block-form">
                             @csrf
 
                             <div class="bp-block-form__grid">
@@ -259,7 +291,7 @@
                                         </div>
                                         <form
                                             method="POST"
-                                            action="{{ route('admin.treatment_reservations.portal.availability.blocks.destroy', $block->id) }}"
+                                            action="{{ $destroyBlockUrl($block->id) }}"
                                             onsubmit="return confirm(@json(trans('treatmentreservation::admin.availability.remove_confirm')));"
                                         >
                                             @csrf

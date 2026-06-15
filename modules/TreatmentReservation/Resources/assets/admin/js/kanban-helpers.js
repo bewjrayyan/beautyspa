@@ -223,6 +223,30 @@ function previewField(label, value, { href = "", full = false, muted = false } =
     `;
 }
 
+function previewReceiptField(label, receiptUrl, viewLabel) {
+    const url = String(receiptUrl || "").trim();
+
+    if (! url) {
+        return "";
+    }
+
+    const safeUrl = escapeHtml(url);
+    const isImage = /\.(jpe?g|png|gif|webp|bmp)(\?.*)?$/i.test(url);
+    const valueHtml = isImage
+        ? `<a href="${safeUrl}" class="tr-calendar-event-preview__receipt-link" target="_blank" rel="noopener noreferrer">
+                <img src="${safeUrl}" alt="" class="tr-calendar-event-preview__receipt-thumb" loading="lazy">
+                <span class="tr-calendar-event-preview__receipt-caption">${escapeHtml(viewLabel)}</span>
+           </a>`
+        : `<a href="${safeUrl}" class="tr-calendar-event-preview__field-link" target="_blank" rel="noopener noreferrer">${escapeHtml(viewLabel)}</a>`;
+
+    return `
+        <div class="tr-calendar-event-preview__field tr-calendar-event-preview__field--receipt tr-calendar-event-preview__field--full">
+            <span class="tr-calendar-event-preview__field-label">${escapeHtml(label)}</span>
+            <span class="tr-calendar-event-preview__field-value">${valueHtml}</span>
+        </div>
+    `;
+}
+
 function previewSection(title, content) {
     if (! content.trim()) {
         return "";
@@ -342,6 +366,11 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             ${previewField(labels.category, booking.category_name || "")}
             ${previewField(labels.total, totalFormatted)}
             ${previewField(labels.payment, paymentLabel)}
+            ${previewReceiptField(
+                labels.paymentReceipt || "Payment receipt",
+                booking.payment_receipt_url,
+                labels.viewReceipt || "View receipt",
+            )}
         </div>
     `);
 

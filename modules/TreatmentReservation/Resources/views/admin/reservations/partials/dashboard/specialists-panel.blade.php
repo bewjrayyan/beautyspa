@@ -57,7 +57,25 @@
                     >{{ $beautician['initial'] ?? '?' }}</span>
                 @endif
                 <div class="tr-crm-specialist__body">
-                    <strong>{{ $beautician['name'] ?? '—' }}</strong>
+                    @if (! empty($crmSpecialistProfileUrl))
+                        <a
+                            href="{{ $crmSpecialistProfileUrl }}"
+                            class="tr-crm-specialist__name-link"
+                            title="{{ TrLang::trans('admin.crm.specialist_profile_link_title', ['name' => $beautician['name'] ?? '']) }}"
+                        >
+                            {{ $beautician['name'] ?? '—' }}
+                        </a>
+                    @elseif (auth()->user()?->hasAccess('admin.beauticians.edit'))
+                        <a
+                            href="{{ route('admin.beauticians.portal.availability', $beautician['id']) }}"
+                            class="tr-crm-specialist__name-link"
+                            title="{{ TrLang::trans('admin.crm.specialist_profile_link_title', ['name' => $beautician['name'] ?? '']) }}"
+                        >
+                            {{ $beautician['name'] ?? '—' }}
+                        </a>
+                    @else
+                        <strong>{{ $beautician['name'] ?? '—' }}</strong>
+                    @endif
                     @if (! empty($beautician['job_title']))
                         <span>{{ $beautician['job_title'] }}</span>
                     @endif
@@ -66,7 +84,7 @@
                     </span>
                 </div>
                 <div class="tr-crm-specialist__controls">
-                    @hasAccess('admin.treatment_reservations.edit')
+                    @if (! empty($crmShowSpecialistToggle) || auth()->user()?->hasAccess('admin.treatment_reservations.edit'))
                         <label class="tr-crm-specialist__toggle" title="{{ TrLang::trans('admin.crm.specialist_toggle_aria') }}">
                             <input
                                 type="checkbox"
@@ -79,7 +97,7 @@
                             >
                             <span class="tr-crm-specialist__toggle-ui" aria-hidden="true"></span>
                         </label>
-                    @endHasAccess
+                    @endif
                     <span
                         class="tr-crm-specialist__badge tr-crm-specialist__badge--{{ $status }}"
                         data-specialist-badge

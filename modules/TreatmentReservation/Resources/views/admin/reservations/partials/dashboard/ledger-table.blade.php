@@ -32,7 +32,7 @@
                     <tr
                         class="tr-crm-ledger__row tr-crm-ledger__row--clickable"
                         data-booking-id="{{ $row['id'] ?? '' }}"
-                        data-search="{{ strtolower(($row['customer_name'] ?? '') . ' ' . ($row['treatment_name'] ?? '') . ' ' . ($row['appointment_date_short'] ?? $row['appointment_date'] ?? '') . ' ' . ($row['appointment_time'] ?? '') . ' ' . ($row['beautician_name'] ?? '') . ' ' . ($row['status_label'] ?? '') . ' ' . ($row['total_formatted'] ?? '') . ' ' . ($row['id'] ?? '')) }}"
+                        data-search="{{ strtolower(($row['customer_name'] ?? '') . ' ' . ($row['customer_phone'] ?? '') . ' ' . ($row['customer_email'] ?? '') . ' ' . ($row['treatment_name'] ?? '') . ' ' . ($row['appointment_date_short'] ?? $row['appointment_date'] ?? '') . ' ' . ($row['appointment_time'] ?? '') . ' ' . ($row['beautician_name'] ?? '') . ' ' . ($row['status_label'] ?? '') . ' ' . ($row['total_formatted'] ?? '') . ' ' . ($row['id'] ?? '')) }}"
                         role="button"
                         tabindex="0"
                         aria-label="{{ ($row['customer_name'] ?? TrLang::trans('admin.crm.ledger_unknown_client')) . ', ' . ($row['treatment_name'] ?? TrLang::trans('admin.crm.ledger_unknown_treatment')) }}"

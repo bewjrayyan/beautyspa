@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.55' => [
+        'en' => [
+            'summary' => 'Beautician portal CRM dashboard, pipeline improvements, and payment receipt in calendar preview.',
+            'changes' => [
+                'Add beautician portal CRM dashboard (My Dashboard) with the same operational view as admin, scoped to the logged-in specialist.',
+                'Lock portal filters to the beautician and their branch so specialists only see their own appointments.',
+                'Replace legacy kanban view with the operational pipeline progression board.',
+                'Show recorded finish time on completed pipeline cards and limit each column to two visible cards with scroll.',
+                'Link specialist names to availability pages and fix profile avatars on the availability screen.',
+                'Show uploaded payment receipt proof in the calendar appointment preview drawer.',
+                'Extend grant-admin-permissions command to cover portal create/edit permissions on existing roles.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Papan pemuka CRM portal beautician, penambahbaikan pipeline, dan bukti resit dalam pratonton kalendar.',
+            'changes' => [
+                'Tambah papan pemuka CRM portal beautician (Dashboard Saya) dengan paparan operasi sama seperti admin, skop kepada pakar yang log masuk.',
+                'Kunci penapis portal kepada beautician dan cawangan mereka supaya pakar hanya lihat temujanji sendiri.',
+                'Gantikan paparan kanban lama dengan papan perkembangan pipeline operasi.',
+                'Paparkan masa selesai pada kad pipeline yang lengkap dan hadkan setiap lajur kepada dua kad dengan skrol.',
+                'Pautkan nama pakar ke halaman ketersediaan dan baiki avatar profil pada skrin ketersediaan.',
+                'Paparkan bukti resit bayaran yang dimuat naik dalam laci pratonton temujanji kalendar.',
+                'Lanjutkan arahan grant-admin-permissions untuk kebenaran create/edit portal pada peranan sedia ada.',
+            ],
+        ],
+    ],
     '4.7.54' => [
         'en' => [
             'summary' => 'CRM dashboard polish, WhatsApp reminder fixes, and manual booking phone validation.',
@@ -16,6 +42,7 @@ return [
                 'Fix manual booking phone validation on edit by normalizing to E.164 before server validation.',
                 'Improve visit labels (1st, 2nd visit), payment status on completed cards, and Finish/Done wording.',
                 'Inline Font Awesome in admin CSS to reduce console asset warnings.',
+                'After deploy, run: php artisan treatment-reservation:grant-admin-permissions (grants create/edit if missing on existing roles).',
             ],
         ],
         'ms' => [
@@ -28,6 +55,7 @@ return [
                 'Baiki validasi telefon semasa edit tempahan manual dengan normalisasi E.164 sebelum pengesahan server.',
                 'Perbaiki label lawatan (lawatan ke-1, ke-2), status bayaran kad selesai, dan istilah Selesai.',
                 'Sertakan Font Awesome dalam CSS admin untuk kurangkan amaran aset di konsol.',
+                'Selepas deploy, jalankan: php artisan treatment-reservation:grant-admin-permissions (beri kebenaran create/edit jika tiada pada peranan sedia ada).',
             ],
         ],
     ],

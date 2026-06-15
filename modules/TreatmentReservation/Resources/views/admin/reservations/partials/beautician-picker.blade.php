@@ -2,11 +2,16 @@
     $pickerId = $pickerId ?? 'tr-manual-booking-beautician';
     $pickerOptions = $pickerOptions ?? [];
     $selectedId = isset($selectedId) ? (int) $selectedId : null;
-    $placeholder = $placeholder ?? trans('storefront::checkout.select_beautician');
+    $placeholder = $placeholder ?? trans('treatmentreservation::admin.manual_booking.select_beautician');
+    $placeholderHint = $placeholderHint ?? trans('treatmentreservation::admin.manual_booking.select_beautician_hint');
     $selectedBeautician = collect($pickerOptions)->firstWhere('id', $selectedId);
 @endphp
 
-<div class="tr-beautician-picker" data-placeholder="{{ $placeholder }}">
+<div
+    class="tr-beautician-picker"
+    data-placeholder="{{ $placeholder }}"
+    data-placeholder-hint="{{ $placeholderHint }}"
+>
     <select
         id="{{ $pickerId }}"
         name="beautician_id"
@@ -33,36 +38,46 @@
         aria-expanded="false"
         aria-labelledby="{{ $pickerId }}-label"
     >
-        <span class="tr-beautician-picker__selected" @if (! $selectedBeautician) hidden @endif>
-            @if ($selectedBeautician)
-                @if (! empty($selectedBeautician['profile_image']))
-                    <img
-                        src="{{ $selectedBeautician['profile_image'] }}"
-                        alt="{{ $selectedBeautician['name'] }}"
-                        class="tr-beautician-picker__avatar tr-beautician-picker__avatar--photo"
-                    >
-                @else
-                    <span
-                        class="tr-beautician-picker__avatar"
-                        style="background-color: {{ $selectedBeautician['profile_color'] ?? '#6366f1' }}"
-                    >
-                        {{ strtoupper(substr($selectedBeautician['name'], 0, 1)) }}
+        <span class="tr-beautician-picker__body">
+            <span class="tr-beautician-picker__placeholder" @if ($selectedBeautician) hidden @endif>
+                <span class="tr-beautician-picker__placeholder-avatar" aria-hidden="true">
+                    <i class="fa fa-user-md"></i>
+                </span>
+                <span class="tr-beautician-picker__text">
+                    <span class="tr-beautician-picker__placeholder-label">{{ $placeholder }}</span>
+                    <span class="tr-beautician-picker__placeholder-hint">{{ $placeholderHint }}</span>
+                </span>
+            </span>
+
+            <span class="tr-beautician-picker__selected" @if (! $selectedBeautician) hidden @endif>
+                @if ($selectedBeautician)
+                    @if (! empty($selectedBeautician['profile_image']))
+                        <img
+                            src="{{ $selectedBeautician['profile_image'] }}"
+                            alt="{{ $selectedBeautician['name'] }}"
+                            class="tr-beautician-picker__avatar tr-beautician-picker__avatar--photo"
+                        >
+                    @else
+                        <span
+                            class="tr-beautician-picker__avatar"
+                            style="background-color: {{ $selectedBeautician['profile_color'] ?? '#6366f1' }}"
+                        >
+                            {{ strtoupper(substr($selectedBeautician['name'], 0, 1)) }}
+                        </span>
+                    @endif
+                    <span class="tr-beautician-picker__text">
+                        <span class="tr-beautician-picker__name">{{ $selectedBeautician['name'] }}</span>
+                        @if (! empty($selectedBeautician['job_title']))
+                            <span class="tr-beautician-picker__title">{{ $selectedBeautician['job_title'] }}</span>
+                        @endif
                     </span>
                 @endif
-                <span class="tr-beautician-picker__text">
-                    <span class="tr-beautician-picker__name">{{ $selectedBeautician['name'] }}</span>
-                    @if (! empty($selectedBeautician['job_title']))
-                        <span class="tr-beautician-picker__title">{{ $selectedBeautician['job_title'] }}</span>
-                    @endif
-                </span>
-            @endif
+            </span>
         </span>
 
-        <span class="tr-beautician-picker__placeholder" @if ($selectedBeautician) hidden @endif>
-            {{ $placeholder }}
+        <span class="tr-beautician-picker__chevron-wrap" aria-hidden="true">
+            <i class="fa fa-angle-down tr-beautician-picker__chevron"></i>
         </span>
-
-        <i class="fa fa-angle-down tr-beautician-picker__chevron" aria-hidden="true"></i>
     </button>
 
     <ul class="tr-beautician-picker__options" role="listbox" hidden>

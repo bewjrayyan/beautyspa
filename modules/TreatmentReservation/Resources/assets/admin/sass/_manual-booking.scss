@@ -473,8 +473,30 @@
             box-shadow: 0 0 0 1px color-mix(in srgb, var(--tr-booking-accent) 35%, transparent);
         }
 
+        &.is-placeholder {
+            &:hover,
+            &.is-open {
+                border-color: color-mix(in srgb, var(--tr-booking-accent) 55%, #e2e8f0);
+                box-shadow: 0 0 0 3px var(--tr-booking-accent-glow);
+            }
+        }
+
         &.is-open {
             box-shadow: 0 0 0 3px var(--tr-booking-accent-glow);
+        }
+    }
+
+    .tr-beautician-picker__placeholder-avatar {
+        background: var(--tr-booking-accent-soft);
+        border-color: color-mix(in srgb, var(--tr-booking-accent) 18%, #e2e8f0);
+        color: var(--tr-booking-accent);
+    }
+
+    .tr-beautician-picker__chevron-wrap {
+        .tr-beautician-picker__card:hover &,
+        .tr-beautician-picker__card.is-open & {
+            background: var(--tr-booking-accent-soft);
+            color: var(--tr-booking-accent);
         }
     }
 
@@ -764,13 +786,31 @@
     }
 }
 
-.tr-manual-booking-open-btn {
+.tr-manual-booking-open-btn.btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     border-radius: 10px;
     font-weight: 700;
-    box-shadow: 0 4px 14px rgba(0, 104, 225, 0.2);
+}
+
+.tr-crm-toolbar__new.tr-manual-booking-open-btn {
+    background: linear-gradient(
+        135deg,
+        var(--admin-sidebar-bg, #4a0e2e) 0%,
+        color-mix(in srgb, var(--admin-sidebar-bg, #4a0e2e) 82%, #000) 100%
+    );
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--admin-sidebar-bg, #4a0e2e) 28%, transparent);
+
+    &:hover,
+    &:focus {
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--admin-sidebar-bg, #4a0e2e) 92%, #fff) 0%,
+            color-mix(in srgb, var(--admin-sidebar-bg, #4a0e2e) 78%, #000) 100%
+        );
+        box-shadow: 0 10px 24px color-mix(in srgb, var(--admin-sidebar-bg, #4a0e2e) 34%, transparent);
+    }
 }
 
 @media (max-width: 768px) {

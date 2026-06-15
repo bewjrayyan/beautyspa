@@ -174,6 +174,7 @@ export function resetBeauticianPicker(picker, defaultBeauticianId = "") {
     const selected = picker.querySelector(".tr-beautician-picker__selected");
     const placeholder = picker.querySelector(".tr-beautician-picker__placeholder");
     const placeholderText = picker.dataset.placeholder || "Please select";
+    const placeholderHint = picker.dataset.placeholderHint || "";
 
     closeBeauticianPicker(picker);
 
@@ -193,7 +194,20 @@ export function resetBeauticianPicker(picker, defaultBeauticianId = "") {
     }
 
     if (placeholder) {
-        placeholder.textContent = placeholderText;
+        const placeholderLabel = placeholder.querySelector(".tr-beautician-picker__placeholder-label");
+
+        if (placeholderLabel) {
+            placeholderLabel.textContent = placeholderText;
+        } else {
+            placeholder.textContent = placeholderText;
+        }
+
+        const placeholderHintEl = placeholder.querySelector(".tr-beautician-picker__placeholder-hint");
+
+        if (placeholderHintEl && placeholderHint) {
+            placeholderHintEl.textContent = placeholderHint;
+        }
+
         placeholder.hidden = false;
     }
 

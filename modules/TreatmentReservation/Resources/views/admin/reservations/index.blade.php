@@ -11,11 +11,15 @@
 @endsection
 
 @section('content')
-    @if ($activeView !== 'dashboard')
+    @php
+        $isCrmPipelineView = in_array($activeView, ['dashboard', 'kanban'], true);
+    @endphp
+
+    @if (! $isCrmPipelineView)
         @include('treatmentreservation::admin.partials.urgency-alerts')
     @endif
 
-    <div class="tr-reservations tr-reservations-page tr-reservations--view-{{ $activeView }}{{ $activeView === 'dashboard' ? ' tr-reservations--crm-dashboard tr-reservations--mockup' : '' }}" id="tr-reservations-app"
+    <div class="tr-reservations tr-reservations-page tr-reservations--view-{{ $activeView }}{{ $isCrmPipelineView ? ' tr-reservations--crm-dashboard tr-reservations--mockup' : '' }}" id="tr-reservations-app"
         data-active-view="{{ $activeView }}"
         data-calendar-legend-label="{{ TrLang::trans('admin.calendar.legend_label') }}"
         data-cal-preview-title="{{ TrLang::trans('admin.calendar.preview_title') }}"
@@ -67,6 +71,8 @@
         @endHasAccess
         data-cal-preview-duration="{{ TrLang::trans('admin.calendar.preview_duration') }}"
         data-cal-preview-payment="{{ TrLang::trans('admin.calendar.preview_payment') }}"
+        data-cal-preview-payment-receipt="{{ TrLang::trans('admin.calendar.preview_payment_receipt') }}"
+        data-cal-preview-view-receipt="{{ TrLang::trans('admin.calendar.preview_view_receipt') }}"
         data-cal-preview-total="{{ TrLang::trans('admin.calendar.preview_total') }}"
         data-cal-preview-source="{{ TrLang::trans('admin.calendar.preview_source') }}"
         data-cal-preview-branch="{{ TrLang::trans('admin.calendar.preview_branch') }}"
@@ -90,7 +96,7 @@
         data-initial-beautician="{{ $filters['beautician_id'] }}"
         data-initial-category="{{ $filters['treatment_category_id'] }}"
     >
-        @if ($activeView === 'dashboard')
+        @if ($isCrmPipelineView)
             @php
                 $crmDateFilter = $filters['date_filter'] ?? 'today';
                 $crmPickerDate = ($crmDateFilter === 'custom' && ! empty($filters['filter_date']))
@@ -104,17 +110,44 @@
             @endphp
             <header class="tr-crm-page-header">
                 <div class="tr-crm-page-header__intro">
-                    <h1 class="tr-crm-page-header__title">{{ TrLang::trans('admin.reservations') }}</h1>
-                    <p class="tr-crm-page-header__lead">{{ TrLang::trans('admin.crm.subtitle') }}</p>
+                    <h1 class="tr-crm-page-header__title">
+                        {{ $activeView === 'kanban'
+                            ? TrLang::trans('admin.crm.pipeline_title')
+                            : TrLang::trans('admin.reservations') }}
+                    </h1>
+                    <p class="tr-crm-page-header__lead">
+                        {{ $activeView === 'kanban'
+                            ? TrLang::trans('admin.crm.pipeline_lead_long')
+                            : TrLang::trans('admin.crm.subtitle') }}
+                    </p>
 
                     <div class="tr-crm-page-header__toolbar">
                         <div class="tr-crm-toolbar">
                             <form class="tr-crm-toolbar__filters-form" method="get" action="{{ route('admin.treatment_reservations.index') }}" id="tr-crm-header-form">
-                                <input type="hidden" name="view" value="dashboard">
+                                <input type="hidden" name="view" value="{{ $activeView }}">
                                 <input type="hidden" name="date_filter" id="tr-crm-date-filter" value="{{ $crmDateFilter }}">
                                 <input type="hidden" name="filter_date" id="tr-crm-filter-date" value="{{ $filters['filter_date'] ?? '' }}">
-                                <input type="hidden" name="beautician_id" id="tr-crm-hidden-beautician" value="{{ $filters['beautician_id'] }}">
                                 <input type="hidden" name="treatment_category_id" id="tr-crm-hidden-category" value="{{ $filters['treatment_category_id'] }}">
+
+                                @if ($activeView === 'kanban')
+                                    <div class="tr-crm-toolbar__field">
+                                        <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
+                                            <i class="fa fa-user-md"></i>
+                                        </span>
+                                        <label class="sr-only" for="tr-crm-filter-beautician">{{ TrLang::trans('admin.filters.beautician') }}</label>
+                                        <select class="tr-crm-toolbar__select" id="tr-crm-filter-beautician" name="beautician_id" onchange="this.form.requestSubmit()">
+                                            <option value="">{{ TrLang::trans('admin.filters.all_beauticians') }}</option>
+                                            @foreach ($beauticians as $beautician)
+                                                <option value="{{ $beautician->id }}" @selected((int) ($filters['beautician_id'] ?? 0) === $beautician->id)>
+                                                    {{ $beautician->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
+                                @else
+                                    <input type="hidden" name="beautician_id" id="tr-crm-hidden-beautician" value="{{ $filters['beautician_id'] }}">
+                                @endif
 
                                 @if ($spaBranches->isNotEmpty())
                                     <div class="tr-crm-toolbar__field tr-crm-toolbar__field--branch">
@@ -257,7 +290,7 @@
             ])
         @endHasAnyAccess
 
-        @if ($activeView !== 'dashboard')
+        @if (! $isCrmPipelineView)
             <p class="tr-view-back">
                 <a href="{{ route('admin.treatment_reservations.index', ['view' => 'dashboard']) }}" class="tr-view-back__link">
                     <i class="fa fa-arrow-left" aria-hidden="true"></i>
@@ -268,8 +301,6 @@
 
         @if ($activeView === 'calendar')
             @include('treatmentreservation::admin.reservations.partials.filters-calendar')
-        @elseif ($activeView === 'kanban')
-            @include('treatmentreservation::admin.reservations.partials.filters')
         @endif
 
         <div class="tab-content tr-tab-panels">
@@ -288,7 +319,10 @@
             @endif
 
             @if ($activeView === 'kanban')
-                @include('treatmentreservation::admin.reservations.partials.kanban')
+                @include('treatmentreservation::admin.reservations.partials.dashboard', [
+                    'dashboardData' => $dashboardData,
+                    'pipelineOnly' => true,
+                ])
             @endif
 
             @if ($activeView === 'reports')

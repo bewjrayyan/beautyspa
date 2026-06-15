@@ -32,11 +32,6 @@ function initManualBookingProducts(form, catalog = []) {
     const paymentStatusInput = root.querySelector('[name="payment_status"]');
     const receiptInput = root.querySelector('[name="payment_receipt"]');
     const receiptPreview = root.querySelector(".tr-manual-booking-receipt__preview");
-    const receiptHint = root.querySelector(".tr-manual-booking-receipt__hint");
-    const receiptRequiredStatuses = (root.dataset.receiptRequiredStatuses || "partial_payment,full_paid")
-        .split(",")
-        .map((status) => status.trim())
-        .filter(Boolean);
     const defaultPaymentStatus = "deposit";
 
     const getSelectedProduct = () =>
@@ -400,14 +395,6 @@ function initManualBookingProducts(form, catalog = []) {
         receiptPreview.innerHTML = "";
     };
 
-    const requiresReceipt = (status) => receiptRequiredStatuses.includes(status);
-
-    const toggleReceiptRequirement = () => {
-        if (receiptHint) {
-            receiptHint.hidden = !requiresReceipt(paymentStatusInput?.value);
-        }
-    };
-
     const reset = () => {
         state.selectedProductId = "";
         state.options = {};
@@ -430,7 +417,6 @@ function initManualBookingProducts(form, catalog = []) {
         renderProductList("");
         renderProductConfig();
         renderReceiptPreview();
-        toggleReceiptRequirement();
     };
 
     const fillFromBooking = (booking = {}) => {
@@ -451,7 +437,6 @@ function initManualBookingProducts(form, catalog = []) {
 
         renderProductConfig();
         renderReceiptPreview();
-        toggleReceiptRequirement();
     };
 
     const validate = () => {
@@ -479,10 +464,6 @@ function initManualBookingProducts(form, catalog = []) {
             if (value === undefined || value === null || value === "" || (Array.isArray(value) && value.length === 0)) {
                 return `${option.name}: ${root.dataset.optionRequired || "This field is required."}`;
             }
-        }
-
-        if (requiresReceipt(paymentStatusInput?.value) && !state.receiptFile && !state.existingReceiptUrl) {
-            return root.dataset.receiptRequired || "Please upload a payment receipt for partial or full payment.";
         }
 
         return "";
@@ -519,7 +500,6 @@ function initManualBookingProducts(form, catalog = []) {
     };
 
     searchInput?.addEventListener("input", (event) => renderProductList(event.target.value));
-    paymentStatusInput?.addEventListener("change", toggleReceiptRequirement);
     receiptInput?.addEventListener("change", (event) => {
         state.receiptFile = event.target.files?.[0] || null;
         renderReceiptPreview();
@@ -528,7 +508,6 @@ function initManualBookingProducts(form, catalog = []) {
     renderProductList();
     renderProductConfig();
     renderReceiptPreview();
-    toggleReceiptRequirement();
 
     root._manualBookingProducts = { reset, fillFromBooking, validate, appendToFormData, selectProduct };
 

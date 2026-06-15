@@ -12,6 +12,48 @@ function escapeHtml(value = "") {
         .replace(/"/g, "&quot;");
 }
 
+function normalizePhoneSearchDigits(value = "") {
+    let digits = String(value).replace(/\D+/g, "");
+
+    if (!digits) {
+        return "";
+    }
+
+    if (digits.startsWith("00")) {
+        digits = digits.slice(2);
+    } else if (digits.startsWith("0")) {
+        digits = `60${digits.slice(1)}`;
+    }
+
+    return digits;
+}
+
+function matchesCrmSearchQuery(haystack = "", query = "") {
+    const trimmedQuery = query.trim();
+
+    if (!trimmedQuery) {
+        return true;
+    }
+
+    const haystackText = String(haystack || "");
+    const haystackLower = haystackText.toLowerCase();
+    const queryLower = trimmedQuery.toLowerCase();
+
+    if (haystackLower.includes(queryLower)) {
+        return true;
+    }
+
+    const queryDigits = normalizePhoneSearchDigits(trimmedQuery);
+
+    if (queryDigits.length < 3) {
+        return false;
+    }
+
+    const haystackDigits = normalizePhoneSearchDigits(haystackText);
+
+    return haystackDigits.includes(queryDigits);
+}
+
 function getAgendaLabels() {
     const root = document.getElementById("tr-crm-dashboard");
 
@@ -92,12 +134,12 @@ function initDashboardSearch() {
     }
 
     const applySearch = () => {
-        const query = input.value.trim().toLowerCase();
+        const query = input.value.trim();
         let visibleCount = 0;
 
         dashboard.querySelectorAll(itemSelectors).forEach((row) => {
-            const haystack = (row.dataset.search || row.textContent || "").toLowerCase();
-            const matches = query === "" || haystack.includes(query);
+            const haystack = row.dataset.search || row.textContent || "";
+            const matches = matchesCrmSearchQuery(haystack, query);
 
             row.classList.toggle("is-search-hidden", !matches);
 
@@ -498,6 +540,51 @@ function updatePipelineCounts() {
     });
 }
 
+function formatPipelineElapsed(seconds) {
+    const total = Math.max(0, seconds);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
+
+    if (hours > 0) {
+        return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function tickPipelineTimers() {
+    const now = Date.now();
+
+    document.querySelectorAll("[data-pipeline-timer]").forEach((timer) => {
+        const startedAt = Date.parse(timer.dataset.startedAt || "");
+
+        if (!startedAt) {
+            return;
+        }
+
+        const elapsedSeconds = Math.floor((now - startedAt) / 1000);
+        const durationSeconds = Math.max(60, Number(timer.dataset.durationMinutes || 60) * 60);
+        const valueEl = timer.querySelector(".tr-crm-pipeline-card__timer-value");
+
+        if (valueEl) {
+            valueEl.textContent = formatPipelineElapsed(elapsedSeconds);
+        }
+
+        timer.classList.toggle("is-overtime", elapsedSeconds > durationSeconds);
+    });
+}
+
+function initPipelineTimers() {
+    tickPipelineTimers();
+
+    if (window._trPipelineTimerInterval) {
+        return;
+    }
+
+    window._trPipelineTimerInterval = window.setInterval(tickPipelineTimers, 1000);
+}
+
 function initPipelineSortable(app) {
     const root = document.querySelector("[data-crm-pipeline]");
 
@@ -703,6 +790,7 @@ export function initCrmDashboard(app) {
     initDateFilterPills();
     initCrmDatePicker();
     initAgendaPanel(app);
+    initPipelineTimers();
     initPipelineSortable(app);
     initPipelineActions(app);
     initSpecialistToggles();

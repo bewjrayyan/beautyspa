@@ -31,7 +31,7 @@ class StoreManualBookingRequest extends Request
      */
     public function rules(): array
     {
-        return $this->manualBookingFieldRules(requireReceipt: true);
+        return $this->manualBookingFieldRules(requireReceipt: false);
     }
 
 

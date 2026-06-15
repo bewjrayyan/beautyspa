@@ -22,7 +22,7 @@ class SidebarExtender extends BaseSidebarExtender
                 $group->item(trans('treatmentreservation::sidebar.my_job_sheet'), function (Item $item) use ($beautician) {
                     $item->icon('fa fa-columns');
                     $item->weight(16);
-                    $item->route('admin.beauticians.portal', $beautician->id);
+                    $item->route('admin.beauticians.portal.dashboard', $beautician->id);
                     $item->authorize(true);
                 });
             } elseif (Beautician::findForUser($this->auth->id())) {

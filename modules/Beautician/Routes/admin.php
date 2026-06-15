@@ -92,6 +92,26 @@ Route::middleware(['can:admin.beauticians.edit', 'beautician.portal.from_route']
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@jobSheet',
     ]);
 
+    Route::get('beauticians/{id}/portal/dashboard', [
+        'as' => 'admin.beauticians.portal.dashboard',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@dashboard',
+    ]);
+
+    Route::get('beauticians/{id}/portal/customers/profile', [
+        'as' => 'admin.beauticians.portal.customer_profile',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@customerProfile',
+    ]);
+
+    Route::patch('beauticians/{id}/portal/specialist-availability', [
+        'as' => 'admin.beauticians.portal.specialist_availability',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@toggleOwnAvailability',
+    ]);
+
+    Route::post('beauticians/{id}/portal/{booking}/reminder', [
+        'as' => 'admin.beauticians.portal.send_reminder',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@sendCustomerReminder',
+    ]);
+
     Route::get('beauticians/{id}/portal/kanban', [
         'as' => 'admin.beauticians.portal.kanban',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@kanbanBoard',
@@ -115,6 +135,26 @@ Route::middleware(['can:admin.beauticians.edit', 'beautician.portal.from_route']
     Route::post('beauticians/{id}/portal/{booking}/whatsapp', [
         'as' => 'admin.beauticians.portal.send_whatsapp',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@sendCustomerWhatsApp',
+    ]);
+
+    Route::get('beauticians/{id}/portal/availability', [
+        'as' => 'admin.beauticians.portal.availability',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@edit',
+    ]);
+
+    Route::put('beauticians/{id}/portal/availability/hours', [
+        'as' => 'admin.beauticians.portal.availability.hours',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@updateHours',
+    ]);
+
+    Route::post('beauticians/{id}/portal/availability/blocks', [
+        'as' => 'admin.beauticians.portal.availability.blocks',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@storeBlock',
+    ]);
+
+    Route::delete('beauticians/{id}/portal/availability/blocks/{blockId}', [
+        'as' => 'admin.beauticians.portal.availability.blocks.destroy',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@destroyBlock',
     ]);
 });
 

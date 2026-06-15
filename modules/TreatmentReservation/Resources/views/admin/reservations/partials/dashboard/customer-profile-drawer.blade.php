@@ -1,5 +1,8 @@
 @php
     use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
+
+    $crmCustomerProfileUrl = $crmCustomerProfileUrl ?? route('admin.treatment_reservations.crm.customer_profile');
+    $crmReminderUrlTemplate = $crmReminderUrlTemplate ?? route('admin.treatment_reservations.send_reminder', ['id' => '__ID__']);
 @endphp
 
 <aside
@@ -7,8 +10,8 @@
     id="tr-crm-customer-profile"
     hidden
     aria-hidden="true"
-    data-profile-url="{{ route('admin.treatment_reservations.crm.customer_profile') }}"
-    data-reminder-url-template="{{ route('admin.treatment_reservations.send_reminder', ['id' => '__ID__']) }}"
+    data-profile-url="{{ $crmCustomerProfileUrl }}"
+    data-reminder-url-template="{{ $crmReminderUrlTemplate }}"
     data-profile-title="{{ TrLang::trans('admin.crm.profile_title') }}"
     data-profile-loading="{{ TrLang::trans('admin.crm.profile_loading') }}"
     data-profile-failed="{{ TrLang::trans('admin.crm.profile_failed') }}"

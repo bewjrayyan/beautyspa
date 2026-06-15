@@ -146,7 +146,23 @@ class ReservationDashboardService
         ?Carbon $filterDate,
     ): array {
         $query = $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
-            ->with(['beautician.files', 'beautician.user', 'beautician.spaBranches', 'product', 'category'])
+            ->with([
+                'beautician.files',
+                'beautician.user',
+                'beautician.spaBranches',
+                'product',
+                'category',
+                'paymentReceipt',
+                'activities' => function ($activityQuery) {
+                    $activityQuery
+                        ->where('action', TreatmentBookingActivity::ACTION_STATUS_CHANGED)
+                        ->whereIn('to_value', [
+                            TreatmentBooking::STATUS_IN_PROGRESS,
+                            TreatmentBooking::STATUS_COMPLETED,
+                        ])
+                        ->latest();
+                },
+            ])
             ->when($filterDate, fn (Builder $builder) => $builder->whereDate('appointment_date', $filterDate))
             ->whereIn('status', [
                 TreatmentBooking::STATUS_PENDING,
@@ -452,6 +468,8 @@ class ReservationDashboardService
     private function serializePipelineRow(TreatmentBooking $booking): array
     {
         $payload = $booking->toKanbanPayload();
+        $finishedAt = $booking->sessionFinishedAt();
+        $durationSeconds = $booking->sessionDurationSeconds();
 
         return app(BookingCrmInsightService::class)->enrichPayload($booking, array_merge($payload, [
             'total_formatted' => Money::inDefaultCurrency($booking->total ?? 0)->format(),
@@ -459,12 +477,28 @@ class ReservationDashboardService
             'payment_is_outstanding' => $booking->hasOutstandingPayment(),
             'payment_status_label' => $booking->paymentStatusLabel(),
             'notes' => $booking->notes,
+            'session_started_at' => $booking->sessionStartedAt()?->toIso8601String(),
+            'session_finished_at' => $finishedAt?->toIso8601String(),
+            'session_finished_at_label' => $finishedAt?->format('H:i'),
+            'session_duration_seconds' => $durationSeconds,
+            'session_duration_label' => $durationSeconds !== null
+                ? $this->formatSessionDurationLabel($durationSeconds)
+                : null,
+            'slot_duration_minutes' => $booking->resolveSlotDurationMinutes(),
             'next_status' => match ($booking->status) {
                 TreatmentBooking::STATUS_PENDING => TreatmentBooking::STATUS_IN_PROGRESS,
                 TreatmentBooking::STATUS_IN_PROGRESS => TreatmentBooking::STATUS_COMPLETED,
                 default => null,
             },
         ]));
+    }
+
+
+    private function formatSessionDurationLabel(int $seconds): string
+    {
+        $minutes = max(1, (int) round($seconds / 60));
+
+        return TrLang::trans('admin.crm.pipeline_duration_minutes', ['count' => $minutes]);
     }
 
 
