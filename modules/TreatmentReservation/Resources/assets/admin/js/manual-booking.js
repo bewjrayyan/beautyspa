@@ -1,5 +1,6 @@
 import flatpickr from "flatpickr";
 import {
+    formatPhoneE164,
     getPhoneInputE164,
     initModernPhoneInputs,
 } from "../../../../../Storefront/Resources/assets/public/js/lib/modernPhoneInput.js";
@@ -87,12 +88,14 @@ function setPhoneInputValue(input, phone = "") {
         return;
     }
 
+    const e164 = formatPhoneE164(phone);
+
     if (input._iti) {
-        input._iti.setNumber(phone);
-        input.dataset.fullNumber = input._iti.getNumber() || "";
+        input._iti.setNumber(e164);
+        input.dataset.fullNumber = input._iti.getNumber() || e164;
     } else {
-        input.value = phone;
-        input.dataset.fullNumber = phone;
+        input.value = e164;
+        input.dataset.fullNumber = e164;
     }
 }
 
@@ -644,7 +647,7 @@ function bindManualBookingModal(modal) {
         }
 
         if (phoneInput?._iti) {
-            phoneInput.value = getPhoneInputE164(phoneInput) || phoneInput.value;
+            phoneInput.value = getPhoneInputE164(phoneInput) || formatPhoneE164(phoneInput.value);
         }
 
         const productError = productPicker?.validate() || "";

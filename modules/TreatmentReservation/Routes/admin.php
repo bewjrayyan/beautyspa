@@ -86,6 +86,12 @@ Route::post('treatment-reservations/{id}/reminder', [
     'middleware' => 'can:admin.treatment_reservations.edit',
 ]);
 
+Route::post('treatment-reservations/{id}/beautician-reminder', [
+    'as' => 'admin.treatment_reservations.send_beautician_reminder',
+    'uses' => 'ReservationController@sendBeauticianReminder',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
 Route::patch('treatment-reservations/crm/specialists/{beautician}/availability', [
     'as' => 'admin.treatment_reservations.crm.specialist_availability',
     'uses' => 'ReservationController@toggleSpecialistAvailability',

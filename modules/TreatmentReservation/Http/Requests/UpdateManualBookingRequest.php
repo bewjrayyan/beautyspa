@@ -17,7 +17,7 @@ class UpdateManualBookingRequest extends Request
     {
         if ($this->filled('customer_phone')) {
             $this->merge([
-                'customer_phone' => PhoneNumber::normalize($this->input('customer_phone')) ?: $this->input('customer_phone'),
+                'customer_phone' => PhoneNumber::toE164($this->input('customer_phone')) ?: $this->input('customer_phone'),
             ]);
         }
     }

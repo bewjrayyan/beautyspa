@@ -47,6 +47,7 @@ class BookingSyncService
             'total' => $order->total->amount(),
             'currency' => $order->currency,
             'notes' => $order->note,
+            'payment_status' => $order->payment_status,
         ];
 
         if (! $existing) {

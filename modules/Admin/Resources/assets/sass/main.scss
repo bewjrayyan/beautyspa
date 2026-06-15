@@ -1,5 +1,15 @@
 @import "../vendors/css/bootstrap.min.css";
-@import "font-awesome/css/font-awesome";
+@import "font-awesome";
+
+/* Keep icon glyphs from shifting while fonts resolve. */
+.fa,
+[class^="fa-"],
+[class*=" fa-"] {
+    display: inline-block;
+    min-width: 1em;
+    text-align: center;
+}
+
 @import "nprogress/nprogress";
 @import "./datatables";
 @import "./selectize";

@@ -504,6 +504,7 @@ function buildCalendarPreviewLabels(root) {
         whatsappSending: root.dataset.calPreviewWhatsappSending || "Sending…",
         whatsappSent: root.dataset.calPreviewWhatsappSent || "WhatsApp message sent",
         whatsappFailed: root.dataset.calPreviewWhatsappFailed || "Failed to send WhatsApp message",
+        whatsappNotConfigured: root.dataset.calPreviewWhatsappNotConfigured || "OneSender WhatsApp API is not configured.",
         activityTitle: root.dataset.calPreviewActivityTitle || "Activity log",
         statusPending: root.dataset.calStatusPending || "Pending",
         statusInProgress: root.dataset.calStatusInProgress || "In Progress",
@@ -518,6 +519,13 @@ function buildCalendarPreviewLabels(root) {
         resendReminder: root.dataset.calPreviewResendReminder || "Resend reminder",
         reminderSent: root.dataset.calPreviewReminderSent || "Reminder sent",
         reminderDue: root.dataset.calPreviewReminderDue || "Due for reminder",
+        reminderSending: root.dataset.calPreviewReminderSending || "Sending reminder…",
+        reminderFailed: root.dataset.calPreviewReminderFailed || "Failed to send reminder",
+        whatsappReminderCustomer: root.dataset.calPreviewWhatsappReminderCustomer || "WhatsApp reminder · Customer",
+        whatsappReminderBeautician: root.dataset.calPreviewWhatsappReminderBeautician || "WhatsApp reminder · Beautician",
+        resendBeauticianReminder: root.dataset.calPreviewResendBeauticianReminder || "Resend beautician reminder",
+        beauticianReminderSent: root.dataset.calPreviewBeauticianReminderSent || "Beautician reminder sent",
+        beauticianReminderFailed: root.dataset.calPreviewBeauticianReminderFailed || "Failed to send beautician reminder",
         duration: root.dataset.calPreviewDuration || "Duration",
         durationMinutes: root.dataset.calPreviewDurationMinutes || ":count min",
         payment: root.dataset.calPreviewPayment || "Payment",
@@ -538,7 +546,6 @@ function buildCalendarPreviewLabels(root) {
 }
 
 function buildCalendarPreviewOptions(root) {
-    const crmDashboard = document.getElementById("tr-crm-dashboard");
     const manualBookingOptions = root.dataset.manualBookingEdit === "1"
         ? {
               manualBookingEditEnabled: true,
@@ -553,20 +560,30 @@ function buildCalendarPreviewOptions(root) {
             hideOrderLink: true,
             hideBeautician: true,
             showWhatsApp: true,
+            portalGenericWhatsApp: true,
+            canSendNotifications: root.dataset.crmCanEdit === "1",
             allowBeauticianNotes: true,
             notesUrlTemplate: root.dataset.notesUrl || "",
             whatsappUrlTemplate: root.dataset.whatsappUrl || "",
+            reminderUrlTemplate: root.dataset.reminderUrl || "",
+            beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
             ...manualBookingOptions,
         };
     }
 
     if (root.id === "tr-reservations-app") {
+        const canEdit = root.dataset.crmCanEdit === "1";
+
         return {
             showActivityLog: true,
             showWhatsApp: true,
+            canSendNotifications: canEdit,
+            whatsappConfigured: root.dataset.whatsappConfigured === "1",
             whatsappUrlTemplate: root.dataset.whatsappUrl || "",
+            reminderUrlTemplate: root.dataset.reminderUrl || "",
+            beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
             statusUrlTemplate: root.dataset.statusUrl || "",
-            crmCanEdit: crmDashboard?.dataset.crmCanEdit === "1",
+            crmCanEdit: canEdit,
             ...manualBookingOptions,
         };
     }

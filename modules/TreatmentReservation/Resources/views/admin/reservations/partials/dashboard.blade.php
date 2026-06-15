@@ -22,6 +22,7 @@
         'tomorrow' => TrLang::trans('admin.crm.kpi_tomorrow'),
         'yesterday' => TrLang::trans('admin.crm.kpi_yesterday'),
         'all' => TrLang::trans('admin.crm.kpi_all'),
+        'custom' => $filterDateLabel,
         default => TrLang::trans('admin.crm.kpi_today'),
     };
     $kpiBookingsHint = TrLang::trans('admin.crm.kpi_date_hint', ['count' => $todayCount, 'date' => $filterDateLabel]);

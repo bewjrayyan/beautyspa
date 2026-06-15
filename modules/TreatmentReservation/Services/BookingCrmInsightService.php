@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Modules\Loyalty\Entities\LoyaltyWallet;
 use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Support\CustomerVisitLabel;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 use Modules\User\Entities\User;
 use Modules\User\Support\PhoneNumber;
@@ -37,7 +38,7 @@ class BookingCrmInsightService
             $payload['customer_visit_count'] = $stats['visit_count'];
             $payload['customer_last_treatment'] = $stats['last_treatment'];
             $payload['customer_last_visit_date'] = $stats['last_visit_date'];
-            $payload['customer_history_label'] = $this->customerHistoryLabel($stats);
+            $payload['customer_history_label'] = CustomerVisitLabel::forBooking($booking, $stats['visit_count']);
             $payload['loyalty_tier_name'] = $this->loyaltyTierForPhone($phone);
         } else {
             $payload['customer_visit_count'] = 0;
@@ -48,11 +49,12 @@ class BookingCrmInsightService
         }
 
         $payload['inline_alerts'] = $this->urgency->inlineAlertsFor($booking);
-        $payload['can_reschedule_manual'] = $booking->isManualEditable();
+        $payload['can_reschedule_manual'] = $booking->canRescheduleManual();
 
         return array_merge(
             $payload,
-            app(CustomerAppointmentReminderService::class)->reminderMeta($booking)
+            app(CustomerAppointmentReminderService::class)->reminderMeta($booking),
+            app(BeauticianAppointmentReminderService::class)->reminderMeta($booking),
         );
     }
 
@@ -136,29 +138,4 @@ class BookingCrmInsightService
 
         return $this->loyaltyTierCache[$normalizedPhone] = $wallet?->tier?->translatedName();
     }
-
-
-    /**
-     * @param  array{visit_count: int, last_treatment: ?string, last_visit_date: ?string}  $stats
-     */
-    private function customerHistoryLabel(array $stats): ?string
-    {
-        if ($stats['visit_count'] <= 0 && blank($stats['last_treatment'])) {
-            return TrLang::trans('admin.crm.customer_new');
-        }
-
-        if ($stats['visit_count'] > 0 && filled($stats['last_treatment'])) {
-            return TrLang::trans('admin.crm.customer_history', [
-                'count' => $stats['visit_count'],
-                'treatment' => $stats['last_treatment'],
-            ]);
-        }
-
-        if ($stats['visit_count'] > 0) {
-            return TrLang::trans('admin.crm.customer_visits', ['count' => $stats['visit_count']]);
-        }
-
-        return null;
-    }
-
 }

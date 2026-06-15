@@ -31,6 +31,7 @@ class BookingCustomerWhatsAppService
             [
                 'source' => 'treatment.booking.manual',
                 'dedupe_key' => 'booking:' . $booking->id . ':manual',
+                'immediate' => true,
             ]
         );
 

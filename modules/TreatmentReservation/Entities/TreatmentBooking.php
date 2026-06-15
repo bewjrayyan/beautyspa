@@ -152,6 +152,13 @@ class TreatmentBooking extends Model
     }
 
 
+    public function canRescheduleManual(): bool
+    {
+        return $this->isManualBooking()
+            && $this->status === self::STATUS_PENDING;
+    }
+
+
     public static function statusFromOrder(string $orderStatus, ?string $paymentStatus = null): string
     {
         if (in_array($orderStatus, [Order::CANCELED, Order::REFUNDED], true)
@@ -399,6 +406,7 @@ class TreatmentBooking extends Model
             'beautician_color' => $this->beautician?->profile_color ?: '#6366f1',
             'beautician_avatar' => $this->beautician?->displayAvatarUrl(),
             'beautician_initial' => $this->beautician?->initials ?? '?',
+            'beautician_phone_available' => filled(trim((string) ($this->beautician?->phone ?? ''))),
             'category_name' => $this->category?->name,
             'category_color' => $this->category?->color ?? '#6366f1',
             'status_accent' => self::statusAccentColor($this->status),
@@ -422,9 +430,8 @@ class TreatmentBooking extends Model
             'variant_id' => $this->variant_id,
             'product_options' => $this->product_options ?? [],
             'product_variations' => $this->product_variations ?? [],
-            'payment_status' => $this->isManualBooking()
-                ? self::normalizeManualPaymentStatus($this->payment_status)
-                : $this->payment_status,
+            'payment_status' => $this->resolvedPaymentStatus(),
+            'payment_is_outstanding' => $this->hasOutstandingPayment(),
             'payment_receipt_url' => $this->paymentReceipt?->path,
             'appointment_date_value' => $this->appointment_date?->format('Y-m-d'),
         ];
@@ -539,12 +546,40 @@ class TreatmentBooking extends Model
     }
 
 
+    public function resolvedPaymentStatus(): string
+    {
+        if ($this->isManualBooking()) {
+            return self::normalizeManualPaymentStatus($this->payment_status);
+        }
+
+        $this->loadMissing('order');
+
+        if ($this->order_id && filled($this->order?->payment_status)) {
+            return (string) $this->order->payment_status;
+        }
+
+        if (filled($this->payment_status)) {
+            return (string) $this->payment_status;
+        }
+
+        return Order::PAYMENT_PENDING;
+    }
+
+
+    public function hasOutstandingPayment(): bool
+    {
+        if ($this->isManualBooking()) {
+            return $this->resolvedPaymentStatus() !== self::PAYMENT_FULL_PAID;
+        }
+
+        return ! in_array($this->resolvedPaymentStatus(), [Order::PAYMENT_PAID], true);
+    }
+
+
     public function paymentStatusLabel(): string
     {
-        $status = $this->payment_status;
-
         if ($this->isManualBooking()) {
-            $status = self::normalizeManualPaymentStatus($status);
+            $status = $this->resolvedPaymentStatus();
             $key = 'treatmentreservation::admin.manual_booking.payment_statuses.' . $status;
 
             return trans($key) === $key
@@ -552,7 +587,7 @@ class TreatmentBooking extends Model
                 : trans($key);
         }
 
-        $status = $status ?: Order::PAYMENT_PENDING;
+        $status = $this->resolvedPaymentStatus();
         $key = 'order::payment_statuses.' . $status;
 
         return trans($key) === $key

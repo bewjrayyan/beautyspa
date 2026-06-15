@@ -1,0 +1,25 @@
+// Font Awesome 4 — inline woff2 avoids a separate network request and Chrome's
+// localhost "slow network" intervention for web fonts.
+$fa-font-path: "font-awesome/fonts";
+
+@import "font-awesome/scss/variables";
+@import "font-awesome/scss/mixins";
+
+@font-face {
+    font-family: "FontAwesome";
+    font-display: block;
+    font-weight: normal;
+    font-style: normal;
+    src: url("#{$fa-font-path}/fontawesome-webfont.woff2?inline") format("woff2");
+}
+
+@import "font-awesome/scss/core";
+@import "font-awesome/scss/larger";
+@import "font-awesome/scss/fixed-width";
+@import "font-awesome/scss/list";
+@import "font-awesome/scss/bordered-pulled";
+@import "font-awesome/scss/animated";
+@import "font-awesome/scss/rotated-flipped";
+@import "font-awesome/scss/stacked";
+@import "font-awesome/scss/icons";
+@import "font-awesome/scss/screen-reader";

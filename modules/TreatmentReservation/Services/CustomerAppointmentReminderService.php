@@ -156,6 +156,7 @@ class CustomerAppointmentReminderService
                 [
                     'source' => 'treatment.booking.reminder',
                     'dedupe_key' => 'booking:' . $booking->id . ':reminder:' . now()->format('YmdHi'),
+                    'immediate' => $logActivity,
                 ]
             );
 

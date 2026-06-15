@@ -15,6 +15,8 @@ class TreatmentBookingActivity extends Model
 
     public const ACTION_REMINDER_SENT = 'reminder_sent';
 
+    public const ACTION_BEAUTICIAN_REMINDER_SENT = 'beautician_reminder_sent';
+
     public const ACTION_CREATED = 'created';
 
     public const ACTION_UPDATED = 'updated';
@@ -66,6 +68,7 @@ class TreatmentBookingActivity extends Model
             self::ACTION_BEAUTICIAN_NOTES_UPDATED => trans('treatmentreservation::admin.activity.notes_updated'),
             self::ACTION_WHATSAPP_SENT => trans('treatmentreservation::admin.activity.whatsapp_sent'),
             self::ACTION_REMINDER_SENT => trans('treatmentreservation::admin.activity.reminder_sent'),
+            self::ACTION_BEAUTICIAN_REMINDER_SENT => trans('treatmentreservation::admin.activity.beautician_reminder_sent'),
             self::ACTION_CREATED => trans('treatmentreservation::admin.activity.created'),
             self::ACTION_UPDATED => trans('treatmentreservation::admin.activity.updated'),
             default => $this->action,
@@ -83,6 +86,7 @@ class TreatmentBookingActivity extends Model
             self::ACTION_BEAUTICIAN_NOTES_UPDATED => trans('treatmentreservation::admin.activity.notes_summary'),
             self::ACTION_WHATSAPP_SENT => trans('treatmentreservation::admin.activity.whatsapp_summary'),
             self::ACTION_REMINDER_SENT => trans('treatmentreservation::admin.activity.reminder_summary'),
+            self::ACTION_BEAUTICIAN_REMINDER_SENT => trans('treatmentreservation::admin.activity.beautician_reminder_summary'),
             self::ACTION_CREATED => trans('treatmentreservation::admin.activity.created_summary'),
             self::ACTION_UPDATED => trans('treatmentreservation::admin.activity.updated_summary'),
             default => $this->to_value ?? '',

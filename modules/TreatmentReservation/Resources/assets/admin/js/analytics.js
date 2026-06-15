@@ -81,12 +81,15 @@ function initRevenueTrendChart() {
                 {
                     label: labels.revenue,
                     data: data.amounts,
-                    borderColor: "#047857",
-                    backgroundColor: "rgba(4, 120, 87, 0.12)",
+                    borderColor: "#2563eb",
+                    backgroundColor: "rgba(37, 99, 235, 0.12)",
                     fill: true,
                     tension: 0.35,
-                    pointRadius: 3,
-                    pointBackgroundColor: "#047857",
+                    pointRadius: 4,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: "#2563eb",
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
                 },
             ],
         },
@@ -104,12 +107,23 @@ function initRevenueTrendChart() {
                 },
             },
             scales: {
+                x: {
+                    grid: {
+                        display: false,
+                    },
+                    ticks: {
+                        color: "#94a3b8",
+                        font: { size: 11 },
+                    },
+                },
                 y: {
                     beginAtZero: true,
+                    border: { display: false },
+                    grid: {
+                        color: "rgba(148, 163, 184, 0.2)",
+                    },
                     ticks: {
-                        callback(value) {
-                            return `${data.currency || ""}${value}`;
-                        },
+                        display: false,
                     },
                 },
             },

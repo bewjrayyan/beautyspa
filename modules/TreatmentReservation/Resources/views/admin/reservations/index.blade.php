@@ -1,5 +1,6 @@
 @php
     use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
+    use Modules\User\Services\OneSenderWhatsAppService;
 @endphp
 
 @extends('admin::layout')
@@ -38,9 +39,12 @@
         data-status-url="{{ route('admin.treatment_reservations.update_status', ['id' => '__ID__']) }}"
         data-whatsapp-url="{{ route('admin.treatment_reservations.send_whatsapp', ['id' => '__ID__']) }}"
         data-reminder-url="{{ route('admin.treatment_reservations.send_reminder', ['id' => '__ID__']) }}"
+        data-beautician-reminder-url="{{ route('admin.treatment_reservations.send_beautician_reminder', ['id' => '__ID__']) }}"
+        data-whatsapp-configured="{{ OneSenderWhatsAppService::isConfigured() ? '1' : '0' }}"
         data-cal-preview-whatsapp-sending="{{ TrLang::trans('admin.calendar.preview_whatsapp_sending') }}"
         data-cal-preview-whatsapp-sent="{{ TrLang::trans('admin.calendar.preview_whatsapp_sent') }}"
         data-cal-preview-whatsapp-failed="{{ TrLang::trans('admin.calendar.preview_whatsapp_failed') }}"
+        data-cal-preview-whatsapp-not-configured="{{ TrLang::trans('admin.calendar.whatsapp_not_configured') }}"
         data-cal-preview-whatsapp-customer="{{ TrLang::trans('admin.calendar.preview_whatsapp_customer') }}"
         data-cal-preview-edit-manual="{{ TrLang::trans('admin.manual_booking.edit_title') }}"
         data-cal-preview-cancel-manual="{{ TrLang::trans('admin.manual_booking.cancel') }}"
@@ -51,6 +55,16 @@
         data-cal-preview-resend-reminder="{{ TrLang::trans('admin.crm.action_resend_reminder') }}"
         data-cal-preview-reminder-sent="{{ TrLang::trans('admin.crm.reminder_sent_label') }}"
         data-cal-preview-reminder-due="{{ TrLang::trans('admin.crm.reminder_due_label') }}"
+        data-cal-preview-reminder-sending="{{ TrLang::trans('admin.crm.reminder_sending') }}"
+        data-cal-preview-reminder-failed="{{ TrLang::trans('admin.crm.reminder_failed') }}"
+        data-cal-preview-whatsapp-reminder-customer="{{ TrLang::trans('admin.crm.whatsapp_reminder_customer') }}"
+        data-cal-preview-whatsapp-reminder-beautician="{{ TrLang::trans('admin.crm.whatsapp_reminder_beautician') }}"
+        data-cal-preview-beautician-reminder-sent="{{ TrLang::trans('admin.crm.beautician_reminder_sent_label') }}"
+        data-cal-preview-beautician-reminder-failed="{{ TrLang::trans('admin.crm.beautician_reminder_failed') }}"
+        data-cal-preview-resend-beautician-reminder="{{ TrLang::trans('admin.crm.action_resend_reminder') }}"
+        @hasAccess('admin.treatment_reservations.edit')
+            data-crm-can-edit="1"
+        @endHasAccess
         data-cal-preview-duration="{{ TrLang::trans('admin.calendar.preview_duration') }}"
         data-cal-preview-payment="{{ TrLang::trans('admin.calendar.preview_payment') }}"
         data-cal-preview-total="{{ TrLang::trans('admin.calendar.preview_total') }}"
@@ -77,64 +91,110 @@
         data-initial-category="{{ $filters['treatment_category_id'] }}"
     >
         @if ($activeView === 'dashboard')
+            @php
+                $crmDateFilter = $filters['date_filter'] ?? 'today';
+                $crmPickerDate = ($crmDateFilter === 'custom' && ! empty($filters['filter_date']))
+                    ? $filters['filter_date']
+                    : match ($crmDateFilter) {
+                        'tomorrow' => now()->addDay()->toDateString(),
+                        'yesterday' => now()->subDay()->toDateString(),
+                        'today' => now()->toDateString(),
+                        default => '',
+                    };
+            @endphp
             <header class="tr-crm-page-header">
                 <div class="tr-crm-page-header__intro">
                     <h1 class="tr-crm-page-header__title">{{ TrLang::trans('admin.reservations') }}</h1>
                     <p class="tr-crm-page-header__lead">{{ TrLang::trans('admin.crm.subtitle') }}</p>
+
+                    <div class="tr-crm-page-header__toolbar">
+                        <div class="tr-crm-toolbar">
+                            <form class="tr-crm-toolbar__filters-form" method="get" action="{{ route('admin.treatment_reservations.index') }}" id="tr-crm-header-form">
+                                <input type="hidden" name="view" value="dashboard">
+                                <input type="hidden" name="date_filter" id="tr-crm-date-filter" value="{{ $crmDateFilter }}">
+                                <input type="hidden" name="filter_date" id="tr-crm-filter-date" value="{{ $filters['filter_date'] ?? '' }}">
+                                <input type="hidden" name="beautician_id" id="tr-crm-hidden-beautician" value="{{ $filters['beautician_id'] }}">
+                                <input type="hidden" name="treatment_category_id" id="tr-crm-hidden-category" value="{{ $filters['treatment_category_id'] }}">
+
+                                @if ($spaBranches->isNotEmpty())
+                                    <div class="tr-crm-toolbar__field tr-crm-toolbar__field--branch">
+                                        <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
+                                            <i class="fa fa-map-marker"></i>
+                                        </span>
+                                        <label class="sr-only" for="tr-crm-filter-branch">{{ TrLang::trans('admin.filters.spa_branch') }}</label>
+                                        <select class="tr-crm-toolbar__select" id="tr-crm-filter-branch" name="spa_branch_id" onchange="this.form.requestSubmit()">
+                                            <option value="">{{ TrLang::trans('admin.filters.all_branches') }}</option>
+                                            @foreach ($spaBranches as $branchId => $branchName)
+                                                <option value="{{ $branchId }}" @selected($filters['spa_branch_id'] == $branchId)>
+                                                    {{ $branchName }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
+                                @endif
+
+                                <div class="tr-crm-toolbar__field tr-crm-toolbar__field--dates">
+                                    <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
+                                        <i class="fa fa-calendar-o"></i>
+                                    </span>
+                                    <div class="tr-crm-toolbar__dates" role="group" aria-label="{{ TrLang::trans('admin.crm.date_filter_aria') }}">
+                                        @foreach (['all' => 'date_all', 'today' => 'date_today', 'tomorrow' => 'date_tomorrow'] as $value => $labelKey)
+                                            <button
+                                                type="button"
+                                                class="tr-crm-toolbar__date-pill{{ $crmDateFilter === $value ? ' is-active' : '' }}"
+                                                data-date-filter="{{ $value }}"
+                                            >
+                                                {{ TrLang::trans('admin.crm.' . $labelKey) }}
+                                            </button>
+                                        @endforeach
+
+                                        <label class="tr-crm-toolbar__date-picker{{ $crmDateFilter === 'custom' ? ' is-active' : '' }}">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                            <input
+                                                type="text"
+                                                id="tr-crm-date-picker"
+                                                class="tr-crm-toolbar__date-input"
+                                                value="{{ $crmPickerDate }}"
+                                                placeholder="{{ TrLang::trans('admin.crm.date_pick_placeholder') }}"
+                                                autocomplete="off"
+                                                aria-label="{{ TrLang::trans('admin.crm.date_pick_aria') }}"
+                                                readonly
+                                            >
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="tr-crm-toolbar__search">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                                <input
+                                    type="search"
+                                    id="tr-crm-search"
+                                    placeholder="{{ TrLang::trans('admin.crm.search_placeholder') }}"
+                                    autocomplete="off"
+                                    enterkeyhint="search"
+                                >
+                            </div>
+
+                            @hasAccess('admin.treatment_reservations.create')
+                                <div class="tr-crm-toolbar__actions">
+                                    <button
+                                        type="button"
+                                        class="tr-crm-toolbar__new tr-manual-booking-open-btn"
+                                        data-toggle="modal"
+                                        data-target="#tr-manual-booking-modal"
+                                    >
+                                        <span class="tr-crm-toolbar__new-icon" aria-hidden="true">
+                                            <i class="fa fa-plus"></i>
+                                        </span>
+                                        {{ TrLang::trans('admin.crm.new_reservation') }}
+                                    </button>
+                                </div>
+                            @endHasAccess
+                        </div>
+                    </div>
                 </div>
-
-                <form class="tr-crm-page-header__toolbar" method="get" action="{{ route('admin.treatment_reservations.index') }}" id="tr-crm-header-form">
-                    <input type="hidden" name="view" value="dashboard">
-                    <input type="hidden" name="date_filter" id="tr-crm-date-filter" value="{{ $filters['date_filter'] ?? 'today' }}">
-                    <input type="hidden" name="beautician_id" id="tr-crm-hidden-beautician" value="{{ $filters['beautician_id'] }}">
-                    <input type="hidden" name="treatment_category_id" id="tr-crm-hidden-category" value="{{ $filters['treatment_category_id'] }}">
-
-                    @if ($spaBranches->isNotEmpty())
-                        <label class="sr-only" for="tr-crm-filter-branch">{{ TrLang::trans('admin.filters.spa_branch') }}</label>
-                        <select class="tr-crm-toolbar__select" id="tr-crm-filter-branch" name="spa_branch_id" onchange="this.form.requestSubmit()">
-                            <option value="">{{ TrLang::trans('admin.filters.all_branches') }}</option>
-                            @foreach ($spaBranches as $branchId => $branchName)
-                                <option value="{{ $branchId }}" @selected($filters['spa_branch_id'] == $branchId)>
-                                    {{ $branchName }}
-                                </option>
-                            @endforeach
-                        </select>
-                    @endif
-
-                    <div class="tr-crm-toolbar__dates" role="group" aria-label="{{ TrLang::trans('admin.crm.date_filter_aria') }}">
-                        @foreach (['all' => 'date_all', 'today' => 'date_today', 'tomorrow' => 'date_tomorrow', 'yesterday' => 'date_yesterday'] as $value => $labelKey)
-                            <button
-                                type="button"
-                                class="tr-crm-toolbar__date-pill{{ ($filters['date_filter'] ?? 'today') === $value ? ' is-active' : '' }}"
-                                data-date-filter="{{ $value }}"
-                            >
-                                {{ TrLang::trans('admin.crm.' . $labelKey) }}
-                            </button>
-                        @endforeach
-                    </div>
-
-                    <div class="tr-crm-toolbar__search">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                        <input
-                            type="search"
-                            id="tr-crm-search"
-                            placeholder="{{ TrLang::trans('admin.crm.search_placeholder') }}"
-                            autocomplete="off"
-                        >
-                    </div>
-
-                    @hasAccess('admin.treatment_reservations.create')
-                        <button
-                            type="button"
-                            class="tr-crm-toolbar__new tr-manual-booking-open-btn"
-                            data-toggle="modal"
-                            data-target="#tr-manual-booking-modal"
-                        >
-                            <i class="fa fa-plus"></i>
-                            {{ TrLang::trans('admin.crm.new_reservation') }}
-                        </button>
-                    @endHasAccess
-                </form>
             </header>
         @else
         <header class="tr-reservations-hero">

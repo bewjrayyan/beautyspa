@@ -4,6 +4,7 @@ namespace Modules\TreatmentReservation\Services;
 
 use Modules\Loyalty\Entities\LoyaltyWallet;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Support\CustomerVisitLabel;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 use Modules\User\Entities\User;
 use Modules\User\Support\PhoneNumber;
@@ -81,7 +82,9 @@ class CustomerCrmProfileService
             'visit_count' => $stats['visit_count'],
             'last_treatment' => $stats['last_treatment'],
             'last_visit_date' => $stats['last_visit_date'],
-            'customer_history_label' => $this->historyLabel($stats),
+            'customer_history_label' => $contextBooking
+                ? CustomerVisitLabel::forBooking($contextBooking, $stats['visit_count'])
+                : CustomerVisitLabel::format(max(1, $stats['visit_count'])),
             'loyalty_tier_name' => $loyaltyTier,
             'user_id' => $user?->id,
             'user_admin_url' => $user
@@ -109,7 +112,7 @@ class CustomerCrmProfileService
             'visit_count' => 0,
             'last_treatment' => null,
             'last_visit_date' => null,
-            'customer_history_label' => null,
+            'customer_history_label' => CustomerVisitLabel::forBooking($booking, 0),
             'loyalty_tier_name' => null,
             'user_id' => null,
             'user_admin_url' => null,
@@ -143,30 +146,6 @@ class CustomerCrmProfileService
             'last_treatment' => $last?->product?->name,
             'last_visit_date' => $last?->appointment_date?->format('d M Y'),
         ];
-    }
-
-
-    /**
-     * @param  array{visit_count: int, last_treatment: ?string, last_visit_date: ?string}  $stats
-     */
-    private function historyLabel(array $stats): ?string
-    {
-        if ($stats['visit_count'] <= 0 && blank($stats['last_treatment'])) {
-            return TrLang::trans('admin.crm.customer_new');
-        }
-
-        if ($stats['visit_count'] > 0 && filled($stats['last_treatment'])) {
-            return TrLang::trans('admin.crm.customer_history', [
-                'count' => $stats['visit_count'],
-                'treatment' => $stats['last_treatment'],
-            ]);
-        }
-
-        if ($stats['visit_count'] > 0) {
-            return TrLang::trans('admin.crm.customer_visits', ['count' => $stats['visit_count']]);
-        }
-
-        return null;
     }
 
 

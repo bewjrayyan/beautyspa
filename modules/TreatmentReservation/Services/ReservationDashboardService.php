@@ -47,8 +47,9 @@ class ReservationDashboardService
         ?int $spaBranchId = null,
         string $dateFilter = 'today',
         ?array $urgency = null,
+        ?string $customFilterDate = null,
     ): array {
-        $filterDate = $this->resolveFilterDate($dateFilter);
+        $filterDate = $this->resolveFilterDate($dateFilter, $customFilterDate);
         $dateKpis = $this->dateKpis($beauticianId, $categoryId, $spaBranchId, $filterDate);
         $pipeline = $this->pipelineForDate($beauticianId, $categoryId, $spaBranchId, $filterDate);
         $ledger = $this->ledgerAll($beauticianId, $categoryId, $spaBranchId);
@@ -72,8 +73,16 @@ class ReservationDashboardService
     }
 
 
-    public function resolveFilterDate(string $filter): ?Carbon
+    public function resolveFilterDate(string $filter, ?string $customDate = null): ?Carbon
     {
+        if ($filter === 'custom' && filled($customDate)) {
+            try {
+                return Carbon::parse($customDate)->startOfDay();
+            } catch (\Throwable) {
+                return today();
+            }
+        }
+
         return match ($filter) {
             'today' => today(),
             'tomorrow' => today()->addDay(),
@@ -446,6 +455,8 @@ class ReservationDashboardService
 
         return app(BookingCrmInsightService::class)->enrichPayload($booking, array_merge($payload, [
             'total_formatted' => Money::inDefaultCurrency($booking->total ?? 0)->format(),
+            'payment_status' => $booking->resolvedPaymentStatus(),
+            'payment_is_outstanding' => $booking->hasOutstandingPayment(),
             'payment_status_label' => $booking->paymentStatusLabel(),
             'notes' => $booking->notes,
             'next_status' => match ($booking->status) {
@@ -499,6 +510,9 @@ class ReservationDashboardService
             'appointment_date' => $booking->appointment_date
                 ? $booking->appointment_date->format('d M Y')
                 : TrLang::trans('admin.crm.ledger_unscheduled'),
+            'appointment_date_short' => $booking->appointment_date
+                ? $booking->appointment_date->format('j M')
+                : null,
             'appointment_time' => filled($booking->formattedAppointmentTime())
                 ? $booking->formattedAppointmentTime()
                 : TrLang::trans('admin.crm.ledger_time_tbc'),

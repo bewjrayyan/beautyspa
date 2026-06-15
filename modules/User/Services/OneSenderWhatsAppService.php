@@ -33,7 +33,7 @@ class OneSenderWhatsAppService
 
 
     /**
-     * @param  array{source?: string, dedupe_key?: string}  $context
+     * @param  array{source?: string, dedupe_key?: string, immediate?: bool}  $context
      *
      * @return bool True when the message was accepted by OneSender; false when skipped (still logged).
      *
@@ -327,7 +327,7 @@ class OneSenderWhatsAppService
 
         $queue = app(OneSenderOutboundQueueService::class);
 
-        if ($queue->isEnabled()) {
+        if ($queue->isEnabled() && empty($context['immediate'])) {
             if ($queue->isDuplicateInQueue($recipient, $fingerprint, $context)) {
                 $logger->recordSkipped(
                     $recipient,

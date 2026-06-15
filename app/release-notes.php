@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.54' => [
+        'en' => [
+            'summary' => 'CRM dashboard polish, WhatsApp reminder fixes, and manual booking phone validation.',
+            'changes' => [
+                'Redesign CRM stats, pipeline cards, toolbar, and compact ledger with SaaS-style layout.',
+                'Add admin date/month picker filter, fix CRM search, and show appointment dates on pipeline cards.',
+                'Add customer and beautician WhatsApp reminder actions with activity logging and resend support.',
+                'Send manual WhatsApp reminders immediately instead of falsely logging queued messages as sent.',
+                'Fix manual booking phone validation on edit by normalizing to E.164 before server validation.',
+                'Improve visit labels (1st, 2nd visit), payment status on completed cards, and Finish/Done wording.',
+                'Inline Font Awesome in admin CSS to reduce console asset warnings.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penambahbaikan papan pemuka CRM, pembetulan peringatan WhatsApp, dan validasi telefon tempahan manual.',
+            'changes' => [
+                'Reka semula statistik CRM, kad pipeline, bar alat, dan lejar padat dengan susun atur gaya SaaS.',
+                'Tambah penapis tarikh/bulan admin, baiki carian CRM, dan paparkan tarikh temujanji pada kad pipeline.',
+                'Tambah tindakan peringatan WhatsApp pelanggan dan beautician dengan log aktiviti dan hantar semula.',
+                'Hantar peringatan WhatsApp manual serta-merta dan elak log palsu untuk mesej yang masih dalam giliran.',
+                'Baiki validasi telefon semasa edit tempahan manual dengan normalisasi E.164 sebelum pengesahan server.',
+                'Perbaiki label lawatan (lawatan ke-1, ke-2), status bayaran kad selesai, dan istilah Selesai.',
+                'Sertakan Font Awesome dalam CSS admin untuk kurangkan amaran aset di konsol.',
+            ],
+        ],
+    ],
     '4.7.53' => [
         'en' => [
             'summary' => 'Treatment Reservations CRM dashboard with customer profiles and appointment reminders.',

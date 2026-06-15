@@ -242,6 +242,20 @@ function previewActionButton(className, content, attrs = "") {
     return `<button type="button" class="tr-calendar-event-preview__action-btn ${className}" ${attrs}>${content}</button>`;
 }
 
+function previewNotificationVisibility(booking, options = {}) {
+    const status = calendarStatusClass(booking.status);
+    const active = status === "pending" || status === "in_progress";
+    const customerPhone = String(booking.customer_phone || "").trim();
+    const beauticianPhone = booking.beautician_phone_available === true
+        || booking.beautician_phone_available === 1
+        || booking.beautician_phone_available === "1";
+
+    return {
+        customerReminder: Boolean(options.canSendNotifications && active && customerPhone),
+        beauticianReminder: Boolean(options.canSendNotifications && active && beauticianPhone),
+    };
+}
+
 export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
     const status = calendarStatusClass(booking.status);
     const color = booking.beautician_color || "#6366f1";
@@ -255,6 +269,7 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
     const totalFormatted = (booking.total_formatted || "").trim();
     const treatmentSubtitle = (booking.treatment_subtitle || booking.duration_session_label || "").trim();
     const alerts = Array.isArray(booking.inline_alerts) ? booking.inline_alerts : [];
+    const notify = previewNotificationVisibility(booking, options);
 
     const statusControl = status !== "canceled" && options.crmCanEdit && options.statusUrlTemplate
         ? `
@@ -296,6 +311,9 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             : (booking.reminder_due
                 ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--due">${escapeHtml(labels.reminderDue || "Due for reminder")}</span>`
                 : ""),
+        booking.beautician_reminder_sent
+            ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--sent">${escapeHtml(labels.beauticianReminderSent || "Beautician reminder sent")}</span>`
+            : "",
     ].filter(Boolean).join("");
 
     const scheduleSection = previewSection(labels.sectionSchedule || "Schedule", `
@@ -396,6 +414,27 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 `data-customer-profile data-booking-id="${escapeHtml(String(booking.id))}"`
             )
             : "",
+        notify.customerReminder
+            ? previewActionButton(
+                "tr-calendar-event-preview__whatsapp-reminder-customer tr-calendar-event-preview__action-btn--success",
+                `<i class="fa fa-whatsapp" aria-hidden="true"></i><span>${escapeHtml(booking.reminder_sent ? (labels.resendReminder || "Resend reminder") : (labels.whatsappReminderCustomer || "WhatsApp reminder · Customer"))}</span>`,
+                `data-send-customer-reminder data-booking-id="${escapeHtml(String(booking.id))}" data-resend="${booking.reminder_sent ? "1" : "0"}"`
+            )
+            : "",
+        notify.beauticianReminder
+            ? previewActionButton(
+                "tr-calendar-event-preview__whatsapp-reminder-beautician tr-calendar-event-preview__action-btn--success",
+                `<i class="fa fa-whatsapp" aria-hidden="true"></i><span>${escapeHtml(booking.beautician_reminder_sent ? (labels.resendBeauticianReminder || "Resend beautician reminder") : (labels.whatsappReminderBeautician || "WhatsApp reminder · Beautician"))}</span>`,
+                `data-send-beautician-reminder data-booking-id="${escapeHtml(String(booking.id))}" data-resend="${booking.beautician_reminder_sent ? "1" : "0"}"`
+            )
+            : "",
+        options.portalGenericWhatsApp && !notify.customerReminder && String(booking.customer_phone || "").trim()
+            ? previewActionButton(
+                "tr-calendar-event-preview__whatsapp tr-calendar-event-preview__action-btn--success",
+                `<i class="fa fa-whatsapp" aria-hidden="true"></i><span>${escapeHtml(labels.whatsappCustomer || "WhatsApp customer")}</span>`,
+                `data-booking-id="${escapeHtml(String(booking.id))}"`
+            )
+            : "",
         booking.can_reschedule_manual && options.manualBookingEditEnabled
             ? previewActionButton(
                 "tr-calendar-event-preview__reschedule tr-calendar-event-preview__action-btn--ghost",
@@ -407,20 +446,6 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             ? previewActionButton(
                 "tr-calendar-event-preview__edit-manual tr-calendar-event-preview__action-btn--ghost",
                 `<i class="fa fa-pencil" aria-hidden="true"></i><span>${escapeHtml(labels.editManual || "Edit appointment")}</span>`,
-                `data-booking-id="${escapeHtml(String(booking.id))}"`
-            )
-            : "",
-        booking.can_send_reminder && options.manualBookingEditEnabled
-            ? previewActionButton(
-                "tr-calendar-event-preview__reminder tr-calendar-event-preview__action-btn--warning",
-                `<i class="fa fa-bell" aria-hidden="true"></i><span>${escapeHtml(booking.reminder_sent ? (labels.resendReminder || "Resend reminder") : (labels.sendReminder || "Send reminder"))}</span>`,
-                `data-send-reminder data-booking-id="${escapeHtml(String(booking.id))}" data-resend="${booking.reminder_sent ? "1" : "0"}"`
-            )
-            : "",
-        booking.can_whatsapp_customer && options.showWhatsApp
-            ? previewActionButton(
-                "tr-calendar-event-preview__whatsapp tr-calendar-event-preview__action-btn--success",
-                `<i class="fa fa-whatsapp" aria-hidden="true"></i><span>${escapeHtml(labels.whatsappCustomer || "WhatsApp customer")}</span>`,
                 `data-booking-id="${escapeHtml(String(booking.id))}"`
             )
             : "",
@@ -437,6 +462,10 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
         ? `<a href="${escapeHtml(booking.order_url)}" class="tr-calendar-event-preview__action-btn tr-calendar-event-preview__action-btn--primary tr-calendar-event-preview__order" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i><span>${escapeHtml(labels.viewOrder)}</span></a>`
         : "";
 
+    const whatsappHint = !options.whatsappConfigured && (notify.customerReminder || notify.beauticianReminder)
+        ? `<p class="tr-calendar-event-preview__whatsapp-hint">${escapeHtml(labels.whatsappNotConfigured || "OneSender WhatsApp API is not configured.")}</p>`
+        : "";
+
     return `
         <div class="tr-calendar-event-preview__card" style="--tr-beautician-color:${escapeHtml(color)}">
             <div class="tr-calendar-event-preview__toolbar">
@@ -449,14 +478,15 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             <div class="tr-calendar-event-preview__scroll">
                 ${scheduleSection}
                 ${customerSection}
-                ${treatmentSection}
                 ${staffSection}
+                ${treatmentSection}
                 ${notesSection}
                 ${activitySection}
             </div>
 
             ${actionButtons.length || orderLink
                 ? `<div class="tr-calendar-event-preview__footer">
+                    ${whatsappHint}
                     <div class="tr-calendar-event-preview__actions">
                         ${actionButtons.join("")}
                         ${orderLink}
@@ -578,6 +608,86 @@ export async function sendBookingWhatsApp(bookingId, { whatsappUrlTemplate = "",
                 labels.whatsappFailed ||
                 "Failed to send WhatsApp message",
         };
+    }
+}
+
+async function sendCustomerReminder(button) {
+    const bookingId = button.dataset.bookingId;
+    const resend = button.dataset.resend === "1";
+    const reminderUrlTemplate = previewOptions.reminderUrlTemplate;
+
+    if (!bookingId || !reminderUrlTemplate || !window.axios) {
+        return;
+    }
+
+    const originalHtml = button.innerHTML;
+
+    button.disabled = true;
+    button.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${escapeHtml(previewLabels.reminderSending || "Sending reminder…")}`;
+
+    try {
+        const response = await window.axios.post(
+            reminderUrlTemplate.replace("__ID__", bookingId),
+            { resend }
+        );
+        const booking = response.data?.booking;
+
+        if (booking) {
+            upsertBooking(booking);
+            openCalendarEventPreview(booking, previewLabels, previewOptions);
+            document.dispatchEvent(new CustomEvent("tr-crm-booking-updated", { detail: booking }));
+        }
+
+        window.notify?.success?.(response.data?.message || previewLabels.reminderSent || "Reminder sent") ||
+            alert(response.data?.message || previewLabels.reminderSent || "Reminder sent");
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    } catch (error) {
+        const message = error.response?.data?.message || previewLabels.reminderFailed || "Failed to send reminder";
+
+        window.notify?.error?.(message) || alert(message);
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    }
+}
+
+async function sendBeauticianReminder(button) {
+    const bookingId = button.dataset.bookingId;
+    const resend = button.dataset.resend === "1";
+    const reminderUrlTemplate = previewOptions.beauticianReminderUrlTemplate;
+
+    if (!bookingId || !reminderUrlTemplate || !window.axios) {
+        return;
+    }
+
+    const originalHtml = button.innerHTML;
+
+    button.disabled = true;
+    button.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${escapeHtml(previewLabels.reminderSending || "Sending reminder…")}`;
+
+    try {
+        const response = await window.axios.post(
+            reminderUrlTemplate.replace("__ID__", bookingId),
+            { resend }
+        );
+        const booking = response.data?.booking;
+
+        if (booking) {
+            upsertBooking(booking);
+            openCalendarEventPreview(booking, previewLabels, previewOptions);
+            document.dispatchEvent(new CustomEvent("tr-crm-booking-updated", { detail: booking }));
+        }
+
+        window.notify?.success?.(response.data?.message || previewLabels.beauticianReminderSent || "Beautician reminder sent") ||
+            alert(response.data?.message || previewLabels.beauticianReminderSent || "Beautician reminder sent");
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    } catch (error) {
+        const message = error.response?.data?.message || previewLabels.beauticianReminderFailed || "Failed to send beautician reminder";
+
+        window.notify?.error?.(message) || alert(message);
+        button.disabled = false;
+        button.innerHTML = originalHtml;
     }
 }
 
@@ -740,6 +850,33 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
         if (whatsappButton) {
             event.preventDefault();
             sendCustomerWhatsApp(whatsappButton);
+
+            return;
+        }
+
+        const customerReminderButton = event.target.closest("[data-send-customer-reminder]");
+
+        if (customerReminderButton) {
+            event.preventDefault();
+            sendCustomerReminder(customerReminderButton);
+
+            return;
+        }
+
+        const beauticianReminderButton = event.target.closest("[data-send-beautician-reminder]");
+
+        if (beauticianReminderButton) {
+            event.preventDefault();
+            sendBeauticianReminder(beauticianReminderButton);
+
+            return;
+        }
+
+        const legacyReminderButton = event.target.closest("[data-send-reminder]");
+
+        if (legacyReminderButton) {
+            event.preventDefault();
+            sendCustomerReminder(legacyReminderButton);
 
             return;
         }

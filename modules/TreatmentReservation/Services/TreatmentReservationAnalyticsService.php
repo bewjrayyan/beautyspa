@@ -11,6 +11,8 @@ class TreatmentReservationAnalyticsService
 {
   public const DEFAULT_DAYS = 30;
 
+  public const REVENUE_TREND_DAYS = 10;
+
 
   /**
    * @return array{
@@ -80,10 +82,12 @@ class TreatmentReservationAnalyticsService
    *     labels: array<int, string>,
    *     amounts: array<int, float>,
    *     formatted: array<int, string>,
-   *     currency: string
+   *     currency: string,
+   *     peakAmount: float,
+   *     peakFormatted: string
    * }
    */
-  public function revenueTrend(int $days = self::DEFAULT_DAYS): array
+  public function revenueTrend(int $days = self::REVENUE_TREND_DAYS): array
   {
     $labels = [];
     $amounts = [];
@@ -102,11 +106,18 @@ class TreatmentReservationAnalyticsService
       $formatted[] = Money::inDefaultCurrency($sum)->format();
     }
 
+    $peakAmount = $amounts !== [] ? max($amounts) : 0.0;
+    $peakIndex = $peakAmount > 0 ? array_search($peakAmount, $amounts, true) : false;
+
     return [
       'labels' => $labels,
       'amounts' => $amounts,
       'formatted' => $formatted,
       'currency' => setting('default_currency'),
+      'peakAmount' => $peakAmount,
+      'peakFormatted' => $peakIndex !== false
+        ? $formatted[$peakIndex]
+        : Money::inDefaultCurrency(0)->format(),
     ];
   }
 
@@ -256,7 +267,7 @@ class TreatmentReservationAnalyticsService
   {
     return [
       'overview' => $this->overview($days),
-      'revenueTrend' => $this->revenueTrend($days),
+      'revenueTrend' => $this->revenueTrend(self::REVENUE_TREND_DAYS),
       'statusBreakdown' => $this->statusBreakdown($days),
       'revenueByBeautician' => $this->revenueByBeautician($days),
     ];

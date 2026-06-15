@@ -81,6 +81,19 @@ class OneSenderOutboundQueueService
 
     public function process(int $messageId): void
     {
+        $message = OneSenderOutboundMessage::query()->find($messageId);
+
+        if (! $message || $message->status !== OneSenderOutboundMessage::STATUS_PENDING) {
+            return;
+        }
+
+        if ($message->scheduled_at->isFuture()) {
+            ProcessOneSenderOutboundMessage::dispatch($message->id)
+                ->delay($message->scheduled_at);
+
+            return;
+        }
+
         $message = $this->claimForProcessing($messageId);
 
         if (! $message) {

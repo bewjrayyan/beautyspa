@@ -15,6 +15,7 @@ use Modules\TreatmentReservation\Services\CustomerAppointmentReminderService;
 use Modules\TreatmentReservation\Services\CustomerCrmProfileService;
 use Modules\TreatmentReservation\Services\ReservationDashboardService;
 use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
+use Modules\TreatmentReservation\Services\BeauticianAppointmentReminderService;
 use Modules\TreatmentReservation\Services\BookingCustomerWhatsAppService;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
 use Modules\TreatmentReservation\Services\ManualBookingProductCatalogService;
@@ -45,9 +46,20 @@ class ReservationController extends Controller
         $beauticianId = $request->integer('beautician_id') ?: null;
         $categoryId = $request->integer('treatment_category_id') ?: null;
         $spaBranchId = $request->integer('spa_branch_id') ?: null;
-        $dateFilter = in_array($request->input('date_filter'), ['today', 'tomorrow', 'yesterday', 'all'], true)
-            ? $request->input('date_filter')
+        $rawDateFilter = $request->input('date_filter', 'today');
+        $dateFilter = in_array($rawDateFilter, ['today', 'tomorrow', 'yesterday', 'all', 'custom'], true)
+            ? $rawDateFilter
             : 'today';
+        $customFilterDate = $request->input('filter_date');
+
+        if ($dateFilter === 'custom') {
+            if (! is_string($customFilterDate) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $customFilterDate)) {
+                $dateFilter = 'today';
+                $customFilterDate = null;
+            }
+        } else {
+            $customFilterDate = null;
+        }
         $source = in_array($request->input('source'), ['manual', 'checkout'], true)
             ? $request->input('source')
             : null;
@@ -59,7 +71,7 @@ class ReservationController extends Controller
             'stats' => $this->dashboard->stats($beauticianId, $categoryId, $spaBranchId),
             'todayBookings' => $this->dashboard->todayCount($beauticianId, $categoryId, $spaBranchId),
             'dashboardData' => $view === 'dashboard'
-                ? $this->dashboard->crmPayload($beauticianId, $categoryId, $spaBranchId, $dateFilter, $urgencyPayload)
+                ? $this->dashboard->crmPayload($beauticianId, $categoryId, $spaBranchId, $dateFilter, $urgencyPayload, $customFilterDate)
                 : null,
             'urgency' => $view === 'dashboard' ? $urgencyPayload : null,
             'analytics' => $view === 'dashboard'
@@ -83,6 +95,7 @@ class ReservationController extends Controller
                 'treatment_category_id' => $categoryId,
                 'spa_branch_id' => $spaBranchId,
                 'date_filter' => $dateFilter,
+                'filter_date' => $customFilterDate,
                 'month' => $request->input('month', now()->format('Y-m')),
                 'from' => $reportFrom,
                 'to' => $reportTo,
@@ -274,6 +287,35 @@ class ReservationController extends Controller
 
         return response()->json([
             'message' => trans('treatmentreservation::admin.crm.reminder_sent'),
+            'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
+        ]);
+    }
+
+
+    public function sendBeauticianReminder(Request $request, int $id, BeauticianAppointmentReminderService $reminders): JsonResponse
+    {
+        $request->validate([
+            'resend' => ['nullable', 'boolean'],
+        ]);
+
+        $booking = TreatmentBooking::query()
+            ->with(['beautician', 'product'])
+            ->findOrFail($id);
+
+        try {
+            $reminders->sendManualReminder($booking, $request->boolean('resend'));
+        } catch (\InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'message' => $exception->getMessage() ?: trans('treatmentreservation::admin.crm.beautician_reminder_failed'),
+            ], 422);
+        }
+
+        $freshBooking = $booking->fresh();
+
+        return response()->json([
+            'message' => trans('treatmentreservation::admin.crm.beautician_reminder_sent'),
             'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
         ]);
     }

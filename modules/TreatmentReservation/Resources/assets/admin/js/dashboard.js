@@ -1,4 +1,5 @@
 import axios from "axios";
+import flatpickr from "flatpickr";
 import { getCalendarBooking, setCalendarBookings, upsertBooking } from "./kanban-helpers.js";
 import { initCustomerProfileDrawer } from "./customer-profile.js";
 import { openManualBookingEditor } from "./manual-booking.js";
@@ -57,13 +58,13 @@ function manualBookingEditEnabled() {
 
 function initDashboardSearch() {
     const input = document.getElementById("tr-crm-search");
-    const root = document.getElementById("tr-crm-dashboard");
+    const dashboard = document.getElementById("tr-crm-dashboard");
 
-    if (!input) {
+    if (!input || !dashboard) {
         return;
     }
 
-    const selectors = [
+    const itemSelectors = [
         "[data-crm-list] .tr-crm-appointment",
         "[data-crm-list] .tr-crm-alert",
         "[data-crm-list] .tr-crm-activity__item",
@@ -79,46 +80,136 @@ function initDashboardSearch() {
         "[data-crm-list] .tr-crm-ledger__empty",
     ].join(", ");
 
-    const noResultsMessage = root?.dataset.searchNoResults || "No matches for your search";
+    const noResultsMessage = dashboard.dataset.searchNoResults || "No matches for your search";
     let searchNotice = document.getElementById("tr-crm-search-empty");
 
-    if (!searchNotice && root) {
+    if (!searchNotice) {
         searchNotice = document.createElement("p");
         searchNotice.id = "tr-crm-search-empty";
         searchNotice.className = "tr-crm-search-empty";
         searchNotice.hidden = true;
-        root.prepend(searchNotice);
+        dashboard.prepend(searchNotice);
     }
 
-    input.addEventListener("input", () => {
+    const applySearch = () => {
         const query = input.value.trim().toLowerCase();
         let visibleCount = 0;
 
-        document.querySelectorAll(selectors).forEach((row) => {
+        dashboard.querySelectorAll(itemSelectors).forEach((row) => {
             const haystack = (row.dataset.search || row.textContent || "").toLowerCase();
             const matches = query === "" || haystack.includes(query);
 
-            row.hidden = !matches;
+            row.classList.toggle("is-search-hidden", !matches);
 
             if (matches) {
                 visibleCount += 1;
             }
         });
 
-        document.querySelectorAll(emptySelectors).forEach((row) => {
-            row.hidden = query !== "";
+        dashboard.querySelectorAll(emptySelectors).forEach((row) => {
+            row.classList.toggle("is-search-hidden", query !== "");
         });
 
-        if (searchNotice) {
-            searchNotice.textContent = noResultsMessage;
-            searchNotice.hidden = query === "" || visibleCount > 0;
+        searchNotice.textContent = noResultsMessage;
+        searchNotice.hidden = query === "" || visibleCount > 0;
+    };
+
+    input.addEventListener("input", applySearch);
+    input.addEventListener("search", applySearch);
+    input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            applySearch();
         }
+    });
+}
+
+function presetDateForFilter(filter) {
+    const today = new Date();
+
+    if (filter === "tomorrow") {
+        today.setDate(today.getDate() + 1);
+    } else if (filter === "yesterday") {
+        today.setDate(today.getDate() - 1);
+    } else if (filter !== "today") {
+        return "";
+    }
+
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function setCrmDatePickerValue(input, dateStr = "") {
+    if (!input) {
+        return;
+    }
+
+    const picker = input._flatpickr;
+
+    if (picker) {
+        if (dateStr) {
+            picker.setDate(dateStr, false);
+        } else {
+            picker.clear();
+        }
+
+        return;
+    }
+
+    input.value = dateStr;
+}
+
+function initCrmDatePicker() {
+    const form = document.getElementById("tr-crm-header-form");
+    const pickerInput = document.getElementById("tr-crm-date-picker");
+    const dateFilterInput = document.getElementById("tr-crm-date-filter");
+    const filterDateInput = document.getElementById("tr-crm-filter-date");
+
+    if (!form || !pickerInput || pickerInput._flatpickr) {
+        return;
+    }
+
+    const pickerWrap = pickerInput.closest(".tr-crm-toolbar__date-picker");
+
+    flatpickr(pickerInput, {
+        mode: "single",
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "j M Y",
+        altInputClass: "tr-crm-toolbar__date-input",
+        disableMobile: true,
+        animate: true,
+        appendTo: document.body,
+        defaultDate: pickerInput.value || null,
+        onReady: (_selectedDates, _dateStr, instance) => {
+            instance.calendarContainer.classList.add("tr-crm-toolbar-datepicker-calendar");
+        },
+        onOpen: (_selectedDates, _dateStr, instance) => {
+            instance.config.positionElement = instance.altInput || instance.input;
+        },
+        onChange: (_selectedDates, dateStr) => {
+            if (!dateStr) {
+                return;
+            }
+
+            dateFilterInput.value = "custom";
+            filterDateInput.value = dateStr;
+            form.querySelectorAll("[data-date-filter]").forEach((pill) => pill.classList.remove("is-active"));
+            pickerWrap?.classList.add("is-active");
+            form.requestSubmit();
+        },
     });
 }
 
 function initDateFilterPills() {
     const form = document.getElementById("tr-crm-header-form");
     const hiddenInput = document.getElementById("tr-crm-date-filter");
+    const filterDateInput = document.getElementById("tr-crm-filter-date");
+    const pickerInput = document.getElementById("tr-crm-date-picker");
+    const pickerWrap = pickerInput?.closest(".tr-crm-toolbar__date-picker");
 
     if (!form || !hiddenInput) {
         return;
@@ -126,11 +217,24 @@ function initDateFilterPills() {
 
     form.querySelectorAll("[data-date-filter]").forEach((button) => {
         button.addEventListener("click", () => {
-            hiddenInput.value = button.dataset.dateFilter || "today";
+            const filter = button.dataset.dateFilter || "today";
+
+            hiddenInput.value = filter;
+            if (filterDateInput) {
+                filterDateInput.value = "";
+            }
 
             form.querySelectorAll("[data-date-filter]").forEach((pill) => {
                 pill.classList.toggle("is-active", pill === button);
             });
+
+            pickerWrap?.classList.remove("is-active");
+
+            if (filter === "all") {
+                setCrmDatePickerValue(pickerInput, "");
+            } else {
+                setCrmDatePickerValue(pickerInput, presetDateForFilter(filter));
+            }
 
             form.requestSubmit();
         });
@@ -416,7 +520,7 @@ function initPipelineSortable(app) {
             draggable: ".tr-crm-pipeline-card",
             ghostClass: "tr-crm-pipeline-card--ghost",
             chosenClass: "tr-crm-pipeline-card--chosen",
-            filter: ".tr-crm-pipeline-card__action, .tr-crm-pipeline-card__quick-action, .tr-crm-pipeline-card__quick-actions, a, button",
+            filter: ".tr-crm-pipeline-card__cta, .tr-crm-pipeline-card__footer, .tr-crm-pipeline-card__links, .tr-crm-pipeline-card__link, a, button",
             preventOnFilter: true,
             onEnd: async (evt) => {
                 const card = evt.item;
@@ -597,6 +701,7 @@ export function initCrmDashboard(app) {
 
     initDashboardSearch();
     initDateFilterPills();
+    initCrmDatePicker();
     initAgendaPanel(app);
     initPipelineSortable(app);
     initPipelineActions(app);

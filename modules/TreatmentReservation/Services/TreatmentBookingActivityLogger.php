@@ -61,6 +61,19 @@ class TreatmentBookingActivityLogger
     }
 
 
+    public function logBeauticianReminderSent(TreatmentBooking $booking): void
+    {
+        $booking->loadMissing('beautician');
+
+        TreatmentBookingActivity::create([
+            'treatment_booking_id' => $booking->id,
+            'user_id' => auth()->id(),
+            'action' => TreatmentBookingActivity::ACTION_BEAUTICIAN_REMINDER_SENT,
+            'to_value' => $booking->beautician?->phone,
+        ]);
+    }
+
+
     public function logCreated(TreatmentBooking $booking, ?int $userId = null): void
     {
         TreatmentBookingActivity::create([
