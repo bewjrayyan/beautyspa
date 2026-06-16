@@ -1,11 +1,7 @@
-<div class="accordion-box-content">
-    <div class="tab-content clearfix">
-        <div class="panel-wrap">
-            @include('storefront::admin.storefront.tabs.partials.single_banner', [
-                'label' => trans('storefront::storefront.form.product_page_banner'),
-                'name' => 'storefront_product_page_banner',
-                'banner' => $banner,
-            ])
-        </div>
-    </div>
+<div class="st-fields-grid st-fields-grid--sections">
+    @include('storefront::admin.storefront.tabs.partials.banner_block', [
+        'label' => trans('storefront::storefront.form.product_page_banner'),
+        'name' => 'storefront_product_page_banner',
+        'banner' => $banner,
+    ])
 </div>

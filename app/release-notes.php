@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.58' => [
+        'en' => [
+            'summary' => 'Storefront admin multi-column layouts for homepage sections, banners, and product tabs.',
+            'changes' => [
+                'Reorganize Featured Categories into a compact two-column grid with stacked product fields.',
+                'Apply side-by-side layouts to Product Tabs One/Two, Product Grid, and Flash Sale sections.',
+                'Modernize all banner tabs (slider, two/three column, full-width) with section cards and grids.',
+                'Update Top Brands, Blogs, Newsletter, Google Reviews, and Product Page tabs to match settings UI.',
+                'Add reusable product_tab_block and banner_block partials for consistent storefront admin forms.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Susun atur berbilang lajur admin Storefront untuk seksyen laman utama, banner, dan tab produk.',
+            'changes' => [
+                'Susun semula Featured Categories dalam grid dua lajur padat dengan medan produk bertindan.',
+                'Gunakan susun atur sebelah-menyebelah untuk Product Tabs One/Two, Product Grid, dan Flash Sale.',
+                'Modenkan semua tab banner (slider, dua/tiga lajur, lebar penuh) dengan kad seksyen dan grid.',
+                'Kemas kini tab Top Brands, Blogs, Newsletter, Google Reviews, dan Product Page mengikut UI tetapan.',
+                'Tambah partial product_tab_block dan banner_block untuk borang admin storefront yang konsisten.',
+            ],
+        ],
+    ],
     '4.7.57' => [
         'en' => [
             'summary' => 'Modern SaaS admin UI for storefront settings and project-wide drag-and-drop image uploads.',

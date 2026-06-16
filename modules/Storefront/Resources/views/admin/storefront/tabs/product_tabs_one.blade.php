@@ -1,51 +1,27 @@
-<div class="row">
-    <div class="col-md-8">
-        {{ Form::checkbox('storefront_product_tabs_1_section_enabled', trans('storefront::attributes.section_status'), trans('storefront::storefront.form.enable_product_tabs_one_section'), $errors, $settings) }}
+@php
+    $tabProducts = [
+        1 => $tabOneProducts,
+        2 => $tabTwoProducts,
+        3 => $tabThreeProducts,
+        4 => $tabFourProducts,
+    ];
+@endphp
 
-        <div class="clearfix"></div>
-
-        <div class="box-content clearfix">
-            <h4 class="section-title">{{ trans('storefront::storefront.form.tab_1') }}</h4>
-
-            {{ Form::text('translatable[storefront_product_tabs_1_section_tab_1_title]', trans('storefront::attributes.title'), $errors, $settings) }}
-
-            @include('storefront::admin.storefront.tabs.partials.products', [
-                'fieldNamePrefix' => 'storefront_product_tabs_1_section_tab_1',
-                'products' => $tabOneProducts,
-            ])
-        </div>
-
-        <div class="box-content clearfix">
-            <h4 class="section-title">{{ trans('storefront::storefront.form.tab_2') }}</h4>
-
-            {{ Form::text('translatable[storefront_product_tabs_1_section_tab_2_title]', trans('storefront::attributes.title'), $errors, $settings) }}
-
-            @include('storefront::admin.storefront.tabs.partials.products', [
-                'fieldNamePrefix' => 'storefront_product_tabs_1_section_tab_2',
-                'products' => $tabTwoProducts,
-            ])
-        </div>
-
-        <div class="box-content clearfix">
-            <h4 class="section-title">{{ trans('storefront::storefront.form.tab_3') }}</h4>
-
-            {{ Form::text('translatable[storefront_product_tabs_1_section_tab_3_title]', trans('storefront::attributes.title'), $errors, $settings) }}
-
-            @include('storefront::admin.storefront.tabs.partials.products', [
-                'fieldNamePrefix' => 'storefront_product_tabs_1_section_tab_3',
-                'products' => $tabThreeProducts,
-            ])
-        </div>
-
-        <div class="box-content clearfix">
-            <h4 class="section-title">{{ trans('storefront::storefront.form.tab_4') }}</h4>
-
-            {{ Form::text('translatable[storefront_product_tabs_1_section_tab_4_title]', trans('storefront::attributes.title'), $errors, $settings) }}
-
-            @include('storefront::admin.storefront.tabs.partials.products', [
-                'fieldNamePrefix' => 'storefront_product_tabs_1_section_tab_4',
-                'products' => $tabFourProducts,
-            ])
+<div class="st-fields-grid st-fields-grid--sections st-fields-grid--tiles">
+    <div class="st-fields-grid__full">
+        <div class="st-enable-card">
+            {{ Form::checkbox('storefront_product_tabs_1_section_enabled', trans('storefront::attributes.section_status'), trans('storefront::storefront.form.enable_product_tabs_one_section'), $errors, $settings) }}
         </div>
     </div>
+
+    @for ($tabNumber = 1; $tabNumber <= 4; $tabNumber++)
+        <div class="st-fields-grid__col">
+            @include('storefront::admin.storefront.tabs.partials.product_tab_block', [
+                'title' => trans('storefront::storefront.form.tab_' . $tabNumber),
+                'titleField' => 'translatable[storefront_product_tabs_1_section_tab_' . $tabNumber . '_title]',
+                'fieldNamePrefix' => 'storefront_product_tabs_1_section_tab_' . $tabNumber,
+                'products' => $tabProducts[$tabNumber],
+            ])
+        </div>
+    @endfor
 </div>

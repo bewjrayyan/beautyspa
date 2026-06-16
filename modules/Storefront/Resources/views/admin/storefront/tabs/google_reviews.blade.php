@@ -7,24 +7,28 @@
     );
 @endphp
 
-<div class="row google-reviews-admin">
-    <div class="col-md-8">
+<div class="st-fields-grid st-fields-grid--sections google-reviews-admin">
+    <div class="st-enable-card">
         {{ Form::checkbox('storefront_google_reviews_section_enabled', trans('storefront::attributes.section_status'), trans('storefront::storefront.form.enable_google_reviews_section'), $errors, $settings) }}
+    </div>
+
+    @component('setting::admin.settings.partials.section', [
+        'icon' => 'fa-google',
+        'title' => trans('storefront::storefront.tabs.google_reviews'),
+        'class' => 'st-section--compact',
+        'columns' => 2,
+    ])
         {{ Form::text('translatable[storefront_google_reviews_section_title]', trans('storefront::attributes.section_title'), $errors, $settings) }}
+        {{ Form::number('storefront_google_reviews_rating', trans('storefront::attributes.google_reviews_rating'), $errors, $settings, ['min' => 0, 'max' => 5, 'step' => '0.01', 'value' => setting('storefront_google_reviews_rating', 3.75)]) }}
+        {{ Form::number('storefront_google_reviews_review_count', trans('storefront::attributes.google_reviews_review_count'), $errors, $settings, ['min' => 0, 'value' => setting('storefront_google_reviews_review_count', 1297)]) }}
+    @endcomponent
 
-        <div class="row">
-            <div class="col-sm-6">
-                {{ Form::number('storefront_google_reviews_rating', trans('storefront::attributes.google_reviews_rating'), $errors, $settings, ['min' => 0, 'max' => 5, 'step' => '0.01', 'value' => setting('storefront_google_reviews_rating', 3.75)]) }}
-            </div>
-            <div class="col-sm-6">
-                {{ Form::number('storefront_google_reviews_review_count', trans('storefront::attributes.google_reviews_review_count'), $errors, $settings, ['min' => 0, 'value' => setting('storefront_google_reviews_review_count', 1297)]) }}
-            </div>
-        </div>
-
-        <hr>
-
-        <h4 class="m-t-0">{{ trans('storefront::storefront.form.google_reviews_items') }}</h4>
-        <p class="help-block text-info">
+    @component('setting::admin.settings.partials.section', [
+        'icon' => 'fa-comment-o',
+        'title' => trans('storefront::storefront.form.google_reviews_items'),
+        'class' => 'st-section--compact',
+    ])
+        <p class="help-block text-info st-fields-grid__full">
             <i class="fa fa-info-circle"></i>
             {{ trans('storefront::storefront.form.google_reviews_edit_help') }}
         </p>
@@ -43,10 +47,13 @@
         <button type="button" class="btn btn-default m-t-10" id="google-reviews-add-item">
             <i class="fa fa-plus"></i> {{ trans('storefront::storefront.form.add_review') }}
         </button>
+    @endcomponent
 
-        <hr>
-
-        <h4>{{ trans('storefront::storefront.form.google_reviews_metrics') }}</h4>
+    @component('setting::admin.settings.partials.section', [
+        'icon' => 'fa-bar-chart',
+        'title' => trans('storefront::storefront.form.google_reviews_metrics'),
+        'class' => 'st-section--compact',
+    ])
         <p class="help-block">{{ trans('storefront::storefront.form.google_reviews_metrics_help') }}</p>
 
         <input type="hidden" name="storefront_google_reviews_metrics" id="google-reviews-metrics-json" value='@json($googleMetrics)'>
@@ -63,5 +70,5 @@
         <button type="button" class="btn btn-default m-t-10" id="google-reviews-add-metric">
             <i class="fa fa-plus"></i> {{ trans('storefront::storefront.form.add_metric') }}
         </button>
-    </div>
+    @endcomponent
 </div>
