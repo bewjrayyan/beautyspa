@@ -1115,7 +1115,7 @@
     "src": "modules/Loyalty/Resources/assets/public/sass/pages/account/loyalty/main.scss"
   },
   "dist/hosting-package/staging/modules/Media/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-tyy_MgIW-v4.7.56.js",
+    "file": "assets/main-Ctqpcj95-v4.7.56.js",
     "name": "main",
     "src": "dist/hosting-package/staging/modules/Media/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1129,7 +1129,7 @@
   },
   "dist/hosting-package/staging/modules/Media/Resources/assets/admin/sass/main.scss": {
     "file": "assets/main-B4dcJnTA-v4.7.56.css",
-    "src": "modules/Media/Resources/assets/admin/sass/main.scss"
+    "src": "dist/hosting-package/staging/modules/Media/Resources/assets/admin/sass/main.scss"
   },
   "dist/hosting-package/staging/modules/Menu/Resources/assets/admin/js/main.js": {
     "file": "assets/main-Xwshfuh1-v4.7.56.js",
@@ -1236,14 +1236,14 @@
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "dist/hosting-package/staging/modules/Setting/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DSwD-Cxe-v4.7.56.js",
+    "file": "assets/main-DN2dRQhm-v4.7.56.js",
     "name": "main",
     "src": "dist/hosting-package/staging/modules/Setting/Resources/assets/admin/js/main.js",
     "isEntry": true
   },
   "dist/hosting-package/staging/modules/Setting/Resources/assets/admin/sass/main.scss": {
     "file": "assets/main-DmANexzB-v4.7.56.css",
-    "src": "modules/Setting/Resources/assets/admin/sass/main.scss"
+    "src": "dist/hosting-package/staging/modules/Setting/Resources/assets/admin/sass/main.scss"
   },
   "dist/hosting-package/staging/modules/Slider/Resources/assets/admin/js/main.js": {
     "file": "assets/main-Dvg4RC0j-v4.7.56.js",
@@ -1263,7 +1263,7 @@
   },
   "dist/hosting-package/staging/modules/Storefront/Resources/assets/admin/sass/main.scss": {
     "file": "assets/main-BaRbuqDb-v4.7.56.css",
-    "src": "modules/Storefront/Resources/assets/admin/sass/main.scss"
+    "src": "dist/hosting-package/staging/modules/Storefront/Resources/assets/admin/sass/main.scss"
   },
   "dist/hosting-package/staging/modules/Storefront/Resources/assets/public/images/arrow-black.png": {
     "file": "assets/arrow-black-DFZmLAQh-v4.7.56.png",
@@ -1984,7 +1984,7 @@
     "src": "modules/Loyalty/Resources/assets/public/sass/pages/account/loyalty/main.scss"
   },
   "modules/Media/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-Ctqpcj95-v4.7.56.js",
+    "file": "assets/main-BAB6qEYR-v4.7.56.js",
     "name": "main",
     "src": "modules/Media/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1997,7 +1997,7 @@
     ]
   },
   "modules/Media/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-B4dcJnTA-v4.7.56.css",
+    "file": "assets/main-Dp2nkwBo-v4.7.56.css",
     "src": "modules/Media/Resources/assets/admin/sass/main.scss"
   },
   "modules/Menu/Resources/assets/admin/js/main.js": {
@@ -2129,13 +2129,13 @@
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DN2dRQhm-v4.7.56.js",
+    "file": "assets/main-n6wdNC7s-v4.7.56.js",
     "name": "main",
     "src": "modules/Setting/Resources/assets/admin/js/main.js",
     "isEntry": true
   },
   "modules/Setting/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-DmANexzB-v4.7.56.css",
+    "file": "assets/main-Bpg2aAIA-v4.7.56.css",
     "src": "modules/Setting/Resources/assets/admin/sass/main.scss"
   },
   "modules/Slider/Resources/assets/admin/js/main.js": {
@@ -2155,7 +2155,7 @@
     "isEntry": true
   },
   "modules/Storefront/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BaRbuqDb-v4.7.56.css",
+    "file": "assets/main-BHnV45gy-v4.7.56.css",
     "src": "modules/Storefront/Resources/assets/admin/sass/main.scss"
   },
   "modules/Storefront/Resources/assets/public/images/arrow-black.png": {

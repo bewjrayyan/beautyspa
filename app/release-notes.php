@@ -5,6 +5,30 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.57' => [
+        'en' => [
+            'summary' => 'Modern SaaS admin UI for storefront settings and project-wide drag-and-drop image uploads.',
+            'changes' => [
+                'Revamp Storefront admin settings with sidebar layout, section cards, and improved tab navigation.',
+                'Replace legacy browse image pickers with drag-and-drop upload zones across admin settings.',
+                'Add compact logo, banner, and square image preview modes with proper scaling.',
+                'Reorganize Logo, Footer, and Features tabs with efficient multi-column field layouts.',
+                'Hide native file inputs and fix CSS conflicts with legacy image-holder styles.',
+                'Add EN/MS translations for new media picker and storefront section labels.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UI admin SaaS moden untuk tetapan storefront dan muat naik imej drag-and-drop di seluruh projek.',
+            'changes' => [
+                'Revamp tetapan admin Storefront dengan susun atur sidebar, kad seksyen, dan navigasi tab yang lebih baik.',
+                'Ganti pemilih imej browse lama dengan zon muat naik drag-and-drop merentas tetapan admin.',
+                'Tambah mod pratonton imej logo, banner, dan segi empat yang padat dengan penskalaan betul.',
+                'Susun semula tab Logo, Footer, dan Features dengan susun atur medan berbilang lajur.',
+                'Sembunyikan input fail asli dan baiki konflik CSS dengan gaya image-holder lama.',
+                'Tambah terjemahan EN/MS untuk pemilih media baharu dan label seksyen storefront.',
+            ],
+        ],
+    ],
     '4.7.56' => [
         'en' => [
             'summary' => 'Security hardening against SQL injection, brute-force, spam, and payment abuse.',

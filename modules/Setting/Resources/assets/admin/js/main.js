@@ -138,13 +138,15 @@ $("#store_country").on("change", (e) => {
 });
 
 $(function () {
-    $("#store_country").trigger("change");
+    if ($("#store_country").length) {
+        $("#store_country").trigger("change");
+    }
 });
 
 (function initSettingsPageUx() {
-    const form = document.getElementById("settings-edit-form");
+    const form = document.querySelector("form.admin-settings-page");
 
-    if (!form || !form.classList.contains("admin-settings-page")) {
+    if (!form) {
         return;
     }
 

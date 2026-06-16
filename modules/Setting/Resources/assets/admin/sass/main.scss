@@ -15,7 +15,8 @@ $settings-shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.1);
 $settings-field-max: 100%;
 $settings-block-max: none;
 
-#settings-edit-form.admin-settings-page {
+#settings-edit-form.admin-settings-page,
+#storefront-settings-edit-form.admin-settings-page {
     .accordion,
     .accordion-content {
         display: none !important;
@@ -787,8 +788,8 @@ $settings-sidebar-offset: 16px;
 
 // Wider blocks: media, tables, payment boxes
 .settings-panel__content {
-    .single-image-wrapper,
-    .multiple-images-wrapper {
+    .single-image-wrapper:not(.ac-media-field),
+    .multiple-images-wrapper:not(.ac-media-field) {
         max-width: 360px;
         margin-bottom: 20px;
 
@@ -798,6 +799,14 @@ $settings-sidebar-offset: 16px;
             font-weight: 600;
             color: $settings-text;
         }
+    }
+
+    .ac-media-field,
+    .single-image-wrapper.ac-media-field,
+    .multiple-images-wrapper.ac-media-field {
+        max-width: 100%;
+        width: 100%;
+        margin-bottom: 0;
     }
 
     .media-picker-divider {
@@ -974,13 +983,20 @@ $settings-sidebar-offset: 16px;
         padding-top: 14px;
     }
 
-    &--media .st-section__body .single-image-wrapper {
-        max-width: 320px;
+    &--media .st-section__body .single-image-wrapper,
+    &--media .st-section__body .ac-media-field {
+        max-width: 100%;
+        width: 100%;
         margin-bottom: 0;
 
-        h4 {
+        h4,
+        .ac-media-field__label {
             display: none;
         }
+    }
+
+    &--media .st-section__body {
+        padding-bottom: 4px;
     }
 
     &__head {

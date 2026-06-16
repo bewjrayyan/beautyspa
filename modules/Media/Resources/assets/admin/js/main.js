@@ -6,7 +6,7 @@ import Uploader from './Uploader';
 window.MediaPicker = MediaPicker;
 window.MediaGrid = MediaGrid;
 
-if ($('.image-picker').length !== 0) {
+if ($('.ac-media-field, .image-picker').length !== 0) {
     new ImagePicker();
 }
 

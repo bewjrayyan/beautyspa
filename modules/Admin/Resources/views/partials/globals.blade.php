@@ -45,6 +45,12 @@
     AestheticCart.langs['admin::admin.pagination.previous'] = '{{ trans('admin::admin.pagination.previous') }}';
     AestheticCart.langs['admin::admin.pagination.next'] = '{{ trans('admin::admin.pagination.next') }}';
     AestheticCart.langs['media::media.open_file'] = '{{ trans('media::media.open_file') }}';
+    AestheticCart.langs['media::media.dropzone_title'] = '{{ trans('media::media.dropzone_title') }}';
+    AestheticCart.langs['media::media.dropzone_hint'] = '{{ trans('media::media.dropzone_hint') }}';
+    AestheticCart.langs['media::media.browse_library'] = '{{ trans('media::media.browse_library') }}';
+    AestheticCart.langs['media::media.replace_image'] = '{{ trans('media::media.replace_image') }}';
+    AestheticCart.langs['media::media.remove_image'] = '{{ trans('media::media.remove_image') }}';
+    AestheticCart.langs['media::media.invalid_image_type'] = '{{ trans('media::media.invalid_image_type') }}';
     AestheticCart.langs['media::media.grid.select_all'] = '{{ trans('media::media.grid.select_all') }}';
     AestheticCart.langs['media::media.grid.unlinked_products'] = '{{ trans('media::media.grid.unlinked_products') }}';
     AestheticCart.langs['media::media.grid.unlinked_products_active'] = '{{ trans('media::media.grid.unlinked_products_active') }}';

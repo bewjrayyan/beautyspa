@@ -1,5 +1,67 @@
+#storefront-settings-edit-form.admin-settings-page {
+    .accordion,
+    .accordion-content {
+        display: none !important;
+    }
+
+    .st-fields-grid--in-section {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 24px;
+        align-items: start;
+
+        &.st-fields-grid--cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        &.st-fields-grid--cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        > .st-fields-grid__full,
+        > .st-theme-color-field,
+        > .st-section__tool {
+            grid-column: 1 / -1;
+        }
+
+        > .form-group,
+        > .checkbox {
+            max-width: 100%;
+            width: 100%;
+            margin-bottom: 0;
+        }
+    }
+}
+
+.st-fields-grid.st-fields-grid--sections {
+    display: grid;
+    gap: 18px;
+    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+
+    &.st-fields-grid--tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+
+        > .st-fields-grid__full {
+            grid-column: 1 / -1;
+        }
+
+        .st-section--media .ac-media-field,
+        .st-section--media .single-image-wrapper {
+            width: 100%;
+        }
+    }
+}
+
+.st-section__tool {
+    margin-top: 12px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+
 h4.section-title {
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 10px;
 }
 
@@ -12,8 +74,19 @@ h4.section-title {
     .google-reviews-item.box,
     .google-reviews-metric.box {
         border: 1px solid #e4e7eb;
-        border-radius: 6px;
+        border-radius: 10px;
         padding: 15px;
         background: #fafbfc;
+    }
+}
+
+@media (max-width: 991px) {
+    #storefront-settings-edit-form.admin-settings-page {
+        .st-fields-grid--in-section,
+        .st-fields-grid--in-section.st-fields-grid--cols-3,
+        .st-fields-grid--in-section.st-fields-grid--cols-4,
+        .st-fields-grid.st-fields-grid--sections.st-fields-grid--tiles {
+            grid-template-columns: minmax(0, 1fr);
+        }
     }
 }

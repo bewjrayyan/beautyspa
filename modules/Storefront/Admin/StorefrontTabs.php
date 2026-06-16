@@ -2,7 +2,7 @@
 
 namespace Modules\Storefront\Admin;
 
-use Modules\Admin\Ui\Tab;
+use Modules\Storefront\Admin\StorefrontTab;
 use Modules\Admin\Ui\Tabs;
 use Modules\Tag\Entities\Tag;
 use Modules\Storefront\Banner;
@@ -55,13 +55,23 @@ class StorefrontTabs extends Tabs
 
     private function general()
     {
-        return tap(new Tab('general', trans('storefront::storefront.tabs.general')), function (Tab $tab) {
+        return tap(new StorefrontTab('general', trans('storefront::storefront.tabs.general')), function (StorefrontTab $tab) {
             $tab->active();
             $tab->weight(5);
             $tab->fields([
                 'storefront_slider',
                 'storefront_copyright_text',
                 'storefront_products_listing_title',
+                'storefront_welcome_text',
+                'storefront_display_font',
+                'storefront_theme_color',
+                'storefront_custom_theme_color',
+                'storefront_mail_theme_color',
+                'storefront_custom_mail_theme_color',
+                'storefront_terms_page',
+                'storefront_privacy_page',
+                'storefront_address',
+                'storefront_most_searched_keywords_enabled',
             ]);
             $tab->view('storefront::admin.storefront.tabs.general', [
                 'display_fonts' => [
@@ -106,7 +116,7 @@ class StorefrontTabs extends Tabs
 
     private function logo()
     {
-        return tap(new Tab('logo', trans('storefront::storefront.tabs.logo')), function (Tab $tab) {
+        return tap(new StorefrontTab('logo', trans('storefront::storefront.tabs.logo')), function (StorefrontTab $tab) {
             $tab->weight(10);
             $tab->view('storefront::admin.storefront.tabs.logo', [
                 'favicon' => $this->getMedia(setting('storefront_favicon')),
@@ -128,7 +138,7 @@ class StorefrontTabs extends Tabs
 
     private function menus()
     {
-        return tap(new Tab('menus', trans('storefront::storefront.tabs.menus')), function (Tab $tab) {
+        return tap(new StorefrontTab('menus', trans('storefront::storefront.tabs.menus')), function (StorefrontTab $tab) {
             $tab->weight(15);
 
             $tab->fields([
@@ -154,7 +164,7 @@ class StorefrontTabs extends Tabs
 
     private function footer()
     {
-        return tap(new Tab('footer', trans('storefront::storefront.tabs.footer')), function (Tab $tab) {
+        return tap(new StorefrontTab('footer', trans('storefront::storefront.tabs.footer')), function (StorefrontTab $tab) {
             $tab->weight(17);
             $tab->view('storefront::admin.storefront.tabs.footer', [
                 'tags' => Tag::list(),
@@ -170,7 +180,7 @@ class StorefrontTabs extends Tabs
             return;
         }
 
-        return tap(new Tab('newsletter', trans('storefront::storefront.tabs.newsletter')), function (Tab $tab) {
+        return tap(new StorefrontTab('newsletter', trans('storefront::storefront.tabs.newsletter')), function (StorefrontTab $tab) {
             $tab->weight(18);
             $tab->view('storefront::admin.storefront.tabs.newsletter', [
                 'newsletterBgImage' => $this->getMedia(setting('storefront_newsletter_bg_image')),
@@ -181,7 +191,7 @@ class StorefrontTabs extends Tabs
 
     private function features()
     {
-        return tap(new Tab('features', trans('storefront::storefront.tabs.features')), function (Tab $tab) {
+        return tap(new StorefrontTab('features', trans('storefront::storefront.tabs.features')), function (StorefrontTab $tab) {
             $tab->weight(20);
             $tab->view('storefront::admin.storefront.tabs.features');
         });
@@ -190,7 +200,7 @@ class StorefrontTabs extends Tabs
 
     private function productPage()
     {
-        return tap(new Tab('product_page', trans('storefront::storefront.tabs.product_page')), function (Tab $tab) {
+        return tap(new StorefrontTab('product_page', trans('storefront::storefront.tabs.product_page')), function (StorefrontTab $tab) {
             $tab->weight(22);
             $tab->view('storefront::admin.storefront.tabs.product_page', [
                 'banner' => Banner::getProductPageBanner(),
@@ -201,7 +211,7 @@ class StorefrontTabs extends Tabs
 
     private function socialLinks()
     {
-        return tap(new Tab('social_links', trans('storefront::storefront.tabs.social_links')), function (Tab $tab) {
+        return tap(new StorefrontTab('social_links', trans('storefront::storefront.tabs.social_links')), function (StorefrontTab $tab) {
             $tab->weight(25);
 
             $tab->fields([
@@ -221,7 +231,7 @@ class StorefrontTabs extends Tabs
 
     private function sliderBanners()
     {
-        return tap(new Tab('slider_banners', trans('storefront::storefront.tabs.slider_banners')), function (Tab $tab) {
+        return tap(new StorefrontTab('slider_banners', trans('storefront::storefront.tabs.slider_banners')), function (StorefrontTab $tab) {
             $tab->weight(30);
             $tab->fields(['storefront_slider_banners_enabled']);
             $tab->view('storefront::admin.storefront.tabs.slider_banners', [
@@ -233,7 +243,7 @@ class StorefrontTabs extends Tabs
 
     private function threeColumnFullWidthBanners()
     {
-        return tap(new Tab('three_column_full_width_banners', trans('storefront::storefront.tabs.three_column_full_width_banners')), function (Tab $tab) {
+        return tap(new StorefrontTab('three_column_full_width_banners', trans('storefront::storefront.tabs.three_column_full_width_banners')), function (StorefrontTab $tab) {
             $tab->weight(35);
             $tab->view('storefront::admin.storefront.tabs.three_column_full_width_banners', [
                 'banners' => Banner::getThreeColumnFullWidthBanners(),
@@ -244,7 +254,7 @@ class StorefrontTabs extends Tabs
 
     private function featuredCategories()
     {
-        return tap(new Tab('featured_categories', trans('storefront::storefront.tabs.featured_categories')), function (Tab $tab) {
+        return tap(new StorefrontTab('featured_categories', trans('storefront::storefront.tabs.featured_categories')), function (StorefrontTab $tab) {
             $tab->weight(40);
             $tab->view('storefront::admin.storefront.tabs.featured_categories', [
                 'categoryOneProducts' => $this->getProductListFromSetting('storefront_featured_categories_section_category_1_products'),
@@ -266,7 +276,7 @@ class StorefrontTabs extends Tabs
 
     private function productTabsOne()
     {
-        return tap(new Tab('product_tabs_one', trans('storefront::storefront.tabs.product_tabs_one')), function (Tab $tab) {
+        return tap(new StorefrontTab('product_tabs_one', trans('storefront::storefront.tabs.product_tabs_one')), function (StorefrontTab $tab) {
             $tab->weight(45);
             $tab->view('storefront::admin.storefront.tabs.product_tabs_one', [
                 'tabOneProducts' => $this->getProductListFromSetting('storefront_product_tabs_1_section_tab_1_products'),
@@ -284,7 +294,7 @@ class StorefrontTabs extends Tabs
             return;
         }
 
-        return tap(new Tab('top_brands', trans('storefront::storefront.tabs.top_brands')), function (Tab $tab) {
+        return tap(new StorefrontTab('top_brands', trans('storefront::storefront.tabs.top_brands')), function (StorefrontTab $tab) {
             $tab->weight(50);
             $tab->view('storefront::admin.storefront.tabs.top_brands', [
                 'brands' => Brand::list(),
@@ -295,7 +305,7 @@ class StorefrontTabs extends Tabs
 
     private function flashSaleAndVerticalProducts()
     {
-        return tap(new Tab('flash_sale_and_vertical_products', trans('storefront::storefront.tabs.flash_sale_and_vertical_products')), function (Tab $tab) {
+        return tap(new StorefrontTab('flash_sale_and_vertical_products', trans('storefront::storefront.tabs.flash_sale_and_vertical_products')), function (StorefrontTab $tab) {
             $tab->weight(60);
             $tab->view('storefront::admin.storefront.tabs.flash_sale_and_vertical_products', [
                 'flashSales' => $this->getFlashSales(),
@@ -316,7 +326,7 @@ class StorefrontTabs extends Tabs
 
     private function twoColumnBanners()
     {
-        return tap(new Tab('two_column_banners', trans('storefront::storefront.tabs.two_column_banners')), function (Tab $tab) {
+        return tap(new StorefrontTab('two_column_banners', trans('storefront::storefront.tabs.two_column_banners')), function (StorefrontTab $tab) {
             $tab->weight(65);
             $tab->view('storefront::admin.storefront.tabs.two_column_banners', [
                 'banners' => Banner::getTwoColumnBanners(),
@@ -327,7 +337,7 @@ class StorefrontTabs extends Tabs
 
     private function productGrid()
     {
-        return tap(new Tab('product_grid', trans('storefront::storefront.tabs.product_grid')), function (Tab $tab) {
+        return tap(new StorefrontTab('product_grid', trans('storefront::storefront.tabs.product_grid')), function (StorefrontTab $tab) {
             $tab->weight(70);
             $tab->view('storefront::admin.storefront.tabs.product_grid', [
                 'tabOneProducts' => $this->getProductListFromSetting('storefront_product_grid_section_tab_1_products'),
@@ -341,7 +351,7 @@ class StorefrontTabs extends Tabs
 
     private function threeColumnBanners()
     {
-        return tap(new Tab('three_column_banners', trans('storefront::storefront.tabs.three_column_banners')), function (Tab $tab) {
+        return tap(new StorefrontTab('three_column_banners', trans('storefront::storefront.tabs.three_column_banners')), function (StorefrontTab $tab) {
             $tab->weight(75);
             $tab->view('storefront::admin.storefront.tabs.three_column_banners', [
                 'banners' => Banner::getThreeColumnBanners(),
@@ -352,7 +362,7 @@ class StorefrontTabs extends Tabs
 
     private function productTabsTwo()
     {
-        return tap(new Tab('product_tabs_two', trans('storefront::storefront.tabs.product_tabs_two')), function (Tab $tab) {
+        return tap(new StorefrontTab('product_tabs_two', trans('storefront::storefront.tabs.product_tabs_two')), function (StorefrontTab $tab) {
             $tab->weight(80);
             $tab->view('storefront::admin.storefront.tabs.product_tabs_two', [
                 'tabOneProducts' => $this->getProductListFromSetting('storefront_product_tabs_2_section_tab_1_products'),
@@ -366,7 +376,7 @@ class StorefrontTabs extends Tabs
 
     private function oneColumnBanner()
     {
-        return tap(new Tab('one_column_banner', trans('storefront::storefront.tabs.one_column_banner')), function (Tab $tab) {
+        return tap(new StorefrontTab('one_column_banner', trans('storefront::storefront.tabs.one_column_banner')), function (StorefrontTab $tab) {
             $tab->weight(85);
             $tab->view('storefront::admin.storefront.tabs.one_column_banner', [
                 'banner' => Banner::getOneColumnBanner(),
@@ -377,7 +387,7 @@ class StorefrontTabs extends Tabs
 
     private function googleReviews()
     {
-        return tap(new Tab('google_reviews', trans('storefront::storefront.tabs.google_reviews')), function (Tab $tab) {
+        return tap(new StorefrontTab('google_reviews', trans('storefront::storefront.tabs.google_reviews')), function (StorefrontTab $tab) {
             $tab->weight(86);
             $tab->fields([
                 'storefront_google_reviews_section_enabled',
@@ -394,9 +404,97 @@ class StorefrontTabs extends Tabs
 
     private function blogs()
     {
-        return tap(new Tab('blogs', trans('storefront::storefront.tabs.blogs')), function (Tab $tab) {
+        return tap(new StorefrontTab('blogs', trans('storefront::storefront.tabs.blogs')), function (StorefrontTab $tab) {
             $tab->weight(87);
             $tab->view('storefront::admin.storefront.tabs.blogs');
         });
+    }
+
+
+    /**
+     * @param array $data
+     *
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function render($data = [])
+    {
+        $this->buttonOffset = false;
+        $this->activateTabFromRequest();
+
+        return view('admin::components.settings-layout', [
+            'navigation' => $this->settingsNavigation(),
+            'contents' => $this->contents($data),
+            'buttonOffset' => false,
+            'activeTab' => $this->activeTabName(),
+            'activeTabMeta' => $this->activeTabMeta(),
+            'settingsFormAction' => route('admin.storefront.settings.update'),
+            'settingsFormId' => 'storefront-settings-edit-form',
+            'settingsSidebarBrand' => trans('storefront::storefront.storefront'),
+            'settingsTabField' => 'storefront_tab',
+            'settingsSearchLabel' => trans('storefront::storefront.form.search_tabs'),
+            'settingsSearchPlaceholder' => trans('storefront::storefront.form.search_tabs'),
+            'settingsSearchNoResults' => trans('storefront::storefront.form.search_no_results'),
+            'settingsSidebarAria' => trans('storefront::storefront.storefront'),
+        ]);
+    }
+
+
+    protected function settingsNavigation(): string
+    {
+        $html = '';
+        $baseUrl = route('admin.storefront.settings.edit');
+
+        foreach ($this->groups as $groupName => $options) {
+            $title = $options['title'] ?? $groupName;
+
+            $html .= '<div class="settings-nav-group is-expanded" data-settings-group>';
+            $html .= '<button type="button" class="settings-nav-group__toggle" aria-expanded="true">';
+            $html .= '<span class="settings-nav-group__title">'.e($title).'</span>';
+            $html .= '<i class="fa fa-chevron-down settings-nav-group__chevron" aria-hidden="true"></i>';
+            $html .= '</button>';
+            $html .= '<ul class="settings-nav settings-nav-group__list">';
+
+            foreach ($this->group($groupName)->getSortedTabs() as $tab) {
+                $html .= $tab->getSettingsNav($baseUrl);
+            }
+
+            $html .= '</ul></div>';
+        }
+
+        return $html;
+    }
+
+
+    /**
+     * @return array{name: string, label: string, group: string, lead: ?string, icon: ?string}
+     */
+    protected function activeTabMeta(): array
+    {
+        foreach ($this->groups as $groupName => $options) {
+            foreach ($this->tabs[$groupName] ?? [] as $tab) {
+                if (! $tab->active) {
+                    continue;
+                }
+
+                $leadKey = "storefront::storefront.tab_leads.{$tab->name}";
+                $lead = trans($leadKey);
+
+                return [
+                    'name' => $tab->name,
+                    'label' => $tab->label,
+                    'group' => $options['title'] ?? $groupName,
+                    'lead' => $lead === $leadKey ? null : $lead,
+                    'icon' => $tab->settingsNavIcon(),
+                ];
+            }
+        }
+
+        return [
+            'name' => 'general',
+            'label' => '',
+            'group' => '',
+            'lead' => null,
+            'icon' => null,
+        ];
     }
 }

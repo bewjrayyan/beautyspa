@@ -21,8 +21,8 @@
     @endif
 
     <div class="st-section__body">
-        @if (! empty($columns) && (int) $columns === 2)
-            <div class="st-fields-grid st-fields-grid--in-section">
+        @if (! empty($columns) && (int) $columns >= 2)
+            <div class="st-fields-grid st-fields-grid--in-section st-fields-grid--cols-{{ min((int) $columns, 4) }}">
                 {{ $slot }}
             </div>
         @else

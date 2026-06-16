@@ -1,20 +1,28 @@
 @php
     $meta = $activeTabMeta ?? ['name' => $activeTab ?? 'general', 'label' => '', 'group' => '', 'lead' => null, 'icon' => null];
     $panelIcon = $meta['icon'] ?? 'fa-cog';
+    $settingsFormAction = $settingsFormAction ?? route('admin.settings.update');
+    $settingsFormId = $settingsFormId ?? 'settings-edit-form';
+    $settingsSidebarBrand = $settingsSidebarBrand ?? trans('setting::settings.settings');
+    $settingsTabField = $settingsTabField ?? 'settings_tab';
+    $settingsSearchLabel = $settingsSearchLabel ?? trans('setting::settings.form.search_settings');
+    $settingsSearchPlaceholder = $settingsSearchPlaceholder ?? trans('setting::settings.form.search_settings');
+    $settingsSearchNoResults = $settingsSearchNoResults ?? trans('setting::settings.form.search_no_results');
+    $settingsSidebarAria = $settingsSidebarAria ?? trans('setting::settings.settings');
 @endphp
 
 <div class="admin-settings" data-active-tab="{{ $activeTab }}">
-    <aside class="settings-sidebar" aria-label="{{ trans('setting::settings.settings') }}">
+    <aside class="settings-sidebar" aria-label="{{ $settingsSidebarAria }}">
         <div class="settings-sidebar__inner">
             <div class="settings-sidebar__brand">
                 <span class="settings-sidebar__brand-icon" aria-hidden="true">
                     <i class="fa fa-sliders"></i>
                 </span>
-                <span class="settings-sidebar__brand-text">{{ trans('setting::settings.settings') }}</span>
+                <span class="settings-sidebar__brand-text">{{ $settingsSidebarBrand }}</span>
             </div>
 
             <div class="settings-sidebar__search">
-                <label class="sr-only" for="settings-nav-search">{{ trans('setting::settings.form.search_settings') }}</label>
+                <label class="sr-only" for="settings-nav-search">{{ $settingsSearchLabel }}</label>
                 <span class="settings-sidebar__search-icon" aria-hidden="true">
                     <i class="fa fa-search"></i>
                 </span>
@@ -23,8 +31,8 @@
                     id="settings-nav-search"
                     name="settings_nav_q"
                     class="settings-sidebar__search-input"
-                    placeholder="{{ trans('setting::settings.form.search_settings') }}"
-                    data-no-results="{{ trans('setting::settings.form.search_no_results') }}"
+                    placeholder="{{ $settingsSearchPlaceholder }}"
+                    data-no-results="{{ $settingsSearchNoResults }}"
                     autocomplete="off"
                     autocorrect="off"
                     autocapitalize="off"
@@ -43,9 +51,9 @@
 
     <form
         method="POST"
-        action="{{ route('admin.settings.update') }}"
+        action="{{ $settingsFormAction }}"
         class="form-horizontal admin-settings-page settings-main"
-        id="settings-edit-form"
+        id="{{ $settingsFormId }}"
         novalidate
         autocomplete="off"
     >
@@ -58,7 +66,7 @@
                 <input type="password" tabindex="-1" autocomplete="new-password">
             </div>
 
-            <input type="hidden" name="settings_tab" value="{{ $activeTab ?? 'general' }}">
+            <input type="hidden" name="{{ $settingsTabField }}" value="{{ $activeTab ?? 'general' }}">
 
             <header class="settings-panel__head">
                 <div class="settings-panel__head-main">

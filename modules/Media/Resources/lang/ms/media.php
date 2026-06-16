@@ -6,6 +6,14 @@ return [
     'drop_files_here' => 'Lepaskan fail di sini atau klik untuk muat naik',
     'upload_new_file' => 'Muat Naik Fail Baharu',
     'browse' => 'Layari',
+    'browse_library' => 'Layari pustaka media',
+    'dropzone_title' => 'Lepaskan imej di sini',
+    'dropzone_title_multiple' => 'Lepaskan imej di sini',
+    'dropzone_hint' => 'atau klik untuk muat naik · JPG, PNG, WebP, SVG',
+    'replace_image' => 'Ganti',
+    'remove_image' => 'Buang imej',
+    'uploading' => 'Memuat naik…',
+    'invalid_image_type' => 'Sila muat naik imej yang sah (JPG, PNG, WebP, GIF, atau SVG).',
     'open_file' => 'Buka Fail',
     'grid' => [
 
