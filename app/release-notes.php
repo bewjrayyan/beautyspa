@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.56' => [
+        'en' => [
+            'summary' => 'Security hardening against SQL injection, brute-force, spam, and payment abuse.',
+            'changes' => [
+                'Require checkout session ownership before canceling online payment orders.',
+                'Reject CHIP webhooks when webhook secret is missing or signature is invalid.',
+                'Add rate limits for login, password reset, checkout, and public forms.',
+                'Replace raw SQL in product attribute filters with parameterized query bindings.',
+                'Harden session cookies (SameSite lax, secure in production) and trusted proxy configuration.',
+                'Fix Google reCAPTCHA settings validation typo so site key is required when enabled.',
+                'Update docs/SECURITY.md and .env.example with production security checklist.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pengukuhan keselamatan terhadap SQL injection, brute-force, spam, dan penyalahgunaan bayaran.',
+            'changes' => [
+                'Wajibkan pemilikan sesi checkout sebelum membatalkan pesanan bayaran dalam talian.',
+                'Tolak webhook CHIP jika rahsia webhook tiada atau tandatangan tidak sah.',
+                'Tambah had kadar untuk log masuk, set semula kata laluan, checkout, dan borang awam.',
+                'Ganti SQL mentah dalam penapis atribut produk dengan parameter binding.',
+                'Kuatkan kuki sesi (SameSite lax, secure dalam production) dan konfigurasi proxy dipercayai.',
+                'Baiki typo validasi tetapan Google reCAPTCHA supaya kunci laman diperlukan apabila diaktifkan.',
+                'Kemas kini docs/SECURITY.md dan .env.example dengan senarai semak keselamatan production.',
+            ],
+        ],
+    ],
     '4.7.55' => [
         'en' => [
             'summary' => 'Beautician portal CRM dashboard, pipeline improvements, and payment receipt in calendar preview.',

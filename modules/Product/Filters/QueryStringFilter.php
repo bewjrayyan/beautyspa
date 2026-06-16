@@ -142,14 +142,25 @@ class QueryStringFilter
 
     public function attribute($query, $attributeFilters)
     {
+        $valueIds = $this->getAttributeValueIds($attributeFilters);
+
+        if ($valueIds === []) {
+            $query->whereRaw('1 = 0');
+
+            return;
+        }
+
         foreach ($this->getAttributeIds($attributeFilters) as $index => $attributeId) {
-            $query->join("product_attributes as pa_{$index}", 'products.id', '=', "pa_{$index}.product_id")
-                ->whereRaw("pa_{$index}.attribute_id = {$attributeId} AND EXISTS (
-                    SELECT *
-                    FROM `product_attribute_values`
-                    WHERE `pa_{$index}`.`id` = `product_attribute_values`.`product_attribute_id`
-                    AND `attribute_value_id` in ({$this->getAttributeValueIds($attributeFilters)})
-                )");
+            $alias = "pa_{$index}";
+
+            $query->join("product_attributes as {$alias}", 'products.id', '=', "{$alias}.product_id")
+                ->where("{$alias}.attribute_id", (int) $attributeId)
+                ->whereExists(function ($subQuery) use ($alias, $valueIds) {
+                    $subQuery->selectRaw('1')
+                        ->from('product_attribute_values')
+                        ->whereColumn("{$alias}.id", 'product_attribute_values.product_attribute_id')
+                        ->whereIn('attribute_value_id', $valueIds);
+                });
         }
     }
 
@@ -177,7 +188,8 @@ class QueryStringFilter
         return once(function () use ($attributeFilters) {
             return AttributeValue::whereTranslationIn('value', array_flatten($attributeFilters))
                 ->pluck('id')
-                ->implode(',') ?: 'null';
+                ->map(fn ($id) => (int) $id)
+                ->all();
         });
     }
 }

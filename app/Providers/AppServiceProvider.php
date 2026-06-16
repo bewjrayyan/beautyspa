@@ -137,5 +137,13 @@ class AppServiceProvider extends ServiceProvider
         if ($isHttps) {
             $this->app['config']->set('session.secure', true);
         }
+
+        if ($this->app->environment('production')) {
+            $this->app['config']->set('session.secure', true);
+
+            if (config('session.same_site') === null) {
+                $this->app['config']->set('session.same_site', 'lax');
+            }
+        }
     }
 }

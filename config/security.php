@@ -21,4 +21,15 @@ return [
 
         'hsts_enabled' => env('SECURITY_HSTS_ENABLED', true),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trusted reverse proxies
+    |--------------------------------------------------------------------------
+    |
+    | Comma-separated proxy IPs, or "*" to trust all (not recommended in prod).
+    | Leave empty when the app is reached directly without a load balancer.
+    |
+    */
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
 ];

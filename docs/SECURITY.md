@@ -9,7 +9,8 @@ This document summarizes security controls in this project and the checklist for
 - Checkout completion verifies payments with gateway APIs (Stripe, Paystack, PayFast, Flutterwave, Instamojo, SSLCommerz, MercadoPago, Paytm, Authorize.Net, CHIP, bKash, Nagad, Iyzico).
 - Orders must be pending and use the same `payment_method` as the callback.
 - Offline methods (COD, bank transfer, check) require a valid checkout session.
-- CHIP webhook can require `chip_webhook_secret` (see Settings → CHIP).
+- **Payment cancel** only deletes the order when it matches the active `checkout_pending_order` session.
+- CHIP webhook **requires** `chip_webhook_secret`; unsigned or unconfigured webhooks are rejected.
 
 ### Admin
 
@@ -40,7 +41,14 @@ This document summarizes security controls in this project and the checklist for
 ### Authentication
 
 - WhatsApp OTP routes are rate-limited.
+- Login and password reset are rate-limited (`auth`: 5/min per email+IP).
 - CSRF on web forms (payment callbacks exempt where required).
+
+### Abuse / spam
+
+- Honeypot on register, contact, reviews, and send-gift forms.
+- Rate limits on checkout (`checkout`: 8/min), public forms (`forms`: 10/min), and newsletter subscribe.
+- Optional Google reCAPTCHA v2 on register, contact, and reviews (enable in Settings).
 
 ## Production checklist
 
@@ -53,6 +61,10 @@ SECURITY_HEADERS_ENABLED=true
 SECURITY_CSP_ENABLED=false
 SECURITY_CSP_REPORT_ONLY=true
 SECURITY_HSTS_ENABLED=true
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
+# SESSION_ENCRYPT=true
+# TRUSTED_PROXIES=127.0.0.1
 ```
 
 1. Set **`APP_DEBUG=false`**.
@@ -100,3 +112,5 @@ If you discover a vulnerability, contact the site owner privately. Do not post e
 | HTML sanitization | `modules/Support/Services/HtmlSanitizer.php`, `clean_html()` |
 | Security headers | `modules/Support/Http/Middleware/SecurityHeaders.php` |
 | Header config | `config/security.php` |
+| Rate limiters | `app/Providers/RouteServiceProvider.php` |
+| Trusted proxies | `app/Http/Middleware/TrustProxies.php` |

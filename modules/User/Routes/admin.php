@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('login', 'AuthController@getLogin')->name('admin.login');
-Route::post('login', 'AuthController@postLogin')->name('admin.login.post');
+Route::post('login', 'AuthController@postLogin')
+    ->middleware('throttle:auth')
+    ->name('admin.login.post');
 
 Route::post('login/whatsapp/send-otp', 'BeauticianWhatsAppOtpAuthController@sendOtp')
     ->middleware('throttle:6,1')
@@ -15,9 +17,13 @@ Route::post('login/whatsapp/verify-otp', 'BeauticianWhatsAppOtpAuthController@ve
 Route::get('logout', 'AuthController@getLogout')->name('admin.logout');
 
 Route::get('password/reset', 'AuthController@getReset')->name('admin.reset');
-Route::post('password/reset', 'AuthController@postReset')->name('admin.reset.post');
+Route::post('password/reset', 'AuthController@postReset')
+    ->middleware('throttle:auth')
+    ->name('admin.reset.post');
 Route::get('password/reset/{email}/{code}', 'AuthController@getResetComplete')->name('admin.reset.complete');
-Route::post('password/reset/{email}/{code}', 'AuthController@postResetComplete')->name('admin.reset.complete.post');
+Route::post('password/reset/{email}/{code}', 'AuthController@postResetComplete')
+    ->middleware('throttle:auth')
+    ->name('admin.reset.complete.post');
 
 Route::get('users', [
     'as' => 'admin.users.index',

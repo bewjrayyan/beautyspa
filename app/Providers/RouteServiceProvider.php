@@ -2,6 +2,9 @@
 
 namespace AestheticCart\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -40,5 +43,31 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('web')
             ->namespace($this->namespace)
             ->group(base_path('routes/web.php'));
+    }
+
+
+    public function boot(): void
+    {
+        $this->configureRateLimiting();
+
+        parent::boot();
+    }
+
+
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('auth', function (Request $request) {
+            $key = strtolower((string) $request->input('email', '')).'|'.$request->ip();
+
+            return Limit::perMinute(5)->by($key);
+        });
+
+        RateLimiter::for('forms', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
+
+        RateLimiter::for('checkout', function (Request $request) {
+            return Limit::perMinute(8)->by($request->ip());
+        });
     }
 }

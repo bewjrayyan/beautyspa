@@ -2,4 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::post('subscribers', 'SubscriberController@store')->name('subscribers.store');
+Route::post('subscribers', 'SubscriberController@store')
+    ->middleware('throttle:forms')
+    ->name('subscribers.store');

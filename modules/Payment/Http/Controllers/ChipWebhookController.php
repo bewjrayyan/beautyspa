@@ -22,14 +22,18 @@ class ChipWebhookController
 
         $webhookSecret = trim((string) setting('chip_webhook_secret'));
 
-        if ($webhookSecret !== '') {
-            $signature = (string) ($request->header('X-Signature') ?? $request->header('X-Chip-Signature') ?? '');
+        if ($webhookSecret === '') {
+            Log::warning('CHIP webhook rejected: webhook secret is not configured');
 
-            if ($signature === '' || ! hash_equals($webhookSecret, $signature)) {
-                Log::warning('CHIP webhook rejected: invalid signature');
+            return response('Unauthorized', 401);
+        }
 
-                return response('Unauthorized', 401);
-            }
+        $signature = (string) ($request->header('X-Signature') ?? $request->header('X-Chip-Signature') ?? '');
+
+        if ($signature === '' || ! hash_equals($webhookSecret, $signature)) {
+            Log::warning('CHIP webhook rejected: invalid signature');
+
+            return response('Unauthorized', 401);
         }
 
         $purchaseId = $request->input('id') ?? $request->input('purchase_id');

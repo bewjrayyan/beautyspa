@@ -56,4 +56,24 @@ class CheckoutCompletionGuard
     {
         session(['checkout_pending_order' => $order->id]);
     }
+
+    /**
+     * @throws Exception
+     */
+    public static function assertCanCancelPayment(Order $order): void
+    {
+        $pendingOrderId = (int) session('checkout_pending_order');
+
+        if ($pendingOrderId !== (int) $order->id) {
+            throw new Exception(trans('payment::messages.invalid_checkout_session'));
+        }
+
+        if ($order->isPaymentPaid()) {
+            throw new Exception(trans('payment::messages.order_already_paid'));
+        }
+
+        if (! in_array($order->status, [Order::PENDING, Order::PENDING_PAYMENT], true)) {
+            throw new Exception(trans('payment::messages.order_not_payable'));
+        }
+    }
 }

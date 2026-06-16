@@ -216,7 +216,7 @@ class UpdateSettingRequest extends Request
             'mailchimp_list_id' => ['required_if:newsletter_enabled,1'],
 
             'google_recaptcha_enabled' => ['required', 'boolean'],
-            'google_recaptcha_site_key' => ['required_if:google_recatcha_enabled,1'],
+            'google_recaptcha_site_key' => ['required_if:google_recaptcha_enabled,1'],
             'google_recaptcha_secret_key' => ['required_if:google_recaptcha_enabled,1'],
 
             'facebook_login_enabled' => 'required|boolean',

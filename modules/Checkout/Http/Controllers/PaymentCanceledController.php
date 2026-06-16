@@ -2,23 +2,41 @@
 
 namespace Modules\Checkout\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Modules\Cart\Facades\Cart;
 use Modules\Order\Entities\Order;
-use Modules\Checkout\Services\OrderService;
+use Modules\Checkout\Services\CheckoutCompletionGuard;
 
 class PaymentCanceledController
 {
     /**
-     * Store a newly created resource in storage.
+     * Cancel a pending checkout order after the customer abandons online payment.
      *
      * @param int $orderId
-     * @param string $paymentMethod
-     * @param OrderService $orderService
      */
     public function store(Request $request, $orderId)
     {
-        Order::where('id', $orderId)->forceDelete();
+        $order = Order::query()->findOrFail($orderId);
+
+        try {
+            CheckoutCompletionGuard::assertCanCancelPayment($order);
+        } catch (Exception $exception) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $exception->getMessage(),
+                ], 403);
+            }
+
+            return redirect()
+                ->route('checkout.create')
+                ->with('error', $exception->getMessage());
+        }
+
+        session()->forget('checkout_pending_order');
+
+        $order->forceDelete();
 
         Cart::restoreStock();
 
