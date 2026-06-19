@@ -112,7 +112,7 @@
 
     <body
         dir="{{ is_rtl() ? 'rtl' : 'ltr' }}"
-        class="page-template {{ is_rtl() ? 'rtl' : 'ltr' }}"
+        class="page-template {{ is_rtl() ? 'rtl' : 'ltr' }} @yield('body_class')"
         data-theme-color="{{ $themeColor->toHexString() }}"
     >
         <div x-data="App" class="wrapper">

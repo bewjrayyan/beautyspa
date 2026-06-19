@@ -1,5 +1,7 @@
 @extends('storefront::public.account.layout')
 
+@section('account_mobile_hero', true)
+
 @section('title', trans('storefront::account.view_order.view_order'))
 
 @section('account_breadcrumb')

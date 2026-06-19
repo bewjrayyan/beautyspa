@@ -1508,21 +1508,21 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/dashboard/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/main.scss": {
-    "file": "assets/main-BVLfrMYv-v4.7.59.css",
+    "file": "assets/main-DO4EEOOY-v4.7.59.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.59.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-BQSdC1Zi-v4.7.59.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-BQSdC1Zi-v4.7.59.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-BAhEvM-N-v4.7.59.css",

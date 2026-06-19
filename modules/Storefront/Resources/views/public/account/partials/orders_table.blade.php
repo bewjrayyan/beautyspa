@@ -1,4 +1,6 @@
-<div class="table-responsive">
+@include('storefront::public.account.partials.orders_cards', ['orders' => $orders])
+
+<div class="table-responsive d-none d-lg-block">
     <table class="table table-borderless my-orders-table">
         <thead>
         <tr>

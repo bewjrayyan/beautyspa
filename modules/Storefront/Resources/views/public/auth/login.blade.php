@@ -287,7 +287,7 @@
                             :class="formSubmitting ? 'btn-loading' : ''" 
                             class="btn btn-primary"
                             :disabled="formSubmitting"
-                            @click="formSubmitting = true; $el.parentElement.submit()"
+                            @click="formSubmitting = true; $el.closest('form').submit()"
                         >
                             {{ trans('user::auth.sign_in') }}
                         </button>

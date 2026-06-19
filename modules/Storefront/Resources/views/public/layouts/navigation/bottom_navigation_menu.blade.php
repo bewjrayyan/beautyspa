@@ -77,7 +77,7 @@
             </li>
 
             <li>
-                <a href="{{ route('login') }}" class="{{ request()->routeIs('login') || request()->routeIs('account.*') ? 'active' : '' }}">
+                <a href="{{ auth()->check() ? route('account.dashboard.index') : route('login') }}" class="{{ request()->routeIs('login') || request()->routeIs('account.*') ? 'active' : '' }}">
                     @if (request()->routeIs('login') || request()->routeIs('account.*'))
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="#292D32"/>

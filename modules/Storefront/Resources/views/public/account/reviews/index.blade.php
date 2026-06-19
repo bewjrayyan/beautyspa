@@ -24,7 +24,43 @@
             </template>
 
             <template x-if="!reviewIsEmpty">
-                <div class="table-responsive">
+                <div class="account-product-cards account-product-cards--reviews d-lg-none">
+                    <template x-for="review in reviews.data" :key="'review-card-' + review.id">
+                        <div class="account-product-card account-product-card--review" x-data="ReviewItem(review.product)">
+                            <div class="account-product-card__main">
+                                <div class="account-product-card__image">
+                                    <img
+                                        :src="baseImage"
+                                        :class="{ 'image-placeholder': !hasBaseImage }"
+                                        :alt="productName"
+                                    >
+                                </div>
+
+                                <div class="account-product-card__info">
+                                    <a :href="productUrl" class="account-product-card__name" x-text="productName"></a>
+
+                                    <div class="account-product-card__meta">
+                                        <span
+                                            class="badge"
+                                            :class="review.is_approved ? 'badge-success' : 'badge-warning'"
+                                            x-text="review.status"
+                                        ></span>
+
+                                        <span class="account-product-card__date" x-text="review.created_at_formatted"></span>
+                                    </div>
+
+                                    <div class="account-product-card__rating">
+                                        @include('storefront::public.partials.product_rating', [
+                                            'data' => 'review'
+                                        ])
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="table-responsive d-none d-lg-block">
                     <table class="table table-borderless my-reviews-table">
                         <thead>
                             <tr>

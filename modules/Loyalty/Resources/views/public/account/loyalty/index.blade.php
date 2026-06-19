@@ -1,5 +1,7 @@
 @extends('storefront::public.account.layout')
 
+@section('account_mobile_hero', true)
+
 @section('title', trans('loyalty::account.title'))
 
 @section('account_breadcrumb')

@@ -1,5 +1,9 @@
 @extends('storefront::public.layout')
 
+@section('body_class')
+    account-page
+@endsection
+
 @section('breadcrumb')
     @if (request()->routeIs('account.dashboard.index'))
         <li class="active">{{ trans('storefront::account.pages.my_account') }}</li>
@@ -11,97 +15,42 @@
 @endsection
 
 @section('content')
-    <section class="account-wrap">
+    @php($accountUser = auth()->user())
+
+    <section @class([
+        'account-wrap',
+        'account-wrap--dashboard' => request()->routeIs('account.dashboard.index'),
+        'account-wrap--subpage' => ! request()->routeIs('account.dashboard.index'),
+    ])>
         <div class="container">
+            @if (request()->routeIs('account.dashboard.index'))
+                <div class="account-mobile-hero d-lg-none">
+                    <div class="account-mobile-hero__avatar">
+                        @if ($accountUser->avatarUrl())
+                            <img src="{{ $accountUser->avatarUrl() }}" alt="{{ $accountUser->full_name }}" width="56" height="56">
+                        @else
+                            <span>{{ $accountUser->initials }}</span>
+                        @endif
+                    </div>
+
+                    <div class="account-mobile-hero__info">
+                        <h2 class="account-mobile-hero__name">{{ $accountUser->full_name }}</h2>
+                        <p class="account-mobile-hero__email">{{ $accountUser->email }}</p>
+                    </div>
+
+                    <a href="{{ route('account.profile.edit') }}" class="account-mobile-hero__edit" aria-label="{{ trans('storefront::account.dashboard.edit') }}">
+                        <i class="las la-pen"></i>
+                    </a>
+                </div>
+            @elseif (! request()->routeIs('account.orders.show', 'account.profile.edit', 'account.loyalty.index'))
+                @include('storefront::public.account.partials.mobile_header')
+            @endif
+
             <div class="account-wrap-inner">
                 <aside class="account-left">
-                    <ul class="account-sidebar list-inline d-flex flex-column">
-                        <li class="{{ request()->routeIs('account.dashboard.index') ? 'active' : '' }}">
-                            <a href="{{ route('account.dashboard.index') }}">
-                                <i class="las la-tachometer-alt"></i>
-
-                                {{ trans('storefront::account.pages.dashboard') }}
-                            </a>
-                        </li>
-
-                        <li class="{{ request()->routeIs('account.orders.*') ? 'active' : '' }}">
-                            <a href="{{ route('account.orders.index') }}">
-                                <i class="las la-cart-arrow-down"></i>
-
-                                {{ trans('storefront::account.pages.my_orders') }}
-                            </a>
-                        </li>
-
-                        <li class="{{ request()->routeIs('account.downloads.index') ? 'active' : '' }}">
-                            <a href="{{ route('account.downloads.index') }}">
-                                <i class="las la-download"></i>
-
-                                {{ trans('storefront::account.pages.my_downloads') }}
-                            </a>
-                        </li>
-
-                        <li class="{{ request()->routeIs('account.wishlist.index') ? 'active' : '' }}">
-                            <a href="{{ route('account.wishlist.index') }}">
-                                <i class="lar la-heart"></i>
-
-                                {{ trans('storefront::account.pages.my_wishlist') }}
-
-                                <span class="count" x-text="$store.wishlist.count"></span>
-                            </a>
-                        </li>
-
-                        <li class="{{ request()->routeIs('account.reviews.index') ? 'active' : '' }}">
-                            <a href="{{ route('account.reviews.index') }}">
-                                <i class="las la-comment"></i>
-
-                                {{ trans('storefront::account.pages.my_reviews') }}
-                            </a>
-                        </li>
-
-                        @if (app('modules')->isEnabled('TreatmentReservation'))
-                            <li class="{{ request()->routeIs('treatment_reservations.booking.*') ? 'active' : '' }}">
-                                <a href="{{ route('treatment_reservations.booking.lookup') }}">
-                                    <i class="las la-calendar-check"></i>
-
-                                    {{ trans('treatmentreservation::public.nav_link') }}
-                                </a>
-                            </li>
-                        @endif
-
-                        @if (app('modules')->isEnabled('Loyalty'))
-                            <li class="{{ request()->routeIs('account.loyalty.index') ? 'active' : '' }}">
-                                <a href="{{ route('account.loyalty.index') }}">
-                                    <i class="las la-star"></i>
-
-                                    {{ trans('loyalty::account.title') }}
-                                </a>
-                            </li>
-                        @endif
-
-                        <li class="{{ request()->routeIs('account.addresses.index') ? 'active' : '' }}">
-                            <a href="{{ route('account.addresses.index') }}">
-                                <i class="las la-address-book"></i>
-
-                                {{ trans('storefront::account.pages.my_addresses') }}
-                            </a>
-                        </li>
-
-                        <li class="{{ request()->routeIs('account.profile.edit') ? 'active' : '' }}">
-                            <a href="{{ route('account.profile.edit') }}">
-                                <i class="las la-user-circle"></i>
-
-                                {{ trans('storefront::account.pages.my_profile') }}
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{{ route('logout') }}">
-                                <i class="las la-sign-out-alt"></i>
-
-                                {{ trans('storefront::account.pages.logout') }}
-                            </a>
-                        </li>
-                    </ul>
+                    <div class="account-app-nav">
+                        @include('storefront::public.account.partials.sidebar')
+                    </div>
                 </aside>
 
                 <div class="account-right">
