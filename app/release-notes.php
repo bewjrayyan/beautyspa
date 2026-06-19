@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.64' => [
+        'en' => [
+            'summary' => 'Fix homepage product tab badges clipped on mobile.',
+            'changes' => [
+                'Fix Latest Treatments and other product tab pills being cut off on the left edge of mobile homepage cards.',
+                'Remove negative-margin tab header overflow and disable legacy underline pseudo-elements on mobile pill tabs.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki badge tab produk homepage terpotong pada mobile.',
+            'changes' => [
+                'Baiki pill tab seperti Latest Treatments terpotong di tepi kiri kad homepage mobile.',
+                'Buang margin negatif header tab dan matikan pseudo underline legacy pada tab pill mobile.',
+            ],
+        ],
+    ],
     '4.7.63' => [
         'en' => [
             'summary' => 'Homepage load performance and mobile search bar visibility fix.',
