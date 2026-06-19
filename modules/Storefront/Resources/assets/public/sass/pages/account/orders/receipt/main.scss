@@ -293,6 +293,171 @@ body {
     color: $receipt-muted !important;
 }
 
+.payment-receipt__block--rewards {
+    .order-complete-rewards {
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+
+    .order-complete-section-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 0 10px;
+        padding-bottom: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: $receipt-text;
+        border-bottom: 1px solid $receipt-border;
+
+        i {
+            font-size: 15px;
+            color: var(--color-primary, #ec4899);
+        }
+    }
+
+    .order-complete-rewards__block + .order-complete-rewards__block {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid $receipt-border;
+    }
+
+    .order-complete-rewards__subtitle {
+        margin: 0 0 8px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: $receipt-muted;
+    }
+
+    .order-complete-stamp-cards {
+        display: grid;
+        gap: 10px;
+    }
+
+    .order-complete-stamp-card {
+        padding: 10px 12px;
+        background: #fff;
+        border: 1.5px solid #3b82f6;
+        border-radius: 8px;
+    }
+
+    .order-complete-stamp-card--complete {
+        border-color: #22c55e;
+    }
+
+    .order-complete-stamp-card--expired {
+        border-color: #cbd5e1;
+        opacity: 0.95;
+    }
+
+    .order-complete-stamp-card__title {
+        margin: 0 0 2px;
+        font-size: 11px;
+        font-weight: 700;
+        color: $receipt-text;
+    }
+
+    .order-complete-stamp-card__reward {
+        margin: 0;
+        font-size: 10px;
+        color: $receipt-muted;
+    }
+
+    .order-complete-stamp-card__stamps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin: 8px 0 6px;
+    }
+
+    .order-complete-stamp-card__stamp {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 50%;
+        color: transparent;
+        background: #fff;
+    }
+
+    .order-complete-stamp-card__stamp--filled {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        color: #2563eb;
+
+        i {
+            font-size: 11px;
+            font-weight: 700;
+        }
+    }
+
+    .order-complete-stamp-card--complete .order-complete-stamp-card__stamp--filled {
+        border-color: #22c55e;
+        background: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .order-complete-stamp-card--expired .order-complete-stamp-card__stamp--filled {
+        border-color: #94a3b8;
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .order-complete-stamp-card__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 10px;
+    }
+
+    .order-complete-stamp-card__progress {
+        font-weight: 600;
+        color: $receipt-text;
+    }
+
+    .order-complete-stamp-card__expiry {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #2563eb;
+        white-space: nowrap;
+
+        i {
+            font-size: 11px;
+        }
+
+        &--expired {
+            color: $receipt-muted;
+        }
+    }
+
+    .order-complete-rewards__points {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin: 0;
+        font-size: 11px;
+        line-height: 1.45;
+        color: $receipt-text;
+
+        i {
+            margin-top: 1px;
+            font-size: 13px;
+            color: var(--color-primary, #ec4899);
+        }
+    }
+}
+
 .rtl {
     .payment-receipt__header-top {
         flex-direction: row-reverse;

@@ -18,6 +18,11 @@ return [
         'my_profile' => 'My Profile',
         'logout' => 'Logout',
     ],
+    'menu' => [
+        'orders_activity' => 'Orders & activity',
+        'rewards' => 'Rewards',
+        'account_settings' => 'Account settings',
+    ],
     'dashboard' => [
         'recent_orders' => 'Recent Orders',
         'view_all' => 'View All',
@@ -81,6 +86,8 @@ return [
         'subtotal' => 'Subtotal',
         'coupon' => 'Coupon',
         'total' => 'Total',
+        'leave_reviews' => 'Leave a review',
+        'leave_reviews_hint' => 'Share your experience with the products from this order.',
     ],
     'downloads' => [
         'filename' => 'Filename',

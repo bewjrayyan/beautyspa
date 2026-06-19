@@ -20,6 +20,11 @@ return [
         'my_profile' => 'Profil Saya',
         'logout' => 'Log keluar',
     ],
+    'menu' => [
+        'orders_activity' => 'Pesanan & aktiviti',
+        'rewards' => 'Ganjaran',
+        'account_settings' => 'Tetapan akaun',
+    ],
     'dashboard' => [
 
         'recent_orders' => 'Recent Pesanan',
@@ -86,6 +91,8 @@ return [
         'subtotal' => 'Subjumlah',
         'coupon' => 'Kupon',
         'total' => 'Jumlah',
+        'leave_reviews' => 'Tinggalkan ulasan',
+        'leave_reviews_hint' => 'Kongsi pengalaman anda dengan produk daripada pesanan ini.',
     ],
     'downloads' => [
 

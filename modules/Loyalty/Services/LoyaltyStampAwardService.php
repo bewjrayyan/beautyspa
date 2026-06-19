@@ -11,6 +11,10 @@ use Modules\User\Entities\User;
 
 class LoyaltyStampAwardService
 {
+    public function __construct(
+        private StampProgramEligibleProductService $eligibleProducts
+    ) {}
+
     public function awardForOrder(Order $order): void
     {
         if (! $order->customer_id) {
@@ -35,30 +39,12 @@ class LoyaltyStampAwardService
         }
 
         foreach ($programs as $program) {
-            if (! $this->orderQualifies($order, $program)) {
+            if (! $this->eligibleProducts->orderQualifies($order, $program)) {
                 continue;
             }
 
             $this->awardStamp($user, $program, $order);
         }
-    }
-
-
-    private function orderQualifies(Order $order, LoyaltyStampProgram $program): bool
-    {
-        $productIds = array_filter((array) $program->product_ids);
-
-        if ($productIds !== []) {
-            return $order->products->contains(
-                fn ($line) => in_array((int) $line->product_id, array_map('intval', $productIds), true)
-            );
-        }
-
-        if ($program->virtual_treatments_only) {
-            return $order->products->contains(fn ($line) => (bool) $line->product?->is_virtual);
-        }
-
-        return $order->products->isNotEmpty();
     }
 
 

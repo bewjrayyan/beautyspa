@@ -46,4 +46,5 @@ return [
     'contact_us' => 'Hubungi Kami',
     'my_account' => 'Akaun Saya',
     'tags' => 'Tag',
+    'footer_title' => 'Bantuan & Sokongan',
 ];

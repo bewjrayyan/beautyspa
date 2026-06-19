@@ -15,6 +15,7 @@ class WritableStorageBootstrap
             static::ensureDirectory($directory);
         }
 
+        static::configureCliWritablePaths();
         static::ensurePublicStorageLink();
 
         if (static::isLocalEnvironment()) {
@@ -71,6 +72,7 @@ class WritableStorageBootstrap
             storage_path('framework/cache/data'),
             storage_path('framework/sessions'),
             storage_path('framework/views'),
+            storage_path('framework/psysh'),
             storage_path('framework'),
             storage_path('app'),
             storage_path('app/public'),
@@ -145,7 +147,30 @@ class WritableStorageBootstrap
             'cache.stores.file.path' => static::fileCachePath(),
             'logging.channels.single.path' => static::logPath(),
             'logging.channels.daily.path' => static::logPath(),
+            'logging.channels.single.level' => env('LOG_LEVEL', 'error'),
+            'logging.channels.daily.level' => env('LOG_LEVEL', 'error'),
         ]);
+    }
+
+
+    /**
+     * Keep CLI tools (e.g. Tinker/PsySH) inside writable project storage.
+     */
+    private static function configureCliWritablePaths(): void
+    {
+        if (PHP_SAPI !== 'cli') {
+            return;
+        }
+
+        $configHome = storage_path('framework');
+
+        if (! getenv('XDG_CONFIG_HOME')) {
+            putenv('XDG_CONFIG_HOME='.$configHome);
+            $_ENV['XDG_CONFIG_HOME'] = $configHome;
+            $_SERVER['XDG_CONFIG_HOME'] = $configHome;
+        }
+
+        static::ensureDirectory($configHome.'/psysh');
     }
 
 

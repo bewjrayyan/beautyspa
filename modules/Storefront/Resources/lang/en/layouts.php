@@ -46,4 +46,5 @@ return [
     'contact_us' => 'Contact Us',
     'my_account' => 'My Account',
     'tags' => 'Tags',
+    'footer_title' => 'Help & Support',
 ];

@@ -8,7 +8,7 @@ import autoprefixer from "autoprefixer";
 import postcssRTLCSS from "postcss-rtlcss";
 
 // AestheticCart version
-const VERSION = "4.7.59";
+const VERSION = "4.7.60";
 
 export default defineConfig(async ({ command }) => {
     // Glob pattern for assets
@@ -38,6 +38,7 @@ export default defineConfig(async ({ command }) => {
                     "modules/Order/Resources/assets/admin/sass/receipt.scss",
                     "modules/Storefront/Resources/assets/public/js/vendors/flatpickr.js",
                     "modules/User/Resources/assets/admin/js/profileForm.js",
+                    "modules/Loyalty/Resources/assets/admin/js/stamp-program-products.js",
                     ...assets,
                 ],
                 refresh: true,

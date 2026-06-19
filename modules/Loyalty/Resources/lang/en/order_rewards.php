@@ -10,4 +10,5 @@ return [
     'expires_in_days' => ':days days left',
     'expires_today' => 'Expires today',
     'expires_tomorrow' => '1 day left',
+    'expired' => 'Expired',
 ];

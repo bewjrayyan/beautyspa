@@ -23,7 +23,8 @@
 
             reviewCount: {{ $review->count ?? 0 }},
             avgRating: {{ $review->avg_rating ?? 0 }},
-            flashSalePrice: '{{ $flashSalePrice }}'
+            flashSalePrice: '{{ $flashSalePrice }}',
+            reviewerName: {{ \Illuminate\Support\Js::from(trim((auth()->user()?->full_name ?: auth()->user()?->email) ?? '')) }}
         })"
         class="product-details-wrap"
     >

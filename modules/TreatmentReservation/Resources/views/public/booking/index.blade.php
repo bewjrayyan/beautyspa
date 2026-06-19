@@ -1,231 +1,78 @@
-@extends('storefront::public.layout')
+@extends('storefront::public.account.layout')
 
 @section('title', trans('treatmentreservation::public.title'))
 
-@section('breadcrumb')
+@section('account_breadcrumb')
     <li class="active">{{ trans('treatmentreservation::public.title') }}</li>
 @endsection
 
-@section('content')
-    <section class="custom-page-wrap my-appointments-wrap clearfix">
-        <div class="container">
-            <header class="my-appointments-hero">
-                <div class="my-appointments-hero__icon" aria-hidden="true">
-                    <i class="las la-calendar-check"></i>
+@section('panel')
+    <div class="panel account-appointments-panel">
+        <div class="panel-header d-none d-lg-flex">
+            <h4>{{ trans('treatmentreservation::public.title') }}</h4>
+
+            @if ($verifiedPhone)
+                <div class="account-appointments-toolbar">
+                    <span class="account-appointments-toolbar__phone">
+                        <i class="lab la-whatsapp" aria-hidden="true"></i>
+                        {{ trans('treatmentreservation::public.verified_as') }}
+                        <strong>{{ $verifiedPhone }}</strong>
+                    </span>
+
+                    <form method="POST" action="{{ route('treatment_reservations.booking.logout') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-default btn-sm">
+                            <i class="las la-sign-out-alt"></i>
+                            {{ trans('treatmentreservation::public.logout') }}
+                        </button>
+                    </form>
                 </div>
-                <h1>{{ trans('treatmentreservation::public.title') }}</h1>
-                <p class="my-appointments-hero__subtitle">{{ trans('treatmentreservation::public.subtitle') }}</p>
-            </header>
-
-            <div class="my-appointments-layout {{ $verifiedPhone ? 'my-appointments-layout--verified' : '' }}">
-                @unless ($verifiedPhone)
-                    <aside class="my-appointments-steps" aria-label="{{ trans('treatmentreservation::public.how_it_works') }}">
-                        <h2>{{ trans('treatmentreservation::public.how_it_works') }}</h2>
-
-                        <div class="my-appointments-step">
-                            <span class="my-appointments-step__number">1</span>
-                            <div>
-                                <span class="my-appointments-step__title">{{ trans('treatmentreservation::public.step_1_title') }}</span>
-                                <span class="my-appointments-step__text">{{ trans('treatmentreservation::public.step_1_text') }}</span>
-                            </div>
-                        </div>
-
-                        <div class="my-appointments-step">
-                            <span class="my-appointments-step__number">2</span>
-                            <div>
-                                <span class="my-appointments-step__title">{{ trans('treatmentreservation::public.step_2_title') }}</span>
-                                <span class="my-appointments-step__text">{{ trans('treatmentreservation::public.step_2_text') }}</span>
-                            </div>
-                        </div>
-
-                        <div class="my-appointments-step">
-                            <span class="my-appointments-step__number">3</span>
-                            <div>
-                                <span class="my-appointments-step__title">{{ trans('treatmentreservation::public.step_3_title') }}</span>
-                                <span class="my-appointments-step__text">{{ trans('treatmentreservation::public.step_3_text') }}</span>
-                            </div>
-                        </div>
-                    </aside>
-                @endunless
-
-                <div class="my-appointments-panel">
-                    <p class="alert alert-danger my-appointments-alert" id="booking-page-error" style="display:none;" role="alert"></p>
-
-                    @if ($verifiedPhone)
-                        <div class="my-appointments-toolbar">
-                            <div class="my-appointments-toolbar__phone">
-                                <i class="lab la-whatsapp" aria-hidden="true"></i>
-                                <span>
-                                    {{ trans('treatmentreservation::public.verified_as') }}
-                                    <strong>{{ $verifiedPhone }}</strong>
-                                </span>
-                            </div>
-
-                            <form method="POST" action="{{ route('treatment_reservations.booking.logout') }}">
-                                @csrf
-                                <button type="submit" class="btn btn-default btn-sm">
-                                    <i class="las la-sign-out-alt"></i>
-                                    {{ trans('treatmentreservation::public.logout') }}
-                                </button>
-                            </form>
-                        </div>
-
-                        @if ($bookings->isEmpty())
-                            <div class="my-appointments-empty">
-                                <div class="my-appointments-empty__icon" aria-hidden="true">
-                                    <i class="las la-calendar-times"></i>
-                                </div>
-                                <h3>{{ trans('treatmentreservation::public.empty_title') }}</h3>
-                                <p>{{ trans('treatmentreservation::public.empty_text') }}</p>
-                                <a href="{{ route('products.index') }}" class="btn btn-primary">
-                                    {{ trans('treatmentreservation::public.browse_treatments') }}
-                                </a>
-                            </div>
-                        @else
-                            <div class="my-appointments-list">
-                                @foreach ($bookings as $booking)
-                                    @php
-                                        $statusKey = 'treatmentreservation::public.statuses.' . $booking->status;
-                                        $statusLabel = trans()->has($statusKey)
-                                            ? trans($statusKey)
-                                            : ucfirst(str_replace('_', ' ', $booking->status));
-                                    @endphp
-
-                                    <article class="my-appointments-card" data-booking-id="{{ $booking->id }}">
-                                        <div class="my-appointments-card__top">
-                                            <h3 class="my-appointments-card__title">{{ $booking->product?->name }}</h3>
-                                            <span class="my-appointments-status my-appointments-status--{{ $booking->status }}">
-                                                {{ $statusLabel }}
-                                            </span>
-                                        </div>
-
-                                        <div class="my-appointments-card__meta">
-                                            <div class="my-appointments-card__meta-item">
-                                                <i class="las la-calendar" aria-hidden="true"></i>
-                                                <div>
-                                                    <span>{{ trans('treatmentreservation::public.date') }}</span>
-                                                    <strong>{{ $booking->appointment_date?->format('d M Y') }}</strong>
-                                                </div>
-                                            </div>
-                                            <div class="my-appointments-card__meta-item">
-                                                <i class="las la-clock" aria-hidden="true"></i>
-                                                <div>
-                                                    <span>{{ trans('treatmentreservation::public.time') }}</span>
-                                                    <strong>{{ $booking->appointment_time }}</strong>
-                                                </div>
-                                            </div>
-                                            <div class="my-appointments-card__meta-item">
-                                                <i class="las la-user" aria-hidden="true"></i>
-                                                <div>
-                                                    <span>{{ trans('treatmentreservation::public.beautician') }}</span>
-                                                    <strong>{{ $booking->beautician?->name ?? '—' }}</strong>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="my-appointments-card__actions">
-                                            <button type="button" class="btn btn-default btn-sm js-reschedule-toggle">
-                                                <i class="las la-edit"></i>
-                                                {{ trans('treatmentreservation::public.reschedule') }}
-                                            </button>
-                                            <button type="button" class="btn btn-danger btn-sm js-cancel-booking">
-                                                <i class="las la-times-circle"></i>
-                                                {{ trans('treatmentreservation::public.cancel') }}
-                                            </button>
-                                        </div>
-
-                                        <form
-                                            class="my-appointments-card__reschedule hide js-reschedule-form"
-                                            data-slots-url="{{ route('treatment_reservations.booking.slots', ['id' => $booking->id]) }}"
-                                        >
-                                            <div class="row-fields">
-                                                <div class="form-group">
-                                                    <label class="input-label">{{ trans('treatmentreservation::public.new_date') }}</label>
-                                                    <input
-                                                        type="date"
-                                                        name="appointment_date"
-                                                        class="form-control js-reschedule-date"
-                                                        required
-                                                        min="{{ today()->toDateString() }}"
-                                                    >
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="input-label">{{ trans('treatmentreservation::public.new_time') }}</label>
-                                                    <select name="appointment_time" class="form-control js-slot-select" required disabled>
-                                                        <option value="">{{ trans('treatmentreservation::public.loading_slots') }}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                {{ trans('treatmentreservation::public.reschedule') }}
-                                            </button>
-                                        </form>
-                                    </article>
-                                @endforeach
-                            </div>
-                        @endif
-                    @else
-                        <div id="booking-otp-app" class="my-appointments-otp">
-                            <div class="my-appointments-otp__header">
-                                <div class="my-appointments-otp__whatsapp-badge">
-                                    <i class="lab la-whatsapp" aria-hidden="true"></i>
-                                    {{ trans('treatmentreservation::public.whatsapp_secure') }}
-                                </div>
-                                <h2>{{ trans('treatmentreservation::public.otp_title') }}</h2>
-                                <p>{{ trans('treatmentreservation::public.otp_hint') }}</p>
-                            </div>
-
-                            <div class="my-appointments-otp__progress" role="tablist" aria-label="{{ trans('treatmentreservation::public.otp_title') }}">
-                                <span class="my-appointments-otp__progress-step is-active" id="booking-progress-phone" role="tab">
-                                    {{ trans('treatmentreservation::public.otp_step_phone') }}
-                                </span>
-                                <span class="my-appointments-otp__progress-step" id="booking-progress-code" role="tab">
-                                    {{ trans('treatmentreservation::public.otp_step_code') }}
-                                </span>
-                            </div>
-
-                            <p class="alert alert-danger my-appointments-alert" id="booking-otp-error" style="display:none;" role="alert"></p>
-
-                            <div id="booking-otp-phone-step">
-                                @include('storefront::public.partials.phone_input', [
-                                    'name' => 'phone',
-                                    'id' => 'booking-otp-phone',
-                                    'placeholder' => trans('user::auth.whatsapp_otp_phone_hint'),
-                                ])
-                                <button type="button" class="btn btn-primary" id="booking-otp-send">
-                                    <i class="lab la-whatsapp"></i>
-                                    {{ trans('user::auth.whatsapp_otp_send') }}
-                                </button>
-                            </div>
-
-                            <div id="booking-otp-code-step" style="display:none;">
-                                @include('storefront::public.partials.otp_digit_input', [
-                                    'idPrefix' => 'booking-otp',
-                                    'useAlpine' => false,
-                                    'hiddenInputId' => 'booking-otp-code',
-                                    'showPhone' => true,
-                                    'phoneDisplayId' => 'booking-otp-phone-display',
-                                ])
-
-                                <button type="button" class="btn btn-primary" id="booking-otp-verify">
-                                    {{ trans('user::auth.whatsapp_otp_verify') }}
-                                </button>
-
-                                <button type="button" class="my-appointments-otp__back" id="booking-otp-back">
-                                    <i class="las la-arrow-left"></i>
-                                    {{ trans('treatmentreservation::public.otp_change_phone') }}
-                                </button>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
+            @endif
         </div>
-    </section>
+
+        @if ($verifiedPhone)
+            <div class="account-appointments-toolbar account-appointments-toolbar--mobile d-lg-none">
+                <span class="account-appointments-toolbar__phone">
+                    <i class="lab la-whatsapp" aria-hidden="true"></i>
+                    {{ trans('treatmentreservation::public.verified_as') }}
+                    <strong>{{ $verifiedPhone }}</strong>
+                </span>
+
+                <form method="POST" action="{{ route('treatment_reservations.booking.logout') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-default btn-sm">
+                        <i class="las la-sign-out-alt"></i>
+                        {{ trans('treatmentreservation::public.logout') }}
+                    </button>
+                </form>
+            </div>
+        @endif
+
+        <div class="panel-body">
+            <p class="alert alert-danger account-appointments-alert" id="booking-page-error" style="display:none;" role="alert"></p>
+
+            @unless ($verifiedPhone)
+                @include('treatmentreservation::public.booking.partials.otp_panel')
+            @elseif ($bookings->isEmpty())
+                <div class="empty-message">
+                    <h3>{{ trans('treatmentreservation::public.empty_title') }}</h3>
+                    <p>{{ trans('treatmentreservation::public.empty_text') }}</p>
+                    <a href="{{ route('products.index') }}" class="btn btn-primary btn-sm">
+                        {{ trans('treatmentreservation::public.browse_treatments') }}
+                    </a>
+                </div>
+            @else
+                @include('treatmentreservation::public.booking.partials.appointments_cards', ['bookings' => $bookings])
+                @include('treatmentreservation::public.booking.partials.appointments_table', ['bookings' => $bookings])
+            @endif
+        </div>
+    </div>
 @endsection
 
-@push('styles')
-    @vite('modules/Storefront/Resources/assets/public/sass/pages/custom-page/main.scss')
+@push('globals')
+    @vite([
+        'modules/Storefront/Resources/assets/public/sass/pages/account/appointments/main.scss',
+    ])
 @endpush
 
 @push('scripts')
@@ -347,13 +194,8 @@
 
                     document.getElementById('booking-otp-phone-display').textContent = phone;
                     setOtpStep('code');
-
-                    const otpRoot = document.querySelector('#booking-otp-code-step [data-otp-digit-input]');
-
-                    if (bookingOtpApi) {
-                        bookingOtpApi.fill('');
-                        bookingOtpApi.focus(0);
-                    }
+                    bookingOtpApi?.fill('');
+                    bookingOtpApi?.focus(0);
                 } catch (error) {
                     showError(error.message);
                 } finally {
@@ -403,14 +245,27 @@
                 otpRoot.__otpApi = bookingOtpApi;
             }
 
+            const findBookingRoot = (button) => {
+                const card = button.closest('[data-booking-id]');
+
+                if (card) {
+                    return card;
+                }
+
+                const row = button.closest('.my-appointments-table__row');
+
+                return row || null;
+            };
+
+            const findBookingId = (button) => findBookingRoot(button)?.dataset.bookingId;
+
             document.querySelectorAll('.js-cancel-booking').forEach((button) => {
                 button.addEventListener('click', async () => {
                     if (!confirm(@json(trans('treatmentreservation::public.confirm_cancel')))) {
                         return;
                     }
 
-                    const card = button.closest('[data-booking-id]');
-                    const id = card?.dataset.bookingId;
+                    const id = findBookingId(button);
 
                     setLoading(button, true);
 
@@ -430,10 +285,27 @@
 
             document.querySelectorAll('.js-reschedule-toggle').forEach((button) => {
                 button.addEventListener('click', () => {
-                    const form = button.closest('[data-booking-id]')?.querySelector('.js-reschedule-form');
-                    form?.classList.toggle('hide');
+                    const card = button.closest('.account-appointment-card');
 
-                    if (form && !form.classList.contains('hide')) {
+                    if (card) {
+                        const form = card.querySelector('.js-reschedule-form');
+                        form?.classList.toggle('hide');
+
+                        if (form && !form.classList.contains('hide')) {
+                            loadSlots(form);
+                        }
+
+                        return;
+                    }
+
+                    const row = button.closest('.my-appointments-table__row');
+                    const id = row?.dataset.bookingId;
+                    const expandRow = document.querySelector(`.my-appointments-table__expand[data-booking-id="${id}"]`);
+                    const form = expandRow?.querySelector('.js-reschedule-form');
+
+                    expandRow?.classList.toggle('hide');
+
+                    if (form && expandRow && !expandRow.classList.contains('hide')) {
                         loadSlots(form);
                     }
                 });
@@ -493,7 +365,8 @@
                     event.preventDefault();
 
                     const card = form.closest('[data-booking-id]');
-                    const id = card?.dataset.bookingId;
+                    const row = form.closest('.my-appointments-table__expand');
+                    const id = card?.dataset.bookingId || row?.dataset.bookingId;
                     const date = form.querySelector('[name="appointment_date"]')?.value;
                     const time = form.querySelector('[name="appointment_time"]')?.value;
                     const submitBtn = form.querySelector('[type="submit"]');

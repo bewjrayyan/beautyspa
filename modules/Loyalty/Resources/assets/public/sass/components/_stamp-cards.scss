@@ -1,0 +1,197 @@
+$stamp-card-surface: #fff;
+$stamp-card-border: #e8ecf1;
+$stamp-card-text: #1a202c;
+$stamp-card-muted: #64748b;
+
+.loyalty-stamp-cards {
+    display: grid;
+    gap: 14px;
+}
+
+.loyalty-stamp-card {
+    padding: 18px;
+    background: $stamp-card-surface;
+    border: 2px solid #3b82f6;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.loyalty-stamp-card--complete {
+    border-color: #22c55e;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.12);
+}
+
+.loyalty-stamp-card--not-started {
+    border-color: $stamp-card-border;
+    box-shadow: none;
+}
+
+.loyalty-stamp-card--expired {
+    border-color: #cbd5e1;
+    opacity: 0.92;
+}
+
+.loyalty-stamp-card__title {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: $stamp-card-text;
+}
+
+.loyalty-stamp-card__reward {
+    margin: 0;
+    font-size: 13px;
+    color: $stamp-card-muted;
+}
+
+.loyalty-stamp-card__stamps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 12px;
+}
+
+.loyalty-stamp-card__stamp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    color: transparent;
+    background: #fff;
+}
+
+.loyalty-stamp-card__stamp--filled {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    color: #2563eb;
+
+    i {
+        font-size: 16px;
+        font-weight: 700;
+    }
+}
+
+.loyalty-stamp-card--complete .loyalty-stamp-card__stamp--filled {
+    border-color: #22c55e;
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.loyalty-stamp-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    min-width: 0;
+}
+
+.loyalty-stamp-card__progress {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 600;
+    color: $stamp-card-text;
+}
+
+.loyalty-stamp-card__expiry {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #2563eb;
+    white-space: nowrap;
+}
+
+.loyalty-stamp-card__expiry--expired {
+    color: #64748b;
+}
+
+.loyalty-stamp-card__actions {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed #dbeafe;
+}
+
+.loyalty-stamp-card__redeem-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.loyalty-stamp-card__redeem-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2563eb;
+    text-decoration: none;
+
+    &:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+}
+
+.loyalty-stamp-card__redeem-hint {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: $stamp-card-muted;
+}
+
+@media screen and (max-width: 991px) {
+    .loyalty-stamp-cards {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .loyalty-stamp-card {
+        padding: 12px;
+        border-width: 1px;
+    }
+
+    .loyalty-stamp-card__stamps {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 3px;
+        margin: 10px 0 8px;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .loyalty-stamp-card__stamp {
+        flex: 1 1 0;
+        width: 0;
+        min-width: 0;
+        max-width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        border-width: 1.5px;
+
+        i {
+            font-size: 12px;
+        }
+    }
+
+    .loyalty-stamp-card__footer {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 6px 8px;
+    }
+
+    .loyalty-stamp-card__expiry {
+        margin-left: auto;
+        max-width: 100%;
+        white-space: normal;
+        text-align: right;
+        font-size: 10px;
+        letter-spacing: 0.02em;
+    }
+}

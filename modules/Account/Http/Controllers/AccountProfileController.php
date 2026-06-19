@@ -5,6 +5,7 @@ namespace Modules\Account\Http\Controllers;
 use Illuminate\Http\Response;
 use Modules\Account\Services\ProfileAvatarService;
 use Modules\Loyalty\Services\LoyaltyConfig;
+use Modules\Loyalty\Services\LoyaltyStampProgressService;
 use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\User\Http\Requests\UpdateProfileRequest;
 
@@ -28,6 +29,7 @@ class AccountProfileController
         $loyaltyWallet = null;
         $loyaltyBalanceRm = 0;
         $loyaltyEarnRate = 0;
+        $stampCards = [];
 
         if (app('modules')->isEnabled('Loyalty')) {
             $loyaltyWallet = app(LoyaltyWalletService::class)->getOrCreateForUser($account);
@@ -36,6 +38,7 @@ class AccountProfileController
             $loyaltyConfig = app(LoyaltyConfig::class);
             $loyaltyBalanceRm = $loyaltyConfig->pointsToRm($loyaltyWallet->balance);
             $loyaltyEarnRate = $loyaltyConfig->earnRatePerRm();
+            $stampCards = app(LoyaltyStampProgressService::class)->forAccount($account);
         }
 
         return view('storefront::public.account.profile.edit', [
@@ -43,6 +46,7 @@ class AccountProfileController
             'loyaltyWallet' => $loyaltyWallet,
             'loyaltyBalanceRm' => $loyaltyBalanceRm,
             'loyaltyEarnRate' => $loyaltyEarnRate,
+            'stampCards' => $stampCards,
         ]);
     }
 

@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.60' => [
+        'en' => [
+            'summary' => 'Customer account mobile app UX, loyalty stamps, order reviews, and admin stamp program tools.',
+            'changes' => [
+                'Standardize mobile back header across all account subpages (orders, profile, rewards, appointments).',
+                'Redesign account dashboard menu as iOS-style grouped cards with colored icons and badges.',
+                'Revamp profile page for mobile: hero, stamp cards, sticky save bar, and compact form rows.',
+                'Restyle My Appointments and My Rewards pages with matching mobile cards and overflow fixes.',
+                'Add order detail rewards, product reviews, and mobile card layouts on account order pages.',
+                'Improve admin stamp program editor with product picker, preview card, and eligible product rules.',
+                'Preload Line Awesome fonts to reduce mobile console warnings; tighten footer mobile spacing.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UX app mobile akaun pelanggan, kad setem, ulasan pesanan, dan alat program setem admin.',
+            'changes' => [
+                'Seragamkan header back mobile merentas semua subhalaman akaun (pesanan, profil, ganjaran, temujanji).',
+                'Reka semula menu dashboard akaun sebagai kad berkumpulan gaya iOS dengan ikon berwarna dan lencana.',
+                'Revamp halaman profil untuk mobile: hero, kad setem, bar simpan melekit, dan baris borang padat.',
+                'Gaya semula Temujanji Saya dan Ganjaran Saya dengan kad mobile sepadan dan baiki limpahan skrin.',
+                'Tambah ganjaran pesanan, ulasan produk, dan susun atur kad mobile pada halaman butiran pesanan.',
+                'Baiki editor program setem admin dengan pemilih produk, pratonton kad, dan peraturan produk layak.',
+                'Pramuat fon Line Awesome untuk kurangkan amaran konsol mobile; ketatkan jarak footer mobile.',
+            ],
+        ],
+    ],
     '4.7.59' => [
         'en' => [
             'summary' => 'Storefront mobile UX, customer WhatsApp OTP login, and product slider improvements.',

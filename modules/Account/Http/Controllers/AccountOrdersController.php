@@ -9,6 +9,7 @@ use Modules\Checkout\Services\OrderGoogleCalendarUrl;
 use Modules\Media\Entities\File;
 use Modules\Order\Entities\Order;
 use Modules\Order\Services\SendOrderBeauticianNotification;
+use Modules\Review\Entities\Review;
 
 class AccountOrdersController
 {
@@ -55,12 +56,18 @@ class AccountOrdersController
             && $order->beautician_id
             && setting('whatsapp_completed_beautician_enabled', true);
         $googleCalendarUrl = $calendarUrl->forOrder($order);
+        $orderReviewItems = $this->orderReviewItems($order);
+        $reviewerName = trim((auth()->user()->full_name ?: auth()->user()->email) ?? '');
+        $orderRewards = $this->orderRewards($order);
 
         return view('storefront::public.account.orders.show', compact(
             'order',
             'hasTreatmentBooking',
             'canNotifyBeautician',
             'googleCalendarUrl',
+            'orderReviewItems',
+            'reviewerName',
+            'orderRewards',
         ));
     }
 
@@ -109,7 +116,11 @@ class AccountOrdersController
             $logo = File::find($logoId)?->path;
         }
 
-        return view('storefront::public.account.orders.receipt', compact('order', 'logo'));
+        return view('storefront::public.account.orders.receipt', [
+            'order' => $order,
+            'logo' => $logo,
+            'orderRewards' => $this->orderRewards($order),
+        ]);
     }
 
 
@@ -154,5 +165,69 @@ class AccountOrdersController
         }
 
         return $order->products->contains(fn ($line) => (bool) $line->product?->is_virtual);
+    }
+
+
+    /**
+     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     */
+    private function orderReviewItems(Order $order)
+    {
+        if (! setting('reviews_enabled')) {
+            return collect();
+        }
+
+        $productIds = $order->products->pluck('product_id')->unique()->filter()->values();
+
+        if ($productIds->isEmpty()) {
+            return collect();
+        }
+
+        $userReviews = Review::withoutGlobalScope('approved')
+            ->where('reviewer_id', auth()->id())
+            ->whereIn('product_id', $productIds)
+            ->get()
+            ->keyBy('product_id');
+
+        return $order->products
+            ->unique('product_id')
+            ->map(function ($line) use ($userReviews) {
+                $product = $line->product;
+
+                if (! $product || $product->trashed()) {
+                    return null;
+                }
+
+                $review = $userReviews->get($product->id);
+
+                return [
+                    'product_id' => $product->id,
+                    'name' => $line->name,
+                    'url' => $line->url(),
+                    'image' => $product->base_image->path ?? '',
+                    'review' => $review ? [
+                        'id' => $review->id,
+                        'rating' => $review->rating,
+                        'rating_percent' => $review->rating_percent,
+                        'comment' => $review->comment,
+                        'is_approved' => $review->is_approved,
+                        'status' => $review->status(),
+                        'created_at_formatted' => $review->created_at_formatted,
+                    ] : null,
+                ];
+            })
+            ->filter()
+            ->values();
+    }
+
+
+    private function orderRewards(Order $order): ?array
+    {
+        if (! app('modules')->isEnabled('Loyalty')) {
+            return null;
+        }
+
+        return app(\Modules\Loyalty\Services\LoyaltyOrderCompleteRewardsService::class)
+            ->forOrder($order);
     }
 }

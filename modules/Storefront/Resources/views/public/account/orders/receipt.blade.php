@@ -7,7 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @vite(['modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss'])
+    @vite([
+        'modules/Storefront/Resources/assets/public/sass/vendors/_line-awesome.scss',
+        'modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss',
+    ])
 </head>
 <body class="{{ is_rtl() ? 'rtl' : 'ltr' }}">
     <article class="payment-receipt">
@@ -146,6 +149,12 @@
                 </div>
             </dl>
         </section>
+
+        @if (! empty($orderRewards))
+            <section class="payment-receipt__block payment-receipt__block--rewards">
+                @include('loyalty::public.order_complete.rewards', ['orderRewards' => $orderRewards])
+            </section>
+        @endif
 
         <footer class="payment-receipt__footer">
             <p>{{ trans('storefront::receipt.thank_you') }}</p>

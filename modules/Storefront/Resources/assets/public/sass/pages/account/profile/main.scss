@@ -1,4 +1,5 @@
 @import "../../../../../../../../Loyalty/Resources/assets/public/sass/components/membership-card";
+@import "../../../../../../../../Loyalty/Resources/assets/public/sass/components/stamp-cards";
 
 $profile-pink: var(--color-primary, #f274ac);
 $profile-pink-soft: rgba(242, 116, 172, 0.12);
@@ -6,8 +7,12 @@ $profile-surface: #fff;
 $profile-border: #e8ecf1;
 $profile-text: #1a202c;
 $profile-muted: #64748b;
-$profile-radius: 16px;
-$profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+$profile-radius: 14px;
+$profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+
+@import "sections/profile-stamps";
+@import "sections/profile-fields";
+@import "profile-mobile";
 
 .sr-only {
     position: absolute;
@@ -38,14 +43,9 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 }
 
 .account-profile-show__hero {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 28px;
-    padding: 28px 32px;
-    background: linear-gradient(135deg, $profile-pink-soft 0%, $profile-surface 55%);
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, $profile-pink-soft 0%, $profile-surface 60%);
     border: 1px solid $profile-border;
     border-radius: $profile-radius;
     box-shadow: $profile-shadow;
@@ -53,8 +53,8 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 
 .account-profile-show__hero-main {
     display: flex;
-    align-items: center;
-    gap: 20px;
+    align-items: flex-start;
+    gap: 14px;
     min-width: 0;
 }
 
@@ -64,19 +64,19 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 
 .account-profile-show__avatar-wrap {
     position: relative;
-    width: 88px;
-    height: 88px;
+    width: 72px;
+    height: 72px;
 }
 
 .account-profile-show__avatar {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 88px;
-    height: 88px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
-    border: 3px solid $profile-surface;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+    border: 2px solid $profile-surface;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.1);
     overflow: hidden;
 
     &--photo {
@@ -84,7 +84,7 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     }
 
     &--initial {
-        font-size: 30px;
+        font-size: 26px;
         font-weight: 800;
         color: #fff;
         background: $profile-pink;
@@ -100,14 +100,14 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     margin: 0;
     color: #fff;
     background: $profile-pink;
-    border: 3px solid $profile-surface;
+    border: 2px solid $profile-surface;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
     cursor: pointer;
     transition: background 0.15s ease, transform 0.15s ease;
 
@@ -125,8 +125,8 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     padding: 0;
     color: #fff;
     background: #dc2626;
@@ -151,119 +151,167 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 
 .account-profile-show__avatar-error {
     max-width: 120px;
-    margin: 8px 0 0;
-    font-size: 12px;
-    line-height: 1.4;
+    margin: 6px 0 0;
+    font-size: 11px;
+    line-height: 1.35;
     color: #dc2626;
     text-align: center;
 }
 
 .account-profile-show__identity {
+    flex: 1;
     min-width: 0;
 }
 
 .account-profile-show__title {
-    margin: 0 0 8px;
-    font-size: 24px;
+    margin: 0 0 4px;
+    font-size: 20px;
     font-weight: 700;
+    line-height: 1.25;
     color: $profile-text;
     word-break: break-word;
 }
 
-.account-profile-show__meta {
+.account-profile-show__meta-row {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 6px;
-    font-size: 14px;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.4;
     color: $profile-muted;
-    word-break: break-word;
+
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        word-break: break-word;
+    }
 
     i {
         flex-shrink: 0;
-        font-size: 18px;
+        font-size: 15px;
         color: $profile-pink;
-    }
-
-    &:last-child {
-        margin-bottom: 0;
     }
 }
 
 .account-profile-show__stats {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
     margin: 0;
     padding: 0;
     list-style: none;
-    min-width: 200px;
+
+    > li {
+        flex: 1 1 120px;
+        min-width: 0;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(232, 236, 241, 0.9);
+        border-radius: 10px;
+    }
 }
 
 .account-profile-show__stat-label {
     display: block;
-    margin-bottom: 4px;
-    font-size: 11px;
+    margin-bottom: 2px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     color: $profile-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .account-profile-show__stat-value {
     display: block;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
+    line-height: 1.35;
     color: $profile-text;
+    word-break: break-word;
+}
+
+.account-profile-show__stat-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: $profile-muted;
+}
+
+.account-profile-show__stat--loyalty {
+    padding: 0;
+    background: transparent;
+    border: none;
+}
+
+.account-profile-show__stat-link {
+    display: block;
+    padding: 8px 10px;
+    background: linear-gradient(135deg, rgba(242, 116, 172, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+    border: 1px solid rgba(242, 116, 172, 0.18);
+    border-radius: 10px;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        border-color: rgba(242, 116, 172, 0.35);
+        box-shadow: 0 2px 8px rgba(242, 116, 172, 0.12);
+    }
 }
 
 .account-profile-show__layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 28px;
+    grid-template-columns: minmax(0, 1fr) 272px;
+    gap: 16px;
     align-items: start;
 }
 
 .account-profile-show__sidebar {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 }
 
 .account-profile-show__section {
-    margin-bottom: 24px;
+    margin-bottom: 14px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
 }
 
 .account-profile-show__section-title {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 0 0 16px;
-    font-size: 18px;
+    gap: 8px;
+    margin: 0 0 10px;
+    font-size: 16px;
     font-weight: 700;
     color: $profile-text;
 
     i {
-        font-size: 22px;
+        font-size: 20px;
         color: $profile-pink;
     }
 }
 
 .account-profile-show__fields {
-    padding: 22px 24px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 16px;
+    padding: 14px 16px;
     background: $profile-surface;
     border: 1px solid $profile-border;
     border-radius: $profile-radius;
     box-shadow: $profile-shadow;
-}
-
-.account-profile-show__fields {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 20px;
 
     .form-group {
-        margin-bottom: 18px;
+        margin-bottom: 12px;
     }
 
     label span {
@@ -271,25 +319,26 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     }
 
     .help-block {
-        margin-top: 6px;
-        font-size: 12px;
+        margin-top: 4px;
+        font-size: 11px;
+        line-height: 1.4;
         color: $profile-muted;
     }
 }
 
 .account-profile-show__actions {
-    padding-top: 4px;
+    padding-top: 2px;
 }
 
 .account-profile-show__submit {
-    min-width: 200px;
+    min-width: 180px;
     border-radius: 10px;
 }
 
 .account-profile-sidebar__card {
     position: sticky;
     top: 24px;
-    padding: 22px;
+    padding: 14px 16px;
     background: $profile-surface;
     border: 1px solid $profile-border;
     border-radius: $profile-radius;
@@ -300,13 +349,13 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 0 0 16px;
-    font-size: 15px;
+    margin: 0 0 12px;
+    font-size: 14px;
     font-weight: 700;
     color: $profile-text;
 
     i {
-        font-size: 20px;
+        font-size: 18px;
         color: $profile-pink;
     }
 }
@@ -319,8 +368,8 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     > li {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        margin-bottom: 14px;
+        gap: 2px;
+        margin-bottom: 10px;
 
         &:last-child {
             margin-bottom: 0;
@@ -329,17 +378,17 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 }
 
 .account-profile-sidebar__label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     color: $profile-muted;
 }
 
 .account-profile-sidebar__value {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    line-height: 1.45;
+    line-height: 1.4;
     color: $profile-text;
     word-break: break-word;
 }
@@ -351,17 +400,17 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 }
 
 .account-profile-loyalty__card-wrap {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .account-profile-loyalty__stats {
-    margin-bottom: 16px;
-    padding-top: 4px;
+    margin-bottom: 12px;
+    padding-top: 2px;
     border-top: 1px solid $profile-border;
 }
 
 .account-profile-loyalty__points {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 800;
     color: $profile-pink;
 }
@@ -370,12 +419,12 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     border-radius: 10px;
     font-weight: 600;
 
     i {
-        font-size: 18px;
+        font-size: 16px;
     }
 }
 
@@ -390,24 +439,7 @@ $profile-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 }
 
 @media screen and (max-width: 767px) {
-    .account-profile-show__hero {
-        padding: 20px;
-    }
-
-    .account-profile-show__hero-main {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .account-profile-show__stats {
-        width: 100%;
-    }
-
     .account-profile-show__fields {
         grid-template-columns: 1fr;
-    }
-
-    .account-profile-show__submit {
-        width: 100%;
     }
 }

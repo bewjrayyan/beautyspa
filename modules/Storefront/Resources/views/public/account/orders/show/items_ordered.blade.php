@@ -1,5 +1,7 @@
 <div class="account-order-items order-details-middle">
-    <div class="table-responsive account-order-items__table-wrap">
+    @include('storefront::public.account.orders.show.items_cards')
+
+    <div class="table-responsive account-order-items__table-wrap d-none d-lg-block">
         <table class="table table-borderless order-details-table account-order-items__table">
             <thead>
                 <tr>

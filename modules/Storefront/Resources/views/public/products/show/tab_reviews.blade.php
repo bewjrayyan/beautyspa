@@ -4,7 +4,7 @@
             <div class="col-xl-9 col-lg-18">
                 @if ($product->purchasedByUser())
                     <div class="review-form-wrap">
-                        <form @submit.prevent="addNewReview" @input="errors.clear($event.target.name)">
+                        <form x-ref="reviewForm" @submit.prevent="addNewReview" @input="errors.clear($event.target.name)">
                             <div class="review-form">
                                 <div class="title">{{ trans('storefront::product.add_a_review') }}</div>
 
@@ -16,28 +16,28 @@
                                             <label>{{ trans('storefront::product.review_form.your_rating') }}<span>*</span></label>
 
                                             <div class="rating-input">
-                                                <input type="radio" name="rating" x-model="reviewForm.rating" id="star-5" value="5">
-                                                <label for="star-5" title="5 star">
+                                                <input type="radio" name="rating" :value="5" x-model.number="reviewForm.rating" id="star-5">
+                                                <label for="star-5" title="5 star" @click="reviewForm.rating = 5">
                                                     <i class="las la-star"></i>
                                                 </label>
 
-                                                <input type="radio" name="rating" x-model="reviewForm.rating" id="star-4" value="4">
-                                                <label for="star-4" title="4 star">
+                                                <input type="radio" name="rating" :value="4" x-model.number="reviewForm.rating" id="star-4">
+                                                <label for="star-4" title="4 star" @click="reviewForm.rating = 4">
                                                     <i class="las la-star"></i>
                                                 </label>
 
-                                                <input type="radio" name="rating" x-model="reviewForm.rating" id="star-3" value="3">
-                                                <label for="star-3" title="3 star">
+                                                <input type="radio" name="rating" :value="3" x-model.number="reviewForm.rating" id="star-3">
+                                                <label for="star-3" title="3 star" @click="reviewForm.rating = 3">
                                                     <i class="las la-star"></i>
                                                 </label>
 
-                                                <input type="radio" name="rating" x-model="reviewForm.rating" id="star-2" value="2">
-                                                <label for="star-2" title="2 star">
+                                                <input type="radio" name="rating" :value="2" x-model.number="reviewForm.rating" id="star-2">
+                                                <label for="star-2" title="2 star" @click="reviewForm.rating = 2">
                                                     <i class="las la-star"></i>
                                                 </label>
 
-                                                <input type="radio" name="rating" x-model="reviewForm.rating" id="star-1" value="1">
-                                                <label for="star-1" title="1 star">
+                                                <input type="radio" name="rating" :value="1" x-model.number="reviewForm.rating" id="star-1">
+                                                <label for="star-1" title="1 star" @click="reviewForm.rating = 1">
                                                     <i class="las la-star"></i>
                                                 </label>
                                             </div>
@@ -55,7 +55,7 @@
                                             <input
                                                 type="text"
                                                 name="reviewer_name"
-                                                autocomplete="on"
+                                                autocomplete="name"
                                                 id="name"
                                                 class="form-control"
                                                 x-model="reviewForm.reviewer_name"

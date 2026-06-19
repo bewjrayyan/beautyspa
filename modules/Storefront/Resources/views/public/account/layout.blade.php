@@ -15,7 +15,9 @@
 @endsection
 
 @section('content')
-    @php($accountUser = auth()->user())
+    @php
+        $accountUser = auth()->user();
+    @endphp
 
     <section @class([
         'account-wrap',
@@ -24,12 +26,29 @@
     ])>
         <div class="container">
             @if (request()->routeIs('account.dashboard.index'))
+                @php
+                    $accountUser->loadMissing('files');
+                    $accountAvatarUrl = $accountUser->profile_image->exists
+                        ? $accountUser->profile_image->path
+                        : $accountUser->avatarUrl();
+                @endphp
+
                 <div class="account-mobile-hero d-lg-none">
-                    <div class="account-mobile-hero__avatar">
-                        @if ($accountUser->avatarUrl())
-                            <img src="{{ $accountUser->avatarUrl() }}" alt="{{ $accountUser->full_name }}" width="56" height="56">
+                    <div @class([
+                        'account-mobile-hero__avatar',
+                        'account-mobile-hero__avatar--photo' => (bool) $accountAvatarUrl,
+                    ]) @unless($accountAvatarUrl) style="background-color: {{ $accountUser->avatarBackgroundColor() }};" @endunless>
+                        @if ($accountAvatarUrl)
+                            <img
+                                src="{{ $accountAvatarUrl }}"
+                                alt="{{ $accountUser->full_name }}"
+                                width="56"
+                                height="56"
+                                loading="lazy"
+                                decoding="async"
+                            >
                         @else
-                            <span>{{ $accountUser->initials }}</span>
+                            <span>{{ $accountUser->avatarInitial() }}</span>
                         @endif
                     </div>
 
@@ -42,7 +61,7 @@
                         <i class="las la-pen"></i>
                     </a>
                 </div>
-            @elseif (! request()->routeIs('account.orders.show', 'account.profile.edit', 'account.loyalty.index'))
+            @elseif (! request()->routeIs('account.dashboard.index'))
                 @include('storefront::public.account.partials.mobile_header')
             @endif
 

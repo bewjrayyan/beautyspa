@@ -108,6 +108,10 @@
                 font-weight: var(--font-medium);
                 color: var(--color-primary);
 
+                .account-app-menu__icon > i {
+                    color: var(--color-primary);
+                }
+
                 &:after {
                     position: absolute;
                     content: "";
@@ -131,6 +135,24 @@
             color: var(--color-black);
             padding-left: 28px;
 
+            .account-app-menu__label {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .account-app-menu__icon {
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 15px;
+
+                > i {
+                    font-size: 24px;
+                    color: var(--color-gray);
+                }
+            }
+
             .count {
                 font-size: 10px;
                 line-height: 16px;
@@ -147,12 +169,10 @@
 
             &:hover {
                 color: var(--color-primary);
-            }
 
-            > i {
-                font-size: 24px;
-                margin-right: 15px;
-                color: var(--color-gray);
+                .account-app-menu__icon > i {
+                    color: var(--color-primary);
+                }
             }
         }
     }
@@ -173,6 +193,24 @@
     .account-wrap {
         .account-left {
             min-width: 245px;
+        }
+    }
+}
+
+.account-app-menu__group {
+    .account-sidebar {
+        margin: 0;
+    }
+}
+
+@media screen and (min-width: 992px) {
+    .account-app-menu {
+        display: block;
+    }
+
+    .account-app-menu__group + .account-app-menu__group {
+        .account-sidebar li:first-child {
+            margin-top: 6px;
         }
     }
 }

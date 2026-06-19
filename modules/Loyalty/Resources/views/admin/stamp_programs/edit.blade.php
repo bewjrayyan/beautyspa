@@ -2,29 +2,21 @@
 
 @component('admin::components.page.header')
     @slot('title', trans('admin::resource.edit', ['resource' => trans('loyalty::stamp_programs.program')]))
+    @slot('subtitle', $program->name)
 
     <li><a href="{{ route('admin.loyalty.stamp_programs.index') }}">{{ trans('loyalty::stamp_programs.programs') }}</a></li>
     <li class="active">{{ $program->name }}</li>
 @endcomponent
 
 @section('content')
-    <form method="POST" action="{{ route('admin.loyalty.stamp_programs.update', $program) }}">
-        @csrf
-        @method('PUT')
-
-        @include('loyalty::admin.stamp_programs.partials.form', ['program' => $program])
-
-        <div class="form-group">
-            <div class="col-sm-offset-3 col-sm-9">
-                <button type="submit" class="btn btn-primary">
-                    {{ trans('admin::admin.buttons.save') }}
-                </button>
-                <a href="{{ route('admin.loyalty.stamp_programs.index') }}" class="btn btn-default">
-                    {{ trans('admin::admin.buttons.cancel') }}
-                </a>
-            </div>
-        </div>
-    </form>
+    @include('loyalty::admin.stamp_programs.partials.form-page', [
+        'program' => $program,
+        'eligibleSelection' => $eligibleSelection ?? ['category_ids' => [], 'products' => []],
+        'categories' => $categories ?? [],
+        'isEdit' => true,
+        'formAction' => route('admin.loyalty.stamp_programs.update', $program),
+        'formMethod' => 'put',
+    ])
 @endsection
 
 @push('styles')

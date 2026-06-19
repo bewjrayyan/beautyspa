@@ -1,6 +1,8 @@
 <footer class="footer-wrap">
     <div class="container">
         <div class="footer">
+            <h2 class="footer-app-heading d-lg-none">{{ trans('storefront::layouts.footer_title') }}</h2>
+
             <div class="footer-top">
                 <div class="row footer-top__grid">
                     <div class="col-lg-5 col-md-8">

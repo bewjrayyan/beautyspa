@@ -18,7 +18,7 @@ let galleryPreviewZoomInstances = [];
 
 Alpine.data(
     "ProductShow",
-    ({ product, variant, reviewCount, avgRating, flashSalePrice }) => ({
+    ({ product, variant, reviewCount, avgRating, flashSalePrice, reviewerName = "" }) => ({
         product: product,
         item: variant || product,
         optionPrices: {},
@@ -33,7 +33,10 @@ Alpine.data(
         reviewCount,
         avgRating,
         addingNewReview: false,
-        reviewForm: {},
+        reviewerName,
+        reviewForm: {
+            reviewer_name: reviewerName,
+        },
         currentPage: 1,
         cartItemForm: {
             product_id: product.id,
@@ -975,18 +978,52 @@ Alpine.data(
             }
         },
 
+        buildReviewPayload() {
+            const form = this.$refs.reviewForm;
+            const payload = {};
+
+            if (form) {
+                new FormData(form).forEach((value, key) => {
+                    payload[key] = value;
+                });
+
+                if (!payload.rating) {
+                    const selectedRating = form.querySelector(
+                        'input[name="rating"]:checked'
+                    );
+
+                    if (selectedRating) {
+                        payload.rating = selectedRating.value;
+                    }
+                }
+            } else {
+                Object.assign(payload, this.reviewForm);
+            }
+
+            if (!payload.rating && this.reviewForm.rating) {
+                payload.rating = this.reviewForm.rating;
+            }
+
+            const captchaResponse = window.grecaptcha?.getResponse?.();
+
+            if (captchaResponse) {
+                payload["g-recaptcha-response"] = captchaResponse;
+            }
+
+            return payload;
+        },
+
         addNewReview() {
+            const payload = this.buildReviewPayload();
+
             this.addingNewReview = true;
 
             axios
-                .post(`/products/${this.product.id}/reviews`, {
-                    ...this.reviewForm,
-                    ...(window.grecaptcha && {
-                        "g-recaptcha-response": grecaptcha.getResponse(),
-                    }),
-                })
+                .post(`/products/${this.product.id}/reviews`, payload)
                 .then((response) => {
-                    this.reviewForm = {};
+                    this.reviewForm = {
+                        reviewer_name: this.reviewerName,
+                    };
                     this.reviews.total++;
                     this.reviews.data.unshift(response.data);
 
@@ -997,6 +1034,14 @@ Alpine.data(
                 .catch(({ response }) => {
                     if (response.status === 422) {
                         this.errors.record(response.data.errors);
+
+                        const firstError = Object.values(
+                            response.data.errors || {}
+                        )[0]?.[0];
+
+                        if (firstError) {
+                            notify(firstError);
+                        }
 
                         return;
                     }
@@ -1027,7 +1072,13 @@ Alpine.data(
         },
 
         initUpSellProductsSlider() {
-            new Swiper(this.$refs.upSellProducts, {
+            const swiperEl = this.$refs.upSellProducts;
+
+            if (!swiperEl) {
+                return;
+            }
+
+            new Swiper(swiperEl, {
                 modules: [Navigation],
                 slidesPerView: 1,
                 navigation: {
@@ -1038,6 +1089,12 @@ Alpine.data(
         },
 
         initRelatedProductsSlider() {
+            const swiperEl = this.$refs.landscapeProducts;
+
+            if (!swiperEl) {
+                return;
+            }
+
             this.hideRelatedProductsSkeleton();
 
             const options = {
@@ -1045,10 +1102,8 @@ Alpine.data(
                 slidesPerView: 2,
                 watchOverflow: true,
                 ...productSliderNavigation(
-                    this.$refs.landscapeProducts,
-                    this.$refs.landscapeProducts.closest(
-                        ".landscape-products-wrap"
-                    )
+                    swiperEl,
+                    swiperEl.closest(".landscape-products-wrap")
                 ),
                 breakpoints: {
                     640: {
@@ -1073,8 +1128,8 @@ Alpine.data(
             };
 
             const { paginationEl, prevEl, nextEl } = resolveProductSliderControls(
-                this.$refs.landscapeProducts,
-                this.$refs.landscapeProducts.closest(".landscape-products-inner")
+                swiperEl,
+                swiperEl.closest(".landscape-products-inner")
             );
 
             if (options.navigation) {
@@ -1086,7 +1141,7 @@ Alpine.data(
                 options.pagination.el = paginationEl;
             }
 
-            new Swiper(this.$refs.landscapeProducts, options);
+            new Swiper(swiperEl, options);
         },
     })
 );

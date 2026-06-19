@@ -248,6 +248,37 @@ if (!function_exists('social_link_name')) {
     }
 }
 
+if (!function_exists('vite_build_asset')) {
+    function vite_build_asset(string $source): ?string
+    {
+        static $manifest = null;
+
+        $manifestPath = public_path('build/manifest.json');
+
+        if (! is_readable($manifestPath)) {
+            return null;
+        }
+
+        if ($manifest === null) {
+            $manifest = json_decode((string) file_get_contents($manifestPath), true);
+
+            if (! is_array($manifest)) {
+                $manifest = [];
+            }
+        }
+
+        if (! isset($manifest[$source]['file'])) {
+            return null;
+        }
+
+        try {
+            return \Illuminate\Support\Facades\Vite::asset($source);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+}
+
 if (!function_exists('font_url')) {
     /**
      * Get the url for the given font.

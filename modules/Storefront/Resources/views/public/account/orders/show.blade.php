@@ -2,7 +2,7 @@
 
 @section('account_mobile_hero', true)
 
-@section('title', trans('storefront::account.view_order.view_order'))
+@section('title', trans('storefront::account.view_order.view_order') . ' #' . $order->id)
 
 @section('account_breadcrumb')
     <li><a href="{{ route('account.orders.index') }}">{{ trans('storefront::account.pages.my_orders') }}</a></li>
@@ -13,7 +13,7 @@
     <div class="account-order-show">
         <header class="account-order-show__hero">
             <div class="account-order-show__hero-main">
-                <a href="{{ route('account.orders.index') }}" class="account-order-show__back">
+                <a href="{{ route('account.orders.index') }}" class="account-order-show__back d-none d-lg-inline-flex">
                     <i class="las la-arrow-left"></i>
                     {{ trans('storefront::account.view_order.back_to_orders') }}
                 </a>
@@ -27,6 +27,15 @@
                     <i class="las la-calendar"></i>
                     {{ $order->created_at->format('l, d M Y · h:i A') }}
                 </p>
+
+                <div class="account-order-show__badges account-order-show__badges--mobile d-lg-none">
+                    <span class="badge {{ order_status_badge_class($order->status) }}">
+                        {{ $order->status() }}
+                    </span>
+                    <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
+                        {{ $order->paymentStatusLabel() }}
+                    </span>
+                </div>
             </div>
 
             <div class="account-order-show__hero-total">
@@ -35,7 +44,7 @@
                     {{ $order->total->convert($order->currency, $order->currency_rate)->format($order->currency) }}
                 </span>
 
-                <div class="account-order-show__badges">
+                <div class="account-order-show__badges account-order-show__badges--desktop d-none d-lg-flex">
                     <span class="badge {{ order_status_badge_class($order->status) }}">
                         {{ $order->status() }}
                     </span>
@@ -62,6 +71,19 @@
                     @include('storefront::public.account.orders.show.items_ordered')
                     @include('storefront::public.account.orders.show.order_totals')
                 </section>
+
+                @include('storefront::public.account.orders.show.order_reviews')
+
+                @include('storefront::public.account.orders.show.order_rewards')
+
+                <section class="account-order-show__section account-order-show__section--payment d-lg-none">
+                    <h2 class="account-order-show__section-title">
+                        <i class="las la-credit-card"></i>
+                        {{ trans('storefront::account.view_order.payment_details') }}
+                    </h2>
+
+                    @include('storefront::public.account.orders.show.payment_details', ['variant' => 'compact'])
+                </section>
             </main>
 
             <aside class="account-order-show__sidebar">
@@ -72,7 +94,12 @@
 @endsection
 
 @push('globals')
+    <script>
+        AestheticCart.langs['storefront::product.review_submitted'] = '{{ trans('storefront::product.review_submitted') }}';
+    </script>
+
     @vite([
         'modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss',
+        'modules/Storefront/Resources/assets/public/js/pages/account/orders/show/main.js',
     ])
 @endpush

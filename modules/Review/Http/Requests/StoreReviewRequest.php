@@ -22,12 +22,21 @@ class StoreReviewRequest extends Request
      */
     public function rules()
     {
-        return [
-            'rating' => 'required|numeric',
+        $rules = [
+            'rating' => 'required|numeric|min:1|max:5',
             'reviewer_name' => 'required',
             'comment' => 'required',
-            'g-recaptcha-response' => ['bail', 'sometimes', 'required', new GoogleRecaptcha()],
         ];
+
+        if (setting('google_recaptcha_enabled')) {
+            $rules['g-recaptcha-response'] = [
+                'bail',
+                'required',
+                new GoogleRecaptcha(),
+            ];
+        }
+
+        return $rules;
     }
 
 

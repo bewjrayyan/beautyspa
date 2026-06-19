@@ -12,6 +12,7 @@
                 $cardClass,
                 $cardClass . '--complete' => $card['is_complete'] ?? false,
                 $cardClass . '--not-started' => $card['not_started'] ?? false,
+                $cardClass . '--expired' => $card['is_expired'] ?? false,
             ])>
                 <div class="{{ $cardClass }}__header">
                     <p class="{{ $cardClass }}__title">{{ $card['name'] }}</p>
@@ -47,7 +48,12 @@
                         @endif
                     </span>
 
-                    @if (! ($card['can_redeem'] ?? false) && ($card['days_until_expiry'] ?? null) !== null)
+                    @if ($card['is_expired'] ?? false)
+                        <span class="{{ $cardClass }}__expiry {{ $cardClass }}__expiry--expired">
+                            <i class="las la-clock"></i>
+                            {{ trans('loyalty::order_rewards.expired') }}
+                        </span>
+                    @elseif (! ($card['can_redeem'] ?? false) && ($card['days_until_expiry'] ?? null) !== null)
                         <span class="{{ $cardClass }}__expiry">
                             <i class="las la-clock"></i>
                             @if ($card['days_until_expiry'] === 0)

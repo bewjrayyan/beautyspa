@@ -14,6 +14,24 @@ Route::post('loyalty/stamp-redemptions/{wallet}/fulfill', [
     'middleware' => 'can:admin.loyalty.members.show',
 ]);
 
+Route::get('loyalty/stamp-programs/products/search', [
+    'as' => 'admin.loyalty.stamp_programs.products.search',
+    'uses' => 'StampProgramProductController@search',
+    'middleware' => 'can:admin.loyalty.stamp_programs.index',
+]);
+
+Route::get('loyalty/stamp-programs/categories/{category}/products', [
+    'as' => 'admin.loyalty.stamp_programs.categories.products',
+    'uses' => 'StampProgramProductController@categoryProducts',
+    'middleware' => 'can:admin.loyalty.stamp_programs.index',
+]);
+
+Route::get('loyalty/stamp-programs/products/{product}', [
+    'as' => 'admin.loyalty.stamp_programs.products.show',
+    'uses' => 'StampProgramProductController@show',
+    'middleware' => 'can:admin.loyalty.stamp_programs.index',
+]);
+
 Route::get('loyalty/stamp-programs', [
     'as' => 'admin.loyalty.stamp_programs.index',
     'uses' => 'StampProgramController@index',

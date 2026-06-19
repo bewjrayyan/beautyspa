@@ -7,6 +7,7 @@ use Modules\Admin\Traits\HasCrudActions;
 use Modules\Loyalty\Entities\LoyaltyStampProgram;
 use Modules\Loyalty\Entities\LoyaltyStampWallet;
 use Modules\Loyalty\Http\Requests\SaveStampProgramRequest;
+use Modules\Loyalty\Services\StampProgramEligibleProductService;
 
 class StampProgramController
 {
@@ -65,7 +66,13 @@ class StampProgramController
             'sort_order' => 0,
         ]);
 
-        return view("{$this->viewPath}.create", compact('program'));
+        $eligible = app(StampProgramEligibleProductService::class);
+
+        return view("{$this->viewPath}.create", [
+            'program' => $program,
+            'categories' => $eligible->categoryOptions(),
+            'eligibleSelection' => ['category_ids' => [], 'products' => []],
+        ]);
     }
 
 
@@ -74,6 +81,12 @@ class StampProgramController
         $program = $this->getEntity($id);
         $program->loadCount('wallets');
 
-        return view("{$this->viewPath}.edit", compact('program'));
+        $eligible = app(StampProgramEligibleProductService::class);
+
+        return view("{$this->viewPath}.edit", [
+            'program' => $program,
+            'categories' => $eligible->categoryOptions(),
+            'eligibleSelection' => $eligible->serializeForAdmin($program),
+        ]);
     }
 }

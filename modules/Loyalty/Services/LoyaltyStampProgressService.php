@@ -73,7 +73,7 @@ class LoyaltyStampProgressService
 
         foreach ($programs as $program) {
             $wallet = $wallets->get($program->id)?->first(
-                fn (LoyaltyStampWallet $w) => $w->isActive() || $w->completed_at
+                fn (LoyaltyStampWallet $w) => $w->isActive() || $w->completed_at || $this->isExpired($w)
             );
 
             if (! $wallet && ! $includeNotStarted) {
@@ -94,6 +94,7 @@ class LoyaltyStampProgressService
             : 0;
 
         $isComplete = $wallet && $wallet->completed_at && ! $wallet->redeemed_at;
+        $isExpired = $wallet && $this->isExpired($wallet);
 
         return [
             'wallet_id' => $wallet?->id,
@@ -102,10 +103,20 @@ class LoyaltyStampProgressService
             'reward_description' => $program->reward_description,
             'stamps_required' => (int) $program->stamps_required,
             'stamps_earned' => $stampsEarned,
-            'days_until_expiry' => $wallet?->daysUntilExpiry(),
+            'days_until_expiry' => $isExpired ? null : $wallet?->daysUntilExpiry(),
             'is_complete' => (bool) $isComplete,
             'can_redeem' => (bool) $isComplete,
             'not_started' => ! $wallet,
+            'is_expired' => $isExpired,
         ];
+    }
+
+
+    private function isExpired(LoyaltyStampWallet $wallet): bool
+    {
+        return $wallet->expires_at
+            && $wallet->expires_at->isPast()
+            && ! $wallet->completed_at
+            && ! $wallet->redeemed_at;
     }
 }

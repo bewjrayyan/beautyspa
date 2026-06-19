@@ -1,5 +1,5 @@
 <div class="account-order-sidebar">
-    <div class="account-order-sidebar__card account-order-sidebar__card--actions">
+    <div class="account-order-sidebar__card account-order-sidebar__card--actions d-none d-lg-block">
         <div
             class="account-order-action-dropdown"
             x-data="{ open: false }"
@@ -77,61 +77,63 @@
         </div>
     </div>
 
-    <div class="account-order-sidebar__card account-order-sidebar__card--payment">
+    <div class="account-order-sidebar__mobile-actions d-lg-none">
+        <button
+            type="button"
+            class="account-order-sidebar__mobile-action"
+            onclick="window.open('{{ route('account.orders.invoice', $order->id) }}', '_blank', 'noopener')"
+        >
+            <i class="las la-file-invoice"></i>
+            <span>{{ trans('storefront::account.view_order.download_invoice') }}</span>
+        </button>
+
+        <button
+            type="button"
+            class="account-order-sidebar__mobile-action"
+            onclick="window.open('{{ route('account.orders.receipt', $order->id) }}', '_blank', 'noopener')"
+        >
+            <i class="las la-receipt"></i>
+            <span>{{ trans('storefront::account.view_order.download_receipt') }}</span>
+        </button>
+
+        @if ($canNotifyBeautician)
+            <button
+                type="button"
+                class="account-order-sidebar__mobile-action account-order-sidebar__mobile-action--whatsapp"
+                onclick="this.nextElementSibling.submit()"
+            >
+                <i class="lab la-whatsapp"></i>
+                <span>{{ trans('storefront::account.view_order.remind_beautician') }}</span>
+            </button>
+
+            <form
+                action="{{ route('account.orders.notify_beautician', $order->id) }}"
+                method="POST"
+                class="d-none"
+            >
+                @csrf
+            </form>
+        @endif
+
+        @if ($googleCalendarUrl ?? null)
+            <button
+                type="button"
+                class="account-order-sidebar__mobile-action"
+                onclick="window.open(@js($googleCalendarUrl), '_blank', 'noopener')"
+            >
+                <i class="lab la-google"></i>
+                <span>{{ trans('storefront::order_complete.add_to_google_calendar') }}</span>
+            </button>
+        @endif
+    </div>
+
+    <div class="account-order-sidebar__card account-order-sidebar__card--payment d-none d-lg-block">
         <h3 class="account-order-sidebar__title">
             <i class="las la-credit-card"></i>
             {{ trans('storefront::account.view_order.payment_details') }}
         </h3>
 
-        <ul class="account-order-sidebar__list">
-            <li class="account-order-sidebar__li--payment-method">
-                <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.payment_method') }}</span>
-                <span class="account-order-sidebar__value">{{ $order->payment_method }}</span>
-
-                @if ($order->transaction?->transaction_id || str_starts_with((string) $order->payment_method, 'chip') || strtolower($order->payment_method) === strtolower((string) setting('chip_label')))
-                    <div class="account-order-sidebar__payment-banner">
-                        <img
-                            src="{{ asset('images/payments/pay-with-chip-all.png') }}"
-                            alt="{{ trans('storefront::account.view_order.pay_with_chip_alt') }}"
-                            class="account-order-sidebar__payment-banner-img"
-                            width="560"
-                            height="200"
-                            loading="lazy"
-                        >
-                    </div>
-                @endif
-            </li>
-            <li>
-                <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.payment_status') }}</span>
-                <span class="account-order-sidebar__value">
-                    <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
-                        {{ $order->paymentStatusLabel() }}
-                    </span>
-                </span>
-            </li>
-            @if ($order->transaction?->transaction_id)
-                <li class="account-order-sidebar__li--transaction" x-data="{ copied: false }">
-                    <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.transaction_id') }}</span>
-                    <span class="account-order-sidebar__value account-order-sidebar__value--mono">
-                        {{ $order->transaction->transaction_id }}
-                    </span>
-                    <button
-                        type="button"
-                        class="account-order-sidebar__copy"
-                        title="{{ trans('storefront::account.view_order.copy') }}"
-                        @click="
-                            navigator.clipboard.writeText('{{ $order->transaction->transaction_id }}').then(() => {
-                                copied = true;
-                                setTimeout(() => copied = false, 2000);
-                            });
-                        "
-                    >
-                        <i class="lar la-copy"></i>
-                        <span x-show="copied" x-cloak>{{ trans('storefront::account.view_order.copied') }}</span>
-                    </button>
-                </li>
-            @endif
-        </ul>
+        @include('storefront::public.account.orders.show.payment_details', ['variant' => 'full'])
     </div>
 
     @if ($hasTreatmentBooking)

@@ -1,6 +1,7 @@
 @import "sections/_order-details-top";
 @import "sections/_order-details-middle";
 @import "sections/_order-details-bottom";
+@import "order-show-mobile";
 
 $order-pink: var(--color-primary, #f274ac);
 $order-pink-soft: rgba(242, 116, 172, 0.12);
@@ -10,6 +11,9 @@ $order-text: #1a202c;
 $order-muted: #64748b;
 $order-radius: 16px;
 $order-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+
+@import "sections/order-reviews";
+@import "sections/order-rewards";
 
 .account-order-show {
     .panel {

@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'title' => 'Ganjaran anda',
-    'stamp_cards' => 'Kad-kad setem',
+    'title' => 'Ganjaran Anda',
+    'stamp_cards' => 'Kad-Kad Setem',
     'loyalty_points' => 'Mata kesetiaan',
     'points_balance' => 'Anda mempunyai :points mata kesetiaan bernilai :worth',
     'stamps_progress' => ':earned / :required cop',
@@ -10,4 +10,5 @@ return [
     'expires_in_days' => ':days hari lagi',
     'expires_today' => 'Tamat hari ini',
     'expires_tomorrow' => '1 hari lagi',
+    'expired' => 'Tamat tempoh',
 ];

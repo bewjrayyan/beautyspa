@@ -17,6 +17,10 @@ class GoogleRecaptcha implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        if (! setting('google_recaptcha_enabled')) {
+            return;
+        }
+
         $response = Http::get("https://www.google.com/recaptcha/api/siteverify", [
             'secret' => setting('google_recaptcha_secret_key'),
             'response' => $value,
