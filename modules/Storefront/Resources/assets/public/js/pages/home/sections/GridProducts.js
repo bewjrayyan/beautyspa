@@ -1,6 +1,7 @@
 import { Grid, Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
 import { whenVisible } from "../../../support/whenVisible";
+import { productSliderNavigation } from "../../../support/productSliderPagination";
 import "../../../components/ProductCard";
 
 Alpine.data("GridProducts", (tabs) => ({
@@ -18,22 +19,16 @@ Alpine.data("GridProducts", (tabs) => ({
         return ".grid-products";
     },
 
-    swiperOptions() {
+    swiperOptions(swiperEl) {
         return {
             modules: [Grid, Navigation, Pagination],
             slidesPerView: 2,
+            observer: true,
+            observeParents: true,
             grid: {
                 rows: 2,
             },
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                dynamicBullets: true,
-                clickable: true,
-            },
+            ...productSliderNavigation(swiperEl, this.$el),
 
             breakpoints: {
                 576: {

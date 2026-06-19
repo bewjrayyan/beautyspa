@@ -4,6 +4,10 @@ import Swiper from "swiper";
 import Drift from "drift-zoom";
 import GLightbox from "glightbox";
 import Errors from "../../../components/Errors";
+import {
+    productSliderNavigation,
+    resolveProductSliderControls,
+} from "../../../support/productSliderPagination";
 import "../../../components/ProductRating";
 import "../../../components/Pagination";
 import "../../../components/ProductCard";
@@ -1036,13 +1040,16 @@ Alpine.data(
         initRelatedProductsSlider() {
             this.hideRelatedProductsSkeleton();
 
-            new Swiper(this.$refs.landscapeProducts, {
+            const options = {
                 modules: [Navigation, Pagination],
                 slidesPerView: 2,
-                navigation: {
-                    nextEl: ".swiper-button-next",
-                    prevEl: ".swiper-button-prev",
-                },
+                watchOverflow: true,
+                ...productSliderNavigation(
+                    this.$refs.landscapeProducts,
+                    this.$refs.landscapeProducts.closest(
+                        ".landscape-products-wrap"
+                    )
+                ),
                 breakpoints: {
                     640: {
                         slidesPerView: 3,
@@ -1063,7 +1070,23 @@ Alpine.data(
                         slidesPerView: 6,
                     },
                 },
-            });
+            };
+
+            const { paginationEl, prevEl, nextEl } = resolveProductSliderControls(
+                this.$refs.landscapeProducts,
+                this.$refs.landscapeProducts.closest(".landscape-products-inner")
+            );
+
+            if (options.navigation) {
+                options.navigation.prevEl = prevEl;
+                options.navigation.nextEl = nextEl;
+            }
+
+            if (options.pagination && paginationEl) {
+                options.pagination.el = paginationEl;
+            }
+
+            new Swiper(this.$refs.landscapeProducts, options);
         },
     })
 );

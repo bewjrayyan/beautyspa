@@ -422,6 +422,10 @@ body {
                 width: 100%;
                 margin-bottom: 24px;
 
+                &.customer-login-tabs {
+                    margin-bottom: 24px;
+                }
+
                 .form-group {
                     margin-bottom: 17px;
 
@@ -461,12 +465,11 @@ body {
 
             .customer-login-tabs {
                 width: 100%;
-                margin-bottom: 24px;
 
                 &__tabs {
                     display: flex;
                     gap: 8px;
-                    margin-bottom: 18px;
+                    margin-bottom: 12px;
                 }
 
                 &__tab {
@@ -526,13 +529,21 @@ body {
                         margin-bottom: 17px;
                     }
 
-                    .btn-primary {
+                    .input-group {
                         width: 100%;
-                        margin-top: 8px;
                     }
 
                     .iti {
                         width: 100%;
+                    }
+
+                    .iti .iti__tel-input {
+                        height: 46px;
+                    }
+
+                    .btn-primary {
+                        width: 100%;
+                        margin-top: 8px;
                     }
 
                     .text-red {
@@ -1492,6 +1503,11 @@ body {
                     flex-direction: column;
                     margin-bottom: 0;
                     padding: 0 40px;
+
+                    &.customer-login-tabs {
+                        flex-grow: 0;
+                        justify-content: flex-start;
+                    }
 
                     .btn {
                         margin-bottom: 30px;

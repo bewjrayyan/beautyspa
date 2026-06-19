@@ -9,6 +9,18 @@
         margin-left: -6px;
         margin-right: -6px;
     }
+
+    @media screen and (max-width: 767px) {
+        .featured-category-products.swiper {
+            overflow: visible;
+        }
+
+        .product-slider-controls {
+            .swiper-pagination {
+                display: flex !important;
+            }
+        }
+    }
 }
 
 .featured-categories-text {

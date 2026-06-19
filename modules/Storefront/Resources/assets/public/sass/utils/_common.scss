@@ -4,6 +4,7 @@
 @import "common/_vertical-product-card";
 @import "common/_vertical-products";
 @import "common/_landscape-products";
+@import "common/_product-slider-nav";
 
 .wrapper {
     position: relative;
@@ -688,10 +689,7 @@
     }
 }
 
-.landscape-products,
-.daily-deals,
-.grid-products,
-.landscape-left-tab-products {
+.daily-deals {
     .swiper-button-prev,
     .swiper-button-next {
         font-size: 14px;
@@ -738,13 +736,6 @@
             left: -25px;
             position: absolute;
         }
-    }
-}
-
-.landscape-products {
-    .swiper-button-prev,
-    .swiper-button-next {
-        top: -68px;
     }
 }
 
@@ -1079,6 +1070,14 @@
     }
 }
 
+@media screen and (max-width: 991px) {
+    .scroll-to-top {
+        &.active {
+            bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+        }
+    }
+}
+
 @media screen and (max-width: 600px) {
     .scroll-to-top {
         bottom: 50px;
@@ -1086,7 +1085,7 @@
         &.active {
             visibility: visible;
             opacity: 1;
-            bottom: 75px;
+            bottom: calc(72px + env(safe-area-inset-bottom, 0px));
         }
     }
 }

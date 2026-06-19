@@ -1,6 +1,7 @@
 import { Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
 import { whenVisible } from "../../../support/whenVisible";
+import { productSliderNavigation } from "../../../support/productSliderPagination";
 import "../../../components/ProductCard";
 
 Alpine.data("ProductTabsOne", (tabs) => ({
@@ -20,19 +21,13 @@ Alpine.data("ProductTabsOne", (tabs) => ({
         return ".landscape-left-tab-products";
     },
 
-    swiperOptions() {
+    swiperOptions(swiperEl) {
         return {
             modules: [Navigation, Pagination],
             slidesPerView: 2,
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                dynamicBullets: true,
-                clickable: true,
-            },
+            observer: true,
+            observeParents: true,
+            ...productSliderNavigation(swiperEl, this.$el),
             breakpoints: {
                 576: {
                     slidesPerView: 3,

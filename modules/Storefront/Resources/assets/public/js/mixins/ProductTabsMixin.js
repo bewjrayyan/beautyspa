@@ -1,4 +1,8 @@
 import Swiper from "swiper";
+import {
+    resolveProductSliderControls,
+    resetProductSliderControls,
+} from "../support/productSliderPagination";
 
 export default function (tabs) {
     return {
@@ -37,11 +41,31 @@ export default function (tabs) {
         },
 
         hideSkeletons() {
-            const skeletons = document.querySelectorAll(
-                `${this.selector()} .swiper-slide-skeleton`
-            );
+            const swiperEl = this.$el?.querySelector(this.selector());
 
-            skeletons.forEach((skeleton) => skeleton.remove());
+            if (!swiperEl) {
+                return;
+            }
+
+            swiperEl
+                .querySelectorAll(".swiper-slide-skeleton")
+                .forEach((skeleton) => skeleton.remove());
+        },
+
+        bindProductSliderModules(swiperEl, options) {
+            const { controls, paginationEl, prevEl, nextEl } =
+                resolveProductSliderControls(swiperEl, this.$el);
+
+            if (options.navigation) {
+                options.navigation.prevEl = prevEl;
+                options.navigation.nextEl = nextEl;
+            }
+
+            if (options.pagination && paginationEl) {
+                options.pagination.el = paginationEl;
+            }
+
+            return controls;
         },
 
         async fetchProducts(tabIndex = 0) {
@@ -49,27 +73,36 @@ export default function (tabs) {
 
             try {
                 const response = await axios.get(this.url(tabIndex));
+                const swiperEl = this.$el.querySelector(this.selector());
+                const controls = swiperEl
+                    ? resolveProductSliderControls(swiperEl, this.$el).controls
+                    : null;
 
                 if (this.swiper) {
-                    this.swiper.destroy();
+                    this.swiper.destroy(false, false);
+                    this.swiper = null;
                 }
 
-                this.products = response.data;
+                resetProductSliderControls(controls);
 
-                setTimeout(() => {
-                    if (this.products.length !== 0) {
-                        this.swiper = new Swiper(
-                            this.selector(),
-                            this.swiperOptions()
-                        );
-                    }
-                }, 0);
+                this.products = response.data;
+                this.hideSkeletons();
+
+                await this.$nextTick();
+                await this.$nextTick();
+
+                if (this.products.length === 0 || !swiperEl) {
+                    return;
+                }
+
+                const options = this.swiperOptions(swiperEl);
+                this.bindProductSliderModules(swiperEl, options);
+
+                this.swiper = new Swiper(swiperEl, options);
             } catch (error) {
                 // handle error
             } finally {
                 this.loading = false;
-
-                this.hideSkeletons();
             }
         },
     };

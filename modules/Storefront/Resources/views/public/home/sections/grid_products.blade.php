@@ -37,17 +37,9 @@
                             </div>
                         </template>
                     </div>
-                    
-                    <div class="swiper-pagination"></div>
-
-                    <div class="swiper-button-next">
-                        {{ trans("storefront::layouts.next") }}
-                    </div>
-                    
-                    <div class="swiper-button-prev">
-                        {{ trans("storefront::layouts.prev") }}
-                    </div>
                 </div>
+
+                @include('storefront::public.partials.product_slider_controls')
             </div>
         </div>
     </div>

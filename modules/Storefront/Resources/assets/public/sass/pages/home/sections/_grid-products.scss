@@ -7,13 +7,6 @@
         overflow: hidden;
         padding: 0 10px 40px 10px;
         margin: 0 -10px -40px -10px;
-
-        .swiper-button-next,
-            .swiper-button-prev {
-                &::after {
-                    transform: translateY(-1px);
-                }
-        }
     }
 
     .tabs {
@@ -51,19 +44,10 @@
     padding-bottom: 15px;
     padding-top: 14px !important;
 
-    .swiper-pagination {
-        padding-top: 10px;
-    }
-
     &.swiper-grid-column {
         > .swiper-wrapper {
             flex-direction: row;
         }
-    }
-
-    .swiper-button-prev,
-    .swiper-button-next {
-        top: -50px;
     }
 
     .arrow-prev {
@@ -206,19 +190,8 @@
 
 @media screen and (max-width: 767px) {
     .grid-products {
-        padding-bottom: 25px;
+        padding-bottom: 36px;
         padding-top: 4px !important;
-
-        .swiper-pagination {
-            display: block;
-            top: unset;
-            bottom: 0;
-        }
-
-        .swiper-button-next,
-        .swiper-button-prev {
-            display: none;
-        }
     }
 
     .grid-products-wrap {

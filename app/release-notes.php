@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.59' => [
+        'en' => [
+            'summary' => 'Storefront mobile UX, customer WhatsApp OTP login, and product slider improvements.',
+            'changes' => [
+                'Add WhatsApp OTP login tabs on customer login with OneSender API integration.',
+                'Fix phone input country selector init and clarify Login with OTP labels (EN/MS).',
+                'Remove confusing WhatsApp OTP button from register; keep OTP on login only.',
+                'Redesign mobile footer as app-style accordion cards and tighten copyright spacing.',
+                'Modernize bottom navigation as iOS-style tab bar with safe-area support.',
+                'Improve product sliders with mobile swipe bullets, centered controls, and dynamic pagination.',
+                'Make hero slider and home sections responsive on small screens.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UX mobile storefront, log masuk OTP WhatsApp pelanggan, dan penambahbaikan slider produk.',
+            'changes' => [
+                'Tambah tab log masuk OTP WhatsApp pelanggan dengan integrasi API OneSender.',
+                'Baiki init pemilih kod negara telefon dan jelaskan label Log masuk dengan OTP (EN/MS).',
+                'Buang butang OTP WhatsApp yang mengelirukan dari register; kekalkan OTP di login sahaja.',
+                'Reka semula footer mobile sebagai kad accordion gaya app dan ketatkan jarak copyright.',
+                'Modenkan navigasi bawah sebagai tab bar gaya iOS dengan sokongan safe-area.',
+                'Baiki slider produk dengan bullet swipe mobile, kawalan berpusat, dan pagination dinamik.',
+                'Jadikan slider hero dan seksyen laman utama responsif pada skrin kecil.',
+            ],
+        ],
+    ],
     '4.7.58' => [
         'en' => [
             'summary' => 'Storefront admin multi-column layouts for homepage sections, banners, and product tabs.',

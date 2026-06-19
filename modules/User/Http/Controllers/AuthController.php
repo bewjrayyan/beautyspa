@@ -21,6 +21,8 @@ class AuthController extends BaseAuthController
     {
         return view('storefront::public.auth.login', [
             'providers' => LoginProvider::enabled(),
+            'loginMode' => request('login') === 'whatsapp' ? 'whatsapp' : 'email',
+            'whatsappOtpEnabled' => (bool) setting('whatsapp_otp_login_enabled'),
         ]);
     }
 

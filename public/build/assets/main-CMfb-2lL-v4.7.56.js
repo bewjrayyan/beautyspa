@@ -1,1 +1,0 @@
-window.admin.removeSubmitButtonOffsetOn("#images");

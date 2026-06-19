@@ -35,10 +35,17 @@
     bottom: 0 !important;
     position: relative;
     padding-top: 20px;
-    left: auto !important;
-    transform: none !important;
     right: auto;
     margin: auto;
+
+    .products-slider & {
+        left: auto;
+    }
+
+    &:not(.swiper-pagination-bullets-dynamic) {
+        left: auto !important;
+        transform: none !important;
+    }
 
     .swiper-pagination-bullet {
         height: 8px;

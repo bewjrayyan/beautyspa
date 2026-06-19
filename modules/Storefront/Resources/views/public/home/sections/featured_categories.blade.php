@@ -40,7 +40,7 @@
         </div>
 
         <div class="tab-content">
-            <div class="featured-category-products products-slider swiper"> 
+            <div class="featured-category-products products-slider swiper">
                 <div class="swiper-wrapper">
                     @foreach (range(0, 7) as $skeleton)
                         <div class="swiper-slide swiper-slide-skeleton">
@@ -54,9 +54,9 @@
                         </div>
                     </template>
                 </div>
-
-                <div class="swiper-pagination"></div>
             </div>
+
+            @include('storefront::public.partials.product_slider_controls')
         </div>
     </div>
 </section>

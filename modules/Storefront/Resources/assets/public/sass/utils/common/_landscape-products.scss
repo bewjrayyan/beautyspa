@@ -19,17 +19,6 @@
         .product-card {
             min-height: 240px;
         }
-
-        .swiper-button-next,
-        .swiper-button-prev {
-            &::after {
-                transform: translateY(-1px);
-            }
-        }
-
-        .swiper-pagination {
-            display: none;
-        }
     }
 
     .products-header {

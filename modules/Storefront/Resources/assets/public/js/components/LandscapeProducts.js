@@ -1,5 +1,9 @@
 import Swiper from "swiper";
 import { Navigation, Pagination } from "swiper/modules";
+import {
+    productSliderNavigation,
+    resolveProductSliderControls,
+} from "../support/productSliderPagination";
 import "../components/ProductCard";
 
 Alpine.data("LandscapeProducts", ({ url, watchState }) => ({
@@ -33,14 +37,13 @@ Alpine.data("LandscapeProducts", ({ url, watchState }) => ({
 
             this.products = response.data;
 
-            this.$nextTick(() => {
-                new Swiper(".landscape-products", {
+            this.$nextTick(async () => {
+                const swiperEl = this.$el.querySelector(".landscape-products");
+                const options = {
                     modules: [Navigation, Pagination],
                     slidesPerView: 2,
-                    navigation: {
-                        nextEl: ".swiper-button-next",
-                        prevEl: ".swiper-button-prev",
-                    },
+                    watchOverflow: true,
+                    ...productSliderNavigation(swiperEl, this.$el),
                     breakpoints: {
                         576: {
                             slidesPerView: 3,
@@ -61,7 +64,21 @@ Alpine.data("LandscapeProducts", ({ url, watchState }) => ({
                             slidesPerView: 8,
                         },
                     },
-                });
+                };
+
+                const { paginationEl, prevEl, nextEl } =
+                    resolveProductSliderControls(swiperEl, this.$el);
+
+                if (options.navigation) {
+                    options.navigation.prevEl = prevEl;
+                    options.navigation.nextEl = nextEl;
+                }
+
+                if (options.pagination && paginationEl) {
+                    options.pagination.el = paginationEl;
+                }
+
+                new Swiper(swiperEl, options);
             });
         } catch (error) {
             notify(error.response.data.message);

@@ -29,8 +29,7 @@
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="preload" href="{{ font_url(setting('storefront_display_font', 'Poppins')) }}"
-            onload="this.onload=null; this.rel='stylesheet'; this.removeAttribute('as')" as="style">
+        <link href="{{ font_url(setting('storefront_display_font', 'Poppins')) }}" rel="stylesheet">
 
         @include('storefront::public.partials.variables')
 

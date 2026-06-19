@@ -6,7 +6,7 @@
             </div>
         </div>
     
-        <div class="landscape-products swiper" x-ref="landscapeProducts">
+        <div class="landscape-products products-slider swiper" x-ref="landscapeProducts">
             <div class="swiper-wrapper">
                 @foreach (range(0, 5) as $skeleton)
                     <div class="swiper-slide swiper-slide-skeleton">
@@ -22,14 +22,8 @@
                     </div>
                 @endforeach
             </div>
-    
-            <div class="swiper-button-next">
-                {{ trans("storefront::layouts.next") }}
-            </div>
-            
-            <div class="swiper-button-prev">
-                {{ trans("storefront::layouts.prev") }}
-            </div>
         </div>
+
+        @include('storefront::public.partials.product_slider_controls')
     </div>
 </section>

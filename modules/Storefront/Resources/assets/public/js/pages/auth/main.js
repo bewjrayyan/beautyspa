@@ -125,67 +125,12 @@ Alpine.data("customerLoginMethods", () => ({
         this.verifyUrl = this.$el.dataset.verifyUrl ?? "";
         this.invalidPhoneMessage = this.$el.dataset.invalidPhoneMessage ?? "";
 
-        window.addEventListener("open-whatsapp-otp", () => {
+        if (this.$el.dataset.initialMode === "whatsapp") {
             this.mode = "whatsapp";
-            this.step = "phone";
-            this.error = "";
-            this.success = "";
-            this.initPhoneInput();
-        });
-    },
-
-    initPhoneInput() {
-        this.$nextTick(() => {
-            bootModernPhoneInputs(this.$el);
-        });
+        }
     },
 
     ...createOtpMethods(() => "customer-otp-phone"),
-}));
-
-Alpine.data("whatsappOtpLogin", () => ({
-    isOpen: false,
-    step: "phone",
-    phone: "",
-    otp: "",
-    loading: false,
-    error: "",
-    success: "",
-    sendUrl: "",
-    verifyUrl: "",
-    invalidPhoneMessage: "",
-
-    init() {
-        this.sendUrl = this.$el.dataset.sendUrl ?? "";
-        this.verifyUrl = this.$el.dataset.verifyUrl ?? "";
-        this.invalidPhoneMessage = this.$el.dataset.invalidPhoneMessage ?? "";
-
-        window.addEventListener("open-whatsapp-otp", () => {
-            if (document.querySelector(".customer-login-tabs")) {
-                return;
-            }
-
-            this.show();
-        });
-    },
-
-    show() {
-        this.isOpen = true;
-        this.step = "phone";
-        this.error = "";
-        this.success = "";
-
-        this.$nextTick(() => {
-            bootModernPhoneInputs(this.$el);
-        });
-    },
-
-    closeModal() {
-        this.isOpen = false;
-        this.loading = false;
-    },
-
-    ...createOtpMethods(() => "whatsapp-otp-phone"),
 }));
 
 if (document.readyState === "loading") {

@@ -1,0 +1,160 @@
+.product-slider-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+    width: 100%;
+
+    &__btn {
+        position: relative;
+        display: inline-flex !important;
+        align-items: center;
+        flex-shrink: 0;
+        width: auto;
+        height: auto;
+        margin: 0;
+        top: auto;
+        right: auto;
+        left: auto;
+        bottom: auto;
+        font-size: 14px;
+        padding: 4px 0;
+        color: var(--color-gray-dark);
+        text-transform: uppercase;
+        transition: var(--transition-150);
+        visibility: visible !important;
+        opacity: 1;
+
+        &::after {
+            font-family: swiper-icons;
+            font-size: 11px;
+            padding-left: 8px;
+            -webkit-text-stroke: 0.5px var(--color-gray-dark);
+            transition: var(--transition-150);
+        }
+
+        &:hover {
+            color: var(--color-primary);
+            font-weight: 500;
+
+            &::after {
+                -webkit-text-stroke: 0.5px var(--color-primary);
+            }
+        }
+
+        &.swiper-button-disabled {
+            color: var(--color-gray-dark);
+            cursor: default;
+            opacity: 0.45;
+            visibility: visible !important;
+
+            &::after {
+                -webkit-text-stroke: 0.5px var(--color-gray-dark);
+            }
+        }
+
+        &.swiper-button-lock {
+            display: inline-flex !important;
+            visibility: visible !important;
+        }
+    }
+
+    .swiper-button-prev::after {
+        padding-left: 0;
+        padding-right: 8px;
+    }
+
+    .swiper-pagination {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        position: relative !important;
+        bottom: 0 !important;
+        padding: 0;
+        margin: 0;
+        width: auto !important;
+        min-width: 48px;
+        min-height: 20px;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+        flex-shrink: 0;
+        visibility: visible !important;
+        opacity: 1 !important;
+
+        &.swiper-pagination-lock {
+            display: flex !important;
+        }
+
+        .swiper-pagination-bullet {
+            height: 8px;
+            width: 8px;
+            border-radius: 4px;
+            background: var(--color-primary-alpha-30);
+            opacity: 1 !important;
+            transition: width var(--transition-150), background var(--transition-150),
+                transform var(--transition-150);
+
+            &.swiper-pagination-bullet-active,
+            &.swiper-pagination-bullet-active-main {
+                width: 25px;
+                height: 8px;
+                background: var(--color-primary);
+            }
+        }
+
+        &.swiper-pagination-bullets-dynamic {
+            overflow: hidden;
+            font-size: 0;
+            line-height: 0;
+
+            .swiper-pagination-bullet {
+                position: relative;
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            .swiper-pagination-bullet-active-prev,
+            .swiper-pagination-bullet-active-next {
+                transform: scale(1);
+            }
+
+            .swiper-pagination-bullet-active-main {
+                transform: scale(1);
+            }
+        }
+    }
+}
+
+.products-slider.swiper {
+    .swiper-pagination {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .products-slider.swiper {
+        padding-bottom: 10px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .product-slider-controls {
+        margin-top: 8px;
+    }
+
+    .landscape-left-tab-products-inner,
+    .grid-products-wrap-inner,
+    .landscape-products-inner {
+        margin-bottom: 0;
+        padding-bottom: 16px;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .product-slider-controls {
+        .swiper-pagination {
+            display: none !important;
+        }
+    }
+}

@@ -1,1 +1,0 @@
-$("#refresh-rates").on("click",r=>{axios.get("currency-rates/refresh").then(()=>{DataTable.reload(),window.admin.stopButtonLoading($(r.currentTarget))}).catch(({response:a})=>{error(a.data.message),window.admin.stopButtonLoading($(r.currentTarget))})});

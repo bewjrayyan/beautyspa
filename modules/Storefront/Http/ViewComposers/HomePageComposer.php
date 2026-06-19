@@ -59,7 +59,6 @@ class HomePageComposer
                 : null,
             'blog' => $this->blog(),
             'openGraph' => OpenGraph::forStore($logoPath),
-            'lcpImageUrl' => OpenGraph::absoluteUrl($slider?->slides->first()?->file?->path ?? null),
         ]);
     }
 

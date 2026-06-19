@@ -120,31 +120,25 @@
     
                     @include('storefront::public.auth.partials.notification')
 
-                    @php
-                        $whatsappOtpEnabled = setting('whatsapp_otp_login_enabled')
-                            && \Modules\User\Services\OneSenderWhatsAppService::isConfigured();
-                    @endphp
-
-                    @if ($whatsappOtpEnabled)
-                        <div
-                            class="customer-login-tabs"
-                            x-data="customerLoginMethods"
-                            data-send-url="/login/whatsapp/send-otp"
-                            data-verify-url="/login/whatsapp/verify-otp"
-                            data-invalid-phone-message="{{ e(trans('core::validation.phone')) }}"
-                            x-init="initPhoneInput()"
-                        >
-                            @include('storefront::public.auth.partials.login_method_tabs')
-                    @endif
-    
                     <form
-                        class="auth-form-body"
+                        class="auth-form-body{{ $whatsappOtpEnabled ? ' customer-login-tabs' : '' }}"
                         method="POST"
                         action="{{ route('login.post') }}"
-                        @if ($whatsappOtpEnabled) x-show="mode === 'email'" x-cloak @endif
+                        @if ($whatsappOtpEnabled)
+                            x-data="customerLoginMethods"
+                            data-initial-mode="{{ $loginMode }}"
+                            data-send-url="{{ storefront_route('login.whatsapp.send_otp') }}"
+                            data-verify-url="{{ storefront_route('login.whatsapp.verify_otp') }}"
+                            data-invalid-phone-message="{{ e(trans('core::validation.phone')) }}"
+                        @endif
                     >
                         @csrf
 
+                        @if ($whatsappOtpEnabled)
+                            @include('storefront::public.auth.partials.login_method_tabs')
+                        @endif
+
+                        <div @if ($whatsappOtpEnabled) x-show="mode === 'email'" x-cloak @endif>
                         <div class="auth-form-body-top">
                             <a href="{{ route('home') }}" class="auth-form-header-logo">
                                 @if (is_null($logo))
@@ -297,12 +291,9 @@
                         >
                             {{ trans('user::auth.sign_in') }}
                         </button>
+                        </div>
                     </form>
 
-                    @if ($whatsappOtpEnabled)
-                        </div>
-                    @endif
-    
                     @include('storefront::public.auth.partials.social_login')
                 </div>
             </div>

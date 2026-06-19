@@ -1,5 +1,5 @@
-<section class="bottom-navigation-wrap d-lg-none">
-    <div class="container">
+<section class="bottom-navigation-wrap d-lg-none" aria-label="{{ trans('storefront::layouts.navigation') }}">
+    <nav class="bottom-navigation-bar">
         <ul class="bottom-navigation-items">
             <li>
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">
@@ -94,5 +94,5 @@
                 </a>
             </li>
         </ul>
-    </div>
+    </nav>
 </section>

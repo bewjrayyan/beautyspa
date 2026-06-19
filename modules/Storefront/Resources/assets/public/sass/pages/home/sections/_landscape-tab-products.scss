@@ -51,15 +51,6 @@
     margin-left: -6px;
     margin-right: -6px;
     overflow: unset;
-
-    .swiper-button-prev,
-    .swiper-button-next {
-        top: -47px;
-    }
-
-    .swiper-pagination {
-        display: none;
-    }
 }
 
 .daily-deals {
@@ -78,17 +69,9 @@
 }
 
 @media screen and (max-width: 767px) {
-    .landscape-left-tab-products {
-        .swiper-pagination {
-            display: block;
-            top: unset;
-            bottom: 0;
-        }
-
-        .swiper-button-next,
-        .swiper-button-prev {
-            display: none;
-        }
+    .landscape-left-tab-products-inner {
+        margin-bottom: 0;
+        padding-bottom: 16px;
     }
 
     .landscape-tab-products-wrap {

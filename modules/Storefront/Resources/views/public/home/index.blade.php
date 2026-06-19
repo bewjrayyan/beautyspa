@@ -60,12 +60,6 @@
     @endif
 @endsection
 
-@push('meta')
-    @if (! empty($lcpImageUrl))
-        <link rel="preload" href="{{ $lcpImageUrl }}" as="image" fetchpriority="high">
-    @endif
-@endpush
-
 @push('globals')
     @vite([
         'modules/Storefront/Resources/assets/public/sass/pages/home/main.scss',

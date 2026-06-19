@@ -1,6 +1,7 @@
-import { Pagination } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
 import { whenVisible } from "../../../support/whenVisible";
+import { productSliderNavigation } from "../../../support/productSliderPagination";
 import "../../../components/ProductCard";
 
 Alpine.data("FeaturedCategories", (tabs) => ({
@@ -20,15 +21,13 @@ Alpine.data("FeaturedCategories", (tabs) => ({
         return ".featured-category-products";
     },
 
-    swiperOptions() {
+    swiperOptions(swiperEl) {
         return {
-            modules: [Pagination],
+            modules: [Navigation, Pagination],
             slidesPerView: 2,
-            pagination: {
-                el: ".swiper-pagination",
-                dynamicBullets: true,
-                clickable: true,
-            },
+            observer: true,
+            observeParents: true,
+            ...productSliderNavigation(swiperEl, this.$el),
             breakpoints: {
                 576: {
                     slidesPerView: 3,

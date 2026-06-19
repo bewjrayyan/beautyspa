@@ -58,6 +58,9 @@ class AppServiceProvider extends ServiceProvider
             );
         }
 
+        // Avoid browser warnings for Vite preloads that are not consumed immediately.
+        Vite::usePreloadTagAttributes(fn () => false);
+
         if (Request::secure()) {
             URL::forceScheme('https');
         }

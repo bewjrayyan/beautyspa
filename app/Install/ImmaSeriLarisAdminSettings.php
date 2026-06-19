@@ -140,7 +140,7 @@ class ImmaSeriLarisAdminSettings
             'check_payment_description' => 'Please send a check to our store.',
             'facebook_login_label' => 'Facebook',
             'google_login_label' => 'Google',
-            'whatsapp_otp_login_label' => 'WhatsApp OTP',
+            'whatsapp_otp_login_label' => 'Login with OTP',
         ];
     }
 
