@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.62' => [
+        'en' => [
+            'summary' => 'Mobile cookie bar, Google Reviews app layout, and full-screen search overlay.',
+            'changes' => [
+                'Fix cookie consent bar on mobile so it sits above the bottom navigation and stays fully readable.',
+                'Restyle Google Reviews for mobile with peek carousel, compact rating summary, and PREV/NEXT controls.',
+                'Replace mobile header search with a full-screen overlay that hides duplicate header chrome and locks scroll.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Bar kuki mobile, susun atur Google Reviews gaya app, dan overlay carian skrin penuh.',
+            'changes' => [
+                'Baiki bar persetujuan kuki pada mobile supaya berada di atas navigasi bawah dan boleh dibaca sepenuhnya.',
+                'Gaya semula Google Reviews untuk mobile dengan carousel peek, ringkasan rating padat, dan kawalan PREV/NEXT.',
+                'Ganti carian header mobile dengan overlay skrin penuh yang menyembunyikan header berganda dan mengunci skrol.',
+            ],
+        ],
+    ],
     '4.7.61' => [
         'en' => [
             'summary' => 'Homepage mobile app layout with card sections, carousels, and aligned footer.',

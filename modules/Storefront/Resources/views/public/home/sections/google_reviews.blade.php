@@ -36,7 +36,7 @@
                                 {{ trans('storefront::google_reviews.most_liked_comments') }}
                             </h4>
 
-                            <div class="google-reviews-carousel swiper">
+                            <div class="google-reviews-carousel swiper" x-ref="reviewsSlider">
                                 <div class="swiper-wrapper">
                                     @foreach ($googleReviews['items'] as $review)
                                         <div class="swiper-slide">
@@ -83,6 +83,8 @@
                                 <div class="swiper-button-prev"></div>
                                 <div class="swiper-button-next"></div>
                             </div>
+
+                            @include('storefront::public.partials.product_slider_controls')
                         </div>
                     @endif
                 </div>

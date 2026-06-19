@@ -6,12 +6,9 @@
         visibility: hidden;
         opacity: 0;
         position: fixed;
-        width: 100vw;
-        height: 100vh;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        right: 0;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         background: rgba(0, 0, 0, 0.6);
         z-index: 200;
         transition: var(--transition-150);
@@ -232,6 +229,7 @@
         flex-grow: unset;
         margin-left: auto;
         padding: 0;
+        position: static;
     }
 
     .header-search-wrap {
@@ -242,6 +240,7 @@
         padding: 0 15px;
         align-items: center;
         height: 100%;
+        min-width: 44px;
     }
 
     .header-search {
@@ -250,6 +249,12 @@
         }
 
         .header-search-sm {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            min-height: 44px;
+
             &:hover {
                 > svg path {
                     stroke: var(--color-primary);
@@ -267,10 +272,145 @@
             }
         }
     }
+
+    .header-search-sm-form {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        transform: none;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        z-index: 1202;
+        padding: 8px 12px;
+        padding-top: calc(8px + env(safe-area-inset-top, 0px));
+        background: var(--color-white);
+        border-bottom: 0.5px solid rgba(15, 23, 42, 0.1);
+        box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+        border-radius: 0;
+
+        &.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        > form {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            background: #f2f2f7;
+            border-radius: 12px;
+            overflow: hidden;
+
+            > input {
+                flex: 1;
+                min-width: 0;
+                height: 44px;
+                padding: 10px 44px 10px 44px;
+                background: transparent;
+                border: none;
+                font-size: 16px;
+            }
+
+            .btn-close,
+            .btn-search {
+                position: absolute;
+                top: 50%;
+                display: flex;
+                height: 44px;
+                width: 44px;
+                min-width: 44px;
+                padding: 10px;
+                align-items: center;
+                justify-content: center;
+                transform: translateY(-50%);
+
+                > svg {
+                    height: 22px;
+                    width: 22px;
+                }
+            }
+
+            .btn-close {
+                left: 0;
+            }
+
+            .btn-search {
+                right: 0;
+            }
+        }
+    }
+
+    .header-search-wrap-overlay {
+        z-index: 1201;
+
+        &.active {
+            visibility: visible;
+            opacity: 1;
+            top: calc(60px + env(safe-area-inset-top, 0px));
+            bottom: 0;
+            height: auto;
+        }
+    }
 }
 
 @media screen and (max-width: 391px) {
     .header-search-wrap {
         padding: 0 10px;
+    }
+}
+
+body.mobile-search-open {
+    overflow: hidden;
+    width: 100%;
+    touch-action: none;
+
+    .header-wrap {
+        z-index: 1200;
+    }
+
+    .header-wrap-inner {
+        padding: 0 !important;
+        border-bottom: none !important;
+        background: transparent;
+        box-shadow: none !important;
+
+        > .container {
+            min-height: calc(60px + env(safe-area-inset-top, 0px));
+        }
+    }
+
+    .header-column-left,
+    .header-column-right,
+    .header-search .header-search-sm {
+        display: none !important;
+    }
+
+    .header-search-wrap-parent {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1202;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .header-search-wrap {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .header-search-wrap-overlay.active {
+        top: calc(60px + env(safe-area-inset-top, 0px));
+        bottom: 0;
+        height: auto;
     }
 }

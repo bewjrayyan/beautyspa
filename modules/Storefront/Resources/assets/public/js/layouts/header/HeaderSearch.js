@@ -77,15 +77,17 @@ Alpine.data(
                 }, 1000)
             );
 
-            this.$watch("showMiniSearch", (newValue) => {
-                if (newValue) {
-                    this.$refs.miniSearchInput.focus();
+        this.$watch("showMiniSearch", (newValue) => {
+            document.body.classList.toggle("mobile-search-open", newValue);
 
-                    return;
-                }
+            if (newValue) {
+                this.$refs.miniSearchInput.focus();
 
-                this.hideSuggestions();
-            });
+                return;
+            }
+
+            this.hideSuggestions();
+        });
 
             this.fetchSuggestions();
         },

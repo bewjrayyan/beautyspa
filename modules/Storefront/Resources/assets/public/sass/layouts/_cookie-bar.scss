@@ -57,14 +57,32 @@
 }
 
 @media screen and (max-width: 991px) {
+    .cookie-bar-wrap {
+        z-index: 1001;
+        bottom: -300px;
+        transform: none;
+
+        &.show {
+            bottom: calc(62px + env(safe-area-inset-bottom, 0px));
+            transform: none;
+        }
+    }
+
     .cookie-bar {
         flex-direction: column;
-        padding: 16px 0 20px;
+        padding: 14px 16px 16px;
 
         .cookie-bar-text {
             margin-right: 0;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             text-align: center;
+            line-height: 1.5;
+        }
+
+        .cookie-bar-action {
+            width: 100%;
+            justify-content: center;
+            gap: 10px;
         }
     }
 }

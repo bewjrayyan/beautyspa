@@ -484,6 +484,32 @@ $home-app-section-gap: 12px;
                 @include home-app-card;
                 padding: 16px;
             }
+
+            .google-reviews-heading {
+                font-size: 17px;
+                font-weight: 700;
+                margin-bottom: 14px;
+            }
+
+            .google-reviews-summary {
+                margin-bottom: 16px;
+                padding: 12px;
+                border-radius: 12px;
+                background: $home-app-bg;
+            }
+
+            .google-reviews-carousel-wrap {
+                overflow: hidden;
+
+                .product-slider-controls {
+                    padding-top: 6px;
+                }
+            }
+
+            .google-reviews-right {
+                padding-top: 4px;
+                border-top: 1px solid #f0f0f5;
+            }
         }
 
         .blog-posts-wrap {

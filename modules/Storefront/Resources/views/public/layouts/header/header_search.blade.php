@@ -8,7 +8,7 @@
 >
     <div
         class="header-search-wrap-overlay"
-        :class="{ active: showSuggestions }"
+        :class="{ active: showSuggestions || showMiniSearch }"
     >
     </div>
 

@@ -1,28 +1,38 @@
 import Swiper from "swiper";
-import { Navigation } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
+import { whenVisible } from "../../../support/whenVisible";
+import { productSliderNavigation } from "../../../support/productSliderPagination";
 
 Alpine.data("GoogleReviews", () => ({
-    init() {
-        const carousel = this.$el.querySelector(".google-reviews-carousel");
+    swiper: null,
 
-        if (!carousel) {
+    init() {
+        whenVisible(this.$el, () => this.initReviewsSlider());
+    },
+
+    initReviewsSlider() {
+        const carousel = this.$refs.reviewsSlider;
+
+        if (!carousel || carousel.classList.contains("swiper-initialized")) {
             return;
         }
 
-        new Swiper(carousel, {
-            modules: [Navigation],
-            slidesPerView: 1,
-            spaceBetween: 16,
-            navigation: {
-                nextEl: carousel.querySelector(".swiper-button-next"),
-                prevEl: carousel.querySelector(".swiper-button-prev"),
-            },
+        this.swiper = new Swiper(carousel, {
+            modules: [Navigation, Pagination],
+            slidesPerView: 1.12,
+            spaceBetween: 12,
+            watchOverflow: true,
+            observer: true,
+            observeParents: true,
+            ...productSliderNavigation(carousel, this.$el),
             breakpoints: {
                 768: {
                     slidesPerView: 1.15,
+                    spaceBetween: 16,
                 },
                 1200: {
                     slidesPerView: 1.35,
+                    spaceBetween: 16,
                 },
             },
         });

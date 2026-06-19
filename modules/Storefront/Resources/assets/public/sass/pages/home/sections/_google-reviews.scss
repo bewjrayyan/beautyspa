@@ -97,6 +97,10 @@
             right: 0;
         }
     }
+
+    .product-slider-controls {
+        padding-top: 4px;
+    }
 }
 
 .google-review-card {
@@ -258,21 +262,113 @@
 @media screen and (max-width: 991px) {
     .google-reviews-grid {
         grid-template-columns: 1fr;
-        gap: 32px;
+        gap: 24px;
     }
 
     .google-reviews-card {
-        padding: 24px 20px;
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .google-reviews-heading {
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+
+    .google-reviews-summary {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        gap: 2px 14px;
+        align-items: center;
+        justify-content: start;
+        margin-bottom: 20px;
+        padding: 14px;
+        border-radius: 12px;
+        background: #f2f2f7;
+        text-align: left;
     }
 
     .google-reviews-score {
-        font-size: 44px;
+        grid-row: 1 / -1;
+        font-size: 36px;
+        margin-bottom: 0;
+        line-height: 1;
+    }
+
+    .google-reviews-stars {
+        font-size: 18px;
+    }
+
+    .google-reviews-count {
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .google-reviews-subheading {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .google-reviews-carousel-wrap {
+        .google-reviews-carousel {
+            padding: 0;
+            margin: 0 -4px;
+            overflow: visible;
+
+            .swiper-button-prev,
+            .swiper-button-next {
+                display: none;
+            }
+        }
+    }
+
+    .google-review-card {
+        min-height: 0;
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid #f0f0f5;
+        background: var(--color-white);
+    }
+
+    .google-review-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .google-review-author {
+        font-size: 14px;
+    }
+
+    .google-review-text {
+        font-size: 13px;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .google-reviews-metrics {
+        gap: 16px;
+    }
+
+    .google-reviews-metric-percent {
+        font-size: 18px;
+    }
+
+    .google-reviews-metric-bar {
+        height: 8px;
     }
 }
 
 @media screen and (max-width: 767px) {
     .google-reviews-carousel-wrap .google-reviews-carousel {
-        padding-left: 36px;
-        padding-right: 36px;
+        padding-left: 0;
+        padding-right: 0;
     }
 }
