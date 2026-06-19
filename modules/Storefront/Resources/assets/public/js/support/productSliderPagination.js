@@ -3,6 +3,12 @@ export function productSliderPagination(paginationEl) {
         return undefined;
     }
 
+    const isMobile = window.matchMedia("(max-width: 991px)").matches;
+
+    if (isMobile) {
+        return false;
+    }
+
     return {
         el: paginationEl,
         dynamicBullets: true,

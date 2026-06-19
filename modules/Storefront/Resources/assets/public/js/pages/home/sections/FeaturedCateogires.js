@@ -24,28 +24,36 @@ Alpine.data("FeaturedCategories", (tabs) => ({
     swiperOptions(swiperEl) {
         return {
             modules: [Navigation, Pagination],
-            slidesPerView: 2,
+            slidesPerView: 1.12,
+            spaceBetween: 12,
+            watchOverflow: true,
             observer: true,
             observeParents: true,
             ...productSliderNavigation(swiperEl, this.$el),
             breakpoints: {
                 576: {
-                    slidesPerView: 3,
+                    slidesPerView: 1.35,
+                    spaceBetween: 14,
                 },
-                830: {
-                    slidesPerView: 4,
+                768: {
+                    slidesPerView: 2,
+                    spaceBetween: 16,
                 },
                 991: {
-                    slidesPerView: 5,
+                    slidesPerView: 2.2,
+                    spaceBetween: 16,
                 },
                 1200: {
-                    slidesPerView: 6,
+                    slidesPerView: 3,
+                    spaceBetween: 20,
                 },
                 1400: {
-                    slidesPerView: 7,
+                    slidesPerView: 4,
+                    spaceBetween: 20,
                 },
                 1760: {
-                    slidesPerView: 8,
+                    slidesPerView: 5,
+                    spaceBetween: 20,
                 },
             },
         };

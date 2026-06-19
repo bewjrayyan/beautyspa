@@ -9,7 +9,7 @@
                 </a>
             </div>
     
-            <div class="blog-posts swiper">
+            <div class="blog-posts swiper" x-ref="blogSlider">
                 <div class="swiper-wrapper">
                     @foreach($blog['blogPosts'] as $blogPost)
                         <div class="swiper-slide">
@@ -17,9 +17,9 @@
                         </div>
                     @endforeach
                 </div>
-    
-                <div class="swiper-pagination"></div>
             </div>
+
+            @include('storefront::public.partials.product_slider_controls')
         </div>
     </div>
 </section>

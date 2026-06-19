@@ -1,6 +1,14 @@
 @media screen and (max-width: 991px) {
     .footer-wrap {
+        padding-left: 16px;
+        padding-right: 16px;
         background: #f2f2f7;
+
+        > .container {
+            max-width: 100%;
+            padding-left: 0;
+            padding-right: 0;
+        }
     }
 
     .footer {

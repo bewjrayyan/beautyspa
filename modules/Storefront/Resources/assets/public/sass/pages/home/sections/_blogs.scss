@@ -3,82 +3,173 @@
 .blog-posts-wrap {
     margin-top: 44px;
 
-    .swiper {
-        padding-top: 20px;
+    .blog-posts-inner {
+        overflow: hidden;
     }
 
     .blog-posts-header {
         display: flex;
+        align-items: flex-start;
         justify-content: space-between;
+        gap: 12px;
         border-bottom: 1px solid var(--border-color-lite);
 
         .section-title {
             font-size: 18px;
             line-height: 24px;
             padding-bottom: 14px;
+            margin: 0;
         }
 
         .view-all {
+            flex-shrink: 0;
             margin-top: 2px;
-            color: var(--color-gray);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-primary);
 
             &:hover {
-                color: var(--color-primary);
+                color: var(--color-primary-hover);
             }
         }
+    }
+
+    .blog-posts.swiper {
+        overflow: hidden;
+        padding-top: 16px;
+        padding-bottom: 4px;
+    }
+
+    .product-slider-controls {
+        margin-top: 4px;
     }
 }
 
 .blog-posts {
+    .swiper-slide {
+        height: auto;
+    }
+
     .blog-post-card {
-        margin: 0 10px;
+        margin: 0;
         height: 100%;
+    }
+
+    .blog-post {
+        height: 100%;
+        background: var(--color-white);
     }
 }
 
 .blog-posts-wrap {
     .blog-posts:not(.swiper-initialized) {
+        .swiper-wrapper {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
         .swiper-slide {
-            max-width: 20%;
+            flex: 0 0 88%;
+            max-width: 88%;
+            scroll-snap-align: start;
         }
     }
 }
 
-@media screen and (max-width: 1700px) {
+@media screen and (min-width: 576px) {
     .blog-posts-wrap {
         .blog-posts:not(.swiper-initialized) {
             .swiper-slide {
-                max-width: 25%;
+                flex: 0 0 72%;
+                max-width: 72%;
             }
         }
     }
 }
 
-@media screen and (max-width: 1300px) {
+@media screen and (min-width: 768px) {
     .blog-posts-wrap {
         .blog-posts:not(.swiper-initialized) {
             .swiper-slide {
-                max-width: 33.33%;
+                flex: 0 0 48%;
+                max-width: 48%;
             }
         }
     }
 }
 
-@media screen and (max-width: 920px) {
+@media screen and (min-width: 1200px) {
     .blog-posts-wrap {
         .blog-posts:not(.swiper-initialized) {
             .swiper-slide {
-                max-width: 50%;
+                flex: 0 0 32%;
+                max-width: 32%;
             }
         }
     }
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 991px) {
     .blog-posts-wrap {
-        .blog-posts:not(.swiper-initialized) {
-            .swiper-slide {
-                max-width: 100%;
+        .blog-posts-header {
+            border-bottom: none;
+            margin-bottom: 4px;
+
+            .section-title {
+                padding-bottom: 0;
+                font-size: 17px;
+                font-weight: 700;
+            }
+        }
+
+        .blog-posts.swiper {
+            margin: 0 -4px;
+            padding-top: 12px;
+            padding-bottom: 0;
+        }
+
+        .blog-post {
+            border-color: #f0f0f5;
+            border-radius: 12px;
+            box-shadow: none;
+
+            &:hover {
+                box-shadow: none;
+                border-color: #f0f0f5;
+            }
+
+            .blog-post-body {
+                padding: 14px 14px 16px;
+            }
+
+            .blog-post-meta > li {
+                font-size: 12px;
+                margin-left: 12px;
+            }
+
+            .blog-post-title > a {
+                font-size: 15px;
+                line-height: 1.35;
+                margin-bottom: 10px;
+            }
+
+            .blog-post-read-more {
+                font-size: 13px;
+                font-weight: 600;
+
+                i {
+                    opacity: 1;
+                    visibility: visible;
+                    transform: none;
+                }
             }
         }
     }

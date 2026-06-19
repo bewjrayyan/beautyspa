@@ -208,7 +208,7 @@
 
 @media screen and (max-width: 991px) {
     .home-section-wrap {
-        margin-top: 20px;
+        margin-top: 0;
 
         .home-section-inner {
             width: 100%;
@@ -219,9 +219,9 @@
             width: 100%;
             padding: 0;
             height: auto;
-            aspect-ratio: 16 / 9;
-            min-height: clamp(180px, 52vw, 360px);
-            max-height: 420px;
+            aspect-ratio: 16 / 10;
+            min-height: clamp(180px, 50vw, 300px);
+            max-height: none;
         }
 
         .home-banner-wrap {

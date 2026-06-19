@@ -1,32 +1,50 @@
 import Swiper from "swiper";
-import { Pagination } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
+import { whenVisible } from "../../../support/whenVisible";
+import { productSliderNavigation } from "../../../support/productSliderPagination";
 
 Alpine.data("Blog", () => ({
+    swiper: null,
+
     init() {
-        this.initBlogPostsSlider();
+        whenVisible(this.$el, () => this.initBlogPostsSlider());
     },
 
     initBlogPostsSlider() {
-        new Swiper(".blog-posts", {
-            modules: [Pagination],
-            slidesPerView: 1,
-            pagination: {
-                el: ".swiper-pagination",
-                dynamicBullets: true,
-                clickable: true,
-            },
+        const swiperEl = this.$refs.blogSlider;
+
+        if (!swiperEl || swiperEl.classList.contains("swiper-initialized")) {
+            return;
+        }
+
+        this.swiper = new Swiper(swiperEl, {
+            modules: [Navigation, Pagination],
+            slidesPerView: 1.12,
+            spaceBetween: 12,
+            watchOverflow: true,
+            observer: true,
+            observeParents: true,
+            ...productSliderNavigation(swiperEl, this.$el),
             breakpoints: {
-                640: {
+                576: {
+                    slidesPerView: 1.35,
+                    spaceBetween: 14,
+                },
+                768: {
                     slidesPerView: 2,
+                    spaceBetween: 16,
                 },
-                920: {
+                991: {
+                    slidesPerView: 2.2,
+                    spaceBetween: 16,
+                },
+                1200: {
                     slidesPerView: 3,
+                    spaceBetween: 20,
                 },
-                1300: {
+                1600: {
                     slidesPerView: 4,
-                },
-                1700: {
-                    slidesPerView: 5,
+                    spaceBetween: 20,
                 },
             },
         });

@@ -1,5 +1,7 @@
 @extends('storefront::public.layout')
 
+@section('body_class', 'home-page')
+
 @section('title', setting('store_tagline'))
 
 @section('content')

@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.61' => [
+        'en' => [
+            'summary' => 'Homepage mobile app layout with card sections, carousels, and aligned footer.',
+            'changes' => [
+                'Add home-page mobile shell with iOS-style gray canvas and white section cards.',
+                'Restyle hero slider with side padding, rounded corners, gradient overlay, and centered dots.',
+                'Convert blog and featured category product rows into swipe carousels with PREV/NEXT controls.',
+                'Center featured category tabs and improve mobile product slider navigation buttons.',
+                'Align footer horizontal padding with homepage section cards on mobile.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Susun atur app mobile laman utama dengan kad seksyen, carousel, dan footer sejajar.',
+            'changes' => [
+                'Tambah shell mobile home-page dengan kanvas kelabu gaya iOS dan kad seksyen putih.',
+                'Gaya semula slider hero dengan padding sisi, sudut bulat, overlay gradien, dan dot berpusat.',
+                'Tukar baris blog dan produk kategori pilihan kepada carousel swipe dengan kawalan PREV/NEXT.',
+                'Pusatkan tab kategori pilihan dan baiki butang navigasi slider produk mobile.',
+                'Selaraskan padding mendatar footer dengan kad seksyen laman utama pada mobile.',
+            ],
+        ],
+    ],
     '4.7.60' => [
         'en' => [
             'summary' => 'Customer account mobile app UX, loyalty stamps, order reviews, and admin stamp program tools.',
