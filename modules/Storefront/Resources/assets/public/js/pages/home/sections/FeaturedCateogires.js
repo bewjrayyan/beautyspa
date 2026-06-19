@@ -1,7 +1,7 @@
 import { Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
 import { whenVisible } from "../../../support/whenVisible";
-import { productSliderNavigation } from "../../../support/productSliderPagination";
+import { productSliderNavigation, swiperDomObservers } from "../../../support/productSliderPagination";
 import "../../../components/ProductCard";
 
 Alpine.data("FeaturedCategories", (tabs) => ({
@@ -27,8 +27,7 @@ Alpine.data("FeaturedCategories", (tabs) => ({
             slidesPerView: 1.12,
             spaceBetween: 12,
             watchOverflow: true,
-            observer: true,
-            observeParents: true,
+            ...swiperDomObservers(),
             ...productSliderNavigation(swiperEl, this.$el),
             breakpoints: {
                 576: {

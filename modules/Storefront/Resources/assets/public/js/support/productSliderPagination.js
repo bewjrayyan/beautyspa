@@ -3,12 +3,6 @@ export function productSliderPagination(paginationEl) {
         return undefined;
     }
 
-    const isMobile = window.matchMedia("(max-width: 991px)").matches;
-
-    if (isMobile) {
-        return false;
-    }
-
     return {
         el: paginationEl,
         dynamicBullets: true,
@@ -63,16 +57,20 @@ export function resetProductSliderControls(controls) {
 }
 
 export function productSliderNavigation(swiperEl, scopeEl) {
-    const { prevEl, nextEl, paginationEl } = resolveProductSliderControls(
-        swiperEl,
-        scopeEl
-    );
+    const { paginationEl } = resolveProductSliderControls(swiperEl, scopeEl);
 
     return {
-        navigation: {
-            prevEl,
-            nextEl,
-        },
         pagination: productSliderPagination(paginationEl),
+    };
+}
+
+export function swiperDomObservers() {
+    if (window.matchMedia("(max-width: 991px)").matches) {
+        return {};
+    }
+
+    return {
+        observer: true,
+        observeParents: true,
     };
 }

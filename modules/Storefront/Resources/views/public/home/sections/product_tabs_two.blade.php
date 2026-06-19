@@ -1,4 +1,4 @@
-<section x-data="ProductTabsTwo({{ $productTabsTwo['tabs'] }})" class="landscape-tab-products-wrap">
+<section x-data="ProductTabsTwo({{ $productTabsTwo['tabs']->toJson() }})" class="landscape-tab-products-wrap">
     <div class="container">
         <div class="landscape-right-tab-products-inner">
             <div class="tab-products-header">
@@ -11,8 +11,9 @@
                                 class="tab-item"
                                 :class="classes({{ $key }})"
                                 @click="changeTab({{ $key }})"
+                                title="{{ $tab['title'] }}"
                             >
-                                {{ $tab }}
+                                @include('storefront::public.partials.product_tab_label', ['label' => $tab['title']])
                             </li>
                         @endforeach
                     </ul>
@@ -30,7 +31,10 @@
                             </div>
                         @endforeach
                         
-                        <template x-for="product in products" :key="product.id">
+                        <template
+                            x-for="product in products"
+                            :key="`${activeTab}-${product.id}`"
+                        >
                             <div class="swiper-slide">
                                 @include('storefront::public.partials.product_card')
                             </div>

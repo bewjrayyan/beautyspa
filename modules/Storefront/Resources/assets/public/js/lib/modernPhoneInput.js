@@ -165,8 +165,10 @@ export function normalizePhoneInputsOnSubmit(root = document) {
 
         form.addEventListener("submit", () => {
             form.querySelectorAll("input.modern-phone-input").forEach((input) => {
-                if (input._iti) {
-                    input.value = input._iti.getNumber() || input.value;
+                const e164 = getPhoneInputE164(input);
+
+                if (e164) {
+                    input.value = e164;
                 }
             });
         });

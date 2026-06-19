@@ -112,17 +112,26 @@ class HomePageComposer
     }
 
 
+    private function productTabEntries(string $prefix): Collection
+    {
+        return Collection::times(4, function ($number) use ($prefix) {
+            if (!is_null(setting("{$prefix}_tab_{$number}_product_type"))) {
+                return [
+                    'title' => setting("{$prefix}_tab_{$number}_title"),
+                    'slot' => $number,
+                ];
+            }
+        })->filter()->values();
+    }
+
+
     private function productTabsOne()
     {
         if (!setting('storefront_product_tabs_1_section_enabled')) {
             return;
         }
 
-        return Collection::times(4, function ($number) {
-            if (!is_null(setting("storefront_product_tabs_1_section_tab_{$number}_product_type"))) {
-                return setting("storefront_product_tabs_1_section_tab_{$number}_title");
-            }
-        })->filter();
+        return $this->productTabEntries('storefront_product_tabs_1_section');
     }
 
 
@@ -186,11 +195,7 @@ class HomePageComposer
             return;
         }
 
-        return Collection::times(4, function ($number) {
-            if (!is_null(setting("storefront_product_grid_section_tab_{$number}_product_type"))) {
-                return setting("storefront_product_grid_section_tab_{$number}_title");
-            }
-        })->filter();
+        return $this->productTabEntries('storefront_product_grid_section');
     }
 
 
@@ -208,15 +213,9 @@ class HomePageComposer
             return;
         }
 
-        $tabs = Collection::times(4, function ($number) {
-            if (!is_null(setting("storefront_product_tabs_2_section_tab_{$number}_product_type"))) {
-                return setting("storefront_product_tabs_2_section_tab_{$number}_title");
-            }
-        })->filter();
-
         return [
             'title' => setting('storefront_product_tabs_2_section_title'),
-            'tabs' => $tabs,
+            'tabs' => $this->productTabEntries('storefront_product_tabs_2_section'),
         ];
     }
 

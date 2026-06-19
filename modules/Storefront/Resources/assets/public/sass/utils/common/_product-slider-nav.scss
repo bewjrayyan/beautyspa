@@ -10,6 +10,7 @@
         position: relative;
         display: inline-flex !important;
         align-items: center;
+        justify-content: center;
         flex-shrink: 0;
         width: auto;
         height: auto;
@@ -18,13 +19,18 @@
         right: auto;
         left: auto;
         bottom: auto;
-        font-size: 14px;
         padding: 4px 0;
+        border: none;
+        background: transparent;
+        font-size: 14px;
         color: var(--color-gray-dark);
         text-transform: uppercase;
         transition: var(--transition-150);
         visibility: visible !important;
         opacity: 1;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
 
         &::after {
             font-family: swiper-icons;
@@ -34,7 +40,7 @@
             transition: var(--transition-150);
         }
 
-        &:hover {
+        &:hover:not(:disabled) {
             color: var(--color-primary);
             font-weight: 500;
 
@@ -43,9 +49,10 @@
             }
         }
 
+        &:disabled,
         &.swiper-button-disabled {
             color: var(--color-gray-dark);
-            cursor: default;
+            cursor: not-allowed;
             opacity: 0.45;
             visibility: visible !important;
 
@@ -60,12 +67,40 @@
         }
     }
 
+    &__meta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 72px;
+        flex: 1 1 auto;
+    }
+
+    &__counter {
+        display: none;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        color: var(--color-gray-dark);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__icon {
+        display: none;
+    }
+
+    &__label--desktop {
+        display: inline;
+    }
+
     .swiper-button-prev::after {
         padding-left: 0;
         padding-right: 8px;
     }
 
-    .swiper-pagination {
+    .swiper-pagination,
+    &__dots {
         display: flex !important;
         align-items: center;
         justify-content: center;
@@ -135,73 +170,105 @@
 
 @media screen and (max-width: 991px) {
     .products-slider.swiper {
-        padding-bottom: 10px !important;
+        padding-bottom: 8px !important;
         margin-bottom: 0 !important;
     }
 
     .product-slider-controls {
+        position: relative;
+        z-index: 2;
         justify-content: space-between;
-        gap: 12px;
-        margin-top: 12px;
-        padding: 0 2px;
+        gap: 10px;
+        margin-top: 10px;
+        padding: 8px 10px;
+        border-radius: 14px;
+        background: var(--color-white);
+        border: 1px solid #ececf1;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+
+        &.is-loading {
+            opacity: 0.72;
+            pointer-events: none;
+        }
 
         &__btn {
-            display: inline-flex !important;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            width: auto !important;
-            height: auto !important;
-            min-width: 0;
+            flex: 0 0 44px;
+            width: 44px !important;
+            height: 44px !important;
+            min-width: 44px;
             min-height: 44px;
-            padding: 10px 16px;
-            border-radius: 12px;
-            background: var(--color-white);
+            padding: 0;
+            border-radius: 50%;
+            background: #f2f2f7;
             border: 1px solid #e5e5ea;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.03em;
+            box-shadow: none;
             color: var(--color-black);
-            text-transform: uppercase;
-            overflow: visible;
-            gap: 6px;
 
             &::after {
-                position: static;
-                flex-shrink: 0;
-                font-size: 12px;
-                line-height: 1;
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 padding: 0 !important;
                 margin: 0;
+                font-size: 14px;
+                line-height: 1;
                 -webkit-text-stroke: 0;
                 color: inherit;
             }
+
+            &:active:not(:disabled) {
+                background: #eaeaef;
+                transform: scale(0.96);
+            }
+
+            &:disabled,
+            &.swiper-button-disabled {
+                opacity: 0.35;
+                background: #f2f2f7;
+            }
         }
 
-        &__label {
-            flex-shrink: 0;
-            line-height: 1;
-            white-space: nowrap;
+        &__label--desktop {
+            display: none;
+        }
+
+        &__counter {
+            display: block;
+        }
+
+        &__meta {
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        &__dots {
+            max-width: 120px;
+            min-height: 8px;
+
+            .swiper-pagination-bullet {
+                height: 6px;
+                width: 6px;
+
+                &.swiper-pagination-bullet-active,
+                &.swiper-pagination-bullet-active-main {
+                    width: 18px;
+                    height: 6px;
+                }
+            }
         }
 
         .swiper-button-prev {
-            flex-direction: row-reverse;
+            order: 1;
         }
 
-        &__btn {
-            &:active:not(.swiper-button-disabled) {
-                background: #f2f2f7;
-            }
-
-            &.swiper-button-disabled {
-                opacity: 0.4;
-                background: #f2f2f7;
-            }
+        &__meta {
+            order: 2;
         }
 
-        .swiper-pagination {
-            display: none !important;
+        .swiper-button-next {
+            order: 3;
         }
     }
 
@@ -213,16 +280,20 @@
     }
 }
 
-@media screen and (max-width: 767px) {
+@media screen and (min-width: 992px) {
     .product-slider-controls {
-        margin-top: 10px;
+        &__counter {
+            display: none;
+        }
+
+        &__dots {
+            display: none !important;
+        }
     }
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (max-width: 767px) {
     .product-slider-controls {
-        .swiper-pagination {
-            display: none !important;
-        }
+        margin-top: 8px;
     }
 }

@@ -248,6 +248,44 @@ if (!function_exists('social_link_name')) {
     }
 }
 
+if (!function_exists('mobile_product_tab_label')) {
+    /**
+     * Short label for homepage product tabs on mobile (admin titles may be long).
+     */
+    function mobile_product_tab_label(?string $title): string
+    {
+        if (blank($title)) {
+            return '';
+        }
+
+        $slug = \Illuminate\Support\Str::slug($title, '_');
+        $translationKey = "storefront::storefront.mobile_tab_labels.{$slug}";
+        $translated = trans($translationKey);
+
+        if ($translated !== $translationKey) {
+            return $translated;
+        }
+
+        $patterns = [
+            '/^latest\b/iu' => 'storefront::storefront.mobile_tab_labels._latest',
+            '/^recently viewed\b/iu' => 'storefront::storefront.mobile_tab_labels._recent',
+            '/^popular\b/iu' => 'storefront::storefront.mobile_tab_labels._popular',
+            '/^new arrivals?\b/iu' => 'storefront::storefront.mobile_tab_labels._new',
+            '/^our\b/iu' => 'storefront::storefront.mobile_tab_labels._our',
+        ];
+
+        foreach ($patterns as $pattern => $key) {
+            if (preg_match($pattern, trim($title))) {
+                return trans($key);
+            }
+        }
+
+        $firstWord = strtok(trim($title), ' ');
+
+        return \Illuminate\Support\Str::limit($firstWord ?: $title, 10, '');
+    }
+}
+
 if (!function_exists('vite_build_asset')) {
     function vite_build_asset(string $source): ?string
     {

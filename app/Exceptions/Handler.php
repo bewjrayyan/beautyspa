@@ -55,7 +55,20 @@ class Handler extends ExceptionHandler
             return;
         }
 
+        if ($this->shouldSkipNoisyLocalReporting($e)) {
+            return;
+        }
+
         parent::report($e);
+    }
+
+    private function shouldSkipNoisyLocalReporting(Throwable $e): bool
+    {
+        if (! app()->environment('local')) {
+            return false;
+        }
+
+        return str_contains($e->getMessage(), 'Vite manifest not found');
     }
 
     private function shouldSkipReportingOnLocalStorageFailure(Throwable $e): bool

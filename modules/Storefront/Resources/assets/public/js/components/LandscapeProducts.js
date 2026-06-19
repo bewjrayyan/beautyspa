@@ -4,10 +4,18 @@ import {
     productSliderNavigation,
     resolveProductSliderControls,
 } from "../support/productSliderPagination";
+import { wrapProductSliderOptions } from "../support/productSliderControlActions";
+import { productSliderStateMixin } from "../support/productSliderStateMixin";
 import "../components/ProductCard";
 
 Alpine.data("LandscapeProducts", ({ url, watchState }) => ({
     products: [],
+    swiper: null,
+    loading: false,
+
+    ...productSliderStateMixin(function () {
+        return this.swiper;
+    }),
 
     init() {
         this.fetchProducts();
@@ -32,6 +40,8 @@ Alpine.data("LandscapeProducts", ({ url, watchState }) => ({
     },
 
     async fetchProducts() {
+        this.loading = true;
+
         try {
             const response = await axios.get(url);
 
@@ -66,23 +76,31 @@ Alpine.data("LandscapeProducts", ({ url, watchState }) => ({
                     },
                 };
 
-                const { paginationEl, prevEl, nextEl } =
-                    resolveProductSliderControls(swiperEl, this.$el);
-
-                if (options.navigation) {
-                    options.navigation.prevEl = prevEl;
-                    options.navigation.nextEl = nextEl;
-                }
+                const { paginationEl } = resolveProductSliderControls(
+                    swiperEl,
+                    this.$el
+                );
 
                 if (options.pagination && paginationEl) {
                     options.pagination.el = paginationEl;
                 }
 
-                new Swiper(swiperEl, options);
+                const self = this;
+
+                this.swiper = new Swiper(
+                    swiperEl,
+                    wrapProductSliderOptions(
+                        options,
+                        swiperEl,
+                        this.$el,
+                        (swiper) => self.updateSliderState(swiper)
+                    )
+                );
             });
         } catch (error) {
             notify(error.response.data.message);
         } finally {
+            this.loading = false;
             this.hideLandscapeProductsSkeleton();
         }
     },

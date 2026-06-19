@@ -8,6 +8,8 @@ import {
     productSliderNavigation,
     resolveProductSliderControls,
 } from "../../../support/productSliderPagination";
+import { wrapProductSliderOptions } from "../../../support/productSliderControlActions";
+import { productSliderStateMixin } from "../../../support/productSliderStateMixin";
 import "../../../components/ProductRating";
 import "../../../components/Pagination";
 import "../../../components/ProductCard";
@@ -45,6 +47,12 @@ Alpine.data(
             options: {},
         },
         errors: new Errors(),
+        relatedProductsSwiper: null,
+        loading: false,
+
+        ...productSliderStateMixin(function () {
+            return this.relatedProductsSwiper;
+        }),
 
         get productName() {
             return this.product.name;
@@ -1127,21 +1135,25 @@ Alpine.data(
                 },
             };
 
-            const { paginationEl, prevEl, nextEl } = resolveProductSliderControls(
+            const scopeEl = swiperEl.closest(".landscape-products-inner");
+            const { paginationEl } = resolveProductSliderControls(
                 swiperEl,
-                swiperEl.closest(".landscape-products-inner")
+                scopeEl
             );
-
-            if (options.navigation) {
-                options.navigation.prevEl = prevEl;
-                options.navigation.nextEl = nextEl;
-            }
 
             if (options.pagination && paginationEl) {
                 options.pagination.el = paginationEl;
             }
 
-            new Swiper(swiperEl, options);
+            this.relatedProductsSwiper = new Swiper(
+                swiperEl,
+                wrapProductSliderOptions(
+                    options,
+                    swiperEl,
+                    scopeEl,
+                    (swiper) => this.updateSliderState(swiper)
+                )
+            );
         },
     })
 );

@@ -1,13 +1,13 @@
 <section x-data="GoogleReviews" class="google-reviews-section">
     <div class="container">
         <div class="google-reviews-card">
-            <h3 class="google-reviews-heading">{{ $googleReviews['title'] }}</h3>
+            <div class="google-reviews-header">
+                <h3 class="google-reviews-heading">{{ $googleReviews['title'] }}</h3>
 
-            <div class="google-reviews-grid">
-                <div class="google-reviews-left">
-                    <div class="google-reviews-summary">
-                        <div class="google-reviews-score">{{ $googleReviews['ratingDisplay'] }}</div>
+                <div class="google-reviews-summary">
+                    <div class="google-reviews-score">{{ $googleReviews['ratingDisplay'] }}</div>
 
+                    <div class="google-reviews-summary-meta">
                         <div class="google-reviews-stars" aria-label="{{ $googleReviews['ratingDisplay'] }} out of 5">
                             @for ($i = 0; $i < $googleReviews['stars']['full']; $i++)
                                 <i class="las la-star is-filled"></i>
@@ -24,17 +24,22 @@
 
                         @if ($googleReviews['reviewCount'] > 0)
                             <p class="google-reviews-count">
-                                ({{ number_format($googleReviews['reviewCount']) }}
-                                {{ trans('storefront::google_reviews.reviews') }})
+                                {{ number_format($googleReviews['reviewCount']) }}
+                                {{ trans('storefront::google_reviews.reviews') }}
                             </p>
                         @endif
                     </div>
+                </div>
+            </div>
 
-                    @if (count($googleReviews['items']) > 0)
+            <div class="google-reviews-grid">
+                @if (count($googleReviews['items']) > 0)
+                    <div class="google-reviews-left">
                         <div class="google-reviews-carousel-wrap">
-                            <h4 class="google-reviews-subheading">
-                                {{ trans('storefront::google_reviews.most_liked_comments') }}
-                            </h4>
+                            @include('storefront::public.partials.google_reviews_subheading', [
+                                'full' => trans('storefront::google_reviews.most_liked_comments'),
+                                'short' => trans('storefront::google_reviews.most_liked_comments_short'),
+                            ])
 
                             <div class="google-reviews-carousel swiper" x-ref="reviewsSlider">
                                 <div class="swiper-wrapper">
@@ -72,7 +77,7 @@
                                                 @if ($review['likes'] > 0)
                                                     <div class="google-review-likes">
                                                         <i class="las la-thumbs-up"></i>
-                                                        <span>{{ number_format($review['likes']) }} {{ trans('storefront::google_reviews.liked') }}</span>
+                                                        <span>{{ number_format($review['likes']) }}</span>
                                                     </div>
                                                 @endif
                                             </article>
@@ -86,45 +91,48 @@
 
                             @include('storefront::public.partials.product_slider_controls')
                         </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
 
                 @if (count($googleReviews['metrics']) > 0)
                     <div class="google-reviews-right">
-                        <h4 class="google-reviews-subheading">
-                            {{ trans('storefront::google_reviews.element_of_evaluation') }}
-                        </h4>
+                        <div class="google-reviews-metrics-panel">
+                            @include('storefront::public.partials.google_reviews_subheading', [
+                                'full' => trans('storefront::google_reviews.element_of_evaluation'),
+                                'short' => trans('storefront::google_reviews.element_of_evaluation_short'),
+                            ])
 
-                        <ul class="google-reviews-metrics">
-                            @foreach ($googleReviews['metrics'] as $metric)
-                                @php
-                                    $percent = $metric['percent'];
-                                    $tone = match (true) {
-                                        $percent >= 80 => 'great',
-                                        $percent >= 60 => 'good',
-                                        $percent >= 40 => 'average',
-                                        $percent >= 20 => 'bad',
-                                        default => 'worst',
-                                    };
-                                @endphp
+                            <ul class="google-reviews-metrics">
+                                @foreach ($googleReviews['metrics'] as $metric)
+                                    @php
+                                        $percent = $metric['percent'];
+                                        $tone = match (true) {
+                                            $percent >= 80 => 'great',
+                                            $percent >= 60 => 'good',
+                                            $percent >= 40 => 'average',
+                                            $percent >= 20 => 'bad',
+                                            default => 'worst',
+                                        };
+                                    @endphp
 
-                                <li class="google-reviews-metric is-{{ $tone }}">
-                                    <div class="google-reviews-metric-top">
-                                        <span class="google-reviews-metric-percent">{{ $percent }}%</span>
+                                    <li class="google-reviews-metric is-{{ $tone }}">
+                                        <div class="google-reviews-metric-top">
+                                            <span class="google-reviews-metric-name">{{ $metric['label'] }}</span>
+                                            <span class="google-reviews-metric-percent">{{ $percent }}%</span>
+                                        </div>
+
+                                        <div class="google-reviews-metric-bar">
+                                            <span class="google-reviews-metric-fill" style="width: {{ $percent }}%"></span>
+                                        </div>
+
                                         <span class="google-reviews-metric-label">
                                             {{ trans('storefront::google_reviews.average') }}:
                                             {{ $metric['sentiment'] }}
                                         </span>
-                                    </div>
-
-                                    <div class="google-reviews-metric-bar">
-                                        <span class="google-reviews-metric-fill" style="width: {{ $percent }}%"></span>
-                                    </div>
-
-                                    <span class="google-reviews-metric-name">{{ $metric['label'] }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
                 @endif
             </div>

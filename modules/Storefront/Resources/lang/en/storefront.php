@@ -124,6 +124,19 @@ return [
         'vertical_products_2' => 'Vertical Products 2',
         'vertical_products_3' => 'Vertical Products 3',
     ],
+    'mobile_tab_labels' => [
+        'latest_treatments' => 'Latest',
+        'recently_viewed_treatment' => 'Recent',
+        'recently_viewed_products' => 'Recent',
+        'popular_treatments' => 'Popular',
+        'our_treatments' => 'Treatments',
+        'new_arrivals' => 'New',
+        '_latest' => 'Latest',
+        '_recent' => 'Recent',
+        '_popular' => 'Popular',
+        '_new' => 'New',
+        '_our' => 'All',
+    ],
     'tabs' => [
         'group' => [
             'general_settings' => 'General Settings',

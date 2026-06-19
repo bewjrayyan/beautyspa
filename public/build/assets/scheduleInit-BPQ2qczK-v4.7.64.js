@@ -1,1 +1,0 @@
-function i(e){typeof e=="function"&&requestAnimationFrame(()=>{requestAnimationFrame(e)})}function r(e,n=1500){if(typeof e=="function"){if(typeof window.requestIdleCallback=="function"){window.requestIdleCallback(()=>e(),{timeout:n});return}setTimeout(e,16)}}function u(e,n=0,t=1500){r(()=>{if(n>0){setTimeout(e,n);return}e()},t)}export{u as a,r as b,i as r};

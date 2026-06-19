@@ -1,10 +1,10 @@
 import Swiper from "swiper";
 import { Autoplay, Navigation, Pagination, Parallax } from "swiper/modules";
-import { runAfterPaint } from "../../../support/scheduleInit";
+import { runSwiperInit } from "../../../support/scheduleInit";
 
 Alpine.data("Hero", () => ({
     init() {
-        runAfterPaint(() => this.initHeroSlider());
+        runSwiperInit(() => this.initHeroSlider());
     },
 
     loadSlideBackground(slideEl) {

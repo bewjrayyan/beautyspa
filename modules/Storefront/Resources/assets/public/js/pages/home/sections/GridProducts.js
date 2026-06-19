@@ -1,7 +1,7 @@
 import { Grid, Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
 import { whenVisible } from "../../../support/whenVisible";
-import { productSliderNavigation } from "../../../support/productSliderPagination";
+import { productSliderNavigation, swiperDomObservers } from "../../../support/productSliderPagination";
 import "../../../components/ProductCard";
 
 Alpine.data("GridProducts", (tabs) => ({
@@ -12,7 +12,7 @@ Alpine.data("GridProducts", (tabs) => ({
     },
 
     url(tabIndex) {
-        return AestheticCart.url(`/storefront/product-grid/tabs/${tabIndex + 1}`);
+        return AestheticCart.url(`/storefront/product-grid/tabs/${this.tabSlot(tabIndex)}`);
     },
 
     selector() {
@@ -23,8 +23,9 @@ Alpine.data("GridProducts", (tabs) => ({
         return {
             modules: [Grid, Navigation, Pagination],
             slidesPerView: 2,
-            observer: true,
-            observeParents: true,
+            spaceBetween: 12,
+            watchOverflow: true,
+            ...swiperDomObservers(),
             grid: {
                 rows: 2,
             },

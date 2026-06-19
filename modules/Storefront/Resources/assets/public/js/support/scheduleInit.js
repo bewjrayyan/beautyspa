@@ -29,6 +29,15 @@ export function runWhenIdle(callback, timeout = 1500) {
 }
 
 /**
+ * Run Swiper/DOM-heavy init outside rAF handlers to avoid Chrome violations.
+ */
+export function runSwiperInit(callback) {
+    runWhenIdle(() => {
+        setTimeout(callback, 0);
+    });
+}
+
+/**
  * Defer work until idle, optionally with an extra delay to stagger requests.
  */
 export function runDeferred(callback, delay = 0, idleTimeout = 1500) {

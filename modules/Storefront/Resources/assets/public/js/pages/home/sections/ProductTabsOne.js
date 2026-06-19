@@ -1,7 +1,7 @@
 import { Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
 import { whenVisible } from "../../../support/whenVisible";
-import { productSliderNavigation } from "../../../support/productSliderPagination";
+import { productSliderNavigation, swiperDomObservers } from "../../../support/productSliderPagination";
 import "../../../components/ProductCard";
 
 Alpine.data("ProductTabsOne", (tabs) => ({
@@ -13,7 +13,7 @@ Alpine.data("ProductTabsOne", (tabs) => ({
 
     url(tabIndex) {
         return AestheticCart.url(
-            `/storefront/tab-products/sections/${1}/tabs/${tabIndex + 1}`
+            `/storefront/tab-products/sections/${1}/tabs/${this.tabSlot(tabIndex)}`
         );
     },
 
@@ -25,8 +25,9 @@ Alpine.data("ProductTabsOne", (tabs) => ({
         return {
             modules: [Navigation, Pagination],
             slidesPerView: 2,
-            observer: true,
-            observeParents: true,
+            spaceBetween: 12,
+            watchOverflow: true,
+            ...swiperDomObservers(),
             ...productSliderNavigation(swiperEl, this.$el),
             breakpoints: {
                 576: {

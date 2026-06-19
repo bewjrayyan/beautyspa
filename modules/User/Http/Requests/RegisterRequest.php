@@ -5,6 +5,7 @@ namespace Modules\User\Http\Requests;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 use Modules\Support\Rules\GoogleRecaptcha;
+use Modules\User\Support\PhoneNumber;
 
 class RegisterRequest extends Request
 {
@@ -15,6 +16,36 @@ class RegisterRequest extends Request
      */
     protected $availableAttributes = 'user::attributes.users';
 
+
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('phone')) {
+            return;
+        }
+
+        $phone = trim((string) $this->input('phone'));
+
+        if ($phone === '') {
+            return;
+        }
+
+        if (str_starts_with($phone, '+')) {
+            $this->merge(['phone' => PhoneNumber::toE164($phone)]);
+
+            return;
+        }
+
+        $digits = preg_replace('/\D+/', '', $phone);
+
+        // Malaysian mobile without leading 0 (e.g. 17-257 9723 from intl-tel-input display).
+        if (preg_match('/^1\d{8,9}$/', $digits)) {
+            $this->merge(['phone' => '+60' . $digits]);
+
+            return;
+        }
+
+        $this->merge(['phone' => PhoneNumber::toE164($phone)]);
+    }
 
     /**
      * Get the validation rules that apply to the request.

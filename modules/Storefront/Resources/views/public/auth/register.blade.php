@@ -120,7 +120,13 @@
     
                     @include('storefront::public.auth.partials.notification')
     
-                    <form class="auth-form-body" method="POST" action="{{ route('register.post') }}">
+                    <form
+                        class="auth-form-body"
+                        method="POST"
+                        action="{{ route('register.post') }}"
+                        x-data="{ formSubmitting: false }"
+                        @submit="formSubmitting = true"
+                    >
                         @csrf
                         @honeypot
 
@@ -243,9 +249,9 @@
                                     {{ trans('user::auth.phone') }} <span>*</span>
                                 </label>
     
-                                <div 
-                                    x-data
-                                    class="input-group" 
+                                <div
+                                    class="input-group"
+                                    x-init="$nextTick(() => window.bootModernPhoneInputs($el))"
                                 >
                                     @include('storefront::public.partials.phone_input', [
                                         'name' => 'phone',
@@ -268,14 +274,20 @@
                                         {{ trans('loyalty::checkout.referral_code_optional') }}
                                     </label>
 
-                                    <input
-                                        name="referral_code"
-                                        value="{{ old('referral_code', request('ref')) }}"
-                                        id="referral-code"
-                                        type="text"
-                                        class="form-control"
-                                        placeholder="{{ trans('loyalty::checkout.referral_code_optional') }}"
-                                    >
+                                    <div class="input-group">
+                                        <input
+                                            name="referral_code"
+                                            value="{{ old('referral_code', request('ref')) }}"
+                                            id="referral-code"
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="{{ trans('loyalty::checkout.referral_code_optional') }}"
+                                        >
+
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                            <path d="M10 6.66667V17.5M10 6.66667H6.66667C5.93029 6.66667 5.33333 6.06971 5.33333 5.33333C5.33333 4.59695 5.93029 4 6.66667 4C8.33333 4 10 6.66667 10 6.66667ZM10 6.66667H13.3333C14.0697 6.66667 14.6667 6.06971 14.6667 5.33333C14.6667 4.59695 14.0697 4 13.3333 4C11.6667 4 10 6.66667 10 6.66667ZM5.83333 10.8333H14.1667V16.6667C14.1667 17.1269 13.7936 17.5 13.3333 17.5H6.66667C6.20643 17.5 5.83333 17.1269 5.83333 16.6667V10.8333Z" stroke="#A0AEC0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
 
                                     {!! $errors->first('referral_code', '<span class="help-block text-red">:message</span>') !!}
                                 </div>
@@ -447,13 +459,11 @@
                             </div>
                         </div>
     
-                        <button 
+                        <button
                             type="submit"
-                            x-data="{ formSubmitting: false }"
-                            :class="formSubmitting ? 'btn-loading' : ''" 
+                            :class="formSubmitting ? 'btn-loading' : ''"
                             class="btn btn-primary"
                             :disabled="formSubmitting"
-                            @click="formSubmitting = true; $el.parentElement.submit()"
                         >
                             {{ trans('user::auth.create_account') }}
                         </button>

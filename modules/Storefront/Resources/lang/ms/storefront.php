@@ -128,6 +128,19 @@ return [
         'vertical_products_2' => 'Vertical Produk 2',
         'vertical_products_3' => 'Vertical Produk 3',
     ],
+    'mobile_tab_labels' => [
+        'latest_treatments' => 'Terbaru',
+        'recently_viewed_treatment' => 'Dilihat',
+        'recently_viewed_products' => 'Dilihat',
+        'popular_treatments' => 'Popular',
+        'our_treatments' => 'Rawatan',
+        'new_arrivals' => 'Baharu',
+        '_latest' => 'Terbaru',
+        '_recent' => 'Dilihat',
+        '_popular' => 'Popular',
+        '_new' => 'Baharu',
+        '_our' => 'Semua',
+    ],
     'tabs' => [
 
         'group' => [

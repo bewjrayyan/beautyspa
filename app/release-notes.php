@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.65' => [
+        'en' => [
+            'summary' => 'Fix homepage product tab sliders, mobile controls, register phone validation, and Google Reviews mobile layout.',
+            'changes' => [
+                'Fix Alpine errors and broken PREV/NEXT controls on homepage product tab sliders after tab switch.',
+                'Revamp mobile slider navigation with circular buttons, slide counter, and persistent Swiper instances.',
+                'Fix register form rejecting valid Malaysian phone numbers and add referral code field icon.',
+                'Redesign Google Reviews section for mobile with short tab labels and updated subheading layout.',
+                'Stop CacheHealth tagged-cache probe and local Vite manifest errors from spamming laravel.log.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki slider tab produk homepage, kawalan mobile, pengesahan telefon daftar, dan susun atur Google Reviews mobile.',
+            'changes' => [
+                'Baiki ralat Alpine dan kawalan PREV/NEXT slider tab produk homepage selepas tukar tab.',
+                'Kemas kini navigasi slider mobile dengan butang bulat, penunjuk slaid, dan instance Swiper kekal.',
+                'Baiki borang daftar menolak nombor telefon Malaysia sah dan tambah ikon medan kod rujukan.',
+                'Reka semula bahagian Google Reviews untuk mobile dengan label tab pendek dan susun atur subheading baharu.',
+                'Hentikan ujian cache bertag CacheHealth dan ralat manifest Vite tempatan daripada membanjiri laravel.log.',
+            ],
+        ],
+    ],
     '4.7.64' => [
         'en' => [
             'summary' => 'Fix homepage product tab badges clipped on mobile.',

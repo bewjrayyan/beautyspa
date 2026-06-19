@@ -1,4 +1,4 @@
-<section x-data="GridProducts({{ $gridProducts }})" class="grid-products-wrap">
+<section x-data="GridProducts({{ $gridProducts->toJson() }})" class="grid-products-wrap">
     <div class="container">
         <div class="grid-products-wrap-inner">
             <div class="tab-products-header">
@@ -8,8 +8,9 @@
                             class="tab-item"
                             :class="classes({{ $key }})"
                             @click="changeTab({{ $key }})"
+                            title="{{ $tab['title'] }}"
                         >
-                            {{ $tab }}
+                            @include('storefront::public.partials.product_tab_label', ['label' => $tab['title']])
                         </li>
                     @endforeach
                 </ul>
@@ -28,7 +29,7 @@
 
                         <template
                             x-for="product in products"
-                            :key="product.id"
+                            :key="`${activeTab}-${product.id}`"
                         >
                             <div class="swiper-slide">
                                 <div class="grid-products-item"> 

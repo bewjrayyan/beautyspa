@@ -48,7 +48,10 @@
                         </div>
                     @endforeach
 
-                    <template x-for="product in products" :key="product.id">
+                    <template
+                        x-for="product in products"
+                        :key="`${activeTab}-${product.id}`"
+                    >
                         <div class="swiper-slide">
                             @include('storefront::public.partials.product_card')
                         </div>

@@ -375,20 +375,24 @@ $home-app-section-gap: 12px;
                 display: flex;
                 flex-wrap: nowrap;
                 gap: 8px;
-                width: max-content;
+                width: 100%;
+                max-width: 100%;
                 min-width: 0;
                 padding: 0;
                 margin: 0;
                 border-bottom: none !important;
                 text-align: left;
+                justify-content: flex-start;
+                box-sizing: border-box;
 
                 .tab-item {
                     flex: 0 0 auto;
                     display: inline-flex;
                     align-items: center;
+                    justify-content: center;
                     margin-right: 0;
-                    padding: 8px 14px;
-                    font-size: 13px;
+                    padding: 8px 12px;
+                    font-size: 12px;
                     font-weight: 600;
                     line-height: 1.3;
                     border-radius: 999px;
@@ -397,6 +401,15 @@ $home-app-section-gap: 12px;
                     white-space: nowrap;
                     color: var(--color-gray-dark);
                     position: relative;
+                    max-width: none;
+
+                    .tab-item-label--mobile {
+                        display: inline;
+                    }
+
+                    .tab-item-label--desktop {
+                        display: none;
+                    }
 
                     &::before,
                     &::after {
@@ -411,6 +424,11 @@ $home-app-section-gap: 12px;
                     }
                 }
             }
+        }
+
+        .grid-products-wrap-inner {
+            margin: 0 !important;
+            overflow: visible;
         }
 
         .landscape-left-tab-products-inner,
@@ -519,30 +537,49 @@ $home-app-section-gap: 12px;
                 padding: 16px;
             }
 
-            .google-reviews-heading {
-                font-size: 17px;
-                font-weight: 700;
+            .google-reviews-header {
                 margin-bottom: 14px;
             }
 
+            .google-reviews-heading {
+                font-size: 17px;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+
             .google-reviews-summary {
-                margin-bottom: 16px;
+                margin-bottom: 0;
                 padding: 12px;
                 border-radius: 12px;
                 background: $home-app-bg;
             }
 
+            .google-reviews-left {
+                min-width: 0;
+            }
+
             .google-reviews-carousel-wrap {
-                overflow: hidden;
+                overflow: visible;
+                margin-bottom: 14px;
+
+                .google-reviews-carousel {
+                    overflow: visible;
+                }
 
                 .product-slider-controls {
-                    padding-top: 6px;
+                    padding-top: 4px;
                 }
             }
 
-            .google-reviews-right {
-                padding-top: 4px;
+            .google-reviews-metrics-panel {
+                padding-top: 14px;
+                margin-top: 0;
                 border-top: 1px solid #f0f0f5;
+            }
+
+            .google-reviews-right {
+                padding-top: 0;
+                border-top: none;
             }
         }
 
@@ -563,7 +600,7 @@ $home-app-section-gap: 12px;
 
         .tab-content .swiper {
             padding-top: 8px;
-            padding-bottom: 36px;
+            padding-bottom: 8px;
             margin-bottom: 0;
             overflow: hidden;
         }
