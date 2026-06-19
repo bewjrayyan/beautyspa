@@ -1,6 +1,7 @@
 import Swiper from "swiper";
 import { Navigation } from "swiper/modules";
 import { whenVisible } from "../../../support/whenVisible";
+import { runWhenIdle } from "../../../support/scheduleInit";
 import "./flash-sale/FlashSaleProductCard";
 import "./flash-sale/VerticalProducts";
 
@@ -27,7 +28,9 @@ Alpine.data("FlashSale", () => ({
         this.products = response.data;
 
         this.$nextTick(() => {
-            new Swiper(".daily-deals", this.swiperOptions());
+            runWhenIdle(() => {
+                new Swiper(".daily-deals", this.swiperOptions());
+            });
         });
     },
 

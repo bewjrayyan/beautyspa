@@ -1,3 +1,5 @@
+import { runWhenIdle, runAfterPaint } from "../support/scheduleInit";
+
 Alpine.store("cart", {
     cart: {
         items: {},
@@ -79,7 +81,7 @@ Alpine.store("cart", {
     },
 
     init() {
-        this.fetchingCart();
+        runWhenIdle(() => this.fetchingCart());
     },
 
     async fetchingCart() {
@@ -88,7 +90,9 @@ Alpine.store("cart", {
 
             const { data } = await axios.get(AestheticCart.url("/cart/get"));
 
-            this.cart = this.normalizeCart(data);
+            runAfterPaint(() => {
+                this.cart = this.normalizeCart(data);
+            });
         } catch (error) {
             // Handle error
         } finally {

@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.63' => [
+        'en' => [
+            'summary' => 'Homepage load performance and mobile search bar visibility fix.',
+            'changes' => [
+                'Defer cart, compare, and wishlist API calls until the browser is idle to reduce main-thread load on page open.',
+                'Lazy-init below-fold Swiper carousels and paint search suggestion updates after the first frame.',
+                'Fix mobile search bar clipped off-screen by overriding desktop translateY(-50%) on the active search form.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Prestasi muat laman utama dan baiki bar carian mobile yang tidak kelihatan.',
+            'changes' => [
+                'Tunda panggilan API cart, compare, dan wishlist sehingga browser idle untuk kurangkan beban thread utama semasa buka halaman.',
+                'Init carousel Swiper bawah fold secara lazy dan kemas kini cadangan carian selepas frame pertama.',
+                'Baiki bar carian mobile terpotong di luar skrin dengan override translateY(-50%) desktop pada borang carian aktif.',
+            ],
+        ],
+    ],
     '4.7.62' => [
         'en' => [
             'summary' => 'Mobile cookie bar, Google Reviews app layout, and full-screen search overlay.',

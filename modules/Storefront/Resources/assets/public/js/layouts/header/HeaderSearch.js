@@ -1,4 +1,5 @@
 import { throttle } from "lodash";
+import { runAfterPaint } from "../../support/scheduleInit";
 
 Alpine.data(
     "HeaderSearch",
@@ -77,19 +78,26 @@ Alpine.data(
                 }, 1000)
             );
 
-        this.$watch("showMiniSearch", (newValue) => {
-            document.body.classList.toggle("mobile-search-open", newValue);
+            this.$watch("showMiniSearch", (newValue) => {
+                document.body.classList.toggle("mobile-search-open", newValue);
 
-            if (newValue) {
-                this.$refs.miniSearchInput.focus();
+                if (newValue) {
+                    this.$refs.miniSearchInput.focus();
 
-                return;
+                    if (this.form.query) {
+                        this.showSuggestions = true;
+                        this.fetchSuggestions();
+                    }
+
+                    return;
+                }
+
+                this.hideSuggestions();
+            });
+
+            if (this.form.query) {
+                runAfterPaint(() => this.fetchSuggestions());
             }
-
-            this.hideSuggestions();
-        });
-
-            this.fetchSuggestions();
         },
 
         hideSkeleton() {
@@ -118,12 +126,14 @@ Alpine.data(
                 params: this.form,
             });
 
-            this.clearActiveSuggestion();
-            this.resetSuggestionScrollBar();
+            runAfterPaint(() => {
+                this.clearActiveSuggestion();
+                this.resetSuggestionScrollBar();
 
-            this.suggestions.categories = data.categories;
-            this.suggestions.products = data.products;
-            this.suggestions.remaining = data.remaining;
+                this.suggestions.categories = data.categories;
+                this.suggestions.products = data.products;
+                this.suggestions.remaining = data.remaining;
+            });
         },
 
         search() {
@@ -154,6 +164,10 @@ Alpine.data(
 
         showExistingSuggestions() {
             this.showSuggestions = true;
+
+            if (this.form.query && !this.hasAnySuggestion) {
+                this.fetchSuggestions();
+            }
         },
 
         clearSuggestions() {

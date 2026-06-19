@@ -1,4 +1,5 @@
 import "./header/HeaderSearch";
+import { runAfterPaint } from "../support/scheduleInit";
 
 Alpine.data("Header", () => ({
     stickyHeader: false,
@@ -13,8 +14,10 @@ Alpine.data("Header", () => ({
     },
 
     init() {
-        this.toggleStickyHeader({ delay: 600 });
-        this.addEventListeners();
+        runAfterPaint(() => {
+            this.toggleStickyHeader({ delay: 600 });
+            this.addEventListeners();
+        });
     },
 
     toggleStickyHeader({ delay }) {

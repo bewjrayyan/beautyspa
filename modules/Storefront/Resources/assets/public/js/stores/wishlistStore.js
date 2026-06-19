@@ -1,3 +1,5 @@
+import { runDeferred, runAfterPaint } from "../support/scheduleInit";
+
 Alpine.store("wishlist", {
     wishlist: [],
     fetching: true,
@@ -7,7 +9,7 @@ Alpine.store("wishlist", {
     },
 
     init() {
-        this.fetchWishlist();
+        runDeferred(() => this.fetchWishlist(), 800);
     },
 
     async fetchWishlist() {
@@ -19,7 +21,9 @@ Alpine.store("wishlist", {
                     "/account/wishlist/products/list"
                 );
 
-                this.wishlist = data;
+                runAfterPaint(() => {
+                    this.wishlist = data;
+                });
             } catch (error) {
                 // Handle error
             } finally {

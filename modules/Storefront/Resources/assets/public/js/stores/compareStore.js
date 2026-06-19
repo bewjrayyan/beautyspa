@@ -1,3 +1,5 @@
+import { runDeferred, runAfterPaint } from "../support/scheduleInit";
+
 Alpine.store("compare", {
     compareList: [],
     products: {},
@@ -16,7 +18,7 @@ Alpine.store("compare", {
     },
 
     init() {
-        this.fetchCompareList();
+        runDeferred(() => this.fetchCompareList(), 400);
     },
 
     async fetchCompareProducts() {
@@ -33,7 +35,9 @@ Alpine.store("compare", {
 
             const { data } = await axios.get("/compare/list");
 
-            this.compareList = data;
+            runAfterPaint(() => {
+                this.compareList = data;
+            });
         } catch (error) {
             // Handle error
         } finally {

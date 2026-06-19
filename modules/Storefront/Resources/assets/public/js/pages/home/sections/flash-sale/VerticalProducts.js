@@ -2,6 +2,7 @@ import Swiper from "swiper";
 import { Navigation } from "swiper/modules";
 import { chunk } from "lodash";
 import { whenVisible } from "../../../../support/whenVisible";
+import { runWhenIdle } from "../../../../support/scheduleInit";
 import "../../../../components/ProductCard";
 
 Alpine.data("VerticalProducts", (columnNumber) => ({
@@ -29,9 +30,11 @@ Alpine.data("VerticalProducts", (columnNumber) => ({
 
         this.products = response.data;
 
-        setTimeout(() => {
-            new Swiper(this.$refs.verticalProducts, this.swiperOptions());
-        }, 0);
+        this.$nextTick(() => {
+            runWhenIdle(() => {
+                new Swiper(this.$refs.verticalProducts, this.swiperOptions());
+            });
+        });
     },
 
     swiperOptions() {

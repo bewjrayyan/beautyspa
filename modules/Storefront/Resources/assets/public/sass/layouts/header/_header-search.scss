@@ -294,6 +294,8 @@
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
+            transform: none;
+            top: 0;
         }
 
         > form {

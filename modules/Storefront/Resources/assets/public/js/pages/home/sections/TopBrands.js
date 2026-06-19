@@ -1,9 +1,13 @@
 import Swiper from "swiper";
 import { Navigation, Autoplay } from "swiper/modules";
+import { whenVisible } from "../../../support/whenVisible";
+import { runWhenIdle } from "../../../support/scheduleInit";
 
 Alpine.data("TopBrands", () => ({
     init() {
-        this.initTopBrandsSlider();
+        whenVisible(this.$el, () => {
+            runWhenIdle(() => this.initTopBrandsSlider());
+        });
     },
 
     initTopBrandsSlider() {

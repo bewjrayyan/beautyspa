@@ -3,6 +3,7 @@ import {
     resolveProductSliderControls,
     resetProductSliderControls,
 } from "../support/productSliderPagination";
+import { runWhenIdle } from "../support/scheduleInit";
 
 export default function (tabs) {
     return {
@@ -89,16 +90,21 @@ export default function (tabs) {
                 this.hideSkeletons();
 
                 await this.$nextTick();
-                await this.$nextTick();
 
                 if (this.products.length === 0 || !swiperEl) {
                     return;
                 }
 
-                const options = this.swiperOptions(swiperEl);
-                this.bindProductSliderModules(swiperEl, options);
+                runWhenIdle(() => {
+                    if (this.products.length === 0 || !swiperEl) {
+                        return;
+                    }
 
-                this.swiper = new Swiper(swiperEl, options);
+                    const options = this.swiperOptions(swiperEl);
+                    this.bindProductSliderModules(swiperEl, options);
+
+                    this.swiper = new Swiper(swiperEl, options);
+                });
             } catch (error) {
                 // handle error
             } finally {
