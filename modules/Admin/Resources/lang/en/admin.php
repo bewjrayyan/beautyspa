@@ -13,6 +13,7 @@ return [
         'save_and_exit' => 'Save & Exit',
         'delete' => 'Delete',
         'cancel' => 'Cancel',
+        'close' => 'Close',
         'media_gallery' => 'Media gallery',
         'replace_image' => 'Replace from gallery',
     ],

@@ -15,6 +15,7 @@ return [
         'save_and_exit' => 'Simpan & Keluar',
         'delete' => 'Padam',
         'cancel' => 'Batal',
+        'close' => 'Tutup',
         'media_gallery' => 'Galeri media',
         'replace_image' => 'Ganti dari galeri',
     ],
