@@ -1,1 +1,0 @@
-import{d as o}from"./vue-toast-notification-LZdOYU4C-v4.7.67.js";function r(e,t={}){o.useToast().open({message:e,type:t.type||"default",duration:5e3,dismissible:!0,position:"top-right",pauseOnHover:!0,...t})}export{r as t};

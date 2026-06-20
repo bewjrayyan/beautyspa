@@ -26,6 +26,9 @@
     <meta property="og:image" content="{{ $image }}">
     <meta property="og:image:secure_url" content="{{ $image }}">
     <meta property="og:image:alt" content="{{ $openGraph->imageAlt }}">
+    @if ($imageMime = $openGraph->imageMimeType())
+        <meta property="og:image:type" content="{{ $imageMime }}">
+    @endif
 @endif
 
 @if ($openGraph->type === 'product' && $openGraph->priceAmount && $openGraph->priceCurrency)

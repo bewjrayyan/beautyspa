@@ -67,7 +67,7 @@ return [
         'product_social_share' => 'Halaman Produk — Kongsi Sosial',
         'enable_product_share_whatsapp' => 'Papar butang kongsi WhatsApp pada halaman produk',
         'product_share_whatsapp_message_placeholder' => "Pilihan. Lalai:\n{product_name}\n\n{product_description}\n\n{product_url}\n\nPlaceholder: {product_name}, {product_url}, {product_description}, {product_id}, {product_slug}",
-        'product_share_whatsapp_og_help' => 'Pratonton pautan WhatsApp menggunakan tag Open Graph halaman produk (tajuk, penerangan, imej). Tetapkan meta SEO dan imej produk di admin; URL variant (?variant=) memaparkan imej rawatan dipilih apabila dikongsi.',
+        'product_share_whatsapp_og_help' => 'Pratonton pautan WhatsApp memerlukan URL produk dalam mesej (sertakan {product_url} dalam templat, atau kosongkan templat untuk guna lalai). Pratonton guna tag Open Graph halaman ini (tajuk, penerangan, imej). Pastikan produk ada imej dan meta SEO; URL variant (?variant=) guna imej rawatan dipilih.',
         'enable_features_section' => 'Enable features section',
         'enable_slider_side_banners' => 'Papar side banners next to home slider (uncheck for full-width slider)',
         'enable_most_searched_keywords' => 'Enable most searched keywords',

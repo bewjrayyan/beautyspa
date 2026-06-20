@@ -9,6 +9,7 @@ use Modules\Meta\Support\OpenGraph;
 use Modules\Storefront\Banner;
 use Modules\Storefront\Feature;
 use Illuminate\Support\Collection;
+use Modules\Media\Entities\File;
 use Modules\Product\Entities\Product;
 use Spatie\SchemaOrg\ItemAvailability;
 
@@ -59,6 +60,16 @@ class ProductShowPageComposer
 
     private function resolveProductOgImage(Product $product, $variant): ?string
     {
+        $ogImageId = $product->meta?->translate(locale(), false)?->og_image_id;
+
+        if ($ogImageId) {
+            $ogImage = File::find($ogImageId)?->path;
+
+            if ($ogImage) {
+                return $ogImage;
+            }
+        }
+
         if ($variant) {
             $variantImage = $variant->media->first()?->path
                 ?? ($variant->base_image->id ? $variant->base_image->path : null);

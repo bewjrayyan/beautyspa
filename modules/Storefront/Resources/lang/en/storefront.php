@@ -65,7 +65,7 @@ return [
         'product_social_share' => 'Product Page — Social Share',
         'enable_product_share_whatsapp' => 'Show WhatsApp share button on product page',
         'product_share_whatsapp_message_placeholder' => "Optional. Default:\n{product_name}\n\n{product_description}\n\n{product_url}\n\nPlaceholders: {product_name}, {product_url}, {product_description}, {product_id}, {product_slug}",
-        'product_share_whatsapp_og_help' => 'WhatsApp link previews use this product page Open Graph tags (title, description, image). Set SEO meta and product image in admin; variant URLs (?variant=) include the selected treatment image when shared.',
+        'product_share_whatsapp_og_help' => 'WhatsApp link previews need the product URL in the message (include {product_url} in your template, or leave the template empty to use the default). Previews use this page Open Graph tags (title, description, image). Use a product image and SEO meta; shared variant URLs (?variant=) use the selected treatment image.',
         'enable_features_section' => 'Enable features section',
         'enable_slider_side_banners' => 'Show side banners next to home slider (uncheck for full-width slider)',
         'enable_most_searched_keywords' => 'Enable most searched keywords',

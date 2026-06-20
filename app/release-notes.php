@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.70' => [
+        'en' => [
+            'summary' => 'Fix WhatsApp product share link previews missing OG image when custom message omits the product URL.',
+            'changes' => [
+                'Always append the product URL to WhatsApp share text when a custom template does not include {product_url}.',
+                'Improve product Open Graph: optional SEO og image, HTTPS image URLs, and og:image:type for crawlers.',
+                'Clarify admin help text for WhatsApp share templates and OG preview requirements (EN/MS).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki pratonton kongsi WhatsApp produk tanpa imej OG apabila mesej custom tiada URL produk.',
+            'changes' => [
+                'Sentiasa tambah URL produk pada teks kongsi WhatsApp jika templat custom tiada {product_url}.',
+                'Baiki Open Graph produk: imej SEO og pilihan, URL imej HTTPS, dan og:image:type untuk crawler.',
+                'Jelaskan bantuan admin untuk templat kongsi WhatsApp dan keperluan pratonton OG (EN/MS).',
+            ],
+        ],
+    ],
     '4.7.69' => [
         'en' => [
             'summary' => 'Production cache resilience when Redis is down and cleaner admin alert dismiss accessibility.',

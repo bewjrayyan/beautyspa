@@ -93,24 +93,42 @@ Alpine.data(
                     ""
             ).trim();
 
+            let message;
+
             if (template) {
-                return template
+                message = template
                     .replace(/\{product_name\}/g, productName)
                     .replace(/\{product_url\}/g, productUrl)
                     .replace(/\{product_description\}/g, description)
                     .replace(/\{product_id\}/g, String(this.product.id))
                     .replace(/\{product_slug\}/g, this.product.slug);
+            } else {
+                const parts = [productName];
+
+                if (description) {
+                    parts.push(description.substring(0, 200));
+                }
+
+                parts.push(productUrl);
+
+                message = parts.join("\n\n");
             }
 
-            const parts = [productName];
+            return this.ensureWhatsAppShareUrl(message, productUrl);
+        },
 
-            if (description) {
-                parts.push(description.substring(0, 200));
+        ensureWhatsAppShareUrl(message, productUrl) {
+            const trimmed = (message || "").trim();
+
+            if (!trimmed) {
+                return productUrl;
             }
 
-            parts.push(productUrl);
+            if (!trimmed.includes(productUrl)) {
+                return `${trimmed}\n\n${productUrl}`;
+            }
 
-            return parts.join("\n\n");
+            return trimmed;
         },
 
         stripHtml(html) {

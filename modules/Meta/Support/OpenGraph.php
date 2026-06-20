@@ -76,10 +76,38 @@ class OpenGraph
         }
 
         if (Str::startsWith($url, ['http://', 'https://'])) {
-            return $url;
+            return self::preferHttps($url);
         }
 
-        return url($url);
+        return self::preferHttps(url($url));
+    }
+
+
+    public static function preferHttps(string $url): string
+    {
+        if (Str::startsWith($url, 'http://') && (request()->secure() || Str::startsWith((string) config('app.url'), 'https://'))) {
+            return 'https://'.Str::after($url, 'http://');
+        }
+
+        return $url;
+    }
+
+
+    public function imageMimeType(): ?string
+    {
+        if (! $this->image) {
+            return null;
+        }
+
+        $path = parse_url($this->image, PHP_URL_PATH) ?: $this->image;
+
+        return match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            default => null,
+        };
     }
 
 
