@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.66' => [
+        'en' => [
+            'summary' => 'Speed up registration and storefront pages with query cache, deferred post-register jobs, and production .env template.',
+            'changes' => [
+                'Defer welcome WhatsApp, wallet, and referral work until after the HTTP response so register saves to DB in ~200ms.',
+                'Fix sync queue blocking registration for ~30s on OneSender welcome WhatsApp API calls.',
+                'Cache homepage featured categories, blog posts, and product listing price range; memoize mega menu per request.',
+                'Add guest homepage full-page HTML cache (RESPONSE_CACHE_HOME_ENABLED) and production .env.production.example.',
+                'Block real OneSender sends on APP_ENV=local unless ONESENDER_ALLOW_IN_LOCAL=true; fix XAMPP tagged cache writes.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Percepatkan pendaftaran dan halaman storefront dengan cache query, job selepas daftar, dan template .env production.',
+            'changes' => [
+                'Tangguh WhatsApp alu-aluan, wallet, dan rujukan sehingga selepas response HTTP supaya daftar simpan DB ~200ms.',
+                'Baiki sync queue yang block pendaftaran ~30s semasa panggilan API WhatsApp alu-aluan OneSender.',
+                'Cache kategori pilihan, blog homepage, dan julat harga senarai produk; memo menu mega setiap request.',
+                'Tambah cache HTML homepage tetamu (RESPONSE_CACHE_HOME_ENABLED) dan .env.production.example.',
+                'Sekat hantar OneSender sebenar pada APP_ENV=local melainkan ONESENDER_ALLOW_IN_LOCAL=true; baiki cache bertag XAMPP.',
+            ],
+        ],
+    ],
     '4.7.65' => [
         'en' => [
             'summary' => 'Fix homepage product tab sliders, mobile controls, register phone validation, and Google Reviews mobile layout.',

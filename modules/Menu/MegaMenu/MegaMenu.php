@@ -10,6 +10,9 @@ class MegaMenu
 {
     private $menuId;
 
+    /** @var \Illuminate\Support\Collection|null */
+    private $resolvedMenus;
+
 
     public function __construct($menuId)
     {
@@ -19,13 +22,17 @@ class MegaMenu
 
     public function menus()
     {
+        if ($this->resolvedMenus !== null) {
+            return $this->resolvedMenus;
+        }
+
         try {
-            return Cache::tags(['mega_menu', 'menu_items', 'pages', 'categories'])
+            return $this->resolvedMenus = Cache::tags(['mega_menu', 'menu_items', 'pages', 'categories'])
                 ->rememberForever(md5("mega_menu.{$this->menuId}:" . locale()), function () {
                     return $this->mapMenus();
                 });
         } catch (Throwable) {
-            return $this->mapMenus();
+            return $this->resolvedMenus = $this->mapMenus();
         }
     }
 

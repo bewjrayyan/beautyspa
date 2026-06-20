@@ -127,6 +127,22 @@
 
     @chmod($cachePoolDir, 0777);
 
+    $poolItems = @scandir($cachePoolDir);
+
+    if ($poolItems !== false) {
+        foreach ($poolItems as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $poolFile = $cachePoolDir . '/' . $item;
+
+            if (is_file($poolFile)) {
+                @chmod($poolFile, 0666);
+            }
+        }
+    }
+
     $resolveDir(
         $storage . '/framework/sessions',
         $tmp . '/fleetcart-sessions',

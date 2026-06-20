@@ -25,7 +25,7 @@ class CacheHealth
             Cache::tags('_aestheticcart_probe')->put('_tag_probe', 1, 10);
             Cache::tags('_aestheticcart_probe')->forget('_tag_probe');
         } catch (\Throwable) {
-            // Tagged filesystem cache may be unsupported or have stale tag indexes.
+            config(['app.cache' => false]);
         }
     }
 }

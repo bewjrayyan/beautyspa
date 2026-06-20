@@ -14,7 +14,7 @@ class ProcessReferralOnCustomerRegistered
     {
         $this->referrals->processRegistration(
             $event->user,
-            request('referral_code')
+            $event->referralCode ?? request('referral_code')
         );
     }
 }

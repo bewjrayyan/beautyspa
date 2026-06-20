@@ -24,7 +24,7 @@ class SendWelcomeEmail
             }
 
             Mail::to($event->user->email)
-                ->send(new Welcome($event->user->first_name));
+                ->queue(new Welcome($event->user->first_name));
         } catch (Swift_TransportException $e) {
             //
         }

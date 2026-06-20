@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Modules\Setting\Support\SettingValues;
+use Modules\Core\Support\WritableStorageBootstrap;
 use Modules\User\Entities\OneSenderMessageLog;
 use Modules\User\Entities\OneSenderOutboundMessage;
 use Modules\User\Support\PhoneNumber;
@@ -29,6 +30,19 @@ class OneSenderWhatsAppService
         return static::isEnabled()
             && filled(SettingValues::get('onesender_api_url'))
             && filled(SettingValues::get('onesender_api_key'));
+    }
+
+
+    public static function allowsRealOutbound(): bool
+    {
+        if (! WritableStorageBootstrap::isLocalEnvironment()) {
+            return true;
+        }
+
+        return filter_var(
+            config('setting.whatsapp_notifications.onesender_allow_in_local', false),
+            FILTER_VALIDATE_BOOLEAN
+        );
     }
 
 
@@ -298,6 +312,19 @@ class OneSenderWhatsAppService
     ): bool {
         $logger = app(OneSenderMessageLogger::class);
         $context = $this->resolveContext($context);
+
+        if (! static::allowsRealOutbound()) {
+            $logger->recordSkipped(
+                $recipient,
+                $recipientType,
+                $messageType,
+                $fingerprint,
+                OneSenderMessageLog::STATUS_SKIPPED_DISABLED,
+                array_merge($context, ['skip_reason' => 'local_dev_blocked'])
+            );
+
+            return false;
+        }
 
         if (! static::isConfigured()) {
             $logger->recordSkipped(

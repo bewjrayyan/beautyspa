@@ -16,6 +16,7 @@ Panduan ringkas untuk mempercepat storefront dan mengurangkan beban database.
 | WebP + responsive widths | Upload media → WebP + variant 480w/960w (`ImageOptimizationService`) |
 | Product `srcset` | `File::srcset` + product cards Alpine |
 | CMS page HTML cache | `CacheStaticResponse` middleware (opt-in `RESPONSE_CACHE_ENABLED`) |
+| Homepage HTML cache | `RESPONSE_CACHE_HOME_ENABLED` (guest home route, same middleware) |
 | `CACHE_DRIVER` | `CoreServiceProvider` menghormati Redis/file dari `.env` |
 | Queue tables | Migration `jobs` / `failed_jobs` untuk `QUEUE_DRIVER=database` |
 | Homepage composer | Query slider/features/banners hanya bila section aktif |

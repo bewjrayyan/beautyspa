@@ -19,6 +19,8 @@ return [
     'onesender_dedupe_minutes' => (int) env('ONESENDER_DEDUPE_MINUTES', 1440),
     'onesender_outbound_queue_enabled' => filter_var(env('ONESENDER_OUTBOUND_QUEUE_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
     'onesender_outbound_delay_seconds' => (int) env('ONESENDER_OUTBOUND_DELAY_SECONDS', 30),
+    // Block real WhatsApp sends on APP_ENV=local unless explicitly enabled (prevents dev/tinker accidents).
+    'onesender_allow_in_local' => filter_var(env('ONESENDER_ALLOW_IN_LOCAL', false), FILTER_VALIDATE_BOOLEAN),
     'whatsapp_group_staff_name' => env('WHATSAPP_GROUP_STAFF_NAME', 'TEAM'),
     'whatsapp_order_tracking_url' => env(
         'WHATSAPP_ORDER_TRACKING_URL',

@@ -20,14 +20,24 @@ class CacheStaticResponse
             return $next($request);
         }
 
+        if ($request->routeIs('home') && config('performance.response_cache.home_enabled', false)) {
+            return $this->respondFromCache($request, $next, 'home:' . locale());
+        }
+
         $slug = $request->route('slug');
 
         if (! is_string($slug) || ! $this->isCacheableSlug($slug)) {
             return $next($request);
         }
 
+        return $this->respondFromCache($request, $next, 'page:' . locale() . ':' . $slug);
+    }
+
+
+    private function respondFromCache(Request $request, Closure $next, string $cacheSuffix): Response
+    {
         $version = (int) Cache::get('page_response_version', 1);
-        $cacheKey = 'page_response:' . $version . ':' . locale() . ':' . $slug;
+        $cacheKey = 'page_response:' . $version . ':' . $cacheSuffix;
 
         $cached = Cache::get($cacheKey);
 
@@ -52,6 +62,7 @@ class CacheStaticResponse
         return $response;
     }
 
+
     private function isCacheableSlug(string $slug): bool
     {
         $always = config('performance.response_cache.slugs', [
@@ -69,6 +80,7 @@ class CacheStaticResponse
             ->where('is_active', true)
             ->exists();
     }
+
 
     private function shouldStore(Response $response): bool
     {

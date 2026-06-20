@@ -69,7 +69,7 @@ class ProductShowPageComposer
             ->description($product->short_description)
             ->offers($this->offersSchema($product));
 
-        if ($product->reviews()->count() > 0) {
+        if ($this->reviewCount($product) > 0) {
             $schema->aggregateRating($this->aggregateRatingSchema($product));
         }
 
@@ -86,8 +86,28 @@ class ProductShowPageComposer
     private function aggregateRatingSchema(Product $product)
     {
         return Schema::aggregateRating()
-            ->ratingValue($product->reviews()->avg('rating'))
-            ->ratingCount($product->reviews()->count());
+            ->ratingValue($this->averageRating($product))
+            ->ratingCount($this->reviewCount($product));
+    }
+
+
+    private function reviewCount(Product $product): int
+    {
+        if ($product->relationLoaded('reviews')) {
+            return $product->reviews->count();
+        }
+
+        return (int) $product->reviews()->count();
+    }
+
+
+    private function averageRating(Product $product): float
+    {
+        if ($product->relationLoaded('reviews') && $product->reviews->isNotEmpty()) {
+            return (float) $product->reviews->avg('rating');
+        }
+
+        return (float) $product->reviews()->avg('rating');
     }
 
 

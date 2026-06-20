@@ -43,6 +43,7 @@ return [
     */
     'response_cache' => [
         'enabled' => env('RESPONSE_CACHE_ENABLED', false),
+        'home_enabled' => env('RESPONSE_CACHE_HOME_ENABLED', false),
         'ttl_minutes' => (int) env('RESPONSE_CACHE_TTL_MINUTES', 60),
         'slugs' => array_filter(array_map('trim', explode(',', env('RESPONSE_CACHE_SLUGS', 'faq,terms-conditions,privacy-policy')))),
     ],

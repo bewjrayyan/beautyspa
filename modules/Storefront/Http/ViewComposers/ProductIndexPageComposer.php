@@ -3,6 +3,7 @@
 namespace Modules\Storefront\Http\ViewComposers;
 
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Cache;
 use Modules\Support\Money;
 use Modules\Product\Entities\Product;
 use Modules\Category\Entities\Category;
@@ -36,27 +37,42 @@ class ProductIndexPageComposer
 
     private function minPrice()
     {
-        $minProductPrice = Product::min('selling_price');
-        $minVariantPrice = ProductVariant::min('selling_price');
-        $minPrice = min($minProductPrice, $minVariantPrice);
-
-        return Money::inDefaultCurrency($minPrice)
-            ->convertToCurrentCurrency()
-            ->floor()
-            ->amount();
+        return $this->priceRange()['min'];
     }
 
 
     private function maxPrice()
     {
-        $maxProductPrice = Product::max('selling_price');
-        $maxVariantPrice = ProductVariant::max('selling_price');
-        $maxPrice = max($maxProductPrice, $maxVariantPrice);
+        return $this->priceRange()['max'];
+    }
 
-        return Money::inDefaultCurrency($maxPrice)
-            ->convertToCurrentCurrency()
-            ->ceil()
-            ->amount();
+
+    private function priceRange(): array
+    {
+        return Cache::remember(
+            md5('storefront_product_price_range:' . currency()),
+            now()->addMinutes(30),
+            function () {
+                $minProductPrice = Product::min('selling_price');
+                $minVariantPrice = ProductVariant::min('selling_price');
+                $maxProductPrice = Product::max('selling_price');
+                $maxVariantPrice = ProductVariant::max('selling_price');
+
+                $minPrice = min($minProductPrice, $minVariantPrice);
+                $maxPrice = max($maxProductPrice, $maxVariantPrice);
+
+                return [
+                    'min' => Money::inDefaultCurrency($minPrice)
+                        ->convertToCurrentCurrency()
+                        ->floor()
+                        ->amount(),
+                    'max' => Money::inDefaultCurrency($maxPrice)
+                        ->convertToCurrentCurrency()
+                        ->ceil()
+                        ->amount(),
+                ];
+            }
+        );
     }
 
 

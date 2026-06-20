@@ -8,7 +8,7 @@ import autoprefixer from "autoprefixer";
 import postcssRTLCSS from "postcss-rtlcss";
 
 // AestheticCart version
-const VERSION = "4.7.65";
+const VERSION = "4.7.66";
 
 export default defineConfig(async ({ command }) => {
     // Glob pattern for assets

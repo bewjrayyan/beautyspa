@@ -12,8 +12,8 @@ use Modules\Slider\Entities\Slider;
 use Illuminate\Support\Facades\Cache;
 use Modules\Category\Entities\Category;
 use Modules\Media\Entities\File;
-use Modules\Meta\Support\OpenGraph;
 use Modules\Storefront\Support\GoogleReviewsSettings;
+use Throwable;
 
 class HomePageComposer
 {
@@ -30,11 +30,6 @@ class HomePageComposer
         $sliderSideBannersEnabled = (bool) (int) setting('storefront_slider_banners_enabled', 1);
 
         $slider = $sliderId ? Slider::findWithSlides($sliderId) : null;
-        $logoPath = File::find(
-            function_exists('storefront_header_logo_id')
-                ? storefront_header_logo_id()
-                : (setting('storefront_header_logo') ?: setting('admin_logo'))
-        )?->path;
 
         $view->with([
             'slider' => $slider,
@@ -58,7 +53,6 @@ class HomePageComposer
                 ? GoogleReviewsSettings::forHomePage()
                 : null,
             'blog' => $this->blog(),
-            'openGraph' => OpenGraph::forStore($logoPath),
         ]);
     }
 
@@ -85,22 +79,35 @@ class HomePageComposer
             }
         })->filter();
 
-        return Category::with('files')
-            ->whereIn('id', $categoryIds)
-            ->when($categoryIds->isNotEmpty(), function ($query) use ($categoryIds) {
-                $query->orderByRaw("FIELD(id, {$categoryIds->filter()->implode(',')})");
-            })
-            ->get()
-            ->map(function ($category) {
-                $file = $category->files->where('pivot.zone', 'logo')->first();
+        if ($categoryIds->isEmpty()) {
+            return collect();
+        }
 
-                return [
-                    'name' => $category->name,
-                    'logo_path' => $file && $file->getRawOriginal('path')
-                        ? File::publicUrl($file->getRawOriginal('path'), $file->disk)
-                        : null,
-                ];
-            });
+        $cacheKey = md5('storefront_featured_categories:' . locale() . ':' . $categoryIds->implode(','));
+
+        $resolver = function () use ($categoryIds) {
+            return Category::with('files')
+                ->whereIn('id', $categoryIds)
+                ->orderByRaw("FIELD(id, {$categoryIds->filter()->implode(',')})")
+                ->get()
+                ->map(function ($category) {
+                    $file = $category->files->where('pivot.zone', 'logo')->first();
+
+                    return [
+                        'name' => $category->name,
+                        'logo_path' => $file && $file->getRawOriginal('path')
+                            ? File::publicUrl($file->getRawOriginal('path'), $file->disk)
+                            : null,
+                    ];
+                });
+        };
+
+        try {
+            return Cache::tags(['categories', 'settings'])
+                ->rememberForever($cacheKey, $resolver);
+        } catch (Throwable) {
+            return $resolver();
+        }
     }
 
 
@@ -230,17 +237,31 @@ class HomePageComposer
 
     private function blog()
     {
-        if (setting('storefront_blogs_section_enabled')) {
-            $blogPosts = BlogPost::published()
+        if (! setting('storefront_blogs_section_enabled')) {
+            return null;
+        }
+
+        $limit = (int) (setting('storefront_recent_blogs') ?? 10);
+        $cacheKey = md5('storefront_home_blog:' . locale() . ':' . $limit);
+
+        $resolver = function () use ($limit) {
+            return BlogPost::published()
                 ->with('files')
                 ->latest()
-                ->take(setting('storefront_recent_blogs') ?? 10)
+                ->take($limit)
                 ->get();
+        };
 
-            return [
-                'title' => setting('storefront_blogs_section_title'),
-                'blogPosts' => $blogPosts,
-            ];
+        try {
+            $blogPosts = Cache::tags(['blog', 'settings'])
+                ->remember($cacheKey, now()->addHour(), $resolver);
+        } catch (Throwable) {
+            $blogPosts = $resolver();
         }
+
+        return [
+            'title' => setting('storefront_blogs_section_title'),
+            'blogPosts' => $blogPosts,
+        ];
     }
 }

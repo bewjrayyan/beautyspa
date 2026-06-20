@@ -3,6 +3,7 @@
 namespace Modules\Setting\Listeners;
 
 use Illuminate\Support\Facades\Cache;
+use Modules\Page\Listeners\ClearPageResponseCache;
 
 class ClearSettingCache
 {
@@ -20,5 +21,7 @@ class ClearSettingCache
         if (app()->bound('setting')) {
             app()->forgetInstance('setting');
         }
+
+        ClearPageResponseCache::flush();
     }
 }

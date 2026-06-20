@@ -9,11 +9,11 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
 use Modules\User\Mail\ResetPasswordEmail;
 use Modules\User\Contracts\Authentication;
-use Modules\User\Events\CustomerRegistered;
 use Modules\User\Http\Requests\LoginRequest;
 use Modules\User\Http\Requests\RegisterRequest;
 use Modules\User\Http\Requests\PasswordResetRequest;
 use Modules\User\Http\Requests\ResetCompleteRequest;
+use Modules\User\Support\DeferCustomerRegistered;
 use Cartalyst\Sentinel\Checkpoints\ThrottlingException;
 use Cartalyst\Sentinel\Checkpoints\NotActivatedException;
 
@@ -117,7 +117,7 @@ abstract class BaseAuthController extends Controller
 
         $this->assignCustomerRole($user);
 
-        event(new CustomerRegistered($user));
+        DeferCustomerRegistered::dispatch($user, $request->input('referral_code'));
 
         return redirect($this->loginUrl())
             ->withSuccess(trans('user::messages.users.account_created'));

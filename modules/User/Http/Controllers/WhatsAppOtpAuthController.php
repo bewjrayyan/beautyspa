@@ -10,11 +10,11 @@ use Illuminate\Routing\Controller;
 use Modules\User\Contracts\Authentication;
 use Modules\User\Entities\Role;
 use Modules\User\Entities\User;
-use Modules\User\Events\CustomerRegistered;
 use Modules\User\Http\Requests\SendWhatsAppOtpRequest;
 use Modules\User\Http\Requests\VerifyWhatsAppOtpRequest;
 use Modules\User\Services\OneSenderWhatsAppService;
 use Modules\User\Services\WhatsAppOtpService;
+use Modules\User\Support\DeferCustomerRegistered;
 use Modules\User\Support\PhoneNumber;
 
 class WhatsAppOtpAuthController extends Controller
@@ -89,14 +89,19 @@ class WhatsAppOtpAuthController extends Controller
 
         $this->assignCustomerRole($user);
 
-        event(new CustomerRegistered($user));
+        DeferCustomerRegistered::dispatch($user);
 
-        $this->oneSender->notifyAdmins(
-            trans('user::messages.whatsapp_otp.admin_new_registration', [
-                'phone' => $normalizedPhone,
-                'store' => setting('store_name'),
-            ])
-        );
+        $normalizedPhoneForAdmin = $normalizedPhone;
+        $storeName = setting('store_name');
+
+        dispatch(function () use ($normalizedPhoneForAdmin, $storeName): void {
+            app(OneSenderWhatsAppService::class)->notifyAdmins(
+                trans('user::messages.whatsapp_otp.admin_new_registration', [
+                    'phone' => $normalizedPhoneForAdmin,
+                    'store' => $storeName,
+                ])
+            );
+        })->afterResponse();
 
         return $user;
     }

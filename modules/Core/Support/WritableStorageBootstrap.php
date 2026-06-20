@@ -29,6 +29,8 @@ class WritableStorageBootstrap
 
             static::chmodRecursive(static::fileCachePath(), 0777);
 
+            static::ensureCachePoolWritable();
+
             $sessionPath = static::sessionPath();
 
             if (is_dir($sessionPath)) {
@@ -100,6 +102,37 @@ class WritableStorageBootstrap
             storage_path('framework/cache/local-data'),
             storage_path('framework/cache/data'),
         ]));
+    }
+
+    public static function ensureCachePoolWritable(?string $cacheRoot = null): void
+    {
+        if (! static::isLocalEnvironment()) {
+            return;
+        }
+
+        $cacheRoot = $cacheRoot ?? static::fileCachePath();
+        $poolDir = rtrim($cacheRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'cache';
+
+        static::ensureDirectory($poolDir);
+        static::chmodRecursive($poolDir, 0777);
+
+        $items = @scandir($poolDir);
+
+        if ($items === false) {
+            return;
+        }
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $fullPath = $poolDir . DIRECTORY_SEPARATOR . $item;
+
+            if (is_file($fullPath)) {
+                @chmod($fullPath, 0666);
+            }
+        }
     }
 
     public static function unlinkTaggedCacheFile(string $table): void

@@ -72,8 +72,7 @@ class OneSenderOutboundQueueService
             'scheduled_at' => $scheduledAt,
         ]);
 
-        ProcessOneSenderOutboundMessage::dispatch($message->id)
-            ->delay($scheduledAt);
+        $this->dispatchProcessingJob($message);
 
         return $message;
     }
@@ -88,8 +87,7 @@ class OneSenderOutboundQueueService
         }
 
         if ($message->scheduled_at->isFuture()) {
-            ProcessOneSenderOutboundMessage::dispatch($message->id)
-                ->delay($message->scheduled_at);
+            $this->dispatchProcessingJob($message);
 
             return;
         }
@@ -231,6 +229,23 @@ class OneSenderOutboundQueueService
 
             return $message->fresh();
         });
+    }
+
+
+    private function dispatchProcessingJob(OneSenderOutboundMessage $message): void
+    {
+        if (config('queue.default') !== 'sync') {
+            ProcessOneSenderOutboundMessage::dispatch($message->id)
+                ->delay($message->scheduled_at);
+
+            return;
+        }
+
+        // Sync driver ignores job delay and would block the HTTP request on OneSender API
+        // calls. Flush due rows after the response is sent (scheduler handles the rest).
+        dispatch(function () {
+            app(self::class)->processDueBatch(10);
+        })->afterResponse();
     }
 
 
