@@ -190,15 +190,21 @@ export default class {
     }
 
     onRowClick(handler) {
-        let row = "tbody tr.clickable-row td";
+        this.element.off("click.rowNavigate", "tbody tr.clickable-row td");
 
-        if (this.element.find(".select-all").length !== 0) {
-            row += ":not(:first-child)";
-        }
+        this.element.on("click.rowNavigate", "tbody tr.clickable-row td", (e) => {
+            if (this.isBulkSelectClick(e)) {
+                return;
+            }
 
-        row += ":not(.table-row-actions)";
+            handler(e);
+        });
+    }
 
-        this.element.on("click", row, handler);
+    isBulkSelectClick(e) {
+        return $(e.target).closest(
+            ".checkbox, .bulk-select-cell, .select-row, .select-all, .table-row-actions, .admin-users-table__col-actions"
+        ).length > 0;
     }
 
     redirectToRowPage(e) {
@@ -209,7 +215,9 @@ export default class {
     }
 
     selectAllRowsEventListener() {
-        this.element.find(".select-all").on("change", (e) => {
+        this.element.off("change.selectAll", ".select-all");
+
+        this.element.on("change.selectAll", ".select-all", (e) => {
             this.element
                 .find(".select-row")
                 .prop("checked", e.currentTarget.checked);
@@ -223,7 +231,14 @@ export default class {
     }
 
     selectRowEventListener() {
-        this.element.find(".select-row").on("change", (e) => {
+        this.element.off("change.selectRow", ".select-row");
+        this.element.off("click.selectRow", ".checkbox");
+
+        this.element.on("click.selectRow", ".checkbox", (e) => {
+            e.stopPropagation();
+        });
+
+        this.element.on("change.selectRow", ".select-row", (e) => {
             if (e.currentTarget.checked) {
                 this.appendToSelected(e.currentTarget.value);
 

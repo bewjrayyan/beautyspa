@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.71' => [
+        'en' => [
+            'summary' => 'Fix admin table bulk select checkboxes navigating away instead of multi-select delete.',
+            'changes' => [
+                'Stop row navigation when clicking bulk-select checkboxes or action columns in DataTables.',
+                'Use delegated namespaced checkbox events to prevent duplicate listeners on table redraw.',
+                'Adjust users table and datatables styles so only navigable cells show a pointer cursor.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki checkbox bulk select admin table yang navigasi keluar instead of multi-select delete.',
+            'changes' => [
+                'Hentikan navigasi row apabila klik checkbox bulk select atau lajur tindakan dalam DataTables.',
+                'Guna event checkbox namespaced supaya listener tidak duplicate semasa table redraw.',
+                'Laraskan gaya users table dan datatables — cursor pointer hanya pada sel navigasi.',
+            ],
+        ],
+    ],
     '4.7.70' => [
         'en' => [
             'summary' => 'Fix WhatsApp product share link previews missing OG image when custom message omits the product URL.',

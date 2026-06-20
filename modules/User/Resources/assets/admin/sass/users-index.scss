@@ -366,8 +366,16 @@ $users-purple-soft: #f5f3ff;
         border-color: #f1f5f9;
     }
 
-    > tbody > tr {
+    > tbody > tr.clickable-row > td.bulk-select-cell,
+    > tbody > tr.clickable-row > td.admin-users-table__col-actions {
+        cursor: default;
+    }
+
+    > tbody > tr.clickable-row > td:not(.bulk-select-cell):not(.admin-users-table__col-actions) {
         cursor: pointer;
+    }
+
+    > tbody > tr {
         transition: background 0.12s ease;
 
         &:hover {

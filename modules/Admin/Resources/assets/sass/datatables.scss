@@ -36,8 +36,13 @@
             }
 
             &.clickable-row {
-                > td:not(:first-child):not(.table-row-actions) {
+                > td:not(.bulk-select-cell):not(:first-child):not(.table-row-actions) {
                     cursor: pointer;
+                }
+
+                > td.bulk-select-cell,
+                > td.table-row-actions {
+                    cursor: default;
                 }
 
                 td {
