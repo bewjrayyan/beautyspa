@@ -236,9 +236,9 @@
     }
 
     .product-gallery {
-        width: 578px;
-        min-width: 578px;
-        padding-right: 15px;
+        width: 100%;
+        min-width: 0;
+        padding-right: 0;
         position: unset !important;
         z-index: unset;
     }

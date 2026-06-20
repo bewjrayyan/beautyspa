@@ -38,15 +38,14 @@ class ProductShowPageComposer
     private function openGraph(Product $product): OpenGraph
     {
         $variant = $product->variant;
-        $imagePath = ($variant && $variant->base_image->id)
-            ? $variant->base_image->path
-            : ($product->base_image->path ?: null);
-
-        $description = $product->meta->meta_description ?: $product->short_description;
+        $imagePath = $this->resolveProductOgImage($product, $variant);
+        $description = strip_tags((string) (
+            $product->meta->meta_description ?: $product->short_description ?: $product->name
+        ));
 
         return OpenGraph::make(
             title: $product->meta->meta_title ?: $product->name,
-            description: $description ? (string) $description : $product->name,
+            description: trim($description) !== '' ? trim($description) : $product->name,
             url: $variant?->url() ?? $product->url(),
             type: 'product',
             image: $imagePath,
@@ -55,6 +54,22 @@ class ProductShowPageComposer
                 ?? $product->selling_price->convertToCurrentCurrency()->amount()),
             priceCurrency: currency(),
         );
+    }
+
+
+    private function resolveProductOgImage(Product $product, $variant): ?string
+    {
+        if ($variant) {
+            $variantImage = $variant->media->first()?->path
+                ?? ($variant->base_image->id ? $variant->base_image->path : null);
+
+            if ($variantImage) {
+                return $variantImage;
+            }
+        }
+
+        return $product->media->first()?->path
+            ?? ($product->base_image->id ? $product->base_image->path : null);
     }
 
 

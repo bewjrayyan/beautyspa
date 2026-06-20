@@ -2,6 +2,7 @@
 
 return [
     'home' => 'Laman Utama',
+    'breadcrumb' => 'Navigasi laluan',
     'contact' => 'Hubungi',
     'blog' => 'Blog',
     'compare' => 'Banding',
@@ -16,8 +17,9 @@ return [
     'more_results' => ':count lagi keputusan',
     'favorites' => 'Kegemaran',
     'most_searched' => 'Paling dicari:',
-    'all_categories_header' => 'SEMUA KATEGORI',
+    'all_categories_header' => 'Semua kategori',
     'all_categories' => 'Semua Kategori',
+    'browse_categories' => 'Layari kategori',
     'navigation' => 'Navigasi',
     'categories' => 'Kategori',
     'menu' => 'Menu',

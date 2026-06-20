@@ -1,38 +1,70 @@
+@php($categoryItems = $categoryMenu->menus())
+
 <div
     x-data="{ open: false }"
+    x-on:click.outside="open = false"
+    x-on:keydown.escape.window="open = false"
     class="category-nav {{ request()->routeIs('home') ? 'show' : 'category-dropdown-menu' }}"
 >
-    <div class="category-nav-inner" @click="open = !open">
-        <span>{{ trans('storefront::layouts.all_categories_header') }}</span>
-        
-        <i class="las la-bars"></i>
-    </div>
+    <button
+        type="button"
+        class="category-nav-inner"
+        @unless (request()->routeIs('home'))
+            @click="open = !open"
+            :aria-expanded="open"
+        @else
+            aria-expanded="true"
+        @endunless
+        aria-haspopup="true"
+        aria-controls="category-dropdown-panel"
+    >
+        <span class="category-nav-label">
+            <span class="category-nav-icon" aria-hidden="true">
+                <i class="las la-list-ul"></i>
+            </span>
 
-    @if ($categoryMenu->menus()->isNotEmpty())
+            <span class="category-nav-text">{{ trans('storefront::layouts.all_categories_header') }}</span>
+        </span>
+
+        @unless (request()->routeIs('home'))
+            <span class="category-nav-chevron" :class="{ 'is-open': open }" aria-hidden="true">
+                <i class="las la-angle-down"></i>
+            </span>
+        @endunless
+    </button>
+
+    @if ($categoryItems->isNotEmpty())
         <div
+            id="category-dropdown-panel"
             class="category-dropdown-wrap"
             :class="{ show: open }"
+            role="menu"
         >
             <div class="category-dropdown">
-                <ul class="list-inline mega-menu vertical-megamenu">
-                    @foreach ($categoryMenu->menus() as $menu)
-                        @include('storefront::public.layouts.navigation.menu', ['type' => 'category_menu'])
-                    @endforeach
+                <div class="category-dropdown-header">
+                    <span class="category-dropdown-title">{{ trans('storefront::layouts.browse_categories') }}</span>
 
-                    <li class="more-categories">
-                        <a
-                            href="{{ storefront_route('categories.index') }}"
-                            class="menu-item"
-                            title="{{ trans('storefront::layouts.all_categories') }}"
-                        >
-                            <span class="menu-item-icon">
-                                <i class="las la-plus-square"></i>
-                            </span>
+                    <span class="category-dropdown-count">{{ $categoryItems->count() }}</span>
+                </div>
 
-                            {{ trans('storefront::layouts.all_categories') }}
-                        </a>
-                    </li>
-                </ul>
+                <div class="category-dropdown-body">
+                    <ul class="list-inline mega-menu vertical-megamenu">
+                        @foreach ($categoryItems as $menu)
+                            @include('storefront::public.layouts.navigation.menu', ['type' => 'category_menu'])
+                        @endforeach
+                    </ul>
+                </div>
+
+                <div class="category-dropdown-footer">
+                    <a
+                        href="{{ storefront_route('categories.index') }}"
+                        class="category-dropdown-cta"
+                        title="{{ trans('storefront::layouts.all_categories') }}"
+                    >
+                        <span>{{ trans('storefront::layouts.all_categories') }}</span>
+                        <i class="las la-th-list" aria-hidden="true"></i>
+                    </a>
+                </div>
             </div>
         </div>
     @endif

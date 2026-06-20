@@ -1,8 +1,33 @@
 <div class="product-details-info position-relative flex-grow-1"> 
     <div class="details-info-top">
-        <h1 class="product-name">{{ $product->name }}</h1>
+        <div class="product-mobile-meta d-lg-none">
+            @if ($typeLabel = product_type_label($product))
+                <span class="product-mobile-meta__chip product-mobile-meta__chip--type">{{ $typeLabel }}</span>
+            @else
+                <template x-cloak x-if="isInStock">
+                    <span class="product-mobile-meta__chip product-mobile-meta__chip--stock">
+                        <template x-if="doesManageStock">
+                            <span x-text="trans('storefront::product.left_in_stock', { count: item.qty })"></span>
+                        </template>
+                        <template x-if="!doesManageStock">
+                            <span>{{ trans('storefront::product.in_stock') }}</span>
+                        </template>
+                    </span>
+                </template>
 
-        <div class="product-view-count">
+                <template x-if="!isInStock">
+                    <span class="product-mobile-meta__chip product-mobile-meta__chip--out">{{ trans('storefront::product.out_of_stock') }}</span>
+                </template>
+            @endif
+
+            <span class="product-mobile-meta__chip">
+                {{ trans('storefront::product.people_viewed_treatment', ['count' => $product->viewed]) }}
+            </span>
+        </div>
+
+        <h1 class="product-name" x-ref="productTitle">{{ $product->name }}</h1>
+
+        <div class="product-view-count d-none d-lg-flex">
             <span class="product-view-count-icon" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M15.58 12C15.58 13.98 13.98 15.58 12 15.58C10.02 15.58 8.42004 13.98 8.42004 12C8.42004 10.02 10.02 8.42004 12 8.42004C13.98 8.42004 15.58 10.02 15.58 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -16,10 +41,10 @@
         </div>
 
         @if ($typeLabel = product_type_label($product))
-            <div class="product-type-label">{{ $typeLabel }}</div>
+            <div class="product-type-label d-none d-lg-block">{{ $typeLabel }}</div>
         @else
         <template x-cloak x-if="isInStock">
-            <div>
+            <div class="d-none d-lg-block">
                 <template x-if="doesManageStock">
                     <div
                         class="availability in-stock"
@@ -37,7 +62,7 @@
         </template>
         
         <template x-if="!isInStock">
-            <div class="availability out-of-stock">
+            <div class="availability out-of-stock d-none d-lg-block">
                 {{ trans('storefront::product.out_of_stock') }}
             </div>
         </template>
@@ -112,6 +137,7 @@
         @endif
 
         <form
+            x-ref="productCartForm"
             @input="errors.clear($event.target.name)"
             @submit.prevent="addToCart"
         >
@@ -176,6 +202,7 @@
 
                 <button
                     type="submit"
+                    x-ref="addToCartBtn"
                     class="btn btn-primary btn-add-to-cart"
                     :class="{'btn-loading': addingToCart }"
                     :disabled="isAddToCartDisabled"

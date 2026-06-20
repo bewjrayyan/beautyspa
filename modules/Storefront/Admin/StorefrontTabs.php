@@ -202,6 +202,10 @@ class StorefrontTabs extends Tabs
     {
         return tap(new StorefrontTab('product_page', trans('storefront::storefront.tabs.product_page')), function (StorefrontTab $tab) {
             $tab->weight(22);
+            $tab->fields([
+                'storefront_product_share_whatsapp_enabled',
+                'storefront_product_share_whatsapp_message',
+            ]);
             $tab->view('storefront::admin.storefront.tabs.product_page', [
                 'banner' => Banner::getProductPageBanner(),
             ]);

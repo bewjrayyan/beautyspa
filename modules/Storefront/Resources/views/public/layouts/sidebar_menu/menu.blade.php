@@ -11,15 +11,24 @@
                 href="{{ $menu->url() }}"
                 class="menu-item"
                 target="{{ $menu->target() }}"
+                title="{{ $menu->name() }}"
                 @click.stop
             >
-                @if ($type === 'category_menu' && $menu->hasIcon())
+                @if ($type === 'category_menu')
                     <span class="menu-item-icon">
-                        <i class="{{ $menu->icon() }}"></i>
+                        <i class="{{ category_menu_item_icon($menu) }}"></i>
                     </span>
-                @endif
 
-                {{ $menu->name() }}
+                    <span class="menu-item-text">{{ category_menu_item_label($menu->name()) }}</span>
+                @else
+                    @if ($menu->hasIcon())
+                        <span class="menu-item-icon">
+                            <i class="{{ $menu->icon() }}"></i>
+                        </span>
+                    @endif
+
+                    {{ $menu->name() }}
+                @endif
             </a>
 
             @if ($menu->hasSubMenus())
@@ -36,7 +45,7 @@
         <li class="more-categories">
             <a href="{{ storefront_route('categories.index') }}" class="menu-item">
                 <span class="menu-item-icon">
-                    <i class="las la-plus-square"></i>
+                    <i class="las la-th-list"></i>
                 </span>
 
                 {{ trans('storefront::layouts.all_categories') }}

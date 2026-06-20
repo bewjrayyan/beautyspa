@@ -5,6 +5,7 @@ return [
     'storefront_products_listing_title' => 'Products Listing Page Title',
     'storefront_product_consultation_label' => 'Consultation Button Label',
     'storefront_product_consultation_url' => 'Consultation Button URL',
+    'storefront_product_share_whatsapp_message' => 'WhatsApp Share Message',
     'storefront_theme_color' => 'Theme Color',
     'storefront_display_font' => 'Display Font',
     'storefront_custom_theme_color' => 'Custom Theme Color',

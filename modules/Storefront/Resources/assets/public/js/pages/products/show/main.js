@@ -4,6 +4,7 @@ import Swiper from "swiper";
 import Drift from "drift-zoom";
 import GLightbox from "glightbox";
 import Errors from "../../../components/Errors";
+import { formatCurrency } from "../../../functions";
 import {
     productSliderNavigation,
     resolveProductSliderControls,
@@ -20,9 +21,10 @@ let galleryPreviewZoomInstances = [];
 
 Alpine.data(
     "ProductShow",
-    ({ product, variant, reviewCount, avgRating, flashSalePrice, reviewerName = "" }) => ({
+    ({ product, variant, reviewCount, avgRating, flashSalePrice, reviewerName = "", whatsAppShareMessage = "" }) => ({
         product: product,
         item: variant || product,
+        whatsAppShareMessage,
         optionPrices: {},
         addingToCart: false,
         oldMediaLength: null,
@@ -49,6 +51,9 @@ Alpine.data(
         errors: new Errors(),
         relatedProductsSwiper: null,
         loading: false,
+        gallerySlideIndex: 1,
+        gallerySlideTotal: 1,
+        openVariationUid: null,
 
         ...productSliderStateMixin(function () {
             return this.relatedProductsSwiper;
@@ -65,15 +70,68 @@ Alpine.data(
         get productUrl() {
             let url = AestheticCart.url(`/products/${this.product.slug}`);
 
-            if (this.hasAnyVariant) {
+            if (this.isVariantSelectionComplete && this.item?.uid) {
                 url += `?variant=${this.item.uid}`;
             }
 
             return url;
         },
 
+        get whatsAppShareUrl() {
+            return `https://api.whatsapp.com/send?text=${encodeURIComponent(
+                this.buildWhatsAppShareMessage()
+            )}`;
+        },
+
+        buildWhatsAppShareMessage() {
+            const template = this.whatsAppShareMessage?.trim();
+            const productName = this.productName;
+            const productUrl = this.productUrl;
+            const description = this.stripHtml(
+                this.product.meta?.meta_description ||
+                    this.product.short_description ||
+                    ""
+            ).trim();
+
+            if (template) {
+                return template
+                    .replace(/\{product_name\}/g, productName)
+                    .replace(/\{product_url\}/g, productUrl)
+                    .replace(/\{product_description\}/g, description)
+                    .replace(/\{product_id\}/g, String(this.product.id))
+                    .replace(/\{product_slug\}/g, this.product.slug);
+            }
+
+            const parts = [productName];
+
+            if (description) {
+                parts.push(description.substring(0, 200));
+            }
+
+            parts.push(productUrl);
+
+            return parts.join("\n\n");
+        },
+
+        stripHtml(html) {
+            if (!html) {
+                return "";
+            }
+
+            const element = document.createElement("div");
+            element.innerHTML = html;
+
+            return (element.textContent || element.innerText || "").replace(
+                /\s+/g,
+                " "
+            );
+        },
+
         get hasAnyMedia() {
-            return this.item.media.length !== 0;
+            return (
+                (this.item.media?.length ?? 0) > 0 ||
+                Boolean(this.item.base_image?.path)
+            );
         },
 
         get productPrice() {
@@ -277,6 +335,72 @@ Alpine.data(
             this.initRelatedProductsSlider();
         },
 
+        openVariationSheet(uid) {
+            if (!this.isMobileDevice()) {
+                return;
+            }
+
+            this.openVariationUid = uid;
+            document.body.classList.add("variant-sheet-open");
+        },
+
+        closeVariationSheet() {
+            this.openVariationUid = null;
+            document.body.classList.remove("variant-sheet-open");
+        },
+
+        formatVariationValuePrice(variationUid, valueUid) {
+            const amount = this.getVariationValuePrice(variationUid, valueUid);
+
+            if (amount === null) {
+                return "";
+            }
+
+            return formatCurrency(amount);
+        },
+
+        getVariationValuePrice(variationUid, valueUid) {
+            if (this.product.variations.length === 1) {
+                const variant = this.product.variants.find(
+                    (entry) => entry.uids === valueUid
+                );
+
+                return variant?.selling_price?.inCurrentCurrency?.amount ?? null;
+            }
+
+            const testVariations = {
+                ...this.cartItemForm.variations,
+                [variationUid]: valueUid,
+            };
+
+            const selectedUids = Object.values(testVariations)
+                .filter(Boolean)
+                .sort()
+                .join(".");
+
+            if (
+                selectedUids.split(".").length !== this.product.variations.length
+            ) {
+                return null;
+            }
+
+            const variant = this.product.variants.find(
+                (entry) => entry.uids === selectedUids
+            );
+
+            return variant?.selling_price?.inCurrentCurrency?.amount ?? null;
+        },
+
+        goBack(fallbackUrl) {
+            if (window.history.length > 1) {
+                window.history.back();
+
+                return;
+            }
+
+            window.location.href = fallbackUrl;
+        },
+
         syncWishlist() {
             this.$store.wishlist.syncWishlist(this.product.id);
         },
@@ -287,45 +411,68 @@ Alpine.data(
 
         setOldMediaLength() {
             if (this.hasAnyVariant) {
-                this.oldMediaLength = this.item.media.length;
+                this.oldMediaLength = this.item.media?.length ?? 0;
             }
         },
 
         initGalleryPreviewSlider() {
-            return new Swiper(".product-gallery-preview", {
-                modules: [Manipulation, Navigation, Thumbs],
+            const isMobile = this.isMobileDevice();
+            const slider = new Swiper(".product-gallery-preview", {
+                modules: isMobile
+                    ? [Manipulation, Navigation, Thumbs, Pagination]
+                    : [Manipulation, Navigation, Thumbs],
                 slidesPerView: 1,
-                allowTouchMove: false,
+                allowTouchMove: isMobile,
                 navigation: {
-                    nextEl: ".swiper-button-next",
-                    prevEl: ".swiper-button-prev",
+                    nextEl: ".product-gallery-preview .swiper-button-next",
+                    prevEl: ".product-gallery-preview .swiper-button-prev",
                 },
+                pagination: isMobile
+                    ? {
+                          el: ".product-gallery-pagination",
+                          clickable: true,
+                          dynamicBullets: true,
+                      }
+                    : undefined,
                 thumbs: {
                     swiper: this.initGalleryThumbnailSlider(),
                 },
             });
+
+            this.syncGallerySlideState(slider);
+
+            slider.on("slideChange", () => {
+                this.syncGallerySlideState(slider);
+            });
+
+            return slider;
+        },
+
+        syncGallerySlideState(slider) {
+            this.gallerySlideIndex = slider.activeIndex + 1;
+            this.gallerySlideTotal = Math.max(slider.slides.length, 1);
         },
 
         initGalleryThumbnailSlider() {
             return new Swiper(".product-gallery-thumbnail", {
                 modules: [Manipulation, Navigation],
-                slidesPerView: 4,
-                spaceBetween: 10,
+                slidesPerView: "auto",
+                spaceBetween: 8,
                 watchSlidesProgress: true,
                 touchEventsTarget: "container",
+                freeMode: {
+                    enabled: true,
+                    sticky: true,
+                },
                 navigation: {
-                    nextEl: ".swiper-button-next",
-                    prevEl: ".swiper-button-prev",
+                    nextEl: ".product-gallery-thumbnail .swiper-button-next",
+                    prevEl: ".product-gallery-thumbnail .swiper-button-prev",
                 },
                 breakpoints: {
-                    450: {
-                        slidesPerView: 6,
-                    },
-                    576: {
-                        slidesPerView: 7,
-                    },
                     992: {
                         slidesPerView: 6,
+                        spaceBetween: 10,
+                        freeMode: false,
                     },
                     1600: {
                         slidesPerView: 7,
@@ -335,87 +482,109 @@ Alpine.data(
         },
 
         updateGallerySlider() {
-            this.removeAllGallerySlides();
-
-            // If product and variant has not media
-            if (this.product.media.length === 0 && !this.hasAnyMedia) {
-                this.addGalleryEmptySlide();
-            } else {
-                this.addGallerySlides();
+            if (!galleryPreviewSlider) {
+                return;
             }
 
+            const mediaPaths = this.collectGalleryMediaPaths();
+            const resolvedPaths =
+                mediaPaths.length > 0
+                    ? mediaPaths
+                    : [this.getGalleryPlaceholderPath()];
+
+            this.renderGallerySlides(resolvedPaths);
             this.addGalleryEventListeners();
         },
 
-        addGallerySlides() {
-            const galleryPreviewSlides = [];
-            const galleryThumbnailSlides = [];
+        getGalleryPlaceholderPath() {
+            return `${AestheticCart.baseUrl}/build/assets/image-placeholder.png`;
+        },
+
+        collectGalleryMediaPaths() {
+            const paths = [];
             const seen = new Set();
 
-            const appendMedia = (mediaList = []) => {
-                mediaList.forEach(({ path }) => {
-                    if (!path || seen.has(path)) {
-                        return;
-                    }
+            const pushPath = (path) => {
+                if (!path || seen.has(path)) {
+                    return;
+                }
 
-                    seen.add(path);
-
-                    galleryPreviewSlides.push(this.galleryPreviewSlide(path));
-                    galleryThumbnailSlides.push(
-                        this.galleryThumbnailSlide(path)
-                    );
-                });
+                seen.add(path);
+                paths.push(path);
             };
 
-            // Product media (admin gallery) is always the main image first.
-            appendMedia(this.product.media);
+            const pushMedia = (mediaList = []) => {
+                mediaList.forEach(({ path }) => pushPath(path));
+            };
 
-            if (
-                this.isVariantSelectionComplete &&
-                this.item.media?.length
-            ) {
-                appendMedia(this.item.media);
+            const pushBaseImage = (item) => {
+                pushPath(item?.base_image?.path);
+            };
+
+            if (this.isVariantSelectionComplete) {
+                pushMedia(this.item?.media ?? []);
+                pushBaseImage(this.item);
             }
 
-            galleryPreviewSlider.addSlide(0, galleryPreviewSlides);
-            galleryPreviewSlider.thumbs.swiper.addSlide(
-                0,
-                galleryThumbnailSlides
-            );
+            if (paths.length === 0) {
+                pushMedia(this.product?.media ?? []);
+                pushBaseImage(this.product);
+            }
 
-            // Set the first slide as active
-            galleryPreviewSlider.slideTo(0);
-            galleryPreviewSlider.thumbs.swiper.slideTo(0);
+            return paths;
         },
 
-        addGalleryEmptySlide() {
-            const filePath = `${AestheticCart.baseUrl}/build/assets/image-placeholder.png`;
+        renderGallerySlides(mediaPaths) {
+            const previewWrapper = document.querySelector(
+                ".product-gallery-preview .swiper-wrapper"
+            );
+            const thumbnailWrapper = document.querySelector(
+                ".product-gallery-thumbnail .swiper-wrapper"
+            );
 
-            galleryPreviewSlider.addSlide(
-                0,
-                this.galleryPreviewEmptySlide(filePath)
-            );
-            galleryPreviewSlider.thumbs.swiper.addSlide(
-                0,
-                this.galleryThumbnailEmptySlide(filePath)
-            );
+            if (previewWrapper) {
+                previewWrapper.innerHTML = mediaPaths
+                    .map((path) => this.galleryPreviewSlide(path))
+                    .join("");
+            }
+
+            if (thumbnailWrapper) {
+                thumbnailWrapper.innerHTML = mediaPaths
+                    .map((path) => this.galleryThumbnailSlide(path))
+                    .join("");
+            }
+
+            if (galleryPreviewSlider.thumbs?.swiper) {
+                galleryPreviewSlider.thumbs.swiper.update();
+                galleryPreviewSlider.thumbs.swiper.slideTo(0, 0, false);
+            }
+
+            galleryPreviewSlider.update();
+            galleryPreviewSlider.slideTo(0, 0, false);
+            this.syncGallerySlideState(galleryPreviewSlider);
         },
 
-        removeAllGallerySlides() {
-            galleryPreviewSlider.removeAllSlides();
-            galleryPreviewSlider.thumbs.swiper.removeAllSlides();
+        refreshGallerySliderLayout() {
+            if (!galleryPreviewSlider) {
+                return;
+            }
+
+            galleryPreviewSlider.update();
+            galleryPreviewSlider.thumbs?.swiper?.update();
+            this.syncGallerySlideState(galleryPreviewSlider);
         },
 
         addGalleryEventListeners() {
             this.$nextTick(() => {
                 this.initGalleryPreviewZoom();
                 galleryPreviewLightbox.reload();
+                this.refreshGallerySliderLayout();
             });
         },
 
         initGalleryPreviewZoom() {
             if (this.isMobileDevice()) {
-                this.initGalleryPreviewMobileZoom();
+                this.destroyGalleryPreviewZoomInstances();
 
                 return;
             }
@@ -721,6 +890,10 @@ Alpine.data(
 
             this.setVariationValueLabel(variationIndex, valueIndex);
             this.updateVariantDetails();
+
+            if (this.isMobileDevice()) {
+                this.closeVariationSheet();
+            }
         },
 
         doesVariantExist(uid) {

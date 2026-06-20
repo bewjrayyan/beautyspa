@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.67' => [
+        'en' => [
+            'summary' => 'Mobile product page app UX, WhatsApp share with Open Graph, navigation polish, and route cache guard.',
+            'changes' => [
+                'Redesign mobile product page with toolbar breadcrumb, bottom-sheet variant picker, sticky cart dock, and compact meta tabs.',
+                'Fix variant gallery refresh on treatment selection and add 3D active tab styling on product details.',
+                'Add admin toggle and message template for WhatsApp product share; improve OG image/title/description for link previews.',
+                'Refresh mobile navigation, footer, category menu, and sidebar menu layout.',
+                'Add route cache guard and optimize artisan commands for safer production caching.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UX halaman produk mobile ala app, kongsi WhatsApp dengan Open Graph, kemas navigation, dan pengawal route cache.',
+            'changes' => [
+                'Reka semula halaman produk mobile dengan breadcrumb toolbar, picker variant bottom sheet, dock cart, dan tab meta padat.',
+                'Baiki refresh gallery variant apabila pilih rawatan dan tambah gaya tab aktif 3D pada butiran produk.',
+                'Tambah toggle admin dan templat mesej kongsi WhatsApp produk; baiki OG imej/tajuk/penerangan untuk pratonton pautan.',
+                'Kemas kini susun atur navigation mobile, footer, menu kategori, dan sidebar.',
+                'Tambah pengawal route cache dan arahan optimize artisan untuk caching production lebih selamat.',
+            ],
+        ],
+    ],
     '4.7.66' => [
         'en' => [
             'summary' => 'Speed up registration and storefront pages with query cache, deferred post-register jobs, and production .env template.',

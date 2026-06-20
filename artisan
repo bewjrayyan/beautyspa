@@ -24,6 +24,7 @@ if (is_file($envFile)) {
 }
 
 require __DIR__ . '/bootstrap/xampp-compat.php';
+require __DIR__ . '/bootstrap/route-cache-guard.php';
 
 $app = require_once __DIR__.'/bootstrap/app.php';
 

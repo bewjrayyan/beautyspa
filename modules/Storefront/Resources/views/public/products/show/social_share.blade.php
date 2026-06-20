@@ -49,5 +49,18 @@
                 <i class="lab la-tumblr"></i>
             </a>
         </li>
+
+        @if (setting('storefront_product_share_whatsapp_enabled', true))
+            <li>
+                <a
+                    :href="whatsAppShareUrl"
+                    title="{{ trans('storefront::product.whatsapp') }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <i class="lab la-whatsapp"></i>
+                </a>
+            </li>
+        @endif
     </ul>
 </div>

@@ -2,6 +2,7 @@
 
 return [
     'home' => 'Home',
+    'breadcrumb' => 'Breadcrumb',
     'contact' => 'Contact',
     'blog' => 'Blog',
     'compare' => 'Compare',
@@ -16,8 +17,9 @@ return [
     'more_results' => ':count more results',
     'favorites' => 'Favorites',
     'most_searched' => 'Most searched:',
-    'all_categories_header' => 'ALL CATEGORIES',
+    'all_categories_header' => 'All Categories',
     'all_categories' => 'All Categories',
+    'browse_categories' => 'Browse categories',
     'navigation' => 'Navigation',
     'categories' => 'Categories',
     'menu' => 'Menu',

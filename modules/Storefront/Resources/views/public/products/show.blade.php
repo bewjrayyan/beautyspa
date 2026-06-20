@@ -2,6 +2,8 @@
 
 @section('title', $product->name)
 
+@section('body_class', 'product-show-page')
+
 @section('breadcrumb')
     @if (!$categoryBreadcrumb)
         <li><a href="{{ storefront_route('products.index') }}">{{ products_listing_title() }}</a></li>
@@ -24,10 +26,13 @@
             reviewCount: {{ $review->count ?? 0 }},
             avgRating: {{ $review->avg_rating ?? 0 }},
             flashSalePrice: '{{ $flashSalePrice }}',
-            reviewerName: {{ \Illuminate\Support\Js::from(trim((auth()->user()?->full_name ?: auth()->user()?->email) ?? '')) }}
+            reviewerName: {{ \Illuminate\Support\Js::from(trim((auth()->user()?->full_name ?: auth()->user()?->email) ?? '')) }},
+            whatsAppShareMessage: {{ \Illuminate\Support\Js::from(setting('storefront_product_share_whatsapp_message', '')) }}
         })"
         class="product-details-wrap"
     >
+        @include('storefront::public.products.show.mobile_toolbar')
+
         <div class="container">
             <div class="product-details-top">
                 <div class="d-flex flex-column flex-lg-row flex-lg-nowrap ">
@@ -92,6 +97,75 @@
                 </div>
             </div>
         </div>
+
+        <aside class="product-mobile-dock d-lg-none" aria-label="{{ trans('storefront::product.add_to_cart') }}">
+            <div class="product-mobile-dock__top">
+                <div class="product-mobile-dock__price">
+                    <span class="product-mobile-dock__label">{{ trans('storefront::product.total') }}</span>
+
+                    <div class="product-mobile-dock__amounts">
+                        <template x-if="hasSpecialPrice">
+                            <span class="product-mobile-dock__special" x-text="formatCurrency(specialPrice)"></span>
+                        </template>
+
+                        <span
+                            class="product-mobile-dock__amount"
+                            :class="{ 'product-mobile-dock__amount--strike': hasSpecialPrice }"
+                            x-text="formatCurrency(regularPrice)"
+                        ></span>
+                    </div>
+                </div>
+
+                <div class="product-mobile-dock__qty" aria-label="{{ trans('storefront::product.quantity') }}">
+                    <button
+                        type="button"
+                        class="product-mobile-dock__qty-btn"
+                        aria-label="{{ trans('storefront::product.quantity') }}"
+                        :disabled="isQtyDecreaseDisabled"
+                        @click="updateQuantity(cartItemForm.qty - 1)"
+                    >
+                        <i class="las la-minus"></i>
+                    </button>
+
+                    <input
+                        type="text"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        class="product-mobile-dock__qty-input"
+                        :value="cartItemForm.qty"
+                        autocomplete="off"
+                        min="1"
+                        :max="maxQuantity"
+                        :disabled="isAddToCartDisabled"
+                        @focus="$event.target.select()"
+                        @input="updateQuantity(Number($event.target.value))"
+                    >
+
+                    <button
+                        type="button"
+                        class="product-mobile-dock__qty-btn"
+                        aria-label="{{ trans('storefront::product.quantity') }}"
+                        :disabled="isQtyIncreaseDisabled"
+                        @click="updateQuantity(cartItemForm.qty + 1)"
+                    >
+                        <i class="las la-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-primary product-mobile-dock__cta"
+                :class="{ 'btn-loading': addingToCart }"
+                :disabled="isAddToCartDisabled"
+                @click="$refs.productCartForm?.requestSubmit()"
+            >
+                <i class="las la-shopping-cart"></i>
+                <span x-text="isActiveItem ? '{{ trans('storefront::product.add_to_cart') }}' : '{{ trans('storefront::product.unavailable') }}'"></span>
+            </button>
+        </aside>
+
+        @include('storefront::public.products.show.variant_sheet')
     </section>
 @endsection
 

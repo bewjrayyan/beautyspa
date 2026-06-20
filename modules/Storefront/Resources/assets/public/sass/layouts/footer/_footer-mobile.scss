@@ -1,8 +1,17 @@
 @media screen and (max-width: 991px) {
     .footer-wrap {
+        margin-top: 32px;
+        padding-top: 24px;
         padding-left: 16px;
         padding-right: 16px;
-        background: #f2f2f7;
+        background: #eef1f6;
+        border-top: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.05);
+
+        &::before {
+            width: 96px;
+            height: 3px;
+        }
 
         > .container {
             max-width: 100%;
@@ -27,7 +36,7 @@
         font-weight: 700;
         line-height: 1.3;
         color: var(--color-black);
-        border-bottom: 1px solid #e5e5ea;
+        border-bottom: none;
     }
 
     .footer-top {
@@ -43,7 +52,7 @@
                 margin-bottom: 0;
 
                 + [class*="col-"] {
-                    border-top: 1px solid #e5e5ea;
+                    border-top: none;
                 }
             }
         }
@@ -113,7 +122,7 @@
                 gap: 12px;
                 min-height: 44px;
                 padding: 10px 0;
-                border-bottom: 1px solid #f0f0f5;
+                border-bottom: none;
                 color: var(--color-gray-dark);
                 font-size: 15px;
                 line-height: 1.4;
@@ -245,11 +254,13 @@
     }
 
     .footer-app-bottom {
-        margin-top: 0;
+        margin-top: 8px;
         margin-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
         padding: 14px 16px;
-        border-top: 1px solid #e5e5ea;
-        border-radius: 0;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
         background: transparent;
         box-shadow: none;
     }
@@ -281,10 +292,11 @@
         }
 
         &__title {
+            display: block;
             font-size: 20px;
             font-weight: 500;
             line-height: 28px;
-            margin-bottom: 23px;
+            margin-bottom: 0;
         }
 
         &__chevron {

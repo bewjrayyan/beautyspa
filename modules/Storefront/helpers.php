@@ -344,7 +344,50 @@ if (!function_exists('font_url')) {
             'Barlow' => 'https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&display=swap',
             'Source Sans 3' => 'https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200..900&display=swap',
             'IBM Plex Sans' => 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&display=swap',
-            'Work Sans' => 'https://fonts.googleapis.com/css2?family=Work+Sans:wght@100..900&display=swap'
+            'Work Sans' => 'https://fonts.googleapis.com/css2?family=Work+Sans:wght@100..900&display=swap',
         };
+    }
+}
+
+if (!function_exists('category_menu_item_icon')) {
+    /**
+     * Icon for storefront category mega menu items (SPA, aesthetic, cosmetik, …).
+     */
+    function category_menu_item_icon(Menu $menu): string
+    {
+        $haystack = mb_strtolower($menu->name());
+
+        $mapped = match (true) {
+            str_contains($haystack, 'spa') => 'las la-spa',
+            str_contains($haystack, 'aesthetic') || str_contains($haystack, 'estetik') => 'las la-syringe',
+            str_contains($haystack, 'cosmetik') || str_contains($haystack, 'cosmetic') => 'las la-palette',
+            default => null,
+        };
+
+        if ($mapped !== null) {
+            return $mapped;
+        }
+
+        if ($menu->hasIcon()) {
+            return $menu->icon();
+        }
+
+        return 'las la-layer-group';
+    }
+}
+
+if (!function_exists('category_menu_item_label')) {
+    /**
+     * Short label for narrow category sidebar (e.g. "AESTHETIC / ES......").
+     */
+    function category_menu_item_label(string $name, int $visibleLength = 14): string
+    {
+        $name = trim($name);
+
+        if (mb_strlen($name) <= $visibleLength) {
+            return $name;
+        }
+
+        return rtrim(mb_substr($name, 0, $visibleLength)) . '......';
     }
 }

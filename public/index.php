@@ -45,6 +45,7 @@ if (is_file($envFile)) {
 }
 
 require __DIR__ . '/../bootstrap/xampp-compat.php';
+require __DIR__ . '/../bootstrap/route-cache-guard.php';
 
 /*
 |--------------------------------------------------------------------------

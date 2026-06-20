@@ -22,6 +22,8 @@ class Kernel extends ConsoleKernel
         Commands\ImportDemoDataCommand::class,
         Commands\ScaffoldModuleCommand::class,
         Commands\ScaffoldEntityCommand::class,
+        Commands\RouteCacheCommand::class,
+        Commands\OptimizeCommand::class,
     ];
 
 

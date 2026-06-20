@@ -2,6 +2,80 @@
 @import "footer/_footer-bottom";
 @import "footer/_footer-mobile";
 
+.footer-wrap {
+    position: relative;
+    margin-top: clamp(40px, 5vw, 72px);
+    padding-top: clamp(36px, 4vw, 56px);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0) 0, #f8fafc 40px),
+        #f8fafc;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow:
+        0 -12px 40px rgba(15, 23, 42, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(160px, 40%);
+        height: 4px;
+        border-radius: 0 0 8px 8px;
+        background: linear-gradient(
+            90deg,
+            var(--color-primary) 0%,
+            var(--color-primary-hover, var(--color-primary)) 100%
+        );
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            var(--color-primary-alpha-30, rgba(242, 116, 172, 0.3)) 50%,
+            transparent 100%
+        );
+        pointer-events: none;
+    }
+}
+
 .footer {
-    padding-top: 50px;
+    padding-top: 8px;
+    padding-bottom: 0;
+}
+
+@media screen and (min-width: 992px) {
+    .footer-app-card__header {
+        display: block;
+        margin-bottom: 18px;
+        padding-bottom: 0;
+        border-bottom: none;
+        box-shadow: none;
+    }
+
+    .footer-app-card__title {
+        display: block;
+        position: relative;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+
+        &::after,
+        &::before {
+            content: none;
+            display: none;
+        }
+    }
+
+    .footer-app-card__body {
+        padding-top: 0;
+    }
 }

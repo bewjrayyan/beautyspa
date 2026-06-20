@@ -5,6 +5,7 @@ return [
     'storefront_products_listing_title' => 'Tajuk halaman senarai produk',
     'storefront_product_consultation_label' => 'Label butang konsultasi',
     'storefront_product_consultation_url' => 'URL butang konsultasi',
+    'storefront_product_share_whatsapp_message' => 'Mesej kongsi WhatsApp',
     'storefront_theme_color' => 'Warna tema',
     'storefront_display_font' => 'Fon paparan',
     'storefront_custom_theme_color' => 'Warna tema tersuai',

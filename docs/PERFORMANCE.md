@@ -119,7 +119,7 @@ ASSET_CDN_URL=https://cdn.yourdomain.com
 1. **Eager loading** — sentiasa `with()` untuk relation yang dipaparkan dalam loop.
 2. **Elak query dalam Blade** — pindah ke View Composer / controller.
 3. **Index** — pastikan index pada `orders.customer_id`, `products.slug`, `order_products.order_id`.
-4. **Production** — `php artisan optimize` + `config:cache` + `route:cache` (selepas deploy).
+4. **Production** — `php artisan optimize` (config + view cache; **jangan** `route:cache` — module routes tidak disertakan dan akan pecahkan `route('home')`).
 5. **Debug query** — local sahaja: `QUERY_DETECTOR_ENABLED=true` dalam `.env`.
 
 ### Contoh N+1 untuk elak

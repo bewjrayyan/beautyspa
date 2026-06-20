@@ -1,7 +1,11 @@
 .footer-bottom {
-    margin-top: 50px;
-    padding: 20px 0;
-    border-top: 1px solid var(--border-color-lite);
+    margin-top: 48px;
+    margin-left: calc(var(--bs-gutter-x, 30px) * -0.5);
+    margin-right: calc(var(--bs-gutter-x, 30px) * -0.5);
+    padding: 22px calc(var(--bs-gutter-x, 30px) * 0.5);
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(15, 23, 42, 0.03);
+    border-radius: 14px 14px 0 0;
 }
 
 .footer-text {
@@ -31,8 +35,12 @@
 
 @media screen and (max-width: 767px) {
     .footer-bottom {
-        margin-top: 50px;
-        padding-top: 13px;
+        margin-top: 32px;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 16px 0 0;
+        border-radius: 0;
+        background: transparent;
     }
 
     .footer-text {

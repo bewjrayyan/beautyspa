@@ -1,5 +1,8 @@
-<div class="product-gallery position-relative align-self-start"> 
-    <div class="product-gallery-preview-wrap position-relative overflow-hidden">
+<div class="product-gallery position-relative align-self-start">
+    <div
+        class="product-gallery-preview-wrap position-relative overflow-hidden"
+        :class="{ 'product-gallery-preview-wrap--solo': gallerySlideTotal <= 1 }"
+    >
         <div class="product-gallery-preview swiper">
             <div class="swiper-wrapper">
                 @if ($product->media->isNotEmpty())
@@ -33,10 +36,16 @@
 
             <div class="swiper-button-next"></div>
             <div class="swiper-button-prev"></div>
+
+            <div class="product-gallery-pagination swiper-pagination d-lg-none"></div>
         </div>
     </div>
 
-    <div class="product-gallery-thumbnail swiper"> 
+    <div
+        class="product-gallery-thumbnail swiper"
+        x-show="gallerySlideTotal > 1"
+        x-cloak
+    >
         <div class="swiper-wrapper">
             @if ($product->media->isNotEmpty())
                 @foreach ($product->media as $media)
