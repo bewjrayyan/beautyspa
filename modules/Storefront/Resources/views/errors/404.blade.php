@@ -11,7 +11,7 @@
 
                     <p>{{ trans('storefront::404.unable_to_find_the_page') }}</p>
 
-                    <a href="{{ route('home') }}" class="btn btn-default btn-back-to-home">
+                    <a href="{{ Route::has('home') ? route('home') : url('/') }}" class="btn btn-default btn-back-to-home">
                         {{ trans('storefront::404.back_to_home') }}
                     </a>
                 </div>

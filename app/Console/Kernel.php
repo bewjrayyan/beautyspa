@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         Commands\ScaffoldModuleCommand::class,
         Commands\ScaffoldEntityCommand::class,
         Commands\RouteCacheCommand::class,
+        Commands\RouteTranslationsCacheCommand::class,
         Commands\OptimizeCommand::class,
     ];
 

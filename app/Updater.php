@@ -46,6 +46,7 @@ class Updater
 
     private static function clearRouteCache(): void
     {
+        Artisan::call('route:clear');
         Artisan::call('route:trans:clear');
     }
 

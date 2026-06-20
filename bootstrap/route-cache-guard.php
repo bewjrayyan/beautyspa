@@ -1,22 +1,14 @@
 <?php
 
 /**
- * `php artisan route:cache` / `optimize` boot a fresh app before module storefront
- * routes are registered, so the cached file omits `home` and other public routes.
- * Remove incomplete caches so Laravel falls back to live route registration.
+ * Route caching is disabled for AestheticCart (module storefront routes are not
+ * registered during route:cache / route:trans:cache). Remove any stale cache files
+ * so Laravel always loads live routes and `route('home')` stays available.
  */
 (function (): void {
-    $path = __DIR__ . '/cache/routes-v7.php';
+    $cacheDir = __DIR__ . '/cache';
 
-    if (! is_file($path)) {
-        return;
+    foreach (glob($cacheDir . '/routes-v7*.php') ?: [] as $path) {
+        @unlink($path);
     }
-
-    $contents = @file_get_contents($path);
-
-    if ($contents === false || str_contains($contents, 'HomeController')) {
-        return;
-    }
-
-    @unlink($path);
 })();

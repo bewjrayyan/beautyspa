@@ -287,7 +287,11 @@ if (! function_exists('storefront_home_url')) {
      */
     function storefront_home_url(): string
     {
-        return localized_url(locale(), route('home'));
+        $homeUrl = \Illuminate\Support\Facades\Route::has('home')
+            ? route('home')
+            : url('/');
+
+        return localized_url(locale(), $homeUrl);
     }
 }
 

@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.68' => [
+        'en' => [
+            'summary' => 'Fix 500 Server Error after deploy caused by stale route cache missing the home route.',
+            'changes' => [
+                'Purge all routes-v7*.php cache files on every boot since route caching is disabled for module routes.',
+                'Block route:trans:cache and clear both route:clear and route:trans:clear during version updates.',
+                'Harden 404 page and storefront_home_url() when the home route is temporarily unavailable.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki ralat 500 selepas deploy disebabkan route cache lama yang tiada route home.',
+            'changes' => [
+                'Padam semua fail cache routes-v7*.php setiap boot kerana route caching dinyahaktifkan untuk route modul.',
+                'Sekat route:trans:cache dan kosongkan route:clear serta route:trans:clear semasa kemas kini versi.',
+                'Kukuhkan halaman 404 dan storefront_home_url() apabila route home tidak tersedia sementara.',
+            ],
+        ],
+    ],
     '4.7.67' => [
         'en' => [
             'summary' => 'Mobile product page app UX, WhatsApp share with Open Graph, navigation polish, and route cache guard.',
