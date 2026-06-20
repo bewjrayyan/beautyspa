@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.69' => [
+        'en' => [
+            'summary' => 'Production cache resilience when Redis is down and cleaner admin alert dismiss accessibility.',
+            'changes' => [
+                'Fallback to file sessions and disable app cache when Redis is unreachable, without Predis alert spam in laravel.log.',
+                'Fix admin alert close buttons: shared partial with aria-label and decorative icons hidden from assistive tech only.',
+                'Add admin Close/Tutup translation for dismiss buttons across settings, products, blog, import, and OneSender pages.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Ketahanan cache production apabila Redis down dan aksesibiliti butang tutup alert admin lebih bersih.',
+            'changes' => [
+                'Fallback ke session fail dan nyahaktif cache app apabila Redis tidak boleh dicapai, tanpa spam alert Predis dalam laravel.log.',
+                'Baiki butang tutup alert admin: partial kongsi dengan aria-label dan ikon hiasan disembunyikan dari assistive tech sahaja.',
+                'Tambah terjemahan admin Tutup untuk butang dismiss merentasi settings, produk, blog, import, dan halaman OneSender.',
+            ],
+        ],
+    ],
     '4.7.68' => [
         'en' => [
             'summary' => 'Fix 500 Server Error after deploy caused by stale route cache missing the home route.',
