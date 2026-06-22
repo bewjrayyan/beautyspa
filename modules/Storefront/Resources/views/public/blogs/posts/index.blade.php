@@ -6,6 +6,12 @@
 
 @section('content')
     <section class="all-blog-posts-wrap">
+        <div class="blog-index-search-sticky d-lg-none">
+            @include('storefront::public.blogs.posts.partials.blog_search', [
+                'searchPlacement' => 'hero',
+            ])
+        </div>
+
         <div class="container">
             <div class="row">
                 <div class="col-xl-14 col-lg-13">

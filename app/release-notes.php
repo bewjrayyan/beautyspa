@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.77' => [
+        'en' => [
+            'summary' => 'Highlighted fixed blog search bar on mobile index.',
+            'changes' => [
+                'Add app-style search card with icon field and storefront-aware search URL.',
+                'Pin blog search below the sticky header on mobile index so it stays visible while scrolling.',
+                'Move search out of the flex column layout and add content offset padding.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Bar carian blog mobile yang menonjol dan kekal di indeks.',
+            'changes' => [
+                'Tambah kad carian gaya app dengan ikon dalam field dan URL carian yang peka subdirectory.',
+                'Pin carian blog di bawah header sticky pada indeks mobile supaya kekal kelihatan semasa scroll.',
+                'Alih carian keluar dari layout flex column dan tambah padding offset kandungan.',
+            ],
+        ],
+    ],
     '4.7.76' => [
         'en' => [
             'summary' => 'Mobile app-style category chips on blog index and sidebar.',
