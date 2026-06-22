@@ -85,6 +85,8 @@ return [
         'line_total' => 'Line Total',
         'subtotal' => 'Subtotal',
         'coupon' => 'Coupon',
+        'payment_processing_fee' => 'Payment processing fee',
+        'loyalty_pts' => 'pts',
         'total' => 'Total',
         'leave_reviews' => 'Leave a review',
         'leave_reviews_hint' => 'Share your experience with the products from this order.',

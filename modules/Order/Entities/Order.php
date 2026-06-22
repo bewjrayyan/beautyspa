@@ -166,6 +166,66 @@ class Order extends Model
     }
 
 
+    public function allProductsAreVirtual(): bool
+    {
+        return $this->products->isNotEmpty()
+            && $this->products->every(fn ($line) => (bool) $line->product?->is_virtual);
+    }
+
+
+    public function hasPhysicalProducts(): bool
+    {
+        return $this->products->contains(
+            fn ($line) => ! (bool) $line->product?->is_virtual
+        );
+    }
+
+
+    public function loyaltyDiscountAmount(): Money
+    {
+        return Money::inDefaultCurrency((float) ($this->attributes['loyalty_discount_amount'] ?? 0));
+    }
+
+
+    public function hasLoyaltyRedemption(): bool
+    {
+        return (int) ($this->loyalty_points_redeemed ?? 0) > 0
+            && $this->loyaltyDiscountAmount()->amount() > 0;
+    }
+
+
+    public function paymentProcessingFee(): Money
+    {
+        $amount = $this->sub_total->amount();
+
+        if ($this->hasShippingMethod()) {
+            $amount += $this->shipping_cost->amount();
+        }
+
+        foreach ($this->taxes as $tax) {
+            $amount += $tax->order_tax->amount->amount();
+        }
+
+        if ($this->hasCoupon()) {
+            $amount -= $this->discount->amount();
+        }
+
+        if ($this->hasLoyaltyRedemption()) {
+            $amount -= $this->loyaltyDiscountAmount()->amount();
+        }
+
+        $fee = round($this->total->amount() - $amount, 4);
+
+        return Money::inDefaultCurrency(max(0, $fee));
+    }
+
+
+    public function hasPaymentProcessingFee(): bool
+    {
+        return $this->paymentProcessingFee()->amount() > 0.009;
+    }
+
+
     /**
      * Checkout free-text note only (excludes Beautician / Appt lines stored in note for exports).
      */

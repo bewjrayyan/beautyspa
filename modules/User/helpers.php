@@ -70,6 +70,53 @@ if (! function_exists('permission_group_label')) {
     }
 }
 
+if (! function_exists('permission_label')) {
+    /**
+     * Resolve a module permission label (e.g. loyalty::permissions.stamp_programs.index).
+     * Falls back to module lang files when the translation loader cache is stale.
+     */
+    function permission_label(string $key): string
+    {
+        $line = trans($key);
+
+        if ($line !== $key) {
+            return $line;
+        }
+
+        if (! preg_match('/^([^:]+)::permissions\.(.+)$/', $key, $matches)) {
+            return $key;
+        }
+
+        [, $namespace, $item] = $matches;
+
+        $module = collect(app('modules')->allEnabled())
+            ->first(
+                fn ($module) => strtolower($module->getAlias()) === strtolower($namespace)
+                    || strtolower($module->getName()) === strtolower($namespace)
+            );
+
+        if (! $module) {
+            return $key;
+        }
+
+        foreach ([locale(), 'en'] as $lang) {
+            $path = $module->getPath()."/Resources/lang/{$lang}/permissions.php";
+
+            if (! is_file($path)) {
+                continue;
+            }
+
+            $value = data_get(require $path, $item);
+
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        return $key;
+    }
+}
+
 if (!function_exists('permission_value')) {
     /**
      * Get the integer representation value of the permission.

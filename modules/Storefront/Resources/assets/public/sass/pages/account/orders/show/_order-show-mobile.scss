@@ -356,40 +356,34 @@
     }
 
     .account-order-item-card__pricing {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
         padding: 10px 12px;
         background: #f8fafc;
         border-radius: 10px;
-    }
 
-    .account-order-item-card__row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        font-size: 13px;
-        color: var(--color-gray);
+        .account-order-item-pricing {
+            gap: 10px;
 
-        span:last-child {
-            font-weight: 600;
-            color: var(--color-black);
-        }
-
-        &--total {
-            padding-top: 6px;
-            margin-top: 2px;
-            border-top: 1px dashed #e2e8f0;
-            font-weight: 600;
-
-            span:first-child {
-                color: var(--color-black);
+            &__row {
+                align-items: center;
             }
 
-            span:last-child {
-                color: var(--color-primary);
-                font-size: 15px;
+            &__selection {
+                gap: 4px;
+            }
+
+            &__value {
+                font-size: 14px;
+            }
+
+            &__amount {
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            &__row--total {
+                margin-top: 4px;
+                padding-top: 10px;
+                border-top: 1px dashed #e2e8f0;
             }
         }
     }
@@ -402,7 +396,31 @@
         border-radius: 0;
 
         .order-summary-list li {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
             font-size: 13px;
+            margin-bottom: 8px;
+
+            label {
+                margin: 0;
+                flex: 1;
+                min-width: 0;
+                color: var(--color-gray);
+            }
+
+            > span {
+                flex-shrink: 0;
+                font-weight: 600;
+                color: var(--color-black);
+                text-align: right;
+            }
+        }
+
+        .account-order-summary-line--discount span:last-child {
+            color: var(--color-primary);
+            font-weight: 700;
         }
 
         .order-summary-total {
@@ -461,9 +479,10 @@
 
     .account-order-payment-simple__transaction {
         display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
         min-width: 0;
         flex: 1;
     }
@@ -471,8 +490,12 @@
     .account-order-payment-simple__copy {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
         gap: 4px;
-        padding: 4px 8px;
+        width: 32px;
+        height: 32px;
+        padding: 0;
         font-family: inherit;
         font-size: 11px;
         font-weight: 600;
@@ -489,20 +512,10 @@
     }
 
     .account-order-payment-simple__row--transaction {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-
-        .account-order-payment-simple__transaction {
-            align-items: stretch;
-        }
-
         .account-order-payment-simple__value--mono {
-            text-align: left;
-        }
-
-        .account-order-payment-simple__copy {
-            align-self: flex-start;
+            flex: 1;
+            min-width: 0;
+            text-align: right;
         }
     }
 }

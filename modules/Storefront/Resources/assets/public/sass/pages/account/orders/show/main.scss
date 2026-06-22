@@ -332,6 +332,96 @@ $order-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
             color: $order-pink;
         }
     }
+
+    .account-order-summary-line--discount span:last-child {
+        color: $order-pink;
+        font-weight: 600;
+    }
+
+    .account-order-summary-line--meta span:last-child {
+        color: $order-text;
+        font-weight: 600;
+    }
+}
+
+.account-order-item-pricing {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    &__selection {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 6px;
+        margin: 0;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__lead {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    &__name {
+        font-weight: 500;
+        color: $order-muted;
+        white-space: nowrap;
+    }
+
+    &__value {
+        font-size: 14px;
+        font-weight: 700;
+        color: $order-text;
+        word-break: break-word;
+    }
+
+    &__amount {
+        flex-shrink: 0;
+        font-weight: 600;
+        color: $order-text;
+        text-align: right;
+
+        &--addon {
+            color: $order-pink;
+        }
+    }
+
+    &__row--total {
+        padding-top: 8px;
+        margin-top: 2px;
+        border-top: 1px solid $order-border;
+
+        .account-order-item-pricing__name,
+        .account-order-item-pricing__amount {
+            font-weight: 700;
+            color: $order-text;
+        }
+
+        .account-order-item-pricing__amount {
+            color: $order-pink;
+        }
+    }
+
+    &--table {
+        gap: 6px;
+
+        .account-order-item-pricing__row {
+            font-size: 12px;
+        }
+    }
 }
 
 .account-order-sidebar {

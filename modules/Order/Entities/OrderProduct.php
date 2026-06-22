@@ -175,4 +175,53 @@ class OrderProduct extends Model
     {
         return $this->product_variant ? $this->product_variant->sku : $this->product->sku;
     }
+
+
+    public function optionPriceTotal(): float
+    {
+        $total = 0.0;
+
+        foreach ($this->options as $option) {
+            foreach ($option->values as $value) {
+                $total += (float) ($value->pivot->price ?? 0);
+            }
+        }
+
+        return $total;
+    }
+
+
+    public function hasPricedOptions(): bool
+    {
+        return $this->optionPriceTotal() > 0.009;
+    }
+
+
+    public function baseUnitPrice(): Money
+    {
+        return Money::inDefaultCurrency(
+            max(0, $this->unit_price->amount() - $this->optionPriceTotal())
+        );
+    }
+
+
+    /**
+     * @return \Illuminate\Support\Collection<int, array{name: string, value: string, price: float}>
+     */
+    public function pricedOptionLines()
+    {
+        return $this->options->flatMap(function ($option) {
+            if ($option->isFieldType()) {
+                return collect();
+            }
+
+            return $option->values->map(function ($value) use ($option) {
+                return [
+                    'name' => $option->name,
+                    'value' => $value->label,
+                    'price' => (float) ($value->pivot->price ?? 0),
+                ];
+            })->filter(fn (array $line) => $line['price'] > 0.009);
+        })->values();
+    }
 }

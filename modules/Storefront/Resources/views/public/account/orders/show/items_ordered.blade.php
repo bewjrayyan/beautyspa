@@ -47,11 +47,13 @@
                         </td>
 
                         <td>
-                            <label>{{ trans('storefront::account.view_order.unit_price') }}</label>
-
-                            <span class="product-price">
-                                {{ $product->unit_price->convert($order->currency, $order->currency_rate)->format($order->currency) }}
-                            </span>
+                            <div class="account-order-item-pricing account-order-item-pricing--table">
+                                @include('storefront::public.account.orders.show.item_pricing', [
+                                    'order' => $order,
+                                    'product' => $product,
+                                    'compact' => true,
+                                ])
+                            </div>
                         </td>
 
                         <td>

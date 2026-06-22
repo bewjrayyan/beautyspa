@@ -11,27 +11,14 @@
                         {{ $product->name }}
                     </a>
 
-                    @if ($product->hasAnyVariation())
-                        <ul class="list-inline account-order-item-card__options">
-                            @foreach ($product->variations as $variation)
-                                <li>
-                                    <label>{{ $variation->name }}:</label>
-                                    {{ $variation->values()->first()?->label }}{{ $loop->last ? '' : ',' }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-
                     @if ($product->hasAnyOption())
                         <ul class="list-inline account-order-item-card__options">
                             @foreach ($product->options as $option)
-                                <li>
-                                    @if ($option->isFieldType())
+                                @if ($option->isFieldType())
+                                    <li>
                                         <label>{{ $option->name }}:</label> {{ $option->value }}
-                                    @else
-                                        <label>{{ $option->name }}:</label> {{ $option->values->implode('label', ', ') }}
-                                    @endif
-                                </li>
+                                    </li>
+                                @endif
                             @endforeach
                         </ul>
                     @endif
@@ -39,20 +26,10 @@
             </div>
 
             <div class="account-order-item-card__pricing">
-                <div class="account-order-item-card__row">
-                    <span>{{ trans('storefront::account.view_order.unit_price') }}</span>
-                    <span>{{ $product->unit_price->convert($order->currency, $order->currency_rate)->format($order->currency) }}</span>
-                </div>
-
-                <div class="account-order-item-card__row">
-                    <span>{{ trans('storefront::account.view_order.quantity') }}</span>
-                    <span>{{ $product->qty }}</span>
-                </div>
-
-                <div class="account-order-item-card__row account-order-item-card__row--total">
-                    <span>{{ trans('storefront::account.view_order.line_total') }}</span>
-                    <span>{{ $product->line_total->convert($order->currency, $order->currency_rate)->format($order->currency) }}</span>
-                </div>
+                @include('storefront::public.account.orders.show.item_pricing', [
+                    'order' => $order,
+                    'product' => $product,
+                ])
             </div>
         </div>
     @endforeach

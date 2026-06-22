@@ -59,7 +59,10 @@
             <main class="account-order-show__main">
                 <div class="account-order-show__cards account-order-show__cards--addresses">
                     @include('storefront::public.account.orders.show.billing_address')
-                    @include('storefront::public.account.orders.show.shipping_address')
+
+                    @if ($order->hasPhysicalProducts())
+                        @include('storefront::public.account.orders.show.shipping_address')
+                    @endif
                 </div>
 
                 <section class="account-order-show__section">

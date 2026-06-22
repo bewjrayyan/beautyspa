@@ -90,6 +90,8 @@ return [
         'line_total' => 'Line Jumlah',
         'subtotal' => 'Subjumlah',
         'coupon' => 'Kupon',
+        'payment_processing_fee' => 'Yuran pemprosesan bayaran',
+        'loyalty_pts' => 'mata',
         'total' => 'Jumlah',
         'leave_reviews' => 'Tinggalkan ulasan',
         'leave_reviews_hint' => 'Kongsi pengalaman anda dengan produk daripada pesanan ini.',

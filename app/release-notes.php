@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.84' => [
+        'en' => [
+            'summary' => 'Account order detail pricing breakdown and admin permission labels.',
+            'changes' => [
+                'Show variant and option prices inline on mobile and desktop order item cards.',
+                'Expand order summary with tax, shipping, coupon, loyalty, and payment processing fee lines.',
+                'Hide shipping address on account orders when all products are virtual or treatment.',
+                'Fix raw admin role permission labels with permission_label helper and missing group keys.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Breakdown harga pesanan akaun dan label kebenaran admin.',
+            'changes' => [
+                'Papar harga variant dan pilihan sebaris pada kad item pesanan mobile dan desktop.',
+                'Kembangkan ringkasan pesanan dengan cukai, penghantaran, kupon, kesetiaan, dan yuran pemprosesan.',
+                'Sembunyikan alamat penghantaran bila semua produk adalah virtual atau rawatan.',
+                'Baiki label kebenaran peranan admin mentah dengan helper permission_label dan kunci kumpulan baharu.',
+            ],
+        ],
+    ],
     '4.7.83' => [
         'en' => [
             'summary' => 'Show product consultation button on mobile below variant picker.',

@@ -1,7 +1,7 @@
 <div class="permission-row">
-    <span class="permission-label">{{ trans($permissionLabel) }}</span>
+    <span class="permission-label">{{ permission_label($permissionLabel) }}</span>
 
-    <div class="permission-segment" role="radiogroup" aria-label="{{ trans($permissionLabel) }}">
+    <div class="permission-segment" role="radiogroup" aria-label="{{ permission_label($permissionLabel) }}">
         @php
             $permissionValue = old('permissions')["{$group}.{$permissionAction}"] ?? (
                 is_null($entity)
