@@ -70,7 +70,9 @@
                 </div>
 
                 <div class="col-xl-4 col-lg-5 mb-4 mb-lg-0">
-                    @include('storefront::public.blogs.posts.layouts.sidebar')
+                    <aside class="blog-post-sidebar">
+                        @include('storefront::public.blogs.posts.layouts.sidebar')
+                    </aside>
                 </div>
             </div>
         </div>

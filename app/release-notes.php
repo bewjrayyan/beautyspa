@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.76' => [
+        'en' => [
+            'summary' => 'Mobile app-style category chips on blog index and sidebar.',
+            'changes' => [
+                'Replace long vertical category list with horizontal scroll pill chips on mobile.',
+                'Add View All chip, category count badge, scroll snap, and fade edge hint.',
+                'Share sidebar mobile styles between blog index and blog post pages.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Chip kategori gaya app mobile pada indeks blog dan sidebar.',
+            'changes' => [
+                'Ganti senarai kategori menegak panjang dengan pill chip scroll mendatar pada mobile.',
+                'Tambah chip Lihat Semua, badge bilangan kategori, scroll snap, dan petunjuk fade tepi.',
+                'Kongsi gaya sidebar mobile antara halaman indeks blog dan catatan blog.',
+            ],
+        ],
+    ],
     '4.7.75' => [
         'en' => [
             'summary' => 'Fix blog pagination links pointing to localhost on production.',

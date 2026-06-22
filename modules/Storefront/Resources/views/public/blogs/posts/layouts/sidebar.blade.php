@@ -5,6 +5,8 @@
             : null
     );
 
+    $isAllCategoriesActive = ! request()->routeIs('blog_category.blog_posts.index');
+
     $displayCategories = $blogCategories;
 
     if ($activeCategoryId) {
@@ -30,14 +32,27 @@
         <h4 class="section-title">{{ trans('storefront::blog.blog_posts.categories') }}</h4>
 
         @if ($blogCategories->isNotEmpty())
-            <a href="{{ route('blog_posts.index') }}" class="blog-categories__all d-lg-none">
-                {{ trans('storefront::blog.blog_posts.view_all_categories') }}
-            </a>
+            <span class="blog-categories__count d-lg-none" aria-hidden="true">
+                {{ $blogCategories->count() }}
+            </span>
         @endif
     </div>
 
     <div class="blog-categories__scroll">
-        <ul class="blog-categories-list list-inline">
+        <ul
+            class="blog-categories-list list-inline"
+            role="list"
+            aria-label="{{ trans('storefront::blog.blog_posts.categories') }}"
+        >
+            <li class="blog-categories-item d-flex align-items-center d-lg-none">
+                <a
+                    href="{{ route('blog_posts.index') }}"
+                    @class(['active' => $isAllCategoriesActive])
+                >
+                    {{ trans('storefront::blog.blog_posts.view_all') }}
+                </a>
+            </li>
+
             @forelse ($displayCategories as $blogCategory)
                 <li class="blog-categories-item d-flex align-items-center">
                     <a

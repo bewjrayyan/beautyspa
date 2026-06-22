@@ -1,5 +1,6 @@
 @import "../../../utils/common/_blog-card";
 @import "../layouts/_blog-right-sidebar";
+@import "../layouts/_blog-sidebar-mobile";
 
 .all-blog-posts-wrap {
     margin-top: 50px;
@@ -167,14 +168,6 @@
                 border-radius: 0;
                 box-shadow: none;
             }
-        }
-
-        .blog-post-sidebar,
-        .blog-categories,
-        .blog-post-search,
-        .recent-blog-posts {
-            margin-left: 0;
-            margin-right: 0;
         }
     }
 }
