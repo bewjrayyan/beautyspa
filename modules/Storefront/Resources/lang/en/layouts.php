@@ -12,6 +12,7 @@ return [
     'login_register' => 'Login / Register',
     'login' => 'Login',
     'search_for_products' => 'Search for products',
+    'search' => 'Search',
     'category_suggestions' => 'Category Suggestions',
     'product_suggestions' => 'Product Suggestions',
     'more_results' => ':count more results',

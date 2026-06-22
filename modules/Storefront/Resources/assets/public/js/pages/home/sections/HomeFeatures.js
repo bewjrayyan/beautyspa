@@ -11,29 +11,28 @@ Alpine.data("HomeFeatures", () => ({
     },
 
     initFeaturesSlider() {
-        new Swiper(".features", {
+        const swiperEl = this.$refs.featureList.closest(".features");
+
+        new Swiper(swiperEl, {
             modules: [Navigation, Autoplay],
-            slidesPerView: 1,
+            slidesPerView: 1.35,
+            spaceBetween: 10,
             autoplay: {
-                delay: 2500,
+                delay: 3500,
                 disableOnInteraction: false,
             },
             navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
+                nextEl: this.$el.querySelector(".swiper-button-next"),
+                prevEl: this.$el.querySelector(".swiper-button-prev"),
             },
             breakpoints: {
-                576: {
-                    slidesPerView: 2,
+                992: {
+                    slidesPerView: 4,
+                    spaceBetween: 0,
                 },
                 780: {
                     slidesPerView: 3,
-                },
-                1180: {
-                    slidesPerView: 4,
-                },
-                1400: {
-                    slidesPerView: 5,
+                    spaceBetween: 0,
                 },
             },
         });

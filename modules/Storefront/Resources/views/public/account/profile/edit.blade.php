@@ -41,58 +41,86 @@
 
             <header class="account-profile-show__hero">
                 <div class="account-profile-show__hero-main">
-                    <div class="account-profile-show__avatar-block">
-                        <div class="account-profile-show__avatar-wrap">
-                            <template x-if="preview">
-                                <img :src="preview" alt="" class="account-profile-show__avatar account-profile-show__avatar--photo">
-                            </template>
-                            <template x-if="! preview">
-                                <span class="account-profile-show__avatar account-profile-show__avatar--initial">
-                                    {{ $account->initials }}
-                                </span>
-                            </template>
+                    <div class="account-profile-show__hero-profile">
+                        <input
+                            type="file"
+                            name="avatar"
+                            accept="image/jpeg,image/png,image/webp"
+                            class="account-profile-show__file-input"
+                            x-ref="avatarInput"
+                            @change="onFileChange($event)"
+                        >
 
-                            <label
-                                class="account-profile-show__avatar-edit"
-                                title="{{ trans('storefront::account.profile.upload_photo') }}"
-                            >
-                                <span class="sr-only">{{ trans('storefront::account.profile.upload_photo') }}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M4 8h2l1.5-2h7L16 8h4a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                                    <circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.8"/>
-                                </svg>
-                                <input
-                                    type="file"
-                                    name="avatar"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    class="account-profile-show__file-input"
-                                    x-ref="avatarInput"
-                                    @change="onFileChange($event)"
+                        <div class="account-profile-show__avatar-block">
+                            <div class="account-profile-show__avatar-wrap">
+                                <template x-if="preview">
+                                    <img :src="preview" alt="" class="account-profile-show__avatar account-profile-show__avatar--photo">
+                                </template>
+                                <template x-if="! preview">
+                                    <span class="account-profile-show__avatar account-profile-show__avatar--initial">
+                                        {{ $account->initials }}
+                                    </span>
+                                </template>
+
+                                <label
+                                    class="account-profile-show__avatar-edit d-none d-lg-flex"
+                                    title="{{ trans('storefront::account.profile.upload_photo') }}"
+                                    @click.prevent="$refs.avatarInput.click()"
                                 >
-                            </label>
+                                    <span class="sr-only">{{ trans('storefront::account.profile.upload_photo') }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <path d="M4 8h2l1.5-2h7L16 8h4a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.8"/>
+                                    </svg>
+                                </label>
+
+                                <button
+                                    type="button"
+                                    class="account-profile-show__avatar-remove d-none d-lg-flex"
+                                    title="{{ trans('storefront::account.profile.remove_photo') }}"
+                                    x-show="hasPhoto"
+                                    x-cloak
+                                    @click="removePhoto()"
+                                >
+                                    <span class="sr-only">{{ trans('storefront::account.profile.remove_photo') }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            @error('avatar')
+                                <p class="account-profile-show__avatar-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="account-profile-show__photo-actions d-lg-none">
+                            <button
+                                type="button"
+                                class="account-profile-show__photo-btn"
+                                @click="$refs.avatarInput.click()"
+                            >
+                                <i class="las la-camera" aria-hidden="true"></i>
+                                {{ trans('storefront::account.profile.upload_photo') }}
+                            </button>
 
                             <button
                                 type="button"
-                                class="account-profile-show__avatar-remove"
-                                title="{{ trans('storefront::account.profile.remove_photo') }}"
+                                class="account-profile-show__photo-btn account-profile-show__photo-btn--danger"
                                 x-show="hasPhoto"
                                 x-cloak
                                 @click="removePhoto()"
                             >
-                                <span class="sr-only">{{ trans('storefront::account.profile.remove_photo') }}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                </svg>
+                                <i class="las la-trash-alt" aria-hidden="true"></i>
+                                {{ trans('storefront::account.profile.remove_photo') }}
                             </button>
                         </div>
-
-                        @error('avatar')
-                            <p class="account-profile-show__avatar-error">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div class="account-profile-show__identity">
                         <h1 class="account-profile-show__title">{{ $account->full_name }}</h1>
+
+                        <p class="account-profile-show__email d-lg-none">{{ $account->email }}</p>
 
                         <div class="account-profile-show__meta-row d-none d-lg-flex">
                             <span>
@@ -109,11 +137,17 @@
 
                         <ul class="account-profile-show__stats">
                             <li>
-                                <span class="account-profile-show__stat-label">{{ trans('storefront::account.profile.member_since') }}</span>
+                                <span class="account-profile-show__stat-label">
+                                    <i class="las la-calendar-check" aria-hidden="true"></i>
+                                    {{ trans('storefront::account.profile.member_since') }}
+                                </span>
                                 <span class="account-profile-show__stat-value">{{ $account->created_at?->format('d M Y') ?? '—' }}</span>
                             </li>
                             <li>
-                                <span class="account-profile-show__stat-label">{{ trans('storefront::account.profile.last_login') }}</span>
+                                <span class="account-profile-show__stat-label">
+                                    <i class="las la-history" aria-hidden="true"></i>
+                                    {{ trans('storefront::account.profile.last_login') }}
+                                </span>
                                 <span class="account-profile-show__stat-value">
                                     @if ($account->last_login)
                                         {{ $account->last_login->format('d M Y · h:i A') }}
@@ -125,11 +159,15 @@
                             @if (app('modules')->isEnabled('Loyalty') && $loyaltyWallet)
                                 <li class="account-profile-show__stat--loyalty">
                                     <a href="{{ route('account.loyalty.index') }}" class="account-profile-show__stat-link">
-                                        <span class="account-profile-show__stat-label">{{ trans('loyalty::account.points_balance') }}</span>
+                                        <span class="account-profile-show__stat-label">
+                                            <i class="las la-coins" aria-hidden="true"></i>
+                                            {{ trans('loyalty::account.points_balance') }}
+                                        </span>
                                         <span class="account-profile-show__stat-value">
                                             {{ number_format($loyaltyWallet->balance) }}
                                             <span class="account-profile-show__stat-sub">· RM {{ number_format($loyaltyBalanceRm, 2) }}</span>
                                         </span>
+                                        <i class="las la-angle-right account-profile-show__stat-chevron" aria-hidden="true"></i>
                                     </a>
                                 </li>
                             @endif

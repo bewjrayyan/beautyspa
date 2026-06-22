@@ -97,11 +97,34 @@
     }
 }
 
+@media screen and (max-width: 779px) {
+    .features:not(.swiper-initialized) {
+        .feature-list {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            .single-feature {
+                flex: 0 0 68%;
+                width: 68%;
+                max-width: 68%;
+            }
+        }
+    }
+}
+
 @media screen and (max-width: 576px) {
     .features:not(.swiper-initialized) {
         .feature-list {
             .single-feature {
-                width: 100%;
+                flex: 0 0 68%;
+                width: 68%;
+                max-width: 68%;
             }
         }
     }

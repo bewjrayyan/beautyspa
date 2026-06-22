@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.78' => [
+        'en' => [
+            'summary' => 'Mobile account UX polish, homepage search, and layout alignment fixes.',
+            'changes' => [
+                'Align account subpage cards with footer width using full-width panel-wrap gutter.',
+                'Redesign mobile profile hero with gradient header, centered avatar, and stat tiles.',
+                'Fix password field borders on mobile profile security section.',
+                'Add sticky product search on homepage and shared sticky search partial for blog.',
+                'Improve features carousel peek, pastel card tints, and bottom navigation centering.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penambahbaikan UX akaun mobile, carian laman utama, dan penjajaran layout.',
+            'changes' => [
+                'Jajarkan kad subhalaman akaun dengan lebar footer menggunakan gutter panel-wrap penuh.',
+                'Reka semula hero profil mobile dengan header gradien, avatar berpusat, dan jubin stat.',
+                'Baiki border field kata laluan pada bahagian keselamatan profil mobile.',
+                'Tambah carian produk sticky pada laman utama dan partial carian sticky dikongsi untuk blog.',
+                'Tambah baik peek karusel ciri, warna kad pastel, dan pemusatan navigasi bawah.',
+            ],
+        ],
+    ],
     '4.7.77' => [
         'en' => [
             'summary' => 'Highlighted fixed blog search bar on mobile index.',

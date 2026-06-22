@@ -6,7 +6,7 @@
 
 @section('content')
     <section class="all-blog-posts-wrap">
-        <div class="blog-index-search-sticky d-lg-none">
+        <div class="index-search-sticky d-lg-none">
             @include('storefront::public.blogs.posts.partials.blog_search', [
                 'searchPlacement' => 'hero',
             ])

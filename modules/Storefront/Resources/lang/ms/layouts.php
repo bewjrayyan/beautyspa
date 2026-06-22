@@ -12,6 +12,7 @@ return [
     'login_register' => 'Log Masuk / Daftar',
     'login' => 'Log Masuk',
     'search_for_products' => 'Cari rawatan atau produk',
+    'search' => 'Cari',
     'category_suggestions' => 'Cadangan Kategori',
     'product_suggestions' => 'Cadangan Produk',
     'more_results' => ':count lagi keputusan',

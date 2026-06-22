@@ -1,3 +1,5 @@
+$account-app-gutter: 16px;
+
 @media screen and (max-width: 991px) {
     body.account-page {
         .breadcrumb {
@@ -20,8 +22,8 @@
         background: #f2f2f7;
 
         > .container {
-            padding-left: 16px;
-            padding-right: 16px;
+            padding-left: $account-app-gutter;
+            padding-right: $account-app-gutter;
         }
 
         .account-left {
@@ -38,6 +40,33 @@
     .account-wrap--subpage {
         .account-left {
             display: none;
+        }
+
+        // Same horizontal rhythm as .footer-wrap: full-width shell, 16px inner gutter.
+        > .container {
+            padding-left: 0;
+            padding-right: 0;
+            max-width: 100%;
+        }
+
+        .account-mobile-header {
+            padding-left: $account-app-gutter;
+            padding-right: $account-app-gutter;
+        }
+
+        .account-right {
+            overflow: visible;
+        }
+
+        .panel-wrap {
+            width: 100%;
+            max-width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: $account-app-gutter;
+            padding-right: $account-app-gutter;
+            box-sizing: border-box;
+            overflow-x: visible;
         }
     }
 
@@ -616,7 +645,7 @@
         }
     }
 
-    .account-right .panel-wrap {
+    .account-wrap:not(.account-wrap--subpage) .account-right .panel-wrap {
         max-width: 100%;
         min-width: 0;
         overflow-x: hidden;

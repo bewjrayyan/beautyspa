@@ -5,7 +5,12 @@
 @section('title', setting('store_tagline'))
 
 @section('content')
-    @includeUnless(is_null($slider), 'storefront::public.home.sections.hero')
+    <div class="index-search-sticky d-lg-none">
+        @include('storefront::public.partials.product_sticky_search')
+    </div>
+
+    <div class="home-page-content">
+        @includeUnless(is_null($slider), 'storefront::public.home.sections.hero')
 
     @if (setting('storefront_features_section_enabled'))
         @include('storefront::public.home.sections.home_features')
@@ -60,6 +65,7 @@
     @if (setting('storefront_blogs_section_enabled') && ! empty($blog['blogPosts']) && $blog['blogPosts']->isNotEmpty())
         @include('storefront::public.home.sections.blog')
     @endif
+    </div>
 @endsection
 
 @push('globals')
