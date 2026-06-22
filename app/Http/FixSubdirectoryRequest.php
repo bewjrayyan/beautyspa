@@ -114,14 +114,16 @@ class FixSubdirectoryRequest
             return $fromLocale;
         }
 
+        // Prefer SCRIPT_NAME (e.g. /v2/public/index.php) before path heuristics so
+        // rewritten URIs like /en/blog/posts do not resolve locale as the base path.
+        if ($fromScript !== '') {
+            return $fromScript;
+        }
+
         $fromRequest = self::basePathFromRequest($requestPath);
 
         if ($fromRequest !== '') {
             return $fromRequest;
-        }
-
-        if ($fromScript !== '') {
-            return $fromScript;
         }
 
         return $configured;
@@ -160,10 +162,29 @@ class FixSubdirectoryRequest
 
     private static function basePathFromRequest(string $path): string
     {
+        $localePattern = implode('|', array_map(
+            fn (string $locale) => preg_quote($locale, '#'),
+            self::localeSegments()
+        ));
+
         foreach (['install', 'license', 'admin', 'api', 'blog'] as $segment) {
-            if (preg_match('#^(.+)/'.preg_quote($segment, '#').'(?:/|$)#', $path, $matches)) {
-                return $matches[1];
+            if (! preg_match('#^(.+)/'.preg_quote($segment, '#').'(?:/|$)#', $path, $matches)) {
+                continue;
             }
+
+            $prefix = $matches[1];
+
+            if ($prefix === '/' || $prefix === '') {
+                continue;
+            }
+
+            $prefixSegment = ltrim($prefix, '/');
+
+            if ($localePattern !== '' && preg_match('#^(?:'.$localePattern.')$#', $prefixSegment)) {
+                continue;
+            }
+
+            return rtrim($prefix, '/');
         }
 
         return '';

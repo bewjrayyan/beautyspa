@@ -247,14 +247,118 @@ if (!function_exists('aestheticcart_apply_install_base_url')) {
     }
 }
 
+if (! function_exists('aestheticcart_app_url_origin')) {
+    /**
+     * Scheme/host (and optional port) for the current install.
+     *
+     * @return array{scheme: string, host: string, port?: int}|null
+     */
+    function aestheticcart_app_url_origin(): ?array
+    {
+        $root = \AestheticCart\Http\FixSubdirectoryRequest::resolvedAppUrl();
+
+        if (! $root && function_exists('config')) {
+            $root = config('app.url');
+        }
+
+        if (! is_string($root) || $root === '') {
+            if (function_exists('request')) {
+                try {
+                    $request = request();
+
+                    if ($request) {
+                        return [
+                            'scheme' => $request->getScheme(),
+                            'host' => $request->getHost(),
+                            'port' => $request->getPort(),
+                        ];
+                    }
+                } catch (\Throwable) {
+                    // Request not available during early bootstrap.
+                }
+            }
+
+            return null;
+        }
+
+        $rootParts = parse_url($root);
+
+        if (! isset($rootParts['host'])) {
+            return null;
+        }
+
+        $origin = [
+            'scheme' => $rootParts['scheme'] ?? 'https',
+            'host' => $rootParts['host'],
+        ];
+
+        if (isset($rootParts['port'])) {
+            $origin['port'] = (int) $rootParts['port'];
+        }
+
+        return $origin;
+    }
+}
+
+if (! function_exists('aestheticcart_apply_app_url_origin')) {
+    /**
+     * Replace scheme/host on a URL with the resolved install origin (fixes stale localhost APP_URL).
+     */
+    function aestheticcart_apply_app_url_origin(string $url): string
+    {
+        $origin = aestheticcart_app_url_origin();
+
+        if ($origin === null) {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+
+        if (! isset($parts['path'])) {
+            return $url;
+        }
+
+        $parts['scheme'] = $origin['scheme'];
+        $parts['host'] = $origin['host'];
+
+        if (isset($origin['port'])) {
+            $parts['port'] = $origin['port'];
+        } elseif (isset($parts['port'])
+            && ((($parts['scheme'] ?? '') === 'https' && (int) $parts['port'] === 443)
+                || (($parts['scheme'] ?? '') === 'http' && (int) $parts['port'] === 80))) {
+            unset($parts['port']);
+        }
+
+        return aestheticcart_build_url($parts);
+    }
+}
+
 if (!function_exists('aestheticcart_build_url')) {
     /**
      * @param array<string, mixed> $parts
      */
     function aestheticcart_build_url(array $parts): string
     {
-        $scheme = $parts['scheme'] ?? 'http';
-        $host = $parts['host'] ?? 'localhost';
+        if (empty($parts['host'])) {
+            $origin = aestheticcart_app_url_origin();
+
+            if ($origin !== null) {
+                $parts['scheme'] = $parts['scheme'] ?? $origin['scheme'];
+                $parts['host'] = $origin['host'];
+
+                if (! isset($parts['port']) && isset($origin['port'])) {
+                    $parts['port'] = $origin['port'];
+                }
+            } else {
+                $parts['scheme'] = $parts['scheme'] ?? 'http';
+                $parts['host'] = 'localhost';
+            }
+        } else {
+            $parts['scheme'] = $parts['scheme'] ?? 'http';
+        }
+
+        $scheme = $parts['scheme'];
+        $host = $parts['host'];
         $port = isset($parts['port']) ? ':' . $parts['port'] : '';
         $path = $parts['path'] ?? '/';
         $result = "{$scheme}://{$host}{$port}{$path}";
@@ -317,6 +421,20 @@ if (! function_exists('storefront_pagination_path')) {
      */
     function storefront_pagination_path(string $routeName, array $parameters = []): string
     {
+        try {
+            $request = request();
+
+            if ($request && $request->route()?->getName() === $routeName) {
+                $path = parse_url($request->url(), PHP_URL_PATH);
+
+                if (is_string($path) && $path !== '') {
+                    return $path;
+                }
+            }
+        } catch (\Throwable) {
+            // Request not available.
+        }
+
         $path = parse_url(storefront_route($routeName, $parameters), PHP_URL_PATH);
 
         return is_string($path) && $path !== '' ? $path : '/';
@@ -333,8 +451,10 @@ if (! function_exists('aestheticcart_pagination_url')) {
             return $url;
         }
 
-        return aestheticcart_normalize_install_url(
-            aestheticcart_apply_install_base_url($url)
+        return aestheticcart_apply_app_url_origin(
+            aestheticcart_normalize_install_url(
+                aestheticcart_apply_install_base_url($url)
+            )
         );
     }
 }

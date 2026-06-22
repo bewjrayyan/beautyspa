@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.75' => [
+        'en' => [
+            'summary' => 'Fix blog pagination links pointing to localhost on production.',
+            'changes' => [
+                'Build paginator hrefs with the real request origin (domain + scheme) instead of defaulting to localhost.',
+                'Prefer SCRIPT_NAME base path (/v2) over locale segment heuristics on rewritten URLs.',
+                'Derive pagination path from the current request URL when on the same blog route.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki pautan pagination blog yang pergi ke localhost pada production.',
+            'changes' => [
+                'Bina href paginator dengan origin request sebenar (domain + scheme) bukan default localhost.',
+                'Utamakan base path SCRIPT_NAME (/v2) berbanding heuristik segmen locale pada URL yang ditulis semula.',
+                'Ambil path pagination daripada URL request semasa apabila pada route blog yang sama.',
+            ],
+        ],
+    ],
     '4.7.74' => [
         'en' => [
             'summary' => 'Fix blog pagination 404 on alternate subdirectory installs (e.g. /v2).',
