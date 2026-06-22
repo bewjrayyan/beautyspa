@@ -1,0 +1,18 @@
+// App-like mobile shell: block pinch zoom and iOS input focus zoom.
+@media screen and (max-width: 991px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    body {
+        touch-action: manipulation;
+    }
+
+    input.form-control,
+    select.form-control,
+    textarea.form-control,
+    .iti__tel-input {
+        font-size: 16px !important;
+    }
+}

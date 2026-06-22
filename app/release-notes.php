@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.80' => [
+        'en' => [
+            'summary' => 'Disable pinch zoom and iOS input auto-zoom on mobile storefront.',
+            'changes' => [
+                'Lock viewport scale on public layout for app-like mobile browsing.',
+                'Set 16px form control font size on mobile to prevent iOS focus zoom.',
+                'Add touch-action manipulation to reduce double-tap zoom on mobile.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Lumpuhkan pinch zoom dan auto-zoom input iOS pada storefront mobile.',
+            'changes' => [
+                'Kunci skala viewport pada layout awam untuk pelayaran mobile gaya app.',
+                'Set saiz fon 16px pada kawalan borang mobile untuk elak zoom fokus iOS.',
+                'Tambah touch-action manipulation untuk kurangkan double-tap zoom pada mobile.',
+            ],
+        ],
+    ],
     '4.7.79' => [
         'en' => [
             'summary' => 'Profile hero mobile redesign and Language & Currency sheet z-index fix.',
