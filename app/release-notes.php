@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.82' => [
+        'en' => [
+            'summary' => 'Fix mobile sidebar menu close button on outer curve.',
+            'changes' => [
+                'Move the menu drawer X button outside the panel edge on mobile.',
+                'Align close button with the curved header using the desktop offset.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki butang tutup menu sidebar pada lengkungan luar mobile.',
+            'changes' => [
+                'Alihkan butang X drawer menu ke luar tepi panel pada mobile.',
+                'Selaraskan butang tutup dengan header melengkung menggunakan offset desktop.',
+            ],
+        ],
+    ],
     '4.7.81' => [
         'en' => [
             'summary' => 'Mobile cart icon, drawer fixes, and product dock variant UX.',
