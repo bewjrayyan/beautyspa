@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.88' => [
+        'en' => [
+            'summary' => 'Fix account invoice tab closing on mobile and validate Vite assets on deploy.',
+            'changes' => [
+                'Stop auto-print on customer invoice and receipt pages so new tabs stay open on mobile.',
+                'Add a Print or save as PDF button on account and checkout invoice views.',
+                'Use direct links instead of window.open for mobile order invoice and receipt actions.',
+                'Extend verify-production-deploy.php to check all files listed in public/build/manifest.json.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki tab invois akaun yang tertutup pada mobile dan sahkan aset Vite semasa deploy.',
+            'changes' => [
+                'Hentikan auto-print pada halaman invois dan resit pelanggan supaya tab baharu kekal terbuka pada mobile.',
+                'Tambah butang Cetak atau simpan sebagai PDF pada paparan invois akaun dan checkout.',
+                'Guna pautan terus dan bukannya window.open untuk tindakan invois dan resit pesanan pada mobile.',
+                'Lanjutkan verify-production-deploy.php untuk semak semua fail dalam public/build/manifest.json.',
+            ],
+        ],
+    ],
     '4.7.87' => [
         'en' => [
             'summary' => 'Add missing admin release notes for v4.7.85 and v4.7.86.',

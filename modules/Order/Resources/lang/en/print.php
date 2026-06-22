@@ -35,4 +35,5 @@ return [
     'thank_you' => 'Thank you for your business.',
     'footer_note' => 'This is a computer-generated invoice.',
     'receipt_footer_note' => 'This is a computer-generated receipt.',
+    'print_or_save' => 'Print or save as PDF',
 ];

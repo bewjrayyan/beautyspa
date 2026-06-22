@@ -58,6 +58,50 @@ if (! is_link($link) && ! is_dir($link)) {
     }
 }
 
+$manifestPath = $root.'/public/build/manifest.json';
+
+if (! is_file($manifestPath)) {
+    $errors[] = 'Missing public/build/manifest.json — run npm run build locally and commit public/build/, or git pull the full release.';
+} else {
+    $manifest = json_decode(file_get_contents($manifestPath), true);
+
+    if (! is_array($manifest)) {
+        $errors[] = 'public/build/manifest.json is invalid JSON.';
+    } else {
+        $assetPaths = [];
+
+        foreach ($manifest as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+
+            if (! empty($entry['file'])) {
+                $assetPaths[$entry['file']] = true;
+            }
+
+            if (! empty($entry['css']) && is_array($entry['css'])) {
+                foreach ($entry['css'] as $cssPath) {
+                    $assetPaths[$cssPath] = true;
+                }
+            }
+        }
+
+        $missingAssets = [];
+
+        foreach (array_keys($assetPaths) as $assetPath) {
+            if (! is_file($root.'/public/build/'.$assetPath)) {
+                $missingAssets[] = $assetPath;
+            }
+        }
+
+        if ($missingAssets !== []) {
+            $preview = implode(', ', array_slice($missingAssets, 0, 5));
+            $suffix = count($missingAssets) > 5 ? ' …' : '';
+            $errors[] = count($missingAssets).' Vite build asset(s) missing from public/build/ (e.g. '.$preview.$suffix.'). Ensure public/build/ was deployed in full.';
+        }
+    }
+}
+
 if ($errors === []) {
     echo "OK: production deploy checks passed.\n";
     exit(0);
@@ -69,6 +113,10 @@ foreach ($errors as $error) {
     echo " - {$error}\n";
 }
 
-echo "\nFix: cd to project root, run git pull origin main && composer dump-autoload -o\n";
+echo "\nFix: cd to project root, run:\n";
+echo "  git pull origin main\n";
+echo "  composer dump-autoload -o\n";
+echo "  php artisan config:clear && php artisan cache:clear && php artisan view:clear\n";
+echo "If assets are still missing, redeploy the full public/build/ directory from the release tag.\n";
 
 exit(1);

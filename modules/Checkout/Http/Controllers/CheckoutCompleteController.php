@@ -262,7 +262,10 @@ class CheckoutCompleteController
 
         $order->load(['products', 'coupon', 'taxes', 'beautician']);
 
-        return view('order::admin.orders.print.show', compact('order'));
+        return view('order::admin.orders.print.show', [
+            'order' => $order,
+            'autoPrint' => false,
+        ]);
     }
 
 

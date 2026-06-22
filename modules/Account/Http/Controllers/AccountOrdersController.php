@@ -92,7 +92,11 @@ class AccountOrdersController
             $logo = File::find($logoId)?->path;
         }
 
-        return view('order::admin.orders.print.show', compact('order', 'logo'));
+        return view('order::admin.orders.print.show', [
+            'order' => $order,
+            'logo' => $logo,
+            'autoPrint' => false,
+        ]);
     }
 
 
@@ -120,6 +124,7 @@ class AccountOrdersController
             'order' => $order,
             'logo' => $logo,
             'orderRewards' => $this->orderRewards($order),
+            'autoPrint' => false,
         ]);
     }
 

@@ -287,10 +287,6 @@
         </footer>
     </article>
 
-    @unless ($forPdf ?? false)
-        <script type="module">
-            window.print();
-        </script>
-    @endunless
+    @include('order::admin.orders.print._print-actions')
 </body>
 </html>

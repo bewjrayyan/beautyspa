@@ -23,23 +23,27 @@
             </button>
 
             <div class="account-order-action-dropdown__menu" x-show="open" x-cloak x-transition>
-                <button
-                    type="button"
+                <a
+                    href="{{ route('account.orders.invoice', $order->id) }}"
                     class="account-order-action-dropdown__item"
-                    @click="window.open('{{ route('account.orders.invoice', $order->id) }}', '_blank', 'noopener'); open = false"
+                    target="_blank"
+                    rel="noopener"
+                    @click="open = false"
                 >
                     <i class="las la-file-invoice"></i>
                     {{ trans('storefront::account.view_order.download_invoice') }}
-                </button>
+                </a>
 
-                <button
-                    type="button"
+                <a
+                    href="{{ route('account.orders.receipt', $order->id) }}"
                     class="account-order-action-dropdown__item"
-                    @click="window.open('{{ route('account.orders.receipt', $order->id) }}', '_blank', 'noopener'); open = false"
+                    target="_blank"
+                    rel="noopener"
+                    @click="open = false"
                 >
                     <i class="las la-receipt"></i>
                     {{ trans('storefront::account.view_order.download_receipt') }}
-                </button>
+                </a>
 
                 @if ($canNotifyBeautician)
                     <button
@@ -78,23 +82,25 @@
     </div>
 
     <div class="account-order-sidebar__mobile-actions d-lg-none">
-        <button
-            type="button"
+        <a
+            href="{{ route('account.orders.invoice', $order->id) }}"
             class="account-order-sidebar__mobile-action"
-            onclick="window.open('{{ route('account.orders.invoice', $order->id) }}', '_blank', 'noopener')"
+            target="_blank"
+            rel="noopener"
         >
             <i class="las la-file-invoice"></i>
             <span>{{ trans('storefront::account.view_order.download_invoice') }}</span>
-        </button>
+        </a>
 
-        <button
-            type="button"
+        <a
+            href="{{ route('account.orders.receipt', $order->id) }}"
             class="account-order-sidebar__mobile-action"
-            onclick="window.open('{{ route('account.orders.receipt', $order->id) }}', '_blank', 'noopener')"
+            target="_blank"
+            rel="noopener"
         >
             <i class="las la-receipt"></i>
             <span>{{ trans('storefront::account.view_order.download_receipt') }}</span>
-        </button>
+        </a>
 
         @if ($canNotifyBeautician)
             <button

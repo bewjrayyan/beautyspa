@@ -36,4 +36,5 @@ return [
     'thank_you' => 'Terima kasih atas pembelian anda.',
     'footer_note' => 'Ini adalah invois yang dijana komputer.',
     'receipt_footer_note' => 'Ini adalah resit yang dijana komputer.',
+    'print_or_save' => 'Cetak atau simpan sebagai PDF',
 ];

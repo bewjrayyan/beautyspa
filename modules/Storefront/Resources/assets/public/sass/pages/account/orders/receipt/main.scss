@@ -483,6 +483,10 @@ body {
 }
 
 @media print {
+    .order-print-toolbar {
+        display: none !important;
+    }
+
     .payment-receipt {
         max-width: none;
         padding: 0;
@@ -494,7 +498,41 @@ body {
         padding: 20px 16px;
     }
 
+    body:has(.order-print-toolbar) .payment-receipt {
+        padding-bottom: 88px;
+    }
+
     .payment-receipt__facts {
         grid-template-columns: 1fr;
     }
+}
+
+.order-print-toolbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid $receipt-border;
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
+}
+
+.order-print-toolbar__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 20px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--color-primary, #f274ac);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
 }

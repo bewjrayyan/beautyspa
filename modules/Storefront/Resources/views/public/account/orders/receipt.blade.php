@@ -162,8 +162,6 @@
         </footer>
     </article>
 
-    <script type="module">
-        window.print();
-    </script>
+    @include('order::admin.orders.print._print-actions')
 </body>
 </html>
