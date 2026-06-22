@@ -17,16 +17,5 @@
         </div>
     @endif
 
-    @if (setting('storefront_product_consultation_enabled', true))
-        <div class="product-consultation-cta">
-            <a
-                href="{{ product_consultation_url($product) }}"
-                class="btn btn-primary btn-consultation"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                {{ product_consultation_label() }}
-            </a>
-        </div>
-    @endif
+    @include('storefront::public.products.show.consultation_cta', ['product' => $product])
 </aside>

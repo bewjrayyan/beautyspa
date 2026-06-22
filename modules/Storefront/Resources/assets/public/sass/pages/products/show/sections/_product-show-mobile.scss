@@ -562,6 +562,18 @@
                 display: none;
             }
 
+            .product-consultation-cta--inline {
+                margin-top: 10px;
+                margin-bottom: 4px;
+
+                .btn-consultation {
+                    min-height: 48px;
+                    border-radius: var(--product-app-radius-sm);
+                    font-size: 15px;
+                    font-weight: var(--font-medium);
+                }
+            }
+
             .details-info-bottom {
                 margin-top: 12px;
                 padding: 12px 14px;

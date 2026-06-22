@@ -214,6 +214,11 @@
         </form>
     </div>
 
+    @include('storefront::public.products.show.consultation_cta', [
+        'product' => $product,
+        'class' => 'product-consultation-cta--inline',
+    ])
+
     <div class="details-info-bottom">
         <ul class="list-inline additional-info">
             @if (! $product->is_virtual)

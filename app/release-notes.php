@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.83' => [
+        'en' => [
+            'summary' => 'Show product consultation button on mobile below variant picker.',
+            'changes' => [
+                'Add inline Get Free Consultations CTA below product options when sidebar is hidden.',
+                'Reuse shared consultation_cta partial for desktop sidebar and mobile layout.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Papar butang konsultasi produk pada mobile di bawah pemilih variant.',
+            'changes' => [
+                'Tambah CTA Dapatkan Konsultasi Percuma di bawah pilihan produk bila sidebar disembunyikan.',
+                'Guna semula partial consultation_cta untuk sidebar desktop dan layout mobile.',
+            ],
+        ],
+    ],
     '4.7.82' => [
         'en' => [
             'summary' => 'Fix mobile sidebar menu close button on outer curve.',
