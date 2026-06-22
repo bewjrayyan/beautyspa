@@ -5,6 +5,60 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.87' => [
+        'en' => [
+            'summary' => 'Add missing admin release notes for v4.7.85 and v4.7.86.',
+            'changes' => [
+                'Show installed-version changelog on Admin → Settings → System for recent releases.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah nota keluaran admin yang hilang untuk v4.7.85 dan v4.7.86.',
+            'changes' => [
+                'Papar changelog versi dipasang pada Admin → Tetapan → Sistem untuk keluaran terkini.',
+            ],
+        ],
+    ],
+    '4.7.86' => [
+        'en' => [
+            'summary' => 'Fix CHIP processing fees, expand checkout order summary, and send WhatsApp immediately on checkout.',
+            'changes' => [
+                'FPX surcharge uses flat sen (default 100 = RM1.00); card and Atome use CHIP percentage fees (2% / 5.3%).',
+                'Persist payment processing fee in order total so account and CHIP checkout totals match.',
+                'Show full order breakdown on checkout complete (subtotal, tax, coupon, loyalty, fee, payment status).',
+                'Send new-order and completed-order WhatsApp without outbound queue delay (immediate delivery).',
+                'Clarify CHIP surcharge fields in admin settings (sen for FPX, percent for cards and Atome).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki yuran CHIP, kembangkan ringkasan checkout, dan hantar WhatsApp segera selepas checkout.',
+            'changes' => [
+                'Caj FPX menggunakan sen tetap (lalai 100 = RM1.00); kad dan Atome guna peratus yuran CHIP (2% / 5.3%).',
+                'Simpan yuran pemprosesan dalam jumlah pesanan supaya akaun dan jumlah CHIP sepadan.',
+                'Papar breakdown pesanan penuh pada halaman checkout selesai (subtotal, cukai, kupon, kesetiaan, yuran, status bayaran).',
+                'Hantar WhatsApp pesanan baharu/selesai tanpa delay queue keluar (penghantaran segera).',
+                'Jelaskan medan caj CHIP dalam tetapan admin (sen untuk FPX, peratus untuk kad dan Atome).',
+            ],
+        ],
+    ],
+    '4.7.85' => [
+        'en' => [
+            'summary' => 'Fire OrderStatusChanged on checkout completion so WhatsApp and loyalty run automatically.',
+            'changes' => [
+                'Dispatch OrderStatusChanged when paid checkout marks the order as completed.',
+                'Enable completed-order WhatsApp to group and beautician without manual admin status change.',
+                'Trigger loyalty earn and treatment booking sync on checkout completion.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Picu OrderStatusChanged pada checkout selesai supaya WhatsApp dan kesetiaan jalan automatik.',
+            'changes' => [
+                'Hantar OrderStatusChanged bila checkout berbayar menandakan pesanan sebagai selesai.',
+                'Benarkan WhatsApp pesanan selesai ke kumpulan dan beautician tanpa ubah status manual di admin.',
+                'Picu mata kesetiaan dan penyegerakan tempahan rawatan pada checkout selesai.',
+            ],
+        ],
+    ],
     '4.7.84' => [
         'en' => [
             'summary' => 'Account order detail pricing breakdown and admin permission labels.',
