@@ -25,7 +25,9 @@ class BlogPostController extends Controller
     {
         $blogPosts = BlogPost::published()
             ->latest()
-            ->paginate(self::NUMBER_OF_TOTAL_BLOGS_IN_BLOGS_INDEX_PAGE);
+            ->paginate(self::NUMBER_OF_TOTAL_BLOGS_IN_BLOGS_INDEX_PAGE)
+            ->withQueryString()
+            ->setPath(storefront_pagination_path('blog_posts.index'));
 
         $recentBlogPosts = BlogPost::published()
             ->latest()
@@ -78,7 +80,10 @@ class BlogPostController extends Controller
 
         $blogPosts = BlogPost::published()->whereHas('translations', function($query) use ($request) {
             $query->where('title', 'LIKE', '%' . $request->input('query') . '%');
-        })->paginate(self::NUMBER_OF_TOTAL_BLOGS_IN_BLOGS_INDEX_PAGE);;
+        })
+            ->paginate(self::NUMBER_OF_TOTAL_BLOGS_IN_BLOGS_INDEX_PAGE)
+            ->withQueryString()
+            ->setPath(storefront_pagination_path('blog.search'));
 
         $recentBlogPosts = BlogPost::published()
             ->latest()

@@ -27,7 +27,11 @@ class BlogTagPostController extends Controller
         $blogPosts = $blogTag
             ->blogPosts()
             ->published()
-            ->paginate(self::NUMBER_OF_TOTAL_BLOGS_IN_BLOGS_INDEX_PAGE);
+            ->paginate(self::NUMBER_OF_TOTAL_BLOGS_IN_BLOGS_INDEX_PAGE)
+            ->withQueryString()
+            ->setPath(storefront_pagination_path('blog_tag.blog_posts.index', [
+                'tag' => $blogTag->id,
+            ]));
 
         $recentBlogPosts = BlogPost::published()
             ->latest()

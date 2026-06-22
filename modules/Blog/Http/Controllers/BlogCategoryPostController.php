@@ -24,7 +24,11 @@ class BlogCategoryPostController extends Controller
         $blogCategory = BlogCategory::findOrFail(request()->route('category'));
 
         $blogPosts = $blogCategory->blogPosts()->published()
-            ->paginate(self::NUMBER_OF_TOTAL_BLOGS_IN_BLOGS_INDEX_PAGE);
+            ->paginate(self::NUMBER_OF_TOTAL_BLOGS_IN_BLOGS_INDEX_PAGE)
+            ->withQueryString()
+            ->setPath(storefront_pagination_path('blog_category.blog_posts.index', [
+                'category' => $blogCategory->id,
+            ]));
 
         $recentBlogPosts = BlogPost::published()
             ->latest()

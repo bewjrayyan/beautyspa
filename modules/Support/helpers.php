@@ -309,6 +309,36 @@ if (! function_exists('storefront_route')) {
     }
 }
 
+if (! function_exists('storefront_pagination_path')) {
+    /**
+     * Path-only URL for paginator->setPath() (locale + install subdirectory).
+     *
+     * @param  array<string, mixed>  $parameters
+     */
+    function storefront_pagination_path(string $routeName, array $parameters = []): string
+    {
+        $path = parse_url(storefront_route($routeName, $parameters), PHP_URL_PATH);
+
+        return is_string($path) && $path !== '' ? $path : '/';
+    }
+}
+
+if (! function_exists('aestheticcart_pagination_url')) {
+    /**
+     * Normalize paginator href for subdirectory installs (/fleetcart, /v2, etc.).
+     */
+    function aestheticcart_pagination_url(?string $url): ?string
+    {
+        if ($url === null || $url === '') {
+            return $url;
+        }
+
+        return aestheticcart_normalize_install_url(
+            aestheticcart_apply_install_base_url($url)
+        );
+    }
+}
+
 if (!function_exists('localized_url')) {
     /**
      * Returns a URL adapted to the given locale.

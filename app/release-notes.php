@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.74' => [
+        'en' => [
+            'summary' => 'Fix blog pagination 404 on alternate subdirectory installs (e.g. /v2).',
+            'changes' => [
+                'Detect install base path from locale-prefixed URLs (/v2/en/...) instead of stale APP_URL only.',
+                'Set blog listing pagination paths from named storefront routes with correct subdirectory prefix.',
+                'Add aestheticcart_pagination_url helper for consistent paginator href normalization.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki pagination blog 404 pada pemasangan subdirectory alternatif (cth. /v2).',
+            'changes' => [
+                'Kesan base path pemasangan daripada URL berawalan locale (/v2/en/...) bukan APP_URL lama sahaja.',
+                'Set path pagination senarai blog daripada named route storefront dengan awalan subdirectory betul.',
+                'Tambah helper aestheticcart_pagination_url untuk normalisasi href paginator yang konsisten.',
+            ],
+        ],
+    ],
     '4.7.73' => [
         'en' => [
             'summary' => 'Fix homepage hero slider crash when slider element or data is missing.',

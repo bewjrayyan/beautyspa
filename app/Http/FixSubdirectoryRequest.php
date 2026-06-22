@@ -108,13 +108,23 @@ class FixSubdirectoryRequest
             return $fromScript;
         }
 
+        $fromLocale = self::basePathFromLocaleSegment($requestPath);
+
+        if ($fromLocale !== '') {
+            return $fromLocale;
+        }
+
         $fromRequest = self::basePathFromRequest($requestPath);
 
         if ($fromRequest !== '') {
             return $fromRequest;
         }
 
-        return $configured !== '' ? $configured : $fromScript;
+        if ($fromScript !== '') {
+            return $fromScript;
+        }
+
+        return $configured;
     }
 
 
@@ -150,13 +160,44 @@ class FixSubdirectoryRequest
 
     private static function basePathFromRequest(string $path): string
     {
-        foreach (['install', 'license', 'admin', 'api'] as $segment) {
+        foreach (['install', 'license', 'admin', 'api', 'blog'] as $segment) {
             if (preg_match('#^(.+)/'.preg_quote($segment, '#').'(?:/|$)#', $path, $matches)) {
                 return $matches[1];
             }
         }
 
         return '';
+    }
+
+
+    private static function basePathFromLocaleSegment(string $path): string
+    {
+        foreach (self::localeSegments() as $locale) {
+            if (preg_match('#^(.+)/'.preg_quote($locale, '#').'(?:/|$)#', $path, $matches)) {
+                $prefix = $matches[1];
+
+                return $prefix === '/' ? '' : rtrim($prefix, '/');
+            }
+        }
+
+        return '';
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
+    private static function localeSegments(): array
+    {
+        if (function_exists('supported_locale_keys')) {
+            try {
+                return supported_locale_keys();
+            } catch (\Throwable) {
+                // Helpers not ready during very early bootstrap.
+            }
+        }
+
+        return ['en', 'ms'];
     }
 
 
