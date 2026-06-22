@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.72' => [
+        'en' => [
+            'summary' => 'Admin order stamp cards, mobile blog UX, and subdirectory pagination fix.',
+            'changes' => [
+                'Add stamp card section on admin order detail with customer-style card UI and order-specific status.',
+                'Redesign blog post and listing pages for mobile app layout (hero cards, category chips, full-width images).',
+                'Fix pagination links on subdirectory installs (e.g. /fleetcart) so page 2 no longer 404s.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kad cop order admin, UX blog mobile, dan baiki pagination subdirectory.',
+            'changes' => [
+                'Tambah section kad cop pada detail order admin dengan UI kad gaya pelanggan dan status order.',
+                'Reka semula halaman blog dan senarai blog untuk layout mobile app (kad hero, chip kategori, imej penuh).',
+                'Baiki pautan pagination pada pemasangan subdirectory (cth. /fleetcart) supaya page 2 tidak 404.',
+            ],
+        ],
+    ],
     '4.7.71' => [
         'en' => [
             'summary' => 'Fix admin table bulk select checkboxes navigating away instead of multi-select delete.',

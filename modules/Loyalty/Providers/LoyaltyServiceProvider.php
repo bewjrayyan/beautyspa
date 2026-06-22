@@ -2,7 +2,10 @@
 
 namespace Modules\Loyalty\Providers;
 
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Modules\Loyalty\Services\LoyaltyStampAdminService;
+use Modules\Order\Entities\Order;
 use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\User\Events\CustomerRegistered;
@@ -30,6 +33,19 @@ class LoyaltyServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        View::composer('order::admin.orders.show', function ($view) {
+            $order = $view->getData()['order'] ?? null;
+
+            if (! $order instanceof Order) {
+                return;
+            }
+
+            $view->with(
+                'orderStampData',
+                app(LoyaltyStampAdminService::class)->orderStampData($order)
+            );
+        });
+
         $this->app['events']->listen(
             OrderStatusChanged::class,
             ProcessLoyaltyOnOrderStatusChanged::class

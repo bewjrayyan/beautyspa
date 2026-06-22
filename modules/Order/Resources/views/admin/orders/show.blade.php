@@ -30,6 +30,10 @@
                     @include('order::admin.orders.partials.address_information')
                     @include('order::admin.orders.partials.items_ordered')
 
+                    @if (app('modules')->isEnabled('Loyalty') && ! empty($orderStampData))
+                        @include('loyalty::admin.orders.partials.stamp_information', $orderStampData)
+                    @endif
+
                     @if (! empty($treatmentBooking?->activities) && $treatmentBooking->activities->isNotEmpty())
                         <div class="order-show__section">
                             @include('treatmentreservation::admin.partials.booking_activity_log', [

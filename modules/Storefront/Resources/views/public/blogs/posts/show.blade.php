@@ -2,75 +2,83 @@
 
 @section('title', $blogPost->title)
 
+@section('body_class', 'blog-post-page')
+
 @section('content')
     <section class="blog-post-wrap">
+        @include('storefront::public.blogs.posts.partials.mobile_header')
+
         <div class="container">
             <div class="row">
-                <div class="col-xl-14 col-lg-13 order-1 order-lg-0">
-                    <div class="blog-post-content">
-                        <div class="blog-post-featured-image overflow-hidden">
-                            @if (!$blogPost->featured_image->path)
-                                <div class="image-holder image-placeholder position-relative">
-                                    <img src="{{ asset('build/assets/image-placeholder.png') }}" alt="Featured image" />
-                                </div>
-                            @else
-                                <div class="image-holder position-relative">
-                                    <img src="{{ $blogPost->featured_image->path }}" alt="Featured image" />
-                                </div>
-                            @endif
+                <div class="col-xl-14 col-lg-13">
+                    <article class="blog-post-content">
+                        <div class="blog-post-hero">
+                            <div class="blog-post-featured-image overflow-hidden">
+                                @if (!$blogPost->featured_image->path)
+                                    <div class="image-holder image-placeholder position-relative">
+                                        <img src="{{ asset('build/assets/image-placeholder.png') }}" alt="{{ $blogPost->title }}" />
+                                    </div>
+                                @else
+                                    <div class="image-holder position-relative">
+                                        <img src="{{ $blogPost->featured_image->path }}" alt="{{ $blogPost->title }}" />
+                                    </div>
+                                @endif
+                            </div>
                         </div>
 
-                        <ul class="list-inline blog-post-meta d-flex">
-                            <li class="d-flex align-items-center">
-                                <i class="las la-user"></i>
+                        <div class="blog-post-body">
+                            <ul class="list-inline blog-post-meta d-flex">
+                                <li class="d-flex align-items-center">
+                                    <i class="las la-user"></i>
 
-                                {{ $blogPost->user_name }}
-                            </li>
+                                    {{ $blogPost->user_name }}
+                                </li>
 
-                            <li class="d-flex align-items-center">
-                                <i class="las la-calendar"></i>
+                                <li class="d-flex align-items-center">
+                                    <i class="las la-calendar"></i>
 
-                                {{ $blogPost->created_at->format('d M, Y') }}
-                            </li>
-                        </ul>
+                                    {{ $blogPost->created_at->format('d M, Y') }}
+                                </li>
+                            </ul>
 
-                        <h1 class="blog-post-title">{{ $blogPost->title }}</h1>
+                            <h1 class="blog-post-title">{{ $blogPost->title }}</h1>
 
-                        <div class="custom-page-content">
-                            {!! clean_html($blogPost->description) !!}
+                            <div class="custom-page-content">
+                                {!! clean_html($blogPost->description) !!}
+                            </div>
                         </div>
-                    </div>
+                    </article>
 
-                    <div class="blog-post-social-share">
+                    <div id="blog-post-share" class="blog-post-social-share">
                         <div class="row">
                             <div class="col-md-3">
-                                <h6>{{ trans('storefront::blog.blog_posts.social_share') }}</h5>
+                                <h6>{{ trans('storefront::blog.blog_posts.social_share') }}</h6>
                             </div>
 
                             <div class="col-md-15">
                                 <ul class="list-inline social-share-links">
                                     <li>
-                                        <a href="https://www.facebook.com/sharer.php?u={{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}" title="{{ trans('storefront::blog.blog_posts.facebook') }}" target="_blank">
+                                        <a href="https://www.facebook.com/sharer.php?u={{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}" title="{{ trans('storefront::blog.blog_posts.facebook') }}" target="_blank" rel="noopener">
                                             <i class="lab la-facebook"></i>
                                         </a>
                                     </li>
-                            
+
                                     <li>
-                                        <a href="https://twitter.com/share?url={{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}&text={{ $blogPost->title }}" title="{{ trans('storefront::blog.blog_posts.twitter') }}" target="_blank">
+                                        <a href="https://twitter.com/share?url={{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}&text={{ $blogPost->title }}" title="{{ trans('storefront::blog.blog_posts.twitter') }}" target="_blank" rel="noopener">
                                             <svg class="twitter-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30px" height="30px">
                                                 <path d="M26.37,26l-8.795-12.822l0.015,0.012L25.52,4h-2.65l-6.46,7.48L11.28,4H4.33l8.211,11.971L12.54,15.97L3.88,26h2.65 l7.182-8.322L19.42,26H26.37z M10.23,6l12.34,18h-2.1L8.12,6H10.23z"/>
                                             </svg>
                                         </a>
                                     </li>
-                            
+
                                     <li>
-                                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}" title="{{ trans('storefront::blog.blog_posts.linkedin') }}" target="_blank">
+                                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}" title="{{ trans('storefront::blog.blog_posts.linkedin') }}" target="_blank" rel="noopener">
                                             <i class="lab la-linkedin"></i>
                                         </a>
                                     </li>
-                            
+
                                     <li>
-                                        <a href="https://www.tumblr.com/share?v=3&u={{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}" title="{{ trans('storefront::blog.blog_posts.tumblr') }}" target="_blank">
+                                        <a href="https://www.tumblr.com/share?v=3&u={{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}" title="{{ trans('storefront::blog.blog_posts.tumblr') }}" target="_blank" rel="noopener">
                                             <i class="lab la-tumblr"></i>
                                         </a>
                                     </li>
@@ -83,7 +91,7 @@
                         <div class="blog-post-tags">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <h6>{{ trans('storefront::blog.blog_posts.tags') }}</h5>
+                                    <h6>{{ trans('storefront::blog.blog_posts.tags') }}</h6>
                                 </div>
 
                                 <div class="col-md-15">
@@ -107,8 +115,12 @@
                     @endif
                 </div>
 
-                <div class="col-xl-4 col-lg-5 order-0 order-lg-1 mb-4 mb-lg-0">
-                    @include('storefront::public.blogs.posts.layouts.sidebar')
+                <div class="col-xl-4 col-lg-5 mb-4 mb-lg-0">
+                    <aside class="blog-post-sidebar">
+                        @include('storefront::public.blogs.posts.layouts.sidebar', [
+                            'activeCategoryId' => $blogPost->blog_category_id,
+                        ])
+                    </aside>
                 </div>
             </div>
         </div>

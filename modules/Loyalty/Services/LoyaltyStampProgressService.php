@@ -47,6 +47,21 @@ class LoyaltyStampProgressService
 
 
     /**
+     * @return array<string, mixed>|null
+     */
+    public function cardFromWallet(LoyaltyStampWallet $wallet): ?array
+    {
+        $wallet->loadMissing('program');
+
+        if (! $wallet->program) {
+            return null;
+        }
+
+        return $this->formatCard($wallet->program, $wallet);
+    }
+
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     private function buildCards(User $user, bool $includeNotStarted): array
@@ -89,23 +104,31 @@ class LoyaltyStampProgressService
 
     private function formatCard(LoyaltyStampProgram $program, ?LoyaltyStampWallet $wallet): array
     {
+        $stampsRequired = (int) $program->stamps_required;
         $stampsEarned = $wallet
-            ? min((int) $wallet->stamps_count, (int) $program->stamps_required)
+            ? min((int) $wallet->stamps_count, $stampsRequired)
             : 0;
 
-        $isComplete = $wallet && $wallet->completed_at && ! $wallet->redeemed_at;
+        if ($wallet?->redeemed_at || $wallet?->fulfilled_at) {
+            $stampsEarned = $stampsRequired;
+        }
+
         $isExpired = $wallet && $this->isExpired($wallet);
+        $isComplete = $wallet
+            && ! $isExpired
+            && ($stampsEarned >= $stampsRequired || $wallet->redeemed_at || $wallet->fulfilled_at);
+        $canRedeem = $wallet && $wallet->completed_at && ! $wallet->redeemed_at;
 
         return [
             'wallet_id' => $wallet?->id,
             'program_id' => $program->id,
             'name' => $program->name,
             'reward_description' => $program->reward_description,
-            'stamps_required' => (int) $program->stamps_required,
+            'stamps_required' => $stampsRequired,
             'stamps_earned' => $stampsEarned,
             'days_until_expiry' => $isExpired ? null : $wallet?->daysUntilExpiry(),
             'is_complete' => (bool) $isComplete,
-            'can_redeem' => (bool) $isComplete,
+            'can_redeem' => (bool) $canRedeem,
             'not_started' => ! $wallet,
             'is_expired' => $isExpired,
         ];

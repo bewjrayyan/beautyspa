@@ -37,6 +37,19 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::useBootstrap();
 
+        Paginator::currentPathResolver(function () {
+            $path = '/'.ltrim(request()->path(), '/');
+            $basePath = FixSubdirectoryRequest::basePath();
+
+            if ($basePath !== ''
+                && ! str_starts_with($path, $basePath.'/')
+                && $path !== $basePath) {
+                $path = rtrim($basePath, '/').$path;
+            }
+
+            return $path;
+        });
+
         $appUrl = FixSubdirectoryRequest::resolvedAppUrl() ?: config('app.url');
         $basePath = FixSubdirectoryRequest::basePath();
 

@@ -9,7 +9,7 @@
             </li>
         @else
             <li class="page-item">
-                <a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="Previous">
+                <a class="page-link" href="{{ aestheticcart_apply_install_base_url($paginator->previousPageUrl()) }}" rel="prev" aria-label="Previous">
                     <i class="las la-angle-left"></i>
                 </a>
             </li>
@@ -28,7 +28,7 @@
                     @if ($page == $paginator->currentPage())
                         <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
                     @else
-                        <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                        <li class="page-item"><a class="page-link" href="{{ aestheticcart_apply_install_base_url($url) }}">{{ $page }}</a></li>
                     @endif
                 @endforeach
             @endif
@@ -37,7 +37,7 @@
         {{-- Next Page Link --}}
         @if ($paginator->hasMorePages())
             <li class="page-item">
-                <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="Next">
+                <a class="page-link" href="{{ aestheticcart_apply_install_base_url($paginator->nextPageUrl()) }}" rel="next" aria-label="Next">
                     <i class="las la-angle-right"></i>
                 </a>
             </li>

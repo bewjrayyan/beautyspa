@@ -2,19 +2,20 @@
 
 @section('title', trans('storefront::blog.blog_posts.blog_posts'))
 
+@section('body_class', 'blog-index-page')
+
 @section('content')
     <section class="all-blog-posts-wrap">
         <div class="container">
             <div class="row">
-                <div class="col-xl-14 col-lg-13 order-1 order-lg-0">
+                <div class="col-xl-14 col-lg-13">
                     <h4 class="all-blog-posts-title">
                         {{ $indexTitle }}
                     </h4>
 
                     <div class="all-blog-posts d-flex flex-column">
-                        <div class="row">
-                            <div class="blog-posts d-flex flex-wrap flex-grow-1">
-                                @forelse ($blogPosts as $blogPost)
+                        <div class="blog-posts d-flex flex-wrap flex-grow-1">
+                            @forelse ($blogPosts as $blogPost)
                                     <div class="blog-post-card">
                                         <div class="blog-post">
                                             <a href="{{ route('blog_posts.show', ['slug' => $blogPost->slug]) }}" class="blog-post-featured-image overflow-hidden">
@@ -62,14 +63,13 @@
                                         <h2>{{ trans('storefront::blog.blog_posts.no_blog_post_found') }}</h2>
                                     </div>
                                 @endforelse
-                            </div>
                         </div>
 
                         {{ $blogPosts->links() }}
                     </div>
                 </div>
 
-                <div class="col-xl-4 col-lg-5 order-0 order-lg-1 mb-4 mb-lg-0">
+                <div class="col-xl-4 col-lg-5 mb-4 mb-lg-0">
                     @include('storefront::public.blogs.posts.layouts.sidebar')
                 </div>
             </div>

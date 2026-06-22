@@ -1,3 +1,19 @@
+@php
+    $activeCategoryId = $activeCategoryId ?? (
+        request()->routeIs('blog_category.blog_posts.index')
+            ? (int) request()->route()->parameter('category')
+            : null
+    );
+
+    $displayCategories = $blogCategories;
+
+    if ($activeCategoryId) {
+        $displayCategories = $blogCategories->sortByDesc(
+            fn ($category) => (int) ($category->id === $activeCategoryId)
+        );
+    }
+@endphp
+
 <form method="GET" action="{{ route('blog.search') }}" class="blog-post-search">
     <input type="text" name="query" placeholder="{{ trans('storefront::blog.blog_posts.search_blog_posts') }}">
 
@@ -10,21 +26,33 @@
 </form>
 
 <div class="blog-categories">
-    <h4 class="section-title">{{ trans('storefront::blog.blog_posts.categories') }}</h4>
+    <div class="blog-categories__head">
+        <h4 class="section-title">{{ trans('storefront::blog.blog_posts.categories') }}</h4>
 
-    <ul class="blog-categories-list list-inline">
-        @forelse ($blogCategories as $blogCategory)
-            <li class="blog-categories-item d-flex align-items-center justify-content-between">
-                <a href="{{ route('blog_category.blog_posts.index', ['category' => $blogCategory->id]) }}" class="{{ request()->routeIs('blog_category.blog_posts.index') && request()->route()->parameter('category') == $blogCategory->id ? 'active' : '' }}">
-                    {{ $blogCategory->name }}
-                </a>
+        @if ($blogCategories->isNotEmpty())
+            <a href="{{ route('blog_posts.index') }}" class="blog-categories__all d-lg-none">
+                {{ trans('storefront::blog.blog_posts.view_all_categories') }}
+            </a>
+        @endif
+    </div>
 
-                <span class="count">{{ $blogCategory->blog_posts_count }}</span>
-            </li>
-        @empty
-            <li class="empty d-flex justify-content-center">{{ trans('storefront::blog.blog_posts.no_categories') }}</li>
-        @endforelse
-    </ul>
+    <div class="blog-categories__scroll">
+        <ul class="blog-categories-list list-inline">
+            @forelse ($displayCategories as $blogCategory)
+                <li class="blog-categories-item d-flex align-items-center">
+                    <a
+                        href="{{ route('blog_category.blog_posts.index', ['category' => $blogCategory->id]) }}"
+                        @class(['active' => $activeCategoryId === $blogCategory->id])
+                    >
+                        {{ $blogCategory->name }}
+                        <span class="count">{{ $blogCategory->blog_posts_count }}</span>
+                    </a>
+                </li>
+            @empty
+                <li class="empty d-flex justify-content-center">{{ trans('storefront::blog.blog_posts.no_categories') }}</li>
+            @endforelse
+        </ul>
+    </div>
 </div>
 
 <div class="recent-blog-posts">

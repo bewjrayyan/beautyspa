@@ -19,6 +19,9 @@ return [
         'linkedin' => 'Linkedin',
         'tumblr' => 'Tumblr',
         'tags' => 'Tags',
+        'back_to_blog' => 'Back to blog',
+        'share' => 'Share',
+        'view_all_categories' => 'View all',
     ],
     'search_results_for' => 'Search results for:',
 ];

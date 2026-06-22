@@ -19,6 +19,9 @@ return [
         'linkedin' => 'LinkedIn',
         'tumblr' => 'Tumblr',
         'tags' => 'Tag',
+        'back_to_blog' => 'Kembali ke blog',
+        'share' => 'Kongsi',
+        'view_all_categories' => 'Lihat semua',
     ],
     'search_results_for' => 'Hasil carian untuk:',
 ];
