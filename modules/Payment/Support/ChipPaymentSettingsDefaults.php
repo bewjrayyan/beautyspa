@@ -59,10 +59,10 @@ class ChipPaymentSettingsDefaults
             'chip_fpx_surcharge' => 100,
             'chip_fpx_whitelist' => '',
             'chip_card_enabled' => true,
-            'chip_card_surcharge' => 0,
+            'chip_card_surcharge_percent' => 2.0,
             'chip_card_whitelist' => '',
             'chip_atome_enabled' => true,
-            'chip_atome_surcharge' => 0,
+            'chip_atome_surcharge_percent' => 5.3,
             'chip_atome_whitelist' => '',
         ];
     }

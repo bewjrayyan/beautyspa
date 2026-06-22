@@ -40,6 +40,7 @@ class SendCompletedOrderGroupWhatsApp
                 [
                     'source' => 'order.completed.group',
                     'dedupe_key' => 'order:' . $event->order->id . ':group',
+                    'immediate' => true,
                 ]
             );
         } catch (Exception $exception) {

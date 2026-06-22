@@ -261,11 +261,13 @@ return [
     'translatable.chip_card_label' => 'Cards label',
     'translatable.chip_card_description' => 'Cards description',
     'chip_card_surcharge' => 'Card surcharge (sen)',
+    'chip_card_surcharge_percent' => 'Card surcharge (%)',
     'chip_card_whitelist' => 'Card CHIP codes',
     'chip_atome_enabled' => 'Atome',
     'translatable.chip_atome_label' => 'Atome label',
     'translatable.chip_atome_description' => 'Atome description',
     'chip_atome_surcharge' => 'Atome surcharge (sen)',
+    'chip_atome_surcharge_percent' => 'Atome surcharge (%)',
     'chip_atome_whitelist' => 'Atome CHIP codes',
 
     'cod_enabled' => 'Status',

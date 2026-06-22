@@ -86,37 +86,8 @@
                         {{ trans('storefront::order_complete.order_summary') }}
                     </h2>
 
-                    <ul class="order-complete-items">
-                        @foreach ($order->products as $line)
-                            <li class="order-complete-item">
-                                <div class="order-complete-item-info">
-                                    <span class="order-complete-item-name">{{ $line->name }}</span>
-                                    @if ($line->hasAnyVariation())
-                                        <span class="order-complete-item-meta">
-                                            {{ $line->variations->pluck('value')->implode(', ') }}
-                                        </span>
-                                    @endif
-                                </div>
-                                <div class="order-complete-item-qty">
-                                    {{ trans('storefront::order_complete.qty') }}: {{ $line->qty }}
-                                </div>
-                                <div class="order-complete-item-price">
-                                    {{ $line->line_total->convertToCurrentCurrency()->format() }}
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-
-                    <div class="order-complete-totals">
-                        <div class="order-complete-total-row">
-                            <span>{{ trans('storefront::order_complete.payment_method') }}</span>
-                            <span>{{ $order->payment_method }}</span>
-                        </div>
-                        <div class="order-complete-total-row order-complete-total-row--grand">
-                            <span>{{ trans('storefront::order_complete.order_total') }}</span>
-                            <span>{{ $order->total->convertToCurrentCurrency()->format() }}</span>
-                        </div>
-                    </div>
+                    @include('storefront::public.checkout.complete.partials.order_items', ['order' => $order])
+                    @include('storefront::public.checkout.complete.partials.order_totals', ['order' => $order])
                 </div>
 
                 @if (! empty($orderRewards))

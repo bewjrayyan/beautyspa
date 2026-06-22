@@ -299,7 +299,17 @@ class CheckoutCompleteController
         $orderId = $placed instanceof Order ? $placed->id : (int) $placed;
 
         return Order::query()
-            ->with(['products', 'coupon', 'taxes', 'beautician'])
+            ->with([
+                'products.product',
+                'products.variations',
+                'products.options.option',
+                'products.options.values',
+                'coupon',
+                'taxes',
+                'transaction',
+                'beautician',
+                'spaBranch',
+            ])
             ->find($orderId);
     }
 

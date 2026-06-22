@@ -367,6 +367,12 @@ return [
         'chip_collect_methods_help' => 'Enable specific checkout options (FPX, cards, Atome). Each method uses CHIP payment_method_whitelist so customers only see that channel on the CHIP hosted page. Set the processing fee per method below (sen): 100 = RM1.00 — this amount is added to the customer checkout total.',
         'chip_all_methods_enable' => 'Show generic “CHIP — all methods” checkout (no whitelist)',
         'chip_surcharge_help' => 'Processing fee passed to the customer, in sen (MYR). Example: 100 = RM1.00 added to their checkout total.',
+        'chip_surcharge_flat_help' => 'Flat fee in sen (MYR). CHIP FPX B2C merchant fee is RM1.00 — enter 100. Do not enter ringgit (e.g. use 100, not 1 or 5.5).',
+        'chip_surcharge_percent_help' => [
+            'card' => 'Percentage of the order amount passed to the customer. CHIP local credit cards: 2.0% (default). Debit: 1.0% — use 2.0 unless you split methods.',
+            'atome' => 'Percentage passed to the customer. CHIP Atome merchant fee: 5.3% (default).',
+            'fpx' => '',
+        ],
         'chip_whitelist_help' => 'Optional. Comma-separated CHIP method codes from GET /payment_methods/. Leave empty to use defaults (fpx, card, atome).',
         'chip_whitelist_placeholder' => [
             'fpx' => 'fpx',

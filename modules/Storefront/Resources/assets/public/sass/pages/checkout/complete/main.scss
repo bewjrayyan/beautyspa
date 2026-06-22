@@ -210,11 +210,10 @@
 }
 
 .order-complete-item {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-    gap: 4px 16px;
-    padding: 14px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 0;
     border-bottom: 1px solid #f3f4f6;
 
     &:last-child {
@@ -223,34 +222,88 @@
     }
 }
 
-.order-complete-item-info {
-    grid-column: 1;
+.order-complete-item-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .order-complete-item-name {
     display: block;
+    font-size: 15px;
     font-weight: 600;
     color: #111827;
 }
 
-.order-complete-item-meta {
-    display: block;
-    margin-top: 2px;
-    font-size: 13px;
+.order-complete-item-pricing {
+    padding: 12px 14px;
+    background: #f9fafb;
+    border-radius: 12px;
+
+    .account-order-item-pricing {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        &__row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        &__selection {
+            margin: 0;
+            flex: 1;
+            min-width: 0;
+        }
+
+        &__name {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        &__value {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        &__amount {
+            flex-shrink: 0;
+            font-weight: 600;
+            color: #111827;
+            white-space: nowrap;
+
+            &--addon {
+                color: #2563eb;
+            }
+        }
+
+        &__row--total {
+            margin-top: 4px;
+            padding-top: 10px;
+            border-top: 1px dashed #e5e7eb;
+        }
+    }
+}
+
+.order-complete-item-line-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.order-complete-item-line-total-label {
     color: #6b7280;
+    font-weight: 500;
 }
 
-.order-complete-item-qty {
-    grid-column: 1;
-    font-size: 13px;
-    color: #9ca3af;
-}
-
-.order-complete-item-price {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
-    font-weight: 600;
+.order-complete-item-line-total-value {
+    font-weight: 700;
     color: #111827;
     white-space: nowrap;
 }
@@ -260,9 +313,57 @@
     border-top: 1px dashed #e5e7eb;
 }
 
+.order-complete-summary-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 6px 0;
+        font-size: 14px;
+        color: #6b7280;
+
+        label {
+            margin: 0;
+            flex: 1;
+            min-width: 0;
+            font-weight: 500;
+        }
+
+        > span {
+            flex-shrink: 0;
+            font-weight: 600;
+            color: #111827;
+            text-align: right;
+        }
+
+        .coupon-code {
+            display: block;
+            margin-top: 2px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #9ca3af;
+        }
+    }
+}
+
+.order-complete-summary-list .account-order-summary-line--discount > span:last-child {
+    color: var(--color-primary, #ec4899);
+}
+
+.order-complete-summary-list .account-order-summary-line--meta > span:last-child {
+    color: #2563eb;
+}
+
 .order-complete-total-row {
     display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 12px;
     padding: 8px 0;
     font-size: 14px;
     color: #6b7280;
@@ -275,6 +376,30 @@
         font-weight: 700;
         color: #111827;
     }
+
+    &--transaction {
+        align-items: flex-start;
+    }
+
+    .badge {
+        font-size: 12px;
+    }
+}
+
+.order-complete-payment-meta {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed #e5e7eb;
+}
+
+.order-complete-transaction-id {
+    max-width: 58%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    text-align: right;
+    word-break: break-all;
 }
 
 .order-complete-actions {

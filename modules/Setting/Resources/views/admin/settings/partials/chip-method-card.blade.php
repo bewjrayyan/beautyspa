@@ -2,6 +2,7 @@
     $methodKey = $methodKey ?? 'chip_fpx';
     $icon = $icon ?? 'fpx';
     $faIcon = $faIcon ?? 'fa-university';
+    $surchargeType = $surchargeType ?? 'flat';
     $methodPrefix = str_replace('_', '-', $methodKey);
     $isEnabled = old("{$methodKey}_enabled", array_get($settings, "{$methodKey}_enabled"));
 @endphp
@@ -24,12 +25,24 @@
         <div class="chip-method-card__fields">
             {{ Form::text("translatable[{$methodKey}_label]", trans("setting::attributes.translatable.{$methodKey}_label"), $errors, $settings, ['required' => true]) }}
             {{ Form::textarea("translatable[{$methodKey}_description]", trans("setting::attributes.translatable.{$methodKey}_description"), $errors, $settings, ['rows' => 2, 'required' => true]) }}
-            {{ Form::number("{$methodKey}_surcharge", trans("setting::attributes.{$methodKey}_surcharge"), $errors, $settings, [
-                'min' => 0,
-                'step' => 1,
-                'placeholder' => '100',
-            ]) }}
-            <p class="help-block text-muted">{{ trans('setting::settings.form.chip_surcharge_help') }}</p>
+
+            @if ($surchargeType === 'percent')
+                {{ Form::number("{$methodKey}_surcharge_percent", trans("setting::attributes.{$methodKey}_surcharge_percent"), $errors, $settings, [
+                    'min' => 0,
+                    'max' => 100,
+                    'step' => 0.1,
+                    'placeholder' => $icon === 'atome' ? '5.3' : '2.0',
+                ]) }}
+                <p class="help-block text-muted">{{ trans("setting::settings.form.chip_surcharge_percent_help.{$icon}") }}</p>
+            @else
+                {{ Form::number("{$methodKey}_surcharge", trans("setting::attributes.{$methodKey}_surcharge"), $errors, $settings, [
+                    'min' => 0,
+                    'step' => 1,
+                    'placeholder' => '100',
+                ]) }}
+                <p class="help-block text-muted">{{ trans('setting::settings.form.chip_surcharge_flat_help') }}</p>
+            @endif
+
             {{ Form::text("{$methodKey}_whitelist", trans("setting::attributes.{$methodKey}_whitelist"), $errors, $settings, [
                 'placeholder' => trans("setting::settings.form.chip_whitelist_placeholder.{$icon}"),
             ]) }}

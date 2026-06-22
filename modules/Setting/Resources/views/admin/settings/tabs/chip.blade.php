@@ -56,6 +56,7 @@
                             'methodKey' => 'chip_fpx',
                             'icon' => 'fpx',
                             'faIcon' => 'fa-university',
+                            'surchargeType' => 'flat',
                             'settings' => $settings,
                             'errors' => $errors,
                         ])
@@ -64,6 +65,7 @@
                             'methodKey' => 'chip_card',
                             'icon' => 'card',
                             'faIcon' => 'fa-credit-card',
+                            'surchargeType' => 'percent',
                             'settings' => $settings,
                             'errors' => $errors,
                         ])
@@ -72,6 +74,7 @@
                             'methodKey' => 'chip_atome',
                             'icon' => 'atome',
                             'faIcon' => 'fa-shopping-bag',
+                            'surchargeType' => 'percent',
                             'settings' => $settings,
                             'errors' => $errors,
                         ])

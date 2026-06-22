@@ -157,14 +157,14 @@ class ChipPurchaseProductsBuilder
      * @param  array<int, array{name: string, price: int, quantity: int, discount?: int}>  $lines
      * @return array<int, array{name: string, price: int, quantity: int, discount?: int}>
      */
-    private function applyCartDiscount(Order $order, array $lines, int $extraSubunit = 0): array
+    private function applyCartDiscount(Order $order, array $lines, int $surchargeSubunit = 0): array
     {
         if ($lines === []) {
             return $lines;
         }
 
         $gross = $this->linesGrossSubunit($lines);
-        $target = $this->subunit($order->total, $order) + $extraSubunit;
+        $target = $this->targetSubunit($order, $surchargeSubunit);
         $discount = max(0, $gross - $target);
 
         if ($discount === 0) {
@@ -184,7 +184,7 @@ class ChipPurchaseProductsBuilder
                 continue;
             }
 
-            $share = (int) round($discount * ($lineGross / max(1, $gross - $extraSubunit)));
+            $share = (int) round($discount * ($lineGross / max(1, $gross)));
 
             if ($index === $this->lastDiscountableLineIndex($lines)) {
                 $share = $remaining;
@@ -231,7 +231,7 @@ class ChipPurchaseProductsBuilder
             return $this->applyCartDiscount($order, $lines, $surchargeSubunit);
         }
 
-        $targetSubunit = $this->subunit($order->total, $order) + $surchargeSubunit;
+        $targetSubunit = $this->targetSubunit($order, $surchargeSubunit);
 
         if ($targetSubunit <= 0) {
             return [];
@@ -281,6 +281,18 @@ class ChipPurchaseProductsBuilder
         }
 
         return $lines;
+    }
+
+
+    private function targetSubunit(Order $order, int $surchargeSubunit = 0): int
+    {
+        $base = $this->subunit($order->total, $order);
+
+        if ($surchargeSubunit > 0 && ! $order->hasPaymentProcessingFee()) {
+            return $base + $surchargeSubunit;
+        }
+
+        return $base;
     }
 
 

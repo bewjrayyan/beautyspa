@@ -18,9 +18,12 @@ class ChipPaymentMethodConfig
      *     description_setting: string,
      *     enabled_setting: string,
      *     surcharge_setting: string,
+     *     surcharge_type: 'flat'|'percent',
+     *     percent_setting?: string,
      *     whitelist_setting: string,
      *     default_whitelist: string[],
      *     default_surcharge: int,
+     *     default_surcharge_percent?: float,
      * }>
      */
     public static function methods(): array
@@ -31,6 +34,7 @@ class ChipPaymentMethodConfig
                 'description_setting' => 'chip_fpx_description',
                 'enabled_setting' => 'chip_fpx_enabled',
                 'surcharge_setting' => 'chip_fpx_surcharge',
+                'surcharge_type' => 'flat',
                 'whitelist_setting' => 'chip_fpx_whitelist',
                 'default_whitelist' => ['fpx'],
                 'default_surcharge' => 100,
@@ -40,18 +44,24 @@ class ChipPaymentMethodConfig
                 'description_setting' => 'chip_card_description',
                 'enabled_setting' => 'chip_card_enabled',
                 'surcharge_setting' => 'chip_card_surcharge',
+                'surcharge_type' => 'percent',
+                'percent_setting' => 'chip_card_surcharge_percent',
                 'whitelist_setting' => 'chip_card_whitelist',
                 'default_whitelist' => ['card'],
                 'default_surcharge' => 0,
+                'default_surcharge_percent' => 2.0,
             ],
             self::METHOD_ATOME => [
                 'label_setting' => 'chip_atome_label',
                 'description_setting' => 'chip_atome_description',
                 'enabled_setting' => 'chip_atome_enabled',
                 'surcharge_setting' => 'chip_atome_surcharge',
+                'surcharge_type' => 'percent',
+                'percent_setting' => 'chip_atome_surcharge_percent',
                 'whitelist_setting' => 'chip_atome_whitelist',
                 'default_whitelist' => ['atome'],
                 'default_surcharge' => 0,
+                'default_surcharge_percent' => 5.3,
             ],
         ];
     }

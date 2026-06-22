@@ -261,11 +261,13 @@ return [
     'translatable.chip_card_label' => 'Label kad',
     'translatable.chip_card_description' => 'Penerangan kad',
     'chip_card_surcharge' => 'Caj kad (sen)',
+    'chip_card_surcharge_percent' => 'Caj kad (%)',
     'chip_card_whitelist' => 'Kod CHIP kad',
     'chip_atome_enabled' => 'Atome',
     'translatable.chip_atome_label' => 'Label Atome',
     'translatable.chip_atome_description' => 'Penerangan Atome',
     'chip_atome_surcharge' => 'Caj Atome (sen)',
+    'chip_atome_surcharge_percent' => 'Caj Atome (%)',
     'chip_atome_whitelist' => 'Kod CHIP Atome',
 
     'cod_enabled' => 'Status',

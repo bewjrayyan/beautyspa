@@ -377,6 +377,12 @@ return [
         'chip_collect_methods_help' => 'Dayakan pilihan checkout khusus (FPX, kad, Atome). Setiap kaedah menggunakan payment_method_whitelist CHIP. Tetapkan yuran pemprosesan setiap kaedah di bawah (sen): 100 = RM1.00 — jumlah ini ditambah pada jumlah checkout pelanggan.',
         'chip_all_methods_enable' => 'Tunjuk checkout generik “CHIP — semua kaedah” (tanpa whitelist)',
         'chip_surcharge_help' => 'Yuran pemprosesan yang ditanggung pelanggan, dalam sen (MYR). Contoh: 100 = RM1.00 ditambah pada jumlah checkout mereka.',
+        'chip_surcharge_flat_help' => 'Caj tetap dalam sen (MYR). Yuran pedagang CHIP FPX B2C ialah RM1.00 — masukkan 100. Jangan masukkan ringgit (contoh: guna 100, bukan 1 atau 5.5).',
+        'chip_surcharge_percent_help' => [
+            'card' => 'Peratus jumlah pesanan yang ditanggung pelanggan. Kad kredit tempatan CHIP: 2.0% (lalai). Debit: 1.0%.',
+            'atome' => 'Peratus yang ditanggung pelanggan. Yuran pedagang CHIP Atome: 5.3% (lalai).',
+            'fpx' => '',
+        ],
         'chip_whitelist_help' => 'Pilihan. Kod kaedah CHIP dipisahkan koma daripada GET /payment_methods/. Kosongkan untuk lalai (fpx, card, atome).',
         'chip_whitelist_placeholder' => [
             'fpx' => 'fpx',

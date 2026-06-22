@@ -16,6 +16,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Modules\Checkout\Exceptions\CheckoutException;
 use Modules\Loyalty\Services\LoyaltyOrderService;
+use Modules\Payment\Services\ChipPaymentMethodConfig;
+use Modules\Payment\Services\ChipPaymentMethodsResolver;
+use Modules\Support\Money;
 use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\User\Support\PhoneNumber;
 
@@ -137,6 +140,17 @@ class OrderService
 
         $this->assertTreatmentSlotAvailable($request, $booking);
 
+        $cartTotal = Cart::total()->amount();
+        $paymentMethod = (string) $request->payment_method;
+        $orderTotal = $cartTotal;
+
+        if (ChipPaymentMethodConfig::isChipPaymentMethod($paymentMethod)) {
+            $cartSubunit = Money::inCurrentCurrency($cartTotal)->subunit();
+            $feeSubunit = app(ChipPaymentMethodsResolver::class)
+                ->surchargeSubunit($paymentMethod, null, $cartSubunit);
+            $orderTotal = round($cartTotal + ($feeSubunit / 100), 2);
+        }
+
         return Order::create([
                 'customer_id' => auth()->id(),
                 'customer_email' => $request->customer_email,
@@ -166,8 +180,8 @@ class OrderService
                 'discount' => Cart::discount()->amount(),
                 'loyalty_points_redeemed' => Cart::hasLoyalty() ? Cart::loyalty()->points() : 0,
                 'loyalty_discount_amount' => Cart::hasLoyalty() ? Cart::loyalty()->value()->amount() : 0,
-                'total' => Cart::total()->amount(),
-                'payment_method' => $request->payment_method,
+                'total' => $orderTotal,
+                'payment_method' => $paymentMethod,
                 'currency' => currency(),
                 'currency_rate' => CurrencyRate::for(currency()),
                 'locale' => locale(),

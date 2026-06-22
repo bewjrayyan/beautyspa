@@ -25,6 +25,7 @@ class Sms
         try {
             app(OneSenderWhatsAppService::class)->sendNotification($to, $message, [
                 'source' => 'sms.gateway',
+                'immediate' => true,
             ]);
         } catch (Exception $e) {
             throw new SmsException($e->getMessage());
@@ -37,6 +38,7 @@ class Sms
         try {
             app(OneSenderWhatsAppService::class)->notifyAdmins($message, [
                 'source' => 'sms.admin',
+                'immediate' => true,
             ]);
         } catch (Exception $e) {
             throw new SmsException($e->getMessage());

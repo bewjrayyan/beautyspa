@@ -653,12 +653,12 @@ class SettingTabs extends Tabs
                 'chip_card_enabled',
                 'translatable.chip_card_label',
                 'translatable.chip_card_description',
-                'chip_card_surcharge',
+                'chip_card_surcharge_percent',
                 'chip_card_whitelist',
                 'chip_atome_enabled',
                 'translatable.chip_atome_label',
                 'translatable.chip_atome_description',
-                'chip_atome_surcharge',
+                'chip_atome_surcharge_percent',
                 'chip_atome_whitelist',
             ]);
 
