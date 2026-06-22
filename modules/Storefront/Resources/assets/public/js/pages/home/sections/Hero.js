@@ -36,10 +36,21 @@ Alpine.data("Hero", () => ({
     },
 
     initHeroSlider() {
-        const { speed, autoplay, autoplaySpeed, dots, arrows } =
-            $(".home-slider").data();
+        const sliderEl = this.$el?.querySelector?.(".home-slider");
 
-        const swiper = new Swiper(".home-slider", {
+        if (!sliderEl) {
+            return;
+        }
+
+        const {
+            speed = 300,
+            autoplay = false,
+            autoplaySpeed = 5000,
+            dots = false,
+            arrows = false,
+        } = $(sliderEl).data() ?? {};
+
+        const swiper = new Swiper(sliderEl, {
             modules: [Autoplay, Navigation, Pagination, Parallax],
             slidesPerView: 1,
             speed,

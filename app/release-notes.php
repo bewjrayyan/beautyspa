@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.73' => [
+        'en' => [
+            'summary' => 'Fix homepage hero slider crash when slider element or data is missing.',
+            'changes' => [
+                'Guard initHeroSlider when .home-slider is absent (e.g. mobile preview) instead of destructuring undefined data.',
+                'Scope slider lookup to the Hero Alpine component and pass the DOM element directly to Swiper.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki crash slider hero laman utama apabila elemen atau data slider tiada.',
+            'changes' => [
+                'Lindungi initHeroSlider apabila .home-slider tiada (cth. pratonton mobile) supaya tidak destruct undefined data.',
+                'Hadkan carian slider dalam komponen Hero Alpine dan hantar elemen DOM terus ke Swiper.',
+            ],
+        ],
+    ],
     '4.7.72' => [
         'en' => [
             'summary' => 'Admin order stamp cards, mobile blog UX, and subdirectory pagination fix.',
