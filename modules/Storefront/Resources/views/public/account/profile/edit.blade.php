@@ -41,16 +41,16 @@
 
             <header class="account-profile-show__hero">
                 <div class="account-profile-show__hero-main">
-                    <div class="account-profile-show__hero-profile">
-                        <input
-                            type="file"
-                            name="avatar"
-                            accept="image/jpeg,image/png,image/webp"
-                            class="account-profile-show__file-input"
-                            x-ref="avatarInput"
-                            @change="onFileChange($event)"
-                        >
+                    <input
+                        type="file"
+                        name="avatar"
+                        accept="image/jpeg,image/png,image/webp"
+                        class="account-profile-show__file-input"
+                        x-ref="avatarInput"
+                        @change="onFileChange($event)"
+                    >
 
+                    <div class="account-profile-show__hero-head">
                         <div class="account-profile-show__avatar-block">
                             <div class="account-profile-show__avatar-wrap">
                                 <template x-if="preview">
@@ -94,48 +94,49 @@
                             @enderror
                         </div>
 
-                        <div class="account-profile-show__photo-actions d-lg-none">
-                            <button
-                                type="button"
-                                class="account-profile-show__photo-btn"
-                                @click="$refs.avatarInput.click()"
-                            >
-                                <i class="las la-camera" aria-hidden="true"></i>
-                                {{ trans('storefront::account.profile.upload_photo') }}
-                            </button>
+                        <div class="account-profile-show__hero-summary">
+                            <h1 class="account-profile-show__title">{{ $account->full_name }}</h1>
 
-                            <button
-                                type="button"
-                                class="account-profile-show__photo-btn account-profile-show__photo-btn--danger"
-                                x-show="hasPhoto"
-                                x-cloak
-                                @click="removePhoto()"
-                            >
-                                <i class="las la-trash-alt" aria-hidden="true"></i>
-                                {{ trans('storefront::account.profile.remove_photo') }}
-                            </button>
+                            <p class="account-profile-show__email d-lg-none">{{ $account->email }}</p>
+
+                            <div class="account-profile-show__meta-row d-none d-lg-flex">
+                                <span>
+                                    <i class="las la-envelope"></i>
+                                    {{ $account->email }}
+                                </span>
+                                @if ($account->phone)
+                                    <span>
+                                        <i class="las la-phone"></i>
+                                        {{ $account->phone }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                     </div>
 
-                    <div class="account-profile-show__identity">
-                        <h1 class="account-profile-show__title">{{ $account->full_name }}</h1>
+                    <div class="account-profile-show__photo-actions d-lg-none">
+                        <button
+                            type="button"
+                            class="account-profile-show__photo-btn"
+                            @click="$refs.avatarInput.click()"
+                        >
+                            <i class="las la-camera" aria-hidden="true"></i>
+                            {{ trans('storefront::account.profile.upload_photo') }}
+                        </button>
 
-                        <p class="account-profile-show__email d-lg-none">{{ $account->email }}</p>
+                        <button
+                            type="button"
+                            class="account-profile-show__photo-btn account-profile-show__photo-btn--danger"
+                            x-show="hasPhoto"
+                            x-cloak
+                            @click="removePhoto()"
+                        >
+                            <i class="las la-trash-alt" aria-hidden="true"></i>
+                            {{ trans('storefront::account.profile.remove_photo') }}
+                        </button>
+                    </div>
 
-                        <div class="account-profile-show__meta-row d-none d-lg-flex">
-                            <span>
-                                <i class="las la-envelope"></i>
-                                {{ $account->email }}
-                            </span>
-                            @if ($account->phone)
-                                <span>
-                                    <i class="las la-phone"></i>
-                                    {{ $account->phone }}
-                                </span>
-                            @endif
-                        </div>
-
-                        <ul class="account-profile-show__stats">
+                    <ul class="account-profile-show__stats">
                             <li>
                                 <span class="account-profile-show__stat-label">
                                     <i class="las la-calendar-check" aria-hidden="true"></i>
@@ -172,7 +173,6 @@
                                 </li>
                             @endif
                         </ul>
-                    </div>
                 </div>
             </header>
 

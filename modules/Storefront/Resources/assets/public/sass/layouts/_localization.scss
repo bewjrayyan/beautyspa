@@ -98,3 +98,20 @@
         }
     }
 }
+
+@media screen and (max-width: 991px) {
+    .overlay.active {
+        z-index: 1050;
+    }
+
+    .localization {
+        z-index: 1100;
+        max-height: min(90vh, 90dvh);
+        overflow-y: auto;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+
+        .localization-form {
+            padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+        }
+    }
+}

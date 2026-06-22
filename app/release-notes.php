@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.79' => [
+        'en' => [
+            'summary' => 'Profile hero mobile redesign and Language & Currency sheet z-index fix.',
+            'changes' => [
+                'Rebuild mobile profile hero with clean avatar + name row, photo actions, and full-width stats.',
+                'Fix Language & Currency bottom sheet stacking above mobile bottom navigation.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Reka semula hero profil mobile dan baiki z-index sheet Bahasa & Mata Wang.',
+            'changes' => [
+                'Bina semula hero profil mobile dengan baris avatar + nama, tindakan foto, dan stat lebar penuh.',
+                'Baiki susunan sheet Bahasa & Mata Wang di atas navigasi bawah mobile.',
+            ],
+        ],
+    ],
     '4.7.78' => [
         'en' => [
             'summary' => 'Mobile account UX polish, homepage search, and layout alignment fixes.',
