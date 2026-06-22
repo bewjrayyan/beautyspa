@@ -67,8 +67,9 @@
                     <a
                         href="{{ route('cart.index') }}"
                         class="header-column-right-item header-cart"
+                        aria-label="{{ trans('storefront::layouts.my_cart') }}"
                         @click="$store.layout.openSidebarCart($event)"
-                    >  
+                    >
                         <div class="icon-wrap">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                 <path d="M7.5 7.67001V6.70001C7.5 4.45001 9.31 2.24001 11.56 2.03001C14.24 1.77001 16.5 3.88001 16.5 6.51001V7.89001" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>

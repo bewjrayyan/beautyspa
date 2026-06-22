@@ -9,6 +9,11 @@
         touch-action: manipulation;
     }
 
+    body.mobile-overlay-open {
+        overflow: hidden;
+        touch-action: none;
+    }
+
     input.form-control,
     select.form-control,
     textarea.form-control,

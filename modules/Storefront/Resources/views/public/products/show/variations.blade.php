@@ -3,6 +3,7 @@
         <button
             type="button"
             class="variant-picker-row"
+            data-variation-uid="{{ $variation->uid }}"
             :class="{ 'variant-picker-row--selected': !!activeVariationValues['{{ $variation->uid }}'] }"
             @click="openVariationSheet('{{ $variation->uid }}')"
         >

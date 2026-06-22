@@ -104,14 +104,14 @@
                     <span class="product-mobile-dock__label">{{ trans('storefront::product.total') }}</span>
 
                     <div class="product-mobile-dock__amounts">
-                        <template x-if="hasSpecialPrice">
-                            <span class="product-mobile-dock__special" x-text="formatCurrency(specialPrice)"></span>
+                        <template x-if="mobileDockHasSpecialPrice">
+                            <span class="product-mobile-dock__special" x-text="formatCurrency(mobileDockSpecialPrice)"></span>
                         </template>
 
                         <span
                             class="product-mobile-dock__amount"
-                            :class="{ 'product-mobile-dock__amount--strike': hasSpecialPrice }"
-                            x-text="formatCurrency(regularPrice)"
+                            :class="{ 'product-mobile-dock__amount--strike': mobileDockHasSpecialPrice }"
+                            x-text="formatCurrency(mobileDockRegularPrice)"
                         ></span>
                     </div>
                 </div>
@@ -157,8 +157,8 @@
                 type="button"
                 class="btn btn-primary product-mobile-dock__cta"
                 :class="{ 'btn-loading': addingToCart }"
-                :disabled="isAddToCartDisabled"
-                @click="$refs.productCartForm?.requestSubmit()"
+                :disabled="isMobileDockCtaDisabled"
+                @click="submitMobileDock()"
             >
                 <i class="las la-shopping-cart"></i>
                 <span x-text="isActiveItem ? '{{ trans('storefront::product.add_to_cart') }}' : '{{ trans('storefront::product.unavailable') }}'"></span>
@@ -173,9 +173,11 @@
     {!! $productSchemaMarkup->toScript() !!}
 
     <script>
-        AestheticCart.langs['storefront::product.left_in_stock'] = '{{ trans('storefront::product.left_in_stock') }}';
-        AestheticCart.langs['storefront::product.reviews'] = '{{ trans("storefront::product.reviews") }}';
-        AestheticCart.langs['storefront::product.review_submitted'] = '{{ trans("storefront::product.review_submitted") }}';
+        AestheticCart.langs['storefront::product.left_in_stock'] = @json(storefront_js_trans('storefront::product.left_in_stock'));
+        AestheticCart.langs['storefront::product.reviews'] = @json(storefront_js_trans('storefront::product.reviews'));
+        AestheticCart.langs['storefront::product.review_submitted'] = @json(storefront_js_trans('storefront::product.review_submitted'));
+        AestheticCart.langs['storefront::product.choose_option_before_add'] = @json(storefront_js_trans('storefront::product.choose_option_before_add'));
+        AestheticCart.langs['storefront::product.out_of_stock'] = @json(storefront_js_trans('storefront::product.out_of_stock'));
     </script>
 
     @vite([

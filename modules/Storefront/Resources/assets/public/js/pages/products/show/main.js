@@ -266,6 +266,46 @@ Alpine.data(
             );
         },
 
+        get firstUnselectedVariationUid() {
+            if (!this.hasVariants) {
+                return null;
+            }
+
+            const variation = this.product.variations.find(
+                ({ uid }) => !this.cartItemForm.variations[uid]
+            );
+
+            return variation?.uid ?? null;
+        },
+
+        get mobileDockHasSpecialPrice() {
+            if (this.hasVariants && !this.isVariantSelectionComplete) {
+                return false;
+            }
+
+            return this.hasSpecialPrice;
+        },
+
+        get mobileDockRegularPrice() {
+            if (this.hasVariants && !this.isVariantSelectionComplete) {
+                return 0;
+            }
+
+            return this.regularPrice;
+        },
+
+        get mobileDockSpecialPrice() {
+            if (this.hasVariants && !this.isVariantSelectionComplete) {
+                return 0;
+            }
+
+            return this.specialPrice;
+        },
+
+        get isMobileDockCtaDisabled() {
+            return !this.isActiveItem || this.addingToCart;
+        },
+
         get hasAnyOption() {
             return this.product.options.length > 0;
         },
@@ -1109,7 +1149,56 @@ Alpine.data(
             }
         },
 
+        submitMobileDock() {
+            if (this.isMobileDockCtaDisabled) {
+                return;
+            }
+
+            if (this.hasVariants && !this.isVariantSelectionComplete) {
+                this.promptVariantSelection();
+
+                return;
+            }
+
+            if (this.isOutOfStock) {
+                notify(trans("storefront::product.out_of_stock"));
+
+                return;
+            }
+
+            this.$refs.productCartForm?.requestSubmit();
+        },
+
+        promptVariantSelection() {
+            notify(trans("storefront::product.choose_option_before_add"));
+
+            const uid = this.firstUnselectedVariationUid;
+
+            if (!uid) {
+                return;
+            }
+
+            if (this.isMobileDevice()) {
+                this.openVariationSheet(uid);
+
+                return;
+            }
+
+            const row = document.querySelector(
+                `.variant-picker-row[data-variation-uid="${uid}"]`
+            );
+
+            row?.scrollIntoView({ behavior: "smooth", block: "center" });
+            row?.focus({ preventScroll: true });
+        },
+
         addToCart() {
+            if (this.hasVariants && !this.isVariantSelectionComplete) {
+                this.promptVariantSelection();
+
+                return;
+            }
+
             if (this.isAddToCartDisabled) return;
 
             this.addingToCart = true;

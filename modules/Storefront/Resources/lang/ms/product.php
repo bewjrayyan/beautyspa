@@ -12,6 +12,7 @@ return [
     'wishlist' => 'Senarai hajat',
     'compare' => 'Banding',
     'click_to_select' => 'Klik untuk pilih',
+    'choose_option_before_add' => 'Sila pilih satu pilihan sebelum menambah ke troli.',
     'options' => [
         'choose_an_option' => 'Pilih satu pilihan',
     ],

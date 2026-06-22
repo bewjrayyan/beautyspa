@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.81' => [
+        'en' => [
+            'summary' => 'Mobile cart icon, drawer fixes, and product dock variant UX.',
+            'changes' => [
+                'Show trolley icon in mobile header and open sidebar cart from bottom nav.',
+                'Fix mobile menu/cart drawer slide direction, z-index, and overlay sync.',
+                'Show MYR 0.00 in product mobile dock until a variant is selected.',
+                'Prompt users to choose an option before add to cart with localized toast.',
+                'Add storefront_js_trans helper so new JS strings resolve before cache sync.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Ikon troli mobile, baiki drawer, dan UX variant pada dock produk.',
+            'changes' => [
+                'Papar ikon troli pada header mobile dan buka troli sidebar dari nav bawah.',
+                'Baiki arah slide drawer menu/troli, z-index, dan penyegerakan overlay.',
+                'Papar MYR 0.00 pada dock produk mobile sehingga variant dipilih.',
+                'Ingatkan pengguna pilih pilihan sebelum tambah troli dengan toast berterjemah.',
+                'Tambah helper storefront_js_trans supaya string JS baharu resolve sebelum cache sync.',
+            ],
+        ],
+    ],
     '4.7.80' => [
         'en' => [
             'summary' => 'Disable pinch zoom and iOS input auto-zoom on mobile storefront.',

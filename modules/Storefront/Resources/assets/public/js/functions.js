@@ -1,6 +1,10 @@
 export function trans(langKey, replace = {}) {
     let line = window.AestheticCart.langs[langKey];
 
+    if (!line || line === langKey) {
+        return line ?? langKey;
+    }
+
     for (let key in replace) {
         line = line.replace(`:${key}`, replace[key]);
     }

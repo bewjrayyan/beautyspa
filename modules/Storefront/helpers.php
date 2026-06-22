@@ -2,6 +2,43 @@
 
 use Modules\Menu\MegaMenu\Menu;
 
+if (!function_exists('storefront_js_trans')) {
+    /**
+     * Resolve a storefront translation for inline JS (AestheticCart.langs).
+     * Falls back to module lang files when the translation loader cache is stale.
+     */
+    function storefront_js_trans(string $key): string
+    {
+        $line = trans($key);
+
+        if ($line !== $key) {
+            return $line;
+        }
+
+        if (! preg_match('/^storefront::([^.]+)\.(.+)$/', $key, $matches)) {
+            return $key;
+        }
+
+        [, $group, $item] = $matches;
+
+        foreach ([locale(), 'en'] as $lang) {
+            $path = module_path('Storefront', "Resources/lang/{$lang}/{$group}.php");
+
+            if (! is_file($path)) {
+                continue;
+            }
+
+            $value = data_get(require $path, $item);
+
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        return $key;
+    }
+}
+
 if (!function_exists('storefront_header_logo_id')) {
     function storefront_header_logo_id()
     {

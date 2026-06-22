@@ -21,16 +21,26 @@ Alpine.store("layout", {
         return this.localizationMenuOpen;
     },
 
+    syncOverlay() {
+        this.overlay =
+            this.sidebarMenuOpen ||
+            this.sidebarCartOpen ||
+            this.sidebarFilterOpen ||
+            this.localizationMenuOpen;
+
+        document.body.classList.toggle("mobile-overlay-open", this.overlay);
+    },
+
     openSidebarMenu() {
         this.sidebarMenuOpen = true;
 
-        this.showOverlay();
+        this.syncOverlay();
     },
 
     closeSidebarMenu() {
         this.sidebarMenuOpen = false;
 
-        this.hideOverlay();
+        this.syncOverlay();
     },
 
     openSidebarCart(event) {
@@ -50,44 +60,36 @@ Alpine.store("layout", {
 
         this.sidebarCartOpen = true;
 
-        this.showOverlay();
+        this.syncOverlay();
     },
 
     closeSidebarCart() {
         this.sidebarCartOpen = false;
 
-        this.hideOverlay();
+        this.syncOverlay();
     },
 
     openSidebarFilter() {
         this.sidebarFilterOpen = true;
 
-        this.showOverlay();
+        this.syncOverlay();
     },
 
     closeSidebarFilter() {
         this.sidebarFilterOpen = false;
 
-        this.hideOverlay();
+        this.syncOverlay();
     },
 
     openLocalizationMenu() {
         this.localizationMenuOpen = true;
 
-        this.showOverlay();
+        this.syncOverlay();
     },
 
     closeLocalizationMenu() {
         this.localizationMenuOpen = false;
 
-        this.hideOverlay();
-    },
-
-    showOverlay() {
-        this.overlay = true;
-    },
-
-    hideOverlay() {
-        this.overlay = false;
+        this.syncOverlay();
     },
 });

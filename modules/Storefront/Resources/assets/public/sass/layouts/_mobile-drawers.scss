@@ -1,0 +1,122 @@
+// Mobile drawer stacking and layout (sidebar menu + cart).
+// Must use .ltr / .rtl prefixes — postcss-rtlcss mirrors base sidebar rules with higher specificity.
+@media screen and (max-width: 991px) {
+    .sidebar-menu-wrap {
+        width: min(320px, 88vw);
+        z-index: 1100;
+
+        .sidebar-menu-close {
+            top: 12px;
+            z-index: 2;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+        }
+
+        > .tab-content {
+            bottom: env(safe-area-inset-bottom, 0px);
+        }
+    }
+
+    .ltr .sidebar-menu-wrap {
+        left: 0;
+        right: auto;
+        transform: translate3d(-100%, 0, 0);
+
+        &.active {
+            transform: translate3d(0, 0, 0);
+        }
+
+        .sidebar-menu-close {
+            right: 12px;
+            left: auto;
+        }
+    }
+
+    .rtl .sidebar-menu-wrap {
+        right: 0;
+        left: auto;
+        transform: translate3d(100%, 0, 0);
+
+        &.active {
+            transform: translate3d(0, 0, 0);
+        }
+
+        .sidebar-menu-close {
+            left: 12px;
+            right: auto;
+        }
+    }
+
+    .sidebar-cart-wrap {
+        width: min(400px, 100vw);
+        height: 100%;
+        height: 100dvh;
+        z-index: 1100;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ltr .sidebar-cart-wrap {
+        left: auto;
+        right: 0;
+        transform: translate3d(100%, 0, 0);
+
+        &.active {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .rtl .sidebar-cart-wrap {
+        left: 0;
+        right: auto;
+        transform: translate3d(-100%, 0, 0);
+
+        &.active {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .sidebar-cart-top {
+        flex-shrink: 0;
+    }
+
+    .sidebar-cart-middle {
+        position: relative;
+        top: auto;
+        bottom: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+        margin: 0 16px;
+        padding: 8px 12px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+
+        &.empty {
+            flex: 1 1 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .sidebar-cart-bottom {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        flex-shrink: 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .sidebar-cart-item {
+        .input-quantity {
+            font-size: 16px !important;
+            width: 40px;
+            height: 28px;
+        }
+
+        .number-picker .btn-number {
+            width: 28px;
+            height: 28px;
+        }
+    }
+}

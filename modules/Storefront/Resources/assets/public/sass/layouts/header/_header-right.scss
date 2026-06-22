@@ -94,9 +94,13 @@
             display: none;
         }
 
-        .header-cart,
         .header-compare {
             display: none;
+        }
+
+        .header-cart {
+            display: flex;
+            margin-left: 12px;
         }
 
         .icon-wrap {

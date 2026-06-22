@@ -12,6 +12,7 @@ return [
     'wishlist' => 'Wishlist',
     'compare' => 'Compare',
     'click_to_select' => 'Click to select',
+    'choose_option_before_add' => 'Please choose an option before adding to cart.',
     'options' => [
         'choose_an_option' => 'Choose an option',
     ],
