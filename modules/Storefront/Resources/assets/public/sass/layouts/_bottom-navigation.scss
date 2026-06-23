@@ -38,11 +38,11 @@
     .bottom-navigation-items {
         display: flex;
         align-items: stretch;
-        justify-content: space-between;
+        justify-content: space-evenly;
         width: 100%;
         max-width: 100%;
         margin: 0;
-        padding: 0 6px;
+        padding: 0 10px;
         list-style: none;
         box-sizing: border-box;
 
@@ -52,6 +52,10 @@
             display: flex;
             justify-content: center;
             align-items: stretch;
+
+            &:first-child a svg {
+                transform: translateX(-3px);
+            }
         }
 
         a {

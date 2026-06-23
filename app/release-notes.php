@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.8.3' => [
+        'en' => [
+            'summary' => 'Narrower featured category cards and centered mobile footer nav.',
+            'changes' => [
+                'Show slightly narrower product cards in the Shop by Category slider with more next-item preview.',
+                'Balance bottom navigation spacing and nudge the Home icon left for better visual centering.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kad kategori pilihan lebih kecil dan nav footer mudah alih lebih center.',
+            'changes' => [
+                'Paparkan kad produk sedikit lebih kecil dalam slider Shop by Category dengan lebih banyak pratonton item seterusnya.',
+                'Seimbangkan jarak navigasi bawah dan geser ikon Home ke kiri untuk penjajaran visual yang lebih baik.',
+            ],
+        ],
+    ],
     '4.8.2' => [
         'en' => [
             'summary' => 'Fix featured category product images not filling the card.',

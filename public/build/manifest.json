@@ -1447,7 +1447,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/home/main.js": {
-    "file": "assets/main-DvOpiUvp-v4.7.71.js",
+    "file": "assets/main-DQXwYvie-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
     "isEntry": true,
@@ -1509,7 +1509,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/sass/app.scss": {
-    "file": "assets/app-BWK-bFJj-v4.7.71.css",
+    "file": "assets/app-B3UDYGHA-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/app.scss",
     "isEntry": true,
     "name": "app",
@@ -1611,7 +1611,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/custom-page/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/home/main.scss": {
-    "file": "assets/main-N9lv7Gd--v4.7.71.css",
+    "file": "assets/main-CFayP_KH-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/home/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/products/index/main.scss": {
