@@ -46,6 +46,37 @@ if (!function_exists('storefront_header_logo_id')) {
     }
 }
 
+if (!function_exists('storefront_favicon_file')) {
+    function storefront_favicon_file(): ?\Modules\Media\Entities\File
+    {
+        $fileId = setting('storefront_favicon') ?: setting('storefront_header_logo') ?: setting('admin_logo');
+
+        if (! $fileId) {
+            return null;
+        }
+
+        $file = \Modules\Media\Entities\File::find($fileId);
+
+        return ($file && $file->exists) ? $file : null;
+    }
+}
+
+if (!function_exists('storefront_favicon_url')) {
+    function storefront_favicon_url(): ?string
+    {
+        $path = storefront_favicon_file()?->path;
+
+        return $path ? absolute_public_url($path) : null;
+    }
+}
+
+if (!function_exists('storefront_favicon_mime')) {
+    function storefront_favicon_mime(): string
+    {
+        return storefront_favicon_file()?->mime ?: 'image/png';
+    }
+}
+
 if (!function_exists('resolve_theme_color')) {
     /**
      * Resolve color code by the given theme name.

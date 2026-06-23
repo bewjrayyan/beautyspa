@@ -53,6 +53,7 @@ class LayoutComposer
             'wishlistCount' => $this->getWishlistCount(),
             'cartQuantity' => $this->getCartQuantity(),
             'favicon' => $this->getFavicon(),
+            'faviconMime' => $this->getFaviconMime(),
             'logo' => $this->getHeaderLogo(),
             'newsletterBgImage' => $this->getNewsletterBgImage(),
             'privacyPageUrl' => $this->getPrivacyPageUrl(),
@@ -73,7 +74,7 @@ class LayoutComposer
 
     private function getOpenGraph(): OpenGraph
     {
-        return OpenGraph::forStore($this->getHeaderLogo());
+        return OpenGraph::forStore(absolute_public_url($this->getHeaderLogo()));
     }
 
 
@@ -125,7 +126,13 @@ class LayoutComposer
 
     private function getFavicon()
     {
-        return $this->getMedia(setting('storefront_favicon'))->path;
+        return storefront_favicon_url();
+    }
+
+
+    private function getFaviconMime(): string
+    {
+        return storefront_favicon_mime();
     }
 
 

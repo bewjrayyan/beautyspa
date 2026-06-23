@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.94' => [
+        'en' => [
+            'summary' => 'Fix favicon and WhatsApp share preview image URLs.',
+            'changes' => [
+                'Show the storefront favicon in admin and storefront browser tabs with the correct image MIME type.',
+                'Fix duplicated subdirectory in Open Graph and media absolute URLs for subdirectory installs.',
+                'Fall back to the favicon for social share previews when needed.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki favicon dan URL imej pratonton kongsi WhatsApp.',
+            'changes' => [
+                'Paparkan favicon storefront pada tab pelayar admin dan kedai dengan jenis MIME imej yang betul.',
+                'Baiki subdirectory berganda pada URL Open Graph dan media mutlak untuk pemasangan subdirectory.',
+                'Guna favicon sebagai sandaran untuk pratonton kongsi sosial apabila perlu.',
+            ],
+        ],
+    ],
     '4.7.93' => [
         'en' => [
             'summary' => 'Mobile promo video sound toggle on the homepage.',

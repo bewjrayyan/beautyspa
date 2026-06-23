@@ -803,6 +803,44 @@ if (!function_exists('fix_storage_urls_in_content')) {
     }
 }
 
+if (!function_exists('absolute_public_url')) {
+    /**
+     * Build an absolute public URL without duplicating the app subdirectory.
+     */
+    function absolute_public_url(?string $url): ?string
+    {
+        if ($url === null || $url === '') {
+            return null;
+        }
+
+        if (function_exists('cdn_url')) {
+            $url = cdn_url($url, 'media') ?? $url;
+        }
+
+        if (\Illuminate\Support\Str::startsWith($url, ['http://', 'https://'])) {
+            return \Modules\Meta\Support\OpenGraph::preferHttps($url);
+        }
+
+        $appUrl = rtrim((string) config('app.url'), '/');
+        $parsed = parse_url($appUrl);
+        $appPath = rtrim((string) ($parsed['path'] ?? ''), '/');
+
+        if (\Illuminate\Support\Str::startsWith($url, '/')) {
+            if ($appPath !== '' && \Illuminate\Support\Str::startsWith($url, $appPath.'/')) {
+                $scheme = $parsed['scheme'] ?? 'http';
+                $host = $parsed['host'] ?? 'localhost';
+                $port = isset($parsed['port']) ? ':'.$parsed['port'] : '';
+
+                return \Modules\Meta\Support\OpenGraph::preferHttps("{$scheme}://{$host}{$port}{$url}");
+            }
+
+            return \Modules\Meta\Support\OpenGraph::preferHttps($appUrl.$url);
+        }
+
+        return \Modules\Meta\Support\OpenGraph::preferHttps(url($url));
+    }
+}
+
 if (!function_exists('cdn_url')) {
     /**
      * Rewrite an application URL to use the configured CDN origin.

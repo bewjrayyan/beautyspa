@@ -118,10 +118,6 @@ class PageSeo
 
     protected function absoluteUrl(string $url): string
     {
-        if (Str::startsWith($url, ['http://', 'https://'])) {
-            return $url;
-        }
-
-        return url($url);
+        return absolute_public_url($url) ?? $url;
     }
 }

@@ -55,11 +55,13 @@ class OpenGraph
         $description = trim((string) setting('store_description', ''));
         $description = $description !== '' ? $description : $title;
 
+        $image = $logoPath ?: storefront_favicon_url();
+
         return self::make(
             title: $title,
             description: Str::limit($description, 200, '…'),
             url: storefront_home_url(),
-            image: $logoPath,
+            image: $image,
             imageAlt: (string) setting('store_name', config('app.name')),
         );
     }
@@ -67,19 +69,7 @@ class OpenGraph
 
     public static function absoluteUrl(?string $url): ?string
     {
-        if ($url === null || $url === '') {
-            return null;
-        }
-
-        if (function_exists('cdn_url')) {
-            $url = cdn_url($url, 'media') ?? $url;
-        }
-
-        if (Str::startsWith($url, ['http://', 'https://'])) {
-            return self::preferHttps($url);
-        }
-
-        return self::preferHttps(url($url));
+        return absolute_public_url($url);
     }
 
 

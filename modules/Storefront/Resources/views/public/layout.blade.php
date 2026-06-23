@@ -24,7 +24,11 @@
 
         @PWA
 
-        <link rel="shortcut icon" href="{{ $favicon }}" type="image/x-icon">
+        @if ($favicon)
+            <link rel="icon" href="{{ $favicon }}" type="{{ $faviconMime }}">
+            <link rel="shortcut icon" href="{{ $favicon }}" type="{{ $faviconMime }}">
+            <link rel="apple-touch-icon" href="{{ $favicon }}">
+        @endif
         @include('storefront::public.partials.performance_head')
 
         <link rel="preconnect" href="https://fonts.googleapis.com">

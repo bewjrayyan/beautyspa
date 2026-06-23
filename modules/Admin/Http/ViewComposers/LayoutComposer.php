@@ -21,6 +21,8 @@ class LayoutComposer
         $view->with([
             'logo' => $this->getAdminLogo(),
             'smallLogo' => $this->getAdminSmallLogo(),
+            'favicon' => storefront_favicon_url(),
+            'faviconMime' => storefront_favicon_mime(),
         ]);
     }
 
