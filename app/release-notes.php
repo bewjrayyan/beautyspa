@@ -5,6 +5,46 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.0' => [
+        'en' => [
+            'summary' => 'Sync cart and checkout pricing with savings breakdown.',
+            'changes' => [
+                'Fix sidebar cart product images using assetUrl instead of locale-prefixed static URLs.',
+                'Show strikethrough regular price and sale price on cart drawer, cart page, and checkout.',
+                'Add green savings badge per discounted line (Save amount and percent off).',
+                'Cart summary: item lines with dual prices plus Regular price, Subtotal, and You save rows.',
+                'Checkout order summary matches cart pricing layout; fix Alpine rendering for summary rows.',
+                'Eager-load variant image files when storing cart items.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Selaraskan harga troli dan checkout dengan pecahan penjimatan.',
+            'changes' => [
+                'Baiki imej produk troli sisi menggunakan assetUrl dan bukan URL statik berawalan locale.',
+                'Paparkan harga asal dicoret dan harga promo pada laci troli, halaman troli, dan checkout.',
+                'Tambah lencana jimat hijau setiap baris diskaun (jumlah dan peratus jimat).',
+                'Ringkasan troli: baris item dengan dua harga serta Harga asal, Subjumlah, dan Anda jimat.',
+                'Ringkasan pesanan checkout selaras dengan susun atur harga troli; baiki paparan baris Alpine.',
+                'Muat awal fail imej varian semasa menyimpan item troli.',
+            ],
+        ],
+    ],
+    '4.8.7' => [
+        'en' => [
+            'summary' => 'Center mobile product slider pagination dots between nav arrows.',
+            'changes' => [
+                'Use a CSS grid layout so swiper dots stay centered between prev and next on mobile sliders.',
+                'Disable dynamicBullets in product slider pagination.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Centerkan titik pagination slider produk antara anak panah nav pada mudah alih.',
+            'changes' => [
+                'Guna susun atur CSS grid supaya titik swiper kekal di tengah antara prev dan next pada slider mudah alih.',
+                'Matikan dynamicBullets dalam pagination slider produk.',
+            ],
+        ],
+    ],
     '4.8.6' => [
         'en' => [
             'summary' => 'Fix raw View All translation key on product tab headers.',
