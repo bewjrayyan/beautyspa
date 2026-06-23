@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.98' => [
+        'en' => [
+            'summary' => 'Restore mobile search bar without sticky positioning.',
+            'changes' => [
+                'Bring back the homepage and blog search field on mobile after removing the sticky version.',
+                'Search now scrolls with the page instead of staying fixed below the header.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pulihkan bar carian mudah alih tanpa kedudukan sticky.',
+            'changes' => [
+                'Kembalikan medan carian laman utama dan blog pada mudah alih selepas buang versi sticky.',
+                'Carian kini ikut skrol halaman dan tidak kekal tetap di bawah header.',
+            ],
+        ],
+    ],
     '4.7.97' => [
         'en' => [
             'summary' => 'Remove sticky mobile search bar from homepage and blog index.',

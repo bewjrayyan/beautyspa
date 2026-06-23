@@ -13,6 +13,9 @@ $home-app-section-gap: 12px;
 
 @media screen and (max-width: 991px) {
     body.home-page {
+        --index-search-pad: #{$home-app-side};
+        --index-search-gap: #{$home-app-section-gap};
+
         overflow-x: clip;
 
         .wrapper {

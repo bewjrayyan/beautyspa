@@ -1,4 +1,5 @@
 @import "../../../utils/common/_blog-card";
+@import "../../../components/index-search-inline";
 @import "../layouts/_blog-right-sidebar";
 @import "../layouts/_blog-sidebar-mobile";
 
@@ -52,6 +53,8 @@
         --blog-index-pad: 16px;
         --blog-index-radius: 20px;
         --blog-index-gap: 12px;
+        --index-search-pad: var(--blog-index-pad);
+        --index-search-gap: var(--blog-index-gap);
 
         overflow-x: clip;
 

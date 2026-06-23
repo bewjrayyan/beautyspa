@@ -5,6 +5,10 @@
 @section('title', setting('store_tagline'))
 
 @section('content')
+    <div class="index-search-inline d-lg-none">
+        @include('storefront::public.partials.product_sticky_search')
+    </div>
+
     <div class="home-page-content">
         @includeUnless(is_null($slider), 'storefront::public.home.sections.hero')
 
