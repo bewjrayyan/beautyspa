@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.95' => [
+        'en' => [
+            'summary' => 'Fix browser tab favicon on subdirectory installs.',
+            'changes' => [
+                'Serve /favicon.ico from the storefront favicon setting so Chrome finds the icon automatically.',
+                'Move favicon link tags to the top of the page head for faster browser discovery.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki favicon tab pelayar pada pemasangan subdirectory.',
+            'changes' => [
+                'Sediakan /favicon.ico daripada tetapan favicon storefront supaya Chrome menemui ikon secara automatik.',
+                'Alihkan tag pautan favicon ke bahagian atas head halaman untuk penemuan pelayar yang lebih pantas.',
+            ],
+        ],
+    ],
     '4.7.94' => [
         'en' => [
             'summary' => 'Fix favicon and WhatsApp share preview image URLs.',

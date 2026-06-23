@@ -4,6 +4,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 
+        @if ($favicon)
+            <link rel="icon" href="{{ $favicon }}" type="{{ $faviconMime }}" sizes="any">
+            <link rel="shortcut icon" href="{{ $favicon }}" type="{{ $faviconMime }}">
+            <link rel="apple-touch-icon" href="{{ $favicon }}">
+        @endif
+
         <title>
             @hasSection('title')
                 @yield('title') - {{ setting('store_name') }}
@@ -24,11 +30,6 @@
 
         @PWA
 
-        @if ($favicon)
-            <link rel="icon" href="{{ $favicon }}" type="{{ $faviconMime }}">
-            <link rel="shortcut icon" href="{{ $favicon }}" type="{{ $faviconMime }}">
-            <link rel="apple-touch-icon" href="{{ $favicon }}">
-        @endif
         @include('storefront::public.partials.performance_head')
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
