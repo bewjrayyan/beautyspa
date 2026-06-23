@@ -19,6 +19,8 @@ class ImmaSeriLarisTreatmentImporter
 
     private const MAX_ADDITIONAL_IMAGES = 12;
 
+    private const LOCAL_IMAGE_BASE = __DIR__ . '/../Data/images/birthday-founder-mega-sale-2026';
+
     private array $imageCache = [];
 
     private array $categoryMap = [];
@@ -83,6 +85,57 @@ class ImmaSeriLarisTreatmentImporter
             });
 
         return $stats;
+    }
+
+
+    /**
+     * Import a product from a static catalog entry (e.g. promo flyer data).
+     *
+     * @param array<string, mixed> $entry
+     */
+    public function importFromData(array $entry, bool $skipImages = false, bool $force = false): bool
+    {
+        $variations = $entry['variations'] ?? [];
+
+        [$price, $specialPrice] = $this->extractPrices('', $variations);
+
+        $data = [
+            'slug' => $entry['slug'],
+            'sku' => $entry['sku'] ?? strtoupper(Str::slug($entry['slug'], '_')),
+            'name' => $entry['name'],
+            'description' => $entry['description'] ?? '',
+            'short_description' => $entry['short_description'] ?? Str::limit(strip_tags($entry['description'] ?? ''), 200),
+            'tags' => $entry['tags'] ?? ['Promo'],
+            'images' => $entry['images'] ?? [],
+            'local_images' => $entry['local_images'] ?? [],
+            'variations' => $variations,
+            'price' => $price,
+            'special_price' => $specialPrice,
+        ];
+
+        if (empty($data['name'])) {
+            return false;
+        }
+
+        $existing = $this->findProductForImport($data);
+
+        if ($existing) {
+            if (! $force) {
+                $this->log('  Skipped (exists): ' . $existing->slug);
+
+                return false;
+            }
+
+            DB::transaction(function () use ($existing, $data, $skipImages) {
+                $this->updateExistingProduct($existing->fresh(), $data, $skipImages);
+            });
+
+            return true;
+        }
+
+        return DB::transaction(function () use ($data, $skipImages) {
+            return $this->persistProduct($data, $data['slug'], $skipImages);
+        });
     }
 
 
@@ -360,7 +413,7 @@ class ImmaSeriLarisTreatmentImporter
         $tagIds = $this->resolveTagIds($data['tags']);
 
         $product->updateQuietly(array_merge([
-            'sku' => $data['sku'] ?: $product->sku,
+            'sku' => ($data['sku'] ?? null) ?: $product->sku,
             'price' => $data['price'],
             'special_price' => $data['special_price'],
             'special_price_type' => $data['special_price'] ? 'fixed' : null,
@@ -380,9 +433,7 @@ class ImmaSeriLarisTreatmentImporter
             $product->tags()->sync($tagIds);
         }
 
-        if (! $skipImages && ! empty($data['images'])) {
-            $this->attachProductImages($product, $data['images']);
-        }
+        $this->attachCatalogImages($product, $data, $skipImages);
 
         $product->variants()->forceDelete();
         $product->variations()->detach();
@@ -409,7 +460,7 @@ class ImmaSeriLarisTreatmentImporter
 
         $product = Product::withoutGlobalScope('active')->create(array_merge([
             'slug' => $slug,
-            'sku' => $data['sku'] ?: strtoupper(Str::slug($slug, '_')),
+            'sku' => $data['sku'] ?? strtoupper(Str::slug($slug, '_')),
             'price' => $data['price'],
             'special_price' => $data['special_price'],
             'special_price_type' => $data['special_price'] ? 'fixed' : null,
@@ -436,9 +487,7 @@ class ImmaSeriLarisTreatmentImporter
             $product->tags()->sync($tagIds);
         }
 
-        if (! $skipImages && ! empty($data['images'])) {
-            $this->attachProductImages($product, $data['images']);
-        }
+        $this->attachCatalogImages($product, $data, $skipImages);
 
         if (! empty($data['variations'])) {
             $this->importVariants($product, $data['variations'], $skipImages);
@@ -452,6 +501,119 @@ class ImmaSeriLarisTreatmentImporter
         $this->log('  Imported: ' . $data['name']);
 
         return true;
+    }
+
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function attachCatalogImages(Product $product, array $data, bool $skipImages): void
+    {
+        if ($skipImages) {
+            return;
+        }
+
+        if (! empty($data['local_images'])) {
+            $this->attachProductLocalImages($product, $data['local_images']);
+
+            return;
+        }
+
+        if (! empty($data['images'])) {
+            $this->attachProductImages($product, $data['images']);
+        }
+    }
+
+
+    /**
+     * @param array<int, string> $filenames
+     */
+    private function attachProductLocalImages(Product $product, array $filenames): void
+    {
+        DB::table('entity_files')
+            ->where('entity_type', Product::class)
+            ->where('entity_id', $product->id)
+            ->delete();
+
+        $baseId = null;
+        $additional = [];
+
+        foreach ($filenames as $filename) {
+            $fileId = $this->storeLocalImage($filename);
+
+            if (! $fileId) {
+                continue;
+            }
+
+            if ($baseId === null) {
+                $baseId = $fileId;
+            } else {
+                $additional[] = $fileId;
+            }
+
+            if (count($additional) >= self::MAX_ADDITIONAL_IMAGES) {
+                break;
+            }
+        }
+
+        $files = [];
+
+        if ($baseId) {
+            $files['base_image'] = [$baseId];
+        }
+
+        if ($additional) {
+            $files['additional_images'] = $additional;
+        }
+
+        if ($files) {
+            $this->syncEntityFiles(Product::class, $product->id, $files);
+        }
+    }
+
+
+    private function storeLocalImage(string $filename): ?int
+    {
+        $filename = ltrim($filename, '/');
+        $absolutePath = self::LOCAL_IMAGE_BASE . '/' . $filename;
+
+        if (isset($this->imageCache[$absolutePath])) {
+            return $this->imageCache[$absolutePath];
+        }
+
+        if (! is_readable($absolutePath)) {
+            return null;
+        }
+
+        $content = file_get_contents($absolutePath);
+
+        if ($content === false) {
+            return null;
+        }
+
+        $pathInfo = pathinfo($absolutePath);
+        $extension = $pathInfo['extension'] ?? 'jpg';
+        $storageFilename = 'imma-' . Str::slug($pathInfo['filename'] ?? Str::random(8)) . '.' . $extension;
+        $storagePath = 'media/' . $storageFilename;
+
+        if (! Storage::disk(config('filesystems.default'))->put($storagePath, $content)) {
+            return null;
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->buffer($content);
+
+        $file = File::create([
+            'user_id' => 1,
+            'disk' => config('filesystems.default'),
+            'filename' => substr($storageFilename, 0, 255),
+            'path' => $storagePath,
+            'extension' => $extension,
+            'mime' => $mime ?: 'image/jpeg',
+            'size' => strlen($content),
+        ]);
+
+        return $this->imageCache[$absolutePath] = $file->id;
     }
 
     /**
@@ -998,7 +1160,7 @@ class ImmaSeriLarisTreatmentImporter
                 'uid' => $valueUid,
                 'uids' => $uids,
                 'name' => $row['label'],
-                'sku' => $row['sku'] ?: null,
+                'sku' => $row['sku'] ?? null,
                 'price' => $price,
                 'special_price' => $special,
                 'special_price_type' => $special ? 'fixed' : null,

@@ -5,6 +5,7 @@ namespace Modules\Product\Providers;
 use Modules\Product\RecentlyViewed;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Modules\Product\Console\Commands\ImportBirthdayFounderMegaSaleCommand;
 use Modules\Product\Console\Commands\ImportImmaTreatmentsCommand;
 use Modules\Product\Console\Commands\SeedBenangGempakReviewsCommand;
 use Modules\Product\Http\ViewComposers\ProductEditPageComposer;
@@ -25,6 +26,7 @@ class ProductServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ImportImmaTreatmentsCommand::class,
+                ImportBirthdayFounderMegaSaleCommand::class,
                 SeedBenangGempakReviewsCommand::class,
             ]);
         }
