@@ -20,7 +20,7 @@
                 </div>
 
                 <a href="{{ storefront_route('products.index') }}" class="tab-products-view-all">
-                    {{ trans('storefront::view_all') }}
+                    {{ trans('storefront::storefront.view_all') }}
                 </a>
             </div>
     

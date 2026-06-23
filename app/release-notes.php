@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.8.6' => [
+        'en' => [
+            'summary' => 'Fix raw View All translation key on product tab headers.',
+            'changes' => [
+                'Resolve the storefront View All link label so it shows translated text instead of the lang key.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki kunci terjemahan View All mentah pada header tab produk.',
+            'changes' => [
+                'Selesaikan label pautan Lihat Semua supaya papar teks terjemahan dan bukan kunci lang.',
+            ],
+        ],
+    ],
     '4.8.5' => [
         'en' => [
             'summary' => 'Add icons to mobile footer accordion section titles.',
