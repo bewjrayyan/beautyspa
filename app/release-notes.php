@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.8.2' => [
+        'en' => [
+            'summary' => 'Fix featured category product images not filling the card.',
+            'changes' => [
+                'Use square aspect ratio with object-fit cover so product photos fill the image area edge to edge.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki imej produk kategori pilihan yang tidak memenuhi kad.',
+            'changes' => [
+                'Guna nisbah segi empat dengan object-fit cover supaya foto produk memenuhi kawasan imej sepenuhnya.',
+            ],
+        ],
+    ],
     '4.8.1' => [
         'en' => [
             'summary' => 'Ship rebuilt frontend assets for shared-hosting deploy.',

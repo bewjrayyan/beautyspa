@@ -373,25 +373,6 @@ $home-app-section-gap: 12px;
             .featured-category-products {
                 margin-left: 0;
                 margin-right: 0;
-
-                .product-card {
-                    margin: 0;
-                }
-
-                .product-image {
-                    padding-bottom: 56%;
-
-                    > img {
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        height: 100%;
-                        max-width: none;
-                        max-height: none;
-                        transform: none;
-                        object-fit: cover;
-                    }
-                }
             }
 
             .tab-content {
