@@ -4,21 +4,27 @@
             <div class="tab-products-header">
                 <h3 class="section-title">{{ $productTabsTwo['title'] }}</h3>
     
-                <div class="tab-products-header-overflow">
-                    <ul class="tabs">
-                        @foreach ($productTabsTwo['tabs'] as $key => $tab)
-                            <li
-                                class="tab-item"
-                                :class="classes({{ $key }})"
-                                @click="changeTab({{ $key }})"
-                                title="{{ $tab['title'] }}"
-                            >
-                                @include('storefront::public.partials.product_tab_label', ['label' => $tab['title']])
-                            </li>
-                        @endforeach
-                    </ul>
-    
-                    <hr> 
+                <div class="tab-products-header-row">
+                    <div class="tab-products-header-overflow">
+                        <ul class="tabs">
+                            @foreach ($productTabsTwo['tabs'] as $key => $tab)
+                                <li
+                                    class="tab-item"
+                                    :class="classes({{ $key }})"
+                                    @click="changeTab({{ $key }})"
+                                    title="{{ $tab['title'] }}"
+                                >
+                                    @include('storefront::public.partials.product_tab_label', ['label' => $tab['title']])
+                                </li>
+                            @endforeach
+                        </ul>
+        
+                        <hr> 
+                    </div>
+
+                    <a href="{{ storefront_route('products.index') }}" class="tab-products-view-all">
+                        {{ trans('storefront::view_all') }}
+                    </a>
                 </div>
             </div>
     

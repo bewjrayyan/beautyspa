@@ -4,6 +4,40 @@
     .tab-products-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+
+        .tab-products-header-overflow {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tab-products-view-all {
+            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--color-primary);
+            text-decoration: none;
+            white-space: nowrap;
+
+            &:hover {
+                color: var(--color-primary-hover);
+            }
+        }
+
+        .tab-products-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+
+            .tab-products-header-overflow {
+                flex: 1;
+                min-width: 0;
+            }
+        }
 
         .tabs {
             display: flex !important;

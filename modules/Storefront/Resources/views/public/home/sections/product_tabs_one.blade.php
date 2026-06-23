@@ -18,6 +18,10 @@
     
                     <hr>
                 </div>
+
+                <a href="{{ storefront_route('products.index') }}" class="tab-products-view-all">
+                    {{ trans('storefront::view_all') }}
+                </a>
             </div>
     
             <div class="tab-content">

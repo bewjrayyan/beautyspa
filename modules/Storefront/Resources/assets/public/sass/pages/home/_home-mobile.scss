@@ -426,8 +426,11 @@ $home-app-section-gap: 12px;
 
             .tab-products-header {
                 text-align: left;
-                align-items: flex-start;
-                overflow-x: auto;
+                align-items: center;
+                justify-content: space-between;
+                flex-direction: row;
+                gap: 12px;
+                overflow-x: visible;
                 overflow-y: visible;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
@@ -444,8 +447,20 @@ $home-app-section-gap: 12px;
                 }
             }
 
+            .tab-products-view-all {
+                flex-shrink: 0;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1.2;
+                color: var(--color-primary);
+                text-decoration: none;
+                white-space: nowrap;
+            }
+
             .tab-products-header-overflow {
-                width: 100%;
+                flex: 1;
+                min-width: 0;
+                width: auto;
                 margin: 0;
                 padding: 0;
                 overflow: visible;
@@ -458,6 +473,7 @@ $home-app-section-gap: 12px;
                     border-bottom: none !important;
                     justify-content: flex-start !important;
                     margin: 0 !important;
+                    width: auto;
                 }
             }
 
@@ -465,7 +481,7 @@ $home-app-section-gap: 12px;
                 display: flex;
                 flex-wrap: nowrap;
                 gap: 8px;
-                width: 100%;
+                width: auto;
                 max-width: 100%;
                 min-width: 0;
                 padding: 0;
@@ -512,6 +528,21 @@ $home-app-section-gap: 12px;
                         background: var(--color-primary);
                         font-weight: 600;
                     }
+                }
+            }
+
+            .landscape-right-tab-products-inner {
+                .tab-products-header {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+
+                .tab-products-header-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    width: 100%;
                 }
             }
         }

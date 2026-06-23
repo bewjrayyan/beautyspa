@@ -4,6 +4,7 @@ return [
     'storefront' => 'Storefront',
     'something_went_wrong' => 'Something went wrong!',
     'try_again' => 'Try Again',
+    'view_all' => 'View All',
     'sections' => [
         'branding' => 'Branding & copy',
         'branding_desc' => 'Welcome message, product listing title, and business address shown on the storefront.',

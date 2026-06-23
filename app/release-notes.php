@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.8.0' => [
+        'en' => [
+            'summary' => 'Homepage product tabs View All link and mobile slider polish.',
+            'changes' => [
+                'Add a View All link on the right of homepage product tab headers linking to the shop listing.',
+                'Match featured category mobile slider peek to the blog carousel with shorter product images.',
+                'Restore mobile homepage search without sticky positioning.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pautan Lihat Semua tab produk laman utama dan penambahbaikan slider mudah alih.',
+            'changes' => [
+                'Tambah pautan Lihat Semua di kanan header tab produk laman utama ke senarai kedai.',
+                'Selaraskan peek slider kategori pilihan mudah alih dengan carousel blog menggunakan imej produk lebih pendek.',
+                'Pulihkan carian laman utama mudah alih tanpa kedudukan sticky.',
+            ],
+        ],
+    ],
     '4.7.100' => [
         'en' => [
             'summary' => 'Match featured category product slider peek to the blog carousel.',

@@ -5,6 +5,7 @@ return [
     'storefront' => 'Kedai',
     'something_went_wrong' => 'Sesuatu tidak kena!',
     'try_again' => 'Cuba Lagi',
+    'view_all' => 'Lihat Semua',
     'sections' => [
         'branding' => 'Jenama & salinan',
         'branding_desc' => 'Mesej alu-aluan, tajuk senarai produk, dan alamat perniagaan pada kedai.',
