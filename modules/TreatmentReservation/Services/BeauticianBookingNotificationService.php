@@ -3,6 +3,7 @@
 namespace Modules\TreatmentReservation\Services;
 
 use Illuminate\Support\Facades\Log;
+use Modules\Setting\Support\WhatsAppMessageTemplate;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\User\Services\OneSenderWhatsAppService;
 
@@ -53,7 +54,14 @@ class BeauticianBookingNotificationService
         $time = $booking->appointment_time ?: '—';
         $portalUrl = route('admin.treatment_reservations.portal');
 
-        return implode("\n", [
+        return WhatsAppMessageTemplate::render('whatsapp_beautician_new_booking_message', [
+            'store' => $store,
+            'customer' => $customer,
+            'treatment' => $treatment,
+            'date' => $date,
+            'time' => $time,
+            'portal_url' => $portalUrl,
+        ], implode("\n", [
             "📅 *Tempahan Baharu — {$store}*",
             '',
             "Pelanggan: {$customer}",
@@ -62,6 +70,6 @@ class BeauticianBookingNotificationService
             "Masa: {$time}",
             '',
             "Buka job sheet: {$portalUrl}",
-        ]);
+        ]));
     }
 }

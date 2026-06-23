@@ -2,6 +2,7 @@
 
 namespace Modules\User\Listeners;
 
+use Modules\Setting\Support\WhatsAppMessageTemplate;
 use Modules\Sms\Sms;
 use Modules\User\Entities\User;
 use Modules\Sms\Exceptions\SmsException;
@@ -35,6 +36,9 @@ class SendWelcomeSms
 
     private function message(User $user)
     {
-        return trans('sms::messages.welcome', ['first_name' => $user->first_name]);
+        return WhatsAppMessageTemplate::render('whatsapp_welcome_message', [
+            'first_name' => $user->first_name,
+            'store' => setting('store_name'),
+        ], trans('sms::messages.welcome', ['first_name' => $user->first_name]));
     }
 }

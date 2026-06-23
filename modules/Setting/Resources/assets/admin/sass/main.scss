@@ -1399,8 +1399,8 @@ $settings-sidebar-offset: 16px;
     }
 
     .st-wa-item {
-        margin-bottom: 14px;
-        padding: 12px 14px;
+        margin-bottom: 16px;
+        padding: 14px 16px;
         border-radius: 10px;
         border: 1px solid $settings-border;
         background: $settings-bg;
@@ -1410,6 +1410,7 @@ $settings-sidebar-offset: 16px;
         }
 
         &--plain {
+            padding: 14px 16px;
             background: #fff;
         }
 
@@ -1427,33 +1428,84 @@ $settings-sidebar-offset: 16px;
             .checkbox label {
                 font-weight: 600;
                 font-size: 13px;
+                line-height: 1.45;
             }
         }
 
         &__hint {
-            margin: 6px 0 0;
+            margin: 8px 0 0;
+            padding-right: 2px;
             font-size: 12px;
-            line-height: 1.45;
+            line-height: 1.5;
             color: $settings-muted;
         }
 
+        &__inline-help {
+            margin: 4px 0 0;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
         &__fields {
-            margin-top: 12px;
-            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 14px;
+            padding-top: 14px;
             border-top: 1px dashed color-mix(in srgb, $settings-border 80%, transparent);
+
+            &--plain {
+                margin-top: 0;
+                padding-top: 0;
+                border-top: none;
+            }
 
             .form-group {
                 max-width: 100%;
-                margin-bottom: 10px;
+                margin-bottom: 0;
 
-                &:last-child {
-                    margin-bottom: 0;
+                label {
+                    margin-bottom: 6px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: $settings-muted;
                 }
             }
 
-            .help-block {
-                margin-top: 4px;
+            .help-block:not(.st-wa-template__hint) {
+                margin-top: 6px;
+                margin-bottom: 0;
             }
+        }
+    }
+
+    .st-wa-template {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        &__textarea {
+            min-height: 128px;
+            padding: 11px 13px;
+            font-size: 13px;
+            line-height: 1.55;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        &__hint {
+            margin: 0;
+            padding: 9px 11px;
+            font-size: 11px;
+            line-height: 1.55;
+            color: $settings-muted;
+            background: color-mix(in srgb, $settings-bg 65%, #fff);
+            border-radius: 8px;
+            border: 1px solid color-mix(in srgb, $settings-border 70%, transparent);
         }
     }
 

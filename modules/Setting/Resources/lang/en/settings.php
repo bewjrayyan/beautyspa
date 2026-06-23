@@ -93,6 +93,20 @@ return [
     'sms' => [
         'lead' => 'Configure OneSender WhatsApp API credentials, delivery controls, and automated messages for customers, orders, and beauticians.',
         'placeholders_hint' => 'Message templates support placeholders: :store, :customer, :treatment, :date (where applicable).',
+        'template_hint' => 'Leave blank to use the default template. Placeholders are replaced when the message is sent.',
+        'template_hints' => [
+            'welcome' => 'Placeholders: :first_name, :store',
+            'customer_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :beautician, :tracking_url, :extra_lines (legacy: :beautician_line, :tracking_line)',
+            'customer_completed' => 'Placeholders: :store, :customer, :treatment',
+            'customer_followup' => 'Placeholders: :store, :customer, :treatment, :date',
+            'new_order_admin' => 'Placeholders: :store, :order_id, :customer, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary',
+            'new_order_customer' => 'Placeholders: :first_name, :store, :order_id, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
+            'order_status' => 'Placeholders: :first_name, :order_id, :status, :store',
+            'completed_group' => 'Placeholders: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
+            'completed_beautician' => 'Placeholders: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
+            'beautician_new_booking' => 'Placeholders: :store, :customer, :treatment, :date, :time, :portal_url',
+            'beautician_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :portal_url',
+        ],
         'badges' => [
             'auto_off' => 'Auto-send off in code',
         ],

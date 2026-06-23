@@ -4,6 +4,7 @@ namespace Modules\TreatmentReservation\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Modules\Setting\Support\WhatsAppMessageTemplate;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\User\Services\OneSenderWhatsAppService;
 use Modules\User\Support\PhoneNumber;
@@ -144,17 +145,12 @@ class CustomerFollowUpNotificationService
         $treatment = $booking->product?->name ?: '—';
         $date = $booking->appointment_date?->format('d M Y') ?: '—';
 
-        $template = trim((string) setting('whatsapp_customer_followup_message', ''));
-
-        if ($template !== '') {
-            return str_replace(
-                [':store', ':customer', ':treatment', ':date'],
-                [$store, $customer, $treatment, $date],
-                $template
-            );
-        }
-
-        return implode("\n", [
+        return WhatsAppMessageTemplate::render('whatsapp_customer_followup_message', [
+            'store' => $store,
+            'customer' => $customer,
+            'treatment' => $treatment,
+            'date' => $date,
+        ], implode("\n", [
             "💆 *Susulan — {$store}*",
             '',
             "Hai {$customer},",
@@ -162,6 +158,6 @@ class CustomerFollowUpNotificationService
             "Sudah {$date} sejak rawatan *{$treatment}* anda. Bagaimana keadaan anda?",
             '',
             'Hubungi kami jika ingin tempah sesi seterusnya. Terima kasih!',
-        ]);
+        ]));
     }
 }

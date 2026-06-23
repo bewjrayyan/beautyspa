@@ -4,6 +4,7 @@ namespace Modules\TreatmentReservation\Services;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Modules\Setting\Support\WhatsAppMessageTemplate;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 use Modules\User\Services\OneSenderWhatsAppService;
@@ -212,8 +213,27 @@ class CustomerAppointmentReminderService
         $date = $booking->appointment_date?->format('d M Y') ?: '—';
         $time = $booking->appointment_time ?: '—';
         $beautician = $booking->beautician?->name;
+        $trackingUrl = $this->trackingUrl($booking);
 
-        $lines = [
+        $extraLines = implode("\n", array_filter([
+            $beautician ? "Beautician: {$beautician}" : null,
+            $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : null,
+        ]));
+        $beauticianLine = $beautician ? "Beautician: {$beautician}" : '';
+        $trackingLine = $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : '';
+
+        return WhatsAppMessageTemplate::render('whatsapp_customer_reminder_message', [
+            'store' => $store,
+            'customer' => $customer,
+            'treatment' => $treatment,
+            'date' => $date,
+            'time' => $time,
+            'beautician' => $beautician ?: '—',
+            'tracking_url' => $trackingUrl ?: '',
+            'extra_lines' => $extraLines,
+            'beautician_line' => $beauticianLine,
+            'tracking_line' => $trackingLine,
+        ], implode("\n", array_filter([
             "⏰ *Peringatan Temujanji — {$store}*",
             '',
             "Hai {$customer},",
@@ -221,23 +241,11 @@ class CustomerAppointmentReminderService
             "Rawatan: {$treatment}",
             "Tarikh: {$date}",
             "Masa: {$time}",
-        ];
-
-        if ($beautician) {
-            $lines[] = "Beautician: {$beautician}";
-        }
-
-        $trackingUrl = $this->trackingUrl($booking);
-
-        if ($trackingUrl) {
-            $lines[] = '';
-            $lines[] = "Jejak pesanan: {$trackingUrl}";
-        }
-
-        $lines[] = '';
-        $lines[] = 'Sila hadir tepat pada masa. Terima kasih!';
-
-        return implode("\n", $lines);
+            $beautician ? "Beautician: {$beautician}" : null,
+            $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : null,
+            '',
+            'Sila hadir tepat pada masa. Terima kasih!',
+        ])));
     }
 
 

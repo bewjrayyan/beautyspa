@@ -2,6 +2,7 @@
 
 namespace Modules\Order\Listeners;
 
+use Modules\Setting\Support\WhatsAppMessageTemplate;
 use Modules\Sms\Sms;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
@@ -38,10 +39,15 @@ class SendOrderStatusChangedSms
 
     private function message(Order $order)
     {
-        return trans('sms::messages.order_status_changed', [
+        return WhatsAppMessageTemplate::render('whatsapp_order_status_message', [
+            'first_name' => $order->customer_first_name,
+            'order_id' => (string) $order->id,
+            'status' => mb_strtolower($order->status()),
+            'store' => setting('store_name'),
+        ], trans('sms::messages.order_status_changed', [
             'first_name' => $order->customer_first_name,
             'order_id' => $order->id,
             'status' => mb_strtolower($order->status()),
-        ]);
+        ]));
     }
 }

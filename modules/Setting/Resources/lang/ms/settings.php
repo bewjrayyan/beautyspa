@@ -95,6 +95,20 @@ return [
     'sms' => [
         'lead' => 'Konfigurasi kredential API OneSender WhatsApp, kawalan penghantaran, dan mesej automatik untuk pelanggan, pesanan, dan beautician.',
         'placeholders_hint' => 'Templat mesej menyokong placeholder: :store, :customer, :treatment, :date (jika berkenaan).',
+        'template_hint' => 'Biarkan kosong untuk guna templat lalai. Placeholder akan diganti semasa mesej dihantar.',
+        'template_hints' => [
+            'welcome' => 'Placeholder: :first_name, :store',
+            'customer_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :beautician, :tracking_url, :extra_lines (lama: :beautician_line, :tracking_line)',
+            'customer_completed' => 'Placeholder: :store, :customer, :treatment',
+            'customer_followup' => 'Placeholder: :store, :customer, :treatment, :date',
+            'new_order_admin' => 'Placeholder: :store, :order_id, :customer, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary',
+            'new_order_customer' => 'Placeholder: :first_name, :store, :order_id, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
+            'order_status' => 'Placeholder: :first_name, :order_id, :status, :store',
+            'completed_group' => 'Placeholder: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
+            'completed_beautician' => 'Placeholder: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
+            'beautician_new_booking' => 'Placeholder: :store, :customer, :treatment, :date, :time, :portal_url',
+            'beautician_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :portal_url',
+        ],
         'badges' => [
             'auto_off' => 'Hantar automatik dimatikan dalam kod',
         ],

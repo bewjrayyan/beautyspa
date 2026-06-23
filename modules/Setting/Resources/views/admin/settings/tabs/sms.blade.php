@@ -101,6 +101,10 @@
                 'enabledLabel' => trans('setting::settings.form.send_welcome_whatsapp_after_registration'),
                 'hint' => trans('setting::settings.sms.sections.customer.welcome_help'),
             ])
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_welcome_message',
+                    'hint' => trans('setting::settings.sms.template_hints.welcome'),
+                ])
             @endcomponent
 
             @component('setting::admin.settings.partials.wa-notification-item', [
@@ -114,6 +118,10 @@
                     'step' => 15,
                     'placeholder' => (string) config('setting.whatsapp_notifications.whatsapp_customer_reminder_minutes'),
                 ]) }}
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_customer_reminder_message',
+                    'hint' => trans('setting::settings.sms.template_hints.customer_reminder'),
+                ])
             @endcomponent
 
             @component('setting::admin.settings.partials.wa-notification-item', [
@@ -125,11 +133,10 @@
                     'text' => trans('setting::settings.sms.badges.auto_off'),
                 ],
             ])
-                {{ Form::textarea('whatsapp_customer_completed_message', trans('setting::attributes.whatsapp_customer_completed_message'), $errors, $settings, [
-                    'rows' => 5,
-                    'placeholder' => config('setting.whatsapp_notifications.whatsapp_customer_completed_message'),
-                ]) }}
-                <p class="help-block text-muted">{{ trans('setting::settings.sms.placeholders_hint') }}</p>
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_customer_completed_message',
+                    'hint' => trans('setting::settings.sms.template_hints.customer_completed'),
+                ])
             @endcomponent
 
             @component('setting::admin.settings.partials.wa-notification-item', [
@@ -142,11 +149,10 @@
                     'max' => 90,
                     'placeholder' => (string) config('setting.whatsapp_notifications.whatsapp_customer_followup_days'),
                 ]) }}
-                {{ Form::textarea('whatsapp_customer_followup_message', trans('setting::attributes.whatsapp_customer_followup_message'), $errors, $settings, [
-                    'rows' => 5,
-                    'placeholder' => config('setting.whatsapp_notifications.whatsapp_customer_followup_message'),
-                ]) }}
-                <p class="help-block text-muted">{{ trans('setting::settings.sms.placeholders_hint') }}</p>
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_customer_followup_message',
+                    'hint' => trans('setting::settings.sms.template_hints.customer_followup'),
+                ])
             @endcomponent
         @endcomponent
 
@@ -159,26 +165,47 @@
                 'enabledName' => 'new_order_admin_sms',
                 'enabledLabel' => trans('setting::settings.form.send_new_order_notification_to_admin'),
             ])
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_new_order_admin_message',
+                    'rows' => 12,
+                    'hint' => trans('setting::settings.sms.template_hints.new_order_admin'),
+                ])
             @endcomponent
 
             @component('setting::admin.settings.partials.wa-notification-item', [
                 'enabledName' => 'new_order_sms',
                 'enabledLabel' => trans('setting::settings.form.send_new_order_notification_to_customer'),
             ])
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_new_order_customer_message',
+                    'rows' => 12,
+                    'hint' => trans('setting::settings.sms.template_hints.new_order_customer'),
+                ])
             @endcomponent
 
             <div class="st-wa-item st-wa-item--plain">
-                {{ Form::select('sms_order_statuses', trans('setting::attributes.sms_order_statuses'), $errors, $orderStatuses, $settings, [
-                    'class' => 'selectize prevent-creation',
-                    'multiple' => true,
-                ]) }}
-                <p class="help-block text-muted">{{ trans('setting::settings.sms.sections.order.statuses_help') }}</p>
+                <div class="st-wa-item__fields st-wa-item__fields--plain">
+                    {{ Form::select('sms_order_statuses', trans('setting::attributes.sms_order_statuses'), $errors, $orderStatuses, $settings, [
+                        'class' => 'selectize prevent-creation',
+                        'multiple' => true,
+                    ]) }}
+                    <p class="help-block text-muted st-wa-item__inline-help">{{ trans('setting::settings.sms.sections.order.statuses_help') }}</p>
+                    @include('setting::admin.settings.partials.wa-message-template', [
+                        'messageName' => 'whatsapp_order_status_message',
+                        'hint' => trans('setting::settings.sms.template_hints.order_status'),
+                    ])
+                </div>
             </div>
 
             @component('setting::admin.settings.partials.wa-notification-item', [
                 'enabledName' => 'whatsapp_completed_group_enabled',
                 'enabledLabel' => trans('setting::settings.form.send_completed_order_to_whatsapp_group'),
             ])
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_completed_group_message',
+                    'rows' => 10,
+                    'hint' => trans('setting::settings.sms.template_hints.completed_group'),
+                ])
             @endcomponent
 
             @component('setting::admin.settings.partials.wa-notification-item', [
@@ -186,6 +213,11 @@
                 'enabledLabel' => trans('setting::settings.form.send_completed_order_to_beautician'),
                 'hint' => trans('setting::settings.form.whatsapp_group_note_format_help'),
             ])
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_completed_beautician_message',
+                    'rows' => 10,
+                    'hint' => trans('setting::settings.sms.template_hints.completed_beautician'),
+                ])
             @endcomponent
         @endcomponent
 
@@ -198,6 +230,10 @@
                 'enabledName' => 'whatsapp_beautician_new_booking_enabled',
                 'enabledLabel' => trans('setting::settings.form.send_new_booking_to_beautician'),
             ])
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_beautician_new_booking_message',
+                    'hint' => trans('setting::settings.sms.template_hints.beautician_new_booking'),
+                ])
             @endcomponent
 
             @component('setting::admin.settings.partials.wa-notification-item', [
@@ -211,6 +247,10 @@
                     'step' => 15,
                     'placeholder' => (string) config('setting.whatsapp_notifications.whatsapp_beautician_reminder_minutes'),
                 ]) }}
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_beautician_reminder_message',
+                    'hint' => trans('setting::settings.sms.template_hints.beautician_reminder'),
+                ])
             @endcomponent
         @endcomponent
     </div>

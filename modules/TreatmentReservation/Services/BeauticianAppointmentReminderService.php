@@ -4,6 +4,7 @@ namespace Modules\TreatmentReservation\Services;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Modules\Setting\Support\WhatsAppMessageTemplate;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 use Modules\User\Services\OneSenderWhatsAppService;
@@ -203,7 +204,14 @@ class BeauticianAppointmentReminderService
         $time = $booking->appointment_time ?: '—';
         $portalUrl = route('admin.treatment_reservations.portal');
 
-        return implode("\n", [
+        return WhatsAppMessageTemplate::render('whatsapp_beautician_reminder_message', [
+            'store' => $store,
+            'customer' => $customer,
+            'treatment' => $treatment,
+            'date' => $date,
+            'time' => $time,
+            'portal_url' => $portalUrl,
+        ], implode("\n", [
             "⏰ *Peringatan Temujanji — {$store}*",
             '',
             "Pelanggan: {$customer}",
@@ -212,7 +220,7 @@ class BeauticianAppointmentReminderService
             "Masa: {$time}",
             '',
             "Buka job sheet: {$portalUrl}",
-        ]);
+        ]));
     }
 
 

@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.90' => [
+        'en' => [
+            'summary' => 'Configurable WhatsApp message templates and full order pricing in automated messages.',
+            'changes' => [
+                'Add per-notification message templates in Admin → Settings → WhatsApp (welcome, reminders, new order, completed order, beautician, and more).',
+                'Share OrderPricingBreakdown across invoice views and WhatsApp PAYMENT SUMMARY (tax, shipping, coupon, loyalty, processing fee).',
+                'Enrich new-order admin/customer and completed-order group/beautician WhatsApp with items, appointment details, and full payment summary.',
+                'Introduce WhatsAppMessageTemplate and OrderWhatsAppMessageBuilder for consistent placeholder replacement.',
+                'Improve WhatsApp settings tab spacing and textarea layout for long templates.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Templat mesej WhatsApp boleh ubah dan harga pesanan penuh dalam mesej automatik.',
+            'changes' => [
+                'Tambah templat mesej setiap notifikasi di Admin → Tetapan → WhatsApp (alu-aluan, peringatan, pesanan baharu, pesanan selesai, beautician, dan lain-lain).',
+                'Kongsi OrderPricingBreakdown antara paparan invois dan PAYMENT SUMMARY WhatsApp (cukai, penghantaran, kupon, kesetiaan, yuran pemprosesan).',
+                'Perkaya WhatsApp pesanan baharu (admin/pelanggan) dan pesanan selesai (kumpulan/beautician) dengan item, temujanji, dan ringkasan bayaran penuh.',
+                'Perkenalkan WhatsAppMessageTemplate dan OrderWhatsAppMessageBuilder untuk penggantian placeholder yang konsisten.',
+                'Baiki jarak tab tetapan WhatsApp dan susun textarea untuk templat panjang.',
+            ],
+        ],
+    ],
     '4.7.89' => [
         'en' => [
             'summary' => 'Show full pricing breakdown on account invoice and receipt pages.',

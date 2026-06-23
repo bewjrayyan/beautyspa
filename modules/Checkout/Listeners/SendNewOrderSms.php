@@ -2,14 +2,20 @@
 
 namespace Modules\Checkout\Listeners;
 
-use Exception;
-use Modules\Sms\Sms;
 use Modules\Order\Entities\Order;
+use Modules\Order\Services\OrderWhatsAppMessageBuilder;
 use Modules\Checkout\Events\OrderPlaced;
 use Modules\Sms\Exceptions\SmsException;
+use Modules\Sms\Sms;
 
 class SendNewOrderSms
 {
+    public function __construct(
+        private readonly OrderWhatsAppMessageBuilder $messageBuilder,
+    ) {
+    }
+
+
     /**
      * Handle the event.
      *
@@ -40,7 +46,7 @@ class SendNewOrderSms
 
     private function adminMessage(Order $order)
     {
-        return trans('sms::messages.new_order', ['order_id' => $order->id]);
+        return $this->messageBuilder->render($order, 'whatsapp_new_order_admin_message');
     }
 
 
@@ -63,9 +69,6 @@ class SendNewOrderSms
 
     private function customerMessage(Order $order)
     {
-        return trans('sms::messages.order_has_been_placed', [
-            'first_name' => $order->customer_first_name,
-            'order_id' => $order->id,
-        ]);
+        return $this->messageBuilder->render($order, 'whatsapp_new_order_customer_message');
     }
 }

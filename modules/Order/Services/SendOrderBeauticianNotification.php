@@ -34,7 +34,7 @@ class SendOrderBeauticianNotification
 
         $delivered = $this->oneSender->sendNotification(
             $phone,
-            $this->messageBuilder->build($order),
+            $this->messageBuilder->build($order, 'whatsapp_completed_beautician_message'),
             [
                 'source' => 'order.completed.beautician',
                 'dedupe_key' => 'order:' . $order->id . ':beautician',

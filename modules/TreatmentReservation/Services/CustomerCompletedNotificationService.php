@@ -4,6 +4,7 @@ namespace Modules\TreatmentReservation\Services;
 
 use Illuminate\Support\Facades\Log;
 use Modules\Setting\Support\SettingValues;
+use Modules\Setting\Support\WhatsAppMessageTemplate;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\User\Services\OneSenderWhatsAppService;
 
@@ -103,16 +104,10 @@ class CustomerCompletedNotificationService
             'Kami berharap anda berpuas hati. Jumpa lagi!',
         ];
 
-        $template = trim((string) setting('whatsapp_customer_completed_message', ''));
-
-        if ($template !== '') {
-            return str_replace(
-                [':store', ':customer', ':treatment'],
-                [$store, $customer, $treatment],
-                $template
-            );
-        }
-
-        return implode("\n", $lines);
+        return WhatsAppMessageTemplate::render('whatsapp_customer_completed_message', [
+            'store' => $store,
+            'customer' => $customer,
+            'treatment' => $treatment,
+        ], implode("\n", $lines));
     }
 }
