@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.8.5' => [
+        'en' => [
+            'summary' => 'Add icons to mobile footer accordion section titles.',
+            'changes' => [
+                'Show a themed icon beside each Help & Support footer menu title (Contact, Account, Links, Information, Tags).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah ikon pada tajuk seksyen accordion footer mudah alih.',
+            'changes' => [
+                'Paparkan ikon bertema di sebelah setiap tajuk menu footer Help & Support (Hubungi, Akaun, Pautan, Maklumat, Tag).',
+            ],
+        ],
+    ],
     '4.8.4' => [
         'en' => [
             'summary' => 'Center product slider pagination dots on mobile.',

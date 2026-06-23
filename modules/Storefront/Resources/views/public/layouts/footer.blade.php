@@ -8,7 +8,10 @@
                     <div class="col-lg-5 col-md-8">
                         <details class="footer-app-card" open>
                             <summary class="footer-app-card__header">
-                                <span class="footer-app-card__title">{{ trans('storefront::layouts.contact_us') }}</span>
+                                <span class="footer-app-card__title-wrap">
+                                    <i class="las la-headset footer-app-card__icon" aria-hidden="true"></i>
+                                    <span class="footer-app-card__title">{{ trans('storefront::layouts.contact_us') }}</span>
+                                </span>
                                 <i class="las la-angle-down footer-app-card__chevron" aria-hidden="true"></i>
                             </summary>
 
@@ -81,7 +84,10 @@
                     <div class="col-lg-3 col-md-5">
                         <details class="footer-app-card">
                             <summary class="footer-app-card__header">
-                                <span class="footer-app-card__title">{{ trans('storefront::layouts.my_account') }}</span>
+                                <span class="footer-app-card__title-wrap">
+                                    <i class="las la-user-circle footer-app-card__icon" aria-hidden="true"></i>
+                                    <span class="footer-app-card__title">{{ trans('storefront::layouts.my_account') }}</span>
+                                </span>
                                 <i class="las la-angle-down footer-app-card__chevron" aria-hidden="true"></i>
                             </summary>
 
@@ -131,7 +137,10 @@
                         <div class="col-lg-3 col-md-5">
                             <details class="footer-app-card">
                                 <summary class="footer-app-card__header">
-                                    <span class="footer-app-card__title">{{ setting('storefront_footer_menu_one_title') }}</span>
+                                    <span class="footer-app-card__title-wrap">
+                                        <i class="las la-link footer-app-card__icon" aria-hidden="true"></i>
+                                        <span class="footer-app-card__title">{{ setting('storefront_footer_menu_one_title') }}</span>
+                                    </span>
                                     <i class="las la-angle-down footer-app-card__chevron" aria-hidden="true"></i>
                                 </summary>
 
@@ -156,7 +165,10 @@
                         <div class="col-lg-3 col-md-5">
                             <details class="footer-app-card">
                                 <summary class="footer-app-card__header">
-                                    <span class="footer-app-card__title">{{ setting('storefront_footer_menu_two_title') }}</span>
+                                    <span class="footer-app-card__title-wrap">
+                                        <i class="las la-info-circle footer-app-card__icon" aria-hidden="true"></i>
+                                        <span class="footer-app-card__title">{{ setting('storefront_footer_menu_two_title') }}</span>
+                                    </span>
                                     <i class="las la-angle-down footer-app-card__chevron" aria-hidden="true"></i>
                                 </summary>
 
@@ -181,7 +193,10 @@
                         <div class="col-lg-4 col-md-7">
                             <details class="footer-app-card">
                                 <summary class="footer-app-card__header">
-                                    <span class="footer-app-card__title">{{ trans('storefront::layouts.tags') }}</span>
+                                    <span class="footer-app-card__title-wrap">
+                                        <i class="las la-tags footer-app-card__icon" aria-hidden="true"></i>
+                                        <span class="footer-app-card__title">{{ trans('storefront::layouts.tags') }}</span>
+                                    </span>
                                     <i class="las la-angle-down footer-app-card__chevron" aria-hidden="true"></i>
                                 </summary>
 

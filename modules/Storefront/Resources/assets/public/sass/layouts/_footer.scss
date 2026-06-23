@@ -61,6 +61,25 @@
         box-shadow: none;
     }
 
+    .footer-app-card__title-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .footer-app-card__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: var(--color-primary-alpha-10, rgba(242, 116, 172, 0.1));
+        color: var(--color-primary);
+        font-size: 16px;
+        line-height: 1;
+    }
+
     .footer-app-card__title {
         display: block;
         position: relative;
