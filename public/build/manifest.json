@@ -44,12 +44,12 @@
     "file": "assets/Errors-CUe_UZOJ-v4.7.71.js",
     "name": "Errors"
   },
-  "_LandscapeProducts-Dxs0e8f1-v4.7.71.js": {
-    "file": "assets/LandscapeProducts-Dxs0e8f1-v4.7.71.js",
+  "_LandscapeProducts-BPDv7Nnm-v4.7.71.js": {
+    "file": "assets/LandscapeProducts-BPDv7Nnm-v4.7.71.js",
     "name": "LandscapeProducts",
     "imports": [
       "_swiper-AEc_2BbQ-v4.7.71.js",
-      "_productSliderStateMixin-B-z8ObLY-v4.7.71.js",
+      "_productSliderStateMixin-Btch4l4S-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js"
     ]
   },
@@ -653,8 +653,8 @@
       "assets/placeholder_image-BqsW5LDU-v4.7.71.png"
     ]
   },
-  "_productSliderStateMixin-B-z8ObLY-v4.7.71.js": {
-    "file": "assets/productSliderStateMixin-B-z8ObLY-v4.7.71.js",
+  "_productSliderStateMixin-Btch4l4S-v4.7.71.js": {
+    "file": "assets/productSliderStateMixin-Btch4l4S-v4.7.71.js",
     "name": "productSliderStateMixin"
   },
   "_property-information-l0sNRNKZ-v4.7.71.js": {
@@ -1391,15 +1391,15 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/cart/main.js": {
-    "file": "assets/main-C__jnBrw-v4.7.71.js",
+    "file": "assets/main-ChEgr-_c-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/cart/main.js",
     "isEntry": true,
     "imports": [
       "_CartItem-C8uJKew3-v4.7.71.js",
-      "_LandscapeProducts-Dxs0e8f1-v4.7.71.js",
+      "_LandscapeProducts-BPDv7Nnm-v4.7.71.js",
       "_swiper-AEc_2BbQ-v4.7.71.js",
-      "_productSliderStateMixin-B-z8ObLY-v4.7.71.js",
+      "_productSliderStateMixin-Btch4l4S-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_ProductMixin-BqHQdoRS-v4.7.71.js",
       "_functions-pLOF4zHP-v4.7.71.js",
@@ -1421,18 +1421,18 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/compare/main.js": {
-    "file": "assets/main-XC0Gjnvh-v4.7.71.js",
+    "file": "assets/main-2XKEnLBm-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/compare/main.js",
     "isEntry": true,
     "imports": [
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js",
-      "_LandscapeProducts-Dxs0e8f1-v4.7.71.js",
+      "_LandscapeProducts-BPDv7Nnm-v4.7.71.js",
       "_ProductMixin-BqHQdoRS-v4.7.71.js",
       "_functions-pLOF4zHP-v4.7.71.js",
       "_swiper-AEc_2BbQ-v4.7.71.js",
-      "_productSliderStateMixin-B-z8ObLY-v4.7.71.js"
+      "_productSliderStateMixin-Btch4l4S-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js": {
@@ -1447,14 +1447,14 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/home/main.js": {
-    "file": "assets/main-DQXwYvie-v4.7.71.js",
+    "file": "assets/main-C2l9HnjI-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
     "isEntry": true,
     "imports": [
       "_swiper-AEc_2BbQ-v4.7.71.js",
       "_scheduleInit-mT4ow-ox-v4.7.71.js",
-      "_productSliderStateMixin-B-z8ObLY-v4.7.71.js",
+      "_productSliderStateMixin-Btch4l4S-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_countdown-BHmL3SSW-v4.7.71.js",
       "_ProductMixin-BqHQdoRS-v4.7.71.js",
@@ -1479,7 +1479,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/products/show/main.js": {
-    "file": "assets/main-CcSM0Cl3-v4.7.71.js",
+    "file": "assets/main-i0sR_q-Y-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/products/show/main.js",
     "isEntry": true,
@@ -1490,7 +1490,7 @@
       "_glightbox-RYiXx-Yk-v4.7.71.js",
       "_Errors-C30A2Jtx-v4.7.71.js",
       "_functions-pLOF4zHP-v4.7.71.js",
-      "_productSliderStateMixin-B-z8ObLY-v4.7.71.js",
+      "_productSliderStateMixin-Btch4l4S-v4.7.71.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js",
       "_Pagination-DKj6Zlmg-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
@@ -1509,7 +1509,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/sass/app.scss": {
-    "file": "assets/app-B3UDYGHA-v4.7.71.css",
+    "file": "assets/app-BtBtWea0-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/app.scss",
     "isEntry": true,
     "name": "app",
@@ -1539,16 +1539,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.71.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-BZn6bGVz-v4.7.71.css",

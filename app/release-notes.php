@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.8.4' => [
+        'en' => [
+            'summary' => 'Center product slider pagination dots on mobile.',
+            'changes' => [
+                'Keep swiper dots centered between the prev and next arrows on mobile sliders.',
+                'Disable dynamic bullet shifting that pushed pagination outside the control bar.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Centerkan titik pagination slider produk pada mudah alih.',
+            'changes' => [
+                'Kekalkan titik swiper di tengah antara anak panah prev dan next pada slider mudah alih.',
+                'Matikan peralihan dynamic bullet yang menolak pagination keluar dari bar kawalan.',
+            ],
+        ],
+    ],
     '4.8.3' => [
         'en' => [
             'summary' => 'Narrower featured category cards and centered mobile footer nav.',
