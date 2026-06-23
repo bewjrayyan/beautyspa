@@ -8,3 +8,4 @@ import "./sections/GridProducts";
 import "./sections/ProductTabsTwo";
 import "./sections/GoogleReviews";
 import "./sections/Blog";
+import "./sections/MobileHomePromo";

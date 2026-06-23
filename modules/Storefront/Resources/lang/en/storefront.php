@@ -145,6 +145,8 @@ return [
     'mobile_home_promo' => [
         'section_label' => 'Mobile promo',
         'image_alt' => 'Promotional poster',
+        'unmute' => 'Turn sound on',
+        'mute' => 'Turn sound off',
     ],
     'mobile_tab_labels' => [
         'latest_treatments' => 'Latest',

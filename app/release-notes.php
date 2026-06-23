@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.93' => [
+        'en' => [
+            'summary' => 'Mobile promo video sound toggle on the homepage.',
+            'changes' => [
+                'Add a tap-to-unmute sound button on mobile home promo videos while keeping autoplay muted by default.',
+                'Improve promo video markup so the sound control works alongside optional promo links.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Butang bunyi untuk video promo mudah alih pada laman utama.',
+            'changes' => [
+                'Tambah butang tap untuk hidupkan bunyi pada video promo mudah alih sambil kekalkan autoplay tanpa bunyi secara lalai.',
+                'Baiki markup video promo supaya kawalan bunyi berfungsi bersama pautan promo pilihan.',
+            ],
+        ],
+    ],
     '4.7.92' => [
         'en' => [
             'summary' => 'Mobile home promo section, Birthday Founder Mega Sale catalog import, and larger video uploads.',

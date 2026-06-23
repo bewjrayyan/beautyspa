@@ -149,6 +149,8 @@ return [
     'mobile_home_promo' => [
         'section_label' => 'Promo mudah alih',
         'image_alt' => 'Poster promosi',
+        'unmute' => 'Hidupkan bunyi',
+        'mute' => 'Matikan bunyi',
     ],
     'mobile_tab_labels' => [
         'latest_treatments' => 'Terbaru',

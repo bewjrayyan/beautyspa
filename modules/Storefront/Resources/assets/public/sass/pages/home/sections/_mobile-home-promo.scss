@@ -17,6 +17,66 @@
         color: inherit;
     }
 
+    .mobile-home-promo__media {
+        position: relative;
+    }
+
+    .mobile-home-promo__link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .mobile-home-promo__sound-toggle {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.62);
+        color: #fff;
+        cursor: pointer;
+        backdrop-filter: blur(6px);
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.2s ease, transform 0.2s ease;
+
+        &:active {
+            transform: scale(0.96);
+        }
+
+        &.is-unmuted {
+            background: rgba(255, 255, 255, 0.92);
+            color: #0f172a;
+        }
+    }
+
+    .mobile-home-promo__sound-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        &--unmuted {
+            display: none;
+        }
+    }
+
+    .mobile-home-promo__sound-toggle.is-unmuted {
+        .mobile-home-promo__sound-icon--muted {
+            display: none;
+        }
+
+        .mobile-home-promo__sound-icon--unmuted {
+            display: inline-flex;
+        }
+    }
+
     .mobile-home-promo__image {
         display: block;
         width: 100%;
