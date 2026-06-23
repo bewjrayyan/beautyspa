@@ -23,6 +23,7 @@ use Modules\Payment\Gateways\AuthorizeNet;
 use Modules\Payment\Gateways\BankTransfer;
 use Modules\Payment\Gateways\CheckPayment;
 use Modules\Payment\Gateways\ChipGateway;
+use Modules\Payment\Services\ChipCheckoutAvailability;
 use Modules\Payment\Services\ChipPaymentMethodConfig;
 
 class PaymentServiceProvider extends ServiceProvider
@@ -164,40 +165,15 @@ class PaymentServiceProvider extends ServiceProvider
             return;
         }
 
-        if ($this->chipAllMethodsEnabled()) {
-            Gateway::register(ChipPaymentMethodConfig::METHOD_ALL, new ChipGateway(ChipPaymentMethodConfig::METHOD_ALL));
-        } elseif (! Gateway::get(ChipPaymentMethodConfig::METHOD_ALL)) {
-            // Orders may store the umbrella `chip` key when only sub-methods are enabled at checkout.
+        if (ChipCheckoutAvailability::showAllMethodsGateway()) {
             Gateway::register(ChipPaymentMethodConfig::METHOD_ALL, new ChipGateway(ChipPaymentMethodConfig::METHOD_ALL));
         }
 
         foreach (ChipPaymentMethodConfig::checkoutMethodKeys() as $methodKey) {
-            if (setting($this->chipMethodEnabledSetting($methodKey))) {
+            if (setting($methodKey . '_enabled')) {
                 Gateway::register($methodKey, new ChipGateway($methodKey));
             }
         }
-    }
-
-
-    private function chipAllMethodsEnabled(): bool
-    {
-        if (setting('chip_all_methods_enabled')) {
-            return true;
-        }
-
-        foreach (ChipPaymentMethodConfig::checkoutMethodKeys() as $methodKey) {
-            if (setting($this->chipMethodEnabledSetting($methodKey))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
-    private function chipMethodEnabledSetting(string $methodKey): string
-    {
-        return $methodKey . '_enabled';
     }
 
 

@@ -14,7 +14,7 @@ AestheticCart integrates [CHIP Collect](https://github.com/CHIPAsia/chip-php-sdk
 3. **Surcharge (sen)** — added to the CHIP checkout total (MYR: `100` = RM1.00).
 4. **CHIP codes** — optional comma-separated values for `payment_method_whitelist` (see CHIP `GET /payment_methods/`). Defaults: `fpx`, `card`, `atome`.
 
-**Generic “all methods”** — enable *Show generic CHIP — all methods* to keep the original single `chip` gateway (no whitelist).
+**Generic “all methods”** — enable *Show generic CHIP — all methods* to keep the original single `chip` gateway (no whitelist). When disabled and at least one per-method option (FPX, cards, Atome) is enabled, only those methods appear at checkout.
 
 ## Checkout
 

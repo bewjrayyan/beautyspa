@@ -19,6 +19,7 @@ use Modules\Payment\Libraries\Bkash\BkashService;
 use Modules\Payment\Libraries\Nagad\NagadPayment;
 use Modules\Payment\Responses\VerifiedPaymentResponse;
 use Modules\Payment\Services\GatewayPaymentVerifier;
+use Modules\Payment\Services\PaymentGatewayResolver;
 
 class CheckoutCompleteController
 {
@@ -176,7 +177,22 @@ class CheckoutCompleteController
             return response()->json(['message' => $e->getMessage()], 403);
         }
 
-        $gateway = Gateway::get($paymentMethod);
+        $gateway = PaymentGatewayResolver::get($paymentMethod);
+
+        if ($gateway === null) {
+            Log::warning('Checkout payment gateway not found', [
+                'order_id' => $orderId,
+                'payment_method' => $paymentMethod,
+            ]);
+
+            if (! request()->ajax()) {
+                return redirect()
+                    ->route('checkout.create')
+                    ->with('error', trans('payment::messages.payment_gateway_error'));
+            }
+
+            return response()->json(['message' => trans('payment::messages.payment_gateway_error')], 403);
+        }
 
         try {
             $response = $gateway->complete($order);

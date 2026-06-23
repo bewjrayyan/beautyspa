@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.1' => [
+        'en' => [
+            'summary' => 'Fix generic CHIP gateway showing when all-methods checkout is disabled.',
+            'changes' => [
+                'Respect the “Show generic CHIP — all methods” admin setting at checkout.',
+                'Only register the umbrella chip gateway when enabled or no per-method options are active.',
+                'Keep legacy chip orders completable via PaymentGatewayResolver.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki gateway CHIP generik yang masih dipaparkan walaupun semua kaedah dimatikan.',
+            'changes' => [
+                'Hormati tetapan admin “Tunjuk checkout generik CHIP — semua kaedah” pada checkout.',
+                'Daftar gateway chip umbrella hanya apabila diaktifkan atau tiada pilihan per-kaedah aktif.',
+                'Kekalkan pesanan chip lama boleh diselesaikan melalui PaymentGatewayResolver.',
+            ],
+        ],
+    ],
     '4.9.0' => [
         'en' => [
             'summary' => 'Sync cart and checkout pricing with savings breakdown.',

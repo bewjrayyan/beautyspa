@@ -13,6 +13,7 @@ use Illuminate\Contracts\View\View;
 use Modules\Payment\Facades\Gateway;
 use Modules\Payment\Services\ChipPaymentMethodConfig;
 use Modules\Payment\Services\ChipPaymentMethodsResolver;
+use Modules\Payment\Services\PaymentGatewayResolver;
 use Modules\Support\Money;
 use Illuminate\Contracts\View\Factory;
 use Modules\Coupon\Checkers\ValidCoupon;
@@ -79,7 +80,15 @@ class CheckoutController extends Controller
 
         CheckoutCompletionGuard::rememberPendingOrder($order);
 
-        $gateway = Gateway::get($request->payment_method);
+        $gateway = PaymentGatewayResolver::get($request->payment_method);
+
+        if ($gateway === null) {
+            $orderService->delete($order);
+
+            return response()->json([
+                'message' => trans('payment::messages.payment_gateway_error'),
+            ], 403);
+        }
 
         try {
             $response = $gateway->purchase($order, $request);
