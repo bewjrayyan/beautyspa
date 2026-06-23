@@ -24,7 +24,7 @@ Alpine.data("FeaturedCategories", (tabs) => ({
     swiperOptions(swiperEl) {
         return {
             modules: [Navigation, Pagination],
-            slidesPerView: 1.22,
+            slidesPerView: 1.12,
             spaceBetween: 12,
             watchOverflow: true,
             ...swiperDomObservers(),
@@ -46,7 +46,7 @@ Alpine.data("FeaturedCategories", (tabs) => ({
                     slidesPerView: 3,
                     spaceBetween: 20,
                 },
-                1400: {
+                1600: {
                     slidesPerView: 4,
                     spaceBetween: 20,
                 },

@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.100' => [
+        'en' => [
+            'summary' => 'Match featured category product slider peek to the blog carousel.',
+            'changes' => [
+                'Use the same mobile swiper settings as the blog carousel for consistent next-slide previews.',
+                'Show product images in the peek with a shorter image ratio like blog cards.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Selaraskan slider produk kategori pilihan dengan carousel blog.',
+            'changes' => [
+                'Guna tetapan swiper mudah alih yang sama seperti carousel blog untuk pratonton slide seterusnya yang konsisten.',
+                'Paparkan imej produk dalam peek dengan nisbah imej lebih pendek seperti kad blog.',
+            ],
+        ],
+    ],
     '4.7.99' => [
         'en' => [
             'summary' => 'Improve featured category product slider peek on mobile.',
