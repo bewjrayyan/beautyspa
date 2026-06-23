@@ -127,22 +127,8 @@
             </table>
 
             <dl class="payment-receipt__summary">
-                <div class="payment-receipt__summary-row">
-                    <dt>{{ trans('storefront::receipt.subtotal') }}</dt>
-                    <dd>{{ $order->sub_total->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                </div>
-                @if ($order->hasCoupon())
-                    <div class="payment-receipt__summary-row">
-                        <dt>{{ trans('storefront::receipt.discount') }} ({{ $order->coupon->code }})</dt>
-                        <dd>&minus;{{ $order->discount->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                    </div>
-                @endif
-                @foreach ($order->taxes as $tax)
-                    <div class="payment-receipt__summary-row">
-                        <dt>{{ $tax->name }}</dt>
-                        <dd>{{ $tax->order_tax->amount->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                    </div>
-                @endforeach
+                @include('order::partials.pricing_breakdown', ['order' => $order, 'style' => 'payment-receipt'])
+
                 <div class="payment-receipt__summary-row payment-receipt__summary-row--total">
                     <dt>{{ trans('storefront::receipt.total') }}</dt>
                     <dd>{{ $order->total->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>

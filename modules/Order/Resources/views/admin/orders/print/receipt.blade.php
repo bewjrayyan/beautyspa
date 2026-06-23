@@ -96,38 +96,7 @@
         <div class="order-receipt__divider"></div>
 
         <dl class="order-receipt__totals">
-            <div class="order-receipt__total-row">
-                <dt>{{ trans('order::print.subtotal') }}</dt>
-                <dd>{{ $order->sub_total->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-            </div>
-
-            @if ($order->hasShippingMethod())
-                <div class="order-receipt__total-row">
-                    <dt>{{ $order->shipping_method }}</dt>
-                    <dd>{{ $order->shipping_cost->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                </div>
-            @endif
-
-            @if ($order->hasCoupon())
-                <div class="order-receipt__total-row order-receipt__total-row--discount">
-                    <dt>{{ trans('order::print.discount') }} ({{ $order->coupon->code }})</dt>
-                    <dd>&minus;{{ $order->discount->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                </div>
-            @endif
-
-            @foreach ($order->taxes as $tax)
-                <div class="order-receipt__total-row">
-                    <dt>{{ $tax->name }}</dt>
-                    <dd>{{ $tax->order_tax->amount->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                </div>
-            @endforeach
-
-            @if (app('modules')->isEnabled('Loyalty') && $order->loyalty_points_redeemed > 0)
-                <div class="order-receipt__total-row order-receipt__total-row--discount">
-                    <dt>{{ trans('loyalty::orders.points_redeemed') }}</dt>
-                    <dd>&minus;{{ \Modules\Support\Money::inDefaultCurrency($order->loyalty_discount_amount)->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                </div>
-            @endif
+            @include('order::partials.pricing_breakdown', ['order' => $order, 'style' => 'order-receipt'])
 
             <div class="order-receipt__total-row order-receipt__total-row--grand">
                 <dt>{{ trans('order::print.total') }}</dt>

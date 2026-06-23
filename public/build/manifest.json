@@ -1154,7 +1154,7 @@
     "src": "modules/Order/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/sass/print.scss": {
-    "file": "assets/print-UKyp5dVR-v4.7.71.css",
+    "file": "assets/print-C5G5qrXW-v4.7.71.css",
     "src": "modules/Order/Resources/assets/admin/sass/print.scss",
     "isEntry": true,
     "name": "print",
@@ -1163,7 +1163,7 @@
     ]
   },
   "modules/Order/Resources/assets/admin/sass/receipt.scss": {
-    "file": "assets/receipt-CTx2qHtX-v4.7.71.css",
+    "file": "assets/receipt-Dz5QK3cQ-v4.7.71.css",
     "src": "modules/Order/Resources/assets/admin/sass/receipt.scss",
     "isEntry": true,
     "name": "receipt",
@@ -1539,16 +1539,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-ClGZ1U07-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.71.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-BZn6bGVz-v4.7.71.css",

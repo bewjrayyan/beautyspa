@@ -214,31 +214,7 @@
 
                 <div class="order-invoice__totals-column">
                 <div class="order-invoice__totals">
-                    <dl class="order-invoice__row">
-                        <dt>{{ trans('order::print.subtotal') }}</dt>
-                        <dd>{{ $order->sub_total->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                    </dl>
-
-                    @if ($order->hasShippingMethod())
-                        <dl class="order-invoice__row">
-                            <dt>{{ $order->shipping_method }}</dt>
-                            <dd>{{ $order->shipping_cost->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                        </dl>
-                    @endif
-
-                    @if ($order->hasCoupon())
-                        <dl class="order-invoice__row">
-                            <dt>{{ trans('order::print.discount') }} ({{ $order->coupon->code }})</dt>
-                            <dd>&minus;{{ $order->discount->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                        </dl>
-                    @endif
-
-                    @foreach ($order->taxes as $tax)
-                        <dl class="order-invoice__row">
-                            <dt>{{ $tax->name }}</dt>
-                            <dd>{{ $tax->order_tax->amount->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
-                        </dl>
-                    @endforeach
+                    @include('order::partials.pricing_breakdown', ['order' => $order, 'style' => 'invoice'])
 
                     <dl class="order-invoice__row order-invoice__row--total">
                         <dt>{{ trans('order::print.total') }}</dt>

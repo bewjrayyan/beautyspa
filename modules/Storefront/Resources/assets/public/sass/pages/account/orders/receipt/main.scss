@@ -258,6 +258,14 @@ body {
         white-space: nowrap;
     }
 
+    &--meta {
+        dt,
+        dd {
+            color: $receipt-muted;
+            font-weight: 500;
+        }
+    }
+
     &--total {
         margin-top: 6px;
         padding-top: 8px;

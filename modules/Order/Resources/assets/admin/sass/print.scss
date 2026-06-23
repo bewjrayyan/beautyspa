@@ -221,6 +221,19 @@ body {
         text-align: right;
         word-break: break-word;
     }
+
+    &--discount dd {
+        color: #047857;
+    }
+
+    &--meta {
+        dt,
+        dd {
+            font-size: 12px;
+            color: $invoice-muted;
+            font-weight: 500;
+        }
+    }
 }
 
 .order-invoice__address {

@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.89' => [
+        'en' => [
+            'summary' => 'Show full pricing breakdown on account invoice and receipt pages.',
+            'changes' => [
+                'Add tax, coupon, loyalty redemption, payment processing fee, and shipping lines to account invoice and receipt.',
+                'Align invoice and receipt totals with the account order detail summary.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Papar breakdown harga penuh pada halaman invois dan resit akaun.',
+            'changes' => [
+                'Tambah baris cukai, kupon, penebusan kesetiaan, yuran pemprosesan bayaran, dan penghantaran pada invois dan resit akaun.',
+                'Selaraskan jumlah invois dan resit dengan ringkasan butiran pesanan akaun.',
+            ],
+        ],
+    ],
     '4.7.88' => [
         'en' => [
             'summary' => 'Fix account invoice tab closing on mobile and validate Vite assets on deploy.',

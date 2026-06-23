@@ -185,6 +185,15 @@ body {
     color: #dc2626;
 }
 
+.order-receipt__total-row--meta {
+    dt,
+    dd {
+        font-size: 11px;
+        color: $receipt-muted;
+        font-weight: 500;
+    }
+}
+
 .order-receipt__total-row--grand {
     margin-top: 6px;
     padding-top: 8px;
