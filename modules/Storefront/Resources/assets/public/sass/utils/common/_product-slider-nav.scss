@@ -177,8 +177,10 @@
     .product-slider-controls {
         position: relative;
         z-index: 2;
-        justify-content: space-between;
-        gap: 10px;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) 44px;
+        align-items: center;
+        gap: 8px;
         margin-top: 10px;
         padding: 8px 10px;
         border-radius: 14px;
@@ -192,7 +194,6 @@
         }
 
         &__btn {
-            flex: 0 0 44px;
             width: 44px !important;
             height: 44px !important;
             min-width: 44px;
@@ -239,25 +240,27 @@
         }
 
         &__meta {
+            grid-column: 2;
             min-width: 0;
-            flex: 1 1 auto;
+            width: 100%;
             align-items: center;
             justify-content: center;
+            justify-self: center;
+            text-align: center;
             overflow: hidden;
         }
 
         .swiper-pagination,
         &__dots {
-            left: 50% !important;
+            left: auto !important;
             right: auto !important;
-            transform: translateX(-50%) !important;
+            transform: none !important;
             width: auto !important;
-            max-width: calc(100% - 8px);
+            max-width: 100%;
             margin: 0 auto;
         }
 
         &__dots {
-            max-width: 120px;
             min-height: 8px;
 
             .swiper-pagination-bullet {
@@ -273,15 +276,13 @@
         }
 
         .swiper-button-prev {
-            order: 1;
-        }
-
-        &__meta {
-            order: 2;
+            grid-column: 1;
+            justify-self: start;
         }
 
         .swiper-button-next {
-            order: 3;
+            grid-column: 3;
+            justify-self: end;
         }
     }
 

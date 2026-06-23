@@ -3,12 +3,9 @@ export function productSliderPagination(paginationEl) {
         return undefined;
     }
 
-    const isMobile = window.matchMedia("(max-width: 991px)").matches;
-
     return {
         el: paginationEl,
-        dynamicBullets: ! isMobile,
-        dynamicMainBullets: 1,
+        dynamicBullets: false,
         clickable: true,
     };
 }
