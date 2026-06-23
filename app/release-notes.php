@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.99' => [
+        'en' => [
+            'summary' => 'Improve featured category product slider peek on mobile.',
+            'changes' => [
+                'Show more of the next product card in the Shop by Category slider on mobile.',
+                'Stop clipping the slider at the card edge so the next item stays visible.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki paparan slider produk kategori pilihan pada mudah alih.',
+            'changes' => [
+                'Paparkan lebih banyak kad produk seterusnya dalam slider Shop by Category pada mudah alih.',
+                'Elak potongan slider di tepi kad supaya item seterusnya kekal kelihatan.',
+            ],
+        ],
+    ],
     '4.7.98' => [
         'en' => [
             'summary' => 'Restore mobile search bar without sticky positioning.',

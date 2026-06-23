@@ -286,6 +286,10 @@ $home-app-section-gap: 12px;
         }
 
         .featured-categories-wrap {
+            > .container {
+                overflow: visible;
+            }
+
             .featured-categories-header {
                 flex-direction: column;
                 align-items: stretch;
@@ -372,13 +376,16 @@ $home-app-section-gap: 12px;
             }
 
             .tab-content {
-                overflow: hidden;
+                overflow: visible;
 
                 .featured-category-products {
+                    width: calc(100% + 12px);
+                    margin-right: -12px;
                     padding-top: 12px;
                 }
 
                 .product-slider-controls {
+                    width: calc(100% - 12px);
                     padding-top: 4px;
                 }
             }
