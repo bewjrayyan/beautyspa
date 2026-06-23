@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.91' => [
+        'en' => [
+            'summary' => 'Add artisan command to refresh WhatsApp message templates on production.',
+            'changes' => [
+                'New setting:refresh-whatsapp-templates command with --order-only and --force options.',
+                'Safely re-apply WhatsApp template defaults without fragile tinker one-liners on shared hosting.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah arahan artisan untuk refresh templat mesej WhatsApp pada production.',
+            'changes' => [
+                'Arahan baharu setting:refresh-whatsapp-templates dengan pilihan --order-only dan --force.',
+                'Guna semula templat lalai WhatsApp dengan selamat tanpa one-liner tinker yang rapuh pada shared hosting.',
+            ],
+        ],
+    ],
     '4.7.90' => [
         'en' => [
             'summary' => 'Configurable WhatsApp message templates and full order pricing in automated messages.',

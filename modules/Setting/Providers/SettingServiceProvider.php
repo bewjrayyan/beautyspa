@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ViewErrorBag;
 use Modules\Admin\Ui\Facades\TabManager;
 use Modules\Setting\Admin\SettingTabs;
+use Modules\Setting\Console\RefreshWhatsAppTemplatesCommand;
 use Illuminate\Support\ServiceProvider;
 
 class SettingServiceProvider extends ServiceProvider
@@ -41,6 +42,12 @@ class SettingServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                RefreshWhatsAppTemplatesCommand::class,
+            ]);
+        }
+
         TabManager::register('settings', SettingTabs::class);
 
         View::composer([
