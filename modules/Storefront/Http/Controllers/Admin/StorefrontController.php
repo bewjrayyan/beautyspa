@@ -5,6 +5,7 @@ namespace Modules\Storefront\Http\Controllers\Admin;
 use Illuminate\Http\Response;
 use Modules\Admin\Ui\Facades\TabManager;
 use Modules\Storefront\Http\Requests\SaveStorefrontRequest;
+use Modules\Support\Services\FaviconService;
 
 class StorefrontController
 {
@@ -27,9 +28,15 @@ class StorefrontController
      *
      * @return Response
      */
-    public function update(SaveStorefrontRequest $request)
+    public function update(SaveStorefrontRequest $request, FaviconService $faviconService)
     {
+        $previousFavicon = setting('storefront_favicon');
+
         setting($request->except('_token', '_method'));
+
+        if ((string) $request->input('storefront_favicon', '') !== (string) $previousFavicon) {
+            $faviconService->clearCache();
+        }
 
         return back()->withSuccess(trans('admin::messages.resource_updated', ['resource' => trans('setting::settings.settings')]));
     }

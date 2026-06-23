@@ -64,6 +64,17 @@ if (!function_exists('storefront_favicon_file')) {
 if (!function_exists('storefront_favicon_url')) {
     function storefront_favicon_url(): ?string
     {
+        if (! storefront_favicon_file()) {
+            return null;
+        }
+
+        return absolute_public_url('/favicon.ico');
+    }
+}
+
+if (!function_exists('storefront_favicon_touch_icon_url')) {
+    function storefront_favicon_touch_icon_url(): ?string
+    {
         $path = storefront_favicon_file()?->path;
 
         return $path ? absolute_public_url($path) : null;
@@ -73,7 +84,7 @@ if (!function_exists('storefront_favicon_url')) {
 if (!function_exists('storefront_favicon_mime')) {
     function storefront_favicon_mime(): string
     {
-        return storefront_favicon_file()?->mime ?: 'image/png';
+        return 'image/x-icon';
     }
 }
 

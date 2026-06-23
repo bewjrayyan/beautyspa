@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.96' => [
+        'en' => [
+            'summary' => 'Auto-convert uploaded favicon PNG to ICO for stable browser tabs.',
+            'changes' => [
+                'Generate a real favicon.ico from the uploaded PNG/JPEG/WebP image (16, 32, and 48 px).',
+                'Serve the ICO binary directly instead of redirecting to the PNG file.',
+                'Keep the original image for Apple touch icons while tabs use the converted ICO.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tukar automatik favicon PNG yang dimuat naik kepada ICO untuk tab pelayar yang stabil.',
+            'changes' => [
+                'Jana favicon.ico sebenar daripada imej PNG/JPEG/WebP yang dimuat naik (16, 32, dan 48 px).',
+                'Sediakan fail ICO secara langsung dan bukannya redirect ke fail PNG.',
+                'Kekalkan imej asal untuk ikon Apple touch manakala tab pelayar guna ICO yang ditukar.',
+            ],
+        ],
+    ],
     '4.7.95' => [
         'en' => [
             'summary' => 'Fix browser tab favicon on subdirectory installs.',

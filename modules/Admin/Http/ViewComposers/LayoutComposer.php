@@ -23,6 +23,7 @@ class LayoutComposer
             'smallLogo' => $this->getAdminSmallLogo(),
             'favicon' => storefront_favicon_url(),
             'faviconMime' => storefront_favicon_mime(),
+            'faviconTouch' => storefront_favicon_touch_icon_url(),
         ]);
     }
 

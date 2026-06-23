@@ -54,6 +54,7 @@ class LayoutComposer
             'cartQuantity' => $this->getCartQuantity(),
             'favicon' => $this->getFavicon(),
             'faviconMime' => $this->getFaviconMime(),
+            'faviconTouch' => $this->getFaviconTouchIcon(),
             'logo' => $this->getHeaderLogo(),
             'newsletterBgImage' => $this->getNewsletterBgImage(),
             'privacyPageUrl' => $this->getPrivacyPageUrl(),
@@ -133,6 +134,12 @@ class LayoutComposer
     private function getFaviconMime(): string
     {
         return storefront_favicon_mime();
+    }
+
+
+    private function getFaviconTouchIcon(): ?string
+    {
+        return storefront_favicon_touch_icon_url();
     }
 
 

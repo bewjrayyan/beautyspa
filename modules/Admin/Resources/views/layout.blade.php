@@ -9,9 +9,9 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         @if ($favicon)
-            <link rel="icon" href="{{ $favicon }}" type="{{ $faviconMime }}" sizes="any">
+            <link rel="icon" href="{{ $favicon }}" type="{{ $faviconMime }}" sizes="32x32">
             <link rel="shortcut icon" href="{{ $favicon }}" type="{{ $faviconMime }}">
-            <link rel="apple-touch-icon" href="{{ $favicon }}">
+            <link rel="apple-touch-icon" href="{{ $faviconTouch ?: $favicon }}">
         @endif
 
         <title>

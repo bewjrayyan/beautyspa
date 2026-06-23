@@ -47,7 +47,7 @@ class RouteServiceProvider extends ServiceProvider
     private function mapUtilityRoutes(): void
     {
         Route::middleware('web')->group(function () {
-            Route::get('favicon.ico', [\Modules\Support\Http\Controllers\FaviconController::class, 'redirect'])
+            Route::get('favicon.ico', [\Modules\Support\Http\Controllers\FaviconController::class, 'show'])
                 ->name('favicon');
 
             Route::get('countries/{code}/states', [\Modules\Support\Http\Controllers\CountryStateController::class, 'index'])
