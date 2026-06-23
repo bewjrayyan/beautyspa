@@ -39,6 +39,7 @@ return [
         'one_column_banner' => 'Banner promosi satu lajur lebar penuh.',
         'google_reviews' => 'Carousel ulasan pelanggan dan metrik penilaian.',
         'blogs' => 'Seksyen catatan blog terkini pada laman utama.',
+        'mobile_home_promo' => 'Poster imej atau video promo hanya pada paparan mudah alih, di atas seksyen tab produk pertama.',
     ],
     'form' => [
         'page_subtitle' => 'Sesuaikan rupa kedai, seksyen laman utama, dan kandungan untuk pelanggan.',
@@ -131,6 +132,23 @@ return [
         'vertical_products_1' => 'Vertical Produk 1',
         'vertical_products_2' => 'Vertical Produk 2',
         'vertical_products_3' => 'Vertical Produk 3',
+        'enable_mobile_home_promo_section' => 'Aktifkan seksyen promo laman utama (mudah alih)',
+        'mobile_home_promo_media' => 'Media promo',
+        'mobile_home_promo_type_image' => 'Poster imej',
+        'mobile_home_promo_type_video' => 'Video promo',
+        'mobile_home_promo_poster_image' => 'Poster imej',
+        'mobile_home_promo_video' => 'Video promo',
+        'mobile_home_promo_video_poster' => 'Poster video (pilihan)',
+        'mobile_home_promo_video_poster_help' => 'Dipaparkan sebelum video dimainkan. Disyorkan untuk muat lebih pantas pada mudah alih.',
+        'mobile_home_promo_video_dropzone' => 'Muat naik atau pilih video promo',
+        'mobile_home_promo_video_hint' => 'MP4, WebM atau MOV. Maks 40 MB. Hanya pada paparan mudah alih.',
+        'mobile_home_promo_remove_video' => 'Buang video',
+        'mobile_home_promo_replace_video' => 'Ganti video',
+        'mobile_home_promo_link' => 'Pautan (pilihan)',
+    ],
+    'mobile_home_promo' => [
+        'section_label' => 'Promo mudah alih',
+        'image_alt' => 'Poster promosi',
     ],
     'mobile_tab_labels' => [
         'latest_treatments' => 'Terbaru',
@@ -151,6 +169,7 @@ return [
 
             'general_settings' => 'Umum Tetapan',
             'home_page_sections' => 'Home Halaman Sections',
+            'home_page_sections_mobile' => 'Seksyen laman utama (mudah alih)',
         ],
         'general' => 'Umum',
         'logo' => 'Logo',
@@ -173,6 +192,7 @@ return [
         'one_column_banner' => 'One Column Banner',
         'google_reviews' => 'Google Ulasan',
         'blogs' => 'Blogs',
+        'mobile_home_promo' => 'Promo laman utama (mudah alih)',
     ],
     'social_links' => [
 

@@ -1,0 +1,37 @@
+.mobile-home-promo-wrap {
+    display: none;
+}
+
+@media screen and (max-width: 991px) {
+    .mobile-home-promo-wrap {
+        display: block;
+    }
+
+    .mobile-home-promo {
+        display: block;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 16px;
+        line-height: 0;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .mobile-home-promo__image {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        background: #f8f9fb;
+    }
+
+    .mobile-home-promo__video {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        border-radius: 16px;
+        background: #111;
+        vertical-align: top;
+    }
+}

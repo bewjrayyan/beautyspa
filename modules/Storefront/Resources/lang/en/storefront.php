@@ -38,6 +38,7 @@ return [
         'one_column_banner' => 'Single full-width promotional banner.',
         'google_reviews' => 'Customer review carousel and rating metrics.',
         'blogs' => 'Recent blog posts section on the homepage.',
+        'mobile_home_promo' => 'Poster image or promo video shown on mobile only, above the first product tabs section.',
     ],
     'form' => [
         'page_subtitle' => 'Customize your shop appearance, homepage sections, and customer-facing content.',
@@ -127,6 +128,23 @@ return [
         'vertical_products_1' => 'Vertical Products 1',
         'vertical_products_2' => 'Vertical Products 2',
         'vertical_products_3' => 'Vertical Products 3',
+        'enable_mobile_home_promo_section' => 'Enable mobile home promo section',
+        'mobile_home_promo_media' => 'Promo media',
+        'mobile_home_promo_type_image' => 'Poster image',
+        'mobile_home_promo_type_video' => 'Promo video',
+        'mobile_home_promo_poster_image' => 'Poster image',
+        'mobile_home_promo_video' => 'Promo video',
+        'mobile_home_promo_video_poster' => 'Video poster (optional)',
+        'mobile_home_promo_video_poster_help' => 'Shown before the video plays. Recommended for faster loading on mobile.',
+        'mobile_home_promo_video_dropzone' => 'Upload or choose a promo video',
+        'mobile_home_promo_video_hint' => 'MP4, WebM or MOV. Max 40 MB. Shown on mobile only.',
+        'mobile_home_promo_remove_video' => 'Remove video',
+        'mobile_home_promo_replace_video' => 'Replace video',
+        'mobile_home_promo_link' => 'Link (optional)',
+    ],
+    'mobile_home_promo' => [
+        'section_label' => 'Mobile promo',
+        'image_alt' => 'Promotional poster',
     ],
     'mobile_tab_labels' => [
         'latest_treatments' => 'Latest',
@@ -145,6 +163,7 @@ return [
         'group' => [
             'general_settings' => 'General Settings',
             'home_page_sections' => 'Home Page Sections',
+            'home_page_sections_mobile' => 'Home Page Sections (Mobile)',
         ],
         'general' => 'General',
         'logo' => 'Logo',
@@ -167,6 +186,7 @@ return [
         'one_column_banner' => 'One Column Banner',
         'google_reviews' => 'Google Reviews',
         'blogs' => 'Blogs',
+        'mobile_home_promo' => 'Mobile Home Promo',
     ],
     'social_links' => [
         'facebook' => 'Facebook',

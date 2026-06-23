@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.92' => [
+        'en' => [
+            'summary' => 'Mobile home promo section, Birthday Founder Mega Sale catalog import, and larger video uploads.',
+            'changes' => [
+                'Add admin-controlled mobile-only home promo (poster image or video) above product tabs on the storefront.',
+                'Add imma:import-birthday-founder-mega-sale command and flyer catalog for seven promo treatment products.',
+                'Raise media upload limit to 40 MB and support MOV for promo videos.',
+                'Show mobile promo video at its natural aspect ratio instead of a fixed crop height.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Seksyen promo laman utama mudah alih, import katalog Birthday Founder Mega Sale, dan muat naik video lebih besar.',
+            'changes' => [
+                'Tambah promo laman utama khusus mudah alih (poster imej atau video) di atas tab produk, boleh dikawal dari Admin → Storefront.',
+                'Tambah arahan imma:import-birthday-founder-mega-sale dan katalog flyer untuk tujuh produk rawatan promo.',
+                'Naikkan had muat naik media ke 40 MB dan sokong MOV untuk video promo.',
+                'Paparkan video promo mudah alih mengikut nisbah aspek asal video, bukan ketinggian tetap.',
+            ],
+        ],
+    ],
     '4.7.91' => [
         'en' => [
             'summary' => 'Add artisan command to refresh WhatsApp message templates on production.',

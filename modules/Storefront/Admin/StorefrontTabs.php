@@ -50,6 +50,9 @@ class StorefrontTabs extends Tabs
             ->add($this->oneColumnBanner())
             ->add($this->googleReviews())
             ->add($this->blogs());
+
+        $this->group('home_page_sections_mobile', trans('storefront::storefront.tabs.group.home_page_sections_mobile'))
+            ->add($this->mobileHomePromo());
     }
 
 
@@ -411,6 +414,28 @@ class StorefrontTabs extends Tabs
         return tap(new StorefrontTab('blogs', trans('storefront::storefront.tabs.blogs')), function (StorefrontTab $tab) {
             $tab->weight(87);
             $tab->view('storefront::admin.storefront.tabs.blogs');
+        });
+    }
+
+
+    private function mobileHomePromo()
+    {
+        return tap(new StorefrontTab('mobile_home_promo', trans('storefront::storefront.tabs.mobile_home_promo')), function (StorefrontTab $tab) {
+            $tab->weight(5);
+            $tab->fields([
+                'storefront_mobile_home_promo_enabled',
+                'storefront_mobile_home_promo_media_type',
+                'storefront_mobile_home_promo_image_file_id',
+                'storefront_mobile_home_promo_video_file_id',
+                'storefront_mobile_home_promo_video_poster_file_id',
+                'storefront_mobile_home_promo_call_to_action_url',
+                'storefront_mobile_home_promo_open_in_new_window',
+            ]);
+            $tab->view('storefront::admin.storefront.tabs.mobile_home_promo', [
+                'promoImage' => $this->getMedia(setting('storefront_mobile_home_promo_image_file_id')),
+                'promoVideo' => $this->getMedia(setting('storefront_mobile_home_promo_video_file_id')),
+                'promoVideoPoster' => $this->getMedia(setting('storefront_mobile_home_promo_video_poster_file_id')),
+            ]);
         });
     }
 

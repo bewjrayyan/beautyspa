@@ -33,6 +33,7 @@ class StorefrontTab extends Tab
         'one_column_banner' => 'fa-window-maximize',
         'google_reviews' => 'fa-google',
         'blogs' => 'fa-newspaper-o',
+        'mobile_home_promo' => 'fa-mobile',
     ];
 
     protected function navIcon(): ?string

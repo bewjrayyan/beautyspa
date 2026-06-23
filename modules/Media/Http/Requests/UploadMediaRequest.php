@@ -17,8 +17,9 @@ class UploadMediaRequest extends Request
             'file' => [
                 'required',
                 'file',
-                'max:10240',
-                'mimes:jpg,jpeg,png,gif,webp,svg,pdf,mp4,webm',
+                // Match PHP upload_max_filesize (typically 40M on this stack).
+                'max:40960',
+                'mimes:jpg,jpeg,png,gif,webp,svg,pdf,mp4,webm,mov',
             ],
         ];
     }

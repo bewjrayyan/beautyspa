@@ -24,6 +24,10 @@
         @include('storefront::public.home.sections.three_column_full_width_banner')
     @endif
 
+    @if ($mobileHomePromo)
+        @include('storefront::public.home.sections.mobile_home_promo')
+    @endif
+
     @if (setting('storefront_product_tabs_1_section_enabled'))
         @include('storefront::public.home.sections.product_tabs_one')
     @endif

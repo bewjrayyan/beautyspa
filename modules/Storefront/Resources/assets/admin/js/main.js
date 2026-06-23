@@ -12,6 +12,7 @@ window.admin.removeSubmitButtonOffsetOn([
     "#three_column_banners",
     "#one_column_banner",
     "#google_reviews",
+    "#mobile_home_promo",
 ]);
 
 $("#storefront_theme_color").on("change", (e) => {
@@ -94,6 +95,66 @@ $(".product-type").on("change", (e) => {
     if (e.currentTarget.value === "custom_products") {
         customProducts.removeClass("hide");
     }
+});
+
+function toggleMobilePromoMediaFields() {
+    const type = $('input[name="storefront_mobile_home_promo_media_type"]:checked').val();
+
+    $(".mobile-promo-image-fields").toggleClass("hide", type !== "image");
+    $(".mobile-promo-video-fields").toggleClass("hide", type !== "video");
+}
+
+$('input[name="storefront_mobile_home_promo_media_type"]').on("change", toggleMobilePromoMediaFields);
+
+function renderMobilePromoVideoPreview($field, file) {
+    const inputName = $field.data("inputName");
+    const isVideo = (file.mime || "").startsWith("video/");
+    const mediaMarkup = isVideo
+        ? `<video src="${file.path}" controls playsinline preload="metadata"></video>`
+        : `<div class="mobile-promo-video-preview__placeholder"><i class="fa fa-file-video-o" aria-hidden="true"></i><span>${file.filename || "Video"}</span></div>`;
+
+    $field.find(".mobile-promo-video-dropzone").addClass("hide");
+    $field.find(".mobile-promo-video-preview").removeClass("hide").html(`
+        <div class="ac-media-preview__inner mobile-promo-video-preview__inner">
+            ${mediaMarkup}
+            <button type="button" class="ac-media-preview__remove remove-video" data-input-name="${inputName}" aria-label="Remove">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+            <div class="ac-media-preview__overlay">
+                <button type="button" class="btn btn-default btn-sm video-picker-browse" data-input-name="${inputName}">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                    Replace
+                </button>
+            </div>
+            <input type="hidden" name="${inputName}" value="${file.id}">
+        </div>
+    `);
+    $field.find(".ac-media-field__canvas").addClass("is-filled");
+}
+
+$("#storefront-settings-edit-form").on("click", ".video-picker-browse", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const inputName = $(e.currentTarget).data("inputName");
+    const $field = $(`.mobile-promo-video-picker[data-input-name="${inputName}"]`);
+    const picker = new MediaPicker({ type: "video" });
+
+    picker.on("select", (file) => {
+        renderMobilePromoVideoPreview($field, file);
+    });
+});
+
+$("#storefront-settings-edit-form").on("click", ".remove-video", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const inputName = $(e.currentTarget).data("inputName");
+    const $field = $(`.mobile-promo-video-picker[data-input-name="${inputName}"]`);
+
+    $field.find(".mobile-promo-video-preview").addClass("hide").empty();
+    $field.find(".mobile-promo-video-dropzone").removeClass("hide");
+    $field.find(".ac-media-field__canvas").removeClass("is-filled");
 });
 
 $(function () {

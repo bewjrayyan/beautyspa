@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Modules\Category\Entities\Category;
 use Modules\Media\Entities\File;
 use Modules\Storefront\Support\GoogleReviewsSettings;
+use Modules\Storefront\Support\MobileHomePromoSettings;
 use Throwable;
 
 class HomePageComposer
@@ -53,6 +54,7 @@ class HomePageComposer
                 ? GoogleReviewsSettings::forHomePage()
                 : null,
             'blog' => $this->blog(),
+            'mobileHomePromo' => MobileHomePromoSettings::forHomePage(),
         ]);
     }
 
