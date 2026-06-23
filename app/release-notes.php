@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.8.1' => [
+        'en' => [
+            'summary' => 'Ship rebuilt frontend assets for shared-hosting deploy.',
+            'changes' => [
+                'Commit updated public/build/ so GitHub deploy and admin version update include CSS/JS changes without npm on the server.',
+                'Add scripts/ship-release-assets.sh — run before each release commit when storefront assets changed.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Sertakan aset frontend dibina semula untuk deploy shared hosting.',
+            'changes' => [
+                'Commit public/build/ dikemas kini supaya deploy GitHub dan kemas kini versi admin menyertakan perubahan CSS/JS tanpa npm di pelayan.',
+                'Tambah scripts/ship-release-assets.sh — jalankan sebelum setiap commit release apabila aset storefront berubah.',
+            ],
+        ],
+    ],
     '4.8.0' => [
         'en' => [
             'summary' => 'Homepage product tabs View All link and mobile slider polish.',

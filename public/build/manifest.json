@@ -1447,7 +1447,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/home/main.js": {
-    "file": "assets/main-9x7O_Dvf-v4.7.71.js",
+    "file": "assets/main-DvOpiUvp-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
     "isEntry": true,
@@ -1539,16 +1539,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.71.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-BZn6bGVz-v4.7.71.css",
@@ -1571,7 +1571,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/auth/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/blogs/index/main.scss": {
-    "file": "assets/main-B5OUe-qb-v4.7.71.css",
+    "file": "assets/main-RE_Ywpi3-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/blogs/index/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/blogs/show/main.scss": {
@@ -1611,7 +1611,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/custom-page/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/home/main.scss": {
-    "file": "assets/main-CANuOy9g-v4.7.71.css",
+    "file": "assets/main-DK9vM--I-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/home/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/products/index/main.scss": {
