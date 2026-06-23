@@ -713,10 +713,70 @@ $checkout-text-muted: #4b5563;
         background: $checkout-pink;
     }
 
-    .product-price--modern {
-        font-size: 15px;
-        font-weight: 700;
+    .product-price--modern,
+    .product-price {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-start;
+        gap: 2px;
+        height: auto;
+        line-height: 1.3;
+        text-align: right;
+        white-space: nowrap;
+
+        .previous-price {
+            font-size: 11px;
+            font-weight: 400;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+
+        .special-price {
+            font-size: 15px;
+            font-weight: 700;
+            color: $checkout-pink;
+
+            &.is-regular-price {
+                color: #111827;
+            }
+        }
+    }
+}
+
+.checkout-summary-subtotal {
+    span {
+        font-weight: var(--font-medium);
         color: $checkout-pink;
+    }
+
+    &--divider {
+        margin-top: 8px;
+        padding-top: 12px;
+        border-top: 1px solid #e5e7eb;
+    }
+}
+
+.checkout-summary-savings {
+    span {
+        font-weight: var(--font-medium);
+        color: var(--color-green);
+    }
+}
+
+.order-summary--modern .order-summary-middle {
+    .checkout-summary-regular {
+        &--divider {
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .previous-price {
+            font-weight: var(--font-medium);
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
     }
 }
 

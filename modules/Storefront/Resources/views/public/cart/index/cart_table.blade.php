@@ -64,11 +64,25 @@
                                 </template>
                             </ul>
                         </template>
+
+                        @include('storefront::public.partials.cart_item_savings_badge')
                     </td>
                     <td>
                         <label>{{ trans('storefront::cart.table.unit_price') }}:</label>
 
-                        <span class="product-price" x-text="formatCurrency(unitPrice)"></span>
+                        <div class="product-price">
+                            <template x-if="hasSpecialPrice">
+                                <span
+                                    class="previous-price"
+                                    x-text="formatCurrency(regularUnitPrice)"
+                                ></span>
+                            </template>
+
+                            <span
+                                class="special-price"
+                                x-text="formatCurrency(unitPrice)"
+                            ></span>
+                        </div>
                     </td>
                     <td>
                         <label>{{ trans('storefront::cart.table.quantity') }}:</label>
@@ -116,7 +130,19 @@
                     <td>
                         <label>{{ trans('storefront::cart.table.line_total') }}:</label>
 
-                        <span class="product-price" x-text="formatCurrency(lineTotal(cartItem.qty))"></span>
+                        <div class="product-price">
+                            <template x-if="hasSpecialPrice">
+                                <span
+                                    class="previous-price"
+                                    x-text="formatCurrency(lineRegularTotal(cartItem.qty))"
+                                ></span>
+                            </template>
+
+                            <span
+                                class="special-price"
+                                x-text="formatCurrency(lineTotal(cartItem.qty))"
+                            ></span>
+                        </div>
                     </td>
                     <td>
                         <button class="btn-remove" @click="removeCartItem">

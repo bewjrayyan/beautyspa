@@ -1,4 +1,8 @@
 import { runWhenIdle, runAfterPaint } from "../support/scheduleInit";
+import {
+    cartLineRegularUnitPrice,
+    cartLineUnitSavings,
+} from "../functions";
 
 Alpine.store("cart", {
     cart: {
@@ -52,6 +56,33 @@ Alpine.store("cart", {
                 cartItem.qty * cartItem.unitPrice.inCurrentCurrency.amount
             );
         }, 0);
+    },
+
+    get totalQty() {
+        return Object.values(this.items).reduce(
+            (accumulator, cartItem) => accumulator + cartItem.qty,
+            0
+        );
+    },
+
+    get lineCount() {
+        return Object.values(this.items).length;
+    },
+
+    get regularSubTotal() {
+        return Object.values(this.items).reduce((accumulator, cartItem) => {
+            return accumulator + cartItem.qty * cartLineRegularUnitPrice(cartItem);
+        }, 0);
+    },
+
+    get totalSavings() {
+        return Object.values(this.items).reduce((accumulator, cartItem) => {
+            return accumulator + cartItem.qty * cartLineUnitSavings(cartItem);
+        }, 0);
+    },
+
+    get hasSavings() {
+        return this.totalSavings > 0;
     },
 
     get total() {

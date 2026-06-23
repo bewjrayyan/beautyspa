@@ -50,6 +50,8 @@
                 </ul>
             </template>
 
+            @include('storefront::public.partials.cart_item_savings_badge')
+
             <div class="product-info-bottom d-flex flex-wrap align-items-center justify-content-between">
                 <div class="number-picker">
                     <div class="input-group-quantity">
@@ -115,7 +117,19 @@
                     </div>
                 </div>
 
-                <div class="product-price" x-text="`x ${formatCurrency(unitPrice)}`"></div>
+                <div class="product-price">
+                    <template x-if="hasSpecialPrice">
+                        <span
+                            class="previous-price"
+                            x-text="formatCurrency(regularUnitPrice)"
+                        ></span>
+                    </template>
+
+                    <span
+                        class="special-price"
+                        x-text="`x ${formatCurrency(unitPrice)}`"
+                    ></span>
+                </div>
             </div>
         </div>
 

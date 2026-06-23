@@ -88,6 +88,17 @@
 
                     return `${window.location.origin}${installPath}${normalizedPath}`;
                 },
+                assetUrl(path) {
+                    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+                    const appUrl = (this.appUrl || '').replace(/\/$/, '');
+                    const installPath = (this.installPath || '').replace(/\/$/, '');
+
+                    if (appUrl.startsWith('http://') || appUrl.startsWith('https://')) {
+                        return `${appUrl}${installPath}${normalizedPath}`;
+                    }
+
+                    return `${window.location.origin}${installPath}${normalizedPath}`;
+                },
                 rtl: {{ is_rtl() ? 'true' : 'false' }},
                 storeName: '{{ setting('store_name') }}',
                 storeLogo: '{{ $logo }}',
@@ -106,6 +117,8 @@
                     'storefront::layouts.more_results': '{{ trans('storefront::layouts.more_results') }}',
                     'storefront::product_card.price_range': '{{ trans('storefront::product_card.price_range') }}',
                     'storefront::product_card.normal_price': '{{ trans('storefront::product_card.normal_price') }}',
+                    'storefront::cart.save_amount': @json(storefront_js_trans('storefront::cart.save_amount')),
+                    'storefront::cart.save_amount_with_percent': @json(storefront_js_trans('storefront::cart.save_amount_with_percent')),
                 },
             };
         </script>

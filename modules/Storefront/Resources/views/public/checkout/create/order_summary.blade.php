@@ -61,7 +61,20 @@
                                 </template>
                             </div>
                             
-                            <div class="product-price" x-text="formatCurrency(unitPrice)"></div>
+                            <div class="product-price product-price--modern">
+                                <template x-if="hasSpecialPrice">
+                                    <span
+                                        class="previous-price"
+                                        x-text="formatCurrency(lineRegularTotal(cartItem.qty))"
+                                    ></span>
+                                </template>
+
+                                <span
+                                    class="special-price"
+                                    :class="{ 'is-regular-price': !hasSpecialPrice }"
+                                    x-text="formatCurrency(lineTotal(cartItem.qty))"
+                                ></span>
+                            </div>
                         </li>
                     </template>
                 </ul>
@@ -89,11 +102,33 @@
 
             <template x-if="cartFetched">
                 <ul class="list-inline order-summary-list">
-                    <li>
-                        <label>{{ trans('storefront::checkout.subtotal') }}</label>
+                    <template x-if="$store.cart.hasSavings">
+                        <li class="checkout-summary-regular checkout-summary-regular--divider">
+                            <label>{{ trans('storefront::cart.subtotal_regular') }}</label>
+
+                            <span
+                                class="previous-price"
+                                x-text="formatCurrency($store.cart.regularSubTotal)"
+                            ></span>
+                        </li>
+                    </template>
+
+                    <li
+                        class="checkout-summary-subtotal"
+                        :class="{ 'checkout-summary-subtotal--divider': !$store.cart.hasSavings }"
+                    >
+                        <label>{{ trans('storefront::cart.subtotal') }}</label>
 
                         <span x-text="formatCurrency($store.cart.subTotal)"></span>
                     </li>
+
+                    <template x-if="$store.cart.hasSavings">
+                        <li class="checkout-summary-savings">
+                            <label>{{ trans('storefront::cart.total_savings') }}</label>
+
+                            <span x-text="`-${formatCurrency($store.cart.totalSavings)}`"></span>
+                        </li>
+                    </template>
 
                     <template x-for="(tax, index) in cart.taxes" :key="index">
                         <li>

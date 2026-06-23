@@ -53,6 +53,17 @@
 
                 return `${window.location.origin}${installPath}${normalizedPath}`;
             };
+            AestheticCart.assetUrl = function (path) {
+                const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+                const appUrl = (AestheticCart.appUrl || '').replace(/\/$/, '');
+                const installPath = (AestheticCart.installPath || '').replace(/\/$/, '');
+
+                if (appUrl.startsWith('http://') || appUrl.startsWith('https://')) {
+                    return `${appUrl}${installPath}${normalizedPath}`;
+                }
+
+                return `${window.location.origin}${installPath}${normalizedPath}`;
+            };
         </script>
 
         @vite([

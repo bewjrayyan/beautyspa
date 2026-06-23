@@ -63,7 +63,9 @@ class Cart extends DarryldecodeCart implements JsonSerializable
         $variations = [];
 
         $product = Product::with('files', 'categories', 'taxClass')->findOrFail($productId);
-        $variant = ProductVariant::find($variantId);
+        $variant = $variantId
+            ? ProductVariant::with('files')->find($variantId)
+            : null;
         $item = $variant ?? $product;
 
         if ($variant) {

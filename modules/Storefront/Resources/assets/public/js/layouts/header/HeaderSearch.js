@@ -1,4 +1,5 @@
 import { throttle } from "lodash";
+import { hasBaseImageMedia, placeholderImageUrl } from "../../functions";
 import { runAfterPaint } from "../../support/scheduleInit";
 
 Alpine.data(
@@ -263,13 +264,13 @@ Alpine.data(
         },
 
         hasBaseImage(product) {
-            return product.base_image.length !== 0;
+            return hasBaseImageMedia(product.base_image);
         },
 
         baseImage(product) {
             return this.hasBaseImage(product)
                 ? product.base_image.path
-                : AestheticCart.url('/build/assets/image-placeholder.png');
+                : placeholderImageUrl();
         },
     })
 );

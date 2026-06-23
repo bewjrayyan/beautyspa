@@ -100,8 +100,34 @@
         margin: 4px 0 1px;
     }
 
+    .cart-savings-badge {
+        display: inline-block;
+        margin: 6px 0 2px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: var(--font-medium);
+        line-height: 1.2;
+        border-radius: 20px;
+    }
+
     .product-price {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 6px;
         color: var(--color-black);
+
+        .special-price {
+            color: var(--color-primary);
+            font-weight: var(--font-medium);
+        }
+
+        .previous-price {
+            font-size: 12px;
+            font-weight: var(--font-normal);
+            color: var(--color-gray);
+            text-decoration: line-through;
+        }
 
         &.skeleton {
             height: 24px;
@@ -247,6 +273,9 @@
 
         .product-price {
             display: inline-flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 6px;
 
             &.skeleton {
                 height: 16px;

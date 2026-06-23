@@ -1,4 +1,10 @@
-import { formatCurrency, trans } from "../functions";
+import {
+    formatCurrency,
+    hasBaseImageMedia,
+    placeholderImageUrl,
+    resolveBaseImagePath,
+    trans,
+} from "../functions";
 
 export default function (product) {
     return {
@@ -86,20 +92,21 @@ export default function (product) {
         },
 
         get hasBaseImage() {
-            if (this.hasAnyVariant) {
-                return this.item.base_image.length !== 0 ||
-                    this.product.base_image.length !== 0
-                    ? true
-                    : false;
-            }
-
-            return this.item.base_image.length !== 0;
+            return (
+                hasBaseImageMedia(this.item?.base_image) ||
+                (this.hasAnyVariant &&
+                    hasBaseImageMedia(this.product?.base_image))
+            );
         },
 
         get baseImage() {
-            return this.hasBaseImage
-                ? this.item.base_image.path || this.product.base_image.path
-                : AestheticCart.url('/build/assets/image-placeholder.png');
+            return (
+                resolveBaseImagePath(
+                    this.item,
+                    this.product,
+                    this.hasAnyVariant
+                ) || placeholderImageUrl()
+            );
         },
 
         get baseImageSrcset() {

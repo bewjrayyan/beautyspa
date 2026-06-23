@@ -1,7 +1,15 @@
+import {
+    formatCurrency,
+    hasBaseImageMedia,
+    placeholderImageUrl,
+    resolveBaseImagePath,
+    trans,
+} from "../functions";
+
 Alpine.data("CartItem", (cartItem) => ({
     controller: null,
     product: cartItem.product,
-    item: cartItem.variant || cartItem.product,
+    item: cartItem.item || cartItem.variant || cartItem.product,
     qty: cartItem.qty,
 
     get productName() {
@@ -22,6 +30,64 @@ Alpine.data("CartItem", (cartItem) => ({
         return cartItem.unitPrice.inCurrentCurrency.amount;
     },
 
+    get sellingUnitPrice() {
+        return (
+            this.item.selling_price?.inCurrentCurrency?.amount ?? this.unitPrice
+        );
+    },
+
+    get optionsUnitPrice() {
+        return this.unitPrice - this.sellingUnitPrice;
+    },
+
+    get regularUnitPrice() {
+        const basePrice =
+            this.item.price?.inCurrentCurrency?.amount ?? this.unitPrice;
+
+        return basePrice + this.optionsUnitPrice;
+    },
+
+    get hasSpecialPrice() {
+        return (
+            this.product.is_in_flash_sale ||
+            (this.item.special_price != null &&
+                this.regularUnitPrice > this.unitPrice)
+        );
+    },
+
+    get unitSavings() {
+        if (!this.hasSpecialPrice) {
+            return 0;
+        }
+
+        return Math.max(0, this.regularUnitPrice - this.unitPrice);
+    },
+
+    get savingsPercent() {
+        if (!this.hasSpecialPrice || this.regularUnitPrice <= 0) {
+            return 0;
+        }
+
+        return Math.round((this.unitSavings / this.regularUnitPrice) * 100);
+    },
+
+    lineSavings(qty) {
+        return this.unitSavings * qty;
+    },
+
+    savingsLabel(qty) {
+        const amount = formatCurrency(this.lineSavings(qty));
+
+        if (this.savingsPercent > 0) {
+            return trans("storefront::cart.save_amount_with_percent", {
+                amount,
+                percent: this.savingsPercent,
+            });
+        }
+
+        return trans("storefront::cart.save_amount", { amount });
+    },
+
     get hasAnyVariation() {
         return Object.keys(cartItem.variations).length !== 0;
     },
@@ -39,28 +105,28 @@ Alpine.data("CartItem", (cartItem) => ({
     },
 
     get hasAnyVariant() {
-        return this.product.variant !== null;
+        return cartItem.variant != null;
     },
 
     get hasAnyMedia() {
-        return this.item.media.length !== 0;
+        return (this.item.media?.length ?? 0) !== 0;
     },
 
     get hasBaseImage() {
-        if (this.hasAnyVariant) {
-            return this.item.base_image.length !== 0 ||
-                this.product.base_image.length !== 0
-                ? true
-                : false;
-        }
-
-        return this.item.base_image.length !== 0;
+        return (
+            hasBaseImageMedia(this.item?.base_image) ||
+            (this.hasAnyVariant && hasBaseImageMedia(this.product?.base_image))
+        );
     },
 
     get baseImage() {
-        return this.hasBaseImage
-            ? this.item.base_image.path || this.product.base_image.path
-            : AestheticCart.url('/build/assets/image-placeholder.png');
+        return (
+            resolveBaseImagePath(
+                this.item,
+                this.product,
+                this.hasAnyVariant
+            ) || placeholderImageUrl()
+        );
     },
 
     isQtyIncreaseDisabled(cartItem) {
@@ -72,6 +138,17 @@ Alpine.data("CartItem", (cartItem) => ({
 
     lineTotal(qty) {
         return qty * cartItem.unitPrice.inCurrentCurrency.amount;
+    },
+
+    lineRegularTotal(qty) {
+        return qty * this.regularUnitPrice;
+    },
+
+    get summaryTreatmentLines() {
+        return Object.values(cartItem.variations || {}).map((variation) => ({
+            name: variation.name,
+            value: variation.values?.[0]?.label ?? "",
+        }));
     },
 
     optionValues(option) {

@@ -22,4 +22,13 @@ return [
     'looks_like_you_haven\'t_made_any_choice_yet' => 'You haven\'t picked a treatment yet.',
     'continue_shopping' => 'Continue Shopping',
     'browse_treatments' => 'Browse treatments',
+    'save_amount' => 'Save :amount',
+    'save_amount_with_percent' => 'Save :amount (:percent% off)',
+    'subtotal' => 'Subtotal',
+    'subtotal_regular' => 'Regular price',
+    'subtotal_sale' => 'Sale price',
+    'total_payable' => 'You pay',
+    'total_savings' => 'You save',
+    'treatments' => 'treatments',
+    'qty' => 'items',
 ];

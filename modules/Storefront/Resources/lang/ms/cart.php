@@ -24,4 +24,13 @@ return [
     'looks_like_you_haven\'t_made_any_choice_yet' => 'Nampaknya anda belum memilih sebarang rawatan.',
     'continue_shopping' => 'Teruskan membeli-belah',
     'browse_treatments' => 'Cari rawatan',
+    'save_amount' => 'Jimat :amount',
+    'save_amount_with_percent' => 'Jimat :amount (:percent%)',
+    'subtotal' => 'Subjumlah',
+    'subtotal_regular' => 'Harga asal',
+    'subtotal_sale' => 'Harga promo',
+    'total_payable' => 'Anda bayar',
+    'total_savings' => 'Anda jimat',
+    'treatments' => 'rawatan',
+    'qty' => 'kuantiti',
 ];
