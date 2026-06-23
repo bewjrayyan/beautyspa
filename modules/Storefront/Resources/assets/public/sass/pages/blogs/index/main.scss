@@ -1,5 +1,4 @@
 @import "../../../utils/common/_blog-card";
-@import "../../../components/sticky-search-bar";
 @import "../layouts/_blog-right-sidebar";
 @import "../layouts/_blog-sidebar-mobile";
 
@@ -53,9 +52,6 @@
         --blog-index-pad: 16px;
         --blog-index-radius: 20px;
         --blog-index-gap: 12px;
-        --index-search-header-height: 60px;
-        --index-search-pad: var(--blog-index-pad);
-        --blog-index-search-height: 106px;
 
         overflow-x: clip;
 
@@ -94,7 +90,7 @@
             max-width: 100%;
             padding-left: var(--blog-index-pad);
             padding-right: var(--blog-index-pad);
-            padding-top: var(--blog-index-search-height);
+            padding-top: 12px;
         }
 
         > .container > .row {

@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.7.97' => [
+        'en' => [
+            'summary' => 'Remove sticky mobile search bar from homepage and blog index.',
+            'changes' => [
+                'Remove the fixed search area below the header on mobile homepage and blog listing.',
+                'Restore normal content spacing now that the sticky search offset is no longer needed.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Buang bar carian sticky mudah alih dari laman utama dan indeks blog.',
+            'changes' => [
+                'Buang kawasan carian tetap di bawah header pada laman utama mudah alih dan senarai blog.',
+                'Pulihkan jarak kandungan biasa selepas offset carian sticky dibuang.',
+            ],
+        ],
+    ],
     '4.7.96' => [
         'en' => [
             'summary' => 'Auto-convert uploaded favicon PNG to ICO for stable browser tabs.',

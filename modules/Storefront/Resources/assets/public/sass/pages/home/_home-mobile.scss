@@ -13,10 +13,6 @@ $home-app-section-gap: 12px;
 
 @media screen and (max-width: 991px) {
     body.home-page {
-        --index-search-header-height: 60px;
-        --index-search-pad: #{$home-app-side};
-        --home-search-sticky-height: 106px;
-
         overflow-x: clip;
 
         .wrapper {
@@ -43,10 +39,6 @@ $home-app-section-gap: 12px;
                 padding: 8px 0;
                 border-bottom: none;
             }
-        }
-
-        .home-page-content {
-            padding-top: var(--home-search-sticky-height);
         }
 
         .home-section-wrap,
