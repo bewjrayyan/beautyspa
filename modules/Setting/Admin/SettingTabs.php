@@ -117,7 +117,18 @@ class SettingTabs extends Tabs
         return tap(new SettingTab('maintenance', trans('setting::settings.tabs.maintenance')), function (SettingTab $tab) {
             $tab->weight(7);
 
-            $tab->fields(['maintenance_mode']);
+            $tab->fields([
+                'maintenance_mode',
+                'maintenance_page_effect_preset',
+                'maintenance_page_color_source',
+                'maintenance_page_accent_color',
+                'maintenance_page_gradient_enabled',
+                'maintenance_page_bokeh_enabled',
+                'maintenance_page_bokeh_count',
+                'maintenance_page_shimmer_enabled',
+                'maintenance_page_grain_drift_enabled',
+                'maintenance_page_frosted_card_enabled',
+            ]);
 
             $tab->view('setting::admin.settings.tabs.maintenance');
         });

@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.11' => [
+        'en' => [
+            'summary' => 'Admin can customize maintenance page colors and background effects.',
+            'changes' => [
+                'Add Maintenance settings: effect presets (Aesthetic, Minimal, Classic, Custom), color source, and custom accent color picker.',
+                'Add live preview and per-effect toggles for gradient, bokeh, shimmer, grain, and frosted card.',
+                'Re-render the 503 maintenance page automatically when appearance settings are saved.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Admin boleh sesuaikan warna dan kesan latar halaman penyelenggaraan.',
+            'changes' => [
+                'Tambah tetapan Penyelenggaraan: preset kesan (Aesthetic, Minimal, Classic, Custom), sumber warna, dan pemilih warna aksen.',
+                'Tambah pratonton langsung dan togol kesan untuk kecerunan, bokeh, shimmer, grain, dan kad frosted.',
+                'Render semula halaman 503 penyelenggaraan secara automatik apabila tetapan penampilan disimpan.',
+            ],
+        ],
+    ],
     '4.9.10' => [
         'en' => [
             'summary' => 'Auto-refresh branded maintenance page after deploy on live servers.',

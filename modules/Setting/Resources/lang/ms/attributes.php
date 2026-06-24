@@ -10,6 +10,15 @@ return [
     'cookie_bar_enabled' => 'Bar kuki',
 
     'maintenance_mode' => 'Mod penyelenggaraan',
+    'maintenance_page_effect_preset' => 'Gaya kesan',
+    'maintenance_page_color_source' => 'Warna latar',
+    'maintenance_page_accent_color' => 'Warna aksen tersuai',
+    'maintenance_page_gradient_enabled' => 'Latar kecerunan merah jambu',
+    'maintenance_page_bokeh_enabled' => 'Orbe bokeh animasi',
+    'maintenance_page_bokeh_count' => 'Bilangan orbe bokeh',
+    'maintenance_page_shimmer_enabled' => 'Sapuan cahaya berkilau',
+    'maintenance_page_grain_drift_enabled' => 'Butiran dan pergerakan halus',
+    'maintenance_page_frosted_card_enabled' => 'Kad kaca frosted',
 
     'app_version' => 'Versi diterbitkan',
     'app_release_notes' => 'Nota release',

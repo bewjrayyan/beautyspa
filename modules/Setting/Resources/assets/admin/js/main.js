@@ -425,3 +425,149 @@ $(function () {
         activeItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
 })();
+
+(function initMaintenanceSettingsPanel() {
+    const root = document.querySelector('.admin-settings[data-active-tab="maintenance"]');
+
+    if (!root) {
+        return;
+    }
+
+    const presetSelect = document.getElementById("maintenance_page_effect_preset");
+    const colorSourceSelect = document.getElementById("maintenance_page_color_source");
+    const accentColorInput = document.getElementById("maintenance_page_accent_color");
+    const customColorField = document.getElementById("maintenance-custom-color-field");
+    const customEffectsFields = document.getElementById("maintenance-custom-effects-fields");
+    const presetNote = document.getElementById("maintenance-preset-note");
+    const bokehToggle = document.getElementById("maintenance_page_bokeh_enabled");
+    const bokehCountField = document.getElementById("maintenance-bokeh-count-field");
+    const previewCanvas = document.getElementById("maintenance-page-preview-canvas");
+    const previewCard = previewCanvas?.querySelector(".maintenance-page-preview__card");
+
+    const toggles = {
+        gradient: document.getElementById("maintenance_page_gradient_enabled"),
+        bokeh: bokehToggle,
+        shimmer: document.getElementById("maintenance_page_shimmer_enabled"),
+        grain: document.getElementById("maintenance_page_grain_drift_enabled"),
+        frosted: document.getElementById("maintenance_page_frosted_card_enabled"),
+    };
+
+    const bokehCountInput = document.getElementById("maintenance_page_bokeh_count");
+
+    const presets = {
+        aesthetic: { gradient: true, bokeh: true, bokeh_count: 12, shimmer: true, grain: true, frosted: true },
+        minimal: { gradient: true, bokeh: false, bokeh_count: 6, shimmer: false, grain: false, frosted: true },
+        classic: { gradient: true, bokeh: true, bokeh_count: 8, shimmer: false, grain: true, frosted: true },
+    };
+
+    const isCustomPreset = () => presetSelect?.value === "custom";
+
+    const setToggleDisabled = (enabled) => {
+        Object.values(toggles).forEach((toggle) => {
+            if (!toggle) {
+                return;
+            }
+
+            toggle.disabled = !enabled;
+            toggle.closest(".form-group")?.classList.toggle("is-disabled", !enabled);
+        });
+
+        if (bokehCountInput) {
+            bokehCountInput.disabled = !enabled;
+        }
+
+        presetNote?.classList.toggle("hide", enabled);
+        customEffectsFields?.classList.toggle("maintenance-custom-effects--locked", !enabled);
+    };
+
+    const applyPresetToToggles = (presetKey) => {
+        const preset = presets[presetKey];
+
+        if (!preset) {
+            return;
+        }
+
+        if (toggles.gradient) toggles.gradient.checked = preset.gradient;
+        if (toggles.bokeh) toggles.bokeh.checked = preset.bokeh;
+        if (toggles.shimmer) toggles.shimmer.checked = preset.shimmer;
+        if (toggles.grain) toggles.grain.checked = preset.grain;
+        if (toggles.frosted) toggles.frosted.checked = preset.frosted;
+        if (bokehCountInput) bokehCountInput.value = String(preset.bokeh_count);
+    };
+
+    const currentAccentColor = () => {
+        if (colorSourceSelect?.value === "custom" && accentColorInput?.value) {
+            return accentColorInput.value;
+        }
+
+        return previewCanvas?.dataset.storeColor || "#ff749f";
+    };
+
+    const syncBokehCountVisibility = () => {
+        if (!bokehCountField || !bokehToggle) {
+            return;
+        }
+
+        bokehCountField.classList.toggle("hide", !bokehToggle.checked);
+    };
+
+    const syncCustomColorVisibility = () => {
+        customColorField?.classList.toggle("hide", colorSourceSelect?.value !== "custom");
+    };
+
+    const updatePreview = () => {
+        if (!previewCanvas) {
+            return;
+        }
+
+        const color = currentAccentColor();
+        const state = {
+            gradient: toggles.gradient?.checked ?? true,
+            bokeh: toggles.bokeh?.checked ?? true,
+            shimmer: toggles.shimmer?.checked ?? true,
+            grain: toggles.grain?.checked ?? true,
+            frosted: toggles.frosted?.checked ?? true,
+        };
+
+        previewCanvas.style.setProperty("--preview-brand", color);
+        previewCanvas.classList.toggle("is-gradient-off", !state.gradient);
+        previewCanvas.classList.toggle("is-bokeh-off", !state.bokeh);
+        previewCanvas.classList.toggle("is-shimmer-off", !state.shimmer);
+        previewCanvas.classList.toggle("is-grain-off", !state.grain);
+
+        if (previewCard) {
+            previewCard.classList.toggle("is-solid", !state.frosted);
+        }
+    };
+
+    const syncPresetUi = () => {
+        const custom = isCustomPreset();
+        setToggleDisabled(custom);
+
+        if (!custom && presetSelect?.value) {
+            applyPresetToToggles(presetSelect.value);
+        }
+
+        syncBokehCountVisibility();
+        syncCustomColorVisibility();
+        updatePreview();
+    };
+
+    presetSelect?.addEventListener("change", syncPresetUi);
+    colorSourceSelect?.addEventListener("change", () => {
+        syncCustomColorVisibility();
+        updatePreview();
+    });
+    accentColorInput?.addEventListener("input", updatePreview);
+
+    Object.values(toggles).forEach((toggle) => {
+        toggle?.addEventListener("change", () => {
+            syncBokehCountVisibility();
+            updatePreview();
+        });
+    });
+
+    bokehCountInput?.addEventListener("input", updatePreview);
+
+    syncPresetUi();
+})();

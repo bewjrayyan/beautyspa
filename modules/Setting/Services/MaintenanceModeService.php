@@ -4,6 +4,7 @@ namespace Modules\Setting\Services;
 
 use AestheticCart\Http\FixSubdirectoryRequest;
 use Illuminate\Support\Facades\View;
+use Modules\Setting\Support\MaintenancePageSettings;
 
 class MaintenanceModeService
 {
@@ -56,7 +57,7 @@ class MaintenanceModeService
             return false;
         }
 
-        if ($this->hasBrandedTemplate() && $this->exceptPathsMatch()) {
+        if ($this->hasBrandedTemplate() && $this->exceptPathsMatch() && $this->visualSettingsMatch()) {
             return false;
         }
 
@@ -71,6 +72,18 @@ class MaintenanceModeService
         $template = $this->currentTemplate();
 
         return is_string($template) && str_contains($template, self::BRANDED_TEMPLATE_MARKER);
+    }
+
+
+    private function visualSettingsMatch(): bool
+    {
+        $template = $this->currentTemplate();
+
+        if (! is_string($template)) {
+            return false;
+        }
+
+        return str_contains($template, '<!-- maintenance-fx:'.MaintenancePageSettings::fingerprint().' -->');
     }
 
 

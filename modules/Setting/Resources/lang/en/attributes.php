@@ -10,6 +10,15 @@ return [
     'cookie_bar_enabled' => 'Cookie Bar',
 
     'maintenance_mode' => 'Maintenance Mode',
+    'maintenance_page_effect_preset' => 'Effect style',
+    'maintenance_page_color_source' => 'Background color',
+    'maintenance_page_accent_color' => 'Custom accent color',
+    'maintenance_page_gradient_enabled' => 'Pink gradient background',
+    'maintenance_page_bokeh_enabled' => 'Animated bokeh orbs',
+    'maintenance_page_bokeh_count' => 'Bokeh orb count',
+    'maintenance_page_shimmer_enabled' => 'Shimmer sweep',
+    'maintenance_page_grain_drift_enabled' => 'Grain and drift',
+    'maintenance_page_frosted_card_enabled' => 'Frosted glass card',
 
     'app_version' => 'Published Version',
     'app_release_notes' => 'Release Notes',

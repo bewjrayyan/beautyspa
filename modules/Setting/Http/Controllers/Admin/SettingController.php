@@ -18,6 +18,7 @@ use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Setting\Services\GitHubVersionService;
 use Modules\Setting\Services\MaintenanceModeService;
 use Modules\Setting\Services\ReleaseNotesService;
+use Modules\Setting\Support\MaintenancePageSettings;
 use Modules\Setting\Support\SettingTabScope;
 use Modules\Support\Services\PWAService;
 
@@ -37,6 +38,7 @@ class SettingController
         }
 
         $settings['maintenance_mode'] = app()->isDownForMaintenance();
+        $settings = array_merge(MaintenancePageSettings::defaults(), $settings);
 
         $tabs = TabManager::get('settings');
 
@@ -87,7 +89,25 @@ class SettingController
         }
 
         if ($tabFields !== []) {
-            setting(SettingTabScope::filterRequestData($request, $tabFields));
+            $data = SettingTabScope::filterRequestData($request, $tabFields);
+
+            if ($tab === 'maintenance') {
+                $preset = (string) ($data['maintenance_page_effect_preset'] ?? MaintenancePageSettings::PRESET_CUSTOM);
+
+                if ($preset !== MaintenancePageSettings::PRESET_CUSTOM) {
+                    $data = array_merge($data, MaintenancePageSettings::presetValues($preset));
+                }
+            }
+
+            setting($data);
+        }
+
+        if ($tab === 'maintenance' && app()->isDownForMaintenance()) {
+            try {
+                app(MaintenanceModeService::class)->enable();
+            } catch (\Throwable) {
+                // Settings were saved; template refresh can be retried on the next save.
+            }
         }
 
         return redirect()

@@ -34,6 +34,7 @@ class ImmaSeriLarisAdminSettings
         }
 
         $applied = array_merge($applied, WhatsAppNotificationDefaults::applyMissingOnly());
+        $applied = array_merge($applied, \Modules\Setting\Support\MaintenancePageSettings::applyMissingOnly());
         $applied = array_merge($applied, LoyaltySettingsDefaults::applyMissingOnly());
         $applied = array_merge($applied, ChipPaymentSettingsDefaults::applyMissingOnly());
 

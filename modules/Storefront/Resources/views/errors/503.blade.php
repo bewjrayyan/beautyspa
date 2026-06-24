@@ -1,11 +1,25 @@
 @php
+    use Modules\Setting\Support\MaintenancePageSettings;
+
+    $fx = MaintenancePageSettings::resolved();
     $logoId = function_exists('storefront_header_logo_id') ? storefront_header_logo_id() : null;
     $logoUrl = $logoId ? absolute_public_url(\Modules\Media\Entities\File::find($logoId)?->path) : null;
     $storeName = (string) (setting('store_name') ?: config('app.name'));
-    $themeColor = (string) (setting('storefront_theme_color') ?: '#e91e8c');
+    $themeColor = $fx['theme_color'];
     $en = require module_path('Storefront', 'Resources/lang/en/maintenance.php');
     $ms = require module_path('Storefront', 'Resources/lang/ms/maintenance.php');
+    $bokehOrbs = $fx['bokeh'] ? MaintenancePageSettings::bokehOrbs($fx['bokeh_count']) : [];
+
+    $bodyClasses = collect([
+        'maintenance-page',
+        $fx['gradient'] ? 'fx-gradient' : 'fx-gradient-off',
+        $fx['bokeh'] ? 'fx-bokeh' : 'fx-bokeh-off',
+        $fx['shimmer'] ? 'fx-shimmer' : 'fx-shimmer-off',
+        $fx['grain_drift'] ? 'fx-grain-drift' : 'fx-grain-drift-off',
+        $fx['frosted_card'] ? 'fx-frosted-card' : 'fx-frosted-card-off',
+    ])->implode(' ');
 @endphp
+<!-- maintenance-fx:{{ MaintenancePageSettings::fingerprint() }} -->
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -19,7 +33,6 @@
             --brand-deep: color-mix(in srgb, var(--brand) 72%, #4a0d2e);
             --brand-mid: color-mix(in srgb, var(--brand) 55%, #ffffff);
             --brand-soft: color-mix(in srgb, var(--brand) 18%, white);
-            --brand-glow: color-mix(in srgb, var(--brand) 35%, white);
             --text: #1f1020;
             --muted: #6b5a66;
             --card: rgba(255, 255, 255, 0.88);
@@ -42,6 +55,10 @@
             padding: 24px;
             overflow: hidden;
             position: relative;
+            background: #f1f5f9;
+        }
+
+        body.fx-gradient {
             background:
                 radial-gradient(circle at 18% 22%, color-mix(in srgb, var(--brand) 55%, white), transparent 34%),
                 radial-gradient(circle at 82% 12%, rgba(255, 255, 255, 0.28), transparent 28%),
@@ -57,7 +74,7 @@
             z-index: 0;
         }
 
-        .maintenance-scene::before {
+        body.fx-grain-drift .maintenance-scene::before {
             content: "";
             position: absolute;
             inset: -20%;
@@ -67,7 +84,7 @@
             animation: scene-drift 14s ease-in-out infinite alternate;
         }
 
-        .maintenance-scene::after {
+        body.fx-grain-drift .maintenance-scene::after {
             content: "";
             position: absolute;
             inset: 0;
@@ -87,18 +104,9 @@
             animation: bokeh-float linear infinite;
         }
 
-        .maintenance-bokeh span:nth-child(1)  { width: 120px; height: 120px; left: 8%;  top: 18%; animation-duration: 11s; animation-delay: -1s; }
-        .maintenance-bokeh span:nth-child(2)  { width: 180px; height: 180px; left: 72%; top: 10%; animation-duration: 13s; animation-delay: -4s; }
-        .maintenance-bokeh span:nth-child(3)  { width: 90px;  height: 90px;  left: 58%; top: 62%; animation-duration: 9s;  animation-delay: -2s; }
-        .maintenance-bokeh span:nth-child(4)  { width: 220px; height: 220px; left: 18%; top: 68%; animation-duration: 15s; animation-delay: -6s; }
-        .maintenance-bokeh span:nth-child(5)  { width: 70px;  height: 70px;  left: 84%; top: 72%; animation-duration: 8s;  animation-delay: -3s; }
-        .maintenance-bokeh span:nth-child(6)  { width: 140px; height: 140px; left: 42%; top: 28%; animation-duration: 12s; animation-delay: -5s; }
-        .maintenance-bokeh span:nth-child(7)  { width: 55px;  height: 55px;  left: 28%; top: 42%; animation-duration: 7s;  animation-delay: -1.5s; }
-        .maintenance-bokeh span:nth-child(8)  { width: 160px; height: 160px; left: 64%; top: 38%; animation-duration: 10s; animation-delay: -7s; }
-        .maintenance-bokeh span:nth-child(9)  { width: 48px;  height: 48px;  left: 12%; top: 78%; animation-duration: 6s;  animation-delay: -2.5s; }
-        .maintenance-bokeh span:nth-child(10) { width: 100px; height: 100px; left: 88%; top: 34%; animation-duration: 11s; animation-delay: -8s; }
-        .maintenance-bokeh span:nth-child(11) { width: 76px;  height: 76px;  left: 50%; top: 8%;  animation-duration: 9s;  animation-delay: -4.5s; }
-        .maintenance-bokeh span:nth-child(12) { width: 130px; height: 130px; left: 4%;  top: 52%; animation-duration: 14s; animation-delay: -9s; }
+        body.fx-bokeh-off .maintenance-bokeh {
+            display: none;
+        }
 
         .maintenance-shimmer {
             position: absolute;
@@ -109,21 +117,31 @@
             animation: shimmer-sweep 7s ease-in-out infinite;
         }
 
+        body.fx-shimmer-off .maintenance-shimmer {
+            display: none;
+        }
+
         .maintenance-card {
             position: relative;
             z-index: 1;
             width: 100%;
             max-width: 520px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+            padding: 40px 32px 36px;
+            text-align: center;
+        }
+
+        body.fx-frosted-card .maintenance-card {
             background: var(--card);
             border: 1px solid var(--card-border);
-            border-radius: 24px;
             box-shadow:
                 0 24px 60px var(--shadow),
                 inset 0 1px 0 rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            padding: 40px 32px 36px;
-            text-align: center;
         }
 
         .maintenance-logo {
@@ -303,13 +321,19 @@
         }
     </style>
 </head>
-<body>
+<body class="{{ $bodyClasses }}">
     <div class="maintenance-scene" aria-hidden="true">
-        <div class="maintenance-bokeh">
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-        </div>
-        <div class="maintenance-shimmer"></div>
+        @if ($fx['bokeh'])
+            <div class="maintenance-bokeh">
+                @foreach ($bokehOrbs as $orb)
+                    <span style="width: {{ $orb['width'] }}px; height: {{ $orb['height'] }}px; left: {{ $orb['left'] }}; top: {{ $orb['top'] }}; animation-duration: {{ $orb['duration'] }}s; animation-delay: {{ $orb['delay'] }}s;"></span>
+                @endforeach
+            </div>
+        @endif
+
+        @if ($fx['shimmer'])
+            <div class="maintenance-shimmer"></div>
+        @endif
     </div>
 
     <main class="maintenance-card" role="main">

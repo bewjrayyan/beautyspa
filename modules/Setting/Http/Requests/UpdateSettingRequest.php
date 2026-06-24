@@ -152,6 +152,19 @@ class UpdateSettingRequest extends Request
             'store_email' => 'required|email',
             'store_country' => ['required', Rule::in(Country::codes())],
 
+            'cookie_bar_enabled' => 'required|boolean',
+
+            'maintenance_mode' => 'required|boolean',
+            'maintenance_page_effect_preset' => 'required|in:aesthetic,minimal,classic,custom',
+            'maintenance_page_color_source' => 'required|in:store_theme,custom',
+            'maintenance_page_accent_color' => 'nullable|regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/',
+            'maintenance_page_gradient_enabled' => 'required|boolean',
+            'maintenance_page_bokeh_enabled' => 'required|boolean',
+            'maintenance_page_bokeh_count' => 'nullable|integer|min:1|max:12',
+            'maintenance_page_shimmer_enabled' => 'required|boolean',
+            'maintenance_page_grain_drift_enabled' => 'required|boolean',
+            'maintenance_page_frosted_card_enabled' => 'required|boolean',
+
             'pwa_enabled' => 'required',
             'pwa_icon' => 'required_if:pwa_enabled,1',
             'admin_sidebar_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
