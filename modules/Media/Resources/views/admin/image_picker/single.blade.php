@@ -3,6 +3,9 @@
         $hasFile = $file->exists;
         $showLabel = filled($title ?? '');
         $aspect = $aspect ?? 'logo';
+        $defaultPreviewUrl = $defaultPreviewUrl ?? null;
+        $defaultPreviewBadge = $defaultPreviewBadge ?? null;
+        $usingDefaultPreview = ! $hasFile && filled($defaultPreviewUrl);
         $fieldClass = 'single-image-wrapper ac-media-field';
 
         if ($aspect === 'square') {
@@ -14,14 +17,23 @@
         }
     @endphp
 
-    <div class="{{ $fieldClass }}" data-input-name="{{ $inputName }}">
+    <div
+        class="{{ $fieldClass }}"
+        data-input-name="{{ $inputName }}"
+        @if (filled($defaultPreviewUrl))
+            data-default-preview-url="{{ $defaultPreviewUrl }}"
+            @if (filled($defaultPreviewBadge))
+                data-default-preview-badge="{{ $defaultPreviewBadge }}"
+            @endif
+        @endif
+    >
         @if ($showLabel)
             <label class="ac-media-field__label">{{ $title }}</label>
         @endif
 
-        <div class="ac-media-field__canvas{{ $hasFile ? ' is-filled' : '' }}">
+        <div class="ac-media-field__canvas{{ ($hasFile || $usingDefaultPreview) ? ' is-filled' : '' }}">
             <div
-                class="ac-media-dropzone{{ $hasFile ? ' hide' : '' }}"
+                class="ac-media-dropzone{{ ($hasFile || $usingDefaultPreview) ? ' hide' : '' }}"
                 tabindex="0"
                 role="button"
                 aria-label="{{ trans('media::media.dropzone_title') }}"
@@ -53,7 +65,7 @@
                 >
             </div>
 
-            <div class="ac-media-preview single-image image-holder-wrapper{{ $hasFile ? '' : ' hide' }}">
+            <div class="ac-media-preview single-image image-holder-wrapper{{ ($hasFile || $usingDefaultPreview) ? '' : ' hide' }}">
                 @if ($hasFile)
                     <div class="ac-media-preview__inner image-holder">
                         <img src="{{ $file->path }}" alt="">
@@ -75,6 +87,23 @@
                         </div>
 
                         <input type="hidden" name="{{ $inputName }}" value="{{ $file->id }}">
+                    </div>
+                @elseif ($usingDefaultPreview)
+                    <div class="ac-media-preview__inner image-holder ac-media-preview__inner--default">
+                        <img src="{{ $defaultPreviewUrl }}" alt="">
+
+                        @if (filled($defaultPreviewBadge))
+                            <span class="ac-media-preview__badge">{{ $defaultPreviewBadge }}</span>
+                        @endif
+
+                        <div class="ac-media-preview__overlay">
+                            <button type="button" class="btn btn-default btn-sm image-picker-browse" data-input-name="{{ $inputName }}">
+                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                                {{ trans('media::media.replace_image') }}
+                            </button>
+                        </div>
+
+                        <input type="hidden" name="{{ $inputName }}" value="">
                     </div>
                 @endif
             </div>

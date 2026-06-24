@@ -4,14 +4,13 @@ namespace Modules\SpecialGift\Services;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Modules\Media\Entities\File;
 
 class GiftVoucherImageService
 {
     private const JPEG_QUALITY = 90;
 
 
-    public function generate(File $background, string $recipientName, string $orderNumber): ?string
+    public function generateFromPath(string $backgroundPath, string $recipientName, string $orderNumber): ?string
     {
         if (! extension_loaded('gd')) {
             Log::error('SpecialGift: GD extension is not available');
@@ -19,9 +18,7 @@ class GiftVoucherImageService
             return null;
         }
 
-        $backgroundPath = $background->realPath();
-
-        if (! $backgroundPath || ! is_readable($backgroundPath)) {
+        if (! is_readable($backgroundPath)) {
             Log::error('SpecialGift: voucher background file is not readable');
 
             return null;
@@ -92,28 +89,33 @@ class GiftVoucherImageService
         if ($useTtf) {
             $recBox = imagettfbbox($fontSize, 0, $fontPath, $recipientText);
             $recWidth = $recBox[4] - $recBox[0];
-            $x = (int) (($imageWidth - $recWidth) / 2) + 350;
-            $y = (int) min($imageHeight * 0.3, $imageHeight - 100) + 130;
+            $orderBox = imagettfbbox($fontSize, 0, $fontPath, $orderText);
+            $orderWidth = $orderBox[4] - $orderBox[0];
+            $x = (int) (($imageWidth - $recWidth) / 2);
+            $xOrder = (int) (($imageWidth - $orderWidth) / 2);
+            $y = (int) ($imageHeight * 0.52);
 
             $this->drawTtfText($image, $fontSize, $x, $y, $fontPath, $recipientText, $textColor, $shadowColor);
 
-            $yOrder = $y + $fontSize + 12;
-            $this->drawTtfText($image, $fontSize, $x, $yOrder, $fontPath, $orderText, $textColor, $shadowColor);
+            $yOrder = $y + $fontSize + 16;
+            $this->drawTtfText($image, $fontSize, $xOrder, $yOrder, $fontPath, $orderText, $textColor, $shadowColor);
 
             return;
         }
 
         $builtInSize = 5;
         $recWidth = strlen($recipientText) * imagefontwidth($builtInSize);
-        $x = (int) (($imageWidth - $recWidth) / 2) + 350;
-        $y = (int) min($imageHeight * 0.3, $imageHeight - 80) + 130;
+        $orderWidth = strlen($orderText) * imagefontwidth($builtInSize);
+        $x = (int) (($imageWidth - $recWidth) / 2);
+        $xOrder = (int) (($imageWidth - $orderWidth) / 2);
+        $y = (int) ($imageHeight * 0.52);
 
         imagestring($image, $builtInSize, $x + 1, $y + 1, $recipientText, $shadowColor);
         imagestring($image, $builtInSize, $x, $y, $recipientText, $textColor);
 
         $yOrder = $y + imagefontheight($builtInSize) + 6;
-        imagestring($image, $builtInSize, $x + 1, $yOrder + 1, $orderText, $shadowColor);
-        imagestring($image, $builtInSize, $x, $yOrder, $orderText, $textColor);
+        imagestring($image, $builtInSize, $xOrder + 1, $yOrder + 1, $orderText, $shadowColor);
+        imagestring($image, $builtInSize, $xOrder, $yOrder, $orderText, $textColor);
     }
 
 

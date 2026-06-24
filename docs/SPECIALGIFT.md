@@ -19,7 +19,7 @@ Submissions are logged in **`gift_voucher_submissions`** (admin → Gift voucher
 2. Run migrations: `php artisan module:migrate SpecialGift`
 3. **Settings → Special gift**:
    - Enable send gift page
-   - Upload **voucher background** image
+   - Optional: upload or pick a **custom voucher background** (a default design is included)
    - Set **message template** (placeholders below)
 4. **Settings → WhatsApp Notifications**: configure OneSender API URL + key.
 5. Ensure `public/storage` is linked: `php artisan storage:link`

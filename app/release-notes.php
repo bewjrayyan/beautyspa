@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.4' => [
+        'en' => [
+            'summary' => 'Special gift: default voucher design and WhatsApp message template.',
+            'changes' => [
+                'Bundle a default gift voucher background; custom upload or media library still optional.',
+                'Pre-fill WhatsApp caption template with sensible placeholders when empty.',
+                'Center recipient name and order number on generated vouchers.',
+                'Image picker supports default preview with reset-to-default on remove.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hadiah istimewa: reka bentuk baucar lalai dan templat mesej WhatsApp.',
+            'changes' => [
+                'Sertakan latar baucar hadiah lalai; muat naik atau pustaka media masih pilihan.',
+                'Isi templat kapsyen WhatsApp dengan placeholder sesuai apabila kosong.',
+                'Pusatkan nama penerima dan nombor pesanan pada baucar dijana.',
+                'Pemilih imej menyokong preview lalai dengan reset ke lalai selepas buang.',
+            ],
+        ],
+    ],
     '4.9.3' => [
         'en' => [
             'summary' => 'Fix CHIP public key fetch from GET /public_key/.',

@@ -1,6 +1,13 @@
 @php
     $sendGiftUrl = route('specialgift.send.create');
     $isEnabled = (bool) old('specialgift_enabled', array_get($settings, 'specialgift_enabled'));
+    $specialGiftSettings = $settings;
+    $currentMessageTemplate = old('specialgift_message_template', array_get($settings, 'specialgift_message_template'));
+    $specialGiftConfig = app(\Modules\SpecialGift\Services\SpecialGiftConfig::class);
+
+    if (trim((string) $currentMessageTemplate) === '') {
+        $specialGiftSettings['specialgift_message_template'] = trans('specialgift::settings.message_template_default');
+    }
 @endphp
 
 <div class="st-tab st-tab--gift">
@@ -51,6 +58,9 @@
             'title' => trans('specialgift::settings.voucher_background'),
             'inputName' => 'specialgift_voucher_background',
             'file' => $voucherBackground,
+            'aspect' => 'banner',
+            'defaultPreviewUrl' => $specialGiftConfig->defaultVoucherBackgroundUrl(),
+            'defaultPreviewBadge' => trans('specialgift::settings.voucher_background_default'),
         ])
     @endcomponent
 
@@ -59,7 +69,7 @@
         'title' => trans('specialgift::settings.section_message'),
         'description' => trans('specialgift::settings.message_template_help'),
     ])
-        {{ Form::textarea('specialgift_message_template', trans('specialgift::settings.message_template'), $errors, $settings, [
+        {{ Form::textarea('specialgift_message_template', trans('specialgift::settings.message_template'), $errors, $specialGiftSettings, [
             'rows' => 5,
             'placeholder' => trans('specialgift::settings.message_template_placeholder'),
             'labelCol' => 0,

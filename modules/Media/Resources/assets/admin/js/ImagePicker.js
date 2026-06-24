@@ -198,6 +198,29 @@ export default class ImagePicker {
         $(target).siblings(".single-image").html(html);
     }
 
+    getDefaultPreviewTemplate(inputName, url, badge = "") {
+        const badgeHtml = badge
+            ? `<span class="ac-media-preview__badge">${badge}</span>`
+            : "";
+
+        return `
+            <div class="ac-media-preview__inner image-holder ac-media-preview__inner--default">
+                <img src="${url}" alt="">
+
+                ${badgeHtml}
+
+                <div class="ac-media-preview__overlay">
+                    <button type="button" class="btn btn-default btn-sm image-picker-browse" data-input-name="${inputName}">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                        ${trans("media::media.replace_image")}
+                    </button>
+                </div>
+
+                <input type="hidden" name="${inputName}" value="">
+            </div>
+        `;
+    }
+
     getTemplate(inputName, file) {
         return `
             <div class="ac-media-preview__inner image-holder">
@@ -242,6 +265,23 @@ export default class ImagePicker {
         }
 
         if ($field.length) {
+            const defaultPreviewUrl = $field.data("defaultPreviewUrl");
+
+            if (defaultPreviewUrl) {
+                $field.find(".ac-media-field__canvas").addClass("is-filled");
+                $field.find(".ac-media-dropzone").addClass("hide");
+                $field
+                    .find(".ac-media-preview, .single-image.image-holder-wrapper")
+                    .removeClass("hide")
+                    .html(this.getDefaultPreviewTemplate(inputName, defaultPreviewUrl, $field.data("defaultPreviewBadge")));
+
+                if (typeof window.scheduleSettingsFormBaseline === "function") {
+                    window.scheduleSettingsFormBaseline(300);
+                }
+
+                return;
+            }
+
             $field.find(".ac-media-field__canvas").removeClass("is-filled");
             $field.find(".ac-media-dropzone").removeClass("hide");
             $field.find(".ac-media-preview, .single-image.image-holder-wrapper").addClass("hide").empty();

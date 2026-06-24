@@ -17,10 +17,16 @@ class SpecialGiftConfig
         $template = trim((string) setting('specialgift_message_template'));
 
         if ($template === '') {
-            return 'Hi {recipient_name}! Anda telah menerima gift voucher. Order: {order_number}. Selamat menikmati hadiah anda!';
+            return trans('specialgift::settings.message_template_default');
         }
 
         return $template;
+    }
+
+
+    public function hasCustomVoucherBackground(): bool
+    {
+        return $this->voucherBackgroundFile() !== null;
     }
 
 
@@ -38,10 +44,36 @@ class SpecialGiftConfig
     }
 
 
+    public function defaultVoucherBackgroundPath(): string
+    {
+        return module_path('SpecialGift', 'Resources/assets/images/default-voucher.jpg');
+    }
+
+
+    public function defaultVoucherBackgroundUrl(): string
+    {
+        return asset('modules/specialgift/default-voucher.jpg');
+    }
+
+
+    public function resolveVoucherBackgroundPath(): ?string
+    {
+        $customPath = $this->voucherBackgroundFile()?->realPath();
+
+        if (is_string($customPath) && is_readable($customPath)) {
+            return $customPath;
+        }
+
+        $defaultPath = $this->defaultVoucherBackgroundPath();
+
+        return is_readable($defaultPath) ? $defaultPath : null;
+    }
+
+
     public function isReady(): bool
     {
         return $this->enabled()
-            && $this->voucherBackgroundFile() !== null
+            && $this->resolveVoucherBackgroundPath() !== null
             && \Modules\User\Services\OneSenderWhatsAppService::isConfigured();
     }
 }

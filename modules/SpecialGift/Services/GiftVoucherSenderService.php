@@ -48,8 +48,13 @@ class GiftVoucherSenderService
             return $this->fail($submission, trans('specialgift::messages.invalid_phone'));
         }
 
-        $background = $this->config->voucherBackgroundFile();
-        $imageUrl = $this->imageService->generate($background, $data['recipient_name'], $orderNumber);
+        $backgroundPath = $this->config->resolveVoucherBackgroundPath();
+
+        if ($backgroundPath === null) {
+            return $this->fail($submission, trans('specialgift::messages.image_failed'));
+        }
+
+        $imageUrl = $this->imageService->generateFromPath($backgroundPath, $data['recipient_name'], $orderNumber);
 
         if (! $imageUrl) {
             return $this->fail($submission, trans('specialgift::messages.image_failed'));
