@@ -18,6 +18,7 @@ class Updater
         self::clearRouteCache();
         self::clearAppCache();
         self::runScripts();
+        self::syncMaintenanceTemplate();
         self::warmProductionCaches();
 
         File::delete(storage_path('app/update'));
@@ -54,6 +55,20 @@ class Updater
     private static function clearAppCache(): void
     {
         Artisan::call('cache:clear');
+    }
+
+
+    private static function syncMaintenanceTemplate(): void
+    {
+        if (! config('app.installed') || ! class_exists(\Modules\Setting\Services\MaintenanceModeService::class)) {
+            return;
+        }
+
+        try {
+            app(\Modules\Setting\Services\MaintenanceModeService::class)->refreshBrandedTemplateIfNeeded();
+        } catch (\Throwable) {
+            // Never block deploy if maintenance refresh fails.
+        }
     }
 
 

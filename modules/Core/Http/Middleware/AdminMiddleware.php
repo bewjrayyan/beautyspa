@@ -36,6 +36,8 @@ class AdminMiddleware
         }
 
         if ($this->inExceptArray($request) || auth()->check()) {
+            $this->refreshMaintenanceTemplateIfNeeded();
+
             return $next($request);
         }
 
@@ -69,5 +71,23 @@ class AdminMiddleware
         }
 
         return false;
+    }
+
+
+    private function refreshMaintenanceTemplateIfNeeded(): void
+    {
+        if (! config('app.installed') || ! app()->isDownForMaintenance()) {
+            return;
+        }
+
+        if (! class_exists(\Modules\Setting\Services\MaintenanceModeService::class)) {
+            return;
+        }
+
+        try {
+            app(\Modules\Setting\Services\MaintenanceModeService::class)->refreshBrandedTemplateIfNeeded();
+        } catch (\Throwable) {
+            // Do not block admin access when maintenance refresh fails.
+        }
     }
 }

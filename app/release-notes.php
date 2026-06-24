@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.10' => [
+        'en' => [
+            'summary' => 'Auto-refresh branded maintenance page after deploy on live servers.',
+            'changes' => [
+                'Fix production still showing plain Laravel 503 after GitHub update (old storage/framework/down file kept template: null).',
+                'Refresh branded maintenance HTML automatically after deploy and on the next admin visit.',
+                'Re-sync admin except paths for subdirectory installs such as /v2.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Muat semula automatik halaman penyelenggaraan berjenama selepas deploy pada pelayan live.',
+            'changes' => [
+                'Baiki production masih papar 503 Laravel biasa selepas kemas kini GitHub (fail storage/framework/down lama kekal template: null).',
+                'Muat semula HTML penyelenggaraan berjenama secara automatik selepas deploy dan pada lawatan admin seterusnya.',
+                'Selaraskan semula laluan except admin untuk pemasangan subdirektori seperti /v2.',
+            ],
+        ],
+    ],
     '4.9.9' => [
         'en' => [
             'summary' => 'Maintenance mode now blocks the storefront with a branded animated page.',
