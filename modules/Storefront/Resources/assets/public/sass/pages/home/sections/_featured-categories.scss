@@ -120,8 +120,8 @@
     .featured-categories-wrap {
         .featured-category-products:not(.swiper-initialized) {
             .swiper-slide {
-                flex: 0 0 32%;
-                max-width: 32%;
+                flex: 0 0 calc(100% / 4.3);
+                max-width: calc(100% / 4.3);
             }
         }
     }

@@ -43,15 +43,7 @@ Alpine.data("FeaturedCategories", (tabs) => ({
                     spaceBetween: 16,
                 },
                 1200: {
-                    slidesPerView: 3,
-                    spaceBetween: 20,
-                },
-                1600: {
-                    slidesPerView: 4,
-                    spaceBetween: 20,
-                },
-                1760: {
-                    slidesPerView: 5,
+                    slidesPerView: 4.3,
                     spaceBetween: 20,
                 },
             },

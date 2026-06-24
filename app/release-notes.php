@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.7' => [
+        'en' => [
+            'summary' => 'Featured category slider shows 4 cards plus peek on desktop.',
+            'changes' => [
+                'Set Shop by Category desktop slidesPerView to 4.3 (four full cards and a peek of the fifth).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Slider kategori pilihan papar 4 kad dan sedikit kad ke-5 pada desktop.',
+            'changes' => [
+                'Set slidesPerView desktop Shop by Category kepada 4.3 (empat kad penuh dan intipan kad kelima).',
+            ],
+        ],
+    ],
     '4.9.6' => [
         'en' => [
             'summary' => 'Send gift page redesign and fix false WhatsApp success on local.',
