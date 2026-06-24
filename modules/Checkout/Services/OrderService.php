@@ -6,6 +6,7 @@ use Modules\Cart\CartTax;
 use Modules\Cart\CartItem;
 use Modules\Cart\Facades\Cart;
 use Modules\Order\Entities\Order;
+use Modules\Order\Events\OrderCreated;
 use Modules\Address\Entities\Address;
 use Modules\FlashSale\Entities\FlashSale;
 use Modules\Currency\Entities\CurrencyRate;
@@ -40,7 +41,13 @@ class OrderService
             $this->attachTaxes($order);
             $this->reduceStock();
 
-            return $order->fresh(['products.product', 'products.variations', 'products.options.values', 'taxes']);
+            $order = $order->fresh(['products.product', 'products.variations', 'products.options.values', 'taxes']);
+
+            DB::afterCommit(function () use ($order) {
+                event(new OrderCreated($order));
+            });
+
+            return $order;
         });
     }
 

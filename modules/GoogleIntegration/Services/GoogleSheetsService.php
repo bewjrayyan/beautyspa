@@ -3,6 +3,7 @@
 namespace Modules\GoogleIntegration\Services;
 
 use Exception;
+use Illuminate\Support\Str;
 use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
 use Modules\Order\Entities\Order;
 
@@ -130,11 +131,58 @@ class GoogleSheetsService
                 $synced++;
             } catch (Exception $exception) {
                 report($exception);
+                $this->markSyncFailed($order->fresh(), $exception->getMessage());
                 $failed++;
             }
         }
 
         return compact('synced', 'failed', 'skipped');
+    }
+
+
+    public function removeOrderFromSheet(Order $order): void
+    {
+        if (! self::isEnabled()) {
+            return;
+        }
+
+        $storedTab = trim((string) $order->google_sheets_tab);
+        $storedRow = (int) $order->google_sheets_row;
+
+        if ($storedTab === '' || $storedRow < 1) {
+            $this->clearSyncState($order);
+
+            return;
+        }
+
+        $this->deleteOrderRowAt($this->spreadsheetId(), $storedTab, $storedRow);
+        $this->clearSyncState($order);
+    }
+
+
+    public function hasSheetRow(Order $order): bool
+    {
+        return trim((string) $order->google_sheets_tab) !== ''
+            && (int) $order->google_sheets_row > 0;
+    }
+
+
+    public function markSyncFailed(Order $order, string $message): void
+    {
+        $order->forceFill([
+            'google_sheets_sync_error' => Str::limit($message, 1000),
+        ])->save();
+    }
+
+
+    public function clearSyncState(Order $order): void
+    {
+        $order->forceFill([
+            'google_sheets_tab' => null,
+            'google_sheets_row' => null,
+            'google_sheets_synced_at' => null,
+            'google_sheets_sync_error' => null,
+        ])->save();
     }
 
 
@@ -144,6 +192,7 @@ class GoogleSheetsService
             'google_sheets_tab' => $tab,
             'google_sheets_row' => $row,
             'google_sheets_synced_at' => now(),
+            'google_sheets_sync_error' => null,
         ])->save();
     }
 

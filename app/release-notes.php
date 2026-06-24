@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.16' => [
+        'en' => [
+            'summary' => 'More reliable Google Sheets sync with edit, cleanup, and error visibility.',
+            'changes' => [
+                'Re-sync sheet rows when orders are created or edited in admin.',
+                'Remove sheet rows when order status moves out of enabled sync statuses.',
+                'Store and display last Google Sheets sync error on the order page.',
+                'Improve retry-failed command and run it hourly via scheduler.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penyelarasan Google Sheets lebih boleh dipercayai dengan edit, bersihkan, dan ralat kelihatan.',
+            'changes' => [
+                'Sync semula baris helaian bila pesanan dicipta atau dikemas kini dalam admin.',
+                'Buang baris helaian bila status pesanan keluar dari status sync yang diaktifkan.',
+                'Simpan dan paparkan ralat sync Google Sheets terakhir pada halaman pesanan.',
+                'Baiki arahan retry-failed dan jalankan setiap jam melalui scheduler.',
+            ],
+        ],
+    ],
     '4.9.15' => [
         'en' => [
             'summary' => 'Google Sheets sync per order status with bulk backfill.',

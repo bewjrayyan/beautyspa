@@ -1121,3 +1121,14 @@ $order-bg: #f8fafc;
     background: #fffaeb;
     color: #b54708;
 }
+
+.order-show__status-badge--danger {
+    background: #fef3f2;
+    color: #b42318;
+}
+
+.order-show__google-sheets-error {
+    display: block;
+    margin-top: 6px;
+    color: #b42318;
+}

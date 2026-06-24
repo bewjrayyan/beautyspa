@@ -5,8 +5,10 @@ namespace Modules\GoogleIntegration\Providers;
 use Modules\GoogleIntegration\Console\BackfillGoogleSheetsCommand;
 use Modules\GoogleIntegration\Console\RetryFailedGoogleSheetsSyncCommand;
 use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
+use Modules\Order\Events\OrderCreated;
 use Modules\Order\Events\OrderStatusChanged;
-use Modules\GoogleIntegration\Listeners\SyncCompletedOrderToGoogle;
+use Modules\Order\Events\OrderUpdated;
+use Modules\GoogleIntegration\Listeners\SyncOrderToGoogle;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,7 +20,11 @@ class GoogleIntegrationServiceProvider extends ServiceProvider
 
         GoogleSheetsStatusConfig::applyMissingOnly();
 
-        Event::listen(OrderStatusChanged::class, SyncCompletedOrderToGoogle::class);
+        Event::listen([
+            OrderStatusChanged::class,
+            OrderCreated::class,
+            OrderUpdated::class,
+        ], SyncOrderToGoogle::class);
 
         if ($this->app->runningInConsole()) {
             $this->commands([

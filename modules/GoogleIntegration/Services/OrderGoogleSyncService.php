@@ -2,6 +2,7 @@
 
 namespace Modules\GoogleIntegration\Services;
 
+use Exception;
 use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
 use Modules\Order\Entities\Order;
 
@@ -21,16 +22,27 @@ class OrderGoogleSyncService
         }
 
         if (GoogleSheetsService::isEnabled()) {
-            if ($forceSheets) {
-                $order->forceFill([
-                    'google_sheets_synced_at' => null,
-                    'google_sheets_tab' => null,
-                    'google_sheets_row' => null,
-                ])->save();
-            }
+            try {
+                if ($forceSheets && $this->sheets->hasSheetRow($order)) {
+                    $this->sheets->removeOrderFromSheet($order->fresh());
+                } elseif ($forceSheets) {
+                    $order->forceFill([
+                        'google_sheets_synced_at' => null,
+                        'google_sheets_tab' => null,
+                        'google_sheets_row' => null,
+                        'google_sheets_sync_error' => null,
+                    ])->save();
+                }
 
-            if (GoogleSheetsStatusConfig::isStatusEnabled($order->status)) {
-                $this->sheets->syncOrder($order->fresh());
+                if (GoogleSheetsStatusConfig::isStatusEnabled($order->status)) {
+                    $this->sheets->syncOrder($order->fresh());
+                } elseif ($this->sheets->hasSheetRow($order)) {
+                    $this->sheets->removeOrderFromSheet($order->fresh());
+                }
+            } catch (Exception $exception) {
+                $this->sheets->markSyncFailed($order->fresh(), $exception->getMessage());
+
+                throw $exception;
             }
         }
 

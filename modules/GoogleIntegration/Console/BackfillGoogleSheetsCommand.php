@@ -45,7 +45,10 @@ class BackfillGoogleSheetsCommand extends Command
             ->orderBy('id');
 
         if (! $this->option('force')) {
-            $query->whereNull('google_sheets_synced_at');
+            $query->where(function ($builder) {
+                $builder->whereNull('google_sheets_synced_at')
+                    ->orWhereNotNull('google_sheets_sync_error');
+            });
         }
 
         $limit = max(0, (int) $this->option('limit'));
@@ -121,6 +124,6 @@ class BackfillGoogleSheetsCommand extends Command
             return false;
         }
 
-        return (bool) $order->google_sheets_synced_at;
+        return (bool) $order->google_sheets_synced_at && ! $order->google_sheets_sync_error;
     }
 }

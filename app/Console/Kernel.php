@@ -50,5 +50,9 @@ class Kernel extends ConsoleKernel
         }
 
         $schedule->command('onesender:process-outbound-queue')->everyMinute();
+
+        if (app('modules')->isEnabled('GoogleIntegration')) {
+            $schedule->command('google-sheets:retry-failed --limit=100')->hourly();
+        }
     }
 }

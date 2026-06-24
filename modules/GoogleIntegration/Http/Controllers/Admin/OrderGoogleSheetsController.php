@@ -38,10 +38,11 @@ class OrderGoogleSheetsController
             ], 500);
         }
 
-        if (! $order->google_sheets_synced_at) {
+        if (! $order->google_sheets_synced_at || $order->google_sheets_sync_error) {
             return response()->json([
                 'message' => trans('order::messages.google_sheets_sync_failed', [
-                    'error' => trans('order::messages.google_sheets_sync_unknown_error'),
+                    'error' => $order->google_sheets_sync_error
+                        ?: trans('order::messages.google_sheets_sync_unknown_error'),
                 ]),
             ], 500);
         }

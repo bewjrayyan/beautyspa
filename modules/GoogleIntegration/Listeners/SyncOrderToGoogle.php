@@ -6,10 +6,11 @@ use Exception;
 use Modules\GoogleIntegration\Services\GoogleServiceAccountClient;
 use Modules\GoogleIntegration\Services\GoogleSheetsService;
 use Modules\GoogleIntegration\Services\OrderGoogleSyncService;
-use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
+use Modules\Order\Events\OrderCreated;
 use Modules\Order\Events\OrderStatusChanged;
+use Modules\Order\Events\OrderUpdated;
 
-class SyncCompletedOrderToGoogle
+class SyncOrderToGoogle
 {
     public function __construct(
         private readonly OrderGoogleSyncService $sync,
@@ -17,7 +18,7 @@ class SyncCompletedOrderToGoogle
     }
 
 
-    public function handle(OrderStatusChanged $event): void
+    public function handle(OrderStatusChanged|OrderCreated|OrderUpdated $event): void
     {
         if (! GoogleServiceAccountClient::isConfigured()) {
             return;
@@ -29,8 +30,7 @@ class SyncCompletedOrderToGoogle
 
         if (
             setting('google_sheets_enabled')
-            && GoogleSheetsService::isEnabled()
-            && ! GoogleSheetsStatusConfig::isStatusEnabled($event->order->status)
+            && ! GoogleSheetsService::isEnabled()
             && ! setting('google_calendar_enabled')
         ) {
             return;

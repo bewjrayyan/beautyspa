@@ -101,5 +101,6 @@ return [
     'google_sheets_synced_tab' => 'Tab: :tab',
     'google_sheets_not_synced' => 'Not synced',
     'google_sheets_not_synced_help' => 'This order has not been written to the sales spreadsheet yet.',
+    'google_sheets_sync_failed_badge' => 'Sync failed',
     'google_sheets_sync_now' => 'Sync to Google Sheet',
 ];

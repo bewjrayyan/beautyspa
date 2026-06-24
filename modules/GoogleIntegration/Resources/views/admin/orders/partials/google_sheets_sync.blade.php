@@ -20,7 +20,14 @@
             </p>
 
             <p class="order-show__google-sheets-status" id="order-google-sheets-status">
-                @if ($order->google_sheets_synced_at)
+                @if ($order->google_sheets_sync_error)
+                    <span class="badge order-show__status-badge order-show__status-badge--danger">
+                        {{ trans('order::orders.google_sheets_sync_failed_badge') }}
+                    </span>
+                    <span class="order-show__hint order-show__google-sheets-error">
+                        {{ $order->google_sheets_sync_error }}
+                    </span>
+                @elseif ($order->google_sheets_synced_at)
                     <span class="badge order-show__status-badge order-show__status-badge--success">
                         {{ trans('order::orders.google_sheets_synced') }}
                     </span>
