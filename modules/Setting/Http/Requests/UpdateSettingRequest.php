@@ -384,35 +384,62 @@ class UpdateSettingRequest extends Request
             $rules[GoogleSheetsStatusConfig::tabKey($status)] = 'nullable|string|max:100';
         }
 
-        $rules['google_sheets_columns'] = [
-            'required',
-            'string',
-            function (string $attribute, mixed $value, \Closure $fail): void {
-                if (! is_string($value)) {
+        $rules['google_sheets_sync_alert_enabled'] = 'required|boolean';
+        $rules['google_sheets_sync_alert_whatsapp_enabled'] = 'required|boolean';
+        $rules['google_sheets_per_status_columns_enabled'] = 'required|boolean';
+        $rules['google_sheets_columns'] = $this->googleSheetsColumnsRule(required: true);
+
+        foreach (array_keys(GoogleSheetsStatusConfig::defaults()) as $status) {
+            $rules[GoogleSheetsColumnConfig::statusColumnsKey($status)] = $this->googleSheetsColumnsRule(required: false);
+        }
+
+        return $rules;
+    }
+
+
+    /**
+     * @return array<int, mixed>
+     */
+    private function googleSheetsColumnsRule(bool $required): array
+    {
+        $rules = $required ? ['required'] : ['nullable'];
+
+        $rules[] = 'string';
+        $rules[] = function (string $attribute, mixed $value, \Closure $fail) use ($required): void {
+            if (! $required && (! is_string($value) || trim($value) === '')) {
+                return;
+            }
+
+            if (! is_string($value)) {
+                $fail(trans('setting::messages.google_sheets_columns_invalid'));
+
+                return;
+            }
+
+            $decoded = json_decode($value, true);
+
+            if (! is_array($decoded)) {
+                $fail(trans('setting::messages.google_sheets_columns_invalid'));
+
+                return;
+            }
+
+            if ($required && $decoded === []) {
+                $fail(trans('setting::messages.google_sheets_columns_required'));
+
+                return;
+            }
+
+            $valid = array_keys(GoogleSheetsColumnConfig::definitions());
+
+            foreach ($decoded as $key) {
+                if (! is_string($key) || ! in_array($key, $valid, true)) {
                     $fail(trans('setting::messages.google_sheets_columns_invalid'));
 
                     return;
                 }
-
-                $decoded = json_decode($value, true);
-
-                if (! is_array($decoded) || $decoded === []) {
-                    $fail(trans('setting::messages.google_sheets_columns_required'));
-
-                    return;
-                }
-
-                $valid = array_keys(GoogleSheetsColumnConfig::definitions());
-
-                foreach ($decoded as $key) {
-                    if (! is_string($key) || ! in_array($key, $valid, true)) {
-                        $fail(trans('setting::messages.google_sheets_columns_invalid'));
-
-                        return;
-                    }
-                }
-            },
-        ];
+            }
+        };
 
         return $rules;
     }

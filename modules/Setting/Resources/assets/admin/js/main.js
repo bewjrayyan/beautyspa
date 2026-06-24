@@ -800,9 +800,11 @@ $(function () {
             syncAllBtn.disabled = false;
         }
     });
+})();
 
-    const columnsList = document.getElementById("google-sheets-columns-list");
-    const columnsInput = document.getElementById("google-sheets-columns-input");
+function initGoogleSheetsColumnsRoot(root) {
+    const columnsList = root.querySelector(".google-sheets-columns__list");
+    const columnsInput = root.querySelector(".google-sheets-columns__input");
 
     const syncColumnsInput = () => {
         if (!columnsList || !columnsInput) {
@@ -855,4 +857,27 @@ $(function () {
     });
 
     root?.closest("form")?.addEventListener("submit", syncColumnsInput);
+};
+
+(function initGoogleSheetsColumnsPickers() {
+    document.querySelectorAll("[data-google-sheets-columns-root]").forEach((columnsRoot) => {
+        initGoogleSheetsColumnsRoot(columnsRoot);
+    });
+})();
+
+(function initGoogleSheetsPerStatusColumnsPanel() {
+    const toggle = document.querySelector('[name="google_sheets_per_status_columns_enabled"]');
+    const panel = document.getElementById("google-sheets-per-status-columns-panel");
+
+    if (!toggle || !panel) {
+        return;
+    }
+
+    const setPanelVisible = (visible) => {
+        panel.classList.toggle("hide", !visible);
+    };
+
+    toggle.addEventListener("change", () => {
+        setPanelVisible(toggle.checked);
+    });
 })();

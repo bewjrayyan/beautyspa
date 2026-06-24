@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.19' => [
+        'en' => [
+            'summary' => 'Google Sheets sync polish: alerts, export, dashboard, per-status columns.',
+            'changes' => [
+                'Export sync activity log to CSV from Google Excel settings.',
+                'Dashboard card shows failed Google Sheets sync count with link to affected orders.',
+                'Optional email and WhatsApp alerts when order sync fails (6-hour throttle per order).',
+                'Optional per-status column profiles override the global column set.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penambahbaikan sync Google Sheets: amaran, eksport, dashboard, kolum mengikut status.',
+            'changes' => [
+                'Eksport log aktiviti sync ke CSV dari tetapan Google Excel.',
+                'Kad dashboard memaparkan bilangan sync Google Sheets gagal dengan pautan ke pesanan terlibat.',
+                'Amaran e-mel dan WhatsApp pilihan apabila sync pesanan gagal (had 6 jam setiap pesanan).',
+                'Profil kolum mengikut status pilihan mengatasi set kolum global.',
+            ],
+        ],
+    ],
     '4.9.18' => [
         'en' => [
             'summary' => 'Customizable Google Sheets columns with JSON validation on save.',

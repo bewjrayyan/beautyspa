@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use Modules\GoogleIntegration\Services\GoogleSheetsBulkSyncService;
 use Modules\GoogleIntegration\Services\GoogleSheetsConnectionTester;
 use Modules\GoogleIntegration\Services\GoogleSheetsService;
+use Modules\GoogleIntegration\Services\GoogleSheetsSyncLogExporter;
 use Modules\GoogleIntegration\Services\OrderGoogleSyncService;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class GoogleSheetsSettingsController
 {
@@ -83,5 +85,15 @@ class GoogleSheetsSettingsController
         return response()->json(array_merge([
             'message' => trans('setting::messages.google_sheets_sync_all_success', $result),
         ], $result));
+    }
+
+
+    public function exportLogs(GoogleSheetsSyncLogExporter $exporter): StreamedResponse
+    {
+        if (! GoogleSheetsService::isEnabled()) {
+            abort(404);
+        }
+
+        return $exporter->download();
     }
 }

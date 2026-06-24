@@ -40,4 +40,9 @@ return [
     'google_sheets_invalid_json' => 'Service account JSON is invalid. It must include client_email and private_key.',
     'google_sheets_columns_required' => 'Select at least one Google Sheets column.',
     'google_sheets_columns_invalid' => 'Google Sheets column selection is invalid.',
+    'google_sheets_alert_email_subject' => 'Google Sheets sync failed for order #:order',
+    'google_sheets_alert_email_intro' => 'Order #:order could not be synced to Google Sheets.',
+    'google_sheets_alert_email_error' => 'Error',
+    'google_sheets_alert_email_footer' => 'Check Settings → Google Excel for configuration and recent sync activity.',
+    'google_sheets_alert_whatsapp_message' => 'Google Sheets sync failed for order #:order: :error',
 ];

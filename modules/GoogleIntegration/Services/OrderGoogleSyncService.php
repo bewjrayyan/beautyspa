@@ -12,6 +12,7 @@ class OrderGoogleSyncService
         private readonly GoogleSheetsService $sheets,
         private readonly GoogleCalendarService $calendar,
         private readonly GoogleSheetsSyncLogger $logger,
+        private readonly GoogleSheetsSyncAlertNotifier $alerts,
     ) {
     }
 
@@ -71,6 +72,7 @@ class OrderGoogleSyncService
                     $order->google_sheets_tab,
                     $exception->getMessage(),
                 );
+                $this->alerts->notify($order, $exception->getMessage(), $trigger);
 
                 throw $exception;
             }

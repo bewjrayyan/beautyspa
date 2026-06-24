@@ -13,7 +13,13 @@ class CompletedOrderRowBuilder
      */
     public function headers(): array
     {
-        return GoogleSheetsColumnConfig::headerLabels();
+        return GoogleSheetsColumnConfig::headerLabelsForStatus(Order::COMPLETED);
+    }
+
+
+    public function headersForStatus(string $status): array
+    {
+        return GoogleSheetsColumnConfig::headerLabelsForStatus($status);
     }
 
 
@@ -26,7 +32,7 @@ class CompletedOrderRowBuilder
 
         return array_map(
             fn (string $key) => $values[$key] ?? '',
-            GoogleSheetsColumnConfig::enabledKeys(),
+            GoogleSheetsColumnConfig::enabledKeysForStatus($order->status),
         );
     }
 

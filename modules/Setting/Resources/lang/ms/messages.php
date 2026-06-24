@@ -40,4 +40,9 @@ return [
     'google_sheets_invalid_json' => 'JSON akaun perkhidmatan tidak sah. Mesti ada client_email dan private_key.',
     'google_sheets_columns_required' => 'Pilih sekurang-kurangnya satu kolum Google Sheets.',
     'google_sheets_columns_invalid' => 'Pilihan kolum Google Sheets tidak sah.',
+    'google_sheets_alert_email_subject' => 'Sync Google Sheets gagal untuk pesanan #:order',
+    'google_sheets_alert_email_intro' => 'Pesanan #:order tidak dapat disync ke Google Sheets.',
+    'google_sheets_alert_email_error' => 'Ralat',
+    'google_sheets_alert_email_footer' => 'Semak Tetapan → Google Excel untuk konfigurasi dan aktiviti sync terkini.',
+    'google_sheets_alert_whatsapp_message' => 'Sync Google Sheets gagal untuk pesanan #:order: :error',
 ];

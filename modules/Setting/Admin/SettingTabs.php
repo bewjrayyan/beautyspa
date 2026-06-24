@@ -387,6 +387,13 @@ class SettingTabs extends Tabs
             }
 
             $fields[] = 'google_sheets_columns';
+            $fields[] = 'google_sheets_per_status_columns_enabled';
+            $fields[] = 'google_sheets_sync_alert_enabled';
+            $fields[] = 'google_sheets_sync_alert_whatsapp_enabled';
+
+            foreach (\Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig::statusSettingKeys() as $key) {
+                $fields[] = $key;
+            }
 
             $tab->fields($fields);
 

@@ -26,6 +26,12 @@ Route::post('settings/google-sheets/sync-all/chunk', [
     'middleware' => 'can:admin.settings.edit',
 ]);
 
+Route::get('settings/google-sheets/sync-log/export', [
+    'as' => 'admin.settings.google_sheets.export_logs',
+    'uses' => 'GoogleSheetsSettingsController@exportLogs',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
 Route::post('orders/{order}/google-sheets/sync', [
     'as' => 'admin.orders.google_sheets.sync',
     'uses' => 'OrderGoogleSheetsController@sync',

@@ -11,7 +11,11 @@ use Modules\Order\Events\OrderStatusChanged;
 use Modules\Order\Events\OrderUpdated;
 use Modules\GoogleIntegration\Listeners\SyncOrderToGoogle;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Modules\GoogleIntegration\Services\GoogleSheetsService;
+use Modules\GoogleIntegration\Services\GoogleSheetsSyncLogExporter;
+use Modules\Order\Entities\Order;
 
 class GoogleIntegrationServiceProvider extends ServiceProvider
 {
@@ -21,6 +25,21 @@ class GoogleIntegrationServiceProvider extends ServiceProvider
 
         GoogleSheetsStatusConfig::applyMissingOnly();
         GoogleSheetsColumnConfig::applyMissingOnly();
+
+        View::composer('admin::dashboard.index', function ($view) {
+            if (! GoogleSheetsService::isEnabled()) {
+                return;
+            }
+
+            $failedCount = GoogleSheetsSyncLogExporter::failedOrdersCount();
+
+            $view->with([
+                'showGoogleSheetsStats' => true,
+                'googleSheetsFailedCount' => $failedCount,
+                'googleSheetsFailedUrl' => route('admin.orders.index', ['google_sheets_failed' => 1]),
+                'googleSheetsSettingsUrl' => route('admin.settings.edit', ['tab' => 'google_sheets']),
+            ]);
+        });
 
         Event::listen([
             OrderStatusChanged::class,

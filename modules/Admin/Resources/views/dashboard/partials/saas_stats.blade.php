@@ -77,4 +77,8 @@
             ])
         @endHasAccess
     @endif
+
+    @if (is_module_enabled('GoogleIntegration'))
+        @include('googleintegration::admin.dashboard.google_sheets_stat')
+    @endif
 </div>

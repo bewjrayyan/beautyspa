@@ -40,7 +40,7 @@ class GoogleSheetsService
         $rowData = $this->buildRow($order);
 
         $this->ensureTabExists($spreadsheetId, $targetTab);
-        $this->ensureHeaders($spreadsheetId, $targetTab);
+        $this->ensureHeaders($spreadsheetId, $targetTab, $order->status);
 
         $storedTab = trim((string) $order->google_sheets_tab);
         $storedRow = (int) $order->google_sheets_row;
@@ -331,9 +331,9 @@ class GoogleSheetsService
     }
 
 
-    private function ensureHeaders(string $spreadsheetId, string $sheetName): void
+    private function ensureHeaders(string $spreadsheetId, string $sheetName, string $status): void
     {
-        $headers = $this->rowBuilder->headers();
+        $headers = $this->rowBuilder->headersForStatus($status);
         $columnCount = max(1, count($headers));
         $lastColumn = $this->columnLetter($columnCount);
         $headerRange = rawurlencode($this->sheetRange($sheetName, "A1:{$lastColumn}1"));

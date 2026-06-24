@@ -1,14 +1,33 @@
 @php
     use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
 
-    $stored = old('google_sheets_columns', setting('google_sheets_columns'));
-    $decoded = is_string($stored) ? json_decode($stored, true) : $stored;
-    $enabledKeys = is_array($decoded)
-        ? array_values(array_filter($decoded, fn ($key) => is_string($key) && array_key_exists($key, GoogleSheetsColumnConfig::definitions())))
-        : GoogleSheetsColumnConfig::enabledKeys();
+    $columnInputName = $columnInputName ?? 'google_sheets_columns';
+    $columnsScope = $columnsScope ?? 'global';
+    $columnsTitle = $columnsTitle ?? trans('setting::settings.form.google_sheets_columns_title');
+    $columnsIntro = $columnsIntro ?? trans('setting::settings.form.google_sheets_columns_intro');
+    $columnsHelp = $columnsHelp ?? trans('setting::settings.form.google_sheets_columns_help');
+    $showTitle = $showTitle ?? true;
+    $emptyValueUsesGlobal = $emptyValueUsesGlobal ?? false;
 
-    if ($enabledKeys === []) {
-        $enabledKeys = GoogleSheetsColumnConfig::defaultEnabledKeys();
+    $stored = old($columnInputName, setting($columnInputName));
+    $hasStoredOverride = is_string($stored)
+        ? trim($stored) !== '' && trim($stored) !== '[]'
+        : ($stored !== null && $stored !== []);
+
+    if ($emptyValueUsesGlobal && ! $hasStoredOverride) {
+        $enabledKeys = GoogleSheetsColumnConfig::enabledKeys();
+        $inputValue = '[]';
+    } else {
+        $decoded = is_string($stored) ? json_decode($stored, true) : $stored;
+        $enabledKeys = is_array($decoded)
+            ? array_values(array_filter($decoded, fn ($key) => is_string($key) && array_key_exists($key, GoogleSheetsColumnConfig::definitions())))
+            : GoogleSheetsColumnConfig::enabledKeys();
+
+        if ($enabledKeys === []) {
+            $enabledKeys = GoogleSheetsColumnConfig::defaultEnabledKeys();
+        }
+
+        $inputValue = json_encode($enabledKeys);
     }
 
     $allKeys = array_keys(GoogleSheetsColumnConfig::definitions());
@@ -18,15 +37,17 @@
     )));
 @endphp
 
-<div class="google-sheets-columns box-content clearfix">
-    <h4 class="section-title">{{ trans('setting::settings.form.google_sheets_columns_title') }}</h4>
-    <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_columns_intro') }}</p>
+<div class="google-sheets-columns box-content clearfix" data-google-sheets-columns-root data-columns-scope="{{ $columnsScope }}">
+    @if ($showTitle)
+        <h4 class="section-title">{{ $columnsTitle }}</h4>
+        <p class="help-block text-muted">{{ $columnsIntro }}</p>
+    @endif
 
     <input
         type="hidden"
-        name="google_sheets_columns"
-        id="google-sheets-columns-input"
-        value="{{ json_encode($enabledKeys) }}"
+        name="{{ $columnInputName }}"
+        class="google-sheets-columns__input"
+        value="{{ $inputValue }}"
     >
 
     <div class="table-responsive">
@@ -38,7 +59,7 @@
                     <th class="text-center">{{ trans('setting::settings.form.google_sheets_columns_include') }}</th>
                 </tr>
             </thead>
-            <tbody id="google-sheets-columns-list">
+            <tbody class="google-sheets-columns__list">
                 @foreach ($orderedKeys as $key)
                     <tr class="google-sheets-columns__row" data-column-key="{{ $key }}">
                         <td class="google-sheets-columns__order">
@@ -64,5 +85,7 @@
         </table>
     </div>
 
-    <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_columns_help') }}</p>
+    @if ($showTitle)
+        <p class="help-block text-muted">{{ $columnsHelp }}</p>
+    @endif
 </div>

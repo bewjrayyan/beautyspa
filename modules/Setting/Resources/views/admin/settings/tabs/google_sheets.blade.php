@@ -40,6 +40,10 @@
 
                     @include('setting::admin.settings.partials.google_sheets_columns')
 
+                    @include('setting::admin.settings.partials.google_sheets_per_status_columns')
+
+                    @include('setting::admin.settings.partials.google_sheets_alerts')
+
                     <div class="google-sheets-test-wrap">
                         <button
                             type="button"

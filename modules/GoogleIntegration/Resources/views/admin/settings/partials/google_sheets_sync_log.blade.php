@@ -9,7 +9,18 @@
 @endphp
 
 <div class="google-sheets-sync-log box-content clearfix">
-    <h4 class="section-title">{{ trans('setting::settings.form.google_sheets_sync_log_title') }}</h4>
+    <div class="google-sheets-sync-log__header clearfix">
+        <div class="pull-right">
+            <a
+                href="{{ route('admin.settings.google_sheets.export_logs') }}"
+                class="btn btn-default btn-sm"
+            >
+                <i class="fa fa-download" aria-hidden="true"></i>
+                {{ trans('setting::settings.form.google_sheets_sync_log_export') }}
+            </a>
+        </div>
+        <h4 class="section-title">{{ trans('setting::settings.form.google_sheets_sync_log_title') }}</h4>
+    </div>
     <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_sync_log_intro') }}</p>
 
     @if ($logs->isEmpty())
