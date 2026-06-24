@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.15' => [
+        'en' => [
+            'summary' => 'Google Sheets sync per order status with bulk backfill.',
+            'changes' => [
+                'Configure a sheet tab per order status in Settings → Google Excel.',
+                'Rows move between tabs automatically when order status changes.',
+                'Add Sync all orders now to backfill every enabled status.',
+                'Order detail shows target tab and manual re-sync for enabled statuses.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Sync Google Sheets mengikut status pesanan dengan backfill pukal.',
+            'changes' => [
+                'Konfigurasi tab helaian setiap status pesanan dalam Tetapan → Google Excel.',
+                'Baris dipindahkan antara tab secara automatik apabila status pesanan berubah.',
+                'Tambah Sync semua pesanan sekarang untuk backfill setiap status yang diaktifkan.',
+                'Butiran pesanan paparkan tab sasaran dan sync semula manual untuk status yang diaktifkan.',
+            ],
+        ],
+    ],
     '4.9.14' => [
         'en' => [
             'summary' => 'Add Google Sheets Service Account setup guide in admin settings.',

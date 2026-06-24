@@ -31,4 +31,7 @@ return [
     'google_sheets_test_invalid_spreadsheet' => 'URL atau ID spreadsheet tidak sah.',
     'google_sheets_test_spreadsheet_failed' => 'Tidak dapat akses spreadsheet: :error',
     'google_sheets_test_success' => 'Bersambung. Spreadsheet “:spreadsheet”, tab “:sheet”.',
+    'google_sheets_sync_all_disabled' => 'Penyelarasan Google Sheets dimatikan atau belum dikonfigurasi.',
+    'google_sheets_sync_all_failed' => 'Sync pukal gagal: :error',
+    'google_sheets_sync_all_success' => 'Sync pukal selesai. Berjaya: :synced, gagal: :failed.',
 ];

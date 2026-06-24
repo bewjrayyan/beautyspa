@@ -3,30 +3,36 @@
 namespace Modules\GoogleIntegration\Listeners;
 
 use Exception;
-use Modules\Order\Entities\Order;
-use Modules\Order\Events\OrderStatusChanged;
-use Modules\GoogleIntegration\Services\CompletedOrderGoogleSync;
 use Modules\GoogleIntegration\Services\GoogleServiceAccountClient;
+use Modules\GoogleIntegration\Services\GoogleSheetsService;
+use Modules\GoogleIntegration\Services\OrderGoogleSyncService;
+use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
+use Modules\Order\Events\OrderStatusChanged;
 
 class SyncCompletedOrderToGoogle
 {
     public function __construct(
-        private readonly CompletedOrderGoogleSync $sync,
+        private readonly OrderGoogleSyncService $sync,
     ) {
     }
 
 
     public function handle(OrderStatusChanged $event): void
     {
-        if ($event->order->status !== Order::COMPLETED) {
-            return;
-        }
-
         if (! GoogleServiceAccountClient::isConfigured()) {
             return;
         }
 
         if (! setting('google_sheets_enabled') && ! setting('google_calendar_enabled')) {
+            return;
+        }
+
+        if (
+            setting('google_sheets_enabled')
+            && GoogleSheetsService::isEnabled()
+            && ! GoogleSheetsStatusConfig::isStatusEnabled($event->order->status)
+            && ! setting('google_calendar_enabled')
+        ) {
             return;
         }
 

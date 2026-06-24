@@ -31,4 +31,7 @@ return [
     'google_sheets_test_invalid_spreadsheet' => 'Spreadsheet URL or ID is invalid.',
     'google_sheets_test_spreadsheet_failed' => 'Could not access spreadsheet: :error',
     'google_sheets_test_success' => 'Connected. Spreadsheet “:spreadsheet”, tab “:sheet”.',
+    'google_sheets_sync_all_disabled' => 'Google Sheets sync is disabled or not configured.',
+    'google_sheets_sync_all_failed' => 'Bulk sync failed: :error',
+    'google_sheets_sync_all_success' => 'Bulk sync finished. Synced: :synced, failed: :failed.',
 ];

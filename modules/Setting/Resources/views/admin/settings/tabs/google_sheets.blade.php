@@ -34,11 +34,9 @@
                         'placeholder' => 'https://docs.google.com/spreadsheets/d/.../edit?gid=...',
                     ]) }}
                     <p class="help-block text-muted">{{ trans('setting::settings.form.google_spreadsheet_url_help') }}</p>
-                    {{ Form::text('google_sheet_name', trans('setting::attributes.google_sheet_name'), $errors, $settings, [
-                        'placeholder' => trans('setting::settings.form.google_sheet_name_optional_placeholder'),
-                    ]) }}
-                    <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheet_name_help') }}</p>
                     <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_share_help') }}</p>
+
+                    @include('setting::admin.settings.partials.google_sheets_status_tabs')
 
                     <div class="google-sheets-test-wrap">
                         <button
@@ -46,6 +44,7 @@
                             class="btn btn-default"
                             id="google-sheets-test-btn"
                             data-test-url="{{ route('admin.settings.google_sheets.test_connection') }}"
+                            data-testing-text="{{ trans('setting::settings.form.google_sheets_test_connection_running') }}"
                         >
                             <i class="fa fa-plug" aria-hidden="true"></i>
                             {{ trans('setting::settings.form.google_sheets_test_connection') }}

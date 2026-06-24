@@ -1249,13 +1249,13 @@
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-BZhpSVQO-v4.7.71.js",
+    "file": "assets/main-BEo4Qb9Y-v4.7.71.js",
     "name": "main",
     "src": "modules/Setting/Resources/assets/admin/js/main.js",
     "isEntry": true
   },
   "modules/Setting/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-CULoYrWy-v4.7.71.css",
+    "file": "assets/main-Djk0ZT5D-v4.7.71.css",
     "src": "modules/Setting/Resources/assets/admin/sass/main.scss"
   },
   "modules/Slider/Resources/assets/admin/js/main.js": {

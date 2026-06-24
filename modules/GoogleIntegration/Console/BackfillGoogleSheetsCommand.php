@@ -4,19 +4,21 @@ namespace Modules\GoogleIntegration\Console;
 
 use Exception;
 use Illuminate\Console\Command;
-use Modules\GoogleIntegration\Services\CompletedOrderGoogleSync;
 use Modules\GoogleIntegration\Services\GoogleSheetsService;
+use Modules\GoogleIntegration\Services\OrderGoogleSyncService;
+use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
 use Modules\Order\Entities\Order;
 
 class BackfillGoogleSheetsCommand extends Command
 {
     protected $signature = 'google-sheets:backfill
                             {--limit=0 : Maximum number of orders to sync (0 = no limit)}
-                            {--order= : Sync a single order ID only}';
+                            {--order= : Sync a single order ID only}
+                            {--force : Clear sync tracking and re-sync matching orders}';
 
-    protected $description = 'Append completed orders that have not been synced to Google Sheets yet';
+    protected $description = 'Sync orders in enabled statuses to their Google Sheets tabs';
 
-    public function handle(CompletedOrderGoogleSync $sync): int
+    public function handle(OrderGoogleSyncService $sync): int
     {
         if (! GoogleSheetsService::isEnabled()) {
             $this->error('Google Sheets sync is disabled or not configured.');
@@ -30,10 +32,21 @@ class BackfillGoogleSheetsCommand extends Command
             return $this->syncSingleOrder((int) $orderId, $sync);
         }
 
+        $statuses = GoogleSheetsStatusConfig::enabledStatuses();
+
+        if ($statuses === []) {
+            $this->error('No order statuses are enabled for Google Sheets sync.');
+
+            return self::FAILURE;
+        }
+
         $query = Order::query()
-            ->where('status', Order::COMPLETED)
-            ->whereNull('google_sheets_synced_at')
+            ->whereIn('status', $statuses)
             ->orderBy('id');
+
+        if (! $this->option('force')) {
+            $query->whereNull('google_sheets_synced_at');
+        }
 
         $limit = max(0, (int) $this->option('limit'));
 
@@ -44,7 +57,7 @@ class BackfillGoogleSheetsCommand extends Command
         $orders = $query->get();
 
         if ($orders->isEmpty()) {
-            $this->info('No completed orders waiting for Google Sheets sync.');
+            $this->info('No orders waiting for Google Sheets sync.');
 
             return self::SUCCESS;
         }
@@ -53,9 +66,9 @@ class BackfillGoogleSheetsCommand extends Command
         $failed = 0;
 
         foreach ($orders as $order) {
-            if ($this->syncOrder($order, $sync)) {
+            if ($this->syncOrder($order, $sync, (bool) $this->option('force'))) {
                 $synced++;
-                $this->line("Synced order #{$order->id}");
+                $this->line("Synced order #{$order->id} → {$order->google_sheets_tab}");
             } else {
                 $failed++;
                 $this->warn("Failed order #{$order->id}");
@@ -68,7 +81,7 @@ class BackfillGoogleSheetsCommand extends Command
     }
 
 
-    private function syncSingleOrder(int $orderId, CompletedOrderGoogleSync $sync): int
+    private function syncSingleOrder(int $orderId, OrderGoogleSyncService $sync): int
     {
         $order = Order::query()->find($orderId);
 
@@ -78,20 +91,14 @@ class BackfillGoogleSheetsCommand extends Command
             return self::FAILURE;
         }
 
-        if ($order->status !== Order::COMPLETED) {
-            $this->error("Order #{$orderId} is not completed.");
+        if (! GoogleSheetsStatusConfig::isStatusEnabled($order->status)) {
+            $this->error("Order #{$orderId} status is not enabled for Google Sheets sync.");
 
             return self::FAILURE;
         }
 
-        if ($order->google_sheets_synced_at) {
-            $this->warn("Order #{$orderId} was already synced at {$order->google_sheets_synced_at}.");
-
-            return self::SUCCESS;
-        }
-
-        if ($this->syncOrder($order, $sync)) {
-            $this->info("Synced order #{$orderId}.");
+        if ($this->syncOrder($order, $sync, (bool) $this->option('force'))) {
+            $this->info("Synced order #{$orderId} → {$order->google_sheets_tab}.");
 
             return self::SUCCESS;
         }
@@ -102,10 +109,10 @@ class BackfillGoogleSheetsCommand extends Command
     }
 
 
-    private function syncOrder(Order $order, CompletedOrderGoogleSync $sync): bool
+    private function syncOrder(Order $order, OrderGoogleSyncService $sync, bool $force): bool
     {
         try {
-            $sync->sync($order->fresh());
+            $sync->sync($order->fresh(), $force);
             $order->refresh();
         } catch (Exception $exception) {
             report($exception);

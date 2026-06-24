@@ -11,6 +11,7 @@ use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Setting\Support\SettingTabScope;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
+use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
 
 class UpdateSettingRequest extends Request
 {
@@ -139,7 +140,7 @@ class UpdateSettingRequest extends Request
 
     private function allRules(): array
     {
-        return [
+        return array_merge([
             'supported_countries.*' => ['required', Rule::in(Country::codes())],
             'default_country' => 'required|in_array:supported_countries.*',
             'default_timezone' => ['required', Rule::in(TimeZone::all())],
@@ -353,7 +354,23 @@ class UpdateSettingRequest extends Request
             'specialgift_enabled' => 'nullable|boolean',
             'specialgift_voucher_background' => 'nullable|integer',
             'specialgift_message_template' => 'nullable|string|max:2000',
-        ];
+        ], $this->googleSheetsStatusRules());
+    }
+
+
+    /**
+     * @return array<string, string>
+     */
+    private function googleSheetsStatusRules(): array
+    {
+        $rules = [];
+
+        foreach (array_keys(GoogleSheetsStatusConfig::defaults()) as $status) {
+            $rules[GoogleSheetsStatusConfig::enabledKey($status)] = 'required|boolean';
+            $rules[GoogleSheetsStatusConfig::tabKey($status)] = 'nullable|string|max:100';
+        }
+
+        return $rules;
     }
 
 

@@ -374,13 +374,19 @@ class SettingTabs extends Tabs
         return tap(new SettingTab('google_sheets', trans('setting::settings.tabs.google_sheets')), function (SettingTab $tab) {
             $tab->weight(26);
 
-            $tab->fields([
+            $fields = [
                 'google_service_account_json',
                 'google_sheets_enabled',
                 'google_spreadsheet_id',
                 'google_sheet_gid',
                 'google_sheet_name',
-            ]);
+            ];
+
+            foreach (\Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig::settingKeys() as $key) {
+                $fields[] = $key;
+            }
+
+            $tab->fields($fields);
 
             $tab->view('setting::admin.settings.tabs.google_sheets');
         });

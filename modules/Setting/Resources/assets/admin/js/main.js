@@ -614,6 +614,8 @@ $(function () {
     const panel = document.getElementById("google-sheets-fields");
     const testBtn = document.getElementById("google-sheets-test-btn");
     const testResult = document.getElementById("google-sheets-test-result");
+    const syncAllBtn = document.getElementById("google-sheets-sync-all-btn");
+    const syncAllResult = document.getElementById("google-sheets-sync-all-result");
 
     const setPanelVisible = (visible) => {
         panel?.classList.toggle("hide", !visible);
@@ -633,6 +635,22 @@ $(function () {
         testResult.classList.add(ok ? "is-success" : "is-error");
     };
 
+    const showSyncAllResult = (ok, message) => {
+        if (!syncAllResult) {
+            return;
+        }
+
+        syncAllResult.textContent = message;
+        syncAllResult.classList.remove("hide", "is-success", "is-error");
+        syncAllResult.classList.add(ok ? "is-success" : "is-error");
+    };
+
+    const completedTabName = () => {
+        const tabInput = document.querySelector('[name="google_sheets_status_completed_tab"]');
+
+        return tabInput?.value?.trim() || "";
+    };
+
     testBtn?.addEventListener("click", async () => {
         const testUrl = testBtn.dataset.testUrl;
 
@@ -646,7 +664,7 @@ $(function () {
         const payload = {
             google_service_account_json: document.querySelector('[name="google_service_account_json"]')?.value || "",
             google_spreadsheet_id: document.querySelector('[name="google_spreadsheet_id"]')?.value || "",
-            google_sheet_name: document.querySelector('[name="google_sheet_name"]')?.value || "",
+            google_sheet_name: completedTabName(),
         };
 
         try {
@@ -667,6 +685,39 @@ $(function () {
             showTestResult(false, error?.message || "Connection test failed.");
         } finally {
             testBtn.disabled = false;
+        }
+    });
+
+    syncAllBtn?.addEventListener("click", async () => {
+        const syncUrl = syncAllBtn.dataset.syncUrl;
+
+        if (!syncUrl) {
+            return;
+        }
+
+        if (!window.confirm(syncAllBtn.dataset.confirmText || "Sync all enabled orders to Google Sheets?")) {
+            return;
+        }
+
+        syncAllBtn.disabled = true;
+        showSyncAllResult(true, syncAllBtn.dataset.syncingText || "Syncing...");
+
+        try {
+            const response = await fetch(syncUrl, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "X-CSRF-TOKEN": window.AestheticCart?.csrfToken || "",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            });
+
+            const data = await response.json();
+            showSyncAllResult(Boolean(response.ok), data.message || (response.ok ? "Done" : "Failed"));
+        } catch (error) {
+            showSyncAllResult(false, error?.message || "Sync failed.");
+        } finally {
+            syncAllBtn.disabled = false;
         }
     });
 })();

@@ -111,6 +111,7 @@ class Order extends Model
         'end_date' => 'datetime',
         'appointment_date' => 'date',
         'google_sheets_synced_at' => 'datetime',
+        'google_sheets_row' => 'integer',
         'deleted_at' => 'datetime',
     ];
 

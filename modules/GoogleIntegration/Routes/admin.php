@@ -8,6 +8,12 @@ Route::post('settings/google-sheets/test-connection', [
     'middleware' => 'can:admin.settings.edit',
 ]);
 
+Route::post('settings/google-sheets/sync-all', [
+    'as' => 'admin.settings.google_sheets.sync_all',
+    'uses' => 'GoogleSheetsSettingsController@syncAll',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
 Route::post('orders/{order}/google-sheets/sync', [
     'as' => 'admin.orders.google_sheets.sync',
     'uses' => 'OrderGoogleSheetsController@sync',

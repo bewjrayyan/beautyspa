@@ -2181,6 +2181,43 @@ $settings-sidebar-offset: 16px;
     margin-top: 12px;
 }
 
+.google-sheets-status-tabs {
+    margin-top: 16px;
+
+    &__table {
+        margin-bottom: 8px;
+
+        th {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #667085;
+        }
+    }
+
+    &__status {
+        min-width: 140px;
+        vertical-align: middle !important;
+        font-weight: 500;
+    }
+
+    &__enabled {
+        width: 90px;
+        vertical-align: middle !important;
+    }
+
+    &__tab {
+        min-width: 220px;
+        vertical-align: middle !important;
+    }
+}
+
+.google-sheets-sync-all-wrap {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eaecf0;
+}
+
 .google-sheets-test-result {
     margin-top: 10px;
     padding: 10px 12px;
