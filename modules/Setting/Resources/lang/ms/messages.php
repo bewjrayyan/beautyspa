@@ -24,4 +24,11 @@ return [
     'catalog_sync_pull_failed' => 'Gagal memuat turun bundle katalog (HTTP :status).',
     'catalog_sync_import_success' => 'Katalog diimport: :products produk, :categories kategori, :files fail media, :settings tetapan.',
     'catalog_sync_pull_success' => 'Katalog dipull dan diimport: :products produk, :categories kategori, :files fail media, :settings tetapan.',
+    'google_sheets_test_missing_json' => 'Tampal kunci JSON akaun perkhidmatan dahulu.',
+    'google_sheets_test_invalid_json' => 'JSON akaun perkhidmatan tidak sah. Mesti ada client_email dan private_key.',
+    'google_sheets_test_auth_failed' => 'Pengesahan Google gagal: :error',
+    'google_sheets_test_auth_ok' => 'Akaun perkhidmatan berjaya disahkan. Tambah URL spreadsheet untuk sahkan akses tab.',
+    'google_sheets_test_invalid_spreadsheet' => 'URL atau ID spreadsheet tidak sah.',
+    'google_sheets_test_spreadsheet_failed' => 'Tidak dapat akses spreadsheet: :error',
+    'google_sheets_test_success' => 'Bersambung. Spreadsheet “:spreadsheet”, tab “:sheet”.',
 ];

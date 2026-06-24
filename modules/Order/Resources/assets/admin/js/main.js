@@ -184,6 +184,50 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
 
         bindOrderActionsDropdown();
         bindOrderWhatsAppSend();
+        bindGoogleSheetsSync();
+    }
+
+    function bindGoogleSheetsSync() {
+        const $button = $("#order-google-sheets-sync-btn");
+
+        if (!$button.length) {
+            return;
+        }
+
+        $button.on("click", () => {
+            const syncUrl = $button.attr("data-sync-url");
+
+            if (!syncUrl) {
+                return;
+            }
+
+            $button.prop("disabled", true);
+
+            http
+                .post(syncUrl)
+                .then((response) => {
+                    const message =
+                        typeof response.data === "string"
+                            ? response.data
+                            : response.data?.message || "Synced.";
+
+                    if (typeof window.success === "function") {
+                        window.success(message);
+                    }
+
+                    window.location.reload();
+                })
+                .catch(({ response }) => {
+                    if (typeof window.error === "function") {
+                        window.error(
+                            response?.data?.message ?? "Google Sheets sync failed."
+                        );
+                    }
+                })
+                .finally(() => {
+                    $button.prop("disabled", false);
+                });
+        });
     }
 
     $(init);

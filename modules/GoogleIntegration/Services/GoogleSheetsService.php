@@ -16,7 +16,7 @@ class GoogleSheetsService
     public static function isEnabled(): bool
     {
         return GoogleServiceAccountClient::isConfigured()
-            && (bool) setting('google_sheets_enabled', true)
+            && (bool) setting('google_sheets_enabled', false)
             && trim((string) setting('google_spreadsheet_id', '')) !== '';
     }
 
@@ -51,6 +51,41 @@ class GoogleSheetsService
     public function buildRow($order): array
     {
         return $this->rowBuilder->row($order);
+    }
+
+
+    /**
+     * @return array{spreadsheet_title: string, sheet_name: string}
+     */
+    public function spreadsheetMetadata(
+        string $spreadsheetId,
+        ?string $sheetGid,
+        string $sheetNameOverride,
+        ?GoogleServiceAccountClient $client = null,
+    ): array {
+        $http = ($client ?? $this->client)->http();
+
+        $response = $http->get(
+            "https://sheets.googleapis.com/v4/spreadsheets/{$spreadsheetId}",
+            ['fields' => 'properties.title,sheets.properties']
+        );
+
+        if ($response->failed()) {
+            throw new Exception(
+                'Google Sheets metadata failed: ' . ($response->json('error.message') ?? $response->body())
+            );
+        }
+
+        $sheetName = $this->resolveSheetName(
+            $response->json('sheets', []),
+            $sheetGid,
+            $sheetNameOverride,
+        );
+
+        return [
+            'spreadsheet_title' => (string) ($response->json('properties.title') ?? $spreadsheetId),
+            'sheet_name' => $sheetName,
+        ];
     }
 
 
@@ -107,6 +142,33 @@ class GoogleSheetsService
 
             if ($resolved !== '') {
                 return $resolved;
+            }
+        }
+
+        return 'Completed Bookings';
+    }
+
+
+    /**
+     * @param array<int, array<string, mixed>> $sheets
+     */
+    private function resolveSheetName(array $sheets, ?string $gid, string $sheetNameOverride): string
+    {
+        if ($sheetNameOverride !== '') {
+            return $sheetNameOverride;
+        }
+
+        if ($gid !== null && $gid !== '') {
+            foreach ($sheets as $sheet) {
+                $properties = $sheet['properties'] ?? [];
+
+                if ((string) ($properties['sheetId'] ?? '') === (string) $gid) {
+                    $title = (string) ($properties['title'] ?? '');
+
+                    if ($title !== '') {
+                        return $title;
+                    }
+                }
             }
         }
 

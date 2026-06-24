@@ -15,6 +15,11 @@ class GoogleServiceAccountClient
 
     private int $tokenExpiresAt = 0;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    private ?array $credentialOverride = null;
+
 
     public static function isConfigured(): bool
     {
@@ -27,7 +32,16 @@ class GoogleServiceAccountClient
      */
     public static function credentials(): ?array
     {
-        $json = trim((string) setting('google_service_account_json', ''));
+        return static::credentialsFromJson((string) setting('google_service_account_json', ''));
+    }
+
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public static function credentialsFromJson(string $json): ?array
+    {
+        $json = trim($json);
 
         if ($json === '') {
             return null;
@@ -43,13 +57,27 @@ class GoogleServiceAccountClient
     }
 
 
+    /**
+     * @param array<string, mixed> $credentials
+     */
+    public function usingCredentials(array $credentials): self
+    {
+        $clone = clone $this;
+        $clone->credentialOverride = $credentials;
+        $clone->accessToken = null;
+        $clone->tokenExpiresAt = 0;
+
+        return $clone;
+    }
+
+
     public function accessToken(): string
     {
         if ($this->accessToken && time() < ($this->tokenExpiresAt - 60)) {
             return $this->accessToken;
         }
 
-        $credentials = static::credentials();
+        $credentials = $this->credentialOverride ?? static::credentials();
 
         if ($credentials === null) {
             throw new Exception('Google service account credentials are not configured.');

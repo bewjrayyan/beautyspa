@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.13' => [
+        'en' => [
+            'summary' => 'Reliable Google Sheets sync for completed orders.',
+            'changes' => [
+                'Fix beautician Kanban completion to trigger Google Sheets sync.',
+                'Add Test connection on Google Excel settings tab.',
+                'Show sync status and manual Sync button on completed orders.',
+                'Add google-sheets:backfill and google-sheets:retry-failed artisan commands.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penyelarasan Google Sheets yang lebih boleh dipercayai untuk pesanan selesai.',
+            'changes' => [
+                'Baiki penyiapan Kanban beautician supaya mencetuskan penyelarasan Google Sheets.',
+                'Tambah Uji sambungan pada tab Google Excel.',
+                'Paparkan status sync dan butang Sync manual pada pesanan selesai.',
+                'Tambah arahan artisan google-sheets:backfill dan google-sheets:retry-failed.',
+            ],
+        ],
+    ],
     '4.9.12' => [
         'en' => [
             'summary' => 'Show maintenance custom effect toggles directly under the Custom preset.',

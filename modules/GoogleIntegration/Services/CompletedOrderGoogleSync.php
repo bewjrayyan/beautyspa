@@ -13,16 +13,22 @@ class CompletedOrderGoogleSync
     }
 
 
-    public function sync(Order $order): void
+    public function sync(Order $order, bool $forceSheets = false): void
     {
         if (! GoogleServiceAccountClient::isConfigured()) {
             return;
         }
 
-        if (GoogleSheetsService::isEnabled() && ! $order->google_sheets_synced_at) {
-            $this->sheets->appendOrderRow($this->sheets->buildRow($order));
+        if (GoogleSheetsService::isEnabled()) {
+            if ($forceSheets) {
+                $order->forceFill(['google_sheets_synced_at' => null])->save();
+            }
 
-            $order->forceFill(['google_sheets_synced_at' => now()])->save();
+            if (! $order->google_sheets_synced_at) {
+                $this->sheets->appendOrderRow($this->sheets->buildRow($order));
+
+                $order->forceFill(['google_sheets_synced_at' => now()])->save();
+            }
         }
 
         if (

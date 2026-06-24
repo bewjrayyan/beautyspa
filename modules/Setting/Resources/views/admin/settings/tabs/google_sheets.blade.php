@@ -4,10 +4,11 @@
     $spreadsheetUrl = $spreadsheetId
         ? \Modules\GoogleIntegration\Support\GoogleSpreadsheetUrlParser::toUrl($spreadsheetId, $sheetGid)
         : '';
+    $sheetsEnabled = (bool) old('google_sheets_enabled', array_get($settings, 'google_sheets_enabled'));
 @endphp
 
 @component('setting::admin.settings.partials.settings-wrap')
-    <div class="st-fields-grid st-fields-grid--sections">
+    <div class="st-fields-grid st-fields-grid--sections" data-google-sheets-settings>
         <div class="st-fields-grid__col">
             <div class="box-content clearfix">
                 <h4 class="section-title">{{ trans('setting::settings.form.google_excel_document_settings') }}</h4>
@@ -25,7 +26,7 @@
                 <h4 class="section-title">{{ trans('setting::settings.form.google_sales_sheet_settings') }}</h4>
                 {{ Form::checkbox('google_sheets_enabled', trans('setting::attributes.google_sheets_enabled'), trans('setting::settings.form.enable_google_sheets_sync'), $errors, $settings) }}
 
-                <div class="{{ old('google_sheets_enabled', array_get($settings, 'google_sheets_enabled')) ? '' : 'hide' }}" id="google-sheets-fields">
+                <div class="{{ $sheetsEnabled ? '' : 'hide' }}" id="google-sheets-fields">
                     {{ Form::text('google_spreadsheet_id', trans('setting::attributes.google_spreadsheet_url'), $errors, $settings, [
                         'value' => old('google_spreadsheet_id', $spreadsheetUrl),
                         'placeholder' => 'https://docs.google.com/spreadsheets/d/.../edit?gid=...',
@@ -36,25 +37,22 @@
                     ]) }}
                     <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheet_name_help') }}</p>
                     <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_share_help') }}</p>
+
+                    <div class="google-sheets-test-wrap">
+                        <button
+                            type="button"
+                            class="btn btn-default"
+                            id="google-sheets-test-btn"
+                            data-test-url="{{ route('admin.settings.google_sheets.test_connection') }}"
+                        >
+                            <i class="fa fa-plug" aria-hidden="true"></i>
+                            {{ trans('setting::settings.form.google_sheets_test_connection') }}
+                        </button>
+                        <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_test_connection_help') }}</p>
+                        <div id="google-sheets-test-result" class="google-sheets-test-result hide" role="status" aria-live="polite"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 @endcomponent
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const toggle = document.querySelector('[name="google_sheets_enabled"]');
-            const panel = document.getElementById('google-sheets-fields');
-
-            if (!toggle || !panel) {
-                return;
-            }
-
-            toggle.addEventListener('change', () => {
-                panel.classList.toggle('hide', !toggle.checked);
-            });
-        });
-    </script>
-@endpush

@@ -24,4 +24,11 @@ return [
     'catalog_sync_pull_failed' => 'Could not download catalog bundle (HTTP :status).',
     'catalog_sync_import_success' => 'Catalog imported: :products products, :categories categories, :files media files, :settings settings.',
     'catalog_sync_pull_success' => 'Catalog pulled and imported: :products products, :categories categories, :files media files, :settings settings.',
+    'google_sheets_test_missing_json' => 'Paste the service account JSON key first.',
+    'google_sheets_test_invalid_json' => 'Service account JSON is invalid. It must include client_email and private_key.',
+    'google_sheets_test_auth_failed' => 'Google authentication failed: :error',
+    'google_sheets_test_auth_ok' => 'Service account authenticated successfully. Add a spreadsheet URL to verify sheet access.',
+    'google_sheets_test_invalid_spreadsheet' => 'Spreadsheet URL or ID is invalid.',
+    'google_sheets_test_spreadsheet_failed' => 'Could not access spreadsheet: :error',
+    'google_sheets_test_success' => 'Connected. Spreadsheet “:spreadsheet”, tab “:sheet”.',
 ];

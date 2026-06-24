@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Order\Entities\Order;
+use Modules\Order\Events\OrderStatusChanged;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 
 class BeauticianScheduleController
@@ -73,7 +74,12 @@ class BeauticianScheduleController
             }
 
             if ($updates !== []) {
+                $previousStatus = $order->status;
                 $order->update($updates);
+
+                if ($previousStatus !== $order->status) {
+                    event(new OrderStatusChanged($order->fresh()));
+                }
             }
         }
 

@@ -95,4 +95,9 @@ return [
     'coupon' => 'Kupon',
     'tax' => 'Cukai',
     'total' => 'Jumlah',
+    'google_sheets_sync_title' => 'Google Excel (Helaian Jualan)',
+    'google_sheets_synced' => 'Diselaraskan',
+    'google_sheets_not_synced' => 'Belum diselaraskan',
+    'google_sheets_not_synced_help' => 'Pesanan selesai ini belum ditambah ke spreadsheet jualan.',
+    'google_sheets_sync_now' => 'Selaraskan ke Google Sheet',
 ];

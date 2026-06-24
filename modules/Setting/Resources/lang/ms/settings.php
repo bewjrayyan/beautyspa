@@ -389,6 +389,8 @@ return [
         'google_sheet_name_optional_placeholder' => 'Biarkan kosong jika URL sudah ada ?gid=',
         'google_sheet_name_help' => 'Pilihan. Isi hanya jika anda gunakan nama tab, bukan gid dalam URL. Jika tidak, tab dari ?gid= dalam URL digunakan automatik.',
         'google_sheets_share_help' => 'Dalam Google Sheets: Kongsi → tambah e-mel akaun perkhidmatan (dari JSON) sebagai Editor. Kemudian set status pesanan kepada Selesai untuk uji.',
+        'google_sheets_test_connection' => 'Uji sambungan',
+        'google_sheets_test_connection_help' => 'Semak pengesahan akaun perkhidmatan dan akses spreadsheet menggunakan nilai di atas (disimpan atau belum).',
         'google_calendar_settings' => 'Kalendar Temujanji',
         'google_calendar_intro' => 'Gunakan JSON akaun perkhidmatan yang sama dari tab Google Excel. Cipta acara kalendar apabila pesanan selesai ada tarikh dan masa temujanji.',
         'enable_google_calendar_sync' => 'Tambah tempahan rawatan selesai ke Google Calendar',

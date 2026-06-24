@@ -27,6 +27,11 @@
             <div class="row">
                 <div class="col-lg-8">
                     @include('order::admin.orders.partials.order_and_account_information')
+
+                    @if (app('modules')->isEnabled('GoogleIntegration'))
+                        @include('googleintegration::admin.orders.partials.google_sheets_sync', ['order' => $order])
+                    @endif
+
                     @include('order::admin.orders.partials.address_information')
                     @include('order::admin.orders.partials.items_ordered')
 

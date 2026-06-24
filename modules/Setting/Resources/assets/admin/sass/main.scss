@@ -2176,3 +2176,27 @@ $settings-sidebar-offset: 16px;
     40% { opacity: 0.8; }
     60%, 100% { transform: translateX(120%); opacity: 0; }
 }
+
+.google-sheets-test-wrap {
+    margin-top: 12px;
+}
+
+.google-sheets-test-result {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+
+    &.is-success {
+        background: #ecfdf3;
+        color: #027a48;
+        border: 1px solid #abefc6;
+    }
+
+    &.is-error {
+        background: #fef3f2;
+        color: #b42318;
+        border: 1px solid #fecdca;
+    }
+}

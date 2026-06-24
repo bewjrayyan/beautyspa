@@ -9,4 +9,10 @@ return [
     'whatsapp_invoice_sent' => 'Invoice has been sent to the customer via WhatsApp',
     'whatsapp_receipt_sent' => 'Receipt has been sent to the customer via WhatsApp',
     'invalid_whatsapp_group_id' => 'Invalid WhatsApp group ID. Use format: 120363012345678901@g.us',
+    'google_sheets_sync_not_completed' => 'Only completed orders can be synced to Google Sheets.',
+    'google_sheets_sync_disabled' => 'Google Sheets sync is disabled or not configured in Settings.',
+    'google_sheets_sync_already_synced' => 'Already synced on :time.',
+    'google_sheets_sync_failed' => 'Google Sheets sync failed: :error',
+    'google_sheets_sync_unknown_error' => 'Unknown error',
+    'google_sheets_sync_success' => 'Order synced to Google Sheet on :time.',
 ];

@@ -95,4 +95,9 @@ return [
     'coupon' => 'Coupon',
     'tax' => 'Tax',
     'total' => 'Total',
+    'google_sheets_sync_title' => 'Google Excel (Sales Sheet)',
+    'google_sheets_synced' => 'Synced',
+    'google_sheets_not_synced' => 'Not synced',
+    'google_sheets_not_synced_help' => 'This completed order has not been appended to the sales spreadsheet yet.',
+    'google_sheets_sync_now' => 'Sync to Google Sheet',
 ];

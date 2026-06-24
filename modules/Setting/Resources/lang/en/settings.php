@@ -379,6 +379,8 @@ return [
         'google_sheet_name_optional_placeholder' => 'Leave empty if URL already contains ?gid=',
         'google_sheet_name_help' => 'Optional. Only fill this if you use a tab name instead of gid in the URL. Otherwise the tab from ?gid= in the URL is used automatically.',
         'google_sheets_share_help' => 'In Google Sheets: Share → add service account email (from JSON) as Editor. Then set order status to Completed to test.',
+        'google_sheets_test_connection' => 'Test connection',
+        'google_sheets_test_connection_help' => 'Checks service account auth and spreadsheet access using the values above (saved or unsaved).',
         'google_calendar_settings' => 'Appointment Calendar',
         'google_calendar_intro' => 'Uses the same Service Account JSON from the Google Excel tab. Creates a calendar event when a completed order has appointment date and time.',
         'enable_google_calendar_sync' => 'Add completed treatment bookings to Google Calendar',
