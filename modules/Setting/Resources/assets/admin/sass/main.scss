@@ -2200,3 +2200,97 @@ $settings-sidebar-offset: 16px;
         border: 1px solid #fecdca;
     }
 }
+
+.google-sheets-setup-guide {
+    margin: 0 0 18px;
+    border: 1px solid $settings-border;
+    border-radius: 14px;
+    background: $settings-primary-soft;
+    overflow: hidden;
+
+    &__summary {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 700;
+        color: $settings-text;
+        list-style: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        &::after {
+            content: "▾";
+            margin-left: auto;
+            color: $settings-muted;
+            transition: transform 0.15s ease;
+        }
+    }
+
+    &[open] &__summary::after {
+        transform: rotate(180deg);
+    }
+
+    &__body {
+        padding: 0 16px 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    &__intro {
+        margin: 14px 0 10px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: $settings-muted;
+    }
+
+    &__steps {
+        margin: 0 0 12px;
+        padding-left: 20px;
+        font-size: 13px;
+        line-height: 1.65;
+        color: $settings-text;
+
+        li + li {
+            margin-top: 8px;
+        }
+
+        a {
+            color: $settings-primary;
+            text-decoration: underline;
+        }
+
+        code {
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        kbd {
+            padding: 1px 5px;
+            border-radius: 4px;
+            border: 1px solid $settings-border;
+            background: #fff;
+            font-size: 11px;
+        }
+    }
+
+    &__security {
+        margin: 0;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.72);
+        font-size: 12px;
+        line-height: 1.55;
+        color: $settings-muted;
+
+        .fa {
+            margin-right: 6px;
+            color: $settings-primary;
+        }
+    }
+}

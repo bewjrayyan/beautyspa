@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.14' => [
+        'en' => [
+            'summary' => 'Add Google Sheets Service Account setup guide in admin settings.',
+            'changes' => [
+                'Collapsible step-by-step JSON key guide on the Google Excel settings tab.',
+                'English and Bahasa Malaysia instructions with direct Google Cloud links.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah panduan setup Service Account Google Sheets dalam tetapan admin.',
+            'changes' => [
+                'Panduan langkah demi langkah kunci JSON boleh lipat pada tab Google Excel.',
+                'Arahan BM dan Inggeris dengan pautan terus ke Google Cloud.',
+            ],
+        ],
+    ],
     '4.9.13' => [
         'en' => [
             'summary' => 'Reliable Google Sheets sync for completed orders.',

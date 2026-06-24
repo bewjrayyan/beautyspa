@@ -8,6 +8,8 @@
 @endphp
 
 @component('setting::admin.settings.partials.settings-wrap')
+    @include('setting::admin.settings.partials.google_sheets_setup_guide')
+
     <div class="st-fields-grid st-fields-grid--sections" data-google-sheets-settings>
         <div class="st-fields-grid__col">
             <div class="box-content clearfix">
