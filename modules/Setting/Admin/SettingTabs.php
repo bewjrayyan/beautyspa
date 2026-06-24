@@ -386,6 +386,8 @@ class SettingTabs extends Tabs
                 $fields[] = $key;
             }
 
+            $fields[] = 'google_sheets_columns';
+
             $tab->fields($fields);
 
             $tab->view('setting::admin.settings.tabs.google_sheets');

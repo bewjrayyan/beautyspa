@@ -11,7 +11,9 @@ use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Setting\Support\SettingTabScope;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
+use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
 use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
+use Modules\GoogleIntegration\Services\GoogleServiceAccountClient;
 
 class UpdateSettingRequest extends Request
 {
@@ -202,7 +204,19 @@ class UpdateSettingRequest extends Request
             'whatsapp_beautician_reminder_enabled' => 'required|boolean',
             'whatsapp_beautician_reminder_minutes' => 'nullable|integer|min:15|max:1440',
 
-            'google_service_account_json' => 'nullable|string',
+            'google_service_account_json' => [
+                'nullable',
+                'string',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! is_string($value) || trim($value) === '') {
+                        return;
+                    }
+
+                    if (GoogleServiceAccountClient::credentialsFromJson($value) === null) {
+                        $fail(trans('setting::messages.google_sheets_invalid_json'));
+                    }
+                },
+            ],
             'google_sheets_enabled' => 'required|boolean',
             'google_spreadsheet_id' => 'required_if:google_sheets_enabled,1|nullable|string|max:500',
             'google_sheet_gid' => 'nullable|string|max:20',
@@ -369,6 +383,36 @@ class UpdateSettingRequest extends Request
             $rules[GoogleSheetsStatusConfig::enabledKey($status)] = 'required|boolean';
             $rules[GoogleSheetsStatusConfig::tabKey($status)] = 'nullable|string|max:100';
         }
+
+        $rules['google_sheets_columns'] = [
+            'required',
+            'string',
+            function (string $attribute, mixed $value, \Closure $fail): void {
+                if (! is_string($value)) {
+                    $fail(trans('setting::messages.google_sheets_columns_invalid'));
+
+                    return;
+                }
+
+                $decoded = json_decode($value, true);
+
+                if (! is_array($decoded) || $decoded === []) {
+                    $fail(trans('setting::messages.google_sheets_columns_required'));
+
+                    return;
+                }
+
+                $valid = array_keys(GoogleSheetsColumnConfig::definitions());
+
+                foreach ($decoded as $key) {
+                    if (! is_string($key) || ! in_array($key, $valid, true)) {
+                        $fail(trans('setting::messages.google_sheets_columns_invalid'));
+
+                        return;
+                    }
+                }
+            },
+        ];
 
         return $rules;
     }

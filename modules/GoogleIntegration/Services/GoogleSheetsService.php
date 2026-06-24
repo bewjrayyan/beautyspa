@@ -333,7 +333,10 @@ class GoogleSheetsService
 
     private function ensureHeaders(string $spreadsheetId, string $sheetName): void
     {
-        $headerRange = rawurlencode($this->sheetRange($sheetName, 'A1:T1'));
+        $headers = $this->rowBuilder->headers();
+        $columnCount = max(1, count($headers));
+        $lastColumn = $this->columnLetter($columnCount);
+        $headerRange = rawurlencode($this->sheetRange($sheetName, "A1:{$lastColumn}1"));
 
         $response = $this->client->http()->get(
             "https://sheets.googleapis.com/v4/spreadsheets/{$spreadsheetId}/values/{$headerRange}"
@@ -341,7 +344,7 @@ class GoogleSheetsService
 
         $values = $response->json('values.0') ?? [];
 
-        if ($values === $this->rowBuilder->headers()) {
+        if ($values === $headers) {
             return;
         }
 
@@ -355,7 +358,7 @@ class GoogleSheetsService
             ->withQueryParameters(['valueInputOption' => 'USER_ENTERED'])
             ->put(
                 "https://sheets.googleapis.com/v4/spreadsheets/{$spreadsheetId}/values/{$updateRange}",
-                ['values' => [$this->rowBuilder->headers()]]
+                ['values' => [$headers]]
             );
 
         if ($write->failed()) {
@@ -363,6 +366,20 @@ class GoogleSheetsService
                 'Google Sheets header write failed: ' . ($write->json('error.message') ?? $write->body())
             );
         }
+    }
+
+
+    private function columnLetter(int $index): string
+    {
+        $letter = '';
+
+        while ($index > 0) {
+            $index--;
+            $letter = chr(65 + ($index % 26)) . $letter;
+            $index = intdiv($index, 26);
+        }
+
+        return $letter !== '' ? $letter : 'A';
     }
 
 

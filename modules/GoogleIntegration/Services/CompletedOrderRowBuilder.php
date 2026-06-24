@@ -2,44 +2,41 @@
 
 namespace Modules\GoogleIntegration\Services;
 
+use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
 use Modules\Order\Entities\Order;
 use Modules\Order\Entities\OrderProduct;
 
 class CompletedOrderRowBuilder
 {
-    public const HEADERS = [
-        'Order ID',
-        'Order Date',
-        'Status',
-        'Customer Name',
-        'Customer Email',
-        'Customer Phone',
-        'Beautician',
-        'Beautician Phone',
-        'Appointment Date',
-        'Appointment Time',
-        'Treatments',
-        'Subtotal',
-        'Discount',
-        'Shipping',
-        'Tax',
-        'Total',
-        'Payment Method',
-        'Coupon',
-        'Order Note',
-        'Synced At',
-    ];
-
-
+    /**
+     * @return array<int, string>
+     */
     public function headers(): array
     {
-        return self::HEADERS;
+        return GoogleSheetsColumnConfig::headerLabels();
     }
 
 
+    /**
+     * @return array<int, string|int|float|null>
+     */
     public function row(Order $order): array
     {
-        $order->loadMissing(['products', 'coupon', 'beautician']);
+        $values = $this->valueMap($order);
+
+        return array_map(
+            fn (string $key) => $values[$key] ?? '',
+            GoogleSheetsColumnConfig::enabledKeys(),
+        );
+    }
+
+
+    /**
+     * @return array<string, string|int|float|null>
+     */
+    private function valueMap(Order $order): array
+    {
+        $order->loadMissing(['products', 'coupon', 'beautician', 'spaBranch']);
 
         $customerName = trim($order->customer_first_name . ' ' . $order->customer_last_name);
         $treatments = $order->products
@@ -47,26 +44,27 @@ class CompletedOrderRowBuilder
             ->implode('; ');
 
         return [
-            (string) $order->id,
-            $order->created_at->format('Y-m-d H:i:s'),
-            $order->status(),
-            $customerName,
-            $order->customer_email,
-            $order->customer_phone,
-            $order->beautician?->name ?? $this->noteValue($order, 'beautician') ?? '',
-            $order->beautician?->phone ?? '',
-            $order->appointment_date?->format('Y-m-d') ?? ($this->noteValue($order, 'appointment_date') ?? ''),
-            $order->appointment_time ?? ($this->noteValue($order, 'appointment_time') ?? ''),
-            $treatments,
-            $order->sub_total->convertToCurrentCurrency()->amount(),
-            $order->discount->convertToCurrentCurrency()->amount(),
-            $order->shipping_cost->convertToCurrentCurrency()->amount(),
-            $order->tax->convertToCurrentCurrency()->amount(),
-            $order->total->convertToCurrentCurrency()->amount(),
-            $order->payment_method ?? '',
-            $order->coupon?->code ?? '',
-            $order->note ?? '',
-            now()->format('Y-m-d H:i:s'),
+            'order_id' => (string) $order->id,
+            'order_date' => $order->created_at->format('Y-m-d H:i:s'),
+            'status' => $order->status(),
+            'customer_name' => $customerName,
+            'customer_email' => $order->customer_email,
+            'customer_phone' => $order->customer_phone,
+            'beautician' => $order->beautician?->name ?? $this->noteValue($order, 'beautician') ?? '',
+            'beautician_phone' => $order->beautician?->phone ?? '',
+            'appointment_date' => $order->appointment_date?->format('Y-m-d') ?? ($this->noteValue($order, 'appointment_date') ?? ''),
+            'appointment_time' => $order->appointment_time ?? ($this->noteValue($order, 'appointment_time') ?? ''),
+            'treatments' => $treatments,
+            'subtotal' => $order->sub_total->convertToCurrentCurrency()->amount(),
+            'discount' => $order->discount->convertToCurrentCurrency()->amount(),
+            'shipping' => $order->shipping_cost->convertToCurrentCurrency()->amount(),
+            'tax' => $order->tax->convertToCurrentCurrency()->amount(),
+            'total' => $order->total->convertToCurrentCurrency()->amount(),
+            'payment_method' => $order->payment_method ?? '',
+            'coupon' => $order->coupon?->code ?? '',
+            'order_note' => $order->note ?? '',
+            'synced_at' => now()->format('Y-m-d H:i:s'),
+            'spa_branch' => $order->spaBranch?->name ?? '',
         ];
     }
 

@@ -38,6 +38,8 @@
 
                     @include('setting::admin.settings.partials.google_sheets_status_tabs')
 
+                    @include('setting::admin.settings.partials.google_sheets_columns')
+
                     <div class="google-sheets-test-wrap">
                         <button
                             type="button"

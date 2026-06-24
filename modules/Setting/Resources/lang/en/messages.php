@@ -37,4 +37,7 @@ return [
     'google_sheets_sync_chunk_progress' => 'Syncing :current of :total orders…',
     'google_sheets_log_synced' => 'Order synced to Google Sheet.',
     'google_sheets_log_removed' => 'Order row removed from Google Sheet.',
+    'google_sheets_invalid_json' => 'Service account JSON is invalid. It must include client_email and private_key.',
+    'google_sheets_columns_required' => 'Select at least one Google Sheets column.',
+    'google_sheets_columns_invalid' => 'Google Sheets column selection is invalid.',
 ];

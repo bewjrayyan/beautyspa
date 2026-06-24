@@ -4,6 +4,7 @@ namespace Modules\GoogleIntegration\Providers;
 
 use Modules\GoogleIntegration\Console\BackfillGoogleSheetsCommand;
 use Modules\GoogleIntegration\Console\RetryFailedGoogleSheetsSyncCommand;
+use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
 use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
 use Modules\Order\Events\OrderCreated;
 use Modules\Order\Events\OrderStatusChanged;
@@ -19,6 +20,7 @@ class GoogleIntegrationServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'googleintegration');
 
         GoogleSheetsStatusConfig::applyMissingOnly();
+        GoogleSheetsColumnConfig::applyMissingOnly();
 
         Event::listen([
             OrderStatusChanged::class,

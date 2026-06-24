@@ -2248,6 +2248,36 @@ $settings-sidebar-offset: 16px;
     }
 }
 
+.google-sheets-columns {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #eaecf0;
+
+    &__table {
+        margin-bottom: 8px;
+    }
+
+    &__order-col {
+        width: 92px;
+    }
+
+    &__order {
+        white-space: nowrap;
+
+        .btn + .btn {
+            margin-left: 4px;
+        }
+    }
+
+    &__label {
+        font-weight: 500;
+    }
+
+    &__enabled {
+        width: 90px;
+    }
+}
+
 .google-sheets-test-result {
     margin-top: 10px;
     padding: 10px 12px;

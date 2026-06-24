@@ -37,4 +37,7 @@ return [
     'google_sheets_sync_chunk_progress' => 'Menyelaraskan :current daripada :total pesanan…',
     'google_sheets_log_synced' => 'Pesanan diselaraskan ke Google Sheet.',
     'google_sheets_log_removed' => 'Baris pesanan dibuang dari Google Sheet.',
+    'google_sheets_invalid_json' => 'JSON akaun perkhidmatan tidak sah. Mesti ada client_email dan private_key.',
+    'google_sheets_columns_required' => 'Pilih sekurang-kurangnya satu kolum Google Sheets.',
+    'google_sheets_columns_invalid' => 'Pilihan kolum Google Sheets tidak sah.',
 ];

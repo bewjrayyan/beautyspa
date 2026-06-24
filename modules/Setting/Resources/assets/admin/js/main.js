@@ -800,4 +800,59 @@ $(function () {
             syncAllBtn.disabled = false;
         }
     });
+
+    const columnsList = document.getElementById("google-sheets-columns-list");
+    const columnsInput = document.getElementById("google-sheets-columns-input");
+
+    const syncColumnsInput = () => {
+        if (!columnsList || !columnsInput) {
+            return;
+        }
+
+        const keys = [...columnsList.querySelectorAll(".google-sheets-columns__row")]
+            .filter((row) => row.querySelector(".google-sheets-columns__checkbox")?.checked)
+            .map((row) => row.dataset.columnKey);
+
+        columnsInput.value = JSON.stringify(keys);
+    };
+
+    const moveColumnRow = (row, direction) => {
+        if (!columnsList || !row) {
+            return;
+        }
+
+        if (direction === "up" && row.previousElementSibling) {
+            columnsList.insertBefore(row, row.previousElementSibling);
+        }
+
+        if (direction === "down" && row.nextElementSibling) {
+            columnsList.insertBefore(row.nextElementSibling, row);
+        }
+
+        syncColumnsInput();
+    };
+
+    columnsList?.addEventListener("click", (event) => {
+        const target = event.target.closest(".google-sheets-columns__move-up, .google-sheets-columns__move-down");
+
+        if (!target) {
+            return;
+        }
+
+        const row = target.closest(".google-sheets-columns__row");
+
+        if (target.classList.contains("google-sheets-columns__move-up")) {
+            moveColumnRow(row, "up");
+        } else {
+            moveColumnRow(row, "down");
+        }
+    });
+
+    columnsList?.addEventListener("change", (event) => {
+        if (event.target.classList.contains("google-sheets-columns__checkbox")) {
+            syncColumnsInput();
+        }
+    });
+
+    root?.closest("form")?.addEventListener("submit", syncColumnsInput);
 })();

@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.18' => [
+        'en' => [
+            'summary' => 'Customizable Google Sheets columns with JSON validation on save.',
+            'changes' => [
+                'Choose which order fields sync to Google Sheets and reorder columns in Settings.',
+                'Add optional Spa Branch column when the Spa Branch module is enabled.',
+                'Validate service account JSON when saving Google Excel settings.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kolum Google Sheets boleh suai dengan pengesahan JSON semasa simpan.',
+            'changes' => [
+                'Pilih medan pesanan yang disync ke Google Sheets dan susun semula kolum dalam Tetapan.',
+                'Tambah kolum Cawangan Spa pilihan apabila modul Spa Branch diaktifkan.',
+                'Sahkan JSON akaun perkhidmatan semasa menyimpan tetapan Google Excel.',
+            ],
+        ],
+    ],
     '4.9.17' => [
         'en' => [
             'summary' => 'Background Google Sheets sync with activity log and bulk progress.',
