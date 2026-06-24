@@ -437,10 +437,11 @@ $(function () {
     const colorSourceSelect = document.getElementById("maintenance_page_color_source");
     const accentColorInput = document.getElementById("maintenance_page_accent_color");
     const customColorField = document.getElementById("maintenance-custom-color-field");
-    const customEffectsFields = document.getElementById("maintenance-custom-effects-fields");
+    const customEffectsPanel = document.getElementById("maintenance-custom-effects-panel");
     const presetNote = document.getElementById("maintenance-preset-note");
     const bokehToggle = document.getElementById("maintenance_page_bokeh_enabled");
     const bokehCountField = document.getElementById("maintenance-bokeh-count-field");
+    const gradientHelp = document.getElementById("maintenance-gradient-help");
     const previewCanvas = document.getElementById("maintenance-page-preview-canvas");
     const previewCard = previewCanvas?.querySelector(".maintenance-page-preview__card");
 
@@ -462,6 +463,11 @@ $(function () {
 
     const isCustomPreset = () => presetSelect?.value === "custom";
 
+    const setCustomPanelVisible = (custom) => {
+        customEffectsPanel?.classList.toggle("hide", !custom);
+        presetNote?.classList.toggle("hide", custom);
+    };
+
     const setToggleDisabled = (enabled) => {
         Object.values(toggles).forEach((toggle) => {
             if (!toggle) {
@@ -469,15 +475,11 @@ $(function () {
             }
 
             toggle.disabled = !enabled;
-            toggle.closest(".form-group")?.classList.toggle("is-disabled", !enabled);
         });
 
         if (bokehCountInput) {
             bokehCountInput.disabled = !enabled;
         }
-
-        presetNote?.classList.toggle("hide", enabled);
-        customEffectsFields?.classList.toggle("maintenance-custom-effects--locked", !enabled);
     };
 
     const applyPresetToToggles = (presetKey) => {
@@ -515,6 +517,28 @@ $(function () {
         customColorField?.classList.toggle("hide", colorSourceSelect?.value !== "custom");
     };
 
+    const formatGradientHelp = (template, color) => {
+        if (!template) {
+            return "";
+        }
+
+        return template.replace(":color", color);
+    };
+
+    const syncGradientHelp = () => {
+        if (!gradientHelp || !previewCanvas) {
+            return;
+        }
+
+        const color = currentAccentColor();
+        const template =
+            colorSourceSelect?.value === "custom"
+                ? previewCanvas.dataset.gradientHelpCustom
+                : previewCanvas.dataset.gradientHelpStore;
+
+        gradientHelp.textContent = formatGradientHelp(template, color);
+    };
+
     const updatePreview = () => {
         if (!previewCanvas) {
             return;
@@ -542,6 +566,8 @@ $(function () {
 
     const syncPresetUi = () => {
         const custom = isCustomPreset();
+
+        setCustomPanelVisible(custom);
         setToggleDisabled(custom);
 
         if (!custom && presetSelect?.value) {
@@ -550,15 +576,20 @@ $(function () {
 
         syncBokehCountVisibility();
         syncCustomColorVisibility();
+        syncGradientHelp();
         updatePreview();
     };
 
     presetSelect?.addEventListener("change", syncPresetUi);
     colorSourceSelect?.addEventListener("change", () => {
         syncCustomColorVisibility();
+        syncGradientHelp();
         updatePreview();
     });
-    accentColorInput?.addEventListener("input", updatePreview);
+    accentColorInput?.addEventListener("input", () => {
+        syncGradientHelp();
+        updatePreview();
+    });
 
     Object.values(toggles).forEach((toggle) => {
         toggle?.addEventListener("change", () => {

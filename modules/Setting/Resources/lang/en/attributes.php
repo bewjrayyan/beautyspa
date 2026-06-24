@@ -13,7 +13,7 @@ return [
     'maintenance_page_effect_preset' => 'Effect style',
     'maintenance_page_color_source' => 'Background color',
     'maintenance_page_accent_color' => 'Custom accent color',
-    'maintenance_page_gradient_enabled' => 'Pink gradient background',
+    'maintenance_page_gradient_enabled' => 'Gradient background',
     'maintenance_page_bokeh_enabled' => 'Animated bokeh orbs',
     'maintenance_page_bokeh_count' => 'Bokeh orb count',
     'maintenance_page_shimmer_enabled' => 'Shimmer sweep',

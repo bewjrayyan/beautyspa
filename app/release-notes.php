@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.12' => [
+        'en' => [
+            'summary' => 'Show maintenance custom effect toggles directly under the Custom preset.',
+            'changes' => [
+                'Move per-effect checkboxes inline below Effect style when Custom is selected.',
+                'Hide effect toggles for presets; show a preset info note instead.',
+                'Move accent color above effect toggles; gradient help reflects store or custom color.',
+                'Fix maintenance accent color validation (regex pipe delimiter).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Paparkan togol kesan Custom terus di bawah preset Penyelenggaraan.',
+            'changes' => [
+                'Pindahkan kotak semak kesan ke bawah Gaya kesan apabila Custom dipilih.',
+                'Sembunyikan togol kesan untuk preset; paparkan nota preset.',
+                'Pindahkan warna aksen ke atas togol kesan; bantuan kecerunan ikut warna kedai atau tersuai.',
+                'Baiki pengesahan warna aksen penyelenggaraan (pemisah regex pipe).',
+            ],
+        ],
+    ],
     '4.9.11' => [
         'en' => [
             'summary' => 'Admin can customize maintenance page colors and background effects.',

@@ -13,7 +13,7 @@ return [
     'maintenance_page_effect_preset' => 'Gaya kesan',
     'maintenance_page_color_source' => 'Warna latar',
     'maintenance_page_accent_color' => 'Warna aksen tersuai',
-    'maintenance_page_gradient_enabled' => 'Latar kecerunan merah jambu',
+    'maintenance_page_gradient_enabled' => 'Latar kecerunan',
     'maintenance_page_bokeh_enabled' => 'Orbe bokeh animasi',
     'maintenance_page_bokeh_count' => 'Bilangan orbe bokeh',
     'maintenance_page_shimmer_enabled' => 'Sapuan cahaya berkilau',

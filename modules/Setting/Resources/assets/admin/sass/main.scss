@@ -2036,12 +2036,41 @@ $settings-sidebar-offset: 16px;
 }
 
 .maintenance-custom-color-field.hide,
-.maintenance-preset-note.hide {
+.maintenance-preset-note.hide,
+.maintenance-custom-effects-panel.hide {
     display: none;
 }
 
-.maintenance-custom-effects--locked .form-group {
-    opacity: 0.72;
+.maintenance-custom-effects-panel {
+    margin: 4px 0 18px;
+    padding: 16px 18px;
+    border: 1px dashed $settings-border;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.72);
+
+    &__title {
+        margin: 0 0 4px;
+        font-size: 14px;
+        font-weight: 700;
+        color: $settings-text;
+    }
+
+    &__help {
+        margin: 0 0 12px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: $settings-muted;
+    }
+}
+
+.maintenance-preset-note {
+    margin: -4px 0 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: $settings-primary-soft;
+    color: $settings-muted;
+    font-size: 12px;
+    line-height: 1.5;
 }
 
 .maintenance-page-preview {
