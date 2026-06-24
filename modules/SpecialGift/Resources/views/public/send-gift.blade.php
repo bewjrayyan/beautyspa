@@ -10,7 +10,7 @@
                 <h1 class="send-gift-title">{{ trans('specialgift::messages.page_title') }}</h1>
                 <p class="send-gift-lead">{{ trans('specialgift::messages.page_lead') }}</p>
 
-                @include('storefront::public.partials.notification')
+                @include('storefront::public.auth.partials.notification')
 
                 <div class="send-gift-alert send-gift-alert--error" id="send-gift-error" hidden></div>
                 <div class="send-gift-alert send-gift-alert--success" id="send-gift-success" hidden></div>

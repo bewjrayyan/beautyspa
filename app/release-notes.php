@@ -5,6 +5,20 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.5' => [
+        'en' => [
+            'summary' => 'Fix /send-gift page missing notification partial.',
+            'changes' => [
+                'Use the correct storefront auth notification partial on the send gift page.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki halaman /send-gift: partial notifikasi tidak dijumpai.',
+            'changes' => [
+                'Guna partial notifikasi auth storefront yang betul pada halaman hantar hadiah.',
+            ],
+        ],
+    ],
     '4.9.4' => [
         'en' => [
             'summary' => 'Special gift: default voucher design and WhatsApp message template.',
