@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.8' => [
+        'en' => [
+            'summary' => 'WhatsApp product share now uses the product image in link previews.',
+            'changes' => [
+                'Stop LayoutComposer from overwriting product/blog Open Graph tags with the store logo.',
+                'Product pages now expose og:image from the product main image (or SEO OG image when set).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kongsi produk WhatsApp kini guna imej produk dalam pratonton pautan.',
+            'changes' => [
+                'Hentikan LayoutComposer menulis ganti tag Open Graph produk/blog dengan logo kedai.',
+                'Halaman produk kini papar og:image daripada imej utama produk (atau imej OG SEO jika ditetapkan).',
+            ],
+        ],
+    ],
     '4.9.7' => [
         'en' => [
             'summary' => 'Featured category slider shows 4 cards plus peek on desktop.',

@@ -47,7 +47,7 @@ class LayoutComposer
      */
     public function compose($view)
     {
-        $view->with([
+        $payload = [
             'themeColor' => $this->getThemeColor(),
             'compareCount' => $this->compare->count(),
             'wishlistCount' => $this->getWishlistCount(),
@@ -68,8 +68,13 @@ class LayoutComposer
             'copyrightText' => $this->getCopyrightText(),
             'acceptedPaymentMethodsImage' => $this->getAcceptedPaymentMethodsImage(),
             'schemaMarkup' => $this->getSchemaMarkup(),
-            'openGraph' => $this->getOpenGraph(),
-        ]);
+        ];
+
+        if (! ($view->getData()['openGraph'] ?? null) instanceof OpenGraph) {
+            $payload['openGraph'] = $this->getOpenGraph();
+        }
+
+        $view->with($payload);
     }
 
 
