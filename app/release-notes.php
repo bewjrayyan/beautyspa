@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.3' => [
+        'en' => [
+            'summary' => 'Fix CHIP public key fetch from GET /public_key/.',
+            'changes' => [
+                'Parse JSON-encoded PEM string returned by CHIP public_key endpoint.',
+                'Webhook verifier auto-fetch now works when chip_public_key is empty.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki fetch kunci awam CHIP dari GET /public_key/.',
+            'changes' => [
+                'Parse rentetan PEM berkod JSON yang dikembalikan oleh endpoint public_key CHIP.',
+                'Auto-fetch pengesah webhook kini berfungsi apabila chip_public_key kosong.',
+            ],
+        ],
+    ],
     '4.9.2' => [
         'en' => [
             'summary' => 'Harden CHIP Collect: RSA webhook verification and Atome whitelist fix.',

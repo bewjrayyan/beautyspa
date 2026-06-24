@@ -44,17 +44,6 @@ class ChipCollectClient
 
 
     /**
-     * @return array<string, mixed>
-     *
-     * @throws Exception
-     */
-    public function getPublicKey(): array
-    {
-        return $this->request('get', 'public_key/');
-    }
-
-
-    /**
      * @return array{
      *     available_payment_methods: list<string>,
      *     card_methods: list<string>,
@@ -78,6 +67,50 @@ class ChipCollectClient
     }
 
 
+    /**
+     * @throws Exception
+     */
+    public function getPublicKey(): string
+    {
+        $http = Http::withToken($this->apiKey)
+            ->acceptJson()
+            ->baseUrl(self::BASE_URL)
+            ->timeout(30);
+
+        $response = $http->get('public_key/');
+
+        if ($response->failed()) {
+            throw new Exception($this->formatErrorMessage($response));
+        }
+
+        $decoded = $response->json();
+
+        if (is_string($decoded)) {
+            return $decoded;
+        }
+
+        if (is_array($decoded) && isset($decoded['public_key'])) {
+            return (string) $decoded['public_key'];
+        }
+
+        $body = trim((string) $response->body());
+
+        if ($body === '') {
+            throw new Exception('CHIP public key response was empty.');
+        }
+
+        if ($body[0] === '"' && str_ends_with($body, '"')) {
+            $unquoted = json_decode($body, true);
+
+            if (is_string($unquoted)) {
+                return $unquoted;
+            }
+        }
+
+        return $body;
+    }
+
+
     public function isPaid(array $purchase): bool
     {
         $status = strtolower((string) ($purchase['status'] ?? ''));
@@ -86,11 +119,6 @@ class ChipCollectClient
     }
 
 
-    /**
-     * @return array<string, mixed>
-     *
-     * @throws Exception
-     */
     /**
      * @param  array<string, mixed>  $payload
      * @param  array<string, mixed>  $query

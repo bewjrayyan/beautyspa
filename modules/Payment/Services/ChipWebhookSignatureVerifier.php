@@ -54,7 +54,7 @@ class ChipWebhookSignatureVerifier
             );
 
             $response = $client->getPublicKey();
-            $key = trim((string) ($response['public_key'] ?? ''));
+            $key = trim($response);
 
             return $key !== '' ? $this->normalizePem($key) : null;
         } catch (\Throwable) {
