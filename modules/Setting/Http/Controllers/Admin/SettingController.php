@@ -16,6 +16,7 @@ use Modules\Setting\Http\Requests\UpdateSettingRequest;
 use Modules\Setting\Services\AppVersionService;
 use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Setting\Services\GitHubVersionService;
+use Modules\Setting\Services\MaintenanceModeService;
 use Modules\Setting\Services\ReleaseNotesService;
 use Modules\Setting\Support\SettingTabScope;
 use Modules\Support\Services\PWAService;
@@ -34,6 +35,8 @@ class SettingController
         } catch (\Throwable) {
             $settings = [];
         }
+
+        $settings['maintenance_mode'] = app()->isDownForMaintenance();
 
         $tabs = TabManager::get('settings');
 
@@ -68,7 +71,13 @@ class SettingController
         $tabFields = SettingTabScope::fieldsForTab($tab);
 
         if ($request->has('maintenance_mode')) {
-            $this->handleMaintenanceMode($request);
+            try {
+                $this->handleMaintenanceMode($request);
+            } catch (\Throwable $exception) {
+                return redirect()
+                    ->route('admin.settings.edit', ['tab' => $tab])
+                    ->with('error', $exception->getMessage());
+            }
         }
 
         if ($tab === 'pwa' && setting('pwa_icon') !== request('pwa_icon')) {
@@ -87,13 +96,17 @@ class SettingController
     }
 
 
-    private function handleMaintenanceMode($request)
+    private function handleMaintenanceMode($request): void
     {
-        if ($request->maintenance_mode) {
-            Artisan::call('down');
-        } else if (app()->isDownForMaintenance()) {
-            Artisan::call('up');
+        $service = app(MaintenanceModeService::class);
+
+        if ($request->boolean('maintenance_mode')) {
+            $service->enable();
+
+            return;
         }
+
+        $service->disable();
     }
 
 

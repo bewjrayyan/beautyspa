@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.9' => [
+        'en' => [
+            'summary' => 'Maintenance mode now blocks the storefront with a branded animated page.',
+            'changes' => [
+                'Fix maintenance toggle so storefront visitors see 503 while admin stays accessible.',
+                'Remove admin bypass on the public site; correct admin except paths for subdirectory installs.',
+                'Add branded maintenance page with store logo, EN/BM copy, and pink bokeh shimmer background.',
+                'Sync maintenance checkbox with live artisan down/up state via MaintenanceModeService.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Mod penyelenggaraan kini sekatan storefront dengan halaman animasi berjenama.',
+            'changes' => [
+                'Baiki togol penyelenggaraan supaya pelawat storefront nampak 503 manakala admin kekal boleh diakses.',
+                'Buang pintasan admin pada laman awam; betulkan laluan except admin untuk pemasangan subdirektori.',
+                'Tambah halaman penyelenggaraan berjenama dengan logo kedai, salinan EN/BM, dan latar bokeh merah jambu.',
+                'Selaraskan kotak semak penyelenggaraan dengan keadaan artisan down/up melalui MaintenanceModeService.',
+            ],
+        ],
+    ],
     '4.9.8' => [
         'en' => [
             'summary' => 'WhatsApp product share now uses the product image in link previews.',

@@ -16,7 +16,8 @@ class CheckForMaintenanceMode extends BaseCheckForMaintenanceMode
      * @var array
      */
     protected $except = [
-        '*/admin*',
+        'admin',
+        'admin/*',
     ];
 
 
@@ -33,14 +34,6 @@ class CheckForMaintenanceMode extends BaseCheckForMaintenanceMode
      */
     public function handle($request, Closure $next): mixed
     {
-        if (
-            config('app.installed')
-            && $this->app->isDownForMaintenance()
-            && optional(auth()->user())->hasRoleName('Admin')
-        ) {
-            return $next($request);
-        }
-
         return parent::handle($request, $next);
     }
 }
