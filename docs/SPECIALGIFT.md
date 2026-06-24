@@ -25,7 +25,7 @@ Submissions are logged in **`gift_voucher_submissions`** (admin → Gift voucher
 5. Ensure `public/storage` is linked: `php artisan storage:link`
 6. Grant **`admin.gift_voucher_submissions.index`** to admin roles.
 
-Generated vouchers are stored under `storage/app/public/specialgift/generated/` and must be reachable by OneSender (public HTTPS URL).
+Generated vouchers are stored under `storage/app/public/media/gift-vouchers/` and must be reachable by OneSender (public HTTPS URL).
 
 ## Message placeholders
 

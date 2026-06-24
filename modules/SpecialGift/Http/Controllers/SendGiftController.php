@@ -24,7 +24,9 @@ class SendGiftController
             abort(404);
         }
 
-        return view('specialgift::public.send-gift');
+        return view('specialgift::public.send-gift', [
+            'voucherPreviewUrl' => $this->config->resolveVoucherBackgroundUrl(),
+        ]);
     }
 
 

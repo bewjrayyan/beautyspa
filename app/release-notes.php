@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.6' => [
+        'en' => [
+            'summary' => 'Send gift page redesign and fix false WhatsApp success on local.',
+            'changes' => [
+                'Redesign /send-gift with voucher preview, romantic layout, and live name overlay.',
+                'Save generated vouchers to media/gift-vouchers with clearer image error messages.',
+                'Fail gift send when OneSender skips (no more false “sent” on local/dev).',
+                'Use absolute image URLs and immediate delivery for gift voucher WhatsApp.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Reka semula halaman hantar hadiah dan baiki kejayaan WhatsApp palsu pada local.',
+            'changes' => [
+                'Reka semula /send-gift dengan pratonton baucar, susun atur romantis, dan overlay nama langsung.',
+                'Simpan baucar dijana ke media/gift-vouchers dengan mesej ralat imej yang lebih jelas.',
+                'Gagalkan penghantaran hadiah apabila OneSender di-skip (tiada lagi “dihantar” palsu pada local/dev).',
+                'Guna URL imej mutlak dan penghantaran segera untuk WhatsApp baucar hadiah.',
+            ],
+        ],
+    ],
     '4.9.5' => [
         'en' => [
             'summary' => 'Fix /send-gift page missing notification partial.',

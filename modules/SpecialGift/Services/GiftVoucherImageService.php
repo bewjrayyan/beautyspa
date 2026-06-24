@@ -9,17 +9,31 @@ class GiftVoucherImageService
 {
     private const JPEG_QUALITY = 90;
 
+    private ?string $lastErrorKey = null;
+
+
+    public function lastErrorKey(): ?string
+    {
+        return $this->lastErrorKey;
+    }
+
 
     public function generateFromPath(string $backgroundPath, string $recipientName, string $orderNumber): ?string
     {
+        $this->lastErrorKey = null;
+
         if (! extension_loaded('gd')) {
+            $this->lastErrorKey = 'image_failed_gd';
             Log::error('SpecialGift: GD extension is not available');
 
             return null;
         }
 
         if (! is_readable($backgroundPath)) {
-            Log::error('SpecialGift: voucher background file is not readable');
+            $this->lastErrorKey = 'image_failed_background';
+            Log::error('SpecialGift: voucher background file is not readable', [
+                'path' => $backgroundPath,
+            ]);
 
             return null;
         }
@@ -27,33 +41,100 @@ class GiftVoucherImageService
         $imageInfo = @getimagesize($backgroundPath);
 
         if (! $imageInfo) {
+            $this->lastErrorKey = 'image_failed_background';
+            Log::error('SpecialGift: voucher background is not a valid image', [
+                'path' => $backgroundPath,
+            ]);
+
             return null;
         }
 
         $image = $this->createImageResource($backgroundPath, $imageInfo['mime']);
 
         if (! $image) {
+            $this->lastErrorKey = 'image_failed_background';
+            Log::error('SpecialGift: GD could not load voucher background', [
+                'path' => $backgroundPath,
+                'mime' => $imageInfo['mime'] ?? null,
+            ]);
+
             return null;
         }
 
         $this->addTextOverlay($image, $recipientName, $orderNumber);
 
-        $relativePath = 'specialgift/generated/voucher-'.date('Ymd-His').'-'.uniqid('', true).'.jpg';
+        $relativePath = 'media/gift-vouchers/voucher-'.date('Ymd-His').'-'.uniqid('', true).'.jpg';
         $disk = Storage::disk('public');
 
-        if (! $disk->exists('specialgift/generated')) {
-            $disk->makeDirectory('specialgift/generated');
+        if (! $this->ensureOutputDirectory($disk, 'media/gift-vouchers')) {
+            imagedestroy($image);
+            $this->lastErrorKey = 'image_failed_storage';
+
+            return null;
         }
 
-        $absolutePath = $disk->path($relativePath);
-        $saved = @imagejpeg($image, $absolutePath, self::JPEG_QUALITY);
+        ob_start();
+        $encoded = @imagejpeg($image, null, self::JPEG_QUALITY);
+        $binary = ob_get_clean();
         imagedestroy($image);
 
-        if (! $saved || ! is_file($absolutePath)) {
+        if (! $encoded || ! is_string($binary) || $binary === '') {
+            $this->lastErrorKey = 'image_failed';
+            Log::error('SpecialGift: failed to encode voucher JPEG', [
+                'error' => error_get_last(),
+            ]);
+
+            return null;
+        }
+
+        if (! $disk->put($relativePath, $binary)) {
+            $this->lastErrorKey = 'image_failed_storage';
+            Log::error('SpecialGift: failed to store generated voucher image', [
+                'path' => $relativePath,
+                'directory' => $disk->path('media/gift-vouchers'),
+            ]);
+
             return null;
         }
 
         return cdn_url($disk->url($relativePath), 'media');
+    }
+
+
+    private function ensureOutputDirectory($disk, string $directory): bool
+    {
+        $absoluteDirectory = $disk->path($directory);
+
+        if (! $disk->exists($directory)) {
+            $disk->makeDirectory($directory, 0777, true);
+        }
+
+        if (! is_dir($absoluteDirectory)) {
+            $this->lastErrorKey = 'image_failed_storage';
+            Log::error('SpecialGift: voucher output directory could not be created', [
+                'directory' => $absoluteDirectory,
+            ]);
+
+            return false;
+        }
+
+        if (! is_writable($absoluteDirectory)) {
+            @chmod($absoluteDirectory, 0777);
+        }
+
+        if (is_writable($absoluteDirectory)) {
+            return true;
+        }
+
+        Log::error('SpecialGift: voucher output directory is not writable', [
+            'directory' => $absoluteDirectory,
+            'owner' => function_exists('posix_getpwuid') && fileowner($absoluteDirectory)
+                ? (posix_getpwuid(fileowner($absoluteDirectory))['name'] ?? fileowner($absoluteDirectory))
+                : fileowner($absoluteDirectory),
+            'permissions' => substr(sprintf('%o', fileperms($absoluteDirectory)), -4),
+        ]);
+
+        return false;
     }
 
 

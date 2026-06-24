@@ -66,7 +66,25 @@ class SpecialGiftConfig
 
         $defaultPath = $this->defaultVoucherBackgroundPath();
 
-        return is_readable($defaultPath) ? $defaultPath : null;
+        if (is_readable($defaultPath)) {
+            return $defaultPath;
+        }
+
+        $publicDefault = public_path('modules/specialgift/default-voucher.jpg');
+
+        return is_readable($publicDefault) ? $publicDefault : null;
+    }
+
+
+    public function resolveVoucherBackgroundUrl(): string
+    {
+        $file = $this->voucherBackgroundFile();
+
+        if ($file) {
+            return $file->path;
+        }
+
+        return $this->defaultVoucherBackgroundUrl();
     }
 
 

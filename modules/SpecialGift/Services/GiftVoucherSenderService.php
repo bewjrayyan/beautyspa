@@ -57,7 +57,9 @@ class GiftVoucherSenderService
         $imageUrl = $this->imageService->generateFromPath($backgroundPath, $data['recipient_name'], $orderNumber);
 
         if (! $imageUrl) {
-            return $this->fail($submission, trans('specialgift::messages.image_failed'));
+            $errorKey = $this->imageService->lastErrorKey() ?: 'image_failed';
+
+            return $this->fail($submission, trans('specialgift::messages.'.$errorKey));
         }
 
         $submission->update(['generated_image_url' => $imageUrl]);
@@ -69,7 +71,15 @@ class GiftVoucherSenderService
         );
 
         try {
-            $this->whatsApp->sendImage($whatsapp, $imageUrl, $message);
+            $sent = $this->whatsApp->sendImage(
+                $whatsapp,
+                $this->absolutePublicUrl($imageUrl),
+                $message,
+                [
+                    'source' => 'GiftVoucherSenderService',
+                    'immediate' => true,
+                ],
+            );
         } catch (Exception $e) {
             Log::error('SpecialGift WhatsApp failed', [
                 'submission_id' => $submission->id,
@@ -77,6 +87,10 @@ class GiftVoucherSenderService
             ]);
 
             return $this->fail($submission, $e->getMessage());
+        }
+
+        if (! $sent) {
+            return $this->fail($submission, $this->resolveWhatsAppSkipMessage());
         }
 
         $submission->update([
@@ -128,5 +142,47 @@ class GiftVoucherSenderService
         ]);
 
         return $submission->fresh();
+    }
+
+
+    private function absolutePublicUrl(string $url): string
+    {
+        $url = trim($url);
+
+        if ($url === '' || preg_match('#^https?://#i', $url)) {
+            return $url;
+        }
+
+        $parsed = parse_url((string) config('app.url'));
+
+        if (! is_array($parsed) || empty($parsed['host'])) {
+            return $url;
+        }
+
+        $origin = ($parsed['scheme'] ?? 'https').'://'.$parsed['host'];
+
+        if (! empty($parsed['port'])) {
+            $origin .= ':'.$parsed['port'];
+        }
+
+        return $origin.(str_starts_with($url, '/') ? $url : '/'.$url);
+    }
+
+
+    private function resolveWhatsAppSkipMessage(): string
+    {
+        if (! OneSenderWhatsAppService::allowsRealOutbound()) {
+            return trans('specialgift::messages.whatsapp_skipped_local');
+        }
+
+        if (! OneSenderWhatsAppService::isConfigured()) {
+            return trans('specialgift::messages.not_configured');
+        }
+
+        if (app(\Modules\User\Services\OneSenderMessageLogger::class)->isSendingPaused()) {
+            return trans('specialgift::messages.whatsapp_paused');
+        }
+
+        return trans('specialgift::messages.whatsapp_not_delivered');
     }
 }
