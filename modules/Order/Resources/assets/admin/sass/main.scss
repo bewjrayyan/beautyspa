@@ -37,6 +37,18 @@
         }
     }
 
+    &__toggle-sheets-failed {
+        margin-right: 8px;
+
+        .fa {
+            margin-right: 6px;
+        }
+    }
+
+    &__sheets-failed-badge {
+        margin-left: 4px;
+    }
+
     &__archived-badge {
         margin-left: 6px;
         font-size: 11px;

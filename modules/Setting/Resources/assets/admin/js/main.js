@@ -616,6 +616,9 @@ $(function () {
     const testResult = document.getElementById("google-sheets-test-result");
     const syncAllBtn = document.getElementById("google-sheets-sync-all-btn");
     const syncAllResult = document.getElementById("google-sheets-sync-all-result");
+    const syncAllProgress = document.getElementById("google-sheets-sync-all-progress");
+    const syncAllProgressBar = document.getElementById("google-sheets-sync-all-progress-bar");
+    const syncAllProgressLabel = document.getElementById("google-sheets-sync-all-progress-label");
 
     const setPanelVisible = (visible) => {
         panel?.classList.toggle("hide", !visible);
@@ -643,6 +646,23 @@ $(function () {
         syncAllResult.textContent = message;
         syncAllResult.classList.remove("hide", "is-success", "is-error");
         syncAllResult.classList.add(ok ? "is-success" : "is-error");
+    };
+
+    const setSyncAllProgress = (percent, label) => {
+        if (!syncAllProgress || !syncAllProgressBar || !syncAllProgressLabel) {
+            return;
+        }
+
+        const safePercent = Math.max(0, Math.min(100, percent));
+        syncAllProgress.classList.remove("hide");
+        syncAllProgress.setAttribute("aria-hidden", "false");
+        syncAllProgressBar.style.width = `${safePercent}%`;
+        syncAllProgressLabel.textContent = label || `${safePercent}%`;
+    };
+
+    const hideSyncAllProgress = () => {
+        syncAllProgress?.classList.add("hide");
+        syncAllProgress?.setAttribute("aria-hidden", "true");
     };
 
     const completedTabName = () => {
@@ -689,9 +709,11 @@ $(function () {
     });
 
     syncAllBtn?.addEventListener("click", async () => {
-        const syncUrl = syncAllBtn.dataset.syncUrl;
+        const chunkUrl = syncAllBtn.dataset.syncUrl;
+        const countUrl = syncAllBtn.dataset.countUrl;
+        const chunkSize = Number(syncAllBtn.dataset.chunkSize || 25);
 
-        if (!syncUrl) {
+        if (!chunkUrl || !countUrl) {
             return;
         }
 
@@ -701,19 +723,77 @@ $(function () {
 
         syncAllBtn.disabled = true;
         showSyncAllResult(true, syncAllBtn.dataset.syncingText || "Syncing...");
+        setSyncAllProgress(0, "0%");
+
+        let offset = 0;
+        let total = 0;
+        let syncedTotal = 0;
+        let failedTotal = 0;
 
         try {
-            const response = await fetch(syncUrl, {
-                method: "POST",
+            const countResponse = await fetch(countUrl, {
                 headers: {
                     Accept: "application/json",
-                    "X-CSRF-TOKEN": window.AestheticCart?.csrfToken || "",
                     "X-Requested-With": "XMLHttpRequest",
                 },
             });
+            const countData = await countResponse.json();
 
-            const data = await response.json();
-            showSyncAllResult(Boolean(response.ok), data.message || (response.ok ? "Done" : "Failed"));
+            if (!countResponse.ok) {
+                throw new Error(countData.message || "Could not count orders.");
+            }
+
+            total = Number(countData.total || 0);
+
+            if (total === 0) {
+                showSyncAllResult(true, countData.message || "No orders to sync.");
+                hideSyncAllProgress();
+
+                return;
+            }
+
+            let done = false;
+
+            while (!done) {
+                const response = await fetch(chunkUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                        "X-CSRF-TOKEN": window.AestheticCart?.csrfToken || "",
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    body: JSON.stringify({
+                        offset,
+                        limit: chunkSize,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || "Sync failed.");
+                }
+
+                offset = Number(data.offset || 0);
+                syncedTotal += Number(data.synced || 0);
+                failedTotal += Number(data.failed || 0);
+                done = Boolean(data.done);
+
+                const current = Math.min(offset, total);
+                const percent = total > 0 ? Math.round((current / total) * 100) : 100;
+                setSyncAllProgress(percent, `${current}/${total}`);
+
+                if (data.message) {
+                    showSyncAllResult(true, data.message);
+                }
+            }
+
+            showSyncAllResult(
+                failedTotal === 0,
+                `Done. Synced: ${syncedTotal}, failed: ${failedTotal}.`,
+            );
+            setSyncAllProgress(100, `${total}/${total}`);
         } catch (error) {
             showSyncAllResult(false, error?.message || "Sync failed.");
         } finally {

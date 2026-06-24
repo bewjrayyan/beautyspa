@@ -11,17 +11,20 @@ class OrderGoogleSyncService
     public function __construct(
         private readonly GoogleSheetsService $sheets,
         private readonly GoogleCalendarService $calendar,
+        private readonly GoogleSheetsSyncLogger $logger,
     ) {
     }
 
 
-    public function sync(Order $order, bool $forceSheets = false): void
+    public function sync(Order $order, bool $forceSheets = false, string $trigger = 'auto'): void
     {
         if (! GoogleServiceAccountClient::isConfigured()) {
             return;
         }
 
         if (GoogleSheetsService::isEnabled()) {
+            $this->markSyncAttempted($order);
+
             try {
                 if ($forceSheets && $this->sheets->hasSheetRow($order)) {
                     $this->sheets->removeOrderFromSheet($order->fresh());
@@ -36,11 +39,38 @@ class OrderGoogleSyncService
 
                 if (GoogleSheetsStatusConfig::isStatusEnabled($order->status)) {
                     $this->sheets->syncOrder($order->fresh());
+                    $order->refresh();
+
+                    $this->logger->log(
+                        $order,
+                        $trigger,
+                        true,
+                        $order->google_sheets_tab,
+                        trans('setting::messages.google_sheets_log_synced'),
+                    );
                 } elseif ($this->sheets->hasSheetRow($order)) {
+                    $tab = $order->google_sheets_tab;
                     $this->sheets->removeOrderFromSheet($order->fresh());
+                    $order->refresh();
+
+                    $this->logger->log(
+                        $order,
+                        $trigger,
+                        true,
+                        $tab,
+                        trans('setting::messages.google_sheets_log_removed'),
+                    );
                 }
             } catch (Exception $exception) {
-                $this->sheets->markSyncFailed($order->fresh(), $exception->getMessage());
+                $order = $order->fresh();
+                $this->sheets->markSyncFailed($order, $exception->getMessage());
+                $this->logger->log(
+                    $order,
+                    $trigger,
+                    false,
+                    $order->google_sheets_tab,
+                    $exception->getMessage(),
+                );
 
                 throw $exception;
             }
@@ -64,6 +94,14 @@ class OrderGoogleSyncService
      */
     public function syncAll(?int $limit = null): array
     {
-        return $this->sheets->syncAllOrders($limit);
+        return $this->sheets->syncAllOrders($limit, 'bulk');
+    }
+
+
+    private function markSyncAttempted(Order $order): void
+    {
+        $order->forceFill([
+            'google_sheets_sync_attempted_at' => now(),
+        ])->save();
     }
 }

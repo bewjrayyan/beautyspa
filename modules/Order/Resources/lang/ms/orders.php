@@ -10,6 +10,8 @@ return [
     'archived_label' => 'Diarkibkan',
     'show_archived' => 'Tunjuk pesanan diarkibkan',
     'show_archived_count' => 'Tunjuk diarkibkan (:count)',
+    'show_sheets_failed' => 'Sync Sheets gagal',
+    'show_all_orders' => 'Tunjuk semua pesanan',
     'show_active_orders' => 'Tunjuk pesanan aktif',
     'archived_index_notice' => 'Memaparkan pesanan diarkibkan sahaja. Pesanan ini disembunyikan daripada senarai pesanan utama.',
     'force_delete_confirm' => 'Pesanan ini akan dibuang kekal daripada pangkalan data. Tindakan ini tidak boleh dibatalkan.',
@@ -102,5 +104,6 @@ return [
     'google_sheets_not_synced' => 'Belum diselaraskan',
     'google_sheets_not_synced_help' => 'Pesanan ini belum ditulis ke spreadsheet jualan.',
     'google_sheets_sync_failed_badge' => 'Sync gagal',
+    'google_sheets_last_attempt' => 'Percubaan sync terakhir: :time',
     'google_sheets_sync_now' => 'Selaraskan ke Google Sheet',
 ];

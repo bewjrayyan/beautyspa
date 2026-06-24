@@ -11,6 +11,17 @@
         <div class="box-header with-border orders-index__head">
             <h3 class="box-title">{{ trans('order::orders.orders') }}</h3>
             <div class="box-tools pull-right">
+                @if (is_module_enabled('GoogleIntegration') && setting('google_sheets_enabled'))
+                    <button
+                        type="button"
+                        class="btn btn-default orders-index__toggle-sheets-failed"
+                        id="orders-toggle-sheets-failed"
+                        aria-pressed="false"
+                    >
+                        <i class="fa fa-table" aria-hidden="true"></i>
+                        <span class="orders-index__toggle-sheets-failed-label">{{ trans('order::orders.show_sheets_failed') }}</span>
+                    </button>
+                @endif
                 <button
                     type="button"
                     class="btn btn-default orders-index__toggle-archived"
@@ -83,11 +94,14 @@
                 showArchivedLabel: @json(trans('order::orders.show_archived')),
                 showArchivedCountLabel: @json(trans('order::orders.show_archived_count', ['count' => '__COUNT__'])),
                 showActiveOrdersLabel: @json(trans('order::orders.show_active_orders')),
+                showSheetsFailedLabel: @json(trans('order::orders.show_sheets_failed')),
+                showAllOrdersLabel: @json(trans('order::orders.show_all_orders')),
                 archivedCount: {{ (int) $archivedCount }},
             };
 
             const urlParams = new URLSearchParams(window.location.search);
             let showArchived = urlParams.get('archived') === '1';
+            let showSheetsFailed = urlParams.get('google_sheets_failed') === '1';
             window.ordersIndexShowArchived = showArchived;
 
             function initOrdersIndex() {
@@ -102,8 +116,10 @@
                 const $ordersTable = $('#orders-table');
                 const $ordersTableEl = $('#orders-table .table');
                 const $toggleArchivedBtn = $('#orders-toggle-archived');
+                const $toggleSheetsFailedBtn = $('#orders-toggle-sheets-failed');
                 const $archivedNotice = $('#orders-archived-notice');
                 const $toggleArchivedLabel = $toggleArchivedBtn.find('.orders-index__toggle-archived-label');
+                const $toggleSheetsFailedLabel = $toggleSheetsFailedBtn.find('.orders-index__toggle-sheets-failed-label');
                 let $activeActionsMenu = null;
                 let $activeActionsToggle = null;
 
@@ -143,10 +159,41 @@
                         url.searchParams.delete('archived');
                     }
 
+                    if (showSheetsFailed) {
+                        url.searchParams.set('google_sheets_failed', '1');
+                    } else {
+                        url.searchParams.delete('google_sheets_failed');
+                    }
+
+                    window.history.replaceState({}, '', url);
+                }
+
+                function syncSheetsFailedUi() {
+                    if (!$toggleSheetsFailedBtn.length) {
+                        return;
+                    }
+
+                    $toggleSheetsFailedBtn
+                        .toggleClass('btn-primary', showSheetsFailed)
+                        .toggleClass('btn-default', !showSheetsFailed)
+                        .attr('aria-pressed', showSheetsFailed ? 'true' : 'false');
+                    $toggleSheetsFailedLabel.text(
+                        showSheetsFailed ? config.showAllOrdersLabel : config.showSheetsFailedLabel
+                    );
+
+                    const url = new URL(window.location.href);
+
+                    if (showSheetsFailed) {
+                        url.searchParams.set('google_sheets_failed', '1');
+                    } else {
+                        url.searchParams.delete('google_sheets_failed');
+                    }
+
                     window.history.replaceState({}, '', url);
                 }
 
                 syncArchivedUi();
+                syncSheetsFailedUi();
 
                 function closeOrderActionsMenu() {
                     if ($activeActionsMenu) {
@@ -308,6 +355,7 @@
                         data: function (data) {
                             data.table = true;
                             data.archived = showArchived ? 1 : 0;
+                            data.google_sheets_failed = showSheetsFailed ? 1 : 0;
                         },
                     },
                     columns: [
@@ -334,6 +382,13 @@
                 $toggleArchivedBtn.on('click', function () {
                     showArchived = !showArchived;
                     syncArchivedUi();
+                    closeOrderActionsMenu();
+                    window.DataTable.reload('#orders-table .table', null, true);
+                });
+
+                $toggleSheetsFailedBtn.on('click', function () {
+                    showSheetsFailed = !showSheetsFailed;
+                    syncSheetsFailedUi();
                     closeOrderActionsMenu();
                     window.DataTable.reload('#orders-table .table', null, true);
                 });

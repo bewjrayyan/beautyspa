@@ -1153,7 +1153,7 @@
     ]
   },
   "modules/Order/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-_kcF6lgw-v4.7.71.css",
+    "file": "assets/main-IW9tNeK5-v4.7.71.css",
     "src": "modules/Order/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/sass/print.scss": {
@@ -1249,13 +1249,13 @@
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-BEo4Qb9Y-v4.7.71.js",
+    "file": "assets/main-GkROO_Dk-v4.7.71.js",
     "name": "main",
     "src": "modules/Setting/Resources/assets/admin/js/main.js",
     "isEntry": true
   },
   "modules/Setting/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-Djk0ZT5D-v4.7.71.css",
+    "file": "assets/main-D4M4XoC6-v4.7.71.css",
     "src": "modules/Setting/Resources/assets/admin/sass/main.scss"
   },
   "modules/Slider/Resources/assets/admin/js/main.js": {

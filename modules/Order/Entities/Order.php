@@ -111,6 +111,7 @@ class Order extends Model
         'end_date' => 'datetime',
         'appointment_date' => 'date',
         'google_sheets_synced_at' => 'datetime',
+        'google_sheets_sync_attempted_at' => 'datetime',
         'google_sheets_row' => 'integer',
         'deleted_at' => 'datetime',
     ];
@@ -618,12 +619,17 @@ class Order extends Model
             'status',
             'payment_status',
             'spa_branch_id',
+            'google_sheets_sync_error',
             'created_at',
             'deleted_at',
         ])->with('spaBranch:id,name');
 
         if ($request->boolean('archived')) {
             $query->onlyTrashed();
+        }
+
+        if ($request->boolean('google_sheets_failed')) {
+            $query->whereNotNull('google_sheets_sync_error');
         }
 
         return new OrderTable($query);

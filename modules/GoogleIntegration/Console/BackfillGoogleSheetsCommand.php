@@ -115,7 +115,7 @@ class BackfillGoogleSheetsCommand extends Command
     private function syncOrder(Order $order, OrderGoogleSyncService $sync, bool $force): bool
     {
         try {
-            $sync->sync($order->fresh(), $force);
+            $sync->sync($order->fresh(), $force, 'backfill');
             $order->refresh();
         } catch (Exception $exception) {
             report($exception);

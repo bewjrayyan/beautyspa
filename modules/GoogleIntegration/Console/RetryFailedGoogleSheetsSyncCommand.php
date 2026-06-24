@@ -107,7 +107,7 @@ class RetryFailedGoogleSheetsSyncCommand extends Command
     private function retryOrder(Order $order, OrderGoogleSyncService $sync): bool
     {
         try {
-            $sync->sync($order->fresh(), forceSheets: (bool) $order->google_sheets_sync_error);
+            $sync->sync($order->fresh(), forceSheets: (bool) $order->google_sheets_sync_error, trigger: 'retry');
             $order->refresh();
         } catch (Exception $exception) {
             report($exception);

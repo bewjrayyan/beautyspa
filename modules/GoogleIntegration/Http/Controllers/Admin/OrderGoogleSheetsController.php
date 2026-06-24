@@ -26,7 +26,7 @@ class OrderGoogleSheetsController
         }
 
         try {
-            $sync->sync($order->fresh(), forceSheets: true);
+            $sync->sync($order->fresh(), forceSheets: true, trigger: 'manual');
             $order->refresh();
         } catch (Exception $exception) {
             report($exception);

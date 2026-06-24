@@ -34,4 +34,7 @@ return [
     'google_sheets_sync_all_disabled' => 'Google Sheets sync is disabled or not configured.',
     'google_sheets_sync_all_failed' => 'Bulk sync failed: :error',
     'google_sheets_sync_all_success' => 'Bulk sync finished. Synced: :synced, failed: :failed.',
+    'google_sheets_sync_chunk_progress' => 'Syncing :current of :total orders…',
+    'google_sheets_log_synced' => 'Order synced to Google Sheet.',
+    'google_sheets_log_removed' => 'Order row removed from Google Sheet.',
 ];

@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.17' => [
+        'en' => [
+            'summary' => 'Background Google Sheets sync with activity log and bulk progress.',
+            'changes' => [
+                'Queue automatic sync on order create, update, and status change.',
+                'Add recent sync activity log on the Google Excel settings tab.',
+                'Bulk sync now runs in chunks with a progress bar.',
+                'Filter orders list by Google Sheets sync failures.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Sync Google Sheets latar belakang dengan log aktiviti dan progress pukal.',
+            'changes' => [
+                'Queue sync automatik bila pesanan dicipta, dikemas kini, atau status berubah.',
+                'Tambah log aktiviti sync terkini pada tab Google Excel.',
+                'Sync pukal kini berjalan dalam chunk dengan bar progress.',
+                'Tapis senarai pesanan mengikut kegagalan sync Google Sheets.',
+            ],
+        ],
+    ],
     '4.9.16' => [
         'en' => [
             'summary' => 'More reliable Google Sheets sync with edit, cleanup, and error visibility.',

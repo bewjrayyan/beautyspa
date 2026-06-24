@@ -10,6 +10,8 @@ return [
     'archived_label' => 'Archived',
     'show_archived' => 'Show archived',
     'show_archived_count' => 'Show archived (:count)',
+    'show_sheets_failed' => 'Sheets sync failed',
+    'show_all_orders' => 'Show all orders',
     'show_active_orders' => 'Show active orders',
     'archived_index_notice' => 'Showing archived orders only. These orders are hidden from the main orders list.',
     'force_delete_confirm' => 'This order will be permanently removed from the database. This action cannot be undone.',
@@ -102,5 +104,6 @@ return [
     'google_sheets_not_synced' => 'Not synced',
     'google_sheets_not_synced_help' => 'This order has not been written to the sales spreadsheet yet.',
     'google_sheets_sync_failed_badge' => 'Sync failed',
+    'google_sheets_last_attempt' => 'Last sync attempt: :time',
     'google_sheets_sync_now' => 'Sync to Google Sheet',
 ];

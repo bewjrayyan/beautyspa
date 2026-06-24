@@ -2218,6 +2218,36 @@ $settings-sidebar-offset: 16px;
     border-top: 1px solid #eaecf0;
 }
 
+.google-sheets-sync-all-progress {
+    margin-top: 12px;
+
+    .progress {
+        height: 22px;
+        margin-bottom: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f2f4f7;
+    }
+
+    .progress-bar {
+        min-width: 3em;
+        line-height: 22px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+}
+
+.google-sheets-sync-log {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #eaecf0;
+
+    &__message {
+        max-width: 280px;
+        word-break: break-word;
+    }
+}
+
 .google-sheets-test-result {
     margin-top: 10px;
     padding: 10px 12px;

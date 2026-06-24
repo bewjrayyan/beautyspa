@@ -105,7 +105,7 @@ class GoogleSheetsService
   /**
      * @return array{synced: int, failed: int, skipped: int}
      */
-    public function syncAllOrders(?int $limit = null): array
+    public function syncAllOrders(?int $limit = null, string $trigger = 'bulk'): array
     {
         $statuses = GoogleSheetsStatusConfig::enabledStatuses();
 
@@ -127,11 +127,16 @@ class GoogleSheetsService
 
         foreach ($query->cursor() as $order) {
             try {
-                $this->syncOrder($order->fresh());
-                $synced++;
+                app(OrderGoogleSyncService::class)->sync($order->fresh(), trigger: $trigger);
+                $order->refresh();
+
+                if ($order->google_sheets_synced_at && ! $order->google_sheets_sync_error) {
+                    $synced++;
+                } else {
+                    $failed++;
+                }
             } catch (Exception $exception) {
                 report($exception);
-                $this->markSyncFailed($order->fresh(), $exception->getMessage());
                 $failed++;
             }
         }

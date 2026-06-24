@@ -38,6 +38,12 @@ class OrderTable extends AdminTable
                         . '</span>';
                 }
 
+                if (is_module_enabled('GoogleIntegration') && $order->google_sheets_sync_error) {
+                    $html .= ' <span class="badge badge-danger orders-index__sheets-failed-badge" title="'
+                        . e($order->google_sheets_sync_error)
+                        . '"><i class="fa fa-table" aria-hidden="true"></i></span>';
+                }
+
                 return $html;
             })
             ->addColumn('customer_name', function ($order) {

@@ -45,6 +45,14 @@
                 @endif
             </p>
 
+            @if ($order->google_sheets_sync_attempted_at)
+                <p class="order-show__hint order-show__google-sheets-attempt">
+                    {{ trans('order::orders.google_sheets_last_attempt', [
+                        'time' => $order->google_sheets_sync_attempted_at->format('d M Y, H:i'),
+                    ]) }}
+                </p>
+            @endif
+
             <button
                 type="button"
                 class="btn btn-default btn-sm"

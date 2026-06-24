@@ -34,4 +34,7 @@ return [
     'google_sheets_sync_all_disabled' => 'Penyelarasan Google Sheets dimatikan atau belum dikonfigurasi.',
     'google_sheets_sync_all_failed' => 'Sync pukal gagal: :error',
     'google_sheets_sync_all_success' => 'Sync pukal selesai. Berjaya: :synced, gagal: :failed.',
+    'google_sheets_sync_chunk_progress' => 'Menyelaraskan :current daripada :total pesanan…',
+    'google_sheets_log_synced' => 'Pesanan diselaraskan ke Google Sheet.',
+    'google_sheets_log_removed' => 'Baris pesanan dibuang dari Google Sheet.',
 ];

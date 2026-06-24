@@ -14,6 +14,18 @@ Route::post('settings/google-sheets/sync-all', [
     'middleware' => 'can:admin.settings.edit',
 ]);
 
+Route::get('settings/google-sheets/sync-all/count', [
+    'as' => 'admin.settings.google_sheets.sync_all_count',
+    'uses' => 'GoogleSheetsSettingsController@syncAllCount',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
+Route::post('settings/google-sheets/sync-all/chunk', [
+    'as' => 'admin.settings.google_sheets.sync_all_chunk',
+    'uses' => 'GoogleSheetsSettingsController@syncAllChunk',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
 Route::post('orders/{order}/google-sheets/sync', [
     'as' => 'admin.orders.google_sheets.sync',
     'uses' => 'OrderGoogleSheetsController@sync',
