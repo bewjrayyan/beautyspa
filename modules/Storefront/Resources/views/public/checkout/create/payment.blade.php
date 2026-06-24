@@ -7,17 +7,17 @@
     </div>
 
     <div class="payment-method-form payment-method-form--modern">
-        <template x-for="(gateway, name) in gateways" :key="name">
+        <template x-for="gateway in gatewayOptions" :key="gateway.id">
             <label
                 class="payment-option"
-                :class="{ 'is-selected': form.payment_method === name }"
-                :for="'payment-' + name"
+                :class="{ 'is-selected': form.payment_method === gateway.id }"
+                :for="'payment-' + gateway.id"
             >
                 <input
                     type="radio"
                     name="payment_method"
-                    :value="name"
-                    :id="'payment-' + name"
+                    :value="gateway.id"
+                    :id="'payment-' + gateway.id"
                     class="payment-option-input"
                     x-model="form.payment_method"
                 >
@@ -29,7 +29,7 @@
                     <span class="payment-option-desc" x-text="gateway.description"></span>
                 </span>
 
-                <span class="payment-option-logos" x-show="name === 'chip'">
+                <span class="payment-option-logos" x-show="gateway.id === 'chip'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
                         src="{{ asset('images/payments/online-banking.png') }}"
@@ -41,7 +41,7 @@
                     >
                 </span>
 
-                <span class="payment-option-logos payment-option-logos--chip-banner" x-show="name === 'chip_fpx'">
+                <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_fpx'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
                         src="{{ asset('images/payments/online-banking-fpx.png') }}?v=1"
@@ -53,7 +53,7 @@
                     >
                 </span>
 
-                <span class="payment-option-logos payment-option-logos--chip-banner" x-show="name === 'chip_card'">
+                <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_card'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
                         src="{{ asset('images/payments/card-international.png') }}?v=2"
@@ -65,7 +65,7 @@
                     >
                 </span>
 
-                <span class="payment-option-logos payment-option-logos--chip-banner" x-show="name === 'chip_atome'">
+                <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_atome'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
                         src="{{ asset('images/payments/atome-chip-part.png') }}?v=3"

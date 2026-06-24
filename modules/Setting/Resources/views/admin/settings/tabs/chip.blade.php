@@ -38,8 +38,11 @@
                     ]) }}
                     <p class="help-block text-muted">{{ trans('setting::settings.form.chip_webhook_help') }}</p>
 
-                    {{ Form::password('chip_webhook_secret', trans('setting::attributes.chip_webhook_secret'), $errors, $settings) }}
-                    <p class="help-block text-muted">{{ trans('setting::settings.form.chip_webhook_secret_help') }}</p>
+                    {{ Form::textarea('chip_public_key', trans('setting::attributes.chip_public_key'), $errors, $settings, [
+                        'rows' => 6,
+                        'placeholder' => '-----BEGIN PUBLIC KEY-----',
+                    ]) }}
+                    <p class="help-block text-muted">{{ trans('setting::settings.form.chip_public_key_help') }}</p>
                 @endcomponent
 
                 @component('setting::admin.settings.partials.section', [

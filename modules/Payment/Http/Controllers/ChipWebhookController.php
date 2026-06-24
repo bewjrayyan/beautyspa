@@ -11,40 +11,56 @@ use Modules\Order\Entities\Order;
 use Modules\Payment\Libraries\Chip\ChipCollectClient;
 use Modules\Payment\Responses\ChipWebhookTransaction;
 use Modules\Payment\Services\ChipPaymentMethodConfig;
+use Modules\Payment\Services\ChipWebhookSignatureVerifier;
 
 class ChipWebhookController
 {
-    public function handle(Request $request): Response
+    public function handle(Request $request, ChipWebhookSignatureVerifier $verifier): Response
     {
         if (! setting('chip_enabled')) {
-            return response('Ignored', 200);
+            return response('OK', 200);
         }
 
-        $webhookSecret = trim((string) setting('chip_webhook_secret'));
-
-        if ($webhookSecret === '') {
-            Log::warning('CHIP webhook rejected: webhook secret is not configured');
-
-            return response('Unauthorized', 401);
-        }
-
+        $rawBody = $request->getContent();
         $signature = (string) ($request->header('X-Signature') ?? $request->header('X-Chip-Signature') ?? '');
 
-        if ($signature === '' || ! hash_equals($webhookSecret, $signature)) {
-            Log::warning('CHIP webhook rejected: invalid signature');
+        if (! $verifier->verify($rawBody, $signature)) {
+            Log::warning('CHIP callback ignored: invalid or missing RSA signature');
 
-            return response('Unauthorized', 401);
+            return response('OK', 200);
         }
 
-        $purchaseId = $request->input('id') ?? $request->input('purchase_id');
+        $purchaseId = $this->resolvePurchaseId($request, $rawBody);
 
         if (! $purchaseId) {
-            return response('Ignored', 200);
+            return response('OK', 200);
         }
 
-        dispatch(fn () => $this->processPurchase((string) $purchaseId))->afterResponse();
+        dispatch(fn () => $this->processPurchase($purchaseId))->afterResponse();
 
         return response('OK', 200);
+    }
+
+
+    private function resolvePurchaseId(Request $request, string $rawBody): ?string
+    {
+        $payload = json_decode($rawBody, true);
+
+        if (is_array($payload)) {
+            foreach (['id', 'purchase_id'] as $key) {
+                if (! empty($payload[$key])) {
+                    return (string) $payload[$key];
+                }
+            }
+
+            if (! empty($payload['object']['id'])) {
+                return (string) $payload['object']['id'];
+            }
+        }
+
+        $fromInput = $request->input('id') ?? $request->input('purchase_id');
+
+        return $fromInput ? (string) $fromInput : null;
     }
 
 

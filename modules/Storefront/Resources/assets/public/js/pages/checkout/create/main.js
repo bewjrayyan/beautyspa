@@ -117,11 +117,18 @@ Alpine.data(
         },
 
         get hasNoPaymentMethod() {
-            return Object.keys(this.gateways).length === 0;
+            return this.gatewayOptions.length === 0;
+        },
+
+        get gatewayOptions() {
+            return Object.entries(this.gateways).map(([key, gateway]) => ({
+                id: gateway.id ?? key,
+                ...gateway,
+            }));
         },
 
         get firstPaymentMethod() {
-            return Object.keys(this.gateways)[0];
+            return this.gatewayOptions[0]?.id ?? "";
         },
 
         get shouldShowPaymentInstructions() {

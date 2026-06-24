@@ -16,6 +16,14 @@ class PaymentGatewayResolver
             return $gateway;
         }
 
+        $name = ChipPaymentMethodConfig::normalizeGatewayKey($name);
+
+        $gateway = Gateway::get($name);
+
+        if ($gateway !== null) {
+            return $gateway;
+        }
+
         if (ChipPaymentMethodConfig::isChipPaymentMethod($name) && setting('chip_enabled')) {
             return new ChipGateway($name);
         }

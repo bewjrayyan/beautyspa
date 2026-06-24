@@ -13,6 +13,24 @@ class ChipPaymentMethodConfig
     public const METHOD_ATOME = 'chip_atome';
 
     /**
+     * Legacy CHIP whitelist codes that may still be posted from older checkout clients.
+     *
+     * @var array<string, string>
+     */
+    private const LEGACY_ALIASES = [
+        'fpx' => self::METHOD_FPX,
+        'card' => self::METHOD_CARD,
+        'atome' => self::METHOD_ATOME,
+    ];
+
+    public static function normalizeGatewayKey(string $paymentMethod): string
+    {
+        $paymentMethod = strtolower(trim($paymentMethod));
+
+        return self::LEGACY_ALIASES[$paymentMethod] ?? $paymentMethod;
+    }
+
+    /**
      * @return array<string, array{
      *     label_setting: string,
      *     description_setting: string,
@@ -59,7 +77,7 @@ class ChipPaymentMethodConfig
                 'surcharge_type' => 'percent',
                 'percent_setting' => 'chip_atome_surcharge_percent',
                 'whitelist_setting' => 'chip_atome_whitelist',
-                'default_whitelist' => ['atome'],
+                'default_whitelist' => ['razer_atome'],
                 'default_surcharge' => 0,
                 'default_surcharge_percent' => 5.3,
             ],
@@ -80,12 +98,16 @@ class ChipPaymentMethodConfig
             return false;
         }
 
+        $paymentMethod = self::normalizeGatewayKey($paymentMethod);
+
         return $paymentMethod === self::METHOD_ALL
             || isset(self::methods()[$paymentMethod]);
     }
 
     public static function configFor(string $gatewayKey): ?array
     {
+        $gatewayKey = self::normalizeGatewayKey($gatewayKey);
+
         if ($gatewayKey === self::METHOD_ALL) {
             return null;
         }

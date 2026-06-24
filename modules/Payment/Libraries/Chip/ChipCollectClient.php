@@ -44,6 +44,17 @@ class ChipCollectClient
 
 
     /**
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    public function getPublicKey(): array
+    {
+        return $this->request('get', 'public_key/');
+    }
+
+
+    /**
      * @return array{
      *     available_payment_methods: list<string>,
      *     card_methods: list<string>,

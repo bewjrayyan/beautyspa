@@ -652,7 +652,7 @@ class SettingTabs extends Tabs
                 'chip_brand_id',
                 'chip_api_key',
                 'chip_webhook_url',
-                'chip_webhook_secret',
+                'chip_public_key',
                 'chip_all_methods_enabled',
                 'chip_fpx_enabled',
                 'translatable.chip_fpx_label',

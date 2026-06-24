@@ -225,6 +225,7 @@ class CheckoutController extends Controller
         return Gateway::all()
             ->map(function ($gateway, string $name) use ($resolver) {
                 $data = [
+                    'id' => $name,
                     'label' => $gateway->label ?? '',
                     'description' => $gateway->description ?? '',
                     'instructions' => $gateway->instructions ?? null,

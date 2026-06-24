@@ -259,6 +259,7 @@ return [
     'chip_brand_id' => 'Brand ID',
     'chip_api_key' => 'API Key',
     'chip_webhook_url' => 'Webhook URL (optional)',
+    'chip_public_key' => 'CHIP public key (webhook)',
     'chip_webhook_secret' => 'Webhook secret (optional)',
     'chip_all_methods_enabled' => 'All CHIP methods',
     'chip_fpx_enabled' => 'FPX',

@@ -259,6 +259,7 @@ return [
     'chip_brand_id' => 'ID jenama',
     'chip_api_key' => 'Kunci API',
     'chip_webhook_url' => 'URL webhook (pilihan)',
+    'chip_public_key' => 'Kunci awam CHIP (webhook)',
     'chip_webhook_secret' => 'Rahsia webhook (pilihan)',
     'chip_all_methods_enabled' => 'Semua kaedah CHIP',
     'chip_fpx_enabled' => 'FPX',

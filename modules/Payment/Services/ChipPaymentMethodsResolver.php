@@ -33,6 +33,10 @@ class ChipPaymentMethodsResolver
             return $this->resolveCardMethods();
         }
 
+        if ($gatewayKey === ChipPaymentMethodConfig::METHOD_ATOME) {
+            return $this->resolveAtomeMethods();
+        }
+
         return $config['default_whitelist'];
     }
 
@@ -65,7 +69,7 @@ class ChipPaymentMethodsResolver
             if ($methods['available_payment_methods'] !== []) {
                 return array_values(array_filter(
                     $methods['available_payment_methods'],
-                    fn (string $code) => ! in_array($code, ['fpx', 'atome'], true)
+                    fn (string $code) => ! in_array($code, ['fpx', 'atome', 'razer_atome'], true)
                 ));
             }
         } catch (\Throwable) {
@@ -73,6 +77,41 @@ class ChipPaymentMethodsResolver
         }
 
         return ChipPaymentMethodConfig::configFor(ChipPaymentMethodConfig::METHOD_CARD)['default_whitelist'];
+    }
+
+
+    /**
+     * @return list<string>
+     */
+    private function resolveAtomeMethods(): array
+    {
+        $defaults = ChipPaymentMethodConfig::configFor(ChipPaymentMethodConfig::METHOD_ATOME)['default_whitelist'];
+
+        if (! setting('chip_enabled')) {
+            return $defaults;
+        }
+
+        try {
+            $client = new ChipCollectClient(
+                (string) setting('chip_brand_id'),
+                (string) setting('chip_api_key'),
+            );
+
+            $methods = $client->listPaymentMethods(currency());
+            $available = $methods['available_payment_methods'] ?? [];
+            $atomeCodes = array_values(array_filter(
+                $available,
+                fn (string $code) => str_contains(strtolower($code), 'atome')
+            ));
+
+            if ($atomeCodes !== []) {
+                return $atomeCodes;
+            }
+        } catch (\Throwable) {
+            // Fall back to defaults when API is unreachable.
+        }
+
+        return $defaults;
     }
 
     /**

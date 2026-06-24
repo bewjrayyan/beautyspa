@@ -287,7 +287,7 @@ class UpdateSettingRequest extends Request
             'chip_brand_id' => 'required_if:chip_enabled,1',
             'chip_api_key' => 'required_if:chip_enabled,1',
             'chip_webhook_url' => 'nullable|url',
-            'chip_webhook_secret' => 'nullable|string|max:255',
+            'chip_public_key' => 'nullable|string|max:5000',
             'chip_all_methods_enabled' => 'required|boolean',
             'chip_fpx_enabled' => 'required|boolean',
             'translatable.chip_fpx_label' => 'required_if:chip_fpx_enabled,1',

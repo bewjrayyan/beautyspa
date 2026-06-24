@@ -7,6 +7,7 @@ use Modules\Support\Country;
 use Modules\Cart\Facades\Cart;
 use Illuminate\Validation\Rule;
 use Modules\Payment\Facades\Gateway;
+use Modules\Payment\Services\ChipPaymentMethodConfig;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 use Modules\Checkout\Exceptions\CheckoutException;
@@ -59,6 +60,14 @@ class StoreOrderRequest extends Request
             if ($e164 !== '') {
                 $this->merge(['customer_phone' => $e164]);
             }
+        }
+
+        if ($this->filled('payment_method')) {
+            $this->merge([
+                'payment_method' => ChipPaymentMethodConfig::normalizeGatewayKey(
+                    (string) $this->input('payment_method')
+                ),
+            ]);
         }
     }
 

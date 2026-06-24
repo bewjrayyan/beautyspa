@@ -14,7 +14,9 @@ class ChipCheckoutAvailability
         }
 
         foreach (ChipPaymentMethodConfig::checkoutMethodKeys() as $methodKey) {
-            if (setting($methodKey . '_enabled')) {
+            $config = ChipPaymentMethodConfig::configFor($methodKey);
+
+            if ($config !== null && setting($config['enabled_setting'])) {
                 return false;
             }
         }

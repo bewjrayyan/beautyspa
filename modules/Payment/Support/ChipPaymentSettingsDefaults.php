@@ -54,6 +54,7 @@ class ChipPaymentSettingsDefaults
             'chip_brand_id' => '',
             'chip_api_key' => '',
             'chip_webhook_url' => '',
+            'chip_public_key' => '',
             'chip_webhook_secret' => '',
             'chip_fpx_enabled' => true,
             'chip_fpx_surcharge' => 100,

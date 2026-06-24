@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.2' => [
+        'en' => [
+            'summary' => 'Harden CHIP Collect: RSA webhook verification and Atome whitelist fix.',
+            'changes' => [
+                'Verify CHIP X-Signature with RSA public key (SHA-256) instead of shared secret.',
+                'Add chip_public_key admin setting; auto-fetch from GET /public_key/ when empty.',
+                'Return HTTP 200 on invalid webhook signatures (CHIP retry-safe).',
+                'Default Atome whitelist to razer_atome with API auto-resolve.',
+                'Fix chip_atome checkout validation and explicit payment gateway IDs.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perkukuh CHIP Collect: pengesahan webhook RSA dan baiki whitelist Atome.',
+            'changes' => [
+                'Sahkan X-Signature CHIP dengan kunci awam RSA (SHA-256) dan bukan rahsia kongsi.',
+                'Tambah tetapan admin chip_public_key; auto-fetch dari GET /public_key/ jika kosong.',
+                'Pulangkan HTTP 200 pada tandatangan webhook tidak sah (selamat untuk retry CHIP).',
+                'Lalai whitelist Atome ke razer_atome dengan auto-resolve API.',
+                'Baiki validasi checkout chip_atome dan ID gateway pembayaran eksplisit.',
+            ],
+        ],
+    ],
     '4.9.1' => [
         'en' => [
             'summary' => 'Fix generic CHIP gateway showing when all-methods checkout is disabled.',
