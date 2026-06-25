@@ -609,6 +609,75 @@ $(function () {
     syncPresetUi();
 })();
 
+(function initGoogleCalendarSettingsPanel() {
+    const root = document.querySelector("[data-google-calendar-settings]");
+
+    if (!root) {
+        return;
+    }
+
+    const toggle = document.querySelector('[name="google_calendar_enabled"]');
+    const panel = document.getElementById("google-calendar-fields");
+    const testBtn = document.getElementById("google-calendar-test-btn");
+    const testResult = document.getElementById("google-calendar-test-result");
+
+    const setPanelVisible = (visible) => {
+        panel?.classList.toggle("hide", !visible);
+    };
+
+    toggle?.addEventListener("change", () => {
+        setPanelVisible(toggle.checked);
+    });
+
+    const showTestResult = (ok, message) => {
+        if (!testResult) {
+            return;
+        }
+
+        testResult.textContent = message;
+        testResult.classList.remove("hide", "is-success", "is-error");
+        testResult.classList.add(ok ? "is-success" : "is-error");
+    };
+
+    testBtn?.addEventListener("click", async () => {
+        const testUrl = testBtn.dataset.testUrl;
+
+        if (!testUrl) {
+            return;
+        }
+
+        testBtn.disabled = true;
+        showTestResult(true, testBtn.dataset.testingText || "Testing...");
+
+        const payload = {
+            google_service_account_json:
+                document.querySelector('[name="google_service_account_json"]')?.value
+                || "",
+            google_calendar_id: document.querySelector('[name="google_calendar_id"]')?.value || "",
+        };
+
+        try {
+            const response = await fetch(testUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                    "X-CSRF-TOKEN": window.AestheticCart?.csrfToken || "",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+            showTestResult(Boolean(data.ok), data.message || (data.ok ? "OK" : "Failed"));
+        } catch (error) {
+            showTestResult(false, error?.message || "Connection test failed.");
+        } finally {
+            testBtn.disabled = false;
+        }
+    });
+})();
+
 (function initGoogleSheetsSettingsPanel() {
     const root = document.querySelector("[data-google-sheets-settings]");
 

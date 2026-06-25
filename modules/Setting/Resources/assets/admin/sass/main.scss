@@ -1751,7 +1751,8 @@ $settings-sidebar-offset: 16px;
         grid-template-columns: 1fr;
     }
 
-    .st-tab--google-sheets .gs-settings__stat-link {
+    .st-tab--google-sheets .gs-settings__stat-link,
+    .st-tab--google-calendar .gs-settings__stat-link {
         margin-left: 0;
         width: 100%;
     }
@@ -2190,8 +2191,9 @@ $settings-sidebar-offset: 16px;
     margin-top: 12px;
 }
 
-// Google Sheets settings tab
-.st-tab--google-sheets {
+// Google Sheets & Calendar settings tabs
+.st-tab--google-sheets,
+.st-tab--google-calendar {
     .gs-settings {
         display: flex;
         flex-direction: column;
@@ -2647,6 +2649,55 @@ $settings-sidebar-offset: 16px;
             margin: 0;
             font-size: 13px;
             color: $settings-muted;
+        }
+    }
+
+    .gc-credentials-card {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid $settings-border;
+        background: #f8fafc;
+
+        &.is-ready {
+            border-color: #abefc6;
+            background: #ecfdf3;
+        }
+
+        &.is-missing {
+            border-color: #fecdca;
+            background: #fef3f2;
+        }
+
+        &__status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+
+            .fa-check-circle {
+                color: #027a48;
+            }
+
+            .fa-exclamation-circle {
+                color: #b42318;
+            }
+        }
+    }
+
+    .gc-workflow-list {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 13px;
+        line-height: 1.65;
+        color: $settings-text;
+
+        li + li {
+            margin-top: 8px;
         }
     }
 }

@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.23' => [
+        'en' => [
+            'summary' => 'Modern Google Calendar settings UI with connection test.',
+            'changes' => [
+                'Redesign Google Calendar settings tab to match the Google Excel layout.',
+                'Add Test connection for service account auth and calendar access.',
+                'Show shared-credentials status card with link back to Google Excel settings.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UI Tetapan Google Calendar moden dengan ujian sambungan.',
+            'changes' => [
+                'Reka semula tab tetapan Google Calendar mengikut susun atur Google Excel.',
+                'Tambah Uji sambungan untuk pengesahan akaun perkhidmatan dan akses kalendar.',
+                'Paparkan kad status kelayakan dikongsi dengan pautan ke tetapan Google Excel.',
+            ],
+        ],
+    ],
     '4.9.22' => [
         'en' => [
             'summary' => 'Fix broken confirm dialogs on Settings System and related admin pages.',

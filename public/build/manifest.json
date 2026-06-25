@@ -1249,13 +1249,13 @@
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-JTk-6v-y-v4.7.71.js",
+    "file": "assets/main-BmJaEkfL-v4.7.71.js",
     "name": "main",
     "src": "modules/Setting/Resources/assets/admin/js/main.js",
     "isEntry": true
   },
   "modules/Setting/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BlbzwTnx-v4.7.71.css",
+    "file": "assets/main-DDZ9sP4i-v4.7.71.css",
     "src": "modules/Setting/Resources/assets/admin/sass/main.scss"
   },
   "modules/Slider/Resources/assets/admin/js/main.js": {
@@ -1544,16 +1544,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.71.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-BZn6bGVz-v4.7.71.css",
