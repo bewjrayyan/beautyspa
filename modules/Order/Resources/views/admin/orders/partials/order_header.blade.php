@@ -1,39 +1,38 @@
-<div class="order-show__header">
-    <div class="order-show__header-row">
+<div class="order-show__hero">
+    <div class="order-show__hero-top">
         <div class="order-show__identity">
             <div class="order-show__identity-main">
                 @include('order::admin.orders.partials.customer_avatar', ['order' => $order])
 
                 <div class="order-show__identity-body">
-                    <span class="order-show__order-id">#{{ $order->id }}</span>
-                    <h2 class="order-show__customer-name">
-                        <span class="order-show__customer-name-text">{{ $order->customer_full_name }}</span>
+                    <div class="order-show__identity-labels">
+                        <span class="order-show__order-id">#{{ $order->id }}</span>
                         @if ($order->customer_id || filled($order->customer_email))
-                            <span class="badge order-show__customer-badge order-show__customer-badge--{{ $order->isReturningCustomer() ? 'returning' : 'new' }}">
+                            <span class="order-show__customer-badge order-show__customer-badge--{{ $order->isReturningCustomer() ? 'returning' : 'new' }}">
                                 {{ $order->customerRecencyBadgeLabel() }}
                             </span>
                         @endif
-                    </h2>
-                    <p class="order-show__meta">
-                        <i class="fa fa-calendar-o" aria-hidden="true"></i>
-                        {{ $order->created_at->format('d M Y, H:i') }}
+                    </div>
+                    <h2 class="order-show__customer-name">{{ $order->customer_full_name }}</h2>
+                    <div class="order-show__meta">
+                        <span class="order-show__meta-chip">
+                            <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                            <span>{{ $order->created_at->format('d M Y, H:i') }}</span>
+                        </span>
                         @if ($order->customer_email)
-                            <span class="order-show__meta-sep">·</span>
-                            <a href="mailto:{{ $order->customer_email }}" class="order-show__meta-link">
+                            <a href="mailto:{{ $order->customer_email }}" class="order-show__meta-chip order-show__meta-chip--link">
                                 <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                 <span>{{ $order->customer_email }}</span>
                             </a>
                         @endif
                         @if ($order->customer_phone)
-                            <span class="order-show__meta-sep">·</span>
-                            <a href="tel:{{ $order->customer_phone }}" class="order-show__meta-link">
+                            <a href="tel:{{ $order->customer_phone }}" class="order-show__meta-chip order-show__meta-chip--link">
                                 <i class="fa fa-phone" aria-hidden="true"></i>
                                 <span>{{ $order->customer_phone }}</span>
                             </a>
                         @endif
                         @if ($order->customer?->date_of_birth)
-                            <span class="order-show__meta-sep">·</span>
-                            <span class="order-show__meta-static">
+                            <span class="order-show__meta-chip">
                                 <i class="fa fa-birthday-cake" aria-hidden="true"></i>
                                 <span>
                                     {{ $order->customer->date_of_birth->format('d M Y') }}
@@ -41,49 +40,74 @@
                                 </span>
                             </span>
                         @endif
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="order-show__summary">
-            <span class="badge order-show__status-badge" id="order-status-badge">{{ $order->status() }}</span>
-            <span class="badge order-show__status-badge" id="order-payment-status-badge">{{ $order->paymentStatusLabel() }}</span>
-            @if (!empty($treatmentBooking))
-                <span class="badge order-show__status-badge order-show__status-badge--treatment" id="order-treatment-status-badge">
-                    {{ $treatmentBooking->treatmentStatusLabel() }}
-                </span>
-            @endif
-            <span class="order-show__total">{{ $order->total->format() }}</span>
-        </div>
+        <aside class="order-show__hero-panel" aria-label="{{ trans('order::orders.order_summary') }}">
+            <div class="order-show__hero-stats">
+                <div class="order-show__stat">
+                    <span class="order-show__stat-label">{{ trans('order::orders.order_status') }}</span>
+                    <span
+                        class="order-show__chip"
+                        id="order-status-badge"
+                        data-status-type="order"
+                        data-status="{{ $order->status }}"
+                    >{{ $order->status() }}</span>
+                </div>
+                <div class="order-show__stat">
+                    <span class="order-show__stat-label">{{ trans('order::orders.payment_status') }}</span>
+                    <span
+                        class="order-show__chip"
+                        id="order-payment-status-badge"
+                        data-status-type="payment"
+                        data-status="{{ $order->payment_status }}"
+                    >{{ $order->paymentStatusLabel() }}</span>
+                </div>
+                @if (!empty($treatmentBooking))
+                    <div class="order-show__stat">
+                        <span class="order-show__stat-label">{{ trans('order::orders.treatment_status') }}</span>
+                        <span
+                            class="order-show__chip"
+                            id="order-treatment-status-badge"
+                            data-status-type="treatment"
+                            data-status="{{ $treatmentBooking->status }}"
+                        >{{ $treatmentBooking->treatmentStatusLabel() }}</span>
+                    </div>
+                @endif
+            </div>
+            <div class="order-show__hero-total">
+                <span class="order-show__hero-total-label">{{ trans('order::orders.total') }}</span>
+                <strong class="order-show__hero-total-value">{{ $order->total->format() }}</strong>
+            </div>
+        </aside>
     </div>
 
-    <div class="order-show__toolbar">
-        <div class="order-show__status-controls">
-            <div class="order-show__control">
-                <label for="order-status">{{ trans('order::orders.order_status') }}</label>
-                <select id="order-status" class="form-control custom-select-black" data-id="{{ $order->id }}">
+    <div class="order-show__command-bar">
+        <div class="order-show__status-strip">
+            <div class="order-show__status-field order-show__status-field--order">
+                <label for="order-status" title="{{ trans('order::orders.order_status_help') }}">{{ trans('order::orders.order_status') }}</label>
+                <select id="order-status" class="form-control custom-select-black order-show__status-select" data-id="{{ $order->id }}">
                     @foreach (trans('order::statuses') as $name => $label)
                         <option value="{{ $name }}" {{ $order->status === $name ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
-                <p class="order-show__control-hint">{{ trans('order::orders.order_status_help') }}</p>
             </div>
-            <div class="order-show__control">
-                <label for="order-payment-status">{{ trans('order::orders.payment_status') }}</label>
-                <select id="order-payment-status" class="form-control custom-select-black" data-id="{{ $order->id }}">
+            <div class="order-show__status-field order-show__status-field--payment">
+                <label for="order-payment-status" title="{{ trans('order::orders.payment_status_help') }}">{{ trans('order::orders.payment_status') }}</label>
+                <select id="order-payment-status" class="form-control custom-select-black order-show__status-select" data-id="{{ $order->id }}">
                     @foreach (trans('order::payment_statuses') as $name => $label)
                         <option value="{{ $name }}" {{ $order->payment_status === $name ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
-                <p class="order-show__control-hint">{{ trans('order::orders.payment_status_help') }}</p>
             </div>
             @if (!empty($treatmentBooking))
-                <div class="order-show__control">
-                    <label for="order-treatment-status">{{ trans('order::orders.treatment_status') }}</label>
+                <div class="order-show__status-field order-show__status-field--treatment">
+                    <label for="order-treatment-status" title="{{ trans('order::orders.treatment_status_help') }}">{{ trans('order::orders.treatment_status') }}</label>
                     <select
                         id="order-treatment-status"
-                        class="form-control custom-select-black"
+                        class="form-control custom-select-black order-show__status-select"
                         data-id="{{ $order->id }}"
                     >
                         @foreach (\Modules\TreatmentReservation\Entities\TreatmentBooking::statuses() as $status)
@@ -94,7 +118,6 @@
                             </option>
                         @endforeach
                     </select>
-                    <p class="order-show__control-hint">{{ trans('order::orders.treatment_status_help') }}</p>
                 </div>
             @endif
         </div>
@@ -106,7 +129,7 @@
             ])
 
             <div class="order-show__control order-show__control--actions">
-                <label id="order-actions-label">{{ trans('order::orders.actions') }}</label>
+                <label id="order-actions-label" class="sr-only">{{ trans('order::orders.actions') }}</label>
                 <div
                     id="order-actions"
                     class="btn-group order-show__actions-dropdown"

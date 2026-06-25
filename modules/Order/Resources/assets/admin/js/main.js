@@ -32,12 +32,16 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
         return `orders/${orderId}/${suffix}`;
     }
 
-    function updateBadge($badge, text) {
+    function updateBadge($badge, text, statusValue = null) {
         if (!$badge.length) {
             return;
         }
 
         $badge.text(text);
+
+        if (statusValue !== null && statusValue !== undefined) {
+            $badge.attr("data-status", statusValue);
+        }
     }
 
     function syncOrderStatusAfterPayment(value) {
@@ -69,7 +73,8 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
         $orderStatus.val(nextStatus);
         updateBadge(
             $orderStatusBadge,
-            $orderStatus.find("option:selected").text()
+            $orderStatus.find("option:selected").text(),
+            nextStatus
         );
     }
 
@@ -91,7 +96,7 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
             http
                 .put(adminOrderUrl(orderId, suffix), payload)
                 .then((response) => {
-                    updateBadge($badge, label);
+                    updateBadge($badge, label, value);
 
                     if (bodyKey === "payment_status") {
                         syncOrderStatusAfterPayment(value);

@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.40' => [
+        'en' => [
+            'summary' => 'Modern light redesign of the admin order details page.',
+            'changes' => [
+                'Rebuild the order hero with a floating card, labeled status panel, and prominent total.',
+                'Replace heavy status boxes with a compact command bar and inline status strip.',
+                'Refresh cards, tables, sidebar, and action buttons with a lighter modern visual style.',
+                'Keep status chips in sync when admins change order, payment, or treatment status.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Reka bentuk moden dan ringan untuk halaman butiran pesanan admin.',
+            'changes' => [
+                'Bina semula hero pesanan dengan kad terapung, panel status berlabel, dan jumlah yang lebih menonjol.',
+                'Ganti kotak status berat dengan bar arahan padat dan jalur status sebaris.',
+                'Segarkan kad, jadual, sidebar, dan butang tindakan dengan gaya visual moden yang lebih ringan.',
+                'Kekalkan chip status selaras apabila admin menukar status pesanan, bayaran, atau rawatan.',
+            ],
+        ],
+    ],
     '4.9.39' => [
         'en' => [
             'summary' => 'Separate order, payment, and treatment statuses; improve admin order page layout.',

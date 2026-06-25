@@ -13,7 +13,7 @@
             && filled($order->customer_phone);
     @endphp
 
-    <div class="order-show box">
+    <div class="order-show box order-show--modern">
         @if ($order->trashed())
             <div class="order-show__archived-alert alert alert-warning" role="status">
                 <i class="fa fa-archive" aria-hidden="true"></i>
