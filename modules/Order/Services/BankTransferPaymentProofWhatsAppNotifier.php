@@ -2,9 +2,9 @@
 
 namespace Modules\Order\Services;
 
-use Exception;
 use Modules\Media\Entities\File;
 use Modules\Order\Entities\Order;
+use Modules\Setting\Support\SettingValues;
 use Modules\User\Services\OneSenderWhatsAppService;
 
 class BankTransferPaymentProofWhatsAppNotifier
@@ -19,7 +19,7 @@ class BankTransferPaymentProofWhatsAppNotifier
     {
         return $order->getRawOriginal('payment_method') === 'bank_transfer'
             && $order->hasPaymentProof()
-            && setting('bank_transfer_payment_proof_whatsapp_enabled')
+            && SettingValues::isTruthy('bank_transfer_payment_proof_whatsapp_enabled')
             && filled(trim((string) setting('bank_transfer_payment_proof_whatsapp_group_id', '')))
             && OneSenderWhatsAppService::isConfigured();
     }
@@ -63,7 +63,7 @@ class BankTransferPaymentProofWhatsAppNotifier
             );
 
         if (! $sent) {
-            throw new Exception(trans('order::whatsapp.send_failed'));
+            report(new \RuntimeException(trans('order::whatsapp.send_failed')));
         }
     }
 

@@ -3,6 +3,7 @@
 namespace Modules\Checkout\Http\Controllers;
 
 use Exception;
+use Modules\Order\Entities\Order;
 use Modules\Support\Country;
 use Modules\Cart\Facades\Cart;
 use Modules\Page\Entities\Page;
@@ -92,11 +93,11 @@ class CheckoutController extends Controller
 
         try {
             $response = $gateway->purchase($order, $request);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $orderService->delete($order);
 
             return response()->json([
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage() ?: trans('storefront::storefront.something_went_wrong'),
             ], 403);
         }
 
@@ -113,18 +114,29 @@ class CheckoutController extends Controller
         try {
             CheckoutCompletionGuard::assertCanComplete($order, $paymentMethod);
             $completionResponse = $gateway->complete($order);
-        } catch (Exception $e) {
+            $order->storeTransaction($completionResponse);
+        } catch (\Throwable $e) {
             return response()->json([
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage() ?: trans('storefront::storefront.something_went_wrong'),
             ], 403);
         }
 
-        $order->storeTransaction($completionResponse);
-        event(new OrderPlaced($order));
+        $this->dispatchOrderPlacedSafely($order);
 
         return response()->json(array_merge($purchaseResponse->toArray(), [
+            'orderId' => $order->id,
             'redirectUrl' => storefront_route('checkout.complete.show'),
         ]));
+    }
+
+
+    private function dispatchOrderPlacedSafely(Order $order): void
+    {
+        try {
+            event(new OrderPlaced($order));
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
 

@@ -31,8 +31,22 @@ class CheckoutCompleteController
      *
      * @return RedirectResponse|\Illuminate\Http\JsonResponse
      */
-    public function store(int $orderId, OrderService $orderService)
+    public function store($orderId, OrderService $orderService)
     {
+        $orderId = filter_var($orderId, FILTER_VALIDATE_INT);
+
+        if ($orderId === false || $orderId < 1) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'message' => trans('order::orders.not_found', ['id' => request()->route('orderId')]),
+                ], 404);
+            }
+
+            return redirect()
+                ->route('checkout.create')
+                ->with('error', trans('order::orders.not_found', ['id' => request()->route('orderId')]));
+        }
+
         if (request()->query('paymentMethod') === 'iyzico') {
             try {
                 $request = new \Iyzipay\Request\RetrieveCheckoutFormRequest();

@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.36' => [
+        'en' => [
+            'summary' => 'Fix Bank Transfer checkout 500 error in production.',
+            'changes' => [
+                'Redirect offline payments directly after checkout instead of calling complete with an undefined order ID.',
+                'Isolate OrderPlaced listener failures so WhatsApp proof alerts cannot break checkout.',
+                'Validate order ID on checkout complete and harden bank transfer proof upload error handling.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki ralat 500 checkout Pemindahan Bank dalam production.',
+            'changes' => [
+                'Alihkan bayaran offline terus selepas checkout tanpa memanggil complete dengan ID pesanan undefined.',
+                'Asingkan kegagalan listener OrderPlaced supaya amaran WhatsApp bukti tidak pecahkan checkout.',
+                'Sahkan ID pesanan pada checkout complete dan perkukuh pengendalian ralat muat naik bukti pemindahan bank.',
+            ],
+        ],
+    ],
     '4.9.35' => [
         'en' => [
             'summary' => 'Bank transfer payment proof WhatsApp alerts and inline admin receipt preview.',

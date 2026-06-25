@@ -140,6 +140,16 @@ Alpine.data(
             );
         },
 
+        get offlinePaymentMethods() {
+            return ["bank_transfer", "cod", "check_payment"];
+        },
+
+        get isOfflinePaymentMethod() {
+            return this.offlinePaymentMethods.includes(
+                this.form.payment_method
+            );
+        },
+
         get paymentInstructions() {
             if (this.shouldShowPaymentInstructions) {
                 return this.gateways[this.form.payment_method].instructions;
@@ -1215,9 +1225,32 @@ Alpine.data(
                     this.buildCheckoutRequestBody()
                 )
                 .then(({ data }) => {
-                    if (data.redirectUrl) {
+                    if (data?.redirectUrl) {
                         window.location.href = data.redirectUrl;
-                    } else if (this.form.payment_method === "stripe") {
+
+                        return;
+                    }
+
+                    if (this.isOfflinePaymentMethod) {
+                        if (data?.orderId) {
+                            this.confirmOrder(
+                                data.orderId,
+                                this.form.payment_method
+                            );
+                        } else {
+                            this.placingOrder = false;
+                            notify(
+                                data?.message ||
+                                    trans(
+                                        "storefront::storefront.something_went_wrong"
+                                    )
+                            );
+                        }
+
+                        return;
+                    }
+
+                    if (this.form.payment_method === "stripe") {
                         this.confirmStripePayment(data);
                     } else if (this.form.payment_method === "paytm") {
                         this.confirmPaytmPayment(data);
@@ -1261,6 +1294,13 @@ Alpine.data(
         },
 
         confirmOrder(orderId, paymentMethod, params = {}) {
+            if (!orderId) {
+                this.placingOrder = false;
+                notify(trans("storefront::storefront.something_went_wrong"));
+
+                return;
+            }
+
             axios
                 .get(`/checkout/${orderId}/complete`, {
                     params: {
