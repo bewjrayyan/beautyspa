@@ -46,9 +46,11 @@ class BankTransferPaymentProofWhatsAppNotifier
             'immediate' => true,
         ];
 
-        $fileUrl = (string) $proof->path;
+        try {
+            $fileUrl = app(OrderPaymentProofPublicUrlService::class)->whatsAppMediaUrl($proof, $order);
+        } catch (\Throwable $exception) {
+            report($exception);
 
-        if ($fileUrl === '') {
             return;
         }
 

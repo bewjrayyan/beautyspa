@@ -11,15 +11,22 @@
         <div class="box-header with-border orders-index__head">
             <h3 class="box-title">{{ trans('order::orders.orders') }}</h3>
             <div class="box-tools pull-right">
-                @if (is_module_enabled('GoogleIntegration') && setting('google_sheets_enabled'))
+                @if (is_module_enabled('GoogleIntegration') && setting('google_sheets_enabled') && ($sheetsFailedCount > 0 || request()->boolean('google_sheets_failed')))
                     <button
                         type="button"
                         class="btn btn-default orders-index__toggle-sheets-failed"
                         id="orders-toggle-sheets-failed"
                         aria-pressed="false"
+                        title="{{ trans('order::orders.sheets_failed_filter_help') }}"
                     >
                         <i class="fa fa-table" aria-hidden="true"></i>
-                        <span class="orders-index__toggle-sheets-failed-label">{{ trans('order::orders.show_sheets_failed') }}</span>
+                        <span class="orders-index__toggle-sheets-failed-label">
+                            @if ($sheetsFailedCount > 0)
+                                {{ trans('order::orders.show_sheets_failed_count', ['count' => $sheetsFailedCount]) }}
+                            @else
+                                {{ trans('order::orders.show_sheets_failed') }}
+                            @endif
+                        </span>
                     </button>
                 @endif
                 <button
@@ -40,20 +47,14 @@
             </div>
         </div>
 
-        <div
-            id="orders-archived-notice"
-            class="orders-index__archived-notice alert alert-warning"
-            role="status"
-            hidden
-        >
-            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-            <span>{{ trans('order::orders.archived_index_notice') }}</span>
-        </div>
-
         <div class="box-body index-table" id="orders-table">
             @component('admin::components.table')
                 @slot('thead')
                     <tr>
+                        @hasAccess('admin.orders.destroy')
+                            @include('admin::partials.table.select_all')
+                        @endHasAccess
+
                         <th>{{ trans('admin::admin.table.id') }}</th>
                         <th>{{ trans('order::orders.table.customer_name') }}</th>
                         <th>{{ trans('order::orders.table.customer_email') }}</th>
@@ -95,8 +96,12 @@
                 showArchivedCountLabel: @json(trans('order::orders.show_archived_count', ['count' => '__COUNT__'])),
                 showActiveOrdersLabel: @json(trans('order::orders.show_active_orders')),
                 showSheetsFailedLabel: @json(trans('order::orders.show_sheets_failed')),
+                showSheetsFailedCountLabel: @json(trans('order::orders.show_sheets_failed_count', ['count' => '__COUNT__'])),
                 showAllOrdersLabel: @json(trans('order::orders.show_all_orders')),
+                bulkForceDeleteConfirm: @json(trans('order::orders.bulk_force_delete_confirm')),
                 archivedCount: {{ (int) $archivedCount }},
+                sheetsFailedCount: {{ (int) $sheetsFailedCount }},
+                canBulkDelete: @json(auth()->user()->hasAccess('admin.orders.destroy')),
             };
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -117,7 +122,6 @@
                 const $ordersTableEl = $('#orders-table .table');
                 const $toggleArchivedBtn = $('#orders-toggle-archived');
                 const $toggleSheetsFailedBtn = $('#orders-toggle-sheets-failed');
-                const $archivedNotice = $('#orders-archived-notice');
                 const $toggleArchivedLabel = $toggleArchivedBtn.find('.orders-index__toggle-archived-label');
                 const $toggleSheetsFailedLabel = $toggleSheetsFailedBtn.find('.orders-index__toggle-sheets-failed-label');
                 let $activeActionsMenu = null;
@@ -144,10 +148,8 @@
                     $toggleArchivedLabel.text(archivedToggleLabel());
 
                     if (showArchived) {
-                        $archivedNotice.removeAttr('hidden');
                         $ordersTable.addClass('orders-index--archived');
                     } else {
-                        $archivedNotice.attr('hidden', 'hidden');
                         $ordersTable.removeClass('orders-index--archived');
                     }
 
@@ -178,7 +180,7 @@
                         .toggleClass('btn-default', !showSheetsFailed)
                         .attr('aria-pressed', showSheetsFailed ? 'true' : 'false');
                     $toggleSheetsFailedLabel.text(
-                        showSheetsFailed ? config.showAllOrdersLabel : config.showSheetsFailedLabel
+                        showSheetsFailed ? config.showAllOrdersLabel : sheetsFailedToggleLabel()
                     );
 
                     const url = new URL(window.location.href);
@@ -194,6 +196,99 @@
 
                 syncArchivedUi();
                 syncSheetsFailedUi();
+
+                function sheetsFailedToggleLabel() {
+                    if (config.sheetsFailedCount > 0) {
+                        return config.showSheetsFailedCountLabel.replace('__COUNT__', String(config.sheetsFailedCount));
+                    }
+
+                    return config.showSheetsFailedLabel;
+                }
+
+                function bindOrdersBulkDelete(dtInstance) {
+                    if (!config.canBulkDelete) {
+                        return;
+                    }
+
+                    const $table = dtInstance.element;
+                    const $deleteBtn = $table.closest('.dt-container').find('.btn-delete');
+
+                    $deleteBtn.off('click.ordersBulkDelete').on('click.ordersBulkDelete', function () {
+                        const checked = $table.find('.select-row:checked');
+
+                        if (!checked.length) {
+                            return;
+                        }
+
+                        const ids = window.DataTable.getRowIds(checked);
+                        const confirmationModal = $('#confirmation-modal');
+                        const $modalMessage = confirmationModal.find('.default-message');
+                        const $deleteButton = confirmationModal.find('.btn.delete');
+                        const isPermanent = showArchived;
+
+                        if (!$modalMessage.data('default-message')) {
+                            $modalMessage.data('default-message', $modalMessage.text());
+                        }
+
+                        if (!$deleteButton.data('default-label')) {
+                            $deleteButton.data('default-label', $deleteButton.text());
+                        }
+
+                        $modalMessage.text(
+                            isPermanent
+                                ? config.bulkForceDeleteConfirm.replace(':count', String(ids.length))
+                                : $modalMessage.data('default-message')
+                        );
+                        $deleteButton.text(
+                            isPermanent ? config.forceDeleteLabel : $deleteButton.data('default-label')
+                        );
+
+                        confirmationModal
+                            .modal('show')
+                            .find('form')
+                            .off('submit')
+                            .on('submit', function (event) {
+                                event.preventDefault();
+
+                                confirmationModal.modal('hide');
+
+                                const deleteUrl = isPermanent
+                                    ? window.AestheticCart.baseUrl + '/admin/orders/' + ids.join(',') + '/force'
+                                    : window.AestheticCart.baseUrl + '/admin/orders/' + ids.join(',');
+
+                                axios
+                                    .delete(deleteUrl)
+                                    .then(function () {
+                                        window.DataTable.setSelectedIds('#orders-table .table', []);
+                                        window.DataTable.reload('#orders-table .table');
+
+                                        if (typeof window.success === 'function') {
+                                            window.success(
+                                                isPermanent ? config.forceDeletedMessage : config.deletedMessage
+                                            );
+                                        }
+
+                                        if (isPermanent && config.archivedCount > 0) {
+                                            config.archivedCount = Math.max(0, config.archivedCount - ids.length);
+                                            syncArchivedUi();
+                                        }
+                                    })
+                                    .catch(function (err) {
+                                        if (typeof window.error === 'function') {
+                                            window.error(
+                                                err.response && err.response.data && err.response.data.message
+                                                    ? err.response.data.message
+                                                    : config.errorMessage
+                                            );
+                                        }
+                                    })
+                                    .finally(function () {
+                                        $modalMessage.text($modalMessage.data('default-message'));
+                                        $deleteButton.text($deleteButton.data('default-label'));
+                                    });
+                            });
+                    });
+                }
 
                 function closeOrderActionsMenu() {
                     if ($activeActionsMenu) {
@@ -346,8 +441,40 @@
                     routes: {
                         table: 'table',
                         show: 'show',
+                        destroy: 'destroy',
                     },
                 });
+
+                const orderColumns = [];
+
+                if (config.canBulkDelete) {
+                    orderColumns.push({
+                        data: 'checkbox',
+                        orderable: false,
+                        searchable: false,
+                        width: '3%',
+                    });
+                }
+
+                orderColumns.push(
+                    { data: 'id', width: '5%' },
+                    { data: 'customer_name', orderable: false, searchable: false },
+                    { data: 'customer_email' },
+                    { data: 'status' },
+                    { data: 'payment_status', orderable: false, searchable: false },
+                    @if (is_module_enabled('SpaBranch'))
+                    { data: 'spa_branch', orderable: false, searchable: false },
+                    @endif
+                    { data: 'total' },
+                    { data: 'created', name: 'created_at' },
+                    {
+                        data: 'action',
+                        orderable: false,
+                        searchable: false,
+                        className: 'table-row-actions text-center',
+                        width: '8%',
+                    }
+                );
 
                 new DataTable('#orders-table .table', {
                     ajax: {
@@ -358,25 +485,9 @@
                             data.google_sheets_failed = showSheetsFailed ? 1 : 0;
                         },
                     },
-                    columns: [
-                        { data: 'id', width: '5%' },
-                        { data: 'customer_name', orderable: false, searchable: false },
-                        { data: 'customer_email' },
-                        { data: 'status' },
-                        { data: 'payment_status', orderable: false, searchable: false },
-                        @if (is_module_enabled('SpaBranch'))
-                        { data: 'spa_branch', orderable: false, searchable: false },
-                        @endif
-                        { data: 'total' },
-                        { data: 'created', name: 'created_at' },
-                        {
-                            data: 'action',
-                            orderable: false,
-                            searchable: false,
-                            className: 'table-row-actions text-center',
-                            width: '8%',
-                        },
-                    ],
+                    columns: orderColumns,
+                }, function () {
+                    bindOrdersBulkDelete(this);
                 });
 
                 $toggleArchivedBtn.on('click', function () {

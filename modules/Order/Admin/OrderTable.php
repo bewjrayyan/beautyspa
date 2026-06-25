@@ -14,6 +14,7 @@ class OrderTable extends AdminTable
      * @var array
      */
     protected array $rawColumns = [
+        'checkbox',
         'id',
         'status',
         'payment_status',

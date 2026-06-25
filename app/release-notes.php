@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.38' => [
+        'en' => [
+            'summary' => 'Fix WhatsApp payment proof attachments and add admin orders bulk delete.',
+            'changes' => [
+                'Publish bank transfer proof files on a WhatsApp-safe public URL so group alerts include the receipt image.',
+                'Add bulk delete to the admin orders table, including permanent delete in archived view.',
+                'Clarify Google Sheets sync issue filter labels and remove the redundant archived orders banner.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki lampiran bukti bayaran WhatsApp dan tambah padam pukal pesanan admin.',
+            'changes' => [
+                'Terbitkan fail bukti pemindahan bank pada URL awam selamat WhatsApp supaya amaran kumpulan menyertakan imej resit.',
+                'Tambah padam pukal pada jadual pesanan admin, termasuk padam kekal dalam paparan arkib.',
+                'Jelaskan label penapis isu sync Google Sheets dan buang banner pesanan diarkibkan yang berlebihan.',
+            ],
+        ],
+    ],
     '4.9.37' => [
         'en' => [
             'summary' => 'Show bank transfer payment proof on customer order pages.',

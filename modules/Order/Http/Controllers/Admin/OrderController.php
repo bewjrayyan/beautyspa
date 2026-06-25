@@ -65,6 +65,9 @@ class OrderController
 
         return view("{$this->viewPath}.index", [
             'archivedCount' => Order::onlyTrashed()->count(),
+            'sheetsFailedCount' => is_module_enabled('GoogleIntegration') && setting('google_sheets_enabled')
+                ? Order::query()->whereNotNull('google_sheets_sync_error')->count()
+                : 0,
         ]);
     }
 

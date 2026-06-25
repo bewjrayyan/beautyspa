@@ -16,7 +16,7 @@ class OrderPaymentProofService
             return null;
         }
 
-        $diskName = config('filesystems.default');
+        $diskName = 'public_storage';
         $disk = Storage::disk($diskName);
         $path = $disk->putFile('media/order-payment-proofs', $file);
 
