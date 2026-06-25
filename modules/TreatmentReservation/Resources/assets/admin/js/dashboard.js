@@ -475,24 +475,26 @@ function initAgendaPanel(app) {
         updateAgenda(day.dataset.date || "");
     };
 
-    app.grid.addEventListener("click", (event) => {
+    const calendarInteractionRoot = app.gridViewport || app.grid;
+
+    calendarInteractionRoot?.addEventListener("click", (event) => {
         const day = event.target.closest(".tr-cal-day[data-date]");
 
-        if (!day) {
+        if (!day || !app.grid?.contains(day)) {
             return;
         }
 
         openAgendaForDay(day);
     });
 
-    app.grid.addEventListener("keydown", (event) => {
+    calendarInteractionRoot?.addEventListener("keydown", (event) => {
         if (event.key !== "Enter" && event.key !== " ") {
             return;
         }
 
         const day = event.target.closest(".tr-cal-day[data-date]");
 
-        if (!day) {
+        if (!day || !app.grid?.contains(day)) {
             return;
         }
 

@@ -233,9 +233,44 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
             padding: 0;
         }
 
-        .tr-calendar-top,
         .tr-calendar-intro {
             display: none;
+        }
+
+        .tr-calendar-top {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 0 12px;
+            background: transparent;
+            border-bottom: 0;
+        }
+
+        .tr-calendar-month-nav {
+            width: 100%;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tr-calendar-month-nav__expand {
+            justify-self: start;
+        }
+
+        .tr-calendar-month-nav__group {
+            grid-column: 2;
+            justify-self: center;
+        }
+
+        .tr-calendar-month-nav__today {
+            justify-self: end;
+            grid-column: 3;
+        }
+
+        .tr-calendar-month-nav__label {
+            min-width: 148px;
+            font-size: 15px;
         }
 
         .tr-calendar-meta {

@@ -123,15 +123,25 @@ class TreatmentReservationsApp {
 
     initCalendar() {
         this.grid = document.getElementById("tr-calendar-grid");
+        this.gridViewport = document.getElementById("tr-calendar-grid-viewport");
+        this.gridTrack = document.getElementById("tr-calendar-grid-track");
         this.monthLabel = document.getElementById("tr-cal-month-label");
         this.monthInput = document.getElementById("tr-month");
         this.emptyCalendarLabel = this.root.dataset.calEmptyLabel || "";
         this.compactCalendar = !!document.querySelector("[data-crm-compact-calendar]");
+        this.pendingSlideDirection = 0;
+        this.calendarAnimating = false;
 
         document.getElementById("tr-cal-prev")?.addEventListener("click", () => this.shiftMonth(-1));
         document.getElementById("tr-cal-next")?.addEventListener("click", () => this.shiftMonth(1));
         document.getElementById("tr-cal-today")?.addEventListener("click", () => {
-            this.month = new Date().toISOString().slice(0, 7);
+            const todayMonth = new Date().toISOString().slice(0, 7);
+
+            if (todayMonth !== this.month) {
+                this.pendingSlideDirection = todayMonth > this.month ? 1 : -1;
+            }
+
+            this.month = todayMonth;
             this.syncMonthInput();
             this.loadCalendar();
         });
@@ -145,35 +155,186 @@ class TreatmentReservationsApp {
         }
     }
 
+    calendarLocale() {
+        return (
+            document.getElementById("tr-crm-dashboard")?.dataset.agendaLocale
+            || this.root.dataset.agendaLocale
+            || document.documentElement.lang
+            || undefined
+        );
+    }
+
     shiftMonth(delta) {
+        if (this.calendarAnimating) {
+            return;
+        }
+
         const [year, month] = this.month.split("-").map(Number);
         const date = new Date(year, month - 1 + delta, 1);
         this.month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        this.pendingSlideDirection = delta;
         this.syncMonthInput();
+        this.updateMonthLabel();
         this.loadCalendar();
     }
 
+    setMonthNavDisabled(disabled) {
+        ["tr-cal-prev", "tr-cal-next", "tr-cal-today"].forEach((id) => {
+            const button = document.getElementById(id);
+
+            if (button) {
+                button.disabled = disabled;
+            }
+        });
+    }
+
     async loadCalendar() {
+        const direction = this.pendingSlideDirection || 0;
+        this.pendingSlideDirection = 0;
+
         const params = this.getFilterParams();
         params.set("month", this.month);
 
-        this.grid.classList.add("tr-calendar-grid--loading");
-        this.grid.innerHTML = `
-            <div class="tr-calendar-loading">
-                <i class="fa fa-spinner fa-spin"></i>
-                <span>Loading calendar…</span>
-            </div>
-        `;
+        const canSlide =
+            direction !== 0
+            && this.gridTrack
+            && this.grid?.querySelector(".tr-cal-day:not(.tr-cal-day--muted)");
 
-        const response = await axios.get(`${this.calendarUrl}?${params.toString()}`);
-        const bookings = response.data.bookings || [];
+        if (!canSlide) {
+            this.grid.classList.add("tr-calendar-grid--loading");
+            this.grid.innerHTML = `
+                <div class="tr-calendar-loading">
+                    <i class="fa fa-spinner fa-spin"></i>
+                    <span>Loading calendar…</span>
+                </div>
+            `;
+        } else {
+            this.gridViewport?.classList.add("tr-calendar-grid-viewport--loading");
+        }
 
-        this.lastCalendarBookings = bookings;
-        setCalendarBookings(bookings);
-        this.renderCalendar(bookings);
-        this.renderCalendarLegend(bookings);
-        this.grid.classList.remove("tr-calendar-grid--loading");
-        this.refreshAgendaPanel?.();
+        try {
+            const response = await axios.get(`${this.calendarUrl}?${params.toString()}`);
+            const bookings = response.data.bookings || [];
+
+            this.lastCalendarBookings = bookings;
+            setCalendarBookings(bookings);
+
+            const html = this.buildCalendarHtml(bookings);
+
+            if (!canSlide) {
+                this.updateMonthLabel();
+            }
+
+            if (canSlide) {
+                await this.slideCalendarTo(html, direction);
+            } else {
+                this.grid.classList.remove("tr-calendar-grid--loading");
+                this.grid.innerHTML = html;
+            }
+
+            this.renderCalendarLegend(bookings);
+            this.refreshAgendaPanel?.();
+        } finally {
+            this.gridViewport?.classList.remove("tr-calendar-grid-viewport--loading");
+            this.grid?.classList.remove("tr-calendar-grid--loading");
+        }
+    }
+
+    async slideCalendarTo(html, direction) {
+        const track = this.gridTrack;
+        const outgoing = this.grid;
+
+        if (!track || !outgoing) {
+            outgoing.innerHTML = html;
+
+            return;
+        }
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            outgoing.innerHTML = html;
+
+            return;
+        }
+
+        const incoming = document.createElement("div");
+        incoming.className = "tr-calendar-grid";
+        incoming.innerHTML = html;
+        incoming.setAttribute("aria-hidden", "true");
+
+        this.calendarAnimating = true;
+        this.setMonthNavDisabled(true);
+
+        try {
+            track.classList.add("tr-calendar-grid-track--no-transition");
+            track.classList.remove("tr-calendar-grid-track--offset-half", "tr-calendar-grid-track--duo");
+
+            if (direction > 0) {
+                track.appendChild(incoming);
+            } else {
+                track.insertBefore(incoming, outgoing);
+            }
+
+            track.classList.add("tr-calendar-grid-track--duo");
+
+            if (direction < 0) {
+                track.classList.add("tr-calendar-grid-track--offset-half");
+            }
+
+            await this.nextAnimationFrame();
+
+            track.classList.remove("tr-calendar-grid-track--no-transition");
+
+            if (direction > 0) {
+                track.classList.add("tr-calendar-grid-track--offset-half");
+            } else {
+                track.classList.remove("tr-calendar-grid-track--offset-half");
+            }
+
+            await this.waitForTransition(track);
+
+            track.classList.add("tr-calendar-grid-track--no-transition");
+            track.classList.remove("tr-calendar-grid-track--duo", "tr-calendar-grid-track--offset-half");
+            incoming.id = "tr-calendar-grid";
+            incoming.removeAttribute("aria-hidden");
+            outgoing.remove();
+            track.appendChild(incoming);
+            this.grid = incoming;
+
+            await this.nextAnimationFrame();
+            track.classList.remove("tr-calendar-grid-track--no-transition");
+        } finally {
+            this.calendarAnimating = false;
+            this.setMonthNavDisabled(false);
+        }
+    }
+
+    nextAnimationFrame() {
+        return new Promise((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+    }
+
+    waitForTransition(element) {
+        return new Promise((resolve) => {
+            const finish = () => resolve();
+
+            element.addEventListener("transitionend", finish, { once: true });
+            window.setTimeout(finish, 380);
+        });
+    }
+
+    updateMonthLabel() {
+        if (!this.monthLabel) {
+            return;
+        }
+
+        const [year, month] = this.month.split("-").map(Number);
+        const firstDay = new Date(year, month - 1, 1);
+
+        this.monthLabel.textContent = firstDay.toLocaleDateString(this.calendarLocale(), {
+            month: "long",
+            year: "numeric",
+        });
     }
 
     renderCalendarLegend(bookings) {
@@ -205,16 +366,19 @@ class TreatmentReservationsApp {
     }
 
     renderCalendar(bookings) {
+        if (this.grid) {
+            this.grid.innerHTML = this.buildCalendarHtml(bookings);
+        }
+
+        this.updateMonthLabel();
+    }
+
+    buildCalendarHtml(bookings) {
         const [year, month] = this.month.split("-").map(Number);
         const firstDay = new Date(year, month - 1, 1);
         const lastDay = new Date(year, month, 0);
         const startOffset = (firstDay.getDay() + 6) % 7;
         const daysInMonth = lastDay.getDate();
-
-        this.monthLabel.textContent = firstDay.toLocaleDateString(undefined, {
-            month: "long",
-            year: "numeric",
-        });
 
         const byDate = bookings.reduce((acc, booking) => {
             if (!acc[booking.date]) {
@@ -265,7 +429,7 @@ class TreatmentReservationsApp {
             `);
         }
 
-        this.grid.innerHTML = cells.join("");
+        return cells.join("");
     }
 
     renderCompactDayContent(dayBookings) {

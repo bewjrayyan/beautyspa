@@ -77,10 +77,14 @@
             <span class="tr-calendar-weekdays__weekend">{{ trans('treatmentreservation::admin.calendar.weekdays.sun') }}</span>
         </div>
 
-        <div class="tr-calendar-grid" id="tr-calendar-grid">
-            <div class="tr-calendar-loading">
-                <i class="fa fa-spinner fa-spin"></i>
-                <span>{{ trans('treatmentreservation::admin.calendar.loading') }}</span>
+        <div class="tr-calendar-grid-viewport" id="tr-calendar-grid-viewport">
+            <div class="tr-calendar-grid-track" id="tr-calendar-grid-track">
+                <div class="tr-calendar-grid" id="tr-calendar-grid">
+                    <div class="tr-calendar-loading">
+                        <i class="fa fa-spinner fa-spin"></i>
+                        <span>{{ trans('treatmentreservation::admin.calendar.loading') }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

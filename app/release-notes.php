@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.44' => [
+        'en' => [
+            'summary' => 'Improve CRM embedded calendar month navigation and slide transitions.',
+            'changes' => [
+                'Show month/year navigation on the reservations dashboard embedded calendar.',
+                'Slide the calendar left or right when changing months instead of flashing a full reload.',
+                'Keep day agenda interactions working during animated month changes.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki navigasi bulan dan animasi slide pada kalendar CRM.',
+            'changes' => [
+                'Paparkan navigasi bulan/tahun pada kalendar terbenam dashboard tempahan.',
+                'Gelongsorkan kalendar ke kiri atau kanan apabila menukar bulan dan bukannya refresh penuh.',
+                'Kekalkan interaksi agenda hari berfungsi semasa animasi tukar bulan.',
+            ],
+        ],
+    ],
     '4.9.43' => [
         'en' => [
             'summary' => 'Show order, payment, and treatment status on the customer account orders screens.',

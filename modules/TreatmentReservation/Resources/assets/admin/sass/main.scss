@@ -1283,9 +1283,14 @@ $tr-text: #1a202c;
     align-items: center;
     justify-content: center;
 
-    &:hover {
+    &:hover:not(:disabled) {
         background: #f1f5f9;
         color: #4338ca;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: wait;
     }
 }
 
@@ -1305,8 +1310,13 @@ $tr-text: #1a202c;
     border: 1px solid #c7d2fe;
     color: #4338ca;
 
-    &:hover {
+    &:hover:not(:disabled) {
         background: #eef2ff;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: wait;
     }
 }
 
@@ -1370,6 +1380,49 @@ $tr-text: #1a202c;
 
 .tr-calendar-board {
     padding: 16px 24px 24px;
+}
+
+.tr-calendar-grid-viewport {
+    position: relative;
+    overflow: hidden;
+}
+
+.tr-calendar-grid-track {
+    display: flex;
+    width: 100%;
+    transform: translateX(0);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+
+    > .tr-calendar-grid {
+        flex: 0 0 100%;
+        min-width: 0;
+    }
+
+    &--duo {
+        width: 200%;
+
+        > .tr-calendar-grid {
+            flex-basis: 50%;
+        }
+    }
+
+    &--offset-half {
+        transform: translateX(-50%);
+    }
+
+    &--no-transition {
+        transition: none;
+    }
+}
+
+.tr-calendar-grid-viewport--loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.45);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .tr-calendar-weekdays {

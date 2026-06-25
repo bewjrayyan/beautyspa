@@ -95,6 +95,7 @@
         data-initial-month="{{ $filters['month'] }}"
         data-initial-beautician="{{ $filters['beautician_id'] }}"
         data-initial-category="{{ $filters['treatment_category_id'] }}"
+        data-agenda-locale="{{ str_replace('_', '-', locale()) }}"
     >
         @if ($isCrmPipelineView)
             @php
