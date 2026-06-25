@@ -175,6 +175,7 @@ class OneSenderWhatsAppService
         }
 
         $context['source'] ??= 'auth.otp';
+        $context['immediate'] = true;
 
         if ($this->dispatchText($phone, $message, $context)) {
             return;

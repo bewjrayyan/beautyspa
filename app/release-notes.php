@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.42' => [
+        'en' => [
+            'summary' => 'Send WhatsApp OTP immediately instead of queuing it.',
+            'changes' => [
+                'Bypass the outbound WhatsApp queue for OTP login codes so customers receive codes right away.',
+                'Show a real API error when OneSender fails instead of a false “OTP sent” success message.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hantar OTP WhatsApp serta-merta tanpa giliran.',
+            'changes' => [
+                'Langkau giliran WhatsApp keluar untuk kod OTP log masuk supaya pelanggan terima kod dengan segera.',
+                'Paparkan ralat API sebenar apabila OneSender gagal dan bukannya mesej palsu “OTP dihantar”.',
+            ],
+        ],
+    ],
     '4.9.41' => [
         'en' => [
             'summary' => 'Fix admin order Actions dropdown visibility and print menu behavior.',
