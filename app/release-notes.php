@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.26' => [
+        'en' => [
+            'summary' => 'Fix Google Calendar test connection accessRole API error.',
+            'changes' => [
+                'Resolve writer access via calendarList/ACL instead of invalid calendars.get accessRole field.',
+                'Test connection no longer shows “Invalid field selection accessRole”.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki ralat API accessRole pada ujian sambungan Google Calendar.',
+            'changes' => [
+                'Semak akses writer melalui calendarList/ACL dan bukan medan accessRole pada calendars.get.',
+                'Uji sambungan tidak lagi memaparkan “Invalid field selection accessRole”.',
+            ],
+        ],
+    ],
     '4.9.25' => [
         'en' => [
             'summary' => 'Google Calendar sync diagnostics, stats, and open calendar button.',

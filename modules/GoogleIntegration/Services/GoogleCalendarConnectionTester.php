@@ -80,17 +80,18 @@ class GoogleCalendarConnectionTester
 
         try {
             $encodedCalendarId = rawurlencode($calendarId);
+            $http = $authenticatedClient->http();
 
-            $response = $authenticatedClient->http()->get(
+            $response = $http->get(
                 "https://www.googleapis.com/calendar/v3/calendars/{$encodedCalendarId}",
-                ['fields' => 'id,summary,timeZone,accessRole'],
+                ['fields' => 'id,summary,timeZone'],
             );
 
             if ($response->failed()) {
                 throw new Exception($response->json('error.message') ?? $response->body());
             }
 
-            $accessRole = (string) ($response->json('accessRole') ?? '');
+            $accessRole = $this->resolveAccessRole($http, $calendarId);
 
             if (! in_array($accessRole, ['writer', 'owner'], true)) {
                 return [
@@ -123,5 +124,60 @@ class GoogleCalendarConnectionTester
             'calendar_timezone' => (string) ($response->json('timeZone') ?? ''),
             'calendar_url' => GoogleCalendarUrl::browserUrl($calendarId),
         ];
+    }
+
+
+    /**
+     * accessRole is on calendarList entries, not the calendars resource.
+     */
+    private function resolveAccessRole($http, string $calendarId): string
+    {
+        $encodedCalendarId = rawurlencode($calendarId);
+
+        $listResponse = $http->get(
+            "https://www.googleapis.com/calendar/v3/users/me/calendarList/{$encodedCalendarId}",
+            ['fields' => 'accessRole'],
+        );
+
+        if ($listResponse->successful()) {
+            return (string) ($listResponse->json('accessRole') ?? '');
+        }
+
+        $aclResponse = $http->get(
+            "https://www.googleapis.com/calendar/v3/calendars/{$encodedCalendarId}/acl",
+            ['fields' => 'items(role,scope)'],
+        );
+
+        if ($aclResponse->failed()) {
+            return '';
+        }
+
+        $bestRole = '';
+
+        foreach ($aclResponse->json('items', []) as $rule) {
+            $role = (string) ($rule['role'] ?? '');
+
+            if (! in_array($role, ['owner', 'writer', 'reader', 'freeBusyReader'], true)) {
+                continue;
+            }
+
+            if ($bestRole === '' || $this->roleRank($role) > $this->roleRank($bestRole)) {
+                $bestRole = $role;
+            }
+        }
+
+        return $bestRole;
+    }
+
+
+    private function roleRank(string $role): int
+    {
+        return match ($role) {
+            'owner' => 4,
+            'writer' => 3,
+            'reader' => 2,
+            'freeBusyReader' => 1,
+            default => 0,
+        };
     }
 }
