@@ -524,12 +524,19 @@ Alpine.data(
             this.accountLoginError = "";
 
             try {
+                const payload = {
+                    email: this.form.customer_email,
+                    password: this.accountLoginPassword,
+                };
+                const captchaResponse = window.grecaptcha?.getResponse?.();
+
+                if (captchaResponse) {
+                    payload["g-recaptcha-response"] = captchaResponse;
+                }
+
                 const { data } = await axios.post(
                     AestheticCart.url("/checkout/login"),
-                    {
-                        email: this.form.customer_email,
-                        password: this.accountLoginPassword,
-                    }
+                    payload
                 );
 
                 notify(data.message);
@@ -538,8 +545,13 @@ Alpine.data(
                     data.redirect || AestheticCart.url("/checkout");
             } catch (error) {
                 this.accountLoginError =
+                    error.response?.data?.errors?.["g-recaptcha-response"]?.[0] ||
                     error.response?.data?.message ||
                     trans("storefront::storefront.something_went_wrong");
+
+                if (window.grecaptcha) {
+                    grecaptcha.reset();
+                }
             } finally {
                 this.loggingInToAccount = false;
             }

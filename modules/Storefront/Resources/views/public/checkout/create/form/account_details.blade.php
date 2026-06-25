@@ -96,6 +96,12 @@
                                 </div>
                             </div>
 
+                            @if (setting('google_recaptcha_enabled'))
+                                <div class="col-md-18">
+                                    @include('storefront::public.partials.google_recaptcha')
+                                </div>
+                            @endif
+
                             <div class="col-md-9 d-flex align-items-end">
                                 <div class="form-group w-100">
                                     <button

@@ -25,5 +25,7 @@
         <div class="login-page">
             @yield('content')
         </div>
+
+        @stack('scripts')
     </body>
 </html>

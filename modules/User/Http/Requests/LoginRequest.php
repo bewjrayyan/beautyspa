@@ -3,6 +3,7 @@
 namespace Modules\User\Http\Requests;
 
 use Modules\Core\Http\Requests\Request;
+use Modules\Support\Rules\GoogleRecaptcha;
 
 class LoginRequest extends Request
 {
@@ -21,9 +22,26 @@ class LoginRequest extends Request
      */
     public function rules()
     {
-        return [
+        $rules = [
             'email' => 'required|email',
             'password' => 'required',
+        ];
+
+        if (setting('google_recaptcha_enabled')) {
+            $rules['g-recaptcha-response'] = ['bail', 'required', new GoogleRecaptcha()];
+        }
+
+        return $rules;
+    }
+
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages()
+    {
+        return [
+            'g-recaptcha-response.required' => trans('support::recaptcha.validation.failed_to_verify'),
         ];
     }
 }

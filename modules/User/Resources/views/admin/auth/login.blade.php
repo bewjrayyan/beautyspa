@@ -339,6 +339,8 @@
                         </div>
                     </div>
 
+                    @include('storefront::public.partials.google_recaptcha')
+
                     <button 
                         type="submit"
 						x-data="{ formSubmitting: false }"
@@ -355,3 +357,7 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    @include('storefront::public.partials.google_recaptcha_script')
+@endpush

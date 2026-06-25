@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.31' => [
+        'en' => [
+            'summary' => 'Google reCAPTCHA now protects customer, admin, and checkout login forms.',
+            'changes' => [
+                'Add reCAPTCHA widget to storefront login, admin login, and checkout inline sign-in.',
+                'Validate captcha on all email/password login requests when reCAPTCHA is enabled.',
+                'Update settings copy to list login alongside registration, reviews, and contact.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Google reCAPTCHA kini melindungi borang log masuk pelanggan, admin, dan checkout.',
+            'changes' => [
+                'Tambah widget reCAPTCHA pada log masuk storefront, admin, dan sign-in inline checkout.',
+                'Sahkan captcha pada semua permintaan log masuk e-mel/kata laluan apabila reCAPTCHA diaktifkan.',
+                'Kemas kini teks tetapan untuk sertakan log masuk bersama pendaftaran, ulasan, dan hubungi.',
+            ],
+        ],
+    ],
     '4.9.30' => [
         'en' => [
             'summary' => 'Professional customer invoice email with embedded logo and PDF attachments.',

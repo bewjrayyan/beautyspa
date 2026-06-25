@@ -101,6 +101,8 @@
     @if (setting('payfast_enabled'))
         <script async src="https://www.payfast.co.za/onsite/engine.js"></script>
     @endif
+
+    @include('storefront::public.partials.google_recaptcha_script')
 @endpush
 
 @push('globals')
