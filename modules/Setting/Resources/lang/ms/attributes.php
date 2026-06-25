@@ -99,6 +99,8 @@ return [
     'mailchimp_list_id' => 'ID senarai Mailchimp',
 
     'google_recaptcha_enabled' => 'Status',
+    'google_recaptcha_type' => 'Jenis reCAPTCHA',
+    'google_recaptcha_v3_score_threshold' => 'Ambang skor v3',
     'google_recaptcha_site_key' => 'Kunci laman',
     'google_recaptcha_secret_key' => 'Kunci rahsia',
 

@@ -108,7 +108,7 @@
                         <h3 class="title">{{ trans('storefront::contact.leave_a_message') }}</h3>
 
                         <div class="contact-form">
-                            <form method="POST" action="{{ route('contact.store') }}">
+                            <form method="POST" action="{{ route('contact.store') }}" @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'contact'])>
                                 @csrf
                                 @honeypot
 
@@ -158,17 +158,9 @@
                                         </div>
                                     </div>
 
-                                    @if (setting('google_recaptcha_enabled'))
-                                        <div class="col-md-18">
-                                            <div class="form-group p-t-5 captcha-field">
-                                                <div class="g-recaptcha" data-sitekey="{{ setting('google_recaptcha_site_key') }}"></div>
-
-                                                @error('g-recaptcha-response')
-                                                    <span class="error-message">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    @endif
+                                    <div class="col-md-18">
+                                        @include('storefront::public.partials.google_recaptcha')
+                                    </div>
 
                                     <div class="col-md-18">
                                         <button type="submit" class="btn btn-lg btn-primary" data-loading>
@@ -192,9 +184,7 @@
 @endpush
 
 @push('scripts')
-    @if (setting('google_recaptcha_enabled'))
-        <script async src="https://www.google.com/recaptcha/api.js"></script>
-    @endif
+    @include('storefront::public.partials.google_recaptcha_script')
 @endpush
 
 

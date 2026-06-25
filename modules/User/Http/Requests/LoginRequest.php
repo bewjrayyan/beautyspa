@@ -28,7 +28,7 @@ class LoginRequest extends Request
         ];
 
         if (setting('google_recaptcha_enabled')) {
-            $rules['g-recaptcha-response'] = ['bail', 'required', new GoogleRecaptcha()];
+            $rules['g-recaptcha-response'] = ['bail', 'required', new GoogleRecaptcha('login')];
         }
 
         return $rules;

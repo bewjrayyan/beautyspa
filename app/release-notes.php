@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.32' => [
+        'en' => [
+            'summary' => 'Google reCAPTCHA v2/v3 option with login protection and v3 score validation.',
+            'changes' => [
+                'Choose reCAPTCHA v2 checkbox or v3 invisible score-based mode in Settings.',
+                'v3 validates score threshold server-side and works on login, register, contact, and reviews.',
+                'Fix Google reCAPTCHA settings tab dropdown error and update admin labels.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pilihan Google reCAPTCHA v2/v3 dengan perlindungan log masuk dan pengesahan skor v3.',
+            'changes' => [
+                'Pilih mod reCAPTCHA v2 kotak semak atau v3 skor tidak kelihatan dalam Tetapan.',
+                'v3 sahkan ambang skor di server dan berfungsi pada log masuk, daftar, hubungi, dan ulasan.',
+                'Baiki ralat dropdown tab tetapan Google reCAPTCHA dan kemas kini label admin.',
+            ],
+        ],
+    ],
     '4.9.31' => [
         'en' => [
             'summary' => 'Google reCAPTCHA now protects customer, admin, and checkout login forms.',

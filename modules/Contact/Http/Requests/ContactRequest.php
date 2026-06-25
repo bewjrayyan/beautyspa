@@ -3,6 +3,7 @@
 namespace Modules\Contact\Http\Requests;
 
 use Modules\Core\Http\Requests\Request;
+use Modules\Support\GoogleRecaptchaSettings;
 use Modules\Support\Rules\GoogleRecaptcha;
 
 class ContactRequest extends Request
@@ -17,12 +18,17 @@ class ContactRequest extends Request
      */
     public function rules()
     {
-        return [
+        $rules = [
             'email' => ['required', 'email'],
             'subject' => ['required'],
             'message' => ['required'],
-            'g-recaptcha-response' => ['bail', 'sometimes', 'required', new GoogleRecaptcha()],
         ];
+
+        if (GoogleRecaptchaSettings::enabled()) {
+            $rules['g-recaptcha-response'] = ['bail', 'required', new GoogleRecaptcha('contact')];
+        }
+
+        return $rules;
     }
 
 

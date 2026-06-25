@@ -6,6 +6,7 @@ import {
     getPhoneInputE164,
 } from "../../../lib/modernPhoneInput";
 import Errors from "../../../components/Errors";
+import { resolveRecaptchaToken } from "../../../functions";
 import "../../../components/CartItem";
 
 Alpine.data(
@@ -528,7 +529,7 @@ Alpine.data(
                     email: this.form.customer_email,
                     password: this.accountLoginPassword,
                 };
-                const captchaResponse = window.grecaptcha?.getResponse?.();
+                const captchaResponse = await resolveRecaptchaToken("login");
 
                 if (captchaResponse) {
                     payload["g-recaptcha-response"] = captchaResponse;
@@ -549,7 +550,7 @@ Alpine.data(
                     error.response?.data?.message ||
                     trans("storefront::storefront.something_went_wrong");
 
-                if (window.grecaptcha) {
+                if (window.grecaptcha?.reset && !window.AestheticCart?.recaptchaV3Enabled) {
                     grecaptcha.reset();
                 }
             } finally {

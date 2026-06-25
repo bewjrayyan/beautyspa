@@ -4,6 +4,7 @@ namespace Modules\User\Http\Requests;
 
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
+use Modules\Support\GoogleRecaptchaSettings;
 use Modules\Support\Rules\GoogleRecaptcha;
 use Modules\User\Support\PhoneNumber;
 
@@ -54,7 +55,7 @@ class RegisterRequest extends Request
      */
     public function rules()
     {
-        return [
+        $rules = [
             'first_name' => ['required'],
             'last_name' => ['required'],
             'email' => ['required', 'email', 'unique:users'],
@@ -62,8 +63,13 @@ class RegisterRequest extends Request
             'password' => ['required', 'confirmed', 'min:6'],
             'privacy_policy' => ['accepted'],
             'referral_code' => ['nullable', 'string', 'max:16'],
-            'g-recaptcha-response' => ['bail', 'sometimes', 'required', new GoogleRecaptcha()],
         ];
+
+        if (GoogleRecaptchaSettings::enabled()) {
+            $rules['g-recaptcha-response'] = ['bail', 'required', new GoogleRecaptcha('register')];
+        }
+
+        return $rules;
     }
 
     /**

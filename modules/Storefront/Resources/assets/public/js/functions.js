@@ -115,3 +115,11 @@ export function cartLineUnitSavings(cartItem) {
 
     return Math.max(0, cartLineRegularUnitPrice(cartItem) - cartLineUnitPrice(cartItem));
 }
+
+export async function resolveRecaptchaToken(action = "submit") {
+    if (typeof window.resolveRecaptchaToken === "function") {
+        return await window.resolveRecaptchaToken(action);
+    }
+
+    return window.grecaptcha?.getResponse?.() || "";
+}

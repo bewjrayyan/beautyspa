@@ -130,7 +130,11 @@
                             data-send-url="{{ storefront_route('login.whatsapp.send_otp') }}"
                             data-verify-url="{{ storefront_route('login.whatsapp.verify_otp') }}"
                             data-invalid-phone-message="{{ e(trans('core::validation.phone')) }}"
+                        @else
+                            x-data="{ formSubmitting: false }"
+                            @submit="formSubmitting = true"
                         @endif
+                        @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'login'])
                     >
                         @csrf
 
@@ -283,13 +287,13 @@
 
                         @include('storefront::public.partials.google_recaptcha')
     
-                        <button 
+                        <button
                             type="submit"
-                            x-data="{ formSubmitting: false }"
-                            :class="formSubmitting ? 'btn-loading' : ''" 
                             class="btn btn-primary"
-                            :disabled="formSubmitting"
-                            @click="formSubmitting = true; $el.closest('form').submit()"
+                            @if (! $whatsappOtpEnabled)
+                                :class="formSubmitting ? 'btn-loading' : ''"
+                                :disabled="formSubmitting"
+                            @endif
                         >
                             {{ trans('user::auth.sign_in') }}
                         </button>

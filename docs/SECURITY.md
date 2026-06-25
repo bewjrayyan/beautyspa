@@ -48,7 +48,7 @@ This document summarizes security controls in this project and the checklist for
 
 - Honeypot on register, contact, reviews, and send-gift forms.
 - Rate limits on checkout (`checkout`: 8/min), public forms (`forms`: 10/min), and newsletter subscribe.
-- Optional Google reCAPTCHA v2 on login, register, contact, and reviews (enable in Settings).
+- Optional Google reCAPTCHA v2 or v3 on login, register, contact, and reviews (enable in Settings).
 
 ## Production checklist
 

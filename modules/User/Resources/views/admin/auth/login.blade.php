@@ -201,7 +201,7 @@
                 >
                     @include('user::admin.auth.partials.beautician_otp_login')
 
-                    <form class="auth-form-email" method="POST" action="{{ route('admin.login.post') }}" x-show="mode === 'email'">
+                    <form class="auth-form-email" method="POST" action="{{ route('admin.login.post') }}" x-show="mode === 'email'" x-data="{ formSubmitting: false }" @submit="formSubmitting = true" @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'login'])>
                         {{ csrf_field() }}
 
                     <div>
@@ -341,13 +341,11 @@
 
                     @include('storefront::public.partials.google_recaptcha')
 
-                    <button 
+                    <button
                         type="submit"
-						x-data="{ formSubmitting: false }"
-						:class="formSubmitting ? 'btn-loading' : ''" 
-						class="btn btn-primary"
+                        class="btn btn-primary"
+                        :class="formSubmitting ? 'btn-loading' : ''"
                         :disabled="formSubmitting"
-						@click="formSubmitting = true; $el.parentElement.submit()"
                     >
                         {{ trans('user::auth.sign_in') }}
                     </button>

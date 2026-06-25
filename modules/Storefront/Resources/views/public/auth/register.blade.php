@@ -126,6 +126,7 @@
                         action="{{ route('register.post') }}"
                         x-data="{ formSubmitting: false }"
                         @submit="formSubmitting = true"
+                        @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'register'])
                     >
                         @csrf
                         @honeypot
@@ -417,15 +418,7 @@
                                 {!! $errors->first('password_confirmation', '<span class="help-block text-red">:message</span>') !!}
                             </div>
 
-                            @if (setting('google_recaptcha_enabled'))
-                                <div class="form-group p-t-5 captcha-field">
-                                    <div class="g-recaptcha" data-sitekey="{{ setting('google_recaptcha_site_key') }}"></div>
-
-                                    @error('g-recaptcha-response')
-                                        <span class="help-block text-red">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            @endif
+                            @include('storefront::public.partials.google_recaptcha')
     
                             <div class="checkbox-group add-privacy-policy">
                                 <div class="checkbox">
@@ -477,7 +470,5 @@
 @endsection
 
 @push('scripts')
-    @if (setting('google_recaptcha_enabled'))
-        <script async src="https://www.google.com/recaptcha/api.js"></script>
-    @endif
+    @include('storefront::public.partials.google_recaptcha_script')
 @endpush

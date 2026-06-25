@@ -3,6 +3,7 @@
 namespace Modules\Review\Http\Requests;
 
 use Modules\Core\Http\Requests\Request;
+use Modules\Support\GoogleRecaptchaSettings;
 use Modules\Support\Rules\GoogleRecaptcha;
 
 class StoreReviewRequest extends Request
@@ -28,11 +29,11 @@ class StoreReviewRequest extends Request
             'comment' => 'required',
         ];
 
-        if (setting('google_recaptcha_enabled')) {
+        if (GoogleRecaptchaSettings::enabled()) {
             $rules['g-recaptcha-response'] = [
                 'bail',
                 'required',
-                new GoogleRecaptcha(),
+                new GoogleRecaptcha('review'),
             ];
         }
 

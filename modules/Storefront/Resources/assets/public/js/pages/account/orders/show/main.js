@@ -1,4 +1,5 @@
 import Errors from "../../../../components/Errors";
+import { resolveRecaptchaToken } from "../../../../functions";
 import "../../../../components/ProductRating";
 
 Alpine.data(
@@ -27,7 +28,7 @@ Alpine.data(
             return this.submittedReview !== null;
         },
 
-        buildReviewPayload() {
+        async buildReviewPayload() {
             const form = this.$refs.reviewForm;
             const payload = {};
 
@@ -53,7 +54,7 @@ Alpine.data(
                 payload.rating = this.reviewForm.rating;
             }
 
-            const captchaResponse = window.grecaptcha?.getResponse?.();
+            const captchaResponse = await resolveRecaptchaToken("review");
 
             if (captchaResponse) {
                 payload["g-recaptcha-response"] = captchaResponse;
@@ -62,13 +63,13 @@ Alpine.data(
             return payload;
         },
 
-        addNewReview() {
+        async addNewReview() {
             this.addingNewReview = true;
 
             axios
                 .post(
                     `/products/${this.productId}/reviews`,
-                    this.buildReviewPayload()
+                    await this.buildReviewPayload()
                 )
                 .then((response) => {
                     this.submittedReview = response.data;
@@ -99,7 +100,7 @@ Alpine.data(
                 .finally(() => {
                     this.addingNewReview = false;
 
-                    if (window.grecaptcha) {
+                    if (window.grecaptcha?.reset && !window.AestheticCart?.recaptchaV3Enabled) {
                         grecaptcha.reset();
                     }
                 });

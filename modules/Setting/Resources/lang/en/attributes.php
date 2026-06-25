@@ -99,6 +99,8 @@ return [
     'mailchimp_list_id' => 'Mailchimp List ID',
 
     'google_recaptcha_enabled' => 'Status',
+    'google_recaptcha_type' => 'reCAPTCHA type',
+    'google_recaptcha_v3_score_threshold' => 'v3 score threshold',
     'google_recaptcha_site_key' => 'Site Key',
     'google_recaptcha_secret_key' => 'Secret Key',
 

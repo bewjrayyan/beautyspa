@@ -97,6 +97,8 @@ class ImmaSeriLarisAdminSettings
             'invoice_email' => false,
             'email_order_statuses' => [],
             'google_recaptcha_enabled' => false,
+            'google_recaptcha_type' => 'v2',
+            'google_recaptcha_v3_score_threshold' => 0.5,
             'google_recaptcha_site_key' => '',
             'google_recaptcha_secret_key' => '',
             'facebook_login_enabled' => false,

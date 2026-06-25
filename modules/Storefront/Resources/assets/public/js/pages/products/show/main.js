@@ -4,7 +4,7 @@ import Swiper from "swiper";
 import Drift from "drift-zoom";
 import GLightbox from "glightbox";
 import Errors from "../../../components/Errors";
-import { formatCurrency } from "../../../functions";
+import { formatCurrency, resolveRecaptchaToken } from "../../../functions";
 import {
     productSliderNavigation,
     resolveProductSliderControls,
@@ -1266,7 +1266,7 @@ Alpine.data(
             }
         },
 
-        buildReviewPayload() {
+        async buildReviewPayload() {
             const form = this.$refs.reviewForm;
             const payload = {};
 
@@ -1292,7 +1292,7 @@ Alpine.data(
                 payload.rating = this.reviewForm.rating;
             }
 
-            const captchaResponse = window.grecaptcha?.getResponse?.();
+            const captchaResponse = await resolveRecaptchaToken("review");
 
             if (captchaResponse) {
                 payload["g-recaptcha-response"] = captchaResponse;
@@ -1301,8 +1301,8 @@ Alpine.data(
             return payload;
         },
 
-        addNewReview() {
-            const payload = this.buildReviewPayload();
+        async addNewReview() {
+            const payload = await this.buildReviewPayload();
 
             this.addingNewReview = true;
 
@@ -1339,7 +1339,7 @@ Alpine.data(
                 .finally(() => {
                     this.addingNewReview = false;
 
-                    if (window.grecaptcha) {
+                    if (window.grecaptcha?.reset && !window.AestheticCart?.recaptchaV3Enabled) {
                         grecaptcha.reset();
                     }
                 });

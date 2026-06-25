@@ -259,6 +259,8 @@ class UpdateSettingRequest extends Request
             'mailchimp_list_id' => ['required_if:newsletter_enabled,1'],
 
             'google_recaptcha_enabled' => ['required', 'boolean'],
+            'google_recaptcha_type' => ['required_if:google_recaptcha_enabled,1', 'in:v2,v3'],
+            'google_recaptcha_v3_score_threshold' => ['required_if:google_recaptcha_type,v3', 'nullable', 'numeric', 'min:0', 'max:1'],
             'google_recaptcha_site_key' => ['required_if:google_recaptcha_enabled,1'],
             'google_recaptcha_secret_key' => ['required_if:google_recaptcha_enabled,1'],
 

@@ -20,6 +20,16 @@ $("#google_recaptcha_enabled").on("change", () => {
     $("#google-recaptcha-fields").toggleClass("hide");
 });
 
+const toggleGoogleRecaptchaV3Fields = () => {
+    $("#google-recaptcha-v3-fields").toggleClass(
+        "hide",
+        $("#google_recaptcha_type").val() !== "v3"
+    );
+};
+
+$("#google_recaptcha_type").on("change", toggleGoogleRecaptchaV3Fields);
+toggleGoogleRecaptchaV3Fields();
+
 $("#facebook_login_enabled").on("change", () => {
     $("#facebook-login-fields").toggleClass("hide");
 });

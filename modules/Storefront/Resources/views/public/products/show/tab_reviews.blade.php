@@ -78,15 +78,11 @@
                                             </template>
                                         </div>
 
-                                        @if (setting('google_recaptcha_enabled'))
-                                            <div class="form-group p-t-5 captcha-field">
-                                                <div class="g-recaptcha" data-sitekey="{{ setting('google_recaptcha_site_key') }}"></div>
+                                        @include('storefront::public.partials.google_recaptcha')
 
-                                                <template x-if="errors.has('g-recaptcha-response')">
-                                                    <span class="error-message" x-text="errors.get('g-recaptcha-response')"></span>
-                                                </template>
-                                            </div>
-                                        @endif
+                                        <template x-if="errors.has('g-recaptcha-response')">
+                                            <span class="error-message" x-text="errors.get('g-recaptcha-response')"></span>
+                                        </template>
 
                                         <button
                                             type="submit"
@@ -160,7 +156,5 @@
 @endif
 
 @push('scripts')
-    @if (setting('google_recaptcha_enabled'))
-        <script async src="https://www.google.com/recaptcha/api.js"></script>
-    @endif
+    @include('storefront::public.partials.google_recaptcha_script')
 @endpush

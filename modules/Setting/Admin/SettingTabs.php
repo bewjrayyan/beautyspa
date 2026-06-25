@@ -467,7 +467,13 @@ class SettingTabs extends Tabs
         return tap(new SettingTab('google_recaptcha', trans('setting::settings.tabs.google_recaptcha')), function (SettingTab $tab) {
             $tab->weight(35);
 
-            $tab->fields(['google_recaptcha_enabled', 'google_recaptcha_site_key', 'google_recaptcha_secret_key']);
+            $tab->fields([
+                'google_recaptcha_enabled',
+                'google_recaptcha_type',
+                'google_recaptcha_v3_score_threshold',
+                'google_recaptcha_site_key',
+                'google_recaptcha_secret_key',
+            ]);
 
             $tab->view('setting::admin.settings.tabs.google_recaptcha');
         });
