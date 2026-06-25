@@ -123,6 +123,11 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
         });
     }
 
+    function closeOrderActionsDropdown($menu) {
+        $menu.removeClass("open");
+        $menu.find(".dropdown-toggle").attr("aria-expanded", "false");
+    }
+
     function bindOrderActionsDropdown() {
         const $menu = $("#order-actions");
 
@@ -132,43 +137,23 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
 
         $menu.off("click.orderActions", ".js-order-action");
         $menu.on("click.orderActions", ".js-order-action", function (e) {
-            const $item = $(this);
-            const action = $item.attr("data-action");
+            const action = $(this).attr("data-action");
 
             if (!action) {
                 return;
             }
 
-            e.preventDefault();
-            e.stopPropagation();
-
-            switch (action) {
-                case "print":
-                    window.open(
-                        $menu.attr("data-print-url"),
-                        "_blank",
-                        "noopener,noreferrer"
-                    );
-                    break;
-                case "receipt":
-                    window.open(
-                        $menu.attr("data-receipt-url"),
-                        "_blank",
-                        "noopener,noreferrer"
-                    );
-                    break;
-                case "email":
-                    $("#order-email-form").trigger("submit");
-                    break;
-                case "back":
-                    window.location.href =
-                        $menu.attr("data-back-url") || $item.attr("href");
-                    return;
-                default:
-                    break;
+            if (action === "email") {
+                e.preventDefault();
+                e.stopPropagation();
+                $("#order-email-form").trigger("submit");
+                closeOrderActionsDropdown($menu);
+                return;
             }
 
-            $menu.removeClass("open");
+            // Print, receipt, and back rely on native <a> navigation so popup
+            // blockers and embedded browsers (e.g. Cursor preview) do not break.
+            closeOrderActionsDropdown($menu);
         });
     }
 

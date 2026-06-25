@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.41' => [
+        'en' => [
+            'summary' => 'Fix admin order Actions dropdown visibility and print menu behavior.',
+            'changes' => [
+                'Stop clipping the Actions dropdown menu caused by overflow hidden on the order hero card.',
+                'Let Print, Receipt, and Back use native link navigation instead of window.open so popup blockers and embedded browsers work reliably.',
+                'Sync dropdown aria-expanded when closing the Actions menu after a selection.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki keterlihatan menu Tindakan dan kelakuan cetak pada halaman pesanan admin.',
+            'changes' => [
+                'Hentikan pemotongan menu Tindakan yang disebabkan overflow hidden pada kad hero pesanan.',
+                'Benarkan Cetak, Resit, dan Kembali menggunakan navigasi pautan asli dan bukannya window.open supaya penyekat popup dan pelayar terbenam berfungsi dengan baik.',
+                'Selaraskan aria-expanded dropdown apabila menu Tindakan ditutup selepas pilihan dibuat.',
+            ],
+        ],
+    ],
     '4.9.40' => [
         'en' => [
             'summary' => 'Modern light redesign of the admin order details page.',
