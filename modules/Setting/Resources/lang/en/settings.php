@@ -373,7 +373,7 @@ return [
         'google_excel_document_settings' => 'Google API Credentials',
         'google_excel_document_intro' => 'Required for both Excel sales sheet and Google Calendar. Create a Service Account in Google Cloud and enable Sheets API + Calendar API.',
         'google_sales_sheet_settings' => 'Sales Excel Document (Google Sheets)',
-        'google_service_account_help' => 'Paste the full JSON key file. Copy the client_email value — you must share your spreadsheet and calendar with this email.',
+        'google_service_account_help' => 'Paste the full JSON key file. Copy the client_email value — you must share your spreadsheet and calendar with this email. Leave blank when saving to keep the current key.',
         'enable_google_sheets_sync' => 'Record orders to Google Excel document by status',
         'google_spreadsheet_url_help' => 'Paste the full browser URL of your sales spreadsheet. Example: https://docs.google.com/spreadsheets/d/1Sr9EGkv8OVcRPwpMU5otFRzIBnNqUMhbFLydMzb5kg4/edit?gid=1816471698 — the system extracts Spreadsheet ID and tab (gid) automatically.',
         'google_sheet_name_optional_placeholder' => 'Leave empty if URL already contains ?gid=',

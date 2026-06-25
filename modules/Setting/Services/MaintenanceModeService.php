@@ -124,12 +124,36 @@ class MaintenanceModeService
         $base = trim(FixSubdirectoryRequest::basePath(), '/');
         $prefix = $base !== '' ? $base.'/' : '';
 
-        return array_values(array_unique([
-            $prefix.'admin',
-            $prefix.'admin/*',
+        $paths = [
             'admin',
             'admin/*',
-        ]));
+            $prefix.'admin',
+            $prefix.'admin/*',
+        ];
+
+        foreach ($this->utilityPaths() as $utilityPath) {
+            $paths[] = $utilityPath;
+
+            if ($prefix !== '') {
+                $paths[] = $prefix.$utilityPath;
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
+
+    /**
+     * JSON helpers used by the admin panel while maintenance mode is on.
+     *
+     * @return array<int, string>
+     */
+    private function utilityPaths(): array
+    {
+        return [
+            'countries/*',
+            'favicon.ico',
+        ];
     }
 
 

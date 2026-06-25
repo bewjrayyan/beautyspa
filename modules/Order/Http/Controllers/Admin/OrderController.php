@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Modules\Order\Entities\Order;
 use Modules\Admin\Traits\HasCrudActions;
+use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
 use Modules\Order\Events\OrderUpdated;
 use Modules\Order\Http\Requests\SaveOrderRequest;
 
@@ -95,7 +96,11 @@ class OrderController
 
         $entity->update($request->validated());
 
-        event(new OrderUpdated($entity->fresh()));
+        if (collect(GoogleSheetsColumnConfig::syncRelevantOrderAttributes())->contains(
+            fn (string $attribute) => $entity->wasChanged($attribute)
+        )) {
+            event(new OrderUpdated($entity->fresh()));
+        }
 
         $entity->withoutEvents(function () use ($entity) {
             $entity->touch();

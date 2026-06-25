@@ -78,15 +78,13 @@
                         </td>
                         <td class="google-sheets-columns__label">{{ GoogleSheetsColumnConfig::label($key) }}</td>
                         <td class="text-center google-sheets-columns__enabled">
-                            <label class="gs-toggle-check">
-                                <input
-                                    type="checkbox"
-                                    class="google-sheets-columns__checkbox"
-                                    value="1"
-                                    @checked(in_array($key, $enabledKeys, true))
-                                >
-                                <span class="gs-toggle-check__ui" aria-hidden="true"></span>
-                            </label>
+                            <input
+                                type="checkbox"
+                                class="google-sheets-columns__checkbox"
+                                value="1"
+                                aria-label="{{ trans('setting::settings.form.google_sheets_columns_include') }}: {{ GoogleSheetsColumnConfig::label($key) }}"
+                                @checked(in_array($key, $enabledKeys, true))
+                            >
                         </td>
                     </tr>
                 @endforeach

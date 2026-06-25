@@ -134,6 +134,12 @@ $("#store_country").on("change", (e) => {
         if (typeof window.scheduleSettingsFormBaseline === "function") {
             window.scheduleSettingsFormBaseline(300);
         }
+    }).catch(() => {
+        $(".store-state").addClass("hide");
+        $(".store-state.input")
+            .removeClass("hide")
+            .find("input")
+            .val(oldState);
     });
 });
 
@@ -901,12 +907,20 @@ function initGoogleSheetsColumnsRoot(root) {
     });
 
     syncRows();
-})();;
+})();
 
 (function initGoogleSheetsColumnsPickers() {
-    document.querySelectorAll("[data-google-sheets-columns-root]").forEach((columnsRoot) => {
-        initGoogleSheetsColumnsRoot(columnsRoot);
-    });
+    const boot = () => {
+        document.querySelectorAll("[data-google-sheets-columns-root]").forEach((columnsRoot) => {
+            initGoogleSheetsColumnsRoot(columnsRoot);
+        });
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", boot);
+    } else {
+        boot();
+    }
 })();
 
 (function initGoogleSheetsPerStatusColumnsPanel() {

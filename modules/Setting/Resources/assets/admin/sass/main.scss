@@ -2452,6 +2452,16 @@ $settings-sidebar-offset: 16px;
     }
 
     .google-sheets-columns {
+        &__checkbox {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: $settings-primary;
+            vertical-align: middle;
+        }
+
         &__row.is-included .google-sheets-columns__label {
             color: $settings-text;
         }
@@ -2478,40 +2488,6 @@ $settings-sidebar-offset: 16px;
             height: 28px;
             padding: 0;
             border-radius: 8px;
-        }
-    }
-
-    .gs-toggle-check {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0;
-        cursor: pointer;
-
-        input {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        &__ui {
-            width: 18px;
-            height: 18px;
-            border-radius: 5px;
-            border: 1px solid #cbd5e1;
-            background: #fff;
-            transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        input:checked + &__ui {
-            border-color: $settings-primary;
-            background: $settings-primary;
-            box-shadow: inset 0 0 0 2px #fff;
-        }
-
-        input:focus-visible + &__ui {
-            outline: 2px solid color-mix(in srgb, $settings-primary 35%, transparent);
-            outline-offset: 2px;
         }
     }
 

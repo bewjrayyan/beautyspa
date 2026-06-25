@@ -17,7 +17,7 @@ class GoogleCalendarService
     public static function isEnabled(): bool
     {
         return GoogleServiceAccountClient::isConfigured()
-            && (bool) setting('google_calendar_enabled', true)
+            && (bool) setting('google_calendar_enabled', false)
             && trim((string) setting('google_calendar_id', '')) !== '';
     }
 

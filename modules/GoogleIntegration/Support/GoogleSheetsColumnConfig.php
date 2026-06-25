@@ -43,6 +43,39 @@ class GoogleSheetsColumnConfig
 
 
     /**
+     * Order attributes that affect Google Sheets row content.
+     *
+     * @return array<int, string>
+     */
+    public static function syncRelevantOrderAttributes(): array
+    {
+        $attributes = [
+            'status',
+            'customer_first_name',
+            'customer_last_name',
+            'customer_email',
+            'customer_phone',
+            'beautician_id',
+            'appointment_date',
+            'appointment_time',
+            'note',
+            'payment_method',
+            'coupon_id',
+            'sub_total',
+            'discount',
+            'shipping_cost',
+            'total',
+        ];
+
+        if (is_module_enabled('SpaBranch')) {
+            $attributes[] = 'spa_branch_id';
+        }
+
+        return $attributes;
+    }
+
+
+    /**
      * @return array<int, string>
      */
     public static function defaultEnabledKeys(): array

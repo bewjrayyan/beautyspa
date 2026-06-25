@@ -383,7 +383,7 @@ return [
         'google_excel_document_settings' => 'Kredential Google API',
         'google_excel_document_intro' => 'Diperlukan untuk dokumen Excel jualan dan Google Calendar. Cipta Service Account di Google Cloud dan aktifkan Sheets API + Calendar API.',
         'google_sales_sheet_settings' => 'Dokumen Excel Jualan (Google Sheets)',
-        'google_service_account_help' => 'Tampal fail JSON key penuh. Salin nilai client_email — spreadsheet dan kalendar mesti dikongsi dengan e-mel ini.',
+        'google_service_account_help' => 'Tampal fail JSON key penuh. Salin nilai client_email — spreadsheet dan kalendar mesti dikongsi dengan e-mel ini. Biarkan kosong semasa simpan untuk kekalkan kunci sedia ada.',
         'enable_google_sheets_sync' => 'Rekod pesanan ke dokumen Google Excel mengikut status',
         'google_spreadsheet_url_help' => 'Tampal URL penuh spreadsheet jualan dari browser. Contoh: https://docs.google.com/spreadsheets/d/1Sr9EGkv8OVcRPwpMU5otFRzIBnNqUMhbFLydMzb5kg4/edit?gid=1816471698 — sistem akan ekstrak ID dan tab (gid) secara automatik.',
         'google_sheet_name_optional_placeholder' => 'Biarkan kosong jika URL sudah ada ?gid=',

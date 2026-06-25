@@ -84,9 +84,13 @@ class OrderGoogleSyncService
             && ! $order->google_calendar_event_id
             && $order->appointment_date
         ) {
-            $eventId = $this->calendar->createAppointmentEvent($order);
+            try {
+                $eventId = $this->calendar->createAppointmentEvent($order);
 
-            $order->forceFill(['google_calendar_event_id' => $eventId])->save();
+                $order->forceFill(['google_calendar_event_id' => $eventId])->save();
+            } catch (Exception $exception) {
+                report($exception);
+            }
         }
     }
 

@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.21' => [
+        'en' => [
+            'summary' => 'Google Sheets production hardening, admin fixes, and maintenance mode improvements.',
+            'changes' => [
+                'Isolate Google Calendar failures so a successful Sheets sync is not marked failed.',
+                'Preserve service account JSON when the credentials field is left blank on save.',
+                'Google Calendar stays off by default until explicitly enabled in settings.',
+                'Queue Google sync on order update only when sheet-relevant fields change.',
+                'Fix column picker checkboxes and allow countries/states API during maintenance mode.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pengukuhan production Google Sheets, pembaikan admin, dan mod penyelenggaraan.',
+            'changes' => [
+                'Pisahkan kegagalan Google Calendar supaya sync Sheets yang berjaya tidak ditanda gagal.',
+                'Kekalkan JSON akaun perkhidmatan apabila medan kelayakan dibiarkan kosong semasa simpan.',
+                'Google Calendar kekal dimatikan secara lalai sehingga diaktifkan dalam tetapan.',
+                'Queue sync Google pada kemas kini pesanan hanya apabila medan berkaitan sheet berubah.',
+                'Baiki checkbox pemilih kolum dan benarkan API countries/states semasa mod penyelenggaraan.',
+            ],
+        ],
+    ],
     '4.9.20' => [
         'en' => [
             'summary' => 'Modern Google Excel settings UI and production queue deploy helpers.',

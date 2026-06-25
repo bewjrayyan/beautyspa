@@ -4,6 +4,7 @@ namespace AestheticCart\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Modules\Setting\Services\MaintenanceModeService;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Http\Exceptions\MaintenanceModeException;
 use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode as BaseCheckForMaintenanceMode;
@@ -18,6 +19,8 @@ class CheckForMaintenanceMode extends BaseCheckForMaintenanceMode
     protected $except = [
         'admin',
         'admin/*',
+        'countries/*',
+        'favicon.ico',
     ];
 
 
@@ -34,6 +37,10 @@ class CheckForMaintenanceMode extends BaseCheckForMaintenanceMode
      */
     public function handle($request, Closure $next): mixed
     {
+        if (class_exists(MaintenanceModeService::class)) {
+            $this->except = app(MaintenanceModeService::class)->excludedPaths();
+        }
+
         return parent::handle($request, $next);
     }
 }

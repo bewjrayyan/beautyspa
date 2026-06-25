@@ -49,6 +49,12 @@ class UpdateSettingRequest extends Request
             && SettingTabScope::activeTab($this) === 'sms') {
             $this->merge(['onesender_api_key' => setting('onesender_api_key')]);
         }
+
+        if (! $this->filled('google_service_account_json')
+            && setting('google_service_account_json')
+            && SettingTabScope::activeTab($this) === 'google_sheets') {
+            $this->merge(['google_service_account_json' => setting('google_service_account_json')]);
+        }
     }
 
 
