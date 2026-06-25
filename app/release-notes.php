@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.33' => [
+        'en' => [
+            'summary' => 'Fix raw translation keys on Facebook and Google social login settings tabs.',
+            'changes' => [
+                'Add missing button label translations for Facebook and Google login settings.',
+                'Refresh setting module translation cache so admin settings pages show proper labels.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki kunci terjemahan mentah pada tab tetapan log masuk Facebook dan Google.',
+            'changes' => [
+                'Tambah terjemahan label butang yang hilang untuk tetapan log masuk Facebook dan Google.',
+                'Segarkan cache terjemahan modul tetapan supaya halaman admin memaparkan label dengan betul.',
+            ],
+        ],
+    ],
     '4.9.32' => [
         'en' => [
             'summary' => 'Google reCAPTCHA v2/v3 option with login protection and v3 score validation.',

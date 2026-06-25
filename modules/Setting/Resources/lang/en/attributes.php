@@ -110,10 +110,12 @@ return [
     'facebook_login_enabled' => 'Status',
     'facebook_login_app_id' => 'App ID',
     'facebook_login_app_secret' => 'App Secret',
+    'translatable.facebook_login_label' => 'Button Label',
 
     'google_login_enabled' => 'Status',
     'google_login_client_id' => 'Client ID',
     'google_login_client_secret' => 'Client Secret',
+    'translatable.google_login_label' => 'Button Label',
 
     'whatsapp_otp_login_enabled' => 'Status',
     'translatable.whatsapp_otp_login_label' => 'Button Label',

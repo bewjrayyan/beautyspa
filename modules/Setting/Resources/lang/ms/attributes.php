@@ -110,10 +110,12 @@ return [
     'facebook_login_enabled' => 'Status',
     'facebook_login_app_id' => 'ID aplikasi',
     'facebook_login_app_secret' => 'Rahsia aplikasi',
+    'translatable.facebook_login_label' => 'Label butang',
 
     'google_login_enabled' => 'Status',
     'google_login_client_id' => 'ID klien',
     'google_login_client_secret' => 'Rahsia klien',
+    'translatable.google_login_label' => 'Label butang',
 
     'whatsapp_otp_login_enabled' => 'Status',
     'translatable.whatsapp_otp_login_label' => 'Label butang',
