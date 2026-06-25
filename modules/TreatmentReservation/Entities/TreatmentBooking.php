@@ -91,6 +91,32 @@ class TreatmentBooking extends Model
     /**
      * @return array<int, string>
      */
+    public static function statuses(): array
+    {
+        return [
+            self::STATUS_PENDING,
+            self::STATUS_IN_PROGRESS,
+            self::STATUS_COMPLETED,
+            self::STATUS_CANCELED,
+        ];
+    }
+
+
+    public function treatmentStatusLabel(): string
+    {
+        return match ($this->status) {
+            self::STATUS_PENDING => TrLang::trans('admin.kanban.pending'),
+            self::STATUS_IN_PROGRESS => TrLang::trans('admin.kanban.in_progress'),
+            self::STATUS_COMPLETED => TrLang::trans('admin.kanban.completed'),
+            self::STATUS_CANCELED => TrLang::trans('admin.crm.status_canceled'),
+            default => (string) $this->status,
+        };
+    }
+
+
+    /**
+     * @return array<int, string>
+     */
     public static function manualSources(): array
     {
         return [

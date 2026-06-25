@@ -26,6 +26,16 @@
             </div>
             @break
 
+        @case('admin')
+            <tr @class([
+                'order-show__totals-discount' => ! empty($line['discount']),
+                'order-show__totals-meta' => ! empty($line['meta']),
+            ])>
+                <td>{!! $line['label'] !!}</td>
+                <td>{!! $line['value'] !!}</td>
+            </tr>
+            @break
+
         @default
             <dl @class([
                 'order-invoice__row',

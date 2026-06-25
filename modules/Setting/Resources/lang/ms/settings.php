@@ -473,7 +473,9 @@ return [
         'google_sheets_columns' => [
             'order_id' => 'ID Pesanan',
             'order_date' => 'Tarikh Pesanan',
-            'status' => 'Status',
+            'status' => 'Status Pesanan',
+            'payment_status' => 'Status Bayaran',
+            'treatment_status' => 'Status Rawatan',
             'customer_name' => 'Nama Pelanggan',
             'customer_email' => 'E-mel Pelanggan',
             'customer_phone' => 'Telefon Pelanggan',

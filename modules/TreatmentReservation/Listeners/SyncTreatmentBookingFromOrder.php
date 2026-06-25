@@ -31,7 +31,6 @@ class SyncTreatmentBookingFromOrder
     private function applyJobSheetStatusFromOrder(TreatmentBooking $booking, Order $order): void
     {
         $jobSheetStatus = match ($order->status) {
-            Order::COMPLETED => TreatmentBooking::STATUS_COMPLETED,
             Order::CANCELED, Order::REFUNDED => TreatmentBooking::STATUS_CANCELED,
             default => null,
         };

@@ -44,6 +44,12 @@ class CompletedOrderRowBuilder
     {
         $order->loadMissing(['products', 'coupon', 'beautician', 'spaBranch']);
 
+        $treatmentBooking = is_module_enabled('TreatmentReservation')
+            ? \Modules\TreatmentReservation\Entities\TreatmentBooking::query()
+                ->where('order_id', $order->id)
+                ->first()
+            : null;
+
         $customerName = trim($order->customer_first_name . ' ' . $order->customer_last_name);
         $treatments = $order->products
             ->map(fn (OrderProduct $product) => $product->nameWithSelections() . ' (x' . $product->qty . ')')
@@ -53,6 +59,8 @@ class CompletedOrderRowBuilder
             'order_id' => (string) $order->id,
             'order_date' => $order->created_at->format('Y-m-d H:i:s'),
             'status' => $order->status(),
+            'payment_status' => $order->paymentStatusLabel(),
+            'treatment_status' => $treatmentBooking?->treatmentStatusLabel() ?? '',
             'customer_name' => $customerName,
             'customer_email' => $order->customer_email,
             'customer_phone' => $order->customer_phone,

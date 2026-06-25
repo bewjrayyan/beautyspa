@@ -50,6 +50,12 @@ Route::put('orders/{order}/payment-status', [
     'middleware' => 'can:admin.orders.edit',
 ]);
 
+Route::put('orders/{order}/treatment-status', [
+    'as' => 'admin.orders.treatment_status.update',
+    'uses' => 'OrderTreatmentStatusController@update',
+    'middleware' => 'can:admin.orders.edit',
+]);
+
 Route::post('orders/{order}/email', [
     'as' => 'admin.orders.email.store',
     'uses' => 'OrderEmailController@store',

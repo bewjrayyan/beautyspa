@@ -319,6 +319,18 @@ $order-bg: #f8fafc;
     }
 }
 
+.order-show__control-hint {
+    margin: 6px 0 0;
+    font-size: 11px;
+    line-height: 1.45;
+    color: $order-muted;
+}
+
+.order-show__status-badge--treatment {
+    background: #eef2ff;
+    color: #4338ca;
+}
+
 .order-show__actions {
     display: flex;
     flex-wrap: wrap;
@@ -1022,6 +1034,36 @@ $order-bg: #f8fafc;
 
 .order-show__totals-discount td:last-child {
     color: #dc2626;
+}
+
+.order-show__totals-meta td {
+    color: $order-muted;
+    font-size: 13px;
+}
+
+.order-show__payment-breakdown {
+    border-top: 1px solid $order-border;
+    padding: 16px 18px;
+    background: #fff;
+
+    &--inline {
+        .order-show__payment-breakdown-inner {
+            max-width: 380px;
+            margin-left: auto;
+        }
+    }
+}
+
+.order-show__payment-breakdown-title {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $order-text;
+}
+
+.order-show__totals-footer--inline {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .order-show__coupon-code {

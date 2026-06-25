@@ -90,7 +90,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
             $view->with('jobUrgencyAlerts', $alerts);
         });
 
-        View::composer('order::admin.orders.partials.order_and_account_information', function ($view) {
+        View::composer('order::admin.orders.show', function ($view) {
             $order = $view->getData()['order'] ?? null;
 
             if (! $order instanceof Order) {

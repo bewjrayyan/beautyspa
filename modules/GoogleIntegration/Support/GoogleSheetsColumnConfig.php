@@ -15,6 +15,8 @@ class GoogleSheetsColumnConfig
             'order_id' => true,
             'order_date' => true,
             'status' => true,
+            'payment_status' => true,
+            'treatment_status' => true,
             'customer_name' => true,
             'customer_email' => true,
             'customer_phone' => true,
@@ -51,6 +53,7 @@ class GoogleSheetsColumnConfig
     {
         $attributes = [
             'status',
+            'payment_status',
             'customer_first_name',
             'customer_last_name',
             'customer_email',

@@ -49,6 +49,11 @@
         <div class="order-show__summary">
             <span class="badge order-show__status-badge" id="order-status-badge">{{ $order->status() }}</span>
             <span class="badge order-show__status-badge" id="order-payment-status-badge">{{ $order->paymentStatusLabel() }}</span>
+            @if (!empty($treatmentBooking))
+                <span class="badge order-show__status-badge order-show__status-badge--treatment" id="order-treatment-status-badge">
+                    {{ $treatmentBooking->treatmentStatusLabel() }}
+                </span>
+            @endif
             <span class="order-show__total">{{ $order->total->format() }}</span>
         </div>
     </div>
@@ -62,6 +67,7 @@
                         <option value="{{ $name }}" {{ $order->status === $name ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
+                <p class="order-show__control-hint">{{ trans('order::orders.order_status_help') }}</p>
             </div>
             <div class="order-show__control">
                 <label for="order-payment-status">{{ trans('order::orders.payment_status') }}</label>
@@ -70,7 +76,27 @@
                         <option value="{{ $name }}" {{ $order->payment_status === $name ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
+                <p class="order-show__control-hint">{{ trans('order::orders.payment_status_help') }}</p>
             </div>
+            @if (!empty($treatmentBooking))
+                <div class="order-show__control">
+                    <label for="order-treatment-status">{{ trans('order::orders.treatment_status') }}</label>
+                    <select
+                        id="order-treatment-status"
+                        class="form-control custom-select-black"
+                        data-id="{{ $order->id }}"
+                    >
+                        @foreach (\Modules\TreatmentReservation\Entities\TreatmentBooking::statuses() as $status)
+                            <option value="{{ $status }}" {{ $treatmentBooking->status === $status ? 'selected' : '' }}>
+                                {{ $treatmentBooking::STATUS_CANCELED === $status
+                                    ? trans('treatmentreservation::admin.crm.status_canceled')
+                                    : trans('treatmentreservation::admin.kanban.' . $status) }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="order-show__control-hint">{{ trans('order::orders.treatment_status_help') }}</p>
+                </div>
+            @endif
         </div>
 
         <div class="order-show__actions">

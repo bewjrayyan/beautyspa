@@ -58,5 +58,11 @@
                 </tbody>
             </table>
         </div>
+
+        @include('order::admin.orders.partials.order_show_payment_breakdown', [
+            'order' => $order,
+            'variant' => 'inline',
+            'showTitle' => true,
+        ])
     </div>
 </div>

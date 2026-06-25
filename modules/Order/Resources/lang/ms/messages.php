@@ -3,6 +3,7 @@
 return [
     'status_updated' => 'Status pesanan telah dikemas kini',
     'payment_status_updated' => 'Status bayaran telah dikemas kini',
+    'treatment_status_updated' => 'Status rawatan telah dikemas kini',
     'deleted' => 'Pesanan telah dipadam',
     'force_deleted' => 'Pesanan telah dipadam kekal',
     'invoice_sent' => 'Invois telah dihantar kepada pelanggan',

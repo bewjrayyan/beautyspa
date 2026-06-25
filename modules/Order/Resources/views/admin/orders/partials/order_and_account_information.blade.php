@@ -1,5 +1,12 @@
+@php
+    $hasAppointmentCard = $order->hasAppointmentDetails()
+        || $order->beautician
+        || $order->spaBranch
+        || ! empty($treatmentBooking?->beautician_notes);
+@endphp
+
 <div class="order-show__section">
-    <div class="order-show__grid order-show__grid--2">
+    <div @class(['order-show__grid', 'order-show__grid--2' => $hasAppointmentCard])>
         <div class="order-show__card">
             <div class="order-show__card-head">
                 <h5><i class="fa fa-file-text-o" aria-hidden="true"></i> {{ trans('order::orders.order_information') }}</h5>
@@ -34,12 +41,6 @@
                     <div class="order-show__dl-row">
                         <dt>{{ trans('order::orders.shipping_method') }}</dt>
                         <dd>{{ $order->shipping_method }}</dd>
-                    </div>
-                @endif
-                @if ($order->spaBranch)
-                    <div class="order-show__dl-row">
-                        <dt>{{ trans('order::orders.spa_branch') }}</dt>
-                        <dd>{{ $order->spaBranch->name }}</dd>
                     </div>
                 @endif
                 @if (app('modules')->isEnabled('Loyalty'))
@@ -90,47 +91,8 @@
             </dl>
         </div>
 
-        <div class="order-show__card">
-            <div class="order-show__card-head">
-                <h5><i class="fa fa-user-o" aria-hidden="true"></i> {{ trans('order::orders.account_information') }}</h5>
-            </div>
-            <dl class="order-show__dl">
-                <div class="order-show__dl-row">
-                    <dt>{{ trans('order::orders.customer_group') }}</dt>
-                    <dd>
-                        <span class="badge order-show__status-badge">
-                            {{ is_null($order->customer_id) ? trans('order::orders.guest') : trans('order::orders.registered') }}
-                        </span>
-                    </dd>
-                </div>
-                @if ($order->customer_id)
-                    <div class="order-show__dl-row">
-                        <dt>{{ trans('order::orders.customer_account_id') }}</dt>
-                        <dd>#{{ $order->customer_id }}</dd>
-                    </div>
-                @endif
-                @if ($order->customer_email)
-                    <div class="order-show__dl-row order-show__dl-row--secondary">
-                        <dt>{{ trans('order::orders.customer_email') }}</dt>
-                        <dd><a href="mailto:{{ $order->customer_email }}">{{ $order->customer_email }}</a></dd>
-                    </div>
-                @endif
-                @if ($order->customer_phone)
-                    <div class="order-show__dl-row order-show__dl-row--secondary">
-                        <dt>{{ trans('order::orders.customer_phone') }}</dt>
-                        <dd><a href="tel:{{ $order->customer_phone }}">{{ $order->customer_phone }}</a></dd>
-                    </div>
-                @endif
-                @if ($order->customer?->date_of_birth)
-                    <div class="order-show__dl-row order-show__dl-row--secondary">
-                        <dt>{{ trans('order::orders.customer_date_of_birth') }}</dt>
-                        <dd>
-                            {{ $order->customer->date_of_birth->format('d M Y') }}
-                            <span class="order-show__hint">({{ trans('order::orders.customer_age', ['age' => $order->customer->age()]) }})</span>
-                        </dd>
-                    </div>
-                @endif
-            </dl>
-        </div>
+        @if ($hasAppointmentCard)
+            @include('order::admin.orders.partials.appointment_information')
+        @endif
     </div>
 </div>

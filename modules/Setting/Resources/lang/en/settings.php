@@ -463,7 +463,9 @@ return [
         'google_sheets_columns' => [
             'order_id' => 'Order ID',
             'order_date' => 'Order Date',
-            'status' => 'Status',
+            'status' => 'Order Status',
+            'payment_status' => 'Payment Status',
+            'treatment_status' => 'Treatment Status',
             'customer_name' => 'Customer Name',
             'customer_email' => 'Customer Email',
             'customer_phone' => 'Customer Phone',

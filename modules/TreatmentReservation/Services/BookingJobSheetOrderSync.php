@@ -24,7 +24,6 @@ class BookingJobSheetOrderSync
 
         $orderStatus = match ($jobSheetStatus) {
             TreatmentBooking::STATUS_COMPLETED => Order::COMPLETED,
-            TreatmentBooking::STATUS_IN_PROGRESS, TreatmentBooking::STATUS_PENDING => Order::PROCESSING,
             default => null,
         };
 

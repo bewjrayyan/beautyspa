@@ -3,6 +3,7 @@
 return [
     'status_updated' => 'Order status has been updated',
     'payment_status_updated' => 'Payment status has been updated',
+    'treatment_status_updated' => 'Treatment status has been updated',
     'deleted' => 'Order has been deleted',
     'force_deleted' => 'Order has been permanently deleted',
     'invoice_sent' => 'Invoice has been sent to the customer',

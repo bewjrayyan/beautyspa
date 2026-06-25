@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.39' => [
+        'en' => [
+            'summary' => 'Separate order, payment, and treatment statuses; improve admin order page layout.',
+            'changes' => [
+                'Add a dedicated Treatment Status control on the order page and decouple it from order status and the job sheet pipeline.',
+                'Add Payment Status and Treatment Status columns to Google Sheets sync.',
+                'Reorganize the admin order page: remove duplicate account info, move appointment and Google Sheets to the sidebar, and show payment breakdown under items.',
+                'Fix raw translation keys for treatment status labels and polish Malay admin copy.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pisahkan status pesanan, bayaran, dan rawatan; baiki susun atur halaman pesanan admin.',
+            'changes' => [
+                'Tambah kawalan Status Rawatan khusus pada halaman pesanan dan pisahkan daripada status pesanan serta pipeline job sheet.',
+                'Tambah lajur Status Bayaran dan Status Rawatan pada penyegerakan Google Sheets.',
+                'Susun semula halaman pesanan admin: buang maklumat akaun berulang, pindahkan temujanji dan Google Sheets ke sidebar, dan paparkan pecahan bayaran di bawah item.',
+                'Baiki kunci terjemahan mentah untuk label status rawatan dan perhalusi salinan admin Bahasa Malaysia.',
+            ],
+        ],
+    ],
     '4.9.38' => [
         'en' => [
             'summary' => 'Fix WhatsApp payment proof attachments and add admin orders bulk delete.',

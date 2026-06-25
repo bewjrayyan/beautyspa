@@ -61,7 +61,7 @@ return [
         'pipeline_waiting' => 'Menunggu tugasan',
         'pipeline_active' => 'Kabin aktif',
         'pipeline_finished' => 'Selesai',
-        'pipeline_pending_badge' => 'Pending',
+        'pipeline_pending_badge' => 'Menunggu',
         'pipeline_active_badge' => 'Aktif',
         'pipeline_finished_badge' => 'Selesai',
         'pipeline_by_specialist' => 'Oleh pakar: :name',

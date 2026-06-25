@@ -182,6 +182,13 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
             "payment_status"
         );
 
+        bindStatusSelect(
+            "#order-treatment-status",
+            "treatment-status",
+            $("#order-treatment-status-badge"),
+            "treatment_status"
+        );
+
         bindOrderActionsDropdown();
         bindOrderWhatsAppSend();
         bindGoogleSheetsSync();
