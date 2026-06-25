@@ -79,6 +79,7 @@ return [
         'payment_method' => 'Kaedah Bayaran:',
         'payment_proof' => 'Bukti bayaran:',
         'view_payment_proof' => 'Lihat bukti bayaran',
+        'payment_proof_missing' => 'Tiada bukti bayaran dimuat naik untuk pesanan ini.',
         'transaction_id' => 'Transaksi ID:',
         'copy' => 'Copy',
         'open_link' => 'Open Link',

@@ -74,6 +74,7 @@ return [
         'payment_method' => 'Payment Method:',
         'payment_proof' => 'Payment proof:',
         'view_payment_proof' => 'View payment proof',
+        'payment_proof_missing' => 'No payment proof was uploaded for this order.',
         'transaction_id' => 'Transaction ID:',
         'copy' => 'Copy',
         'open_link' => 'Open Link',

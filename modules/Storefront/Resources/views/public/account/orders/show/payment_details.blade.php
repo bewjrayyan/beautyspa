@@ -40,6 +40,8 @@
                 </div>
             </div>
         @endif
+
+        @include('storefront::public.account.orders.show.payment_proof')
     </div>
 @else
     <ul class="account-order-sidebar__list">
@@ -91,4 +93,6 @@
             </li>
         @endif
     </ul>
+
+    @include('storefront::public.account.orders.show.payment_proof')
 @endif

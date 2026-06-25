@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.37' => [
+        'en' => [
+            'summary' => 'Show bank transfer payment proof on customer order pages.',
+            'changes' => [
+                'Display uploaded payment proof in the Payment details section on account order view.',
+                'Show inline image preview or PDF download link for bank transfer orders.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Paparkan bukti bayaran pemindahan bank pada halaman pesanan pelanggan.',
+            'changes' => [
+                'Paparkan bukti bayaran yang dimuat naik dalam bahagian Butiran Bayaran pada paparan pesanan akaun.',
+                'Tunjuk preview imej inline atau pautan muat turun PDF untuk pesanan pemindahan bank.',
+            ],
+        ],
+    ],
     '4.9.36' => [
         'en' => [
             'summary' => 'Fix Bank Transfer checkout 500 error in production.',
