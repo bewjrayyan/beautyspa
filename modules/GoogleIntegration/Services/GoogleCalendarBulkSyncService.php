@@ -29,6 +29,7 @@ class GoogleCalendarBulkSyncService
      *   total: int,
      *   processed: int,
      *   synced: int,
+     *   skipped: int,
      *   failed: int,
      *   done: bool,
      *   errors: array<int, array{order_id: int, message: string}>
@@ -47,14 +48,19 @@ class GoogleCalendarBulkSyncService
             ->get();
 
         $synced = 0;
+        $skipped = 0;
         $failed = 0;
         $errors = [];
 
         foreach ($orders as $order) {
-            $result = $this->sync->syncCalendarAppointment($order->fresh(), 'bulk');
+            $result = $this->sync->syncCalendarAppointment($order->fresh(), 'bulk', true);
 
             if ($result['ok']) {
-                $synced++;
+                if ($result['skipped']) {
+                    $skipped++;
+                } else {
+                    $synced++;
+                }
             } elseif ($result['error']) {
                 $failed++;
                 $errors[] = [
@@ -73,6 +79,7 @@ class GoogleCalendarBulkSyncService
             'total' => $total,
             'processed' => $processed,
             'synced' => $synced,
+            'skipped' => $skipped,
             'failed' => $failed,
             'errors' => $errors,
             'done' => $nextOffset >= $total || $processed === 0,
@@ -84,7 +91,6 @@ class GoogleCalendarBulkSyncService
     {
         return Order::query()
             ->where('status', Order::COMPLETED)
-            ->whereNotNull('appointment_date')
-            ->whereNull('google_calendar_event_id');
+            ->whereNotNull('appointment_date');
     }
 }

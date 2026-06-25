@@ -729,6 +729,7 @@ $(function () {
         let offset = 0;
         let total = 0;
         let syncedTotal = 0;
+        let skippedTotal = 0;
         let failedTotal = 0;
         const failureDetails = [];
 
@@ -779,6 +780,7 @@ $(function () {
 
                 offset = Number(data.offset || 0);
                 syncedTotal += Number(data.synced || 0);
+                skippedTotal += Number(data.skipped || 0);
                 failedTotal += Number(data.failed || 0);
                 if (Array.isArray(data.errors)) {
                     failureDetails.push(...data.errors);
@@ -795,9 +797,10 @@ $(function () {
             }
 
             const doneTemplate =
-                syncAllBtn.dataset.doneTemplate || "Done. Synced: :synced, failed: :failed.";
+                syncAllBtn.dataset.doneTemplate || "Done. Created: :synced, already on calendar: :skipped, failed: :failed.";
             let finalMessage = doneTemplate
                 .replace(":synced", String(syncedTotal))
+                .replace(":skipped", String(skippedTotal))
                 .replace(":failed", String(failedTotal));
 
             if (failureDetails.length) {

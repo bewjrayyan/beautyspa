@@ -5,6 +5,7 @@ namespace Modules\GoogleIntegration\Services;
 use Carbon\Carbon;
 use Exception;
 use Modules\Order\Entities\Order;
+use Modules\Order\Entities\OrderProduct;
 
 class GoogleCalendarService
 {
@@ -39,12 +40,12 @@ class GoogleCalendarService
 
         $customerName = trim($order->customer_first_name . ' ' . $order->customer_last_name);
         $beautician = $order->beautician?->name ?? '—';
-        $treatments = $order->products->pluck('name')->implode(', ');
-
-        $calendarId = rawurlencode(trim((string) setting('google_calendar_id', '')));
+        $treatments = $order->products
+            ->map(fn (OrderProduct $product) => $product->nameWithSelections() . ' (x' . $product->qty . ')')
+            ->implode(', ');
 
         $response = $this->client->http()->post(
-            "https://www.googleapis.com/calendar/v3/calendars/{$calendarId}/events",
+            "https://www.googleapis.com/calendar/v3/calendars/{$this->encodedCalendarId()}/events",
             [
                 'summary' => "Treatment #{$order->id} — {$customerName}",
                 'description' => implode("\n", array_filter([
@@ -75,5 +76,37 @@ class GoogleCalendarService
         }
 
         return (string) $response->json('id');
+    }
+
+
+    public function eventExists(string $eventId): bool
+    {
+        $eventId = trim($eventId);
+
+        if ($eventId === '') {
+            return false;
+        }
+
+        $response = $this->client->http()->get(
+            "https://www.googleapis.com/calendar/v3/calendars/{$this->encodedCalendarId()}/events/" . rawurlencode($eventId)
+        );
+
+        if (in_array($response->status(), [404, 410], true)) {
+            return false;
+        }
+
+        if ($response->failed()) {
+            throw new Exception(
+                'Google Calendar event lookup failed: ' . ($response->json('error.message') ?? $response->body())
+            );
+        }
+
+        return true;
+    }
+
+
+    private function encodedCalendarId(): string
+    {
+        return rawurlencode(trim((string) setting('google_calendar_id', '')));
     }
 }

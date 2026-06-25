@@ -90,16 +90,52 @@ class OrderGoogleSyncService
 
 
     /**
-     * @return array{ok: bool, error: ?string, event_id: ?string}
+     * @return array{ok: bool, error: ?string, event_id: ?string, created: bool, skipped: bool}
      */
-    public function syncCalendarAppointment(Order $order, string $_trigger = 'auto'): array
+    public function syncCalendarAppointment(Order $order, string $_trigger = 'auto', bool $verifyExisting = false): array
     {
         if (! GoogleCalendarService::isEnabled()) {
-            return ['ok' => false, 'error' => trans('setting::messages.google_calendar_sync_all_disabled'), 'event_id' => null];
+            return [
+                'ok' => false,
+                'error' => trans('setting::messages.google_calendar_sync_all_disabled'),
+                'event_id' => null,
+                'created' => false,
+                'skipped' => false,
+            ];
         }
 
-        if ($order->status !== Order::COMPLETED || $order->google_calendar_event_id || ! $order->appointment_date) {
-            return ['ok' => false, 'error' => null, 'event_id' => null];
+        if ($order->status !== Order::COMPLETED || ! $order->appointment_date) {
+            return ['ok' => false, 'error' => null, 'event_id' => null, 'created' => false, 'skipped' => false];
+        }
+
+        if ($order->google_calendar_event_id) {
+            if ($verifyExisting) {
+                try {
+                    if ($this->calendar->eventExists($order->google_calendar_event_id)) {
+                        return [
+                            'ok' => true,
+                            'error' => null,
+                            'event_id' => $order->google_calendar_event_id,
+                            'created' => false,
+                            'skipped' => true,
+                        ];
+                    }
+                } catch (Exception $exception) {
+                    report($exception);
+
+                    return [
+                        'ok' => false,
+                        'error' => $exception->getMessage(),
+                        'event_id' => null,
+                        'created' => false,
+                        'skipped' => false,
+                    ];
+                }
+
+                $order->forceFill(['google_calendar_event_id' => null])->save();
+            } else {
+                return ['ok' => false, 'error' => null, 'event_id' => null, 'created' => false, 'skipped' => false];
+            }
         }
 
         try {
@@ -107,11 +143,23 @@ class OrderGoogleSyncService
 
             $order->forceFill(['google_calendar_event_id' => $eventId])->save();
 
-            return ['ok' => true, 'error' => null, 'event_id' => $eventId];
+            return [
+                'ok' => true,
+                'error' => null,
+                'event_id' => $eventId,
+                'created' => true,
+                'skipped' => false,
+            ];
         } catch (Exception $exception) {
             report($exception);
 
-            return ['ok' => false, 'error' => $exception->getMessage(), 'event_id' => null];
+            return [
+                'ok' => false,
+                'error' => $exception->getMessage(),
+                'event_id' => null,
+                'created' => false,
+                'skipped' => false,
+            ];
         }
     }
 

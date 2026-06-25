@@ -208,6 +208,45 @@ class OrderProduct extends Model
     /**
      * @return \Illuminate\Support\Collection<int, array{name: string, value: string, price: float}>
      */
+    public function nameWithSelections(): string
+    {
+        $name = $this->name;
+        $parts = [];
+
+        if ($this->hasAnyVariation()) {
+            foreach ($this->variations as $variation) {
+                $label = $variation->values->first()?->label ?? $variation->value;
+
+                if (filled($label)) {
+                    $parts[] = $variation->name . ': ' . $label;
+                }
+            }
+        }
+
+        if ($this->hasAnyOption()) {
+            foreach ($this->options as $option) {
+                if ($option->isFieldType()) {
+                    if (filled($option->value)) {
+                        $parts[] = $option->name . ': ' . $option->value;
+                    }
+                } else {
+                    $labels = $option->values->pluck('label')->filter()->implode(', ');
+
+                    if ($labels !== '') {
+                        $parts[] = $option->name . ': ' . $labels;
+                    }
+                }
+            }
+        }
+
+        if ($parts !== []) {
+            $name .= ' (' . implode('; ', $parts) . ')';
+        }
+
+        return $name;
+    }
+
+
     public function pricedOptionLines()
     {
         return $this->options->flatMap(function ($option) {

@@ -32,7 +32,6 @@ class BackfillGoogleCalendarCommand extends Command
         $query = Order::query()
             ->where('status', Order::COMPLETED)
             ->whereNotNull('appointment_date')
-            ->whereNull('google_calendar_event_id')
             ->orderBy('id');
 
         $limit = max(0, (int) $this->option('limit'));
@@ -44,27 +43,33 @@ class BackfillGoogleCalendarCommand extends Command
         $orders = $query->get();
 
         if ($orders->isEmpty()) {
-            $this->info('No completed orders waiting for Google Calendar events.');
+            $this->info('No completed orders with appointment dates found.');
 
             return self::SUCCESS;
         }
 
         $synced = 0;
+        $skipped = 0;
         $failed = 0;
 
         foreach ($orders as $order) {
-            $result = $sync->syncCalendarAppointment($order->fresh(), 'backfill');
+            $result = $sync->syncCalendarAppointment($order->fresh(), 'backfill', true);
 
             if ($result['ok']) {
-                $synced++;
-                $this->line("Synced order #{$order->id} → calendar event {$result['event_id']}");
+                if ($result['skipped']) {
+                    $skipped++;
+                    $this->line("Skipped order #{$order->id} — calendar event already exists.");
+                } else {
+                    $synced++;
+                    $this->line("Synced order #{$order->id} → calendar event {$result['event_id']}");
+                }
             } else {
                 $failed++;
                 $this->warn("Failed order #{$order->id}: " . ($result['error'] ?? 'Unknown error'));
             }
         }
 
-        $this->info("Done. Synced: {$synced}, failed: {$failed}.");
+        $this->info("Done. Created: {$synced}, skipped: {$skipped}, failed: {$failed}.");
 
         return $failed > 0 ? self::FAILURE : self::SUCCESS;
     }
@@ -80,9 +85,15 @@ class BackfillGoogleCalendarCommand extends Command
             return self::FAILURE;
         }
 
-        $result = $sync->syncCalendarAppointment($order->fresh(), 'backfill');
+        $result = $sync->syncCalendarAppointment($order->fresh(), 'backfill', true);
 
         if ($result['ok']) {
+            if ($result['skipped']) {
+                $this->info("Order #{$orderId} already has a calendar event ({$result['event_id']}).");
+
+                return self::SUCCESS;
+            }
+
             $this->info("Synced order #{$orderId} → calendar event {$result['event_id']}.");
 
             return self::SUCCESS;

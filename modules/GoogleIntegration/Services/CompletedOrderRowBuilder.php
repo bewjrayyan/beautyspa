@@ -46,7 +46,7 @@ class CompletedOrderRowBuilder
 
         $customerName = trim($order->customer_first_name . ' ' . $order->customer_last_name);
         $treatments = $order->products
-            ->map(fn (OrderProduct $product) => $product->name . ' (x' . $product->qty . ')')
+            ->map(fn (OrderProduct $product) => $product->nameWithSelections() . ' (x' . $product->qty . ')')
             ->implode('; ');
 
         return [
