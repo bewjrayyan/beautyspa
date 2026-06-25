@@ -23,17 +23,21 @@ class OrderWhatsAppPdfService
     }
 
 
+    public function invoicePdfBinary(Order $order): string
+    {
+        return $this->renderPdf($this->prepareOrder($order), 'order::admin.orders.print.pdf-invoice');
+    }
+
+
+    public function receiptPdfBinary(Order $order): string
+    {
+        return $this->renderPdf($this->prepareOrder($order), 'order::admin.orders.print.pdf-receipt');
+    }
+
+
     private function storePdf(Order $order, string $type, string $view): string
     {
-        $order->load([
-            'products.variations',
-            'products.options.option',
-            'products.options.values',
-            'coupon',
-            'taxes',
-            'transaction',
-            'beautician',
-        ]);
+        $order = $this->prepareOrder($order);
 
         $relativePath = sprintf(
             'order-whatsapp/%d/%s-%s.pdf',
@@ -48,6 +52,23 @@ class OrderWhatsAppPdfService
         $disk->put($relativePath, $pdf);
 
         return asset('storage/' . $relativePath);
+    }
+
+
+    private function prepareOrder(Order $order): Order
+    {
+        $order->load([
+            'products.variations',
+            'products.options.option',
+            'products.options.values',
+            'coupon',
+            'taxes',
+            'transaction',
+            'beautician',
+            'spaBranch',
+        ]);
+
+        return $order;
     }
 
 

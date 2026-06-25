@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.30' => [
+        'en' => [
+            'summary' => 'Professional customer invoice email with embedded logo and PDF attachments.',
+            'changes' => [
+                'Redesign invoice email with item table and full payment summary breakdown.',
+                'Fix mail logo by embedding the image inline instead of broken localhost URLs.',
+                'Attach invoice and receipt PDFs to every customer invoice email.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'E-mel invois pelanggan profesional dengan logo terbenam dan lampiran PDF.',
+            'changes' => [
+                'Reka bentuk semula e-mel invois dengan jadual item dan ringkasan bayaran lengkap.',
+                'Baiki logo e-mel dengan embed imej terus dan bukan URL localhost yang rosak.',
+                'Lampirkan PDF invois dan resit pada setiap e-mel invois pelanggan.',
+            ],
+        ],
+    ],
     '4.9.29' => [
         'en' => [
             'summary' => 'Google sync shows product options; calendar re-sync recreates deleted events without duplicates.',

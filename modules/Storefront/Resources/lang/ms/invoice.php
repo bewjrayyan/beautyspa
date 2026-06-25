@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'subject' => 'Invois untuk pesanan #:id',
     'invoice' => 'INVOIS',
     'order_id' => 'ID Pesanan',
@@ -10,6 +9,8 @@ return [
     'email' => 'E-mel',
     'phone' => 'Telefon',
     'payment_method' => 'Kaedah Bayaran',
+    'payment_status' => 'Status Bayaran',
+    'order_status' => 'Status Pesanan',
     'billing_address' => 'Alamat Bil',
     'shipping_address' => 'Alamat Penghantaran',
     'product' => 'Produk',
@@ -18,5 +19,9 @@ return [
     'line_total' => 'Jumlah Baris',
     'subtotal' => 'Subjumlah',
     'coupon' => 'Kupon',
+    'loyalty_discount' => 'Mata kesetiaan',
+    'payment_summary' => 'Ringkasan Bayaran',
     'total' => 'Jumlah',
+    'attachments_note' => 'Invois dan resit anda dilampirkan sebagai fail PDF untuk rujukan anda.',
+    'thank_you' => 'Terima kasih atas pesanan anda. Kami menghargai sokongan anda.',
 ];
