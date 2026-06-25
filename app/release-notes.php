@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.29' => [
+        'en' => [
+            'summary' => 'Google sync shows product options; calendar re-sync recreates deleted events without duplicates.',
+            'changes' => [
+                'Google Sheets and Calendar treatment lines include selected variations and product options.',
+                'Sync all appointments checks Google Calendar first — skips existing events, recreates deleted ones.',
+                'Bulk sync result shows created, already on calendar, and failed counts.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Sync Google tunjuk pilihan produk; sync semula kalendar cipta semula acara dipadam tanpa duplicate.',
+            'changes' => [
+                'Google Sheets dan Calendar sertakan variasi dan pilihan produk yang dipilih pelanggan.',
+                'Sync semua temujanji semak Google Calendar dahulu — langkau acara sedia ada, cipta semula yang dipadam.',
+                'Hasil sync pukal tunjuk bilangan dicipta, sudah ada di kalendar, dan gagal.',
+            ],
+        ],
+    ],
     '4.9.26' => [
         'en' => [
             'summary' => 'Fix Google Calendar test connection accessRole API error.',
