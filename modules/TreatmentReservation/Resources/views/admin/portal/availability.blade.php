@@ -292,7 +292,7 @@
                                         <form
                                             method="POST"
                                             action="{{ $destroyBlockUrl($block->id) }}"
-                                            onsubmit="return confirm(@json(trans('treatmentreservation::admin.availability.remove_confirm')));"
+                                            onsubmit="return confirm(@js(trans('treatmentreservation::admin.availability.remove_confirm')));"
                                         >
                                             @csrf
                                             @method('DELETE')

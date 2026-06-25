@@ -58,7 +58,7 @@
                     <div class="form-group">
                         <input type="file" name="catalog_bundle" accept=".zip,application/zip" class="form-control" required>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm(@json(trans('setting::settings.form.catalog_sync_import_confirm')));">
+                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm(@js(trans('setting::settings.form.catalog_sync_import_confirm')));">
                         <i class="fa fa-upload"></i>
                         {{ trans('setting::settings.form.catalog_sync_import_button') }}
                     </button>
@@ -68,7 +68,7 @@
             @if ($bundleExists && $hasImportStoredRoute)
                 <form method="POST" action="{{ route('admin.catalog_sync.import_stored') }}" class="catalog-sync-stored">
                     @csrf
-                    <button type="submit" class="btn btn-default btn-sm" onclick="return confirm(@json(trans('setting::settings.form.catalog_sync_import_confirm')));">
+                    <button type="submit" class="btn btn-default btn-sm" onclick="return confirm(@js(trans('setting::settings.form.catalog_sync_import_confirm')));">
                         <i class="fa fa-folder-open"></i>
                         {{ trans('setting::settings.form.catalog_sync_import_stored_button') }}
                     </button>
@@ -94,7 +94,7 @@
                             placeholder="http://localhost/fleetcart/catalog-sync/bundle"
                         >
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm(@json(trans('setting::settings.form.catalog_sync_pull_confirm')));">
+                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm(@js(trans('setting::settings.form.catalog_sync_pull_confirm')));">
                         <i class="fa fa-cloud-download"></i>
                         {{ trans('setting::settings.form.catalog_sync_pull_button') }}
                     </button>

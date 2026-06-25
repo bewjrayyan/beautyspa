@@ -47,7 +47,7 @@
 
                 @if ($pendingCount > 0)
                     <form method="POST" action="{{ route('admin.onesender_queue.cancel_all') }}" style="display: inline;"
-                        onsubmit="return confirm(@json(trans('setting::settings.onesender_queue.cancel_all_confirm')));">
+                        onsubmit="return confirm(@js(trans('setting::settings.onesender_queue.cancel_all_confirm')));">
                         @csrf
                         <button type="submit" class="btn btn-warning btn-sm">
                             <i class="fa fa-stop" aria-hidden="true"></i>
@@ -126,7 +126,7 @@
                                 <td style="white-space: nowrap;">
                                     @if ($message->canBeCancelled())
                                         <form method="POST" action="{{ route('admin.onesender_queue.cancel', $message) }}" style="display: inline;"
-                                            onsubmit="return confirm(@json(trans('setting::settings.onesender_queue.cancel_confirm')));">
+                                            onsubmit="return confirm(@js(trans('setting::settings.onesender_queue.cancel_confirm')));">
                                             @csrf
                                             <button type="submit" class="btn btn-warning btn-xs" title="{{ trans('setting::settings.onesender_queue.cancel') }}">
                                                 <i class="fa fa-stop"></i>
@@ -135,7 +135,7 @@
                                     @endif
                                     @if ($message->canBeDeleted())
                                         <form method="POST" action="{{ route('admin.onesender_queue.destroy', $message) }}" style="display: inline;"
-                                            onsubmit="return confirm(@json(trans('setting::settings.onesender_queue.delete_confirm')));">
+                                            onsubmit="return confirm(@js(trans('setting::settings.onesender_queue.delete_confirm')));">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-xs" title="{{ trans('setting::settings.onesender_queue.delete') }}">

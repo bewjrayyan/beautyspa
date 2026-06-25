@@ -34,7 +34,7 @@
 
                 @if ($filteredCount > 0)
                     <form method="POST" action="{{ route('admin.onesender_logs.destroy_filtered') }}" style="display: inline;"
-                        onsubmit="return confirm(@json(trans('setting::settings.onesender_logs.delete_filtered_confirm', ['count' => $filteredCount])));">
+                        onsubmit="return confirm(@js(trans('setting::settings.onesender_logs.delete_filtered_confirm', ['count' => $filteredCount])));">
                         @csrf
                         <input type="hidden" name="status" value="{{ request('status') }}">
                         <input type="hidden" name="recipient" value="{{ request('recipient') }}">
@@ -48,7 +48,7 @@
                     </form>
 
                     <form method="POST" action="{{ route('admin.onesender_logs.destroy_all') }}" style="display: inline;"
-                        onsubmit="return confirm(@json(trans('setting::settings.onesender_logs.delete_all_confirm')));">
+                        onsubmit="return confirm(@js(trans('setting::settings.onesender_logs.delete_all_confirm')));">
                         @csrf
                         <button type="submit" class="btn btn-danger btn-sm">
                             <i class="fa fa-trash" aria-hidden="true"></i>
@@ -135,7 +135,7 @@
                                 <td><small>{{ $log->dedupe_key ?: '—' }}</small></td>
                                 <td style="white-space: nowrap;">
                                     <form method="POST" action="{{ route('admin.onesender_logs.destroy', $log) }}" style="display: inline;"
-                                        onsubmit="return confirm(@json(trans('setting::settings.onesender_logs.delete_confirm')));">
+                                        onsubmit="return confirm(@js(trans('setting::settings.onesender_logs.delete_confirm')));">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-xs" title="{{ trans('setting::settings.onesender_logs.delete') }}">

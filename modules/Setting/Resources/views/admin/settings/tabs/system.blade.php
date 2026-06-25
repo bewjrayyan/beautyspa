@@ -157,7 +157,7 @@
                     value="pull_latest"
                     class="btn btn-primary"
                     formnovalidate
-                    onclick="return confirm(@json(trans('setting::settings.form.app_version_pull_confirm')));"
+                    onclick="return confirm(@js(trans('setting::settings.form.app_version_pull_confirm')));"
                 >
                     <i class="fa fa-cloud-download"></i>
                     {{ trans('setting::settings.form.app_version_pull_latest') }}
@@ -179,7 +179,7 @@
                     value="github_update"
                     class="btn btn-primary"
                     formnovalidate
-                    onclick="return confirm(@json(trans('setting::settings.form.app_version_github_update_confirm')));"
+                    onclick="return confirm(@js(trans('setting::settings.form.app_version_github_update_confirm')));"
                 >
                     <i class="fa fa-cloud-download"></i>
                     {{ trans('setting::settings.form.app_version_github_update') }}
@@ -222,7 +222,7 @@
                         class="btn btn-default btn-sm artisan-command-card__button"
                         formnovalidate
                         @if ($command['confirm'])
-                            onclick="return confirm(@json($command['confirm_message']));"
+                            onclick="return confirm(@js($command['confirm_message']));"
                         @endif
                     >
                         <i class="fa fa-play"></i>

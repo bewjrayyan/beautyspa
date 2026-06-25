@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.22' => [
+        'en' => [
+            'summary' => 'Fix broken confirm dialogs on Settings System and related admin pages.',
+            'changes' => [
+                'Use @js() instead of @json() in HTML onclick/onsubmit attributes so confirm() strings no longer break JavaScript.',
+                'Fixes console SyntaxError on Settings → System and restores Migrate, deploy, and catalog sync confirmations.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki dialog confirm rosak pada Tetapan Sistem dan halaman admin berkaitan.',
+            'changes' => [
+                'Guna @js() dan bukan @json() dalam atribut HTML onclick/onsubmit supaya string confirm() tidak rosak JavaScript.',
+                'Baiki SyntaxError konsol pada Tetapan → Sistem dan pulihkan confirm Migrate, deploy, dan sync katalog.',
+            ],
+        ],
+    ],
     '4.9.21' => [
         'en' => [
             'summary' => 'Google Sheets production hardening, admin fixes, and maintenance mode improvements.',
