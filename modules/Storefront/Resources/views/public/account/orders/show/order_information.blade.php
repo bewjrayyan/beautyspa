@@ -41,6 +41,21 @@
                 </span>
             </li>
 
+            @if (is_module_enabled('TreatmentReservation'))
+                <li>
+                    <label>{{ trans('storefront::account.view_order.treatment_status') }}</label>
+                    <span>
+                        @if ($order->treatmentBooking)
+                            <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
+                                {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                            </span>
+                        @else
+                            —
+                        @endif
+                    </span>
+                </li>
+            @endif
+
             <li>
                 <label>{{ trans('storefront::account.view_order.payment_method') }}</label>
                 <span>

@@ -219,7 +219,13 @@ class User extends EloquentUser implements AuthenticatableContract
      */
     public function recentOrders($take)
     {
-        return $this->orders()->latest()->take($take)->get();
+        $with = ['products', 'beautician', 'spaBranch'];
+
+        if (is_module_enabled('TreatmentReservation')) {
+            $with[] = 'treatmentBooking';
+        }
+
+        return $this->orders()->with($with)->latest()->take($take)->get();
     }
 
 

@@ -212,6 +212,20 @@
                         </div>
                     </li>
                 @endif
+                @if (is_module_enabled('TreatmentReservation'))
+                    <li>
+                        <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.treatment_status') }}</span>
+                        <span class="account-order-sidebar__value">
+                            @if ($order->treatmentBooking)
+                                <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
+                                    {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                                </span>
+                            @else
+                                —
+                            @endif
+                        </span>
+                    </li>
+                @endif
             </ul>
         </div>
     @endif

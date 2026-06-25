@@ -20,9 +20,15 @@ class AccountOrdersController
      */
     public function index()
     {
+        $with = ['products', 'beautician', 'spaBranch'];
+
+        if (is_module_enabled('TreatmentReservation')) {
+            $with[] = 'treatmentBooking';
+        }
+
         $orders = auth()->user()
             ->orders()
-            ->with(['products', 'beautician', 'spaBranch'])
+            ->with($with)
             ->latest()
             ->paginate(20);
 
@@ -39,7 +45,7 @@ class AccountOrdersController
      */
     public function show(int $id, OrderGoogleCalendarUrl $calendarUrl)
     {
-        $order = $this->findUserOrder($id, [
+        $with = [
             'products.product',
             'products.variations',
             'products.options.option',
@@ -50,7 +56,13 @@ class AccountOrdersController
             'beautician',
             'spaBranch',
             'paymentProof',
-        ]);
+        ];
+
+        if (is_module_enabled('TreatmentReservation')) {
+            $with[] = 'treatmentBooking';
+        }
+
+        $order = $this->findUserOrder($id, $with);
 
         $hasTreatmentBooking = $this->hasTreatmentBooking($order);
         $canNotifyBeautician = $hasTreatmentBooking

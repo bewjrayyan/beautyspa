@@ -35,6 +35,11 @@
                     <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
                         {{ $order->paymentStatusLabel() }}
                     </span>
+                    @if (is_module_enabled('TreatmentReservation') && $order->treatmentBooking)
+                        <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
+                            {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                        </span>
+                    @endif
                 </div>
             </div>
 
@@ -51,6 +56,11 @@
                     <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
                         {{ $order->paymentStatusLabel() }}
                     </span>
+                    @if (is_module_enabled('TreatmentReservation') && $order->treatmentBooking)
+                        <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
+                            {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                        </span>
+                    @endif
                 </div>
             </div>
         </header>

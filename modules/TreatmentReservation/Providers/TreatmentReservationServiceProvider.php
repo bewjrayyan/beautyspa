@@ -106,6 +106,10 @@ class TreatmentReservationServiceProvider extends ServiceProvider
             );
         });
 
+        Order::resolveRelationUsing('treatmentBooking', function (Order $order) {
+            return $order->hasOne(TreatmentBooking::class);
+        });
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 SyncTreatmentBookingsCommand::class,

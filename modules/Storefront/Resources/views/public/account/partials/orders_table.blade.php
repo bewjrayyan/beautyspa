@@ -7,8 +7,11 @@
             <th>{{ trans('storefront::account.orders.order') }}</th>
             <th class="my-orders-table__col-treatments">{{ trans('storefront::account.orders.treatments') }}</th>
             <th>{{ trans('storefront::account.orders.appointment') }}</th>
-            <th>{{ trans('storefront::account.status') }}</th>
+            <th>{{ trans('storefront::account.orders.order_status') }}</th>
             <th>{{ trans('storefront::account.orders.payment_status') }}</th>
+            @if (is_module_enabled('TreatmentReservation'))
+                <th>{{ trans('storefront::account.orders.treatment_status') }}</th>
+            @endif
             <th>{{ trans('storefront::account.orders.total') }}</th>
             <th>{{ trans('storefront::account.action') }}</th>
         </tr>
@@ -82,6 +85,11 @@
                         {{ $order->paymentStatusLabel() }}
                     </span>
                 </td>
+                @if (is_module_enabled('TreatmentReservation'))
+                    <td>
+                        @include('storefront::public.account.partials.order_treatment_status', ['order' => $order])
+                    </td>
+                @endif
                 <td class="my-orders-table__total">
                     {{ $order->total->convert($order->currency, $order->currency_rate)->format($order->currency) }}
                 </td>

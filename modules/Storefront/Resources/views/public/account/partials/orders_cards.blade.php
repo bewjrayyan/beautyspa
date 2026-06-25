@@ -58,6 +58,14 @@
                 <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
                     {{ $order->paymentStatusLabel() }}
                 </span>
+
+                @if (is_module_enabled('TreatmentReservation'))
+                    @if ($order->treatmentBooking)
+                        <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
+                            {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                        </span>
+                    @endif
+                @endif
             </div>
         </a>
     @endforeach

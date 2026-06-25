@@ -287,6 +287,20 @@ if (!function_exists('payment_status_badge_class')) {
     }
 }
 
+if (!function_exists('treatment_status_badge_class')) {
+    function treatment_status_badge_class(?string $treatmentStatus): string
+    {
+        $classes = [
+            'pending' => 'badge-warning',
+            'in_progress' => 'badge-info',
+            'completed' => 'badge-success',
+            'canceled' => 'badge-danger',
+        ];
+
+        return $classes[$treatmentStatus] ?? 'badge-default';
+    }
+}
+
 if (!function_exists('social_links')) {
     /**
      * Get the social links.

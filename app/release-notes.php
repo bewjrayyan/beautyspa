@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.43' => [
+        'en' => [
+            'summary' => 'Show order, payment, and treatment status on the customer account orders screens.',
+            'changes' => [
+                'Add a Treatment status column and badges to Recent Orders, My Orders, and order detail pages.',
+                'Load treatment booking data with customer orders and align badge colors with admin status chips.',
+                'Add English and Bahasa Malaysia labels for the three separate statuses.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Paparkan status pesanan, bayaran, dan rawatan pada skrin pesanan akaun pelanggan.',
+            'changes' => [
+                'Tambah lajur dan lencana Status Rawatan pada Pesanan Terkini, Pesanan Saya, dan halaman butiran pesanan.',
+                'Muat data tempahan rawatan bersama pesanan pelanggan dan selaraskan warna lencana dengan chip status admin.',
+                'Tambah label Inggeris dan Bahasa Malaysia untuk tiga status berasingan.',
+            ],
+        ],
+    ],
     '4.9.42' => [
         'en' => [
             'summary' => 'Send WhatsApp OTP immediately instead of queuing it.',
