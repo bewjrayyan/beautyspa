@@ -730,6 +730,7 @@ $(function () {
         let total = 0;
         let syncedTotal = 0;
         let failedTotal = 0;
+        const failureDetails = [];
 
         try {
             const countResponse = await fetch(countUrl, {
@@ -779,6 +780,9 @@ $(function () {
                 offset = Number(data.offset || 0);
                 syncedTotal += Number(data.synced || 0);
                 failedTotal += Number(data.failed || 0);
+                if (Array.isArray(data.errors)) {
+                    failureDetails.push(...data.errors);
+                }
                 done = Boolean(data.done);
 
                 const current = Math.min(offset, total);
@@ -790,10 +794,19 @@ $(function () {
                 }
             }
 
-            showSyncAllResult(
-                failedTotal === 0,
-                `Done. Synced: ${syncedTotal}, failed: ${failedTotal}.`,
-            );
+            const doneTemplate =
+                syncAllBtn.dataset.doneTemplate || "Done. Synced: :synced, failed: :failed.";
+            let finalMessage = doneTemplate
+                .replace(":synced", String(syncedTotal))
+                .replace(":failed", String(failedTotal));
+
+            if (failureDetails.length) {
+                finalMessage += `\n\n${failureDetails
+                    .map((entry) => `#${entry.order_id}: ${entry.message}`)
+                    .join("\n")}`;
+            }
+
+            showSyncAllResult(failedTotal === 0, finalMessage);
             setSyncAllProgress(100, `${total}/${total}`);
         } catch (error) {
             showSyncAllResult(false, error?.message || "Sync failed.");

@@ -15,7 +15,8 @@ class BackfillGoogleCalendarCommand extends Command
 
     protected $description = 'Create Google Calendar events for completed orders with appointments';
 
-    public function handle(OrderGoogleSyncService $sync): int {
+    public function handle(OrderGoogleSyncService $sync): int
+    {
         if (! GoogleCalendarService::isEnabled()) {
             $this->error('Google Calendar sync is disabled or not configured.');
 
@@ -52,12 +53,14 @@ class BackfillGoogleCalendarCommand extends Command
         $failed = 0;
 
         foreach ($orders as $order) {
-            if ($sync->syncCalendarAppointment($order->fresh(), 'backfill')) {
+            $result = $sync->syncCalendarAppointment($order->fresh(), 'backfill');
+
+            if ($result['ok']) {
                 $synced++;
-                $this->line("Synced order #{$order->id} → calendar event {$order->fresh()->google_calendar_event_id}");
+                $this->line("Synced order #{$order->id} → calendar event {$result['event_id']}");
             } else {
                 $failed++;
-                $this->warn("Failed order #{$order->id}");
+                $this->warn("Failed order #{$order->id}: " . ($result['error'] ?? 'Unknown error'));
             }
         }
 
@@ -77,13 +80,15 @@ class BackfillGoogleCalendarCommand extends Command
             return self::FAILURE;
         }
 
-        if ($sync->syncCalendarAppointment($order->fresh(), 'backfill')) {
-            $this->info("Synced order #{$orderId} → calendar event {$order->fresh()->google_calendar_event_id}.");
+        $result = $sync->syncCalendarAppointment($order->fresh(), 'backfill');
+
+        if ($result['ok']) {
+            $this->info("Synced order #{$orderId} → calendar event {$result['event_id']}.");
 
             return self::SUCCESS;
         }
 
-        $this->error("Could not create calendar event for order #{$orderId}.");
+        $this->error("Could not create calendar event for order #{$orderId}: " . ($result['error'] ?? 'Unknown error'));
 
         return self::FAILURE;
     }

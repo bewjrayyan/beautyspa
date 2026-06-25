@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.25' => [
+        'en' => [
+            'summary' => 'Google Calendar sync diagnostics, stats, and open calendar button.',
+            'changes' => [
+                'Test connection now requires writer access (not view-only) before sync can succeed.',
+                'Sync all appointments shows per-order error messages when creation fails.',
+                'Add sync stats (events created / waiting) and Open Google Calendar button.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Diagnostik sync Google Calendar, statistik, dan butang buka kalendar.',
+            'changes' => [
+                'Uji sambungan kini memerlukan akses writer (bukan lihat sahaja) sebelum sync berjaya.',
+                'Sync semua temujanji memaparkan ralat setiap pesanan apabila cipta acara gagal.',
+                'Tambah statistik sync (acara dicipta / menunggu) dan butang Buka Google Calendar.',
+            ],
+        ],
+    ],
     '4.9.24' => [
         'en' => [
             'summary' => 'Sync all appointments button for Google Calendar backfill.',

@@ -37,6 +37,7 @@ return [
     'google_calendar_test_auth_ok' => 'Akaun perkhidmatan berjaya disahkan. Tambah ID Kalendar untuk sahkan akses kalendar.',
     'google_calendar_test_calendar_failed' => 'Tidak dapat akses kalendar: :error',
     'google_calendar_test_success' => 'Bersambung. Kalendar “:calendar”.',
+    'google_calendar_test_reader_only' => 'Kalendar boleh diakses tetapi akaun perkhidmatan (:email) hanya ada akses “:role”. Kongsi kalendar sebagai Make changes to events (writer).',
     'google_calendar_sync_all_disabled' => 'Sync Google Calendar dimatikan atau belum dikonfigurasi.',
     'google_calendar_sync_chunk_progress' => 'Menyelaraskan temujanji :current daripada :total…',
     'google_sheets_sync_all_disabled' => 'Penyelarasan Google Sheets dimatikan atau belum dikonfigurasi.',

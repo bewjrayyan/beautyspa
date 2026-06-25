@@ -30,7 +30,8 @@ class GoogleCalendarBulkSyncService
      *   processed: int,
      *   synced: int,
      *   failed: int,
-     *   done: bool
+     *   done: bool,
+     *   errors: array<int, array{order_id: int, message: string}>
      * }
      */
     public function syncChunk(int $offset, int $limit): array
@@ -47,12 +48,19 @@ class GoogleCalendarBulkSyncService
 
         $synced = 0;
         $failed = 0;
+        $errors = [];
 
         foreach ($orders as $order) {
-            if ($this->sync->syncCalendarAppointment($order->fresh(), 'bulk')) {
+            $result = $this->sync->syncCalendarAppointment($order->fresh(), 'bulk');
+
+            if ($result['ok']) {
                 $synced++;
-            } else {
+            } elseif ($result['error']) {
                 $failed++;
+                $errors[] = [
+                    'order_id' => $order->id,
+                    'message' => $result['error'],
+                ];
             }
         }
 
@@ -66,6 +74,7 @@ class GoogleCalendarBulkSyncService
             'processed' => $processed,
             'synced' => $synced,
             'failed' => $failed,
+            'errors' => $errors,
             'done' => $nextOffset >= $total || $processed === 0,
         ];
     }

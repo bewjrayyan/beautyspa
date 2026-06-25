@@ -37,6 +37,7 @@ return [
     'google_calendar_test_auth_ok' => 'Service account authenticated successfully. Add a Calendar ID to verify calendar access.',
     'google_calendar_test_calendar_failed' => 'Could not access calendar: :error',
     'google_calendar_test_success' => 'Connected. Calendar “:calendar”.',
+    'google_calendar_test_reader_only' => 'Calendar is reachable but the service account (:email) only has “:role” access. Share the calendar as Make changes to events (writer).',
     'google_calendar_sync_all_disabled' => 'Google Calendar sync is disabled or not configured.',
     'google_calendar_sync_chunk_progress' => 'Syncing appointments :current of :total…',
     'google_sheets_sync_all_disabled' => 'Google Sheets sync is disabled or not configured.',

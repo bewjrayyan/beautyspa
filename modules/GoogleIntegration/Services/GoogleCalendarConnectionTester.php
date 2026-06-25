@@ -3,6 +3,7 @@
 namespace Modules\GoogleIntegration\Services;
 
 use Exception;
+use Modules\GoogleIntegration\Support\GoogleCalendarUrl;
 
 class GoogleCalendarConnectionTester
 {
@@ -82,11 +83,25 @@ class GoogleCalendarConnectionTester
 
             $response = $authenticatedClient->http()->get(
                 "https://www.googleapis.com/calendar/v3/calendars/{$encodedCalendarId}",
-                ['fields' => 'id,summary,timeZone'],
+                ['fields' => 'id,summary,timeZone,accessRole'],
             );
 
             if ($response->failed()) {
                 throw new Exception($response->json('error.message') ?? $response->body());
+            }
+
+            $accessRole = (string) ($response->json('accessRole') ?? '');
+
+            if (! in_array($accessRole, ['writer', 'owner'], true)) {
+                return [
+                    'ok' => false,
+                    'message' => trans('setting::messages.google_calendar_test_reader_only', [
+                        'role' => $accessRole !== '' ? $accessRole : 'reader',
+                        'email' => $credentials['client_email'],
+                    ]),
+                    'client_email' => $credentials['client_email'],
+                    'calendar_summary' => (string) ($response->json('summary') ?? ''),
+                ];
             }
         } catch (Exception $exception) {
             return [
@@ -106,6 +121,7 @@ class GoogleCalendarConnectionTester
             'client_email' => $credentials['client_email'],
             'calendar_summary' => (string) ($response->json('summary') ?? ''),
             'calendar_timezone' => (string) ($response->json('timeZone') ?? ''),
+            'calendar_url' => GoogleCalendarUrl::browserUrl($calendarId),
         ];
     }
 }

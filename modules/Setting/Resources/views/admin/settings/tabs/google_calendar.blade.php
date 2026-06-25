@@ -1,18 +1,18 @@
 @php
     use Modules\GoogleIntegration\Services\GoogleCalendarService;
     use Modules\GoogleIntegration\Services\GoogleServiceAccountClient;
-    use Modules\Order\Entities\Order;
+    use Modules\GoogleIntegration\Support\GoogleCalendarSyncStats;
+    use Modules\GoogleIntegration\Support\GoogleCalendarUrl;
 
     $calendarEnabled = (bool) old('google_calendar_enabled', array_get($settings, 'google_calendar_enabled'));
     $credentialsConfigured = GoogleServiceAccountClient::isConfigured();
     $sheetsSettingsUrl = route('admin.settings.edit', ['tab' => 'google_sheets']);
-    $pendingCalendarSyncCount = GoogleCalendarService::isEnabled()
-        ? Order::query()
-            ->where('status', Order::COMPLETED)
-            ->whereNotNull('appointment_date')
-            ->whereNull('google_calendar_event_id')
-            ->count()
-        : 0;
+    $calendarStats = GoogleCalendarSyncStats::snapshot();
+    $pendingCalendarSyncCount = $calendarStats['pending'];
+    $syncedCalendarCount = $calendarStats['synced'];
+    $allCalendarSynced = $calendarStats['all_synced'];
+    $calendarBrowserUrl = $calendarStats['calendar_url']
+        ?? GoogleCalendarUrl::browserUrl((string) array_get($settings, 'google_calendar_id'));
 @endphp
 
 <div class="st-tab st-tab--google-calendar settings-form" data-google-calendar-settings>
@@ -53,6 +53,25 @@
             </div>
 
             <div class="{{ $calendarEnabled ? '' : 'hide' }}" id="google-calendar-fields">
+                @if (GoogleCalendarService::isEnabled())
+                    <div class="gs-settings__stats" aria-label="{{ trans('setting::settings.form.google_calendar_stats_label') }}">
+                        <div class="gs-settings__stat {{ $allCalendarSynced ? 'gs-settings__stat--success' : '' }}">
+                            <span class="gs-settings__stat-value">{{ number_format($syncedCalendarCount) }}</span>
+                            <span class="gs-settings__stat-label">{{ trans('setting::settings.form.google_calendar_stats_synced') }}</span>
+                        </div>
+                        <div class="gs-settings__stat {{ $pendingCalendarSyncCount > 0 ? 'gs-settings__stat--danger' : 'gs-settings__stat--success' }}">
+                            <span class="gs-settings__stat-value">{{ number_format($pendingCalendarSyncCount) }}</span>
+                            <span class="gs-settings__stat-label">{{ trans('setting::settings.form.google_calendar_stats_pending') }}</span>
+                        </div>
+                        @if ($allCalendarSynced)
+                            <p class="gc-sync-status gc-sync-status--ok">
+                                <i class="fa fa-check-circle" aria-hidden="true"></i>
+                                {{ trans('setting::settings.form.google_calendar_all_synced') }}
+                            </p>
+                        @endif
+                    </div>
+                @endif
+
                 {{ Form::text('google_calendar_id', trans('setting::attributes.google_calendar_id'), $errors, $settings, [
                     'placeholder' => 'xxxx@group.calendar.google.com',
                 ]) }}
@@ -74,6 +93,20 @@
                         <i class="fa fa-plug" aria-hidden="true"></i>
                         {{ trans('setting::settings.form.google_calendar_test_connection') }}
                     </button>
+
+                    @if ($calendarBrowserUrl)
+                        <a
+                            href="{{ $calendarBrowserUrl }}"
+                            class="btn btn-default"
+                            id="google-calendar-open-btn"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                            {{ trans('setting::settings.form.google_calendar_open_calendar') }}
+                        </a>
+                    @endif
+
                     <p class="gs-settings__actions-hint">{{ trans('setting::settings.form.google_calendar_test_connection_help') }}</p>
                 </div>
 
@@ -94,6 +127,7 @@
                             data-chunk-size="25"
                             data-syncing-text="{{ trans('setting::settings.form.google_calendar_sync_all_running') }}"
                             data-confirm-text="{{ trans('setting::settings.form.google_calendar_sync_all_confirm') }}"
+                            data-done-template="{{ trans('setting::settings.form.google_calendar_sync_all_done') }}"
                         >
                             <i class="fa fa-refresh" aria-hidden="true"></i>
                             {{ trans('setting::settings.form.google_calendar_sync_all') }}
@@ -118,7 +152,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="google-calendar-sync-all-result" class="google-sheets-test-result hide" role="status" aria-live="polite"></div>
+                    <div id="google-calendar-sync-all-result" class="google-sheets-test-result hide is-multiline" role="status" aria-live="polite"></div>
                 </div>
             </div>
         @endcomponent

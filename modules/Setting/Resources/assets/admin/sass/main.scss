@@ -2700,6 +2700,23 @@ $settings-sidebar-offset: 16px;
             margin-top: 8px;
         }
     }
+
+    .gc-sync-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+
+        &--ok {
+            color: #027a48;
+            background: #ecfdf3;
+            border: 1px solid #abefc6;
+        }
+    }
 }
 
 .google-sheets-sync-all-progress {
@@ -2738,6 +2755,11 @@ $settings-sidebar-offset: 16px;
         background: #fef3f2;
         color: #b42318;
         border: 1px solid #fecdca;
+    }
+
+    &.is-multiline {
+        white-space: pre-wrap;
+        word-break: break-word;
     }
 }
 

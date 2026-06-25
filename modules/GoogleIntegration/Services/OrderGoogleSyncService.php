@@ -89,14 +89,17 @@ class OrderGoogleSyncService
     }
 
 
-    public function syncCalendarAppointment(Order $order, string $trigger = 'auto'): bool
+    /**
+     * @return array{ok: bool, error: ?string, event_id: ?string}
+     */
+    public function syncCalendarAppointment(Order $order, string $_trigger = 'auto'): array
     {
         if (! GoogleCalendarService::isEnabled()) {
-            return false;
+            return ['ok' => false, 'error' => trans('setting::messages.google_calendar_sync_all_disabled'), 'event_id' => null];
         }
 
         if ($order->status !== Order::COMPLETED || $order->google_calendar_event_id || ! $order->appointment_date) {
-            return false;
+            return ['ok' => false, 'error' => null, 'event_id' => null];
         }
 
         try {
@@ -104,11 +107,11 @@ class OrderGoogleSyncService
 
             $order->forceFill(['google_calendar_event_id' => $eventId])->save();
 
-            return true;
+            return ['ok' => true, 'error' => null, 'event_id' => $eventId];
         } catch (Exception $exception) {
             report($exception);
 
-            return false;
+            return ['ok' => false, 'error' => $exception->getMessage(), 'event_id' => null];
         }
     }
 
