@@ -14,6 +14,18 @@ Route::post('settings/google-calendar/test-connection', [
     'middleware' => 'can:admin.settings.edit',
 ]);
 
+Route::get('settings/google-calendar/sync-all/count', [
+    'as' => 'admin.settings.google_calendar.sync_all_count',
+    'uses' => 'GoogleCalendarSettingsController@syncAllCount',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
+Route::post('settings/google-calendar/sync-all/chunk', [
+    'as' => 'admin.settings.google_calendar.sync_all_chunk',
+    'uses' => 'GoogleCalendarSettingsController@syncAllChunk',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
 Route::post('settings/google-sheets/sync-all', [
     'as' => 'admin.settings.google_sheets.sync_all',
     'uses' => 'GoogleSheetsSettingsController@syncAll',

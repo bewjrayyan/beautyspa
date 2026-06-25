@@ -2,6 +2,7 @@
 
 namespace Modules\GoogleIntegration\Providers;
 
+use Modules\GoogleIntegration\Console\BackfillGoogleCalendarCommand;
 use Modules\GoogleIntegration\Console\BackfillGoogleSheetsCommand;
 use Modules\GoogleIntegration\Console\RetryFailedGoogleSheetsSyncCommand;
 use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
@@ -50,6 +51,7 @@ class GoogleIntegrationServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 BackfillGoogleSheetsCommand::class,
+                BackfillGoogleCalendarCommand::class,
                 RetryFailedGoogleSheetsSyncCommand::class,
             ]);
         }

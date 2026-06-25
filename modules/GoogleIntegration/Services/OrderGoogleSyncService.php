@@ -84,13 +84,31 @@ class OrderGoogleSyncService
             && ! $order->google_calendar_event_id
             && $order->appointment_date
         ) {
-            try {
-                $eventId = $this->calendar->createAppointmentEvent($order);
+            $this->syncCalendarAppointment($order, $trigger);
+        }
+    }
 
-                $order->forceFill(['google_calendar_event_id' => $eventId])->save();
-            } catch (Exception $exception) {
-                report($exception);
-            }
+
+    public function syncCalendarAppointment(Order $order, string $trigger = 'auto'): bool
+    {
+        if (! GoogleCalendarService::isEnabled()) {
+            return false;
+        }
+
+        if ($order->status !== Order::COMPLETED || $order->google_calendar_event_id || ! $order->appointment_date) {
+            return false;
+        }
+
+        try {
+            $eventId = $this->calendar->createAppointmentEvent($order);
+
+            $order->forceFill(['google_calendar_event_id' => $eventId])->save();
+
+            return true;
+        } catch (Exception $exception) {
+            report($exception);
+
+            return false;
         }
     }
 

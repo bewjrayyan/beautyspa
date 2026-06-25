@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.24' => [
+        'en' => [
+            'summary' => 'Sync all appointments button for Google Calendar backfill.',
+            'changes' => [
+                'Add Sync all appointments on Google Calendar settings with chunked progress.',
+                'Add google-calendar:backfill artisan command for server-side backfill.',
+                'Eligible orders: Completed status, appointment date set, no calendar event yet.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Butang sync semua temujanji untuk backfill Google Calendar.',
+            'changes' => [
+                'Tambah Sync semua temujanji pada tetapan Google Calendar dengan progress berperingkat.',
+                'Tambah arahan google-calendar:backfill untuk backfill di server.',
+                'Pesanan layak: status Selesai, ada tarikh temujanji, belum ada acara kalendar.',
+            ],
+        ],
+    ],
     '4.9.23' => [
         'en' => [
             'summary' => 'Modern Google Calendar settings UI with connection test.',
