@@ -25,11 +25,16 @@ class BankTransfer implements GatewayInterface
 
     public function purchase(Order $order, Request $request)
     {
-        $fileId = app(OrderPaymentProofService::class)->store($request->file('payment_proof'));
+        $uploaded = $request->file('payment_proof');
 
-        if ($fileId) {
-            $order->update(['payment_proof_file_id' => $fileId]);
+        if (! $uploaded) {
+            throw new \InvalidArgumentException(trans('storefront::checkout.payment_proof_required'));
         }
+
+        $fileId = app(OrderPaymentProofService::class)->storeForOrder($order, $uploaded);
+
+        $order->update(['payment_proof_file_id' => $fileId]);
+        $order->refresh();
 
         return new NullResponse($order);
     }

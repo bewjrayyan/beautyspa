@@ -263,6 +263,101 @@ class OneSenderWhatsAppService
 
 
     /**
+     * @param  array{source?: string, dedupe_key?: string, immediate?: bool}  $context
+     */
+    public function sendImageToGroup(
+        string $groupId,
+        string $imageUrl,
+        ?string $caption = null,
+        array $context = [],
+    ): bool {
+        $groupId = trim($groupId);
+        $imageUrl = trim($imageUrl);
+
+        if ($groupId === '' || ! str_contains($groupId, '@g.us') || $imageUrl === '') {
+            throw new Exception(trans('order::messages.invalid_whatsapp_group_id'));
+        }
+
+        $image = ['link' => $imageUrl];
+
+        if ($caption !== null && trim($caption) !== '') {
+            $image['caption'] = $this->fitDocumentCaption(trim($caption));
+        }
+
+        $payload = [
+            [
+                'type' => 'image',
+                'to' => $groupId,
+                'recipient_type' => 'group',
+                'image' => $image,
+            ],
+        ];
+
+        return $this->deliverPayload(
+            $groupId,
+            'group',
+            'image',
+            'image:' . $imageUrl . '|' . ($image['caption'] ?? ''),
+            $payload,
+            $context
+        );
+    }
+
+
+    /**
+     * @param  array{source?: string, dedupe_key?: string, immediate?: bool}  $context
+     */
+    public function sendDocumentToGroup(
+        string $groupId,
+        string $documentUrl,
+        string $filename,
+        ?string $caption = null,
+        array $context = [],
+    ): bool {
+        $groupId = trim($groupId);
+        $documentUrl = trim($documentUrl);
+        $filename = trim($filename);
+
+        if ($groupId === '' || ! str_contains($groupId, '@g.us')) {
+            throw new Exception(trans('order::messages.invalid_whatsapp_group_id'));
+        }
+
+        if ($documentUrl === '' || $filename === '') {
+            throw new Exception(trans('user::messages.whatsapp_otp.send_failed'));
+        }
+
+        $document = [
+            'link' => $documentUrl,
+            'filename' => $filename,
+        ];
+
+        if ($caption !== null && trim($caption) !== '') {
+            $document['caption'] = WhatsAppFormatting::boldOtpCodesInMessage(
+                $this->fitDocumentCaption(trim($caption))
+            );
+        }
+
+        $payload = [
+            [
+                'type' => 'document',
+                'to' => $groupId,
+                'recipient_type' => 'group',
+                'document' => $document,
+            ],
+        ];
+
+        return $this->deliverPayload(
+            $groupId,
+            'group',
+            'document',
+            'document:' . $documentUrl . '|' . $filename . '|' . ($document['caption'] ?? ''),
+            $payload,
+            $context
+        );
+    }
+
+
+    /**
      * @param  array{source?: string, dedupe_key?: string}  $context
      *
      * @throws Exception

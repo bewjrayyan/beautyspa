@@ -695,6 +695,72 @@ $order-bg: #f8fafc;
             color: $order-text;
         }
     }
+
+    &--payment-proof {
+        border-left: 3px solid #0ea5e9;
+    }
+}
+
+.order-show__payment-proof {
+    display: grid;
+    gap: 12px;
+}
+
+.order-show__payment-proof-preview {
+    display: inline-block;
+    max-width: 280px;
+    border: 1px solid $order-border;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8fafc;
+
+    &--inline {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    img {
+        display: block;
+        width: 100%;
+        max-height: 320px;
+        object-fit: contain;
+    }
+}
+
+.order-show__payment-proof-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: $order-text;
+
+    &--inline {
+        padding: 8px 10px;
+        border: 1px solid $order-border;
+        border-radius: 6px;
+        background: #f8fafc;
+        text-decoration: none;
+
+        &:hover,
+        &:focus {
+            text-decoration: none;
+            border-color: $order-primary;
+        }
+    }
+
+    .fa {
+        font-size: 22px;
+        color: #dc2626;
+    }
+}
+
+.order-show__payment-proof-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: $order-primary;
 }
 
 .order-show__card-head {
@@ -739,6 +805,13 @@ $order-bg: #f8fafc;
         grid-template-columns: 1fr;
     }
 
+    &--payment-method {
+        dd {
+            display: grid;
+            gap: 8px;
+        }
+    }
+
     dt {
         margin: 0;
         font-size: 12px;
@@ -761,6 +834,21 @@ $order-bg: #f8fafc;
     margin-top: 4px;
     font-size: 12px;
     color: $order-muted;
+
+    &--payment-proof {
+        margin-top: 8px;
+        display: grid;
+        gap: 8px;
+    }
+
+    &--payment-proof-missing {
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: #fff7ed;
+        color: #9a3412;
+        border: 1px dashed #fdba74;
+    }
 
     &--section {
         margin: -12px 0 16px;

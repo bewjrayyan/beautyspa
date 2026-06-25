@@ -40,6 +40,16 @@
                 {{ Form::text('onesender_whatsapp_group_id', trans('setting::attributes.onesender_whatsapp_group_id'), $errors, $settings, [
                     'placeholder' => config('setting.whatsapp_notifications.onesender_whatsapp_group_id') ?: trans('setting::settings.sms.placeholders.whatsapp_group_id'),
                 ]) }}
+                {{ Form::checkbox('bank_transfer_payment_proof_whatsapp_enabled', trans('setting::attributes.bank_transfer_payment_proof_whatsapp_enabled'), trans('setting::settings.form.enable_bank_transfer_payment_proof_whatsapp'), $errors, $settings) }}
+                {{ Form::text('bank_transfer_payment_proof_whatsapp_group_id', trans('setting::attributes.bank_transfer_payment_proof_whatsapp_group_id'), $errors, $settings, [
+                    'placeholder' => config('setting.whatsapp_notifications.bank_transfer_payment_proof_whatsapp_group_id') ?: trans('setting::settings.sms.placeholders.whatsapp_group_id'),
+                ]) }}
+                <p class="help-block text-muted wa-settings__full-width">{{ trans('setting::settings.form.bank_transfer_payment_proof_whatsapp_help') }}</p>
+                {{ Form::textarea('bank_transfer_payment_proof_whatsapp_message', trans('setting::attributes.bank_transfer_payment_proof_whatsapp_message'), $errors, $settings, [
+                    'rows' => 6,
+                    'placeholder' => config('setting.whatsapp_notifications.bank_transfer_payment_proof_whatsapp_message'),
+                ]) }}
+                <p class="help-block text-muted wa-settings__full-width">{{ trans('setting::settings.form.bank_transfer_payment_proof_whatsapp_message_help') }}</p>
                 {{ Form::text('whatsapp_group_staff_name', trans('setting::attributes.whatsapp_group_staff_name'), $errors, $settings, [
                     'placeholder' => config('setting.whatsapp_notifications.whatsapp_group_staff_name'),
                 ]) }}

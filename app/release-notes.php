@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.35' => [
+        'en' => [
+            'summary' => 'Bank transfer payment proof WhatsApp alerts and inline admin receipt preview.',
+            'changes' => [
+                'Send uploaded bank transfer proof to a dedicated WhatsApp group after checkout.',
+                'Show payment receipt inline under Payment Method on the admin order page.',
+                'Harden payment proof file storage and require proof on bank transfer checkout.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Amaran WhatsApp bukti bayaran pemindahan bank dan preview resit inline dalam admin.',
+            'changes' => [
+                'Hantar bukti bayaran pemindahan bank ke kumpulan WhatsApp khusus selepas checkout.',
+                'Paparkan resit bayaran terus di bawah Kaedah Bayaran pada halaman pesanan admin.',
+                'Perkukuh penyimpanan fail bukti bayaran dan wajibkan bukti semasa checkout pemindahan bank.',
+            ],
+        ],
+    ],
     '4.9.34' => [
         'en' => [
             'summary' => 'Bank Transfer checkout now accepts customer payment proof uploads.',

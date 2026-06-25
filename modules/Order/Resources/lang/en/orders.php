@@ -55,6 +55,7 @@ return [
     'payment_status' => 'Payment Status',
     'payment_method' => 'Payment Method',
     'payment_proof' => 'Payment proof',
+    'payment_proof_missing' => 'No payment proof was uploaded for this order.',
     'view_payment_proof' => 'View payment proof',
     'transaction_id' => 'Transaction ID',
     'order_locale' => 'Order language',

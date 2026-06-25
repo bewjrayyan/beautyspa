@@ -6,10 +6,11 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Modules\Media\Entities\File;
 use Modules\Media\Services\ImageOptimizationService;
+use Modules\Order\Entities\Order;
 
 class OrderPaymentProofService
 {
-    public function store(?UploadedFile $file): ?int
+    public function storeForOrder(Order $order, ?UploadedFile $file): ?int
     {
         if (! $file) {
             return null;
@@ -24,9 +25,10 @@ class OrderPaymentProofService
         }
 
         $optimized = app(ImageOptimizationService::class)->processUploadedFile($file, $path, $diskName);
+        $userId = $order->customer_id ?? auth()->id() ?? 1;
 
         return File::create([
-            'user_id' => auth()->id(),
+            'user_id' => $userId,
             'disk' => $diskName,
             'filename' => substr($file->getClientOriginalName(), 0, 255),
             'path' => $optimized['path'],

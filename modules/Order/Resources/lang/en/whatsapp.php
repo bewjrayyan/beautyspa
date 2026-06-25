@@ -32,4 +32,14 @@ return [
     'not_configured' => 'OneSender WhatsApp API is not configured.',
     'no_phone' => 'Customer phone number is required to send WhatsApp.',
     'send_failed' => 'Failed to send WhatsApp message.',
+    'payment_proof_group_default' => implode("\n", [
+        '💳 *Bank Transfer Payment Proof*',
+        '',
+        'Order #:order_id',
+        'Customer: :customer',
+        'Phone: :phone',
+        'Total: :total',
+        '',
+        'Admin: :admin_url',
+    ]),
 ];

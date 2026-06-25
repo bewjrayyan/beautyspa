@@ -32,4 +32,14 @@ return [
     'not_configured' => 'API OneSender WhatsApp belum dikonfigurasi.',
     'no_phone' => 'Nombor telefon pelanggan diperlukan untuk hantar WhatsApp.',
     'send_failed' => 'Gagal menghantar mesej WhatsApp.',
+    'payment_proof_group_default' => implode("\n", [
+        '💳 *Bukti Bayaran Pemindahan Bank*',
+        '',
+        'Pesanan #:order_id',
+        'Pelanggan: :customer',
+        'Telefon: :phone',
+        'Jumlah: :total',
+        '',
+        'Admin: :admin_url',
+    ]),
 ];

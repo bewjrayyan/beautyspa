@@ -5,20 +5,12 @@
                 <h5><i class="fa fa-file-text-o" aria-hidden="true"></i> {{ trans('order::orders.order_information') }}</h5>
             </div>
             <dl class="order-show__dl">
-                <div class="order-show__dl-row">
+                <div class="order-show__dl-row order-show__dl-row--payment-method">
                     <dt>{{ trans('order::orders.payment_method') }}</dt>
                     <dd>
                         {{ $order->payment_method ?: '—' }}
                         @if ($order->getRawOriginal('payment_method') === 'bank_transfer')
-                            <div class="order-show__hint">{!! setting('bank_transfer_instructions') !!}</div>
-                        @endif
-                        @if ($order->paymentProof)
-                            <div class="order-show__hint order-show__payment-proof">
-                                <a href="{{ $order->paymentProof->path }}" target="_blank" rel="noopener noreferrer">
-                                    <i class="fa fa-paperclip" aria-hidden="true"></i>
-                                    {{ trans('order::orders.view_payment_proof') }}
-                                </a>
-                            </div>
+                            @include('order::admin.orders.partials.order_payment_proof_inline')
                         @endif
                     </dd>
                 </div>

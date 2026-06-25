@@ -55,6 +55,7 @@ return [
     'payment_status' => 'Status Bayaran',
     'payment_method' => 'Kaedah Bayaran',
     'payment_proof' => 'Bukti bayaran',
+    'payment_proof_missing' => 'Tiada bukti bayaran dimuat naik untuk pesanan ini.',
     'view_payment_proof' => 'Lihat bukti bayaran',
     'transaction_id' => 'ID Transaksi',
     'order_locale' => 'Bahasa pesanan',

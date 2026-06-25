@@ -22,6 +22,7 @@ class EventServiceProvider extends ServiceProvider
             SendNewOrderEmails::class,
             SendNewOrderSms::class,
             AddPlacedOrderToSession::class,
+            \Modules\Order\Listeners\SendBankTransferPaymentProofWhatsApp::class,
         ],
     ];
 }
