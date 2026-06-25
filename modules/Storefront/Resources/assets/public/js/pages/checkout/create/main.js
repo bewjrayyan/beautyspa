@@ -88,6 +88,8 @@ Alpine.data(
         accountLoginError: "",
         loggingInToAccount: false,
         emailCheckTimeout: null,
+        paymentProofFile: null,
+        paymentProofFileName: "",
 
         get cartFetched() {
             return this.$store.cart.fetched;
@@ -360,6 +362,19 @@ Alpine.data(
                         AestheticCart.stripeIntegrationType === "embedded_form"
                     ) {
                         this.renderStripeElements();
+                    }
+                }
+            });
+
+            this.$watch("form.payment_method", (method) => {
+                if (method !== "bank_transfer") {
+                    this.paymentProofFile = null;
+                    this.paymentProofFileName = "";
+
+                    const input = document.getElementById("payment-proof-input");
+
+                    if (input) {
+                        input.value = "";
                     }
                 }
             });
@@ -694,6 +709,57 @@ Alpine.data(
             }
 
             return payload;
+        },
+
+        appendCheckoutFormData(formData, payload) {
+            Object.entries(payload).forEach(([key, value]) => {
+                if (key === "billing" || key === "shipping") {
+                    return;
+                }
+
+                if (value === null || value === undefined || value === "") {
+                    return;
+                }
+
+                formData.append(key, value);
+            });
+
+            Object.entries(payload.billing || {}).forEach(([key, value]) => {
+                if (value !== null && value !== undefined && value !== "") {
+                    formData.append(`billing[${key}]`, value);
+                }
+            });
+
+            if (payload.shipping) {
+                Object.entries(payload.shipping).forEach(([key, value]) => {
+                    if (value !== null && value !== undefined && value !== "") {
+                        formData.append(`shipping[${key}]`, value);
+                    }
+                });
+            }
+
+            if (this.paymentProofFile) {
+                formData.append("payment_proof", this.paymentProofFile);
+            }
+        },
+
+        buildCheckoutRequestBody() {
+            const payload = this.buildCheckoutPayload();
+
+            if (this.form.payment_method !== "bank_transfer") {
+                return payload;
+            }
+
+            const formData = new FormData();
+            this.appendCheckoutFormData(formData, payload);
+
+            return formData;
+        },
+
+        onPaymentProofChange(event) {
+            const file = event.target.files?.[0] || null;
+            this.paymentProofFile = file;
+            this.paymentProofFileName = file?.name || "";
         },
 
         recordValidationErrors(response) {
@@ -1132,10 +1198,22 @@ Alpine.data(
                 return;
             }
 
+            if (
+                this.form.payment_method === "bank_transfer" &&
+                !this.paymentProofFile
+            ) {
+                notify(trans("storefront::checkout.payment_proof_required"));
+
+                return;
+            }
+
             this.placingOrder = true;
 
             axios
-                .post(AestheticCart.url("/checkout"), this.buildCheckoutPayload())
+                .post(
+                    AestheticCart.url("/checkout"),
+                    this.buildCheckoutRequestBody()
+                )
                 .then(({ data }) => {
                     if (data.redirectUrl) {
                         window.location.href = data.redirectUrl;

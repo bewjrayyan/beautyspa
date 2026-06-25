@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.34' => [
+        'en' => [
+            'summary' => 'Bank Transfer checkout now accepts customer payment proof uploads.',
+            'changes' => [
+                'Add required payment proof upload when customers choose Bank Transfer at checkout.',
+                'Store proof files on the order and show download links in admin and customer order views.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Checkout pemindahan bank kini menerima muat naik bukti bayaran pelanggan.',
+            'changes' => [
+                'Tambah muat naik bukti bayaran wajib apabila pelanggan pilih Pemindahan Bank semasa checkout.',
+                'Simpan fail bukti pada pesanan dan paparkan pautan muat turun dalam admin dan paparan pesanan pelanggan.',
+            ],
+        ],
+    ],
     '4.9.33' => [
         'en' => [
             'summary' => 'Fix raw translation keys on Facebook and Google social login settings tabs.',

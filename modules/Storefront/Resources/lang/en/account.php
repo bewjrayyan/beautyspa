@@ -72,6 +72,8 @@ return [
         'order_status' => 'Order Status:',
         'payment_status' => 'Payment Status:',
         'payment_method' => 'Payment Method:',
+        'payment_proof' => 'Payment proof:',
+        'view_payment_proof' => 'View payment proof',
         'transaction_id' => 'Transaction ID:',
         'copy' => 'Copy',
         'open_link' => 'Open Link',

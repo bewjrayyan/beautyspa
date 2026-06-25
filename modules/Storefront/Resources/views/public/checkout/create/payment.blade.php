@@ -98,5 +98,31 @@
         <h4 class="checkout-card-title">{{ trans('storefront::checkout.payment_instructions') }}</h4>
 
         <p x-html="paymentInstructions"></p>
+
+        <template x-if="form.payment_method === 'bank_transfer'">
+            <div class="payment-proof-upload">
+                <label class="payment-proof-upload__label" for="payment-proof-input">
+                    {{ trans('storefront::checkout.payment_proof') }}
+                    <span class="required" aria-hidden="true">*</span>
+                </label>
+
+                <input
+                    type="file"
+                    id="payment-proof-input"
+                    class="payment-proof-upload__input"
+                    accept=".jpg,.jpeg,.png,.pdf,.webp,image/jpeg,image/png,image/webp,application/pdf"
+                    @change="onPaymentProofChange($event)"
+                >
+
+                <p class="payment-proof-upload__help">
+                    {{ trans('storefront::checkout.payment_proof_help') }}
+                </p>
+
+                <p class="payment-proof-upload__filename" x-show="paymentProofFileName" x-cloak>
+                    {{ trans('storefront::checkout.payment_proof_selected') }}
+                    <span x-text="paymentProofFileName"></span>
+                </p>
+            </div>
+        </template>
     </div>
 </template>

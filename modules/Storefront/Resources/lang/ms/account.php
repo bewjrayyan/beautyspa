@@ -77,6 +77,8 @@ return [
         'order_status' => 'Status Pesanan:',
         'payment_status' => 'Status Bayaran:',
         'payment_method' => 'Kaedah Bayaran:',
+        'payment_proof' => 'Bukti bayaran:',
+        'view_payment_proof' => 'Lihat bukti bayaran',
         'transaction_id' => 'Transaksi ID:',
         'copy' => 'Copy',
         'open_link' => 'Open Link',

@@ -54,6 +54,8 @@ return [
     'order_status' => 'Order Status',
     'payment_status' => 'Payment Status',
     'payment_method' => 'Payment Method',
+    'payment_proof' => 'Payment proof',
+    'view_payment_proof' => 'View payment proof',
     'transaction_id' => 'Transaction ID',
     'order_locale' => 'Order language',
     'loyalty_pts' => 'pts',

@@ -4,6 +4,7 @@ namespace Modules\Payment\Gateways;
 
 use Illuminate\Http\Request;
 use Modules\Order\Entities\Order;
+use Modules\Order\Services\OrderPaymentProofService;
 use Modules\Payment\GatewayInterface;
 use Modules\Payment\Responses\NullResponse;
 
@@ -24,6 +25,12 @@ class BankTransfer implements GatewayInterface
 
     public function purchase(Order $order, Request $request)
     {
+        $fileId = app(OrderPaymentProofService::class)->store($request->file('payment_proof'));
+
+        if ($fileId) {
+            $order->update(['payment_proof_file_id' => $fileId]);
+        }
+
         return new NullResponse($order);
     }
 

@@ -36,4 +36,5 @@ return [
     'beautician_id' => 'Beautician',
     'appointment_date' => 'Tarikh Temujanji',
     'appointment_time' => 'Masa Temujanji',
+    'payment_proof' => 'Bukti bayaran',
 ];

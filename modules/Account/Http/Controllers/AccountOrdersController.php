@@ -49,6 +49,7 @@ class AccountOrdersController
             'transaction',
             'beautician',
             'spaBranch',
+            'paymentProof',
         ]);
 
         $hasTreatmentBooking = $this->hasTreatmentBooking($order);

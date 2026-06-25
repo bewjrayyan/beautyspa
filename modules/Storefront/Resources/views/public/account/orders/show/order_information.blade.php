@@ -50,6 +50,13 @@
                         <br>
                         <span style="color: #999; font-size: 13px;">{!! setting('bank_transfer_instructions') !!}</span>
                     @endif
+
+                    @if ($order->paymentProof)
+                        <br>
+                        <a href="{{ $order->paymentProof->path }}" target="_blank" rel="noopener noreferrer" style="font-size: 13px;">
+                            {{ trans('storefront::account.view_order.view_payment_proof') }}
+                        </a>
+                    @endif
                 </span>
             </li>
 

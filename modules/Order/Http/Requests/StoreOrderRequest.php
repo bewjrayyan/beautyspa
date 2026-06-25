@@ -87,6 +87,13 @@ class StoreOrderRequest extends Request
                 'password' => 'required_if:create_an_account,1',
                 'ship_to_a_different_address' => 'boolean',
                 'payment_method' => ['required', Rule::in(Gateway::names())],
+                'payment_proof' => [
+                    Rule::requiredIf(fn () => $this->input('payment_method') === 'bank_transfer'),
+                    'nullable',
+                    'file',
+                    'mimes:jpg,jpeg,png,pdf,webp',
+                    'max:10240',
+                ],
                 'terms_and_conditions' => 'accepted',
                 'shipping_method' => Cart::allItemsAreVirtual() ? 'nullable' : 'required',
             ],

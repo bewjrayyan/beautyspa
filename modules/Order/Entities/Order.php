@@ -84,6 +84,7 @@ class Order extends Model
         'discount',
         'total',
         'payment_method',
+        'payment_proof_file_id',
         'currency',
         'currency_rate',
         'locale',
@@ -599,6 +600,18 @@ class Order extends Model
     public function transaction()
     {
         return $this->hasOne(Transaction::class)->withTrashed();
+    }
+
+
+    public function paymentProof()
+    {
+        return $this->belongsTo(File::class, 'payment_proof_file_id');
+    }
+
+
+    public function hasPaymentProof(): bool
+    {
+        return $this->payment_proof_file_id !== null;
     }
 
 

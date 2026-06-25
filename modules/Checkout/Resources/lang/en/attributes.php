@@ -36,4 +36,5 @@ return [
     'beautician_id' => 'Beautician',
     'appointment_date' => 'Appointment Date',
     'appointment_time' => 'Appointment Time',
+    'payment_proof' => 'Payment proof',
 ];

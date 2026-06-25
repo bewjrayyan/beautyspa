@@ -12,6 +12,14 @@
                         @if ($order->getRawOriginal('payment_method') === 'bank_transfer')
                             <div class="order-show__hint">{!! setting('bank_transfer_instructions') !!}</div>
                         @endif
+                        @if ($order->paymentProof)
+                            <div class="order-show__hint order-show__payment-proof">
+                                <a href="{{ $order->paymentProof->path }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="fa fa-paperclip" aria-hidden="true"></i>
+                                    {{ trans('order::orders.view_payment_proof') }}
+                                </a>
+                            </div>
+                        @endif
                     </dd>
                 </div>
                 <div class="order-show__dl-row">
