@@ -35,12 +35,16 @@
         $enabledKeys,
         array_values(array_diff($allKeys, $enabledKeys)),
     )));
+    $enabledCount = count($enabledKeys);
 @endphp
 
-<div class="google-sheets-columns box-content clearfix" data-google-sheets-columns-root data-columns-scope="{{ $columnsScope }}">
+<div class="google-sheets-columns" data-google-sheets-columns-root data-columns-scope="{{ $columnsScope }}">
     @if ($showTitle)
-        <h4 class="section-title">{{ $columnsTitle }}</h4>
-        <p class="help-block text-muted">{{ $columnsIntro }}</p>
+        <div class="gs-subsection-head">
+            <h4 class="section-title">{{ $columnsTitle }}</h4>
+            <span class="gs-count-badge" data-count-template="{{ trans('setting::settings.form.google_sheets_columns_selected', ['count' => ':count']) }}">{{ trans('setting::settings.form.google_sheets_columns_selected', ['count' => $enabledCount]) }}</span>
+        </div>
+        <p class="help-block text-muted gs-settings__field-hint">{{ $columnsIntro }}</p>
     @endif
 
     <input
@@ -50,8 +54,8 @@
         value="{{ $inputValue }}"
     >
 
-    <div class="table-responsive">
-        <table class="table table-striped google-sheets-columns__table">
+    <div class="table-responsive gs-table-wrap">
+        <table class="table gs-table google-sheets-columns__table">
             <thead>
                 <tr>
                     <th class="google-sheets-columns__order-col">{{ trans('setting::settings.form.google_sheets_columns_order') }}</th>
@@ -61,23 +65,28 @@
             </thead>
             <tbody class="google-sheets-columns__list">
                 @foreach ($orderedKeys as $key)
-                    <tr class="google-sheets-columns__row" data-column-key="{{ $key }}">
+                    <tr class="google-sheets-columns__row {{ in_array($key, $enabledKeys, true) ? 'is-included' : '' }}" data-column-key="{{ $key }}">
                         <td class="google-sheets-columns__order">
-                            <button type="button" class="btn btn-default btn-xs google-sheets-columns__move-up" title="{{ trans('setting::settings.form.google_sheets_columns_move_up') }}">
-                                <i class="fa fa-arrow-up" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-default btn-xs google-sheets-columns__move-down" title="{{ trans('setting::settings.form.google_sheets_columns_move_down') }}">
-                                <i class="fa fa-arrow-down" aria-hidden="true"></i>
-                            </button>
+                            <div class="gs-order-btns">
+                                <button type="button" class="btn btn-default btn-xs google-sheets-columns__move-up" title="{{ trans('setting::settings.form.google_sheets_columns_move_up') }}">
+                                    <i class="fa fa-chevron-up" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-default btn-xs google-sheets-columns__move-down" title="{{ trans('setting::settings.form.google_sheets_columns_move_down') }}">
+                                    <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </td>
                         <td class="google-sheets-columns__label">{{ GoogleSheetsColumnConfig::label($key) }}</td>
                         <td class="text-center google-sheets-columns__enabled">
-                            <input
-                                type="checkbox"
-                                class="google-sheets-columns__checkbox"
-                                value="1"
-                                @checked(in_array($key, $enabledKeys, true))
-                            >
+                            <label class="gs-toggle-check">
+                                <input
+                                    type="checkbox"
+                                    class="google-sheets-columns__checkbox"
+                                    value="1"
+                                    @checked(in_array($key, $enabledKeys, true))
+                                >
+                                <span class="gs-toggle-check__ui" aria-hidden="true"></span>
+                            </label>
                         </td>
                     </tr>
                 @endforeach
@@ -86,6 +95,6 @@
     </div>
 
     @if ($showTitle)
-        <p class="help-block text-muted">{{ $columnsHelp }}</p>
+        <p class="help-block text-muted gs-settings__field-hint">{{ $columnsHelp }}</p>
     @endif
 </div>

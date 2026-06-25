@@ -1747,6 +1747,15 @@ $settings-sidebar-offset: 16px;
         margin-top: 8px;
     }
 
+    .st-tab--google-sheets .gs-settings__intro-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .st-tab--google-sheets .gs-settings__stat-link {
+        margin-left: 0;
+        width: 100%;
+    }
+
     .chip-method-card__toggle {
         margin-left: 0;
         width: 100%;
@@ -2181,41 +2190,489 @@ $settings-sidebar-offset: 16px;
     margin-top: 12px;
 }
 
-.google-sheets-status-tabs {
-    margin-top: 16px;
+// Google Sheets settings tab
+.st-tab--google-sheets {
+    .gs-settings {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
 
-    &__table {
-        margin-bottom: 8px;
+    .gs-settings__intro-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: stretch;
+    }
 
-        th {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #667085;
+    .gs-settings__section {
+        margin-bottom: 0;
+        height: 100%;
+    }
+
+    .gs-settings__advanced {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .gs-settings__field-hint {
+        margin-top: 8px;
+        margin-bottom: 0;
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .gs-settings__notice {
+        margin-top: 12px;
+
+        &--queue {
+            margin-top: 0;
         }
     }
 
-    &__status {
-        min-width: 140px;
-        vertical-align: middle !important;
-        font-weight: 500;
+    .gs-settings__enable-card--compact {
+        margin-bottom: 12px;
     }
 
-    &__enabled {
-        width: 90px;
-        vertical-align: middle !important;
+    .gs-settings__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px 14px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed $settings-border;
     }
 
-    &__tab {
-        min-width: 220px;
-        vertical-align: middle !important;
+    .gs-settings__actions-hint {
+        margin: 0;
+        flex: 1 1 220px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: $settings-muted;
     }
-}
 
-.google-sheets-sync-all-wrap {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #eaecf0;
+    .gs-json-textarea {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        min-height: 220px;
+        resize: vertical;
+        border-radius: 10px;
+        background: #f8fafc;
+    }
+
+    .gs-settings__stats {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: $settings-radius-md;
+        border: 1px solid $settings-border;
+        background: linear-gradient(135deg, #fff 0%, $settings-primary-soft 120%);
+    }
+
+    .gs-settings__stat {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 110px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: $settings-shadow-sm;
+
+        &--danger .gs-settings__stat-value {
+            color: #b42318;
+        }
+
+        &--success .gs-settings__stat-value {
+            color: #027a48;
+        }
+    }
+
+    .gs-settings__stat-value {
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.1;
+        color: $settings-text;
+    }
+
+    .gs-settings__stat-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: $settings-muted;
+    }
+
+    .gs-settings__stat-link {
+        margin-left: auto;
+    }
+
+    .gs-subsection-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 12px;
+        margin-bottom: 8px;
+
+        &--actions {
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            margin-bottom: 4px;
+        }
+    }
+
+    .gs-count-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        color: $settings-primary;
+        background: $settings-primary-soft;
+        border: 1px solid color-mix(in srgb, $settings-primary 18%, $settings-border);
+    }
+
+    .gs-table-wrap {
+        margin-top: 4px;
+        border: 1px solid $settings-border;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+
+        &--log {
+            max-height: 420px;
+            overflow: auto;
+        }
+    }
+
+    .gs-table {
+        margin-bottom: 0;
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: $settings-muted;
+            background: #f8fafc;
+            border-bottom: 1px solid $settings-border;
+        }
+
+        tbody td {
+            vertical-align: middle !important;
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+    }
+
+    .gs-status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.3;
+
+        &--on {
+            color: #027a48;
+            background: #ecfdf3;
+            border: 1px solid #abefc6;
+        }
+
+        &--off {
+            color: #667085;
+            background: #f2f4f7;
+            border: 1px solid #eaecf0;
+        }
+    }
+
+    .google-sheets-status-tabs {
+        &__row.is-enabled {
+            background: color-mix(in srgb, #ecfdf3 35%, #fff);
+        }
+
+        &__status,
+        &__enabled,
+        &__tab {
+            vertical-align: middle !important;
+        }
+
+        &__tab .form-group {
+            margin-bottom: 0;
+        }
+    }
+
+    .gs-action-card {
+        margin-top: 16px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid color-mix(in srgb, $settings-primary 16%, $settings-border);
+        background: linear-gradient(135deg, $settings-primary-soft 0%, #fff 72%);
+
+        &__head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        &__title {
+            margin: 0 0 4px;
+            font-size: 14px;
+            font-weight: 700;
+            color: $settings-text;
+        }
+
+        &__desc {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+            color: $settings-muted;
+            max-width: 520px;
+        }
+    }
+
+    .google-sheets-columns {
+        &__row.is-included .google-sheets-columns__label {
+            color: $settings-text;
+        }
+
+        &__row:not(.is-included) .google-sheets-columns__label {
+            color: $settings-muted;
+        }
+
+        &__order-col {
+            width: 84px;
+        }
+
+        &__order {
+            white-space: nowrap;
+        }
+    }
+
+    .gs-order-btns {
+        display: inline-flex;
+        gap: 4px;
+
+        .btn {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 8px;
+        }
+    }
+
+    .gs-toggle-check {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        cursor: pointer;
+
+        input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        &__ui {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        input:checked + &__ui {
+            border-color: $settings-primary;
+            background: $settings-primary;
+            box-shadow: inset 0 0 0 2px #fff;
+        }
+
+        input:focus-visible + &__ui {
+            outline: 2px solid color-mix(in srgb, $settings-primary 35%, transparent);
+            outline-offset: 2px;
+        }
+    }
+
+    .gs-accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        &__item {
+            border: 1px solid $settings-border;
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        &__summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            list-style: none;
+            background: #f8fafc;
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+
+            &::after {
+                content: "▾";
+                color: $settings-muted;
+                transition: transform 0.15s ease;
+            }
+        }
+
+        &__item[open] &__summary::after {
+            transform: rotate(180deg);
+        }
+
+        &__title {
+            font-size: 13px;
+            font-weight: 600;
+            color: $settings-text;
+        }
+
+        &__hint {
+            font-size: 11px;
+            color: $settings-muted;
+        }
+
+        &__body {
+            padding: 12px 14px 14px;
+            border-top: 1px solid $settings-border;
+        }
+    }
+
+    .gs-alert-items .st-wa-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .gs-log-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .gs-log-toolbar__counts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .gs-log-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+
+        &--success {
+            color: #027a48;
+            background: #ecfdf3;
+        }
+
+        &--failed {
+            color: #b42318;
+            background: #fef3f2;
+        }
+    }
+
+    .gs-log-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+
+        &--success {
+            color: #027a48;
+            background: #ecfdf3;
+        }
+
+        &--failed {
+            color: #b42318;
+            background: #fef3f2;
+        }
+    }
+
+    .gs-log-trigger {
+        font-size: 12px;
+        color: $settings-muted;
+    }
+
+    .gs-log-order {
+        font-weight: 600;
+    }
+
+    .google-sheets-sync-log {
+        &__time {
+            white-space: nowrap;
+            font-size: 12px;
+            color: $settings-muted;
+        }
+
+        &__message {
+            max-width: 320px;
+            word-break: break-word;
+            font-size: 12px;
+            color: $settings-muted;
+        }
+    }
+
+    .gs-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 28px 16px;
+        border-radius: 12px;
+        border: 1px dashed $settings-border;
+        background: #f8fafc;
+        text-align: center;
+
+        &__icon {
+            font-size: 28px;
+            color: #cbd5e1;
+        }
+
+        p {
+            margin: 0;
+            font-size: 13px;
+            color: $settings-muted;
+        }
+    }
 }
 
 .google-sheets-sync-all-progress {
@@ -2234,47 +2691,6 @@ $settings-sidebar-offset: 16px;
         line-height: 22px;
         font-size: 12px;
         font-weight: 600;
-    }
-}
-
-.google-sheets-sync-log {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid #eaecf0;
-
-    &__message {
-        max-width: 280px;
-        word-break: break-word;
-    }
-}
-
-.google-sheets-columns {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid #eaecf0;
-
-    &__table {
-        margin-bottom: 8px;
-    }
-
-    &__order-col {
-        width: 92px;
-    }
-
-    &__order {
-        white-space: nowrap;
-
-        .btn + .btn {
-            margin-left: 4px;
-        }
-    }
-
-    &__label {
-        font-weight: 500;
-    }
-
-    &__enabled {
-        width: 90px;
     }
 }
 

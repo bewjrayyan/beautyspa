@@ -1,0 +1,23 @@
+; Supervisor — queue worker for AestheticCart
+;
+; 1. Copy to /etc/supervisor/conf.d/aestheticcart-queue.conf (adjust paths/user)
+; 2. sudo supervisorctl reread && sudo supervisorctl update
+; 3. sudo supervisorctl status aestheticcart-queue
+;
+; Replace /var/www/immaserilaris/v2 and www-data with your server paths/user.
+
+[program:aestheticcart-queue]
+process_name=%(program_name)s
+command=php /var/www/immaserilaris/v2/artisan queue:work database --sleep=3 --tries=3 --max-time=3600 --timeout=120
+directory=/var/www/immaserilaris/v2
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/immaserilaris/v2/storage/logs/queue-worker.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=3
+stopwaitsecs=3600

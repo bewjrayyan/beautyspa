@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.20' => [
+        'en' => [
+            'summary' => 'Modern Google Excel settings UI and production queue deploy helpers.',
+            'changes' => [
+                'Redesign Google Excel settings with section cards, stats strip, and clearer sync workflow.',
+                'Polish status tabs, column picker, alerts, sync log, and per-status column accordion.',
+                'Add Supervisor and cron examples plus queue checks in verify-production-deploy.php.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UI Tetapan Google Excel moden dan helper deploy queue production.',
+            'changes' => [
+                'Reka semula tetapan Google Excel dengan kad seksyen, jalur statistik, dan aliran sync yang lebih jelas.',
+                'Perbaiki tab status, pemilih kolum, amaran, log sync, dan akordion kolum mengikut status.',
+                'Tambah contoh Supervisor dan cron serta semakan queue dalam verify-production-deploy.php.',
+            ],
+        ],
+    ],
     '4.9.19' => [
         'en' => [
             'summary' => 'Google Sheets sync polish: alerts, export, dashboard, per-status columns.',

@@ -4,13 +4,9 @@
     $statuses = GoogleSheetsStatusConfig::statuses();
 @endphp
 
-<div class="google-sheets-status-tabs box-content clearfix">
-    <h4 class="section-title">{{ trans('setting::settings.form.google_sheets_status_tabs_title') }}</h4>
-    <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_status_tabs_intro') }}</p>
-    <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_queue_help') }}</p>
-
-    <div class="table-responsive">
-        <table class="table table-striped google-sheets-status-tabs__table">
+<div class="google-sheets-status-tabs">
+    <div class="table-responsive gs-table-wrap">
+        <table class="table gs-table google-sheets-status-tabs__table">
             <thead>
                 <tr>
                     <th>{{ trans('setting::settings.form.google_sheets_status_column') }}</th>
@@ -24,9 +20,14 @@
                         $enabledKey = GoogleSheetsStatusConfig::enabledKey($status);
                         $tabKey = GoogleSheetsStatusConfig::tabKey($status);
                         $defaultTab = GoogleSheetsStatusConfig::defaults()[$status]['tab'] ?? 'Orders';
+                        $isEnabled = (bool) old($enabledKey, setting($enabledKey, GoogleSheetsStatusConfig::defaults()[$status]['enabled'] ?? false));
                     @endphp
-                    <tr>
-                        <td class="google-sheets-status-tabs__status">{{ $label }}</td>
+                    <tr class="google-sheets-status-tabs__row {{ $isEnabled ? 'is-enabled' : '' }}">
+                        <td class="google-sheets-status-tabs__status">
+                            <span class="gs-status-pill {{ $isEnabled ? 'gs-status-pill--on' : 'gs-status-pill--off' }}">
+                                {{ $label }}
+                            </span>
+                        </td>
                         <td class="text-center google-sheets-status-tabs__enabled">
                             {{ Form::checkbox($enabledKey, ' ', trans('setting::settings.form.google_sheets_sync_status'), $errors, $settings, ['labelCol' => 0]) }}
                         </td>
@@ -42,23 +43,29 @@
         </table>
     </div>
 
-    <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_status_tabs_help') }}</p>
+    <p class="help-block text-muted gs-settings__field-hint">{{ trans('setting::settings.form.google_sheets_status_tabs_help') }}</p>
 
-    <div class="google-sheets-sync-all-wrap">
-        <button
-            type="button"
-            class="btn btn-primary"
-            id="google-sheets-sync-all-btn"
-            data-sync-url="{{ route('admin.settings.google_sheets.sync_all_chunk') }}"
-            data-count-url="{{ route('admin.settings.google_sheets.sync_all_count') }}"
-            data-chunk-size="25"
-            data-syncing-text="{{ trans('setting::settings.form.google_sheets_sync_all_running') }}"
-            data-confirm-text="{{ trans('setting::settings.form.google_sheets_sync_all_confirm') }}"
-        >
-            <i class="fa fa-refresh" aria-hidden="true"></i>
-            {{ trans('setting::settings.form.google_sheets_sync_all') }}
-        </button>
-        <p class="help-block text-muted">{{ trans('setting::settings.form.google_sheets_sync_all_help') }}</p>
+    <div class="google-sheets-sync-all-wrap gs-action-card">
+        <div class="gs-action-card__head">
+            <div>
+                <h6 class="gs-action-card__title">{{ trans('setting::settings.form.google_sheets_sync_all') }}</h6>
+                <p class="gs-action-card__desc">{{ trans('setting::settings.form.google_sheets_sync_all_help') }}</p>
+            </div>
+            <button
+                type="button"
+                class="btn btn-primary"
+                id="google-sheets-sync-all-btn"
+                data-sync-url="{{ route('admin.settings.google_sheets.sync_all_chunk') }}"
+                data-count-url="{{ route('admin.settings.google_sheets.sync_all_count') }}"
+                data-chunk-size="25"
+                data-syncing-text="{{ trans('setting::settings.form.google_sheets_sync_all_running') }}"
+                data-confirm-text="{{ trans('setting::settings.form.google_sheets_sync_all_confirm') }}"
+            >
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+                {{ trans('setting::settings.form.google_sheets_sync_all') }}
+            </button>
+        </div>
+
         <div id="google-sheets-sync-all-progress" class="google-sheets-sync-all-progress hide" aria-hidden="true">
             <div class="progress">
                 <div
@@ -73,6 +80,4 @@
         </div>
         <div id="google-sheets-sync-all-result" class="google-sheets-test-result hide" role="status" aria-live="polite"></div>
     </div>
-
-    @include('googleintegration::admin.settings.partials.google_sheets_sync_log')
 </div>

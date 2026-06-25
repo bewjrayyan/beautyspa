@@ -25,6 +25,53 @@ $requiredDirs = [
 
 $errors = [];
 
+// Load .env for queue checks (no full Laravel bootstrap required).
+$envPath = $root.'/.env';
+$env = [];
+
+if (is_file($envPath)) {
+    foreach (file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+
+        if ($line === '' || str_starts_with($line, '#') || ! str_contains($line, '=')) {
+            continue;
+        }
+
+        [$key, $value] = explode('=', $line, 2);
+        $env[trim($key)] = trim($value, " \t\n\r\0\x0B\"'");
+    }
+}
+
+$queueDriver = $env['QUEUE_DRIVER'] ?? 'sync';
+
+if ($queueDriver === 'sync') {
+    $errors[] = 'QUEUE_DRIVER=sync — background jobs (Google Sheets, queued mail) run inline. Set QUEUE_DRIVER=database on production and run a queue worker.';
+}
+
+if (in_array($queueDriver, ['database', 'redis'], true)) {
+    $pdo = null;
+
+    try {
+        $host = $env['DB_HOST'] ?? '127.0.0.1';
+        $port = $env['DB_PORT'] ?? '3306';
+        $database = $env['DB_DATABASE'] ?? '';
+        $username = $env['DB_USERNAME'] ?? '';
+        $password = $env['DB_PASSWORD'] ?? '';
+        $dsn = "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4";
+        $pdo = new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    } catch (Throwable) {
+        $pdo = null;
+    }
+
+    if ($pdo instanceof PDO) {
+        $stmt = $pdo->query("SHOW TABLES LIKE 'jobs'");
+
+        if ($stmt === false || $stmt->rowCount() === 0) {
+            $errors[] = 'Table jobs is missing. Run: php artisan migrate --force';
+        }
+    }
+}
+
 foreach ($requiredFiles as $file) {
     if (! is_file($root.'/'.$file)) {
         $errors[] = "Missing file: {$file}";
@@ -116,7 +163,10 @@ foreach ($errors as $error) {
 echo "\nFix: cd to project root, run:\n";
 echo "  git pull origin main\n";
 echo "  composer dump-autoload -o\n";
+echo "  php artisan migrate --force\n";
 echo "  php artisan config:clear && php artisan cache:clear && php artisan view:clear\n";
+echo "Queue: set QUEUE_DRIVER=database, run php artisan queue:work (Supervisor recommended — see deploy/supervisor/).\n";
+echo "Cron: * * * * * php artisan schedule:run (see deploy/cron/aestheticcart.cron.example).\n";
 echo "If assets are still missing, redeploy the full public/build/ directory from the release tag.\n";
 
 exit(1);

@@ -612,6 +612,7 @@ $(function () {
 
     const toggle = document.querySelector('[name="google_sheets_enabled"]');
     const panel = document.getElementById("google-sheets-fields");
+    const advancedPanel = document.getElementById("google-sheets-advanced");
     const testBtn = document.getElementById("google-sheets-test-btn");
     const testResult = document.getElementById("google-sheets-test-result");
     const syncAllBtn = document.getElementById("google-sheets-sync-all-btn");
@@ -622,6 +623,7 @@ $(function () {
 
     const setPanelVisible = (visible) => {
         panel?.classList.toggle("hide", !visible);
+        advancedPanel?.classList.toggle("hide", !visible);
     };
 
     toggle?.addEventListener("change", () => {
@@ -805,17 +807,29 @@ $(function () {
 function initGoogleSheetsColumnsRoot(root) {
     const columnsList = root.querySelector(".google-sheets-columns__list");
     const columnsInput = root.querySelector(".google-sheets-columns__input");
+    const countBadge = root.querySelector(".gs-count-badge");
 
     const syncColumnsInput = () => {
         if (!columnsList || !columnsInput) {
             return;
         }
 
-        const keys = [...columnsList.querySelectorAll(".google-sheets-columns__row")]
+        const rows = [...columnsList.querySelectorAll(".google-sheets-columns__row")];
+        const keys = rows
             .filter((row) => row.querySelector(".google-sheets-columns__checkbox")?.checked)
             .map((row) => row.dataset.columnKey);
 
         columnsInput.value = JSON.stringify(keys);
+
+        rows.forEach((row) => {
+            const included = row.querySelector(".google-sheets-columns__checkbox")?.checked;
+            row.classList.toggle("is-included", Boolean(included));
+        });
+
+        if (countBadge) {
+            const template = countBadge.dataset.countTemplate || countBadge.textContent || "";
+            countBadge.textContent = template.replace(":count", String(keys.length));
+        }
     };
 
     const moveColumnRow = (row, direction) => {
@@ -857,7 +871,37 @@ function initGoogleSheetsColumnsRoot(root) {
     });
 
     root?.closest("form")?.addEventListener("submit", syncColumnsInput);
-};
+
+    syncColumnsInput();
+}
+
+(function initGoogleSheetsStatusRowHighlights() {
+    const table = document.querySelector(".google-sheets-status-tabs__table");
+
+    if (!table) {
+        return;
+    }
+
+    const syncRows = () => {
+        table.querySelectorAll(".google-sheets-status-tabs__row").forEach((row) => {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            const pill = row.querySelector(".gs-status-pill");
+            const enabled = Boolean(checkbox?.checked);
+
+            row.classList.toggle("is-enabled", enabled);
+            pill?.classList.toggle("gs-status-pill--on", enabled);
+            pill?.classList.toggle("gs-status-pill--off", !enabled);
+        });
+    };
+
+    table.addEventListener("change", (event) => {
+        if (event.target.matches('input[type="checkbox"]')) {
+            syncRows();
+        }
+    });
+
+    syncRows();
+})();;
 
 (function initGoogleSheetsColumnsPickers() {
     document.querySelectorAll("[data-google-sheets-columns-root]").forEach((columnsRoot) => {

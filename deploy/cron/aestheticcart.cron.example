@@ -1,0 +1,11 @@
+# AestheticCart production cron
+#
+# Edit paths, then: crontab -e
+# Or in cPanel: Cron Jobs → paste one line at a time.
+#
+# Required: Laravel scheduler (Google Sheets retry, WhatsApp reminders, loyalty, etc.)
+* * * * * cd /var/www/immaserilaris/v2 && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
+#
+# Queue worker — use ONLY if you cannot run Supervisor (shared hosting).
+# Runs up to ~55s per minute; less reliable than a persistent worker.
+# * * * * * cd /var/www/immaserilaris/v2 && /usr/bin/php artisan queue:work database --stop-when-empty --max-time=55 --tries=3 >> /dev/null 2>&1
