@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.47' => [
+        'en' => [
+            'summary' => 'Add CHIP e-wallet and DuitNow checkout methods with an improved admin setup panel.',
+            'changes' => [
+                'Add chip_ewallet and chip_duitnow as separate CHIP Collect checkout options with surcharge and whitelist support.',
+                'Replace the CHIP settings branding sidebar with a full-width setup summary (status, checklist, webhook URL, quick links).',
+                'Improve CHIP admin tab layout to a single-column form with stacked summary sections.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah kaedah checkout CHIP e-wallet dan DuitNow dengan panel persediaan admin yang lebih baik.',
+            'changes' => [
+                'Tambah chip_ewallet dan chip_duitnow sebagai pilihan checkout CHIP Collect berasingan dengan caj dan whitelist.',
+                'Ganti sidebar branding CHIP dengan ringkasan persediaan lebar penuh (status, checklist, URL webhook, pautan pantas).',
+                'Baiki susun atur tab CHIP admin kepada borang satu kolum dengan bahagian ringkasan bertindan.',
+            ],
+        ],
+    ],
     '4.9.46' => [
         'en' => [
             'summary' => 'Add gift voucher admin hub with page content, design, and settings tabs.',

@@ -1,8 +1,8 @@
 <div class="st-tab st-tab--chip settings-form">
     <p class="st-tab__lead">{{ trans('setting::settings.tab_leads.chip') }}</p>
 
-    <div class="row st-gateway chip-settings">
-        <div class="col-md-12">
+    <div class="chip-settings">
+        <div class="chip-settings__main">
             <div class="st-enable-card">
                 {{ Form::checkbox('chip_enabled', trans('setting::attributes.chip_enabled'), trans('setting::settings.form.enable_chip'), $errors, $settings) }}
             </div>
@@ -81,18 +81,31 @@
                             'settings' => $settings,
                             'errors' => $errors,
                         ])
+
+                        @include('setting::admin.settings.partials.chip-method-card', [
+                            'methodKey' => 'chip_ewallet',
+                            'icon' => 'ewallet',
+                            'faIcon' => 'fa-mobile',
+                            'surchargeType' => 'percent',
+                            'settings' => $settings,
+                            'errors' => $errors,
+                        ])
+
+                        @include('setting::admin.settings.partials.chip-method-card', [
+                            'methodKey' => 'chip_duitnow',
+                            'icon' => 'duitnow',
+                            'faIcon' => 'fa-qrcode',
+                            'surchargeType' => 'flat',
+                            'settings' => $settings,
+                            'errors' => $errors,
+                        ])
                     </div>
                 @endcomponent
             </div>
         </div>
 
-        <div class="col-md-4">
-            <aside class="chip-brand-panel">
-                <div class="chip-brand-panel__logo payment-gateway-logo">
-                    {!! file_get_contents(module_path('Payment') . '/Resources/assets/admin/images/chip-logo.svg') !!}
-                </div>
-                <p class="chip-brand-panel__caption">{{ trans('setting::settings.chip.brand_caption') }}</p>
-            </aside>
+        <div class="chip-settings__aside">
+            @include('setting::admin.settings.partials.chip-sidebar-panel', ['settings' => $settings])
         </div>
     </div>
 </div>

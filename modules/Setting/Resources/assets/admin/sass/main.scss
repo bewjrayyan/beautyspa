@@ -1552,6 +1552,12 @@ $settings-sidebar-offset: 16px;
 
 // CHIP payment tab
 .st-tab--chip {
+    .chip-settings {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
     .chip-settings__notice {
         margin-bottom: 14px;
     }
@@ -1578,33 +1584,420 @@ $settings-sidebar-offset: 16px;
         gap: 16px;
     }
 
-    .chip-brand-panel {
+    .chip-settings__aside {
+        width: 100%;
+
+        .chip-sidebar-panel {
+            position: static;
+            max-height: none;
+        }
+    }
+
+    .chip-brand-panel,
+    .chip-sidebar-panel {
+        --chip-brand: #7c3aed;
+        --chip-brand-soft: #f3e8ff;
         position: sticky;
-        top: 16px;
-        padding: 24px 20px;
-        border-radius: 14px;
-        border: 1px solid $settings-border;
-        background: linear-gradient(
-            165deg,
-            $settings-primary-soft 0%,
-            #fff 55%
-        );
-        text-align: center;
+        top: 12px;
+        max-height: calc(100vh - 96px);
+        overflow: auto;
+        padding: 0;
+        border-radius: 16px;
+        border: 1px solid color-mix(in srgb, var(--chip-brand) 16%, $settings-border);
+        background: #fff;
+        box-shadow: 0 10px 28px rgb(15 23 42 / 6%);
+        text-align: left;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--chip-brand) 24%, $settings-border) transparent;
+
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--chip-brand) 24%, $settings-border);
+        }
+    }
+
+    .chip-sidebar-panel {
+        &__header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px 12px;
+            background: linear-gradient(180deg, var(--chip-brand-soft) 0%, #fff 100%);
+            border-bottom: 1px solid color-mix(in srgb, var(--chip-brand) 10%, $settings-border);
+        }
+
+        &__identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
 
         &__logo {
-            padding: 8px 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            border-radius: 14px;
+            background: #fff;
+            border: 1px solid color-mix(in srgb, var(--chip-brand) 14%, $settings-border);
+            box-shadow: 0 4px 12px rgb(124 58 237 / 10%);
 
             svg {
-                max-width: 100%;
+                width: 34px;
+                max-width: 34px;
                 height: auto;
             }
         }
 
-        &__caption {
+        &__name {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            color: $settings-text;
+        }
+
+        &__subtitle {
+            margin: 4px 0 0;
+            font-size: 12px;
+            line-height: 1.35;
+            color: $settings-muted;
+        }
+
+        &__status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        &__pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: $settings-muted;
+            background: $settings-bg;
+            border: 1px solid $settings-border;
+
+            &--on {
+                color: #047857;
+                background: #ecfdf5;
+                border-color: #a7f3d0;
+            }
+
+            &--warn {
+                color: #b45309;
+                background: #fffbeb;
+                border-color: #fde68a;
+            }
+        }
+
+        &__section {
+            padding: 14px 20px;
+            border-bottom: 1px solid $settings-border;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &--progress {
+                background: #fafbfc;
+            }
+
+            &--webhook {
+                background: linear-gradient(180deg, #fff 0%, #fafbfc 100%);
+            }
+        }
+
+        &__section-title {
+            margin: 0 0 8px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: $settings-muted;
+        }
+
+        &__section-lead {
+            margin: 0 0 10px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: $settings-muted;
+        }
+
+        &__progress-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+
+            .chip-sidebar-panel__section-title {
+                margin: 0;
+            }
+        }
+
+        &__progress-count {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--chip-brand);
+        }
+
+        &__progress-bar {
+            height: 6px;
+            margin-bottom: 10px;
+            border-radius: 999px;
+            background: $settings-bg;
+            overflow: hidden;
+        }
+
+        &__progress-fill {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--chip-brand) 0%, #a78bfa 100%);
+            transition: width 0.25s ease;
+        }
+
+        &__steps {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+
+            li {
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                margin-bottom: 6px;
+                font-size: 11px;
+                line-height: 1.4;
+                color: $settings-muted;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                &.is-done {
+                    color: #047857;
+                }
+            }
+        }
+
+        &__step-icon {
+            flex-shrink: 0;
+            width: 14px;
+            margin-top: 1px;
+            text-align: center;
+            color: $settings-border;
+
+            .is-done & {
+                color: #059669;
+            }
+        }
+
+        &__tiles {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            padding: 12px 20px;
+            border-bottom: 1px solid $settings-border;
+        }
+
+        &__tile {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: $settings-bg;
+            border: 1px solid $settings-border;
+
+            h6 {
+                margin: 0 0 2px;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                color: $settings-muted;
+            }
+
+            p {
+                margin: 0;
+                font-size: 12px;
+                line-height: 1.4;
+                color: $settings-text;
+            }
+
+            &--ok {
+                background: #ecfdf5;
+                border-color: #a7f3d0;
+
+                .chip-sidebar-panel__tile-icon {
+                    color: #059669;
+                    background: #d1fae5;
+                }
+            }
+
+            &--warn {
+                background: #fffbeb;
+                border-color: #fde68a;
+
+                .chip-sidebar-panel__tile-icon {
+                    color: #d97706;
+                    background: #fef3c7;
+                }
+            }
+
+            &--muted .chip-sidebar-panel__tile-icon {
+                color: $settings-muted;
+                background: #fff;
+            }
+        }
+
+        &__tile-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--chip-brand);
+            background: #fff;
+        }
+
+        &__method-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        &__method-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #5b21b6;
+            background: var(--chip-brand-soft);
+            border: 1px solid color-mix(in srgb, var(--chip-brand) 18%, #fff);
+        }
+
+        &__empty {
             margin: 0;
             font-size: 12px;
-            line-height: 1.5;
+            line-height: 1.45;
+            color: #b45309;
+        }
+
+        &__copy-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        &__copy-value {
+            flex: 1;
+            min-width: 0;
+            margin: 0;
+            padding: 9px 10px;
+            border-radius: 10px;
+            font-size: 10px;
+            line-height: 1.35;
+            word-break: break-all;
+            background: #fff;
+            border: 1px solid $settings-border;
+            color: $settings-text;
+        }
+
+        &__copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        &__hint {
+            margin: 8px 0 0;
+            font-size: 11px;
+            line-height: 1.4;
             color: $settings-muted;
+        }
+
+        &__alert {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            margin: 10px 0 0;
+            padding: 9px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #92400e;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+
+            .fa {
+                margin-top: 1px;
+                flex-shrink: 0;
+            }
+        }
+
+        &__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 14px 20px 18px;
+        }
+
+        &__action {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            min-height: 0;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.35;
+            color: $settings-text;
+            background: $settings-bg;
+            border: 1px solid $settings-border;
+            transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+
+            .fa {
+                font-size: 14px;
+                color: var(--chip-brand);
+            }
+
+            &:hover,
+            &:focus {
+                color: var(--chip-brand);
+                background: var(--chip-brand-soft);
+                border-color: color-mix(in srgb, var(--chip-brand) 24%, $settings-border);
+                text-decoration: none;
+            }
         }
     }
 }
@@ -1629,6 +2022,16 @@ $settings-sidebar-offset: 16px;
     &--atome {
         --chip-accent: #7c3aed;
         --chip-accent-soft: #ede9fe;
+    }
+
+    &--ewallet {
+        --chip-accent: #ea580c;
+        --chip-accent-soft: #ffedd5;
+    }
+
+    &--duitnow {
+        --chip-accent: #db2777;
+        --chip-accent-soft: #fce7f3;
     }
 
     &__hero {
@@ -1742,9 +2145,15 @@ $settings-sidebar-offset: 16px;
         grid-template-columns: 1fr;
     }
 
-    .st-tab--chip .chip-brand-panel {
+    .st-tab--chip .chip-brand-panel,
+    .st-tab--chip .chip-sidebar-panel {
         position: static;
-        margin-top: 8px;
+        max-height: none;
+        margin-top: 12px;
+    }
+
+    .st-tab--chip .chip-sidebar-panel__copy-label {
+        display: none;
     }
 
     .st-tab--google-sheets .gs-settings__intro-grid {

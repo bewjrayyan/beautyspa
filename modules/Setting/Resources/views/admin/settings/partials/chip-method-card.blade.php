@@ -31,7 +31,7 @@
                     'min' => 0,
                     'max' => 100,
                     'step' => 0.1,
-                    'placeholder' => $icon === 'atome' ? '5.3' : '2.0',
+                    'placeholder' => $icon === 'atome' ? '5.3' : ($icon === 'ewallet' ? '1.5' : '2.0'),
                 ]) }}
                 <p class="help-block text-muted">{{ trans("setting::settings.form.chip_surcharge_percent_help.{$icon}") }}</p>
             @else

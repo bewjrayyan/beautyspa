@@ -720,6 +720,16 @@ class SettingTabs extends Tabs
                 'translatable.chip_atome_description',
                 'chip_atome_surcharge_percent',
                 'chip_atome_whitelist',
+                'chip_ewallet_enabled',
+                'translatable.chip_ewallet_label',
+                'translatable.chip_ewallet_description',
+                'chip_ewallet_surcharge_percent',
+                'chip_ewallet_whitelist',
+                'chip_duitnow_enabled',
+                'translatable.chip_duitnow_label',
+                'translatable.chip_duitnow_description',
+                'chip_duitnow_surcharge',
+                'chip_duitnow_whitelist',
             ]);
 
             $tab->view('setting::admin.settings.tabs.chip');

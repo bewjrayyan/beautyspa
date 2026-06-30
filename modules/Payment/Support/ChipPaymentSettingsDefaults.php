@@ -65,6 +65,12 @@ class ChipPaymentSettingsDefaults
             'chip_atome_enabled' => true,
             'chip_atome_surcharge_percent' => 5.3,
             'chip_atome_whitelist' => '',
+            'chip_ewallet_enabled' => false,
+            'chip_ewallet_surcharge_percent' => 1.5,
+            'chip_ewallet_whitelist' => '',
+            'chip_duitnow_enabled' => false,
+            'chip_duitnow_surcharge' => 0,
+            'chip_duitnow_whitelist' => '',
         ];
     }
 
@@ -79,8 +85,8 @@ class ChipPaymentSettingsDefaults
                 'ms' => 'CHIP',
             ],
             'chip_description' => [
-                'en' => 'Pay with FPX online banking, credit or debit cards, or Atome via CHIP Collect (MYR).',
-                'ms' => 'Bayar melalui FPX, kad kredit/debit, atau Atome dengan CHIP Collect (MYR).',
+                'en' => 'Pay with FPX online banking, credit or debit cards, e-wallets, DuitNow QR, or Atome via CHIP Collect (MYR).',
+                'ms' => 'Bayar melalui FPX, kad kredit/debit, e-wallet, DuitNow QR, atau Atome dengan CHIP Collect (MYR).',
             ],
             'chip_fpx_label' => [
                 'en' => 'FPX',
@@ -105,6 +111,22 @@ class ChipPaymentSettingsDefaults
             'chip_atome_description' => [
                 'en' => 'Buy now, pay later',
                 'ms' => 'Beli sekarang, bayar kemudian',
+            ],
+            'chip_ewallet_label' => [
+                'en' => 'E-wallets',
+                'ms' => 'E-wallet',
+            ],
+            'chip_ewallet_description' => [
+                'en' => "Touch 'n Go, GrabPay, ShopeePay, and more",
+                'ms' => "Touch 'n Go, GrabPay, ShopeePay, dan lain-lain",
+            ],
+            'chip_duitnow_label' => [
+                'en' => 'DuitNow QR',
+                'ms' => 'DuitNow QR',
+            ],
+            'chip_duitnow_description' => [
+                'en' => 'Scan & pay with any banking app',
+                'ms' => 'Imbas & bayar dengan mana-mana aplikasi bank',
             ],
         ];
     }

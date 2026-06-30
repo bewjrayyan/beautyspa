@@ -102,10 +102,53 @@ $("#chip_enabled").on("change", () => {
     $("#chip-fields").toggleClass("hide");
 });
 
-["chip_fpx", "chip_card", "chip_atome"].forEach((method) => {
+["chip_fpx", "chip_card", "chip_atome", "chip_ewallet", "chip_duitnow"].forEach((method) => {
     $(`#${method}_enabled`).on("change", () => {
         $(`#${method.replace(/_/g, "-")}-fields`).toggleClass("hide");
     });
+});
+
+$(document).on("click", "[data-chip-copy-target]", function () {
+    const button = this;
+    const target = document.querySelector(button.dataset.chipCopyTarget);
+
+    if (!target) {
+        return;
+    }
+
+    const text = target.textContent.trim();
+    const doneLabel = button.dataset.chipCopyDone || "Copied";
+    const originalHtml = button.innerHTML;
+
+    const markCopied = () => {
+        button.innerHTML = `<i class="fa fa-check" aria-hidden="true"></i> ${doneLabel}`;
+        window.setTimeout(() => {
+            button.innerHTML = originalHtml;
+        }, 2000);
+    };
+
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(markCopied).catch(() => {});
+
+        return;
+    }
+
+    const helper = document.createElement("textarea");
+    helper.value = text;
+    helper.setAttribute("readonly", "");
+    helper.style.position = "absolute";
+    helper.style.left = "-9999px";
+    document.body.appendChild(helper);
+    helper.select();
+
+    try {
+        document.execCommand("copy");
+        markCopied();
+    } catch (error) {
+        // ignore
+    }
+
+    document.body.removeChild(helper);
 });
 
 $("#bank_transfer_enabled").on("change", () => {

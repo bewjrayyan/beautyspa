@@ -76,6 +76,30 @@
                         decoding="async"
                     >
                 </span>
+
+                <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_ewallet'">
+                    <img
+                        class="payment-option-logo payment-option-logo--chip-banner"
+                        src="{{ asset('images/payments/pay-with-chip-all.png') }}?v=1"
+                        alt="{{ trans('storefront::checkout.chip_ewallet_alt') }}"
+                        width="320"
+                        height="48"
+                        loading="lazy"
+                        decoding="async"
+                    >
+                </span>
+
+                <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_duitnow'">
+                    <img
+                        class="payment-option-logo payment-option-logo--chip-banner"
+                        src="{{ asset('images/payments/online-banking.png') }}?v=1"
+                        alt="{{ trans('storefront::checkout.chip_duitnow_alt') }}"
+                        width="320"
+                        height="48"
+                        loading="lazy"
+                        decoding="async"
+                    >
+                </span>
             </label>
         </template>
 

@@ -26,6 +26,8 @@ return [
     'shipping_method' => 'Shipping Method',
     'no_payment_method' => 'No payment method is found',
     'chip_card_alt' => 'Credit and debit cards via CHIP',
+    'chip_ewallet_alt' => 'E-wallets via CHIP — Touch n Go, GrabPay, ShopeePay',
+    'chip_duitnow_alt' => 'DuitNow QR via CHIP',
     'payment_instructions' => 'Payment Instructions',
     'payment_proof' => 'Payment proof',
     'payment_proof_help' => 'Upload a screenshot or photo of your bank transfer receipt (JPG, PNG, PDF, or WEBP, max 10 MB).',

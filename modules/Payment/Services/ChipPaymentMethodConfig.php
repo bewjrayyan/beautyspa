@@ -12,6 +12,10 @@ class ChipPaymentMethodConfig
 
     public const METHOD_ATOME = 'chip_atome';
 
+    public const METHOD_EWALLET = 'chip_ewallet';
+
+    public const METHOD_DUITNOW = 'chip_duitnow';
+
     /**
      * Legacy CHIP whitelist codes that may still be posted from older checkout clients.
      *
@@ -21,6 +25,9 @@ class ChipPaymentMethodConfig
         'fpx' => self::METHOD_FPX,
         'card' => self::METHOD_CARD,
         'atome' => self::METHOD_ATOME,
+        'ewallet' => self::METHOD_EWALLET,
+        'duitnow' => self::METHOD_DUITNOW,
+        'duitnow_qr' => self::METHOD_DUITNOW,
     ];
 
     public static function normalizeGatewayKey(string $paymentMethod): string
@@ -80,6 +87,28 @@ class ChipPaymentMethodConfig
                 'default_whitelist' => ['razer_atome'],
                 'default_surcharge' => 0,
                 'default_surcharge_percent' => 5.3,
+            ],
+            self::METHOD_EWALLET => [
+                'label_setting' => 'chip_ewallet_label',
+                'description_setting' => 'chip_ewallet_description',
+                'enabled_setting' => 'chip_ewallet_enabled',
+                'surcharge_setting' => 'chip_ewallet_surcharge',
+                'surcharge_type' => 'percent',
+                'percent_setting' => 'chip_ewallet_surcharge_percent',
+                'whitelist_setting' => 'chip_ewallet_whitelist',
+                'default_whitelist' => ['razer_tng', 'razer_grabpay', 'razer_shopeepay'],
+                'default_surcharge' => 0,
+                'default_surcharge_percent' => 1.5,
+            ],
+            self::METHOD_DUITNOW => [
+                'label_setting' => 'chip_duitnow_label',
+                'description_setting' => 'chip_duitnow_description',
+                'enabled_setting' => 'chip_duitnow_enabled',
+                'surcharge_setting' => 'chip_duitnow_surcharge',
+                'surcharge_type' => 'flat',
+                'whitelist_setting' => 'chip_duitnow_whitelist',
+                'default_whitelist' => ['duitnow_qr'],
+                'default_surcharge' => 0,
             ],
         ];
     }

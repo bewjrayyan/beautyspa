@@ -12,9 +12,11 @@ AestheticCart integrates [CHIP Collect](https://github.com/CHIPAsia/chip-php-sdk
 4. Under **CHIP Collect payment methods**, enable one or more:
    - **FPX** (`chip_fpx`) — online banking
    - **Cards** (`chip_card`) — credit/debit (whitelist from API or custom codes)
+   - **E-wallets** (`chip_ewallet`) — Touch 'n Go, GrabPay, ShopeePay (default codes: `razer_tng`, `razer_grabpay`, `razer_shopeepay`)
+   - **DuitNow QR** (`chip_duitnow`) — scan & pay (default code: `duitnow_qr`)
    - **Atome** (`chip_atome`) — Atome BNPL via CHIP (default code: `razer_atome`)
 5. **Surcharge (sen)** — added to the CHIP checkout total (MYR: `100` = RM1.00).
-6. **CHIP codes** — optional comma-separated values for `payment_method_whitelist` (see CHIP `GET /payment_methods/`). Defaults: `fpx`, card networks, `razer_atome`.
+6. **CHIP codes** — optional comma-separated values for `payment_method_whitelist` (see CHIP `GET /payment_methods/`). Defaults: `fpx`, card networks, `razer_tng`, `duitnow_qr`, `razer_atome`.
 
 **Generic “all methods”** — enable *Show generic CHIP — all methods* to keep the original single `chip` gateway (no whitelist). When disabled and at least one per-method option is enabled, only those methods appear at checkout.
 

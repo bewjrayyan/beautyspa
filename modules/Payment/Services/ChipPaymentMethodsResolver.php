@@ -37,6 +37,14 @@ class ChipPaymentMethodsResolver
             return $this->resolveAtomeMethods();
         }
 
+        if ($gatewayKey === ChipPaymentMethodConfig::METHOD_EWALLET) {
+            return $this->resolveEwalletMethods();
+        }
+
+        if ($gatewayKey === ChipPaymentMethodConfig::METHOD_DUITNOW) {
+            return $this->resolveDuitnowMethods();
+        }
+
         return $config['default_whitelist'];
     }
 
@@ -69,7 +77,7 @@ class ChipPaymentMethodsResolver
             if ($methods['available_payment_methods'] !== []) {
                 return array_values(array_filter(
                     $methods['available_payment_methods'],
-                    fn (string $code) => ! in_array($code, ['fpx', 'atome', 'razer_atome'], true)
+                    fn (string $code) => $this->isLikelyCardCode($code)
                 ));
             }
         } catch (\Throwable) {
@@ -112,6 +120,98 @@ class ChipPaymentMethodsResolver
         }
 
         return $defaults;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolveEwalletMethods(): array
+    {
+        $defaults = ChipPaymentMethodConfig::configFor(ChipPaymentMethodConfig::METHOD_EWALLET)['default_whitelist'];
+
+        if (! setting('chip_enabled')) {
+            return $defaults;
+        }
+
+        try {
+            $client = new ChipCollectClient(
+                (string) setting('chip_brand_id'),
+                (string) setting('chip_api_key'),
+            );
+
+            $methods = $client->listPaymentMethods(currency());
+            $ewalletCodes = array_values(array_filter(
+                $methods['available_payment_methods'] ?? [],
+                fn (string $code) => $this->isEwalletCode($code)
+            ));
+
+            if ($ewalletCodes !== []) {
+                return $ewalletCodes;
+            }
+        } catch (\Throwable) {
+            // Fall back to defaults when API is unreachable.
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolveDuitnowMethods(): array
+    {
+        $defaults = ChipPaymentMethodConfig::configFor(ChipPaymentMethodConfig::METHOD_DUITNOW)['default_whitelist'];
+
+        if (! setting('chip_enabled')) {
+            return $defaults;
+        }
+
+        try {
+            $client = new ChipCollectClient(
+                (string) setting('chip_brand_id'),
+                (string) setting('chip_api_key'),
+            );
+
+            $methods = $client->listPaymentMethods(currency());
+            $duitnowCodes = array_values(array_filter(
+                $methods['available_payment_methods'] ?? [],
+                fn (string $code) => str_contains(strtolower($code), 'duitnow')
+            ));
+
+            if ($duitnowCodes !== []) {
+                return $duitnowCodes;
+            }
+        } catch (\Throwable) {
+            // Fall back to defaults when API is unreachable.
+        }
+
+        return $defaults;
+    }
+
+    private function isLikelyCardCode(string $code): bool
+    {
+        $lower = strtolower(trim($code));
+
+        if ($lower === '' || $lower === 'fpx' || $lower === 'duitnow_qr') {
+            return false;
+        }
+
+        if (str_contains($lower, 'atome') || str_starts_with($lower, 'razer_')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isEwalletCode(string $code): bool
+    {
+        $lower = strtolower(trim($code));
+
+        if (! str_starts_with($lower, 'razer_')) {
+            return false;
+        }
+
+        return ! str_contains($lower, 'atome') && ! str_contains($lower, 'maybank');
     }
 
     /**
