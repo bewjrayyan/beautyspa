@@ -1,8 +1,28 @@
 <?php
 
 return [
-
     'contact' => 'Hubungi',
+    'eyebrow' => 'Kami sedia membantu',
+    'page_lead' => 'Soalan, tempahan, atau maklum balas — hubungi kami dan pasukan kami akan membalas secepat mungkin.',
+    'page_lead_branches' => 'Lawati mana-mana cawangan spa kami atau hantarkan mesej — kami gembira membantu.',
+    'find_us' => 'Cari kami di peta',
+    'map_subtitle' => 'Rancang lawatan anda dengan arah di bawah.',
+    'get_in_touch' => 'Hubungi kami',
+    'follow_us' => 'Ikuti kami',
     'leave_a_message' => 'Tinggalkan mesej',
-    'send_message' => 'Hantar Mesej',
+    'form_subtitle' => 'Isi borang ini dan kami akan membalas secepat mungkin.',
+    'send_message' => 'Hantar mesej',
+    'our_branches' => 'Cawangan kami',
+    'branches_eyebrow' => 'Lokasi',
+    'branches_section_lead' => 'Setiap cawangan sedia menyambut anda — hubungi atau dapatkan arah pada bila-bila masa.',
+    'branches_lead' => 'Pilih cawangan di atas untuk butiran hubungan terus, atau hantarkan mesej di sini.',
+    'phone' => 'Telefon',
+    'email' => 'E-mel',
+    'address' => 'Alamat',
+    'call' => 'Hubungi',
+    'email_us' => 'E-mel',
+    'get_directions' => 'Arah',
+    'email_placeholder' => 'anda@contoh.com',
+    'subject_placeholder' => 'Bagaimana kami boleh membantu?',
+    'message_placeholder' => 'Tulis mesej anda di sini…',
 ];

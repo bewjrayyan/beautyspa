@@ -34,6 +34,15 @@ class SpaBranch extends Model
         $this->attributes['position'] = ($value === '' || $value === null) ? 0 : (int) $value;
     }
 
+    public static function activeForContact(): Collection
+    {
+        return static::query()
+            ->where('is_active', true)
+            ->orderBy('position')
+            ->orderBy('name')
+            ->get();
+    }
+
     public static function activeListForCheckout(): array
     {
         return static::query()
