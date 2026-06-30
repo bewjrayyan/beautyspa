@@ -1,8 +1,18 @@
-<div class="page-editor-panel page-editor-panel--publish">
-    <h2 class="page-editor-panel__title">{{ trans('page::pages.form.publish') }}</h2>
+<div class="page-editor-panel page-editor-panel--publish" data-page-panel>
+    <button type="button" class="page-editor-panel__toggle" data-page-panel-toggle aria-expanded="true">
+        <span class="page-editor-panel__title">
+            <i class="fa fa-bullhorn" aria-hidden="true"></i>
+            {{ trans('page::pages.form.publish') }}
+        </span>
+        <i class="fa fa-chevron-up page-editor-panel__chevron" aria-hidden="true"></i>
+    </button>
 
-    <div class="page-editor-panel__body">
-        {{ Form::checkbox('is_active', trans('page::attributes.is_active'), trans('page::pages.form.enable_the_page'), $errors, $page) }}
+    <div class="page-editor-panel__body" data-page-panel-body>
+        <div class="page-editor-publish-status">
+            <span class="page-editor-publish-status__label">{{ trans('page::pages.form.visibility') }}</span>
+            {{ Form::checkbox('is_active', trans('page::attributes.is_active'), trans('page::pages.form.enable_the_page'), $errors, $page) }}
+            <p class="page-editor-publish-status__hint">{{ trans('page::pages.form.visibility_hint') }}</p>
+        </div>
 
         @if ($page->exists && $page->slug)
             <p class="page-editor-view-link">
@@ -12,11 +22,5 @@
                 </a>
             </p>
         @endif
-
-        <div class="page-editor-panel__actions">
-            <button type="submit" class="btn btn-primary btn-block" data-loading form="{{ $page->exists ? 'page-edit-form' : 'page-create-form' }}">
-                {{ trans('admin::admin.buttons.save') }}
-            </button>
-        </div>
     </div>
 </div>

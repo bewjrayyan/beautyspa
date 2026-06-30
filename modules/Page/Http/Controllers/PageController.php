@@ -6,6 +6,7 @@ use Illuminate\Http\Response;
 use Modules\Page\Entities\Page;
 use Modules\Media\Entities\File;
 use Modules\Product\Entities\Product;
+use Modules\SpaBranch\Entities\SpaBranch;
 
 class PageController
 {
@@ -52,6 +53,7 @@ class PageController
                 'page' => $page,
                 'logo' => $logo,
                 'latestProducts' => $this->latestProductsForSidebar(),
+                'spaBranches' => $this->activeSpaBranches(),
             ]);
         }
 
@@ -128,6 +130,18 @@ class PageController
             ->get()
             ->map
             ->clean();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, \Modules\SpaBranch\Entities\SpaBranch>
+     */
+    private function activeSpaBranches()
+    {
+        if (! app('modules')->isEnabled('SpaBranch')) {
+            return collect();
+        }
+
+        return SpaBranch::activeForContact();
     }
 
 

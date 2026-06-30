@@ -1,9 +1,9 @@
 {
-  "_@ckeditor-Ccscwr0P-v4.7.71.js": {
-    "file": "assets/@ckeditor-Ccscwr0P-v4.7.71.js",
+  "_@ckeditor-BSJjCjF2-v4.7.71.js": {
+    "file": "assets/@ckeditor-BSJjCjF2-v4.7.71.js",
     "name": "@ckeditor",
     "imports": [
-      "_es-toolkit-nlXM9Zg7-v4.7.71.js",
+      "_es-toolkit-C7oP7ULJ-v4.7.71.js",
       "_color-parse-tfyZAYpJ-v4.7.71.js",
       "_color-convert-DPd0xJs7-v4.7.71.js",
       "_vanilla-colorful-PEGE98j7-v4.7.71.js"
@@ -172,11 +172,11 @@
       "_@kurkle-C_POY-EF-v4.7.71.js"
     ]
   },
-  "_ckeditor5-DMMi_DwR-v4.7.71.js": {
-    "file": "assets/ckeditor5-DMMi_DwR-v4.7.71.js",
+  "_ckeditor5-ClWpNt4f-v4.7.71.js": {
+    "file": "assets/ckeditor5-ClWpNt4f-v4.7.71.js",
     "name": "ckeditor5",
     "imports": [
-      "_@ckeditor-Ccscwr0P-v4.7.71.js"
+      "_@ckeditor-BSJjCjF2-v4.7.71.js"
     ]
   },
   "_color-convert-DPd0xJs7-v4.7.71.js": {
@@ -262,8 +262,8 @@
     "file": "assets/es-object-atoms-BR76m4z7-v4.7.71.js",
     "name": "es-object-atoms"
   },
-  "_es-toolkit-nlXM9Zg7-v4.7.71.js": {
-    "file": "assets/es-toolkit-nlXM9Zg7-v4.7.71.js",
+  "_es-toolkit-C7oP7ULJ-v4.7.71.js": {
+    "file": "assets/es-toolkit-C7oP7ULJ-v4.7.71.js",
     "name": "es-toolkit",
     "imports": [
       "_lodash-ChyoHd7S-v4.7.71.js"
@@ -863,11 +863,11 @@
     "file": "assets/web-namespaces-l0sNRNKZ-v4.7.71.js",
     "name": "web-namespaces"
   },
-  "_wysiwyg-C61FNuom-v4.7.71.js": {
-    "file": "assets/wysiwyg-C61FNuom-v4.7.71.js",
+  "_wysiwyg-B_wAFqQT-v4.7.71.js": {
+    "file": "assets/wysiwyg-B_wAFqQT-v4.7.71.js",
     "name": "wysiwyg",
     "imports": [
-      "_@ckeditor-Ccscwr0P-v4.7.71.js"
+      "_@ckeditor-BSJjCjF2-v4.7.71.js"
     ]
   },
   "_x-editable-Dp3MKH4K-v4.7.71.js": {
@@ -994,7 +994,7 @@
     "src": "modules/BeauticianReport/Resources/assets/admin/sass/main.scss"
   },
   "modules/Blog/Resources/assets/admin/posts/js/create.js": {
-    "file": "assets/create-pMW-gbLT-v4.7.71.js",
+    "file": "assets/create-CehqxZKw-v4.7.71.js",
     "name": "create",
     "src": "modules/Blog/Resources/assets/admin/posts/js/create.js",
     "isEntry": true,
@@ -1002,12 +1002,12 @@
       "_NProgress-x3vpKv9K-v4.7.71.js",
       "_functions-BMjpLDQQ-v4.7.71.js",
       "_alpinejs-DLuZkmyn-v4.7.71.js",
-      "_wysiwyg-C61FNuom-v4.7.71.js",
+      "_wysiwyg-B_wAFqQT-v4.7.71.js",
       "_Errors-CUe_UZOJ-v4.7.71.js",
       "_nprogress-yXgMUfVH-v4.7.71.js",
       "_lodash-ChyoHd7S-v4.7.71.js",
-      "_@ckeditor-Ccscwr0P-v4.7.71.js",
-      "_es-toolkit-nlXM9Zg7-v4.7.71.js",
+      "_@ckeditor-BSJjCjF2-v4.7.71.js",
+      "_es-toolkit-C7oP7ULJ-v4.7.71.js",
       "_color-parse-tfyZAYpJ-v4.7.71.js",
       "_color-name-BHznG-9M-v4.7.71.js",
       "_color-convert-DPd0xJs7-v4.7.71.js",
@@ -1015,7 +1015,7 @@
     ]
   },
   "modules/Blog/Resources/assets/admin/posts/js/edit.js": {
-    "file": "assets/edit-4Ya1Lpri-v4.7.71.js",
+    "file": "assets/edit-BsbgGNCK-v4.7.71.js",
     "name": "edit",
     "src": "modules/Blog/Resources/assets/admin/posts/js/edit.js",
     "isEntry": true,
@@ -1023,12 +1023,12 @@
       "_NProgress-x3vpKv9K-v4.7.71.js",
       "_functions-BMjpLDQQ-v4.7.71.js",
       "_alpinejs-DLuZkmyn-v4.7.71.js",
-      "_wysiwyg-C61FNuom-v4.7.71.js",
+      "_wysiwyg-B_wAFqQT-v4.7.71.js",
       "_Errors-CUe_UZOJ-v4.7.71.js",
       "_nprogress-yXgMUfVH-v4.7.71.js",
       "_lodash-ChyoHd7S-v4.7.71.js",
-      "_@ckeditor-Ccscwr0P-v4.7.71.js",
-      "_es-toolkit-nlXM9Zg7-v4.7.71.js",
+      "_@ckeditor-BSJjCjF2-v4.7.71.js",
+      "_es-toolkit-C7oP7ULJ-v4.7.71.js",
       "_color-parse-tfyZAYpJ-v4.7.71.js",
       "_color-name-BHznG-9M-v4.7.71.js",
       "_color-convert-DPd0xJs7-v4.7.71.js",
@@ -1104,7 +1104,7 @@
     "src": "modules/Loyalty/Resources/assets/public/sass/pages/account/loyalty/main.scss"
   },
   "modules/Media/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-CMhLs0IZ-v4.7.71.js",
+    "file": "assets/main-Ck__tp1Q-v4.7.71.js",
     "name": "main",
     "src": "modules/Media/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1117,7 +1117,7 @@
     ]
   },
   "modules/Media/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-Dp2nkwBo-v4.7.71.css",
+    "file": "assets/main-C68VReD9-v4.7.71.css",
     "src": "modules/Media/Resources/assets/admin/sass/main.scss"
   },
   "modules/Menu/Resources/assets/admin/js/main.js": {
@@ -1175,14 +1175,14 @@
     ]
   },
   "modules/Page/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-BchwpMDg-v4.7.71.js",
+    "file": "assets/main-w0-jMpVa-v4.7.71.js",
     "name": "main",
     "src": "modules/Page/Resources/assets/admin/js/main.js",
     "isEntry": true,
     "imports": [
-      "_wysiwyg-C61FNuom-v4.7.71.js",
-      "_@ckeditor-Ccscwr0P-v4.7.71.js",
-      "_es-toolkit-nlXM9Zg7-v4.7.71.js",
+      "_wysiwyg-B_wAFqQT-v4.7.71.js",
+      "_@ckeditor-BSJjCjF2-v4.7.71.js",
+      "_es-toolkit-C7oP7ULJ-v4.7.71.js",
       "_lodash-ChyoHd7S-v4.7.71.js",
       "_color-parse-tfyZAYpJ-v4.7.71.js",
       "_color-name-BHznG-9M-v4.7.71.js",
@@ -1191,11 +1191,11 @@
     ]
   },
   "modules/Page/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-CqaEpR8p-v4.7.71.css",
+    "file": "assets/main-0mSssj4U-v4.7.71.css",
     "src": "modules/Page/Resources/assets/admin/sass/main.scss"
   },
   "modules/Product/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-CodTyfPk-v4.7.71.js",
+    "file": "assets/main-Cig26AKL-v4.7.71.js",
     "name": "main",
     "src": "modules/Product/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1210,13 +1210,13 @@
       "_NProgress-x3vpKv9K-v4.7.71.js",
       "_vuedraggable-_NemHKUG-v4.7.71.js",
       "_lodash-ChyoHd7S-v4.7.71.js",
-      "_wysiwyg-C61FNuom-v4.7.71.js",
+      "_wysiwyg-B_wAFqQT-v4.7.71.js",
       "_placeholder_image-mDHcwBqA-v4.7.71.js",
       "_vue-flatpickr-component-CIcZlbrj-v4.7.71.js",
       "_vue-toast-notification-B3cY22V--v4.7.71.js",
       "_nprogress-yXgMUfVH-v4.7.71.js",
-      "_@ckeditor-Ccscwr0P-v4.7.71.js",
-      "_es-toolkit-nlXM9Zg7-v4.7.71.js",
+      "_@ckeditor-BSJjCjF2-v4.7.71.js",
+      "_es-toolkit-C7oP7ULJ-v4.7.71.js",
       "_color-parse-tfyZAYpJ-v4.7.71.js",
       "_color-name-BHznG-9M-v4.7.71.js",
       "_color-convert-DPd0xJs7-v4.7.71.js",
@@ -1624,7 +1624,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/contact/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/custom-page/main.scss": {
-    "file": "assets/main-DKf32UWb-v4.7.71.css",
+    "file": "assets/main-Ql6GW0XH-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/custom-page/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/home/main.scss": {

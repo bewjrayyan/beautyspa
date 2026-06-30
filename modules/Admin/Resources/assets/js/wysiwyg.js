@@ -37,6 +37,7 @@ import {
     Table,
     TableToolbar,
     Underline,
+    GeneralHtmlSupport,
 } from "ckeditor5";
 
 const editors = {};
@@ -227,6 +228,27 @@ function wrapEditor(ckeditorInstance) {
 
 function pageEditorConfig() {
     return {
+        plugins: [GeneralHtmlSupport],
+        htmlSupport: {
+            allow: [
+                {
+                    name: /^[\s\S]+$/,
+                    attributes: true,
+                    classes: true,
+                    styles: true,
+                },
+            ],
+            disallow: [
+                { name: /^(script|style)$/ },
+                {
+                    name: /[\s\S]+/,
+                    attributes: {
+                        key: /^on[a-z]+$/i,
+                    },
+                },
+            ],
+            allowEmpty: ["span", "i"],
+        },
         heading: {
             options: [
                 {
@@ -257,7 +279,11 @@ function pageEditorConfig() {
     };
 }
 
-function buildConfig(editorOptions = {}) {
+function buildConfig(editorOptions = {}, { isPageEditor = false } = {}) {
+    const { plugins: extraPlugins = [], ...pageOptions } = isPageEditor
+        ? pageEditorConfig()
+        : {};
+
     return {
         licenseKey: "GPL",
         plugins: [
@@ -298,6 +324,7 @@ function buildConfig(editorOptions = {}) {
             MediaEmbed,
             Fullscreen,
             SourceEditing,
+            ...extraPlugins,
         ],
         toolbar: {
             items: [
@@ -416,6 +443,7 @@ function buildConfig(editorOptions = {}) {
             contentToolbar: ["tableColumn", "tableRow", "mergeTableCells"],
         },
         language: AestheticCart.rtl ? "ar" : undefined,
+        ...pageOptions,
         ...editorOptions,
     };
 }
@@ -429,11 +457,7 @@ async function initElement(element, options = {}) {
 
     const { setup, ...editorOptions } = options;
     const isPageEditor = element.classList.contains("page-content-editor");
-    const config = buildConfig(
-        isPageEditor
-            ? { ...pageEditorConfig(), ...editorOptions }
-            : editorOptions
-    );
+    const config = buildConfig(editorOptions, { isPageEditor });
 
     const editor = await ClassicEditor.create(element, config);
 

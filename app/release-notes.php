@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.50' => [
+        'en' => [
+            'summary' => 'Modernise the admin page editor and About Us page with layout-safe HTML editing.',
+            'changes' => [
+                'Redesign the admin page editor with hub header, sticky save bar, Visual/Code toggle, and SEO sidebar preview.',
+                'Preserve custom page HTML (div, section, classes) in CKEditor via General HTML Support and HTML5 sanitiser rules.',
+                'Add a modern About Us layout with dynamic spa branch locations and balanced image/content sections.',
+                'Fix OG share image preview in the page SEO panel with proper 1200×630 aspect ratio.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Modenkan editor halaman admin dan halaman Tentang Kami dengan suntingan HTML yang selamat.',
+            'changes' => [
+                'Reka semula editor halaman admin dengan header hab, bar simpan melekit, toggle Visual/Kod, dan pratonton SEO.',
+                'Kekalkan HTML halaman tersuai (div, section, class) dalam CKEditor melalui General HTML Support dan peraturan HTML5.',
+                'Tambah susun atur Tentang Kami moden dengan lokasi cawangan spa dinamik dan bahagian gambar/kandungan seimbang.',
+                'Baiki pratonton imej kongsi OG dalam panel SEO halaman dengan nisbah 1200×630 yang betul.',
+            ],
+        ],
+    ],
     '4.9.47' => [
         'en' => [
             'summary' => 'Add CHIP e-wallet and DuitNow checkout methods with an improved admin setup panel.',

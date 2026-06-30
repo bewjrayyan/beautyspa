@@ -172,6 +172,7 @@ export default class ImagePicker {
         $field.find(".ac-media-field__canvas").addClass("is-filled");
         $field.find(".ac-media-dropzone").addClass("hide");
         $field.find(".ac-media-preview, .single-image.image-holder-wrapper").removeClass("hide").html(html);
+        $field.trigger("ac-media:changed");
     }
 
     addImage(inputName, file, multiple, target) {
@@ -285,6 +286,7 @@ export default class ImagePicker {
             $field.find(".ac-media-field__canvas").removeClass("is-filled");
             $field.find(".ac-media-dropzone").removeClass("hide");
             $field.find(".ac-media-preview, .single-image.image-holder-wrapper").addClass("hide").empty();
+            $field.trigger("ac-media:changed");
 
             if (typeof window.scheduleSettingsFormBaseline === "function") {
                 window.scheduleSettingsFormBaseline(300);

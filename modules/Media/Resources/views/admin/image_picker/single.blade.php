@@ -12,6 +12,8 @@
             $fieldClass .= ' ac-media-field--square';
         } elseif ($aspect === 'banner') {
             $fieldClass .= ' ac-media-field--banner';
+        } elseif ($aspect === 'og') {
+            $fieldClass .= ' ac-media-field--og';
         } elseif ($aspect === 'logo') {
             $fieldClass .= ' ac-media-field--logo';
         }

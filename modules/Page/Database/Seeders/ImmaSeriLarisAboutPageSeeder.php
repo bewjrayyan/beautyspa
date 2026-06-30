@@ -5,6 +5,7 @@ namespace Modules\Page\Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Page\Entities\Page;
+use Modules\SpaBranch\Entities\SpaBranch;
 
 class ImmaSeriLarisAboutPageSeeder extends Seeder
 {
@@ -28,10 +29,11 @@ class ImmaSeriLarisAboutPageSeeder extends Seeder
         $images = $this->syncAboutImages();
         $contactEn = localized_url('en', 'contact');
         $contactMs = localized_url('ms', 'contact');
+        $branchCount = $this->activeBranchCount();
 
         foreach ([
-            'en' => ['name' => 'About Us', 'body' => $this->buildBody($this->englishCopy($contactEn), $images)],
-            'ms' => ['name' => 'Tentang Kami', 'body' => $this->buildBody($this->malayCopy($contactMs), $images)],
+            'en' => ['name' => 'About Us', 'body' => $this->buildBody($this->englishCopy($contactEn, $branchCount), $images)],
+            'ms' => ['name' => 'Tentang Kami', 'body' => $this->buildBody($this->malayCopy($contactMs, $branchCount), $images)],
         ] as $locale => $data) {
             DB::table('page_translations')->updateOrInsert(
                 ['page_id' => $page->id, 'locale' => $locale],
@@ -229,14 +231,9 @@ HTML;
                 <li>{$copy['hours_sun']}</li>
             </ul>
         </div>
-        <div class="imma-about-info__item">
-            <h3>{$copy['locations_title']}</h3>
-            <ul>
-                <li>{$copy['location_hq']}</li>
-                <li>{$copy['location_branch']}</li>
-            </ul>
-        </div>
     </section>
+
+    <!--IMMA_SPA_BRANCHES-->
 
     <section class="imma-about-section imma-about-cta">
         <div>
@@ -257,7 +254,7 @@ HTML;
     /**
      * @return array<string, mixed>
      */
-    private function englishCopy(string $contactUrl): array
+    private function englishCopy(string $contactUrl, int $branchCount): array
     {
         return [
             'tagline' => '#Selagi tak cantik, jangan balik',
@@ -267,7 +264,7 @@ HTML;
             'badges' => ['Since 2014', 'Muslimah-friendly', 'Patuh Syariah', 'One Stop Service'],
             'stats' => [
                 ['value' => '2014', 'label' => 'Established'],
-                ['value' => '2', 'label' => 'Locations'],
+                ['value' => (string) max(1, $branchCount), 'label' => 'Locations'],
                 ['value' => '6+', 'label' => 'Service areas'],
                 ['value' => '100%', 'label' => 'Muslimah-friendly'],
             ],
@@ -307,9 +304,6 @@ HTML;
             'hours_title' => 'Operating Hours',
             'hours_week' => '<strong>Monday – Saturday:</strong> 11:00 AM – 9:00 PM',
             'hours_sun' => '<strong>Sunday:</strong> 11:00 AM – 6:00 PM',
-            'locations_title' => 'Locations',
-            'location_hq' => '<strong>HQ (Kuala Lumpur):</strong> Plaza KLTS, Block D, Jln Gombak, Kampung Kuantan, Kuala Lumpur',
-            'location_branch' => '<strong>Branch:</strong> Sungai Petani, Kedah',
             'careers_title' => 'Careers',
             'careers_text' => 'Interested in joining our team? Email <a href="mailto:booking@immaserilaris.com">booking@immaserilaris.com</a> or reach out through our contact page.',
             'careers_cta_url' => $contactUrl,
@@ -327,7 +321,7 @@ HTML;
     /**
      * @return array<string, mixed>
      */
-    private function malayCopy(string $contactUrl): array
+    private function malayCopy(string $contactUrl, int $branchCount): array
     {
         return [
             'tagline' => '#Selagi tak cantik, jangan balik',
@@ -337,7 +331,7 @@ HTML;
             'badges' => ['Sejak 2014', 'Mesra Muslimah', 'Patuh Syariah', 'One Stop Service'],
             'stats' => [
                 ['value' => '2014', 'label' => 'Ditubuhkan'],
-                ['value' => '2', 'label' => 'Lokasi'],
+                ['value' => (string) max(1, $branchCount), 'label' => 'Lokasi'],
                 ['value' => '6+', 'label' => 'Bidang perkhidmatan'],
                 ['value' => '100%', 'label' => 'Mesra Muslimah'],
             ],
@@ -377,9 +371,6 @@ HTML;
             'hours_title' => 'Waktu Operasi',
             'hours_week' => '<strong>Isnin – Sabtu:</strong> 11:00 pagi – 9:00 malam',
             'hours_sun' => '<strong>Ahad:</strong> 11:00 pagi – 6:00 petang',
-            'locations_title' => 'Lokasi',
-            'location_hq' => '<strong>Ibu Pejabat (Kuala Lumpur):</strong> Plaza KLTS, Block D, Jln Gombak, Kampung Kuantan, Kuala Lumpur',
-            'location_branch' => '<strong>Cawangan:</strong> Sungai Petani, Kedah',
             'careers_title' => 'Kerjaya',
             'careers_text' => 'Berminat menyertai pasukan kami? E-mel <a href="mailto:booking@immaserilaris.com">booking@immaserilaris.com</a> atau hubungi kami melalui halaman contact.',
             'careers_cta_url' => $contactUrl,
@@ -391,5 +382,14 @@ HTML;
             'img_spa_alt' => 'Suasana spa yang selesa',
             'img_location_alt' => 'Bangunan IMMA Seri Laris',
         ];
+    }
+
+    private function activeBranchCount(): int
+    {
+        if (! app('modules')->isEnabled('SpaBranch')) {
+            return 1;
+        }
+
+        return SpaBranch::query()->where('is_active', true)->count();
     }
 }

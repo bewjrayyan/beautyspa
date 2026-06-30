@@ -1,8 +1,10 @@
 @php
-    $metaTranslation = $entity->meta?->translate(locale(), false);
+    $metaTranslation = $entity->meta?->translate(locale(), true);
     $ogImageId = old('meta.og_image_id', $metaTranslation?->og_image_id);
-    $ogFile = $ogImageId ? \Modules\Media\Entities\File::find($ogImageId) : new \Modules\Media\Entities\File();
-    $ogPreviewSrc = $ogFile->exists ? $ogFile->path : '';
+    $ogFile = ($ogImageId && (int) $ogImageId > 0)
+        ? \Modules\Media\Entities\File::findOrNew((int) $ogImageId)
+        : new \Modules\Media\Entities\File();
+    $ogPreviewSrc = ($ogFile->exists && $ogFile->path) ? $ogFile->path : '';
     $robots = old('meta.meta_robots', $metaTranslation?->meta_robots ?? 'index, follow');
 @endphp
 
@@ -40,6 +42,7 @@
 <div class="page-seo-field page-seo-field--og">
     @include('media::admin.image_picker.single', [
         'title' => trans('meta::attributes.og_image'),
+        'aspect' => 'og',
         'inputName' => 'meta[og_image_id]',
         'file' => $ogFile,
     ])
@@ -61,14 +64,19 @@
     <p class="page-seo-field__hint">{{ trans('page::pages.form.seo_robots_hint') }}</p>
 </div>
 
-<div class="page-seo-preview" id="page-seo-social-preview" aria-hidden="true">
+<div class="page-seo-preview" id="page-seo-social-preview">
     <p class="page-seo-preview__label">{{ trans('page::pages.form.seo_preview') }}</p>
     <div class="page-seo-preview__card">
-        <div
-            class="page-seo-preview__image{{ $ogPreviewSrc ? ' page-seo-preview__image--filled' : '' }}"
-            id="page-seo-preview-image"
-            @if ($ogPreviewSrc) style="background-image: url('{{ e($ogPreviewSrc) }}')" @endif
-        ></div>
+        <div class="page-seo-preview__image{{ $ogPreviewSrc ? ' page-seo-preview__image--filled' : '' }}" id="page-seo-preview-image" data-empty-label="{{ trans('page::pages.form.seo_preview_empty') }}">
+            @if ($ogPreviewSrc)
+                <img src="{{ $ogPreviewSrc }}" alt="" id="page-seo-preview-image-img">
+            @else
+                <div class="page-seo-preview__placeholder" id="page-seo-preview-placeholder">
+                    <i class="fa fa-image" aria-hidden="true"></i>
+                    <span>{{ trans('page::pages.form.seo_preview_empty') }}</span>
+                </div>
+            @endif
+        </div>
         <div class="page-seo-preview__body">
             <span class="page-seo-preview__site">{{ parse_url(url('/'), PHP_URL_HOST) }}</span>
             <strong class="page-seo-preview__title" id="page-seo-preview-title"></strong>

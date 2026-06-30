@@ -36,6 +36,16 @@ class HtmlSanitizer
         ]);
         $config->set('Attr.AllowedFrameTargets', ['_blank', '_self']);
         $config->set('CSS.Trusted', true);
+        $config->set('HTML.DefinitionID', 'aestheticcart-html5-layout');
+        $config->set('HTML.DefinitionRev', 1);
+
+        if ($def = $config->maybeGetRawHTMLDefinition()) {
+            foreach (['section', 'article', 'header', 'footer', 'aside', 'nav', 'main', 'figure', 'figcaption'] as $element) {
+                $def->addElement($element, 'Block', 'Flow', 'Common');
+            }
+
+            $def->addAttribute('img', 'loading', 'Enum#lazy,eager,auto');
+        }
 
         self::$purifier = new HTMLPurifier($config);
 
