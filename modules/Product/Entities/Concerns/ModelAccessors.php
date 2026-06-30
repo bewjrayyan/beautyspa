@@ -91,10 +91,14 @@ trait ModelAccessors
     public function getSellingPriceAttribute($sellingPrice): Money
     {
         if (FlashSale::contains($this)) {
-            $sellingPrice = FlashSale::pivot($this)->price->amount();
+            return Money::inDefaultCurrency(FlashSale::pivot($this)->price->amount());
         }
 
-        return Money::inDefaultCurrency($sellingPrice);
+        if ($this->hasSpecialPrice()) {
+            return $this->getSpecialPrice();
+        }
+
+        return Money::inDefaultCurrency($this->attributes['price'] ?? $sellingPrice);
     }
 
 

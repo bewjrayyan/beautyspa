@@ -57,7 +57,10 @@ export default function (product) {
         },
 
         get hasSpecialPrice() {
-            return this.item.special_price !== null;
+            const regularPrice = this.regularPrice;
+            const sellingPrice = this.item.selling_price.inCurrentCurrency.amount;
+
+            return sellingPrice < regularPrice;
         },
 
         get hasPercentageSpecialPrice() {

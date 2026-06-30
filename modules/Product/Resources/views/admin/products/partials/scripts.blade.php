@@ -57,6 +57,7 @@
         AestheticCart.langs['admin::admin.form.please_select'] = '{{ trans('admin::admin.form.please_select') }}';
         AestheticCart.langs['product::products.form.variants.all_variants'] = '{{ trans('product::products.form.variants.all_variants') }}';
         AestheticCart.langs['product::products.form.variants.field_type'] = '{{ trans('product::products.form.variants.field_type') }}';
+        AestheticCart.langs['product::products.form.variants.special_price_dates'] = '{{ trans('product::products.form.variants.special_price_dates') }}';
         AestheticCart.langs['product::products.form.variants.is_active'] = '{{ trans('product::products.form.variants.is_active') }}';
         AestheticCart.langs['product::products.form.variants.media'] = '{{ trans('product::products.form.variants.media') }}';
         AestheticCart.langs['product::products.form.variants.sku'] = '{{ trans('product::products.form.variants.sku') }}';
@@ -182,5 +183,6 @@
         AestheticCart.langs['product::attributes.related_products'] = '{{ trans('product::attributes.related_products') }}';
         AestheticCart.langs['product::products.save'] = '{{ trans('product::products.save') }}';
         AestheticCart.langs['product::products.save_and_exit'] = '{{ trans('product::products.save_and_exit') }}';
+        AestheticCart.langs['product::products.view_live'] = '{{ trans('product::products.view_live') }}';
     </script>
 @endpush

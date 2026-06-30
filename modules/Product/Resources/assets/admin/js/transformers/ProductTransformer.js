@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { useVariants } from "../composables/useVariants";
+import { normalizeScheduleDate } from "../support/normalizeScheduleDate";
 
 const { variantPosition, hasAnyVariant } = useVariants();
 
@@ -64,6 +65,12 @@ export default class {
             (accumulator, variant) => {
                 variant.position = variantPosition.value++;
                 variant.media = variant.media.map(({ id }) => id);
+                variant.special_price_start = normalizeScheduleDate(
+                    variant.special_price_start,
+                );
+                variant.special_price_end = normalizeScheduleDate(
+                    variant.special_price_end,
+                );
 
                 return { ...accumulator, [variant.uid]: variant };
             },

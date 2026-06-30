@@ -35,5 +35,5 @@ const searchableSelectizeConfig = ref({
 });
 
 export function useConfigs() {
-    return { flatpickrConfig, searchableSelectizeConfig };
+    return { flatPickrConfig: flatpickrConfig, searchableSelectizeConfig };
 }

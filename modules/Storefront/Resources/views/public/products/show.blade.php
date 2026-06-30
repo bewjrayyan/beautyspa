@@ -178,6 +178,8 @@
         AestheticCart.langs['storefront::product.review_submitted'] = @json(storefront_js_trans('storefront::product.review_submitted'));
         AestheticCart.langs['storefront::product.choose_option_before_add'] = @json(storefront_js_trans('storefront::product.choose_option_before_add'));
         AestheticCart.langs['storefront::product.out_of_stock'] = @json(storefront_js_trans('storefront::product.out_of_stock'));
+        AestheticCart.langs['storefront::product.promo_starts_in'] = @json(storefront_js_trans('storefront::product.promo_starts_in'));
+        AestheticCart.langs['storefront::product.promo_ends_in'] = @json(storefront_js_trans('storefront::product.promo_ends_in'));
     </script>
 
     @vite([

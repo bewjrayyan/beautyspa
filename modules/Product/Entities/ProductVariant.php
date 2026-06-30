@@ -143,7 +143,11 @@ class ProductVariant extends Model
 
     public function getSellingPriceAttribute($sellingPrice)
     {
-        return Money::inDefaultCurrency($sellingPrice);
+        if ($this->hasSpecialPrice()) {
+            return $this->getSpecialPrice();
+        }
+
+        return Money::inDefaultCurrency($this->attributes['price']);
     }
 
 
@@ -364,12 +368,12 @@ class ProductVariant extends Model
 
     private function specialPriceStartDateIsValid(): bool
     {
-        return today() >= $this->special_price_start;
+        return now()->greaterThanOrEqualTo($this->special_price_start);
     }
 
 
     private function specialPriceEndDateIsValid(): bool
     {
-        return today() <= $this->special_price_end;
+        return now()->lessThanOrEqualTo($this->special_price_end);
     }
 }

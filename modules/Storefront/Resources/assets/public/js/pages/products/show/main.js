@@ -11,6 +11,7 @@ import {
 } from "../../../support/productSliderPagination";
 import { wrapProductSliderOptions } from "../../../support/productSliderControlActions";
 import { productSliderStateMixin } from "../../../support/productSliderStateMixin";
+import SpecialPriceCountdownMixin from "../../../mixins/SpecialPriceCountdownMixin";
 import "../../../components/ProductRating";
 import "../../../components/Pagination";
 import "../../../components/ProductCard";
@@ -23,6 +24,7 @@ Alpine.data(
     "ProductShow",
     ({ product, variant, reviewCount, avgRating, flashSalePrice, reviewerName = "", whatsAppShareMessage = "" }) => ({
         product: product,
+        variant: variant || null,
         item: variant || product,
         whatsAppShareMessage,
         optionPrices: {},
@@ -58,6 +60,8 @@ Alpine.data(
         ...productSliderStateMixin(function () {
             return this.relatedProductsSwiper;
         }),
+
+        ...SpecialPriceCountdownMixin(),
 
         get productName() {
             return this.product.name;
@@ -173,10 +177,14 @@ Alpine.data(
         },
 
         get hasSpecialPrice() {
-            return (
-                this.product.is_in_flash_sale ||
-                this.item.special_price !== null
-            );
+            if (this.product.is_in_flash_sale) {
+                return true;
+            }
+
+            const regularPrice = this.item.price.inCurrentCurrency.amount;
+            const sellingPrice = this.item.selling_price.inCurrentCurrency.amount;
+
+            return sellingPrice < regularPrice;
         },
 
         get hasPercentageSpecialPrice() {
@@ -233,7 +241,7 @@ Alpine.data(
         },
 
         get hasPreselectedVariant() {
-            return this.product.variant !== null;
+            return Boolean(this.variant);
         },
 
         get hasAnyVariant() {
@@ -377,6 +385,17 @@ Alpine.data(
                 this.productPriceWithOptionsPrice();
             });
 
+            this.$watch("item", () => {
+                this.initSpecialPriceCountdown();
+            });
+
+            this.$watch(
+                () => JSON.stringify(this.cartItemForm.variations),
+                () => {
+                    this.initSpecialPriceCountdown();
+                },
+            );
+
             if (this.hasVariants && !this.hasPreselectedVariant) {
                 this.item = this.product;
             }
@@ -391,6 +410,7 @@ Alpine.data(
             this.setDescriptionContentHeight();
             this.initUpSellProductsSlider();
             this.initRelatedProductsSlider();
+            this.initSpecialPriceCountdown();
         },
 
         openVariationSheet(uid) {

@@ -47,8 +47,8 @@
     "file": "assets/Errors-CUe_UZOJ-v4.7.71.js",
     "name": "Errors"
   },
-  "_LandscapeProducts-D7MRO6fB-v4.7.71.js": {
-    "file": "assets/LandscapeProducts-D7MRO6fB-v4.7.71.js",
+  "_LandscapeProducts-oY7_Y_mE-v4.7.71.js": {
+    "file": "assets/LandscapeProducts-oY7_Y_mE-v4.7.71.js",
     "name": "LandscapeProducts",
     "imports": [
       "_swiper-AEc_2BbQ-v4.7.71.js",
@@ -67,8 +67,8 @@
     "file": "assets/Pagination-DKj6Zlmg-v4.7.71.js",
     "name": "Pagination"
   },
-  "_ProductMixin-6YbqiBuv-v4.7.71.js": {
-    "file": "assets/ProductMixin-6YbqiBuv-v4.7.71.js",
+  "_ProductMixin-BkJMGo29-v4.7.71.js": {
+    "file": "assets/ProductMixin-BkJMGo29-v4.7.71.js",
     "name": "ProductMixin",
     "imports": [
       "_functions-DX_VpuMs-v4.7.71.js"
@@ -1195,7 +1195,7 @@
     "src": "modules/Page/Resources/assets/admin/sass/main.scss"
   },
   "modules/Product/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-BjeSxy6Z-v4.7.71.js",
+    "file": "assets/main-CodTyfPk-v4.7.71.js",
     "name": "main",
     "src": "modules/Product/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1204,8 +1204,8 @@
       "_functions-BMjpLDQQ-v4.7.71.js",
       "_blueimp-md5-BQfbmVQr-v4.7.71.js",
       "_@melloware-RmAS1ZjF-v4.7.71.js",
-      "_@vue-QkFCNOF5-v4.7.71.js",
       "_Toaster-bkQoFy2F-v4.7.71.js",
+      "_@vue-QkFCNOF5-v4.7.71.js",
       "_Errors-CUe_UZOJ-v4.7.71.js",
       "_NProgress-x3vpKv9K-v4.7.71.js",
       "_vuedraggable-_NemHKUG-v4.7.71.js",
@@ -1225,7 +1225,7 @@
     ]
   },
   "modules/Product/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-DO4G3XrM-v4.7.71.css",
+    "file": "assets/main-DaWeByUf-v4.7.71.css",
     "src": "modules/Product/Resources/assets/admin/sass/main.scss"
   },
   "modules/Report/Resources/assets/admin/js/bookings.js": {
@@ -1361,24 +1361,24 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/account/reviews/main.js": {
-    "file": "assets/main-Bz--UPMb-v4.7.71.js",
+    "file": "assets/main-Bp_Jl3Q6-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/account/reviews/main.js",
     "isEntry": true,
     "imports": [
-      "_ProductMixin-6YbqiBuv-v4.7.71.js",
+      "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js",
       "_Pagination-DKj6Zlmg-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/account/wishlist/main.js": {
-    "file": "assets/main-C3DPi5Ro-v4.7.71.js",
+    "file": "assets/main-Bp7o1wb4-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/account/wishlist/main.js",
     "isEntry": true,
     "imports": [
-      "_ProductMixin-6YbqiBuv-v4.7.71.js",
+      "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_Pagination-DKj6Zlmg-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js"
     ]
@@ -1396,18 +1396,18 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/cart/main.js": {
-    "file": "assets/main-CAJHAOPA-v4.7.71.js",
+    "file": "assets/main-Ce1mwcqb-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/cart/main.js",
     "isEntry": true,
     "imports": [
       "_CartItem-DqkG7cGs-v4.7.71.js",
-      "_LandscapeProducts-D7MRO6fB-v4.7.71.js",
+      "_LandscapeProducts-oY7_Y_mE-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js",
       "_swiper-AEc_2BbQ-v4.7.71.js",
       "_productSliderStateMixin-CiBqc2LT-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
-      "_ProductMixin-6YbqiBuv-v4.7.71.js",
+      "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js"
     ]
   },
@@ -1427,33 +1427,33 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/compare/main.js": {
-    "file": "assets/main-CEonzmlZ-v4.7.71.js",
+    "file": "assets/main-DP6LALLR-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/compare/main.js",
     "isEntry": true,
     "imports": [
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js",
-      "_LandscapeProducts-D7MRO6fB-v4.7.71.js",
-      "_ProductMixin-6YbqiBuv-v4.7.71.js",
+      "_LandscapeProducts-oY7_Y_mE-v4.7.71.js",
+      "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js",
       "_swiper-AEc_2BbQ-v4.7.71.js",
       "_productSliderStateMixin-CiBqc2LT-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js": {
-    "file": "assets/main-CuN1iMxo-v4.7.71.js",
+    "file": "assets/main-DHQUgoo1-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
     "isEntry": true,
     "imports": [
-      "_ProductMixin-6YbqiBuv-v4.7.71.js",
+      "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/home/main.js": {
-    "file": "assets/main-ByD3MuV2-v4.7.71.js",
+    "file": "assets/main-DvfcW-x_-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
     "isEntry": true,
@@ -1463,14 +1463,14 @@
       "_productSliderStateMixin-CiBqc2LT-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_countdown-BHmL3SSW-v4.7.71.js",
-      "_ProductMixin-6YbqiBuv-v4.7.71.js",
+      "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_lodash-ChyoHd7S-v4.7.71.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/products/index/main.js": {
-    "file": "assets/main-JknHXnJ5-v4.7.71.js",
+    "file": "assets/main-BsBnizbo-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/products/index/main.js",
     "isEntry": true,
@@ -1480,12 +1480,12 @@
       "_nouislider-B_G20eMg-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_Pagination-DKj6Zlmg-v4.7.71.js",
-      "_ProductMixin-6YbqiBuv-v4.7.71.js",
+      "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/products/show/main.js": {
-    "file": "assets/main-CPg2HKX2-v4.7.71.js",
+    "file": "assets/main-BYwKNLEF-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/products/show/main.js",
     "isEntry": true,
@@ -1497,11 +1497,12 @@
       "_Errors-C30A2Jtx-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js",
       "_productSliderStateMixin-CiBqc2LT-v4.7.71.js",
+      "_countdown-BHmL3SSW-v4.7.71.js",
       "_ProductRating-Jsih_aOL-v4.7.71.js",
       "_Pagination-DKj6Zlmg-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_lodash-ChyoHd7S-v4.7.71.js",
-      "_ProductMixin-6YbqiBuv-v4.7.71.js"
+      "_ProductMixin-BkJMGo29-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/vendors/flatpickr.js": {
@@ -1625,7 +1626,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/products/index/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/products/show/main.scss": {
-    "file": "assets/main-Bu_UpAB4-v4.7.71.css",
+    "file": "assets/main-B4dqykpk-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/products/show/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/sitemap/main.scss": {

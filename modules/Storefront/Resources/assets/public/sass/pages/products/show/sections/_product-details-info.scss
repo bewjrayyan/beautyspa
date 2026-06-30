@@ -437,6 +437,248 @@
         }
     }
 
+    .product-special-price-countdown {
+        --promo-countdown-radius: 14px;
+        --promo-countdown-shadow: 0 10px 28px rgba(var(--color-primary-rgb, 242, 116, 172), 0.14);
+
+        position: relative;
+        margin: 4px 0 20px;
+        padding: 16px 18px 18px;
+        border-radius: var(--promo-countdown-radius);
+        overflow: hidden;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(var(--color-primary-rgb, 242, 116, 172), 0.1) 0%,
+                rgba(var(--color-primary-rgb, 242, 116, 172), 0.04) 48%,
+                rgba(255, 255, 255, 0.92) 100%
+            );
+        border: 1px solid rgba(var(--color-primary-rgb, 242, 116, 172), 0.22);
+        box-shadow: var(--promo-countdown-shadow);
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                110deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.55) 50%,
+                transparent 70%
+            );
+            transform: translateX(-120%);
+            animation: promo-countdown-shimmer 4.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        &__header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        &__title {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        &__icon {
+            display: inline-flex;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: var(--color-primary);
+            background: rgba(var(--color-primary-rgb, 242, 116, 172), 0.14);
+            box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb, 242, 116, 172), 0.18);
+
+            svg {
+                display: block;
+            }
+        }
+
+        &__label {
+            font-size: 14px;
+            line-height: 1.35;
+            font-weight: var(--font-semibold, 600);
+            color: var(--color-primary);
+            letter-spacing: 0.01em;
+        }
+
+        &__badge {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            line-height: 1;
+            font-weight: var(--font-bold, 700);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-white);
+            background: linear-gradient(
+                135deg,
+                var(--color-primary) 0%,
+                rgba(var(--color-primary-rgb, 242, 116, 172), 0.82) 100%
+            );
+            box-shadow: 0 4px 12px rgba(var(--color-primary-rgb, 242, 116, 172), 0.28);
+        }
+
+        .special-price-countdown--aesthetic {
+            position: relative;
+            z-index: 1;
+
+            .special-price-countdown__grid {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .special-price-countdown__unit {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                min-width: 58px;
+                padding: 10px 8px 8px;
+                border-radius: 12px;
+                background: var(--color-white);
+                box-shadow:
+                    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+                    0 6px 16px rgba(var(--color-primary-rgb, 242, 116, 172), 0.1),
+                    0 0 0 1px rgba(var(--color-primary-rgb, 242, 116, 172), 0.1);
+            }
+
+            .special-price-countdown__digit {
+                display: block;
+                min-width: 2ch;
+                font-size: 26px;
+                line-height: 1;
+                font-weight: var(--font-bold, 700);
+                font-variant-numeric: tabular-nums;
+                letter-spacing: -0.02em;
+                color: var(--color-primary);
+            }
+
+            .special-price-countdown__unit-label {
+                display: block;
+                font-size: 10px;
+                line-height: 1.2;
+                font-weight: var(--font-semibold, 600);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--color-gray);
+            }
+
+            .special-price-countdown__divider {
+                position: relative;
+                flex-shrink: 0;
+                width: 4px;
+                height: 18px;
+                margin-top: -14px;
+
+                &::before,
+                &::after {
+                    content: "";
+                    position: absolute;
+                    left: 50%;
+                    width: 4px;
+                    height: 4px;
+                    border-radius: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(var(--color-primary-rgb, 242, 116, 172), 0.45);
+                }
+
+                &::before {
+                    top: 2px;
+                }
+
+                &::after {
+                    bottom: 2px;
+                }
+            }
+
+            .special-price-countdown__unit--seconds {
+                .special-price-countdown__digit {
+                    animation: promo-countdown-pulse 1s ease-in-out infinite;
+                }
+            }
+        }
+    }
+
+    @keyframes promo-countdown-shimmer {
+        0%,
+        72%,
+        100% {
+            transform: translateX(-120%);
+        }
+
+        82% {
+            transform: translateX(120%);
+        }
+    }
+
+    @keyframes promo-countdown-pulse {
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.04);
+        }
+    }
+
+    @media screen and (max-width: 575px) {
+        .product-special-price-countdown {
+            padding: 14px 14px 16px;
+
+            &__header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            &__badge {
+                align-self: flex-start;
+            }
+
+            .special-price-countdown--aesthetic {
+                .special-price-countdown__grid {
+                    gap: 5px;
+                }
+
+                .special-price-countdown__unit {
+                    min-width: 0;
+                    flex: 1 1 0;
+                    padding: 8px 4px 7px;
+                }
+
+                .special-price-countdown__digit {
+                    font-size: 22px;
+                }
+
+                .special-price-countdown__unit-label {
+                    font-size: 9px;
+                }
+
+                .special-price-countdown__divider {
+                    margin-top: -12px;
+                }
+            }
+        }
+    }
+
     .number-picker-lg {
         display: inline-flex;
         align-items: center;

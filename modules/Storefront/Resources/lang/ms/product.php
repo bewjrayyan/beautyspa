@@ -46,4 +46,11 @@ return [
     'related_products' => 'Produk Berkaitan',
     'show_more' => 'Papar Lagi',
     'show_less' => 'Papar Kurang',
+    'promo_starts_in' => 'Promo bermula dalam',
+    'promo_ends_in' => 'Promo tamat dalam',
+    'promo_limited_offer' => 'Tawaran Terhad',
+    'countdown_days' => 'Hari',
+    'countdown_hours' => 'Jam',
+    'countdown_minutes' => 'Minit',
+    'countdown_seconds' => 'Saat',
 ];

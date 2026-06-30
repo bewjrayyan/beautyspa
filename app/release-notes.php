@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.45' => [
+        'en' => [
+            'summary' => 'Add scheduled promo countdown on product pages and improve special price admin tools.',
+            'changes' => [
+                'Show a cosmetic promo countdown on the storefront when a variant special price has start or end dates.',
+                'Support datetime special price schedules in admin, including bulk edit for all variants.',
+                'Fix special price date saving, variant persistence, and add a View Live Product button on product edit.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah countdown promo berjadual pada halaman produk dan baiki alat harga istimewa admin.',
+            'changes' => [
+                'Paparkan countdown promo estetik di storefront apabila variant ada tarikh mula atau tamat harga istimewa.',
+                'Sokong jadual harga istimewa dengan masa dalam admin, termasuk suntingan pukal untuk semua variant.',
+                'Baiki simpanan tarikh harga istimewa, kekal variant, dan tambah butang Lihat Produk Langsung pada sunting produk.',
+            ],
+        ],
+    ],
     '4.9.44' => [
         'en' => [
             'summary' => 'Improve CRM embedded calendar month navigation and slide transitions.',

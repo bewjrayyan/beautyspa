@@ -168,7 +168,7 @@ const { initAllAttributeValuesSelectize, destroyAllAttributeValuesSelectize } =
     useAttributes();
 const { regenerateVariationsAndVariantsUid, initVariationsColorPicker } =
     useVariations();
-const { resetBulkEditVariantFields } = useBulkEditVariants();
+const { resetBulkEditVariantFields, applyPendingBulkEdit } = useBulkEditVariants();
 const {
     hasAnyVariant,
     setDefaultVariantUid,
@@ -212,6 +212,8 @@ function hideAlertExitFlash() {
 
 async function submit({ submissionType }) {
     formSubmissionType.value = submissionType;
+
+    applyPendingBulkEdit();
 
     const transformer = new ProductTransformer();
     const payload = transformer.transform(form);

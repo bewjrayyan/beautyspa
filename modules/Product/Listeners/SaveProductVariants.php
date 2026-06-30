@@ -2,7 +2,9 @@
 
 namespace Modules\Product\Listeners;
 
+use Illuminate\Support\Arr;
 use Modules\Product\Entities\Product;
+use Modules\Product\Entities\ProductVariant;
 
 class SaveProductVariants
 {
@@ -27,11 +29,20 @@ class SaveProductVariants
 
     private function getDeleteCandidates($product)
     {
+        $requestedIds = collect($this->variants())
+            ->pluck('id')
+            ->filter(fn ($id) => $id !== null && $id !== '');
+
+        // Never mass-delete when the payload has no valid variant IDs.
+        if ($requestedIds->isEmpty()) {
+            return collect();
+        }
+
         return $product
             ->variants()
             ->withoutGlobalScope('active')
             ->pluck('id')
-            ->diff(array_pluck($this->variants(), 'id'));
+            ->diff($requestedIds);
     }
 
 
@@ -63,8 +74,11 @@ class SaveProductVariants
 
             $attributes['position'] = ++$counter;
 
+            $variantId = $attributes['id'] ?? null;
+            $attributes = Arr::only($attributes, (new ProductVariant())->getFillable());
+
             $product->variants()->withoutGlobalScope('active')->updateOrCreate(
-                ['id' => $attributes['id'] ?? null],
+                ['id' => $variantId],
                 $attributes
             );
         }
@@ -99,7 +113,7 @@ class SaveProductVariants
             'base_image' => [$baseImage->id],
         ];
 
-        $additionalImages = $product->filterFiles('additional_images')->pluck('id')->all();
+        $additionalImages = $product->filterFiles('additional_images')->pluck('files.id')->all();
 
         if ($additionalImages !== []) {
             $files['additional_images'] = $additionalImages;

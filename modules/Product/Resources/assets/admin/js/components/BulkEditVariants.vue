@@ -89,6 +89,13 @@
                             )
                         }}
                     </option>
+                    <option value="special_price_dates">
+                        {{
+                            trans(
+                                "product::products.form.variants.special_price_dates",
+                            )
+                        }}
+                    </option>
                     <option value="manage_stock">
                         {{
                             trans(
@@ -389,6 +396,56 @@
                 </div>
             </template>
 
+            <template v-else-if="bulkEditVariantsField === 'special_price_dates'">
+                <div class="form-group row">
+                    <label
+                        for="bulk-edit-variants-special-price-start"
+                        class="col-sm-3 control-label text-left"
+                    >
+                        {{
+                            trans(
+                                "product::products.form.variants.special_price_start",
+                            )
+                        }}
+                    </label>
+
+                    <div class="col-sm-5">
+                        <flat-pickr
+                            name="bulk_edit_variants_special_price_start"
+                            id="bulk-edit-variants-special-price-start"
+                            class="form-control"
+                            :config="flatPickrConfig"
+                            v-model="bulkEditVariants.special_price_start"
+                        >
+                        </flat-pickr>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label
+                        for="bulk-edit-variants-special-price-end"
+                        class="col-sm-3 control-label text-left"
+                    >
+                        {{
+                            trans(
+                                "product::products.form.variants.special_price_end",
+                            )
+                        }}
+                    </label>
+
+                    <div class="col-sm-5">
+                        <flat-pickr
+                            name="bulk_edit_variants_special_price_end"
+                            id="bulk-edit-variants-special-price-end"
+                            class="form-control"
+                            :config="flatPickrConfig"
+                            v-model="bulkEditVariants.special_price_end"
+                        >
+                        </flat-pickr>
+                    </div>
+                </div>
+            </template>
+
             <template v-else-if="bulkEditVariantsField === 'manage_stock'">
                 <div class="form-group row">
                     <label
@@ -516,11 +573,12 @@
 import { computed, watch } from "vue";
 import { useForm } from "../composables/useForm";
 import { useBulkEditVariants } from "../composables/useBulkEditVariants";
-import { toaster } from "@admin/js/Toaster";
+import { useConfigs } from "../composables/useConfigs";
 import draggable from "vuedraggable";
 import flatPickr from "vue-flatpickr-component";
 
-const { form, shouldResetForm, errors, focusField } = useForm();
+const { form, shouldResetForm, focusField } = useForm();
+const { flatPickrConfig } = useConfigs();
 const {
     bulkEditVariantsUid,
     bulkEditVariantsField,
@@ -529,6 +587,7 @@ const {
     resetVariantsSelection,
     resetBulkEditVariantsField,
     resetBulkEditVariants,
+    applyBulkEdit,
 } = useBulkEditVariants();
 
 const hasBulkEditVariantsUid = computed(() => bulkEditVariantsUid.value !== "");
@@ -578,12 +637,20 @@ function selectSpecificVariants(uid) {
 }
 
 function changeBulkEditVariantsField(fieldName) {
-    const FOCUSABLE_FIELD_NAMES = ["sku", "price", "special_price"];
+    const FOCUSABLE_FIELD_NAMES = [
+        "sku",
+        "price",
+        "special_price",
+        "special_price_dates",
+    ];
 
     if (FOCUSABLE_FIELD_NAMES.includes(fieldName)) {
-        focusField({
-            selector: `#bulk-edit-variants-${fieldName.replace(/_/g, "-")}`,
-        });
+        const selector =
+            fieldName === "special_price_dates"
+                ? "#bulk-edit-variants-special-price-start"
+                : `#bulk-edit-variants-${fieldName.replace(/_/g, "-")}`;
+
+        focusField({ selector });
     }
 
     resetBulkEditVariants();
@@ -604,94 +671,8 @@ function removeBulkEditVariantsMedia(index) {
     bulkEditVariants.media.splice(index, 1);
 }
 
-function clearVariantsSpecialPriceErrors(uid) {
-    Object.keys(errors).forEach((key) => {
-        if (
-            key.startsWith(`variants.${uid}`) &&
-            key.includes("special_price")
-        ) {
-            errors.clear(key);
-        }
-    });
-}
-
-function updateVariantsField(variant, { key, value }) {
-    variant[key] = value;
-
-    errors.clear(`variants.${variant.uid}.${key}`);
-}
-
-function updateVariantsStatus(variant, { key, value }) {
-    if (variant.is_default === true) return;
-
-    variant[key] = value;
-
-    errors.clear(`variants.${variant.uid}.${key}`);
-}
-
-function updateVariantsSpecialPrice(
-    variant,
-    { key, value },
-    { special_price_type, special_price_start, special_price_end },
-) {
-    variant[key] = value;
-    variant.special_price_type = special_price_type;
-    variant.special_price_start = special_price_start;
-    variant.special_price_end = special_price_end;
-
-    clearVariantsSpecialPriceErrors(variant.uid);
-}
-
-function updateVariantsManageStock(variant, { key, value }, { qty }) {
-    variant[key] = value;
-    variant.qty = qty;
-
-    errors.clear([
-        `variants.${variant.uid}.${key}`,
-        `variants.${variant.uid}.qty`,
-    ]);
-}
-
-function callUpdateVariantsMethodByField(key) {
-    return {
-        media: updateVariantsField,
-        sku: updateVariantsField,
-        is_active: updateVariantsStatus,
-        price: updateVariantsField,
-        special_price: updateVariantsSpecialPrice,
-        manage_stock: updateVariantsManageStock,
-        in_stock: updateVariantsField,
-    }[key];
-}
-
-function updateVariants(field) {
-    form.variants.forEach((variant) => {
-        if (variant.is_selected) {
-            callUpdateVariantsMethodByField(field.key)(
-                variant,
-                field,
-                bulkEditVariants,
-            );
-        }
-    });
-}
-
 function bulkUpdateVariants() {
-    if (!hasBulkEditVariantsUid && !hasBulkEditVariantsField) {
-        return;
-    }
-
-    const field = {
-        key: bulkEditVariantsField.value,
-        value: bulkEditVariants[bulkEditVariantsField.value],
-    };
-
-    updateVariants(field);
-    resetBulkEditVariantFields();
-
-    toaster(trans("product::products.variants.bulk_variants_updated"), {
-        type: "default",
-    });
+    applyBulkEdit();
 }
 
 watch(shouldResetForm, () => {

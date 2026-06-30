@@ -46,4 +46,11 @@ return [
     'related_products' => 'Related Products',
     'show_more' => 'Show More',
     'show_less' => 'Show Less',
+    'promo_starts_in' => 'Promo starts in',
+    'promo_ends_in' => 'Promo ends in',
+    'promo_limited_offer' => 'Limited Offer',
+    'countdown_days' => 'Days',
+    'countdown_hours' => 'Hours',
+    'countdown_minutes' => 'Min',
+    'countdown_seconds' => 'Sec',
 ];

@@ -84,8 +84,6 @@ export function useForm() {
             variant.position = variantPosition.value++;
             variant.is_open = false;
             variant.is_selected = false;
-            variant.special_price_start = null;
-            variant.special_price_end = null;
         });
     }
 

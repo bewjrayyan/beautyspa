@@ -8,6 +8,7 @@ return [
     'save_and_exit' => 'Simpan & Keluar',
     'save_and_edit' => 'Simpan & Sunting',
     'clone_success' => 'Produk berjaya diklon. Semak dan simpan salinan ini.',
+    'view_live' => 'Lihat produk live',
     'status_enabled' => 'Produk telah diaktifkan.',
     'status_disabled' => 'Produk telah dinyahaktifkan.',
     'section' => [
@@ -144,6 +145,7 @@ return [
             'enable_the_variants' => 'Aktifkan variants',
             'price' => 'Harga',
             'special_price' => 'Special Harga',
+            'special_price_dates' => 'Jadual special harga',
             'special_price_type' => 'Special Harga Type',
             'special_price_types' => [
 

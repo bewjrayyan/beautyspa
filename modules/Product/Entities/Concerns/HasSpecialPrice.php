@@ -66,13 +66,13 @@ trait HasSpecialPrice
 
     private function specialPriceStartDateIsValid(): bool
     {
-        return today() >= $this->special_price_start;
+        return now()->greaterThanOrEqualTo($this->special_price_start);
     }
 
 
     private function specialPriceEndDateIsValid(): bool
     {
-        return today() <= $this->special_price_end;
+        return now()->lessThanOrEqualTo($this->special_price_end);
     }
 
 }

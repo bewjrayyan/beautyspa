@@ -35,6 +35,7 @@
         AestheticCart.data['up-sell-products'] = @json($product->upSellProducts ?? []);
         AestheticCart.data['cross-sell-products'] = @json($product->crossSellProducts ?? []);
         AestheticCart.data['related-products'] = @json($product->relatedProducts ?? []);
+        AestheticCart.data['storefront_product_url_template'] = @json(localized_url(locale(), route('products.show', ['slug' => '__SLUG__'])));
     </script>
 
     @vite([

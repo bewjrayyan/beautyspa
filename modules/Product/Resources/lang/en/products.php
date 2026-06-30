@@ -7,6 +7,7 @@ return [
     'save_and_exit' => 'Save & Exit',
     'save_and_edit' => 'Save & Edit',
     'clone_success' => 'Product cloned successfully. You can review and save the copy.',
+    'view_live' => 'View live product',
     'status_enabled' => 'Product has been enabled.',
     'status_disabled' => 'Product has been disabled.',
 
@@ -139,6 +140,7 @@ return [
             'enable_the_variants' => 'Enable the variants',
             'price' => 'Price',
             'special_price' => 'Special Price',
+            'special_price_dates' => 'Special Price Schedule',
             'special_price_type' => 'Special Price Type',
 
             'special_price_types' => [

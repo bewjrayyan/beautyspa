@@ -3,6 +3,7 @@
 namespace Modules\Product\Http\Requests;
 
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Carbon;
 use Modules\Option\Entities\Option;
 use Modules\Product\Entities\Product;
 use Modules\Core\Http\Requests\Request;
@@ -61,6 +62,48 @@ class SaveProductRequest extends Request
         if ($this->has('loyalty_earn_multiplier') && $this->input('loyalty_earn_multiplier') === '') {
             $this->merge(['loyalty_earn_multiplier' => 1]);
         }
+
+        $this->normalizeVariantScheduleDates();
+    }
+
+
+    private function normalizeVariantScheduleDates(): void
+    {
+        if (! $this->has('variants') || ! is_array($this->input('variants'))) {
+            return;
+        }
+
+        $variants = $this->input('variants');
+
+        foreach ($variants as $uid => $variant) {
+            if (! is_array($variant)) {
+                continue;
+            }
+
+            foreach (['special_price_start', 'special_price_end'] as $key) {
+                if (empty($variant[$key])) {
+                    continue;
+                }
+
+                $variants[$uid][$key] = $this->normalizeScheduleDateValue($variant[$key]);
+            }
+        }
+
+        $this->merge(['variants' => $variants]);
+    }
+
+
+    private function normalizeScheduleDateValue(string $value): string
+    {
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}/', $value)) {
+            return Carbon::createFromFormat('d/m/Y H:i', $value)->format('Y-m-d H:i:s');
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value)) {
+            return $value . ':00';
+        }
+
+        return $value;
     }
 
 
