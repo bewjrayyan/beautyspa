@@ -23,7 +23,8 @@ class ImportWordPressOrdersCommand extends Command
                             {file : Path to WordPress WooCommerce orders SQL dump}
                             {--dry-run : Preview without writing}
                             {--limit= : Maximum number of orders to import}
-                            {--spa-branch-id= : Default spa branch for imported appointments}';
+                            {--spa-branch-id= : Default spa branch for imported appointments}
+                            {--repair-product-names : Fix product names on already-imported WordPress orders}';
 
     protected $description = 'Import WordPress / WooCommerce HPOS orders into FleetCart and link customers by email.';
 
@@ -67,6 +68,14 @@ class ImportWordPressOrdersCommand extends Command
             $this->error('No WooCommerce orders table (wc_orders) found in SQL dump.');
 
             return self::FAILURE;
+        }
+
+        if ((bool) $this->option('repair-product-names')) {
+            if (! $dryRun) {
+                $this->loadImportTables($sql, $tableMap);
+            }
+
+            return $this->repairProductNames($sql, $tableMap, $dryRun, $limit);
         }
 
         if (! $dryRun) {
@@ -115,6 +124,7 @@ class ImportWordPressOrdersCommand extends Command
         $operational = $this->fetchOperationalData($sql, $tableMap['operational'] ?? null, $dryRun);
         $lineItems = $this->fetchLineItems($sql, $tableMap['products'] ?? null, $dryRun);
         $meta = $this->fetchOrderMeta($sql, $tableMap['meta'] ?? null, $dryRun);
+        $chipProducts = $this->fetchChipProductNames($sql, $tableMap['meta'] ?? null, $dryRun);
 
         $spaBranchId = $this->resolveSpaBranchId();
 
@@ -185,6 +195,7 @@ class ImportWordPressOrdersCommand extends Command
                 $ops,
                 $orderMeta,
                 $items,
+                $chipProducts[$wpOrderId] ?? [],
                 $email,
                 $customerId,
                 $spaBranchId,
@@ -226,6 +237,7 @@ class ImportWordPressOrdersCommand extends Command
      * @param array<string, mixed> $ops
      * @param array<string, string> $orderMeta
      * @param list<array<string, mixed>> $items
+     * @param list<array{name: string, price: int, quantity: float}> $chipProducts
      */
     private function importOrder(
         int $wpOrderId,
@@ -235,6 +247,7 @@ class ImportWordPressOrdersCommand extends Command
         array $ops,
         array $orderMeta,
         array $items,
+        array $chipProducts,
         string $email,
         ?int $customerId,
         ?int $spaBranchId,
@@ -247,6 +260,7 @@ class ImportWordPressOrdersCommand extends Command
             $ops,
             $orderMeta,
             $items,
+            $chipProducts,
             $email,
             $customerId,
             $spaBranchId,
@@ -318,19 +332,23 @@ class ImportWordPressOrdersCommand extends Command
 
             $orderId = DB::table('orders')->insertGetId($orderData);
 
-            $this->insertLineItems((int) $orderId, $items, $subTotal, $total);
+            $this->insertLineItems((int) $orderId, $items, $chipProducts, $subTotal, $total);
         });
     }
 
     /**
      * @param list<array<string, mixed>> $items
+     * @param list<array{name: string, price: int, quantity: float}> $chipProducts
      */
-    private function insertLineItems(int $orderId, array $items, float $subTotal, float $total): void
+    private function insertLineItems(int $orderId, array $items, array $chipProducts, float $subTotal, float $total): void
     {
         if ($items === []) {
+            $name = $this->matchChipProductName($chipProducts, $total, 1, 0) ?? 'WordPress order total';
+            $productId = $this->findOrCreateWpProduct(0, $name);
+
             DB::table('order_products')->insert([
                 'order_id' => $orderId,
-                'product_id' => $this->placeholderProductId,
+                'product_id' => $productId,
                 'unit_price' => $total,
                 'qty' => 1,
                 'line_total' => $total,
@@ -339,12 +357,12 @@ class ImportWordPressOrdersCommand extends Command
             return;
         }
 
-        foreach ($items as $item) {
+        foreach ($items as $index => $item) {
             $qty = max(1, (int) ($item['product_qty'] ?? 1));
             $lineTotal = round((float) ($item['product_gross_revenue'] ?? 0), 4);
             $unitPrice = $qty > 0 ? round($lineTotal / $qty, 4) : $lineTotal;
             $wpProductId = (int) ($item['product_id'] ?? 0);
-            $productId = $this->resolveProductId($wpProductId) ?? $this->placeholderProductId;
+            $productId = $this->resolveLineItemProductId($wpProductId, $lineTotal, $qty, $index, $chipProducts);
 
             DB::table('order_products')->insert([
                 'order_id' => $orderId,
@@ -356,7 +374,172 @@ class ImportWordPressOrdersCommand extends Command
         }
     }
 
-    private function resolveProductId(int $wpProductId): ?int
+    /**
+     * @param list<array{name: string, price: int, quantity: float}> $chipProducts
+     */
+    private function resolveLineItemProductId(
+        int $wpProductId,
+        float $lineTotal,
+        int $qty,
+        int $lineIndex,
+        array $chipProducts,
+    ): int {
+        $catalogProductId = $this->resolveCatalogProductId($wpProductId);
+
+        if ($catalogProductId !== null) {
+            return $catalogProductId;
+        }
+
+        $name = $this->matchChipProductName($chipProducts, $lineTotal, $qty, $lineIndex)
+            ?? ($wpProductId > 0 ? 'WordPress treatment #' . $wpProductId : 'WordPress treatment');
+
+        return $this->findOrCreateWpProduct($wpProductId, $name);
+    }
+
+    /**
+     * @param list<array{name: string, price: int, quantity: float}> $chipProducts
+     */
+    private function matchChipProductName(array $chipProducts, float $lineTotal, int $qty, int $lineIndex): ?string
+    {
+        if ($chipProducts === []) {
+            return null;
+        }
+
+        $lineCents = (int) round($lineTotal * 100);
+
+        foreach ($chipProducts as $chipProduct) {
+            $price = (int) ($chipProduct['price'] ?? 0);
+            $chipQty = max(1, (int) round((float) ($chipProduct['quantity'] ?? 1)));
+
+            if ($price === $lineCents && $chipQty === $qty) {
+                return trim((string) ($chipProduct['name'] ?? '')) ?: null;
+            }
+        }
+
+        if (isset($chipProducts[$lineIndex]['name'])) {
+            $name = trim((string) $chipProducts[$lineIndex]['name']);
+
+            return $name !== '' ? $name : null;
+        }
+
+        if (count($chipProducts) === 1) {
+            $name = trim((string) ($chipProducts[0]['name'] ?? ''));
+
+            return $name !== '' ? $name : null;
+        }
+
+        return null;
+    }
+
+    private function findOrCreateWpProduct(int $wpProductId, string $name): int
+    {
+        $name = Str::limit(trim($name), 250, '');
+
+        if ($name === '') {
+            $name = $wpProductId > 0 ? 'WordPress treatment #' . $wpProductId : 'WordPress treatment';
+        }
+
+        $sku = $wpProductId > 0 ? 'WP-' . $wpProductId : self::PLACEHOLDER_SKU . '-' . md5($name);
+
+        static $cache = [];
+
+        if (isset($cache[$sku])) {
+            return $cache[$sku];
+        }
+
+        $existingId = DB::table('products')->where('sku', $sku)->value('id');
+
+        if ($existingId) {
+            $this->ensureProductTranslationName((int) $existingId, $name);
+
+            return $cache[$sku] = (int) $existingId;
+        }
+
+        $now = now();
+        $slugBase = Str::slug($name);
+
+        if ($slugBase === '') {
+            $slugBase = 'wp-treatment-' . ($wpProductId > 0 ? $wpProductId : Str::random(6));
+        }
+
+        $slug = $this->uniqueProductSlug($slugBase);
+        $productId = DB::table('products')->insertGetId([
+            'slug' => $slug,
+            'sku' => $sku,
+            'price' => 0,
+            'selling_price' => 0,
+            'manage_stock' => 0,
+            'in_stock' => 1,
+            'is_active' => 0,
+            'is_virtual' => 1,
+            'viewed' => 0,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        foreach (['en', 'ms'] as $locale) {
+            DB::table('product_translations')->insert([
+                'product_id' => $productId,
+                'locale' => $locale,
+                'name' => $name,
+                'description' => 'Historical WordPress treatment imported from order data.',
+                'short_description' => null,
+            ]);
+        }
+
+        return $cache[$sku] = (int) $productId;
+    }
+
+    private function ensureProductTranslationName(int $productId, string $name): void
+    {
+        $name = Str::limit(trim($name), 250, '');
+
+        if ($name === '') {
+            return;
+        }
+
+        foreach (['en', 'ms'] as $locale) {
+            $currentName = DB::table('product_translations')
+                ->where('product_id', $productId)
+                ->where('locale', $locale)
+                ->value('name');
+
+            if ($currentName === null) {
+                DB::table('product_translations')->insert([
+                    'product_id' => $productId,
+                    'locale' => $locale,
+                    'name' => $name,
+                    'description' => 'Historical WordPress treatment imported from order data.',
+                    'short_description' => null,
+                ]);
+
+                continue;
+            }
+
+            if ($currentName === 'Imported treatment (WordPress)' || str_starts_with((string) $currentName, 'WordPress treatment #')) {
+                DB::table('product_translations')
+                    ->where('product_id', $productId)
+                    ->where('locale', $locale)
+                    ->update(['name' => $name]);
+            }
+        }
+    }
+
+    private function uniqueProductSlug(string $base): string
+    {
+        $slug = Str::limit($base, 180, '');
+        $candidate = $slug;
+        $suffix = 1;
+
+        while (DB::table('products')->where('slug', $candidate)->exists()) {
+            $candidate = Str::limit($slug . '-' . $suffix, 190, '');
+            $suffix++;
+        }
+
+        return $candidate;
+    }
+
+    private function resolveCatalogProductId(int $wpProductId): ?int
     {
         if ($wpProductId <= 0) {
             return null;
@@ -376,6 +559,7 @@ class ImportWordPressOrdersCommand extends Command
 
         $productId = DB::table('products')
             ->whereIn('sku', $candidates)
+            ->where('sku', '!=', self::PLACEHOLDER_SKU)
             ->value('id');
 
         $cache[$wpProductId] = $productId !== null ? (int) $productId : null;
@@ -905,6 +1089,223 @@ class ImportWordPressOrdersCommand extends Command
         }
 
         return $grouped;
+    }
+
+    /**
+     * @return array<int, list<array{name: string, price: int, quantity: float}>>
+     */
+    private function fetchChipProductNames(string $sql, ?string $table, bool $dryRun): array
+    {
+        if ($dryRun) {
+            return $this->parseChipProductNamesFromSql($sql);
+        }
+
+        if (! $table) {
+            return [];
+        }
+
+        $rows = DB::table($table)->get(['order_id', 'meta_key', 'meta_value']);
+
+        $grouped = [];
+
+        foreach ($rows as $row) {
+            $metaKey = (string) $row->meta_key;
+
+            if (! str_contains($metaKey, '_wc_gateway_chip') || ! str_ends_with($metaKey, '_purchase') || str_ends_with($metaKey, '_purchase_ids')) {
+                continue;
+            }
+
+            $products = $this->parseChipProductsFromMetaValue((string) $row->meta_value);
+
+            if ($products !== []) {
+                $grouped[(int) $row->order_id] = $products;
+            }
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * @return array<int, list<array{name: string, price: int, quantity: float}>>
+     */
+    private function parseChipProductNamesFromSql(string $sql): array
+    {
+        $sourceTable = $this->detectSourceTable($sql, '_wc_orders_meta');
+
+        if ($sourceTable === null) {
+            return [];
+        }
+
+        $importTable = 'wp_parse_chip_meta';
+        $replacedSql = str_replace('`' . $sourceTable . '`', '`' . $importTable . '`', $sql);
+        $grouped = [];
+
+        foreach ($this->extractInsertStatements($replacedSql, $importTable) as $statement) {
+            foreach ($this->parseInsertTuples($statement) as $tuple) {
+                if (count($tuple) < 4) {
+                    continue;
+                }
+
+                $metaKey = (string) $tuple[2];
+
+                if (! str_contains($metaKey, '_wc_gateway_chip') || ! str_ends_with($metaKey, '_purchase') || str_ends_with($metaKey, '_purchase_ids')) {
+                    continue;
+                }
+
+                $products = $this->parseChipProductsFromMetaValue((string) $tuple[3]);
+
+                if ($products === []) {
+                    continue;
+                }
+
+                $orderId = (int) $tuple[1];
+                $grouped[$orderId] = $products;
+            }
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * @return list<array{name: string, price: int, quantity: float}>
+     */
+    private function parseChipProductsFromMetaValue(string $metaValue): array
+    {
+        $metaValue = trim($metaValue);
+
+        if ($metaValue === '' || ! str_starts_with($metaValue, 'a:')) {
+            return [];
+        }
+
+        $parsed = @unserialize(stripslashes($metaValue), ['allowed_classes' => false]);
+
+        if (! is_array($parsed)) {
+            return [];
+        }
+
+        $purchase = $parsed['purchase'] ?? null;
+
+        if (! is_array($purchase) || ! isset($purchase['products']) || ! is_array($purchase['products'])) {
+            return [];
+        }
+
+        $products = [];
+
+        foreach ($purchase['products'] as $product) {
+            if (! is_array($product)) {
+                continue;
+            }
+
+            $name = trim((string) ($product['name'] ?? ''));
+
+            if ($name === '') {
+                continue;
+            }
+
+            $products[] = [
+                'name' => $name,
+                'price' => (int) ($product['price'] ?? 0),
+                'quantity' => (float) ($product['quantity'] ?? 1),
+            ];
+        }
+
+        return $products;
+    }
+
+    /**
+     * @param array<string, string> $tableMap
+     */
+    private function repairProductNames(string $sql, array $tableMap, bool $dryRun, ?int $limit): int
+    {
+        $this->trackingColumn = $this->resolveTrackingColumn();
+
+        if ($this->trackingColumn === null) {
+            $this->error('Orders table has no tracking_reference column.');
+
+            return self::FAILURE;
+        }
+
+        $this->placeholderProductId = (int) (DB::table('products')->where('sku', self::PLACEHOLDER_SKU)->value('id') ?? 0);
+        $lineItems = $this->fetchLineItems($sql, $tableMap['products'] ?? null, $dryRun);
+        $chipProducts = $this->fetchChipProductNames($sql, $tableMap['meta'] ?? null, $dryRun);
+
+        $wpOrders = DB::table('orders')
+            ->where($this->trackingColumn, 'like', self::WP_TRACKING_PREFIX . '%')
+            ->orderBy('id')
+            ->get(['id', $this->trackingColumn]);
+
+        if ($limit !== null) {
+            $wpOrders = $wpOrders->take($limit);
+        }
+
+        $this->info(sprintf('Repairing product names on %d imported WordPress orders…', $wpOrders->count()));
+
+        $repairedLines = 0;
+        $skippedLines = 0;
+
+        $bar = $this->output->createProgressBar($wpOrders->count());
+        $bar->start();
+
+        foreach ($wpOrders as $order) {
+            $bar->advance();
+
+            $wpOrderId = (int) str_replace(self::WP_TRACKING_PREFIX, '', (string) $order->{$this->trackingColumn});
+            $items = $lineItems[$wpOrderId] ?? [];
+            $chip = $chipProducts[$wpOrderId] ?? [];
+            $orderProducts = DB::table('order_products')->where('order_id', $order->id)->orderBy('id')->get();
+
+            foreach ($orderProducts as $index => $orderProduct) {
+                $item = $items[$index] ?? null;
+                $wpProductId = (int) ($item['product_id'] ?? 0);
+                $lineTotal = round((float) ($orderProduct->line_total ?? $item['product_gross_revenue'] ?? 0), 4);
+                $qty = max(1, (int) ($orderProduct->qty ?? $item['product_qty'] ?? 1));
+                $currentSku = (string) DB::table('products')->where('id', $orderProduct->product_id)->value('sku');
+                $needsRepair = $this->placeholderProductId > 0
+                    && (int) $orderProduct->product_id === $this->placeholderProductId;
+
+                if (! $needsRepair && $currentSku !== self::PLACEHOLDER_SKU && ! str_starts_with($currentSku, 'WP-')) {
+                    $skippedLines++;
+
+                    continue;
+                }
+
+                $productId = $this->resolveLineItemProductId($wpProductId, $lineTotal, $qty, $index, $chip);
+
+                if ((int) $orderProduct->product_id === $productId) {
+                    $skippedLines++;
+
+                    continue;
+                }
+
+                if (! $dryRun) {
+                    DB::table('order_products')
+                        ->where('id', $orderProduct->id)
+                        ->update(['product_id' => $productId]);
+                }
+
+                $repairedLines++;
+            }
+        }
+
+        $bar->finish();
+        $this->newLine(2);
+
+        $this->table(
+            ['Metric', 'Count'],
+            [
+                ['Line items repaired', $repairedLines],
+                ['Line items skipped', $skippedLines],
+            ]
+        );
+
+        if ($dryRun) {
+            $this->warn('Dry run only — no line items were updated.');
+        } else {
+            $this->dropImportTables(array_values($tableMap));
+            $this->info('Product name repair complete.');
+        }
+
+        return self::SUCCESS;
     }
 
     private function detectSourceTable(string $sql, string $suffix): ?string
