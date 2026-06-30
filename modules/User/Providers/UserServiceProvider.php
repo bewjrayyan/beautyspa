@@ -14,6 +14,7 @@ use Modules\Admin\Ui\Facades\TabManager;
 use Modules\User\Contracts\Authentication;
 use Modules\User\Sentinel\PortalPreviewAuthentication;
 use Modules\User\Sentinel\SentinelAuthentication;
+use Modules\User\Console\ImportWordPressCustomersCommand;
 use Modules\User\Console\ProcessOneSenderOutboundQueueCommand;
 use Modules\User\Http\ViewComposers\AuthLayoutComposer;
 use Modules\User\Http\ViewComposers\CurrentUserComposer;
@@ -46,6 +47,7 @@ class UserServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ProcessOneSenderOutboundQueueCommand::class,
+                ImportWordPressCustomersCommand::class,
             ]);
         }
     }
@@ -58,6 +60,10 @@ class UserServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->extend('sentinel.hasher', function ($hasher, $app) {
+            return new \Modules\User\Sentinel\WordPressCompatibleHasher();
+        });
+
         $this->app->bind(Authentication::class, function ($app) {
             $auth = new SentinelAuthentication();
 

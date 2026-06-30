@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.51' => [
+        'en' => [
+            'summary' => 'Import WordPress/WooCommerce customers with preserved login passwords.',
+            'changes' => [
+                'Add user:import-wordpress-customers artisan command to migrate WP user SQL dumps as FleetCart customers.',
+                'Support WordPress phpass and bcrypt password hashes so imported customers can sign in with existing passwords.',
+                'Assign Customer role and activate imported accounts automatically.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Import pelanggan WordPress/WooCommerce dengan kata laluan login yang dikekalkan.',
+            'changes' => [
+                'Tambah arahan artisan user:import-wordpress-customers untuk migrasi dump SQL pengguna WP sebagai pelanggan FleetCart.',
+                'Sokong hash kata laluan phpass dan bcrypt WordPress supaya pelanggan diimport boleh log masuk dengan kata laluan sedia ada.',
+                'Berikan peranan Customer dan aktifkan akaun yang diimport secara automatik.',
+            ],
+        ],
+    ],
     '4.9.50' => [
         'en' => [
             'summary' => 'Modernise the admin page editor and About Us page with layout-safe HTML editing.',
