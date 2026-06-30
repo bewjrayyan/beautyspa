@@ -24,4 +24,6 @@ return [
     'message_template_help' => 'Placeholders: {recipient_name}, {order_number}, {sender_name}, {voucher_value}. Sent as the image caption.',
     'whatsapp_help' => 'Uses OneSender API from',
     'whatsapp_settings_link' => 'Settings → WhatsApp Notifications',
+    'hub_notice' => 'For submissions, page content, and design editing, use the',
+    'hub_link' => 'Gift voucher hub',
 ];

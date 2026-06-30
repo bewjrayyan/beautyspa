@@ -11,6 +11,12 @@
 @endphp
 
 <div class="st-tab st-tab--gift">
+    <div class="alert alert-info gv-settings-hub-link">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        {{ trans('specialgift::settings.hub_notice') }}
+        <a href="{{ route('admin.gift_voucher_submissions.index') }}" class="alert-link">{{ trans('specialgift::settings.hub_link') }}</a>
+    </div>
+
     <p class="st-tab__lead">{{ trans('specialgift::settings.lead') }}</p>
 
     <div class="st-card st-card--status">

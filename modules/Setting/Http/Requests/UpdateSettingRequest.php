@@ -379,6 +379,22 @@ class UpdateSettingRequest extends Request
             'specialgift_enabled' => 'nullable|boolean',
             'specialgift_voucher_background' => 'nullable|integer',
             'specialgift_message_template' => 'nullable|string|max:2000',
+            'specialgift_page_preset' => 'nullable|in:aesthetic,minimal,classic,custom',
+            'specialgift_page_color_source' => 'nullable|in:store_theme,custom',
+            'specialgift_page_accent_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'specialgift_page_gradient_enabled' => 'nullable|boolean',
+            'specialgift_page_bokeh_enabled' => 'nullable|boolean',
+            'specialgift_page_sparkles_enabled' => 'nullable|boolean',
+            'translatable.specialgift_page_title' => 'nullable|string|max:500',
+            'translatable.specialgift_page_tagline' => 'nullable|string|max:500',
+            'translatable.specialgift_page_lead' => 'nullable|string|max:500',
+            'translatable.specialgift_step_order' => 'nullable|string|max:500',
+            'translatable.specialgift_step_details' => 'nullable|string|max:500',
+            'translatable.specialgift_step_send' => 'nullable|string|max:500',
+            'translatable.specialgift_form_title' => 'nullable|string|max:500',
+            'translatable.specialgift_submit_label' => 'nullable|string|max:500',
+            'translatable.specialgift_trust_note' => 'nullable|string|max:500',
+            'translatable.specialgift_preview_label' => 'nullable|string|max:500',
         ], $this->googleSheetsStatusRules());
     }
 

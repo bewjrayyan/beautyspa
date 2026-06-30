@@ -1,11 +1,23 @@
 @extends('storefront::public.layout')
 
-@section('title', trans('specialgift::messages.page_title'))
+@section('title', $giftConfig->pageTitle())
 
 @section('body_class', 'page-send-gift')
 
 @section('content')
-    <section class="sg-page" aria-labelledby="sg-page-title">
+    @php
+        $pageClasses = collect(['sg-page'])
+            ->when(! $pageDesign['gradient'], fn ($c) => $c->push('sg-page--no-gradient'))
+            ->when(! $pageDesign['bokeh'], fn ($c) => $c->push('sg-page--no-bokeh'))
+            ->when(! $pageDesign['sparkles'], fn ($c) => $c->push('sg-page--no-sparkles'))
+            ->implode(' ');
+    @endphp
+
+    <section
+        class="{{ $pageClasses }}"
+        aria-labelledby="sg-page-title"
+        style="--sg-accent: {{ $pageDesign['accent_color'] }};"
+    >
         <div class="sg-page__bg" aria-hidden="true">
             <span class="sg-page__orb sg-page__orb--one"></span>
             <span class="sg-page__orb sg-page__orb--two"></span>
@@ -23,32 +35,32 @@
                         <path d="M12 22V12M12 12 7 7.5 12 3l5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M7 7.5h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                     </svg>
-                    {{ trans('specialgift::messages.page_tagline') }}
+                    {{ $giftConfig->pageTagline() }}
                 </p>
-                <h1 class="sg-hero__title" id="sg-page-title">{{ trans('specialgift::messages.page_title') }}</h1>
-                <p class="sg-hero__lead">{{ trans('specialgift::messages.page_lead') }}</p>
+                <h1 class="sg-hero__title" id="sg-page-title">{{ $giftConfig->pageTitle() }}</h1>
+                <p class="sg-hero__lead">{{ $giftConfig->pageLead() }}</p>
 
                 <ol class="sg-steps">
                     <li class="sg-steps__item">
                         <span class="sg-steps__icon" aria-hidden="true">1</span>
-                        <span>{{ trans('specialgift::messages.step_order') }}</span>
+                        <span>{{ $giftConfig->stepOrder() }}</span>
                     </li>
                     <li class="sg-steps__item">
                         <span class="sg-steps__icon" aria-hidden="true">2</span>
-                        <span>{{ trans('specialgift::messages.step_details') }}</span>
+                        <span>{{ $giftConfig->stepDetails() }}</span>
                     </li>
                     <li class="sg-steps__item">
                         <span class="sg-steps__icon" aria-hidden="true">3</span>
-                        <span>{{ trans('specialgift::messages.step_send') }}</span>
+                        <span>{{ $giftConfig->stepSend() }}</span>
                     </li>
                 </ol>
             </header>
 
             <div class="sg-layout">
-                <aside class="sg-preview" aria-label="{{ trans('specialgift::messages.preview_label') }}">
+                <aside class="sg-preview" aria-label="{{ $giftConfig->previewLabel() }}">
                     <div class="sg-preview__card">
                         <div class="sg-preview__ribbon" aria-hidden="true"></div>
-                        <p class="sg-preview__label">{{ trans('specialgift::messages.preview_label') }}</p>
+                        <p class="sg-preview__label">{{ $giftConfig->previewLabel() }}</p>
 
                         <div class="sg-preview__frame">
                             <img
@@ -70,7 +82,7 @@
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
                                 <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            {{ trans('specialgift::messages.trust_note') }}
+                            {{ $giftConfig->trustNote() }}
                         </p>
                     </div>
                 </aside>
@@ -85,7 +97,7 @@
                     </div>
 
                     <div class="sg-form-card">
-                        <h2 class="sg-form-card__title">{{ trans('specialgift::messages.form_title') }}</h2>
+                        <h2 class="sg-form-card__title">{{ $giftConfig->formTitle() }}</h2>
 
                         <form
                             method="POST"
@@ -190,7 +202,7 @@
                                         <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                                         <path d="M12 22V12M12 12 7 7.5 12 3l5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
-                                    <span class="send-gift-submit-label">{{ trans('specialgift::messages.submit') }}</span>
+                                    <span class="send-gift-submit-label">{{ $giftConfig->submitLabel() }}</span>
                                     <span class="send-gift-submit-loading" hidden>{{ trans('specialgift::messages.sending') }}</span>
                                 </span>
                             </button>

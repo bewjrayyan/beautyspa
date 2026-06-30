@@ -5,12 +5,25 @@
         }
 
         .sg-page {
+            --sg-accent: #f274ac;
             position: relative;
             overflow: hidden;
             padding: 28px 0 72px;
             background:
-                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255, 182, 193, 0.35), transparent 60%),
-                linear-gradient(180deg, #fff8fb 0%, #fff 42%, #fff5f8 100%);
+                radial-gradient(ellipse 80% 60% at 50% -10%, color-mix(in srgb, var(--sg-accent) 35%, transparent), transparent 60%),
+                linear-gradient(180deg, color-mix(in srgb, var(--sg-accent) 8%, #fff) 0%, #fff 42%, color-mix(in srgb, var(--sg-accent) 6%, #fff) 100%);
+        }
+
+        .sg-page--no-gradient {
+            background: #fff;
+        }
+
+        .sg-page--no-bokeh .sg-page__orb {
+            display: none;
+        }
+
+        .sg-page--no-sparkles .sg-page__sparkle {
+            display: none;
         }
 
         .sg-page__bg {
@@ -32,7 +45,7 @@
             right: -60px;
             width: 280px;
             height: 280px;
-            background: #f9a8d4;
+            background: color-mix(in srgb, var(--sg-accent) 72%, #fff);
         }
 
         .sg-page__orb--two {
@@ -40,7 +53,7 @@
             left: -80px;
             width: 240px;
             height: 240px;
-            background: #fbcfe8;
+            background: color-mix(in srgb, var(--sg-accent) 48%, #fff);
         }
 
         .sg-page__orb--three {
@@ -48,13 +61,13 @@
             right: 12%;
             width: 160px;
             height: 160px;
-            background: #fde68a;
+            background: color-mix(in srgb, var(--sg-accent) 28%, #fde68a);
             opacity: 0.35;
         }
 
         .sg-page__sparkle {
             position: absolute;
-            color: #ec4899;
+            color: var(--sg-accent);
             opacity: 0.25;
             font-size: 22px;
             animation: sg-float 6s ease-in-out infinite;
@@ -89,10 +102,10 @@
             border-radius: 999px;
             font-size: 13px;
             font-weight: 600;
-            color: #be185d;
+            color: color-mix(in srgb, var(--sg-accent) 78%, #000);
             background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(236, 72, 153, 0.18);
-            box-shadow: 0 8px 24px rgba(190, 24, 93, 0.08);
+            border: 1px solid color-mix(in srgb, var(--sg-accent) 22%, transparent);
+            box-shadow: 0 8px 24px color-mix(in srgb, var(--sg-accent) 12%, transparent);
         }
 
         .sg-hero__title {
@@ -102,7 +115,7 @@
             line-height: 1.15;
             letter-spacing: -0.02em;
             color: #1f2937;
-            background: linear-gradient(135deg, #831843 0%, #be185d 45%, #db2777 100%);
+            background: linear-gradient(135deg, color-mix(in srgb, var(--sg-accent) 88%, #000) 0%, var(--sg-accent) 45%, color-mix(in srgb, var(--sg-accent) 82%, #fff) 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -136,7 +149,7 @@
             font-weight: 600;
             color: #4b5563;
             background: rgba(255, 255, 255, 0.75);
-            border: 1px solid rgba(236, 72, 153, 0.12);
+            border: 1px solid color-mix(in srgb, var(--sg-accent) 14%, transparent);
         }
 
         .sg-steps__icon {
@@ -149,8 +162,8 @@
             font-size: 12px;
             font-weight: 800;
             color: #fff;
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            box-shadow: 0 4px 12px rgba(219, 39, 119, 0.35);
+            background: linear-gradient(135deg, var(--sg-accent), color-mix(in srgb, var(--sg-accent) 82%, #000));
+            box-shadow: 0 4px 12px color-mix(in srgb, var(--sg-accent) 35%, transparent);
         }
 
         .sg-layout {
@@ -167,7 +180,7 @@
             padding: 22px 22px 20px;
             border-radius: 24px;
             background: linear-gradient(160deg, #fff 0%, #fff7fb 100%);
-            border: 1px solid rgba(236, 72, 153, 0.14);
+            border: 1px solid color-mix(in srgb, var(--sg-accent) 16%, transparent);
             box-shadow:
                 0 24px 60px rgba(190, 24, 93, 0.12),
                 0 2px 0 rgba(255, 255, 255, 0.9) inset;
@@ -262,7 +275,7 @@
         .sg-preview__trust svg {
             flex-shrink: 0;
             margin-top: 2px;
-            color: #db2777;
+            color: var(--sg-accent);
         }
 
         .sg-panel .alert {
@@ -302,7 +315,7 @@
             padding: 28px;
             border-radius: 24px;
             background: rgba(255, 255, 255, 0.92);
-            border: 1px solid rgba(236, 72, 153, 0.12);
+            border: 1px solid color-mix(in srgb, var(--sg-accent) 14%, transparent);
             box-shadow: 0 20px 50px rgba(17, 24, 39, 0.08);
             backdrop-filter: blur(8px);
         }
@@ -339,7 +352,7 @@
             top: 50%;
             left: 14px;
             transform: translateY(-50%);
-            color: #db2777;
+            color: var(--sg-accent);
             opacity: 0.75;
             pointer-events: none;
         }
@@ -365,8 +378,8 @@
 
         .sg-input:focus {
             outline: none;
-            border-color: #ec4899;
-            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.14);
+            border-color: var(--sg-accent);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--sg-accent) 16%, transparent);
         }
 
         .sg-field__hint {
@@ -385,7 +398,7 @@
             border: 0;
             border-radius: 16px;
             cursor: pointer;
-            background: linear-gradient(135deg, #ec4899 0%, #db2777 52%, #be185d 100%);
+            background: linear-gradient(135deg, var(--sg-accent) 0%, color-mix(in srgb, var(--sg-accent) 82%, #000) 52%, color-mix(in srgb, var(--sg-accent) 70%, #000) 100%);
             box-shadow: 0 14px 30px rgba(219, 39, 119, 0.35);
             transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
         }

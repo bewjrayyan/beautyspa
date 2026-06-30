@@ -24,4 +24,6 @@ return [
     'message_template_help' => 'Placeholder: {recipient_name}, {order_number}, {sender_name}, {voucher_value}. Dihantar sebagai kapsyen imej.',
     'whatsapp_help' => 'Menggunakan API OneSender dari',
     'whatsapp_settings_link' => 'Tetapan → Notifikasi WhatsApp',
+    'hub_notice' => 'Untuk penyerahan, kandungan halaman, dan reka bentuk, gunakan',
+    'hub_link' => 'Hab baucar hadiah',
 ];

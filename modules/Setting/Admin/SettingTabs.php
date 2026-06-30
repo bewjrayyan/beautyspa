@@ -545,6 +545,22 @@ class SettingTabs extends Tabs
                 'specialgift_enabled',
                 'specialgift_voucher_background',
                 'specialgift_message_template',
+                'specialgift_page_preset',
+                'specialgift_page_color_source',
+                'specialgift_page_accent_color',
+                'specialgift_page_gradient_enabled',
+                'specialgift_page_bokeh_enabled',
+                'specialgift_page_sparkles_enabled',
+                'translatable.specialgift_page_title',
+                'translatable.specialgift_page_tagline',
+                'translatable.specialgift_page_lead',
+                'translatable.specialgift_step_order',
+                'translatable.specialgift_step_details',
+                'translatable.specialgift_step_send',
+                'translatable.specialgift_form_title',
+                'translatable.specialgift_submit_label',
+                'translatable.specialgift_trust_note',
+                'translatable.specialgift_preview_label',
             ]);
 
             $tab->view('specialgift::admin.settings.specialgift', [

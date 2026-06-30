@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.46' => [
+        'en' => [
+            'summary' => 'Add gift voucher admin hub with page content, design, and settings tabs.',
+            'changes' => [
+                'Introduce a Gift voucher hub with Submissions, Page content, Page design, and Settings tabs.',
+                'Let admins edit send-gift page copy, accent colours, and visual effects with live previews.',
+                'Wire the public /send-gift page to hub settings for copy, theme accents, and voucher configuration.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah hab admin baucar hadiah dengan tab kandungan, reka bentuk, dan tetapan.',
+            'changes' => [
+                'Perkenalkan Hab baucar hadiah dengan tab Penyerahan, Kandungan halaman, Reka bentuk halaman, dan Tetapan.',
+                'Benarkan admin sunting teks halaman send-gift, warna aksen, dan kesan visual dengan pratonton langsung.',
+                'Sambungkan halaman awam /send-gift kepada tetapan hab untuk teks, aksen tema, dan konfigurasi baucar.',
+            ],
+        ],
+    ],
     '4.9.45' => [
         'en' => [
             'summary' => 'Add scheduled promo countdown on product pages and improve special price admin tools.',

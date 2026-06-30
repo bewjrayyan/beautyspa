@@ -12,7 +12,12 @@
 @endsection
 
 @section('content')
-    <div class="box box-primary">
+    @include('specialgift::admin.partials.hub-nav', [
+        'activeTab' => 'submissions',
+        'sendGiftUrl' => route('specialgift.send.create'),
+    ])
+
+    <div class="box box-primary gv-hub-panel">
         <div class="box-body index-table">
             <table class="table table-hover">
                 <thead>
@@ -59,3 +64,7 @@
         @endif
     </div>
 @endsection
+
+@push('globals')
+    @vite('modules/SpecialGift/Resources/assets/admin/sass/main.scss')
+@endpush
