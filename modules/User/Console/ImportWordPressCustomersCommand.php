@@ -22,12 +22,16 @@ class ImportWordPressCustomersCommand extends Command
 
     public function handle(): int
     {
-        $file = $this->argument('file');
+        $file = $this->resolveFilePath((string) $this->argument('file'));
         $dryRun = (bool) $this->option('dry-run');
         $table = (string) $this->option('table');
 
-        if (! is_readable($file)) {
-            $this->error("File not readable: {$file}");
+        if ($file === null) {
+            $this->error('SQL dump file not found or not readable.');
+            $this->line('');
+            $this->line('Upload the WordPress users .sql file to the server first, then pass the real path. Example:');
+            $this->line('  php artisan user:import-wordpress-customers storage/app/immaserilaris_web24-user.sql --dry-run');
+            $this->line('  php artisan user:import-wordpress-customers /home/immaserilaris/public_html/v2/storage/app/immaserilaris_web24-user.sql');
 
             return self::FAILURE;
         }
@@ -168,6 +172,30 @@ class ImportWordPressCustomersCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    private function resolveFilePath(string $file): ?string
+    {
+        $file = trim($file);
+
+        if ($file === '' || $file === '/path/to/file.sql') {
+            return null;
+        }
+
+        $candidates = [$file];
+
+        if (! str_starts_with($file, '/')) {
+            $candidates[] = base_path($file);
+            $candidates[] = storage_path('app/' . ltrim($file, '/'));
+        }
+
+        foreach ($candidates as $candidate) {
+            if (is_readable($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     /**

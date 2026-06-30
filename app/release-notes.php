@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.52' => [
+        'en' => [
+            'summary' => 'Improve WordPress customer import command error messages and file path resolution.',
+            'changes' => [
+                'Reject the placeholder /path/to/file.sql and show clearer usage examples when the SQL dump is missing.',
+                'Resolve relative paths from project root and storage/app for easier server imports.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki mesej ralat dan penyelesaian path pada arahan import pelanggan WordPress.',
+            'changes' => [
+                'Tolak placeholder /path/to/file.sql dan paparkan contoh penggunaan yang lebih jelas apabila fail SQL tiada.',
+                'Selesaikan path relatif dari root projek dan storage/app untuk import di server dengan lebih mudah.',
+            ],
+        ],
+    ],
     '4.9.51' => [
         'en' => [
             'summary' => 'Import WordPress/WooCommerce customers with preserved login passwords.',
