@@ -60,8 +60,6 @@ class ImportWordPressOrdersCommand extends Command
             return self::FAILURE;
         }
 
-        $this->info('Loading WordPress order tables from SQL dump…');
-
         $tableMap = $this->buildTableMap($sql);
 
         if (! isset($tableMap['orders'])) {
@@ -71,12 +69,12 @@ class ImportWordPressOrdersCommand extends Command
         }
 
         if ((bool) $this->option('repair-product-names')) {
-            if (! $dryRun) {
-                $this->loadImportTables($sql, $tableMap);
-            }
+            $this->info('Reading product names from SQL dump (file parse only, no temp tables)…');
 
-            return $this->repairProductNames($sql, $tableMap, $dryRun, $limit);
+            return $this->repairProductNames($sql, $dryRun, $limit);
         }
+
+        $this->info('Loading WordPress order tables from SQL dump…');
 
         if (! $dryRun) {
             $this->loadImportTables($sql, $tableMap);
@@ -1126,9 +1124,10 @@ class ImportWordPressOrdersCommand extends Command
     }
 
     /**
+     * @param array<int, true> $orderIdFilter
      * @return array<int, list<array{name: string, price: int, quantity: float}>>
      */
-    private function parseChipProductNamesFromSql(string $sql): array
+    private function parseChipProductNamesFromSql(string $sql, array $orderIdFilter = []): array
     {
         $sourceTable = $this->detectSourceTable($sql, '_wc_orders_meta');
 
@@ -1136,6 +1135,7 @@ class ImportWordPressOrdersCommand extends Command
             return [];
         }
 
+        $filter = $orderIdFilter !== [] ? $orderIdFilter : null;
         $importTable = 'wp_parse_chip_meta';
         $replacedSql = str_replace('`' . $sourceTable . '`', '`' . $importTable . '`', $sql);
         $grouped = [];
@@ -1143,6 +1143,12 @@ class ImportWordPressOrdersCommand extends Command
         foreach ($this->extractInsertStatements($replacedSql, $importTable) as $statement) {
             foreach ($this->parseInsertTuples($statement) as $tuple) {
                 if (count($tuple) < 4) {
+                    continue;
+                }
+
+                $orderId = (int) $tuple[1];
+
+                if ($filter !== null && ! isset($filter[$orderId])) {
                     continue;
                 }
 
@@ -1158,7 +1164,6 @@ class ImportWordPressOrdersCommand extends Command
                     continue;
                 }
 
-                $orderId = (int) $tuple[1];
                 $grouped[$orderId] = $products;
             }
         }
@@ -1212,10 +1217,7 @@ class ImportWordPressOrdersCommand extends Command
         return $products;
     }
 
-    /**
-     * @param array<string, string> $tableMap
-     */
-    private function repairProductNames(string $sql, array $tableMap, bool $dryRun, ?int $limit): int
+    private function repairProductNames(string $sql, bool $dryRun, ?int $limit): int
     {
         $this->trackingColumn = $this->resolveTrackingColumn();
 
@@ -1225,10 +1227,6 @@ class ImportWordPressOrdersCommand extends Command
             return self::FAILURE;
         }
 
-        $this->placeholderProductId = (int) (DB::table('products')->where('sku', self::PLACEHOLDER_SKU)->value('id') ?? 0);
-        $lineItems = $this->fetchLineItems($sql, $tableMap['products'] ?? null, $dryRun);
-        $chipProducts = $this->fetchChipProductNames($sql, $tableMap['meta'] ?? null, $dryRun);
-
         $wpOrders = DB::table('orders')
             ->where($this->trackingColumn, 'like', self::WP_TRACKING_PREFIX . '%')
             ->orderBy('id')
@@ -1237,6 +1235,29 @@ class ImportWordPressOrdersCommand extends Command
         if ($limit !== null) {
             $wpOrders = $wpOrders->take($limit);
         }
+
+        if ($wpOrders->isEmpty()) {
+            $this->warn('No imported WordPress orders found (tracking_reference like WP-%).');
+
+            return self::SUCCESS;
+        }
+
+        $wpOrderIds = [];
+
+        foreach ($wpOrders as $order) {
+            $wpOrderId = (int) str_replace(self::WP_TRACKING_PREFIX, '', (string) $order->{$this->trackingColumn});
+
+            if ($wpOrderId > 0) {
+                $wpOrderIds[$wpOrderId] = true;
+            }
+        }
+
+        $this->placeholderProductId = (int) (DB::table('products')->where('sku', self::PLACEHOLDER_SKU)->value('id') ?? 0);
+
+        $this->info(sprintf('Parsing SQL dump for %d WordPress order IDs…', count($wpOrderIds)));
+
+        $lineItems = $this->groupLineItemsByOrderId($this->parseLineItemRowsFromSql($sql), $wpOrderIds);
+        $chipProducts = $this->parseChipProductNamesFromSql($sql, $wpOrderIds);
 
         $this->info(sprintf('Repairing product names on %d imported WordPress orders…', $wpOrders->count()));
 
@@ -1270,6 +1291,11 @@ class ImportWordPressOrdersCommand extends Command
                 }
 
                 $productId = $this->resolveLineItemProductId($wpProductId, $lineTotal, $qty, $index, $chip);
+                $resolvedName = $this->matchChipProductName($chip, $lineTotal, $qty, $index);
+
+                if ($resolvedName !== null && ! $dryRun) {
+                    $this->ensureProductTranslationName($productId, $resolvedName);
+                }
 
                 if ((int) $orderProduct->product_id === $productId) {
                     $skippedLines++;
@@ -1301,11 +1327,32 @@ class ImportWordPressOrdersCommand extends Command
         if ($dryRun) {
             $this->warn('Dry run only — no line items were updated.');
         } else {
-            $this->dropImportTables(array_values($tableMap));
             $this->info('Product name repair complete.');
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     * @param array<int, true> $orderIdFilter
+     * @return array<int, list<array<string, mixed>>>
+     */
+    private function groupLineItemsByOrderId(array $rows, array $orderIdFilter): array
+    {
+        $grouped = [];
+
+        foreach ($rows as $row) {
+            $orderId = (int) ($row['order_id'] ?? 0);
+
+            if ($orderId <= 0 || ! isset($orderIdFilter[$orderId])) {
+                continue;
+            }
+
+            $grouped[$orderId][] = $row;
+        }
+
+        return $grouped;
     }
 
     private function detectSourceTable(string $sql, string $suffix): ?string
