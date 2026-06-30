@@ -1,3 +1,7 @@
+@php
+    use Modules\Payment\Services\ChipCheckoutLogo;
+@endphp
+
 <div class="payment-method payment-method--modern">
     <div class="checkout-card-header">
         <div class="checkout-card-heading">
@@ -32,7 +36,7 @@
                 <span class="payment-option-logos" x-show="gateway.id === 'chip'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
-                        src="{{ asset('images/payments/online-banking.png') }}"
+                        src="{{ ChipCheckoutLogo::url('chip') }}"
                         alt="{{ trans('storefront::account.view_order.pay_with_chip_alt') }}"
                         width="320"
                         height="48"
@@ -44,7 +48,7 @@
                 <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_fpx'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
-                        src="{{ asset('images/payments/online-banking-fpx.png') }}?v=1"
+                        src="{{ ChipCheckoutLogo::url('chip_fpx') }}"
                         alt=""
                         width="320"
                         height="48"
@@ -56,7 +60,7 @@
                 <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_card'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
-                        src="{{ asset('images/payments/card-international.png') }}?v=2"
+                        src="{{ ChipCheckoutLogo::url('chip_card') }}"
                         alt=""
                         width="320"
                         height="48"
@@ -68,7 +72,7 @@
                 <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_atome'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
-                        src="{{ asset('images/payments/atome-chip-part.png') }}?v=3"
+                        src="{{ ChipCheckoutLogo::url('chip_atome') }}"
                         alt=""
                         width="280"
                         height="48"
@@ -80,7 +84,7 @@
                 <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_ewallet'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
-                        src="{{ asset('images/payments/pay-with-chip-all.png') }}?v=1"
+                        src="{{ ChipCheckoutLogo::url('chip_ewallet') }}"
                         alt="{{ trans('storefront::checkout.chip_ewallet_alt') }}"
                         width="320"
                         height="48"
@@ -92,7 +96,7 @@
                 <span class="payment-option-logos payment-option-logos--chip-banner" x-show="gateway.id === 'chip_duitnow'">
                     <img
                         class="payment-option-logo payment-option-logo--chip-banner"
-                        src="{{ asset('images/payments/online-banking.png') }}?v=1"
+                        src="{{ ChipCheckoutLogo::url('chip_duitnow') }}"
                         alt="{{ trans('storefront::checkout.chip_duitnow_alt') }}"
                         width="320"
                         height="48"

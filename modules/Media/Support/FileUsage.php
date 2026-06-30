@@ -19,6 +19,12 @@ class FileUsage
         'storefront_accepted_payment_methods_image',
         'pwa_icon',
         'specialgift_voucher_background',
+        'chip_checkout_logo',
+        'chip_fpx_checkout_logo',
+        'chip_card_checkout_logo',
+        'chip_atome_checkout_logo',
+        'chip_ewallet_checkout_logo',
+        'chip_duitnow_checkout_logo',
     ];
 
     /**

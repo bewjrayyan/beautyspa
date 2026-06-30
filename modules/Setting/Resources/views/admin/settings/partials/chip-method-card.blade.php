@@ -5,6 +5,7 @@
     $surchargeType = $surchargeType ?? 'flat';
     $methodPrefix = str_replace('_', '-', $methodKey);
     $isEnabled = old("{$methodKey}_enabled", array_get($settings, "{$methodKey}_enabled"));
+    $checkoutLogos = $checkoutLogos ?? [];
 @endphp
 
 <article class="chip-method-card chip-method-card--{{ $icon }}">
@@ -47,6 +48,18 @@
                 'placeholder' => trans("setting::settings.form.chip_whitelist_placeholder.{$icon}"),
             ]) }}
             <p class="help-block text-muted">{{ trans('setting::settings.form.chip_whitelist_help') }}</p>
+
+            <div class="chip-method-card__checkout-logo">
+                @include('media::admin.image_picker.single', [
+                    'title' => trans('setting::settings.form.chip_checkout_logo'),
+                    'aspect' => 'banner',
+                    'inputName' => "{$methodKey}_checkout_logo",
+                    'file' => $checkoutLogos[$methodKey] ?? new \Modules\Media\Entities\File(),
+                    'defaultPreviewUrl' => \Modules\Payment\Services\ChipCheckoutLogo::defaultUrl($methodKey),
+                    'defaultPreviewBadge' => trans('setting::settings.form.chip_checkout_logo_default'),
+                ])
+                <p class="help-block text-muted">{{ trans('setting::settings.form.chip_checkout_logo_help') }}</p>
+            </div>
         </div>
     </div>
 </article>

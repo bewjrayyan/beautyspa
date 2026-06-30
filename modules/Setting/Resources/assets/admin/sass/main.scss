@@ -1578,6 +1578,19 @@ $settings-sidebar-offset: 16px;
         }
     }
 
+    .chip-settings__checkout-logo {
+        margin-top: 16px;
+
+        .ac-media-field--banner .ac-media-field__canvas {
+            max-width: 360px;
+        }
+
+        .help-block {
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+    }
+
     .chip-settings__methods {
         display: flex;
         flex-direction: column;
@@ -2117,6 +2130,21 @@ $settings-sidebar-offset: 16px;
         .help-block {
             margin-top: -4px;
             margin-bottom: 10px;
+        }
+    }
+
+    &__checkout-logo {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed color-mix(in srgb, var(--chip-accent) 18%, $settings-border);
+
+        .ac-media-field--banner .ac-media-field__canvas {
+            max-width: 360px;
+        }
+
+        .help-block {
+            margin-top: 8px;
+            margin-bottom: 0;
         }
     }
 }

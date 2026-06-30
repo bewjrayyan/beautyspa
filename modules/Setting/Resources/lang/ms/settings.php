@@ -601,6 +601,9 @@ return [
         'chip_collect_methods_heading' => 'Kaedah bayaran CHIP Collect',
         'chip_collect_methods_help' => 'Dayakan pilihan checkout khusus (FPX, kad, e-wallet, DuitNow QR, Atome). Setiap kaedah menggunakan payment_method_whitelist CHIP. Tetapkan yuran pemprosesan setiap kaedah di bawah (sen): 100 = RM1.00 — jumlah ini ditambah pada jumlah checkout pelanggan.',
         'chip_all_methods_enable' => 'Tunjuk checkout generik “CHIP — semua kaedah” (tanpa whitelist)',
+        'chip_checkout_logo' => 'Logo banner checkout',
+        'chip_checkout_logo_help' => 'Dipaparkan di sebelah pilihan pembayaran ini pada checkout. Saiz disyorkan: 320×48 px (banner melengkung). Biarkan kosong untuk guna lalai terbina dalam.',
+        'chip_checkout_logo_default' => 'Lalai',
         'chip_surcharge_help' => 'Yuran pemprosesan yang ditanggung pelanggan, dalam sen (MYR). Contoh: 100 = RM1.00 ditambah pada jumlah checkout mereka.',
         'chip_surcharge_flat_help' => 'Caj tetap dalam sen (MYR). Yuran pedagang CHIP FPX B2C ialah RM1.00 — masukkan 100. Jangan masukkan ringgit (contoh: guna 100, bukan 1 atau 5.5).',
         'chip_surcharge_percent_help' => [

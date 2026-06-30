@@ -591,6 +591,9 @@ return [
         'chip_collect_methods_heading' => 'CHIP Collect payment methods',
         'chip_collect_methods_help' => 'Enable specific checkout options (FPX, cards, e-wallets, DuitNow QR, Atome). Each method uses CHIP payment_method_whitelist so customers only see that channel on the CHIP hosted page. Set the processing fee per method below (sen): 100 = RM1.00 — this amount is added to the customer checkout total.',
         'chip_all_methods_enable' => 'Show generic “CHIP — all methods” checkout (no whitelist)',
+        'chip_checkout_logo' => 'Checkout banner logo',
+        'chip_checkout_logo_help' => 'Shown next to this payment option on checkout. Recommended size: 320×48 px (wide banner). Leave empty to use the built-in default.',
+        'chip_checkout_logo_default' => 'Default',
         'chip_surcharge_help' => 'Processing fee passed to the customer, in sen (MYR). Example: 100 = RM1.00 added to their checkout total.',
         'chip_surcharge_flat_help' => 'Flat fee in sen (MYR). CHIP FPX B2C merchant fee is RM1.00 — enter 100. Do not enter ringgit (e.g. use 100, not 1 or 5.5).',
         'chip_surcharge_percent_help' => [

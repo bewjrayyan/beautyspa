@@ -730,9 +730,17 @@ class SettingTabs extends Tabs
                 'translatable.chip_duitnow_description',
                 'chip_duitnow_surcharge',
                 'chip_duitnow_whitelist',
+                'chip_checkout_logo',
+                'chip_fpx_checkout_logo',
+                'chip_card_checkout_logo',
+                'chip_atome_checkout_logo',
+                'chip_ewallet_checkout_logo',
+                'chip_duitnow_checkout_logo',
             ]);
 
-            $tab->view('setting::admin.settings.tabs.chip');
+            $tab->view('setting::admin.settings.tabs.chip', [
+                'checkoutLogos' => \Modules\Payment\Services\ChipCheckoutLogo::adminFiles(),
+            ]);
         });
     }
 

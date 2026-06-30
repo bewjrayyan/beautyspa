@@ -353,6 +353,12 @@ class UpdateSettingRequest extends Request
             'translatable.chip_duitnow_description' => 'required_if:chip_duitnow_enabled,1',
             'chip_duitnow_surcharge' => 'nullable|integer|min:0|max:100000',
             'chip_duitnow_whitelist' => 'nullable|string|max:500',
+            'chip_checkout_logo' => 'nullable|integer',
+            'chip_fpx_checkout_logo' => 'nullable|integer',
+            'chip_card_checkout_logo' => 'nullable|integer',
+            'chip_atome_checkout_logo' => 'nullable|integer',
+            'chip_ewallet_checkout_logo' => 'nullable|integer',
+            'chip_duitnow_checkout_logo' => 'nullable|integer',
 
             'cod_enabled' => 'required|boolean',
             'translatable.cod_label' => 'required_if:cod_enabled,1',

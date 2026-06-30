@@ -52,7 +52,7 @@
             @if ($order->transaction?->transaction_id || str_starts_with((string) $order->payment_method, 'chip') || strtolower($order->payment_method) === strtolower((string) setting('chip_label')))
                 <div class="account-order-sidebar__payment-banner">
                     <img
-                        src="{{ asset('images/payments/pay-with-chip-all.png') }}"
+                        src="{{ \Modules\Payment\Services\ChipCheckoutLogo::urlForOrder($order) ?? asset('images/payments/pay-with-chip-all.png') }}"
                         alt="{{ trans('storefront::account.view_order.pay_with_chip_alt') }}"
                         class="account-order-sidebar__payment-banner-img"
                         width="560"

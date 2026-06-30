@@ -15,6 +15,18 @@
                 {{ Form::text('translatable[chip_label]', trans('setting::attributes.translatable.chip_label'), $errors, $settings, ['required' => true]) }}
                 {{ Form::textarea('translatable[chip_description]', trans('setting::attributes.translatable.chip_description'), $errors, $settings, ['rows' => 3, 'required' => true]) }}
                 {{ Form::checkbox('chip_test_mode', trans('setting::attributes.chip_test_mode'), trans('setting::settings.form.use_sandbox_for_test_payments'), $errors, $settings) }}
+
+                <div class="chip-settings__checkout-logo">
+                    @include('media::admin.image_picker.single', [
+                        'title' => trans('setting::attributes.chip_checkout_logo'),
+                        'aspect' => 'banner',
+                        'inputName' => 'chip_checkout_logo',
+                        'file' => $checkoutLogos['chip'] ?? new \Modules\Media\Entities\File(),
+                        'defaultPreviewUrl' => \Modules\Payment\Services\ChipCheckoutLogo::defaultUrl('chip'),
+                        'defaultPreviewBadge' => trans('setting::settings.form.chip_checkout_logo_default'),
+                    ])
+                    <p class="help-block text-muted">{{ trans('setting::settings.form.chip_checkout_logo_help') }}</p>
+                </div>
             @endcomponent
 
             <div class="{{ old('chip_enabled', array_get($settings, 'chip_enabled')) ? '' : 'hide' }}" id="chip-fields">
@@ -62,6 +74,7 @@
                             'surchargeType' => 'flat',
                             'settings' => $settings,
                             'errors' => $errors,
+                            'checkoutLogos' => $checkoutLogos,
                         ])
 
                         @include('setting::admin.settings.partials.chip-method-card', [
@@ -71,6 +84,7 @@
                             'surchargeType' => 'percent',
                             'settings' => $settings,
                             'errors' => $errors,
+                            'checkoutLogos' => $checkoutLogos,
                         ])
 
                         @include('setting::admin.settings.partials.chip-method-card', [
@@ -80,6 +94,7 @@
                             'surchargeType' => 'percent',
                             'settings' => $settings,
                             'errors' => $errors,
+                            'checkoutLogos' => $checkoutLogos,
                         ])
 
                         @include('setting::admin.settings.partials.chip-method-card', [
@@ -89,6 +104,7 @@
                             'surchargeType' => 'percent',
                             'settings' => $settings,
                             'errors' => $errors,
+                            'checkoutLogos' => $checkoutLogos,
                         ])
 
                         @include('setting::admin.settings.partials.chip-method-card', [
@@ -98,6 +114,7 @@
                             'surchargeType' => 'flat',
                             'settings' => $settings,
                             'errors' => $errors,
+                            'checkoutLogos' => $checkoutLogos,
                         ])
                     </div>
                 @endcomponent
