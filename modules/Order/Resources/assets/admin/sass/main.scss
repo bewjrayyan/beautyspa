@@ -26,6 +26,136 @@
         }
     }
 
+    &__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 16px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e8ecf2;
+        background: linear-gradient(180deg, #fafbfd 0%, #ffffff 100%);
+    }
+
+    &__toolbar-intro {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 150px;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    &__toolbar-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: rgba(190, 24, 93, 0.1);
+        color: #be185d;
+        font-size: 13px;
+    }
+
+    &__toolbar-label {
+        line-height: 1.2;
+    }
+
+    &__payment-filters {
+        display: flex;
+        flex: 1 1 auto;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    &__payment-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid #d7dee8;
+        border-radius: 999px;
+        background: #fff;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.2;
+        cursor: pointer;
+        transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+
+        &:hover {
+            border-color: #c3ccd8;
+            background: #f8fafc;
+        }
+
+        &:focus-visible {
+            outline: 2px solid rgba(190, 24, 93, 0.35);
+            outline-offset: 2px;
+        }
+
+        &.is-active {
+            border-color: var(--orders-payment-accent, #be185d);
+            background: var(--orders-payment-bg, rgba(190, 24, 93, 0.08));
+            color: var(--orders-payment-accent, #be185d);
+            box-shadow: inset 0 0 0 1px var(--orders-payment-accent, #be185d);
+
+            .orders-index__payment-filter-count {
+                background: rgba(255, 255, 255, 0.55);
+            }
+        }
+
+        &--pending {
+            --orders-payment-accent: #d97706;
+            --orders-payment-bg: rgba(217, 119, 6, 0.1);
+        }
+
+        &--processing {
+            --orders-payment-accent: #0284c7;
+            --orders-payment-bg: rgba(2, 132, 199, 0.1);
+        }
+
+        &--paid {
+            --orders-payment-accent: #16a34a;
+            --orders-payment-bg: rgba(22, 163, 74, 0.1);
+        }
+
+        &--canceled {
+            --orders-payment-accent: #dc2626;
+            --orders-payment-bg: rgba(220, 38, 38, 0.1);
+        }
+    }
+
+    &__payment-filter-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+    }
+
+    &__payment-filter-text {
+        white-space: nowrap;
+    }
+
+    &__payment-filter-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.06);
+        color: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
     &__sheets-failed-badge {
         margin-left: 4px;
     }
@@ -35,6 +165,18 @@
         font-size: 11px;
         font-weight: 600;
         vertical-align: middle;
+    }
+
+    &__id-link {
+        color: inherit;
+        font-weight: 600;
+        text-decoration: none;
+
+        &:hover,
+        &:focus {
+            color: var(--admin-primary, #be185d);
+            text-decoration: underline;
+        }
     }
 }
 

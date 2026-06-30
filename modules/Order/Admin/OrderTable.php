@@ -31,7 +31,9 @@ class OrderTable extends AdminTable
     {
         $table = $this->newTable()
             ->editColumn('id', function ($order) {
-                $html = '#' . $order->id;
+                $html = '<a href="' . e(route('admin.orders.show', $order->id)) . '" class="orders-index__id-link">#'
+                    . $order->id
+                    . '</a>';
 
                 if ($order->trashed()) {
                     $html .= ' <span class="badge badge-warning orders-index__archived-badge">'
@@ -68,7 +70,11 @@ class OrderTable extends AdminTable
             });
         }
 
-        return $table->addColumn('action', function ($order) {
+        return $table
+            ->setRowId(function ($order) {
+                return (string) $order->id;
+            })
+            ->addColumn('action', function ($order) {
                 return view('order::admin.orders.partials.table.action', compact('order'));
             });
     }

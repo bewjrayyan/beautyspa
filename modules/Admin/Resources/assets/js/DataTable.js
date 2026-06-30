@@ -184,9 +184,26 @@ export default class {
 
     makeRowClickable(row, id) {
         let key = this.hasRoute("show") ? "show" : "edit";
-        let url = this.route(key, { id });
+        let resolvedId = $(row).attr("id") ?? this.resolveRowId(id);
+        let url = this.route(key, { id: resolvedId });
 
         $(row).addClass("clickable-row").data("href", url);
+    }
+
+    resolveRowId(id) {
+        if (typeof id === "number" || (typeof id === "string" && /^\d+$/.test(id))) {
+            return id;
+        }
+
+        if (typeof id === "string" && id.includes("<")) {
+            const href = $("<div>").html(id).find("a[href]").first().attr("href");
+
+            if (href) {
+                return href.replace(/\/$/, "").split("/").filter(Boolean).pop();
+            }
+        }
+
+        return id;
     }
 
     onRowClick(handler) {
@@ -203,7 +220,7 @@ export default class {
 
     isBulkSelectClick(e) {
         return $(e.target).closest(
-            ".checkbox, .bulk-select-cell, .select-row, .select-all, .table-row-actions, .admin-users-table__col-actions"
+            ".checkbox, .bulk-select-cell, .select-row, .select-all, .table-row-actions, .admin-users-table__col-actions, a"
         ).length > 0;
     }
 

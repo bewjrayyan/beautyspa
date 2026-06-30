@@ -47,6 +47,8 @@
             </div>
         </div>
 
+        @include('order::admin.orders.partials.payment_status_filters')
+
         <div class="box-body index-table" id="orders-table">
             @component('admin::components.table')
                 @slot('thead')
@@ -107,6 +109,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             let showArchived = urlParams.get('archived') === '1';
             let showSheetsFailed = urlParams.get('google_sheets_failed') === '1';
+            let activePaymentStatus = urlParams.get('payment_status') || '';
             window.ordersIndexShowArchived = showArchived;
 
             function initOrdersIndex() {
@@ -153,6 +156,41 @@
                         $ordersTable.removeClass('orders-index--archived');
                     }
 
+                    updateOrdersFilterUrl();
+                }
+
+                function syncPaymentStatusUi() {
+                    $('#orders-payment-filters .orders-index__payment-filter').each(function () {
+                        const $button = $(this);
+                        const status = String($button.data('payment-status') ?? '');
+                        const isActive = status === activePaymentStatus;
+
+                        $button
+                            .toggleClass('is-active', isActive)
+                            .attr('aria-pressed', isActive ? 'true' : 'false');
+                    });
+                }
+
+                function bindPaymentStatusFilters() {
+                    const $filters = $('#orders-payment-filters');
+
+                    if (!$filters.length) {
+                        return;
+                    }
+
+                    syncPaymentStatusUi();
+
+                    $filters.off('click.paymentStatus').on('click.paymentStatus', '.orders-index__payment-filter', function () {
+                        const nextStatus = String($(this).data('payment-status') ?? '');
+                        activePaymentStatus = activePaymentStatus === nextStatus ? '' : nextStatus;
+                        syncPaymentStatusUi();
+                        updateOrdersFilterUrl();
+                        closeOrderActionsMenu();
+                        window.DataTable.reload('#orders-table .table', null, true);
+                    });
+                }
+
+                function updateOrdersFilterUrl() {
                     const url = new URL(window.location.href);
 
                     if (showArchived) {
@@ -165,6 +203,12 @@
                         url.searchParams.set('google_sheets_failed', '1');
                     } else {
                         url.searchParams.delete('google_sheets_failed');
+                    }
+
+                    if (activePaymentStatus) {
+                        url.searchParams.set('payment_status', activePaymentStatus);
+                    } else {
+                        url.searchParams.delete('payment_status');
                     }
 
                     window.history.replaceState({}, '', url);
@@ -183,19 +227,12 @@
                         showSheetsFailed ? config.showAllOrdersLabel : sheetsFailedToggleLabel()
                     );
 
-                    const url = new URL(window.location.href);
-
-                    if (showSheetsFailed) {
-                        url.searchParams.set('google_sheets_failed', '1');
-                    } else {
-                        url.searchParams.delete('google_sheets_failed');
-                    }
-
-                    window.history.replaceState({}, '', url);
+                    updateOrdersFilterUrl();
                 }
 
                 syncArchivedUi();
                 syncSheetsFailedUi();
+                bindPaymentStatusFilters();
 
                 function sheetsFailedToggleLabel() {
                     if (config.sheetsFailedCount > 0) {
@@ -483,6 +520,10 @@
                             data.table = true;
                             data.archived = showArchived ? 1 : 0;
                             data.google_sheets_failed = showSheetsFailed ? 1 : 0;
+
+                            if (activePaymentStatus) {
+                                data.payment_status = activePaymentStatus;
+                            }
                         },
                     },
                     columns: orderColumns,

@@ -15,6 +15,8 @@ return [
     'sheets_failed_filter_help' => 'Tapis pesanan yang gagal disegerakkan ke Google Sheets',
     'show_all_orders' => 'Tunjuk semua pesanan',
     'show_active_orders' => 'Tunjuk pesanan aktif',
+    'filter_payment_status_all' => 'Semua',
+    'filter_by_payment_status' => 'Status bayaran',
     'bulk_force_delete_confirm' => 'Padam kekal :count pesanan terpilih? Tindakan ini tidak boleh dibatalkan.',
     'force_delete_confirm' => 'Pesanan ini akan dibuang kekal daripada pangkalan data. Tindakan ini tidak boleh dibatalkan.',
     'product_removed' => 'Dibuang',

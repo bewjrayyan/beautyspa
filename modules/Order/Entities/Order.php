@@ -645,6 +645,16 @@ class Order extends Model
             $query->whereNotNull('google_sheets_sync_error');
         }
 
+        $paymentStatus = $request->input('payment_status');
+
+        if (
+            is_string($paymentStatus)
+            && $paymentStatus !== ''
+            && in_array($paymentStatus, self::paymentStatuses(), true)
+        ) {
+            $query->where('payment_status', $paymentStatus);
+        }
+
         return new OrderTable($query);
     }
 

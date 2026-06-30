@@ -68,6 +68,11 @@ class OrderController
             'sheetsFailedCount' => is_module_enabled('GoogleIntegration') && setting('google_sheets_enabled')
                 ? Order::query()->whereNotNull('google_sheets_sync_error')->count()
                 : 0,
+            'totalOrdersCount' => Order::count(),
+            'paymentStatusCounts' => Order::query()
+                ->selectRaw('payment_status, COUNT(*) as aggregate')
+                ->groupBy('payment_status')
+                ->pluck('aggregate', 'payment_status'),
         ]);
     }
 

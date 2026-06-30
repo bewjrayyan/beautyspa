@@ -15,6 +15,8 @@ return [
     'sheets_failed_filter_help' => 'Filter orders that failed to sync to Google Sheets',
     'show_all_orders' => 'Show all orders',
     'show_active_orders' => 'Show active orders',
+    'filter_payment_status_all' => 'All',
+    'filter_by_payment_status' => 'Payment status',
     'bulk_force_delete_confirm' => 'Permanently delete :count selected order(s)? This cannot be undone.',
     'force_delete_confirm' => 'This order will be permanently removed from the database. This action cannot be undone.',
     'product_removed' => 'Removed',
