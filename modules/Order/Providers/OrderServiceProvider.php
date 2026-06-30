@@ -5,6 +5,7 @@ namespace Modules\Order\Providers;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Modules\Loyalty\Entities\LoyaltyWallet;
+use Modules\Order\Console\ImportWordPressOrdersCommand;
 use Modules\Order\Console\SyncOrderTranslationsCommand;
 use Modules\Order\Entities\Order;
 
@@ -19,6 +20,7 @@ class OrderServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                ImportWordPressOrdersCommand::class,
                 SyncOrderTranslationsCommand::class,
             ]);
         }
