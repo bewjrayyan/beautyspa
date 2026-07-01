@@ -11,6 +11,10 @@
     &--4 {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+
+    &--5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
 }
 
 .fc-saas-stat {
@@ -91,6 +95,34 @@
             orb: #fde68a,
             icon: #d97706,
             shadow: rgba(217, 119, 6, 0.15)
+        ),
+        amber: (
+            bg: linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%),
+            border: #fde68a,
+            orb: #fcd34d,
+            icon: #b45309,
+            shadow: rgba(180, 83, 9, 0.15)
+        ),
+        teal: (
+            bg: linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 100%),
+            border: #99f6e4,
+            orb: #5eead4,
+            icon: #0d9488,
+            shadow: rgba(13, 148, 136, 0.15)
+        ),
+        slate: (
+            bg: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%),
+            border: #cbd5e1,
+            orb: #94a3b8,
+            icon: #475569,
+            shadow: rgba(71, 85, 105, 0.15)
+        ),
+        coral: (
+            bg: linear-gradient(145deg, #fff7ed 0%, #ffedd5 100%),
+            border: #fdba74,
+            orb: #fb923c,
+            icon: #c2410c,
+            shadow: rgba(194, 65, 12, 0.15)
         )
     ) {
         &--#{$name} {
@@ -205,9 +237,16 @@
     transform: translateX(3px);
 }
 
+@media (max-width: 1400px) {
+    .fc-saas-stats--5 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 1200px) {
     .fc-saas-stats--3,
-    .fc-saas-stats--4 {
+    .fc-saas-stats--4,
+    .fc-saas-stats--5 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
@@ -215,7 +254,8 @@
 @media (max-width: 768px) {
     .fc-saas-stats,
     .fc-saas-stats--3,
-    .fc-saas-stats--4 {
+    .fc-saas-stats--4,
+    .fc-saas-stats--5 {
         grid-template-columns: 1fr;
     }
 

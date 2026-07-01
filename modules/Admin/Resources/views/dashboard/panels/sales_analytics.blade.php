@@ -1,4 +1,4 @@
-<div class="dashboard-panel sales-analytics">
+<div class="dashboard-panel dashboard-panel--wide sales-analytics">
     <div class="grid-header clearfix">
         <h5>{{ trans('admin::dashboard.sales_analytics_title') }}</h5>
     </div>

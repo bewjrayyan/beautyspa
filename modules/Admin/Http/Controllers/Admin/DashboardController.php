@@ -4,14 +4,13 @@ namespace Modules\Admin\Http\Controllers\Admin;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
-use Modules\User\Entities\User;
-use Modules\Order\Entities\Order;
-use Modules\Review\Entities\Review;
-use Modules\Product\Entities\Product;
-use Modules\Product\Entities\SearchTerm;
-use Illuminate\Database\Eloquent\Collection;
-use Modules\Support\Money;
 use Modules\Loyalty\Entities\LoyaltyWallet;
+use Modules\Order\Entities\Order;
+use Modules\Product\Entities\SearchTerm;
+use Modules\Review\Entities\Review;
+use Modules\Support\Money;
+use Modules\User\Entities\Role;
+use Modules\User\Entities\User;
 use Nwidart\Modules\Facades\Module;
 
 class DashboardController
@@ -28,25 +27,25 @@ class DashboardController
         }
 
         $loyaltyEnabled = Module::isEnabled('Loyalty');
-        $showTreatmentStats = Module::isEnabled('Beautician') && Module::isEnabled('BeauticianReport');
-        $stats = $this->cachedDashboardStats($loyaltyEnabled, $showTreatmentStats);
+        $showAppointmentPanels = Module::isEnabled('Beautician');
+        $topStats = $this->cachedTopStats($loyaltyEnabled);
 
         return view('admin::dashboard.index', [
-            'totalSales' => $stats['totalSales'],
-            'totalOrders' => $stats['totalOrders'],
-            'totalProducts' => $stats['totalProducts'],
-            'totalCustomers' => $stats['totalCustomers'],
-            'treatmentSales' => $stats['treatmentSales'],
-            'treatmentOrders' => $stats['treatmentOrders'],
-            'todayAppointments' => $stats['todayAppointments'],
-            'showTreatmentStats' => $showTreatmentStats,
+            'totalSales' => $topStats['totalSales'],
+            'thisMonthSales' => $topStats['thisMonthSales'],
+            'pendingPaymentCount' => $topStats['pendingPaymentCount'],
+            'todayAppointmentsCount' => $topStats['todayAppointmentsCount'],
+            'totalCustomers' => $topStats['totalCustomers'],
+            'loyaltyMembersTotal' => $topStats['loyaltyMembersTotal'],
+            'loyaltyMembersWithBalance' => $topStats['loyaltyMembersWithBalance'],
+            'topStatsShowLoyalty' => $loyaltyEnabled
+                && auth()->user()?->hasAccess('admin.loyalty.members.index'),
+            'showAppointmentPanels' => $showAppointmentPanels,
             'beauticianAnalyticsUrl' => Module::isEnabled('BeauticianReport')
                 ? route('admin.beautician_reports.index')
                 : null,
             'showLoyaltyMembersCard' => $loyaltyEnabled,
             'loyaltyMembersUrl' => $loyaltyEnabled ? route('admin.loyalty.members.index') : null,
-            'loyaltyMembersTotal' => $stats['loyaltyMembersTotal'],
-            'loyaltyMembersWithBalance' => $stats['loyaltyMembersWithBalance'],
             'recentLoyaltyMembers' => $loyaltyEnabled
                 ? LoyaltyWallet::query()
                     ->with(['user', 'tier'])
@@ -54,9 +53,17 @@ class DashboardController
                     ->take(5)
                     ->get()
                 : collect(),
+            'todayAppointmentsList' => $showAppointmentPanels
+                ? $this->getTodayAppointments()
+                : collect(),
+            'upcomingAppointments' => $showAppointmentPanels
+                ? $this->getUpcomingAppointments()
+                : collect(),
+            'pendingOrders' => $this->getPendingOrders(),
             'latestSearchTerms' => $this->getLatestSearchTerms(),
             'latestOrders' => $this->getLatestOrders(),
             'latestReviews' => $this->getLatestReviews(),
+            'recentCustomers' => $this->getRecentCustomers(),
         ]);
     }
 
@@ -64,14 +71,12 @@ class DashboardController
     /**
      * @return array<string, mixed>
      */
-    private function cachedDashboardStats(bool $loyaltyEnabled, bool $showTreatmentStats): array
+    private function cachedTopStats(bool $loyaltyEnabled): array
     {
-        $cacheKey = 'admin.dashboard.stats.'.($loyaltyEnabled ? 'loyalty' : 'no-loyalty').'.'.($showTreatmentStats ? 'treatment' : 'no-treatment');
+        $cacheKey = 'admin.dashboard.top_stats.'.($loyaltyEnabled ? 'loyalty' : 'no-loyalty');
 
-        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($loyaltyEnabled, $showTreatmentStats) {
-            $treatmentQuery = Order::query()
-                ->whereNotNull('beautician_id')
-                ->withoutCanceledOrders();
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($loyaltyEnabled) {
+            $orderQuery = Order::query()->withoutCanceledOrders();
 
             $loyaltyCounts = $loyaltyEnabled
                 ? LoyaltyWallet::query()
@@ -82,22 +87,88 @@ class DashboardController
 
             return [
                 'totalSales' => Order::totalSales(),
-                'totalOrders' => Order::withoutCanceledOrders()->count(),
-                'totalProducts' => Product::withoutGlobalScope('active')->count(),
-                'totalCustomers' => User::totalCustomers(),
-                'treatmentSales' => $showTreatmentStats
-                    ? Money::inDefaultCurrency((clone $treatmentQuery)->sum('total'))
-                    : Money::inDefaultCurrency(0),
-                'treatmentOrders' => $showTreatmentStats ? (clone $treatmentQuery)->count() : 0,
-                'todayAppointments' => Order::query()
+                'thisMonthSales' => Money::inDefaultCurrency(
+                    (clone $orderQuery)
+                        ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+                        ->sum('total')
+                ),
+                'pendingPaymentCount' => (clone $orderQuery)->whereIn('payment_status', [
+                    Order::PAYMENT_PENDING,
+                    Order::PAYMENT_PROCESSING,
+                ])->count(),
+                'todayAppointmentsCount' => Order::query()
                     ->whereNotNull('appointment_date')
                     ->withoutCanceledOrders()
                     ->whereDate('appointment_date', today())
                     ->count(),
+                'totalCustomers' => User::totalCustomers(),
                 'loyaltyMembersTotal' => $loyaltyEnabled ? (int) ($loyaltyCounts->total ?? 0) : 0,
                 'loyaltyMembersWithBalance' => $loyaltyEnabled ? (int) ($loyaltyCounts->with_balance ?? 0) : 0,
             ];
         });
+    }
+
+
+    private function getTodayAppointments()
+    {
+        return Order::select([
+            'id',
+            'customer_first_name',
+            'customer_last_name',
+            'total',
+            'status',
+            'appointment_date',
+            'created_at',
+        ])
+            ->whereNotNull('appointment_date')
+            ->withoutCanceledOrders()
+            ->whereDate('appointment_date', today())
+            ->orderBy('appointment_date')
+            ->take(5)
+            ->get();
+    }
+
+
+    private function getUpcomingAppointments()
+    {
+        return Order::select([
+            'id',
+            'customer_first_name',
+            'customer_last_name',
+            'total',
+            'status',
+            'appointment_date',
+            'created_at',
+        ])
+            ->whereNotNull('appointment_date')
+            ->withoutCanceledOrders()
+            ->whereDate('appointment_date', '>', today())
+            ->whereNotIn('status', [Order::CANCELED, Order::REFUNDED, Order::COMPLETED])
+            ->orderBy('appointment_date')
+            ->take(5)
+            ->get();
+    }
+
+
+    private function getPendingOrders()
+    {
+        return Order::select([
+            'id',
+            'customer_first_name',
+            'customer_last_name',
+            'total',
+            'status',
+            'payment_status',
+            'created_at',
+        ])
+            ->withoutCanceledOrders()
+            ->whereIn('payment_status', [
+                Order::PAYMENT_PENDING,
+                Order::PAYMENT_PROCESSING,
+            ])
+            ->latest()
+            ->take(5)
+            ->get();
     }
 
 
@@ -107,11 +178,6 @@ class DashboardController
     }
 
 
-    /**
-     * Get latest five orders.
-     *
-     * @return Collection
-     */
     private function getLatestOrders()
     {
         return Order::select([
@@ -125,17 +191,31 @@ class DashboardController
     }
 
 
-    /**
-     * Get latest five reviews.
-     *
-     * @return Collection
-     */
     private function getLatestReviews()
     {
         return Review::select('id', 'product_id', 'reviewer_name', 'rating')
             ->has('product')
             ->with('product:id')
+            ->latest()
             ->limit(5)
+            ->get();
+    }
+
+
+    private function getRecentCustomers()
+    {
+        return Role::findOrNew(setting('customer_role'))
+            ->users()
+            ->select([
+                'users.id',
+                'users.first_name',
+                'users.last_name',
+                'users.email',
+                'users.phone',
+                'users.created_at',
+            ])
+            ->orderByDesc('users.created_at')
+            ->take(5)
             ->get();
     }
 }

@@ -957,7 +957,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/dashboard.scss": {
-    "file": "assets/dashboard-C-ww-7gI-v4.7.71.css",
+    "file": "assets/dashboard-lfWkeyTu-v4.7.71.css",
     "src": "modules/Admin/Resources/assets/sass/dashboard.scss",
     "isEntry": true,
     "name": "dashboard",
@@ -990,7 +990,7 @@
     ]
   },
   "modules/BeauticianReport/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-Bh9FSYbf-v4.7.71.css",
+    "file": "assets/main-BuPynoE4-v4.7.71.css",
     "src": "modules/BeauticianReport/Resources/assets/admin/sass/main.scss"
   },
   "modules/Blog/Resources/assets/admin/posts/js/create.js": {
@@ -1096,7 +1096,7 @@
     "isEntry": true
   },
   "modules/Loyalty/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main--IpBHc-b-v4.7.71.css",
+    "file": "assets/main-CzrVeqv5-v4.7.71.css",
     "src": "modules/Loyalty/Resources/assets/admin/sass/main.scss"
   },
   "modules/Loyalty/Resources/assets/public/sass/pages/account/loyalty/main.scss": {
@@ -1245,7 +1245,7 @@
     ]
   },
   "modules/Report/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BAqymPUG-v4.7.71.css",
+    "file": "assets/main-CALVUXTj-v4.7.71.css",
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
@@ -1556,16 +1556,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.71.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-FuQ-FuMu-v4.7.71.css",
@@ -1755,7 +1755,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-B7Oxu016-v4.7.71.css",
+    "file": "assets/main-Bco0TkSl-v4.7.71.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/images/login-page-bg.png": {
@@ -1807,7 +1807,7 @@
     "src": "modules/User/Resources/assets/admin/sass/auth/main.scss"
   },
   "modules/User/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-CEFHr66u-v4.7.71.css",
+    "file": "assets/main-g3B76CVT-v4.7.71.css",
     "src": "modules/User/Resources/assets/admin/sass/main.scss"
   },
   "modules/Variation/Resources/assets/admin/js/create.js": {

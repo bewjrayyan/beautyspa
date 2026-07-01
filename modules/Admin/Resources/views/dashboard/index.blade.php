@@ -28,32 +28,44 @@
     @endif
 
     <div class="dashboard-modern">
-        @include('admin::dashboard.partials.saas_stats')
+        @include('admin::dashboard.partials.top_stats')
 
-        <div class="row">
-            <div class="col-md-7">
-                @if ($showLoyaltyMembersCard ?? false)
-                    @hasAccess('admin.loyalty.members.index')
-                        @include('admin::dashboard.panels.members')
-                    @endHasAccess
-                @endif
+        @include('admin::dashboard.partials.quick_links')
 
+        @hasAccess('admin.orders.index')
+            @include('admin::dashboard.panels.sales_analytics')
+        @endHasAccess
+
+        <div class="dashboard-panels__grid">
+            @if ($showAppointmentPanels ?? false)
                 @hasAccess('admin.orders.index')
-                    @include('admin::dashboard.panels.sales_analytics')
+                    @include('admin::dashboard.panels.today_appointments')
+                    @include('admin::dashboard.panels.upcoming_appointments')
                 @endHasAccess
+            @endif
 
-                @hasAccess('admin.orders.index')
-                    @include('admin::dashboard.panels.latest_orders')
-                @endHasAccess
-            </div>
+            @hasAccess('admin.orders.index')
+                @include('admin::dashboard.panels.pending_orders')
+                @include('admin::dashboard.panels.latest_orders')
+            @endHasAccess
 
-            <div class="col-md-5">
+            @hasAccess('admin.products.index')
                 @include('admin::dashboard.panels.latest_searches')
+            @endHasAccess
 
-                @hasAccess('admin.reviews.index')
-                    @include('admin::dashboard.panels.latest_reviews')
+            @hasAccess('admin.reviews.index')
+                @include('admin::dashboard.panels.latest_reviews')
+            @endHasAccess
+
+            @if ($showLoyaltyMembersCard ?? false)
+                @hasAccess('admin.loyalty.members.index')
+                    @include('admin::dashboard.panels.members')
                 @endHasAccess
-            </div>
+            @endif
+
+            @hasAccess('admin.users.index')
+                @include('admin::dashboard.panels.recent_customers')
+            @endHasAccess
         </div>
     </div>
 @endsection

@@ -1,13 +1,18 @@
-<div class="dashboard-panel latest-order">
+@php
+    $pendingOrdersUrl = route('admin.orders.index', ['payment_status' => 'pending']);
+@endphp
+
+<div class="dashboard-panel dashboard-pending-orders">
     <div class="grid-header dashboard-panel__head">
-        <h5>{{ trans('admin::dashboard.latest_orders') }}</h5>
-        <a href="{{ route('admin.orders.index') }}" class="dashboard-panel__view-all">
+        <h5>
+            <i class="fa fa-clock-o" aria-hidden="true"></i>
+            {{ trans('admin::dashboard.pending_orders') }}
+        </h5>
+        <a href="{{ $pendingOrdersUrl }}" class="dashboard-panel__view-all">
             {{ trans('admin::dashboard.view_all') }}
             <i class="fa fa-arrow-right" aria-hidden="true"></i>
         </a>
     </div>
-
-    <div class="clearfix"></div>
 
     <div class="table-responsive anchor-table">
         <table class="table">
@@ -20,34 +25,28 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($latestOrders as $latestOrder)
+                @forelse ($pendingOrders as $order)
                     <tr>
                         <td>
-                            <a href="{{ route('admin.orders.show', $latestOrder) }}">
-                                {{ $latestOrder->id }}
-                            </a>
+                            <a href="{{ route('admin.orders.show', $order) }}">{{ $order->id }}</a>
                         </td>
                         <td>
-                            <a href="{{ route('admin.orders.show', $latestOrder) }}">
-                                {{ $latestOrder->customer_full_name }}
-                            </a>
+                            <a href="{{ route('admin.orders.show', $order) }}">{{ $order->customer_full_name }}</a>
                         </td>
                         <td>
-                            <a href="{{ route('admin.orders.show', $latestOrder) }}">
-                                <span class="badge {{ order_status_badge_class($latestOrder->status) }}">
-                                    {{ $latestOrder->status() }}
+                            <a href="{{ route('admin.orders.show', $order) }}">
+                                <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
+                                    {{ $order->paymentStatusLabel() }}
                                 </span>
                             </a>
                         </td>
                         <td>
-                            <a href="{{ route('admin.orders.show', $latestOrder) }}">
-                                {{ $latestOrder->total->format() }}
-                            </a>
+                            <a href="{{ route('admin.orders.show', $order) }}">{{ $order->total->format() }}</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td class="empty" colspan="5">{{ trans('admin::dashboard.no_data') }}</td>
+                        <td class="empty" colspan="4">{{ trans('admin::dashboard.pending_orders_empty') }}</td>
                     </tr>
                 @endforelse
             </tbody>

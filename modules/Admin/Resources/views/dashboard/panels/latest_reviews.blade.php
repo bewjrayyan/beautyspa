@@ -1,6 +1,10 @@
 <div class="dashboard-panel">
-    <div class="grid-header">
+    <div class="grid-header dashboard-panel__head">
         <h5>{{ trans('admin::dashboard.latest_reviews') }}</h5>
+        <a href="{{ route('admin.reviews.index') }}" class="dashboard-panel__view-all">
+            {{ trans('admin::dashboard.view_all') }}
+            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+        </a>
     </div>
 
     <div class="clearfix"></div>
