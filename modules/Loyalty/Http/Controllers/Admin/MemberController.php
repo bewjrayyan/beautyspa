@@ -10,6 +10,7 @@ use Modules\Loyalty\Services\LoyaltyConfig;
 use Modules\Loyalty\Services\LoyaltyLifetimeSpendService;
 use Modules\Loyalty\Services\LoyaltyTierService;
 use Modules\Loyalty\Services\MemberPurchaseAnalyticsService;
+use Modules\Loyalty\Services\LoyaltyMemberEnrollmentService;
 use Modules\Loyalty\Services\LoyaltyStampAdminService;
 use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\Loyalty\Http\Requests\AdjustMemberPointsRequest;
@@ -24,6 +25,7 @@ class MemberController
         private LoyaltyTierService $tiers,
         private MemberPurchaseAnalyticsService $purchaseAnalytics,
         private LoyaltyStampAdminService $stampAdmin,
+        private LoyaltyMemberEnrollmentService $enrollment,
     ) {}
 
 
@@ -62,7 +64,20 @@ class MemberController
                 ->groupBy('loyalty_tiers.id', 'loyalty_tiers.name', 'loyalty_tiers.sort_order')
                 ->orderBy('loyalty_tiers.sort_order')
                 ->get(),
+            'missing_members' => $this->enrollment->countMissing(true),
         ]);
+    }
+
+
+    public function enrollMissing(): RedirectResponse
+    {
+        $result = $this->enrollment->enrollMissing(true);
+
+        return redirect()
+            ->route('admin.loyalty.members.index')
+            ->withSuccess(trans('loyalty::messages.members_enrolled', [
+                'count' => $result['enrolled'],
+            ]));
     }
 
 

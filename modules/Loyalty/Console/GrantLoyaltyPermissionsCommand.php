@@ -23,6 +23,7 @@ class GrantLoyaltyPermissionsCommand extends Command
             'admin.loyalty.members.index' => true,
             'admin.loyalty.members.show' => true,
             'admin.loyalty.members.adjust' => true,
+            'admin.loyalty.members.enroll' => true,
             'admin.loyalty.reports.index' => true,
             'admin.loyalty.stamp_programs.index' => true,
             'admin.loyalty.stamp_programs.create' => true,

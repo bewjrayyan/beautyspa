@@ -38,6 +38,10 @@ return [
         'table_lead' => 'Klik baris atau Lihat untuk membuka dompet ahli.',
         'search_placeholder' => 'Nama, e-mel, telefon, KP atau pasport…',
         'actions' => 'Tindakan',
+        'enroll_missing_title' => 'Pelanggan tanpa dompet kesetiaan',
+        'enroll_missing_lead' => ':count akaun pelanggan daripada Pengguna belum disenaraikan di sini. Daftarkan mereka untuk mencipta dompet kesetiaan pada peringkat lalai (0 mata).',
+        'enroll_missing_button' => 'Daftar semua pelanggan',
+        'enroll_missing_confirm' => 'Cipta dompet kesetiaan untuk semua pelanggan yang belum memilikinya?',
     ],
     'show' => [
         'wallet_id' => 'Dompet #:id',

@@ -43,6 +43,18 @@ Route::post('users', [
     'middleware' => 'can:admin.users.create',
 ]);
 
+Route::post('users/enroll-loyalty', [
+    'as' => 'admin.users.enroll_loyalty',
+    'uses' => 'UserController@enrollLoyaltyMembers',
+    'middleware' => 'can:admin.loyalty.members.enroll',
+]);
+
+Route::post('users/enroll-loyalty/{ids}', [
+    'as' => 'admin.users.enroll_loyalty_bulk',
+    'uses' => 'UserController@enrollLoyaltyMembersBulk',
+    'middleware' => 'can:admin.loyalty.members.enroll',
+])->where('ids', '[0-9,]+');
+
 Route::get('users/{id}/edit', [
     'as' => 'admin.users.edit',
     'uses' => 'UserController@edit',

@@ -20,7 +20,7 @@ class UserTable extends AdminTable
      *
      * @var array
      */
-    protected array $rawColumns = ['user', 'roles', 'status', 'last_login', 'actions'];
+    protected array $rawColumns = ['user', 'roles', 'loyalty_member', 'status', 'last_login', 'actions'];
 
 
     /**
@@ -54,6 +54,45 @@ class UserTable extends AdminTable
                     ->implode('');
 
                 return '<div class="admin-users-table__roles">' . $chips . '</div>';
+            })
+            ->addColumn('loyalty_member', function ($user) {
+                if (! app('modules')->isEnabled('Loyalty')) {
+                    return '';
+                }
+
+                if (! $user->isCustomer()) {
+                    return '<span class="admin-users-table__muted">—</span>';
+                }
+
+                $wallet = $user->loyaltyWallet;
+
+                if ($wallet) {
+                    $tier = $wallet->tier?->translatedName();
+                    $label = e(trans('user::users.index.loyalty_member_yes'));
+
+                    if ($tier) {
+                        $label .= ' <span class="admin-users-table__loyalty-tier">' . e($tier) . '</span>';
+                    }
+
+                    if (auth()->user()?->hasAccess('admin.loyalty.members.show')) {
+                        $url = route('admin.loyalty.members.show', $wallet);
+
+                        return '<a href="' . e($url) . '" class="admin-users-table__loyalty admin-users-table__loyalty--yes" onclick="event.stopPropagation()">'
+                            . '<i class="fa fa-star" aria-hidden="true"></i> '
+                            . $label
+                            . '</a>';
+                    }
+
+                    return '<span class="admin-users-table__loyalty admin-users-table__loyalty--yes">'
+                        . '<i class="fa fa-star" aria-hidden="true"></i> '
+                        . $label
+                        . '</span>';
+                }
+
+                return '<span class="admin-users-table__loyalty admin-users-table__loyalty--no">'
+                    . '<i class="fa fa-circle-o" aria-hidden="true"></i> '
+                    . e(trans('user::users.index.loyalty_member_no'))
+                    . '</span>';
             })
             ->addColumn('status', function ($user) {
                 if ($user->isActivated()) {

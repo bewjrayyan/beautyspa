@@ -38,6 +38,13 @@ class ImportBirthdayFounderMegaSaleCommand extends Command
             $this->line($message);
         });
 
+        $canonicalSlugs = array_column($catalog, 'slug');
+        $removed = $importer->removeBirthdayMegaSaleOrphans($canonicalSlugs);
+
+        if ($removed > 0) {
+            $this->warn("Removed {$removed} orphan/duplicate birthday mega sale product(s).");
+        }
+
         $stats = ['total' => count($catalog), 'imported' => 0, 'skipped' => 0, 'failed' => 0];
 
         foreach ($catalog as $index => $entry) {

@@ -21,6 +21,8 @@
 @section('content')
     @php
         $inactiveCount = max(0, (int) $stats['total'] - (int) $stats['activated']);
+        $loyaltyEnabled = ($loyalty['enabled'] ?? false) === true;
+        $loyaltyMissing = (int) ($loyalty['missing'] ?? 0);
     @endphp
 
     <div class="admin-users-page">
@@ -34,6 +36,28 @@
             </div>
 
             <div class="admin-users-hero__actions">
+                @if ($loyaltyEnabled && auth()->user()?->hasAccess('admin.loyalty.members.index'))
+                    <a href="{{ route('admin.loyalty.members.index') }}" class="btn btn-default admin-users-hero__btn">
+                        <i class="fa fa-star" aria-hidden="true"></i>
+                        {{ trans('user::users.index.loyalty_browse') }}
+                    </a>
+                @endif
+
+                @if ($loyaltyEnabled && $loyaltyMissing > 0 && auth()->user()?->hasAccess('admin.loyalty.members.enroll'))
+                    <form
+                        method="POST"
+                        action="{{ route('admin.users.enroll_loyalty') }}"
+                        class="admin-users-hero__enroll-form"
+                        onsubmit="return confirm(@json(trans('user::users.index.loyalty_enroll_confirm')))"
+                    >
+                        @csrf
+                        <button type="submit" class="btn btn-primary admin-users-hero__btn">
+                            <i class="fa fa-user-plus" aria-hidden="true"></i>
+                            {{ trans('user::users.index.loyalty_enroll_button') }}
+                        </button>
+                    </form>
+                @endif
+
                 @hasAccess('admin.roles.index')
                     <a href="{{ route('admin.roles.index') }}" class="btn btn-default admin-users-hero__btn">
                         <i class="fa fa-shield" aria-hidden="true"></i>
@@ -49,6 +73,13 @@
                 @endHasAccess
             </div>
         </header>
+
+        @if ($loyaltyEnabled && $loyaltyMissing > 0)
+            <div class="alert alert-info admin-users-loyalty-alert">
+                <strong>{{ trans('user::users.index.loyalty_enroll_alert_title') }}</strong>
+                <p>{{ trans('user::users.index.loyalty_enroll_alert_lead', ['count' => number_format($loyaltyMissing)]) }}</p>
+            </div>
+        @endif
 
         <div class="admin-users-stats">
             <div class="admin-users-stats__stat">
@@ -124,11 +155,14 @@
                 @component('admin::components.table', ['class' => 'admin-users-table'])
                     @slot('thead')
                         <tr>
-                            @include('admin::partials.table.select_all')
+                            @include('admin::partials.table.select_all', ['name' => 'users'])
 
                             <th data-sort>{{ trans('admin::admin.table.id') }}</th>
                             <th>{{ trans('user::users.index.column_user') }}</th>
                             <th>{{ trans('user::users.index.column_roles') }}</th>
+                            @if ($loyaltyEnabled)
+                                <th>{{ trans('user::users.index.column_loyalty_member') }}</th>
+                            @endif
                             <th>{{ trans('user::users.index.column_status') }}</th>
                             <th>{{ trans('user::users.table.last_login') }}</th>
                             <th data-sort>{{ trans('admin::admin.table.created') }}</th>
@@ -184,7 +218,6 @@
                         orderable: false,
                         searchable: false,
                         width: '3%',
-                        title: '',
                     },
                     {
                         data: 'id',
@@ -203,6 +236,14 @@
                         searchable: false,
                         title: @json(trans('user::users.index.column_roles')),
                     },
+                    @if ($loyaltyEnabled)
+                    {
+                        data: 'loyalty_member',
+                        orderable: false,
+                        searchable: false,
+                        title: @json(trans('user::users.index.column_loyalty_member')),
+                    },
+                    @endif
                     {
                         data: 'status',
                         orderable: false,
@@ -238,6 +279,8 @@
                 const $mount = $('#admin-users-table-search');
                 const $searchInput = $search.find('input');
 
+                mountUsersSelectAllHeader(this.element);
+
                 if ($mount.length && $search.length) {
                     $search.appendTo($mount);
                 }
@@ -249,8 +292,91 @@
                 if (query && $searchInput.length) {
                     $searchInput.val(query).trigger('input');
                 }
+
+                bindUsersBulkLoyaltyEnroll(this);
             }
         );
+
+        function mountUsersSelectAllHeader($table) {
+            const $headerCell = $table.find('thead th').first();
+
+            if ($headerCell.find('.select-all').length) {
+                return;
+            }
+
+            $headerCell.html(`
+                <div class="checkbox bulk-select-cell">
+                    <input type="checkbox" class="select-all" id="users-select-all" aria-label="@json(trans('user::users.index.select_all'))">
+                    <label for="users-select-all"></label>
+                </div>
+            `);
+        }
+
+        function bindUsersBulkLoyaltyEnroll(dtInstance) {
+            const config = @json([
+                'canEnrollLoyalty' => $loyaltyEnabled && auth()->user()?->hasAccess('admin.loyalty.members.enroll'),
+                'enrollBulkUrl' => url('admin/users/enroll-loyalty'),
+            ]);
+
+            if (!config.canEnrollLoyalty) {
+                return;
+            }
+
+            const $table = dtInstance.element;
+            const $length = $table.closest('.dt-container').find('.dt-length');
+
+            if ($length.find('.btn-enroll-loyalty').length) {
+                return;
+            }
+
+            const $btn = $(`
+                <button type="button" class="btn btn-default btn-enroll-loyalty">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                    <span>${trans('user::users.index.loyalty_enroll_bulk_button')}</span>
+                </button>
+            `);
+
+            $length.append($btn);
+
+            $btn.on('click', function () {
+                const checked = $table.find('.select-row:checked');
+
+                if (!checked.length) {
+                    if (typeof window.error === 'function') {
+                        window.error(trans('user::users.index.loyalty_enroll_bulk_select_hint'));
+                    }
+
+                    return;
+                }
+
+                if (!confirm(trans('user::users.index.loyalty_enroll_bulk_confirm'))) {
+                    return;
+                }
+
+                const ids = window.DataTable.getRowIds(checked);
+
+                axios
+                    .post(`${config.enrollBulkUrl}/${ids.join(',')}`)
+                    .then((response) => {
+                        window.DataTable.setSelectedIds('#users-table .table', []);
+                        window.DataTable.reload('#users-table .table');
+
+                        if (typeof window.success === 'function') {
+                            window.success(response.data.message);
+                        }
+                    })
+                    .catch((error) => {
+                        const message =
+                            error.response && error.response.data && error.response.data.message
+                                ? error.response.data.message
+                                : trans('admin::messages.something_went_wrong');
+
+                        if (typeof window.error === 'function') {
+                            window.error(message);
+                        }
+                    });
+            });
+        }
     </script>
 @endpush
 

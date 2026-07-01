@@ -11,6 +11,7 @@ return [
         'index' => 'View loyalty members',
         'show' => 'View member wallet',
         'adjust' => 'Adjust member points',
+        'enroll' => 'Enroll users as loyalty members',
     ],
     'reports' => [
         'index' => 'View loyalty reports',

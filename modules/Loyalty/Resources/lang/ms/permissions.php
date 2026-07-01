@@ -11,6 +11,7 @@ return [
         'index' => 'Lihat ahli kesetiaan',
         'show' => 'Lihat dompet ahli',
         'adjust' => 'Laraskan mata ahli',
+        'enroll' => 'Daftarkan pengguna sebagai ahli kesetiaan',
     ],
     'reports' => [
         'index' => 'Lihat laporan kesetiaan',

@@ -40,6 +40,7 @@ return [
         'admin.gift_voucher_submissions' => 'Penyerahan baucar hadiah',
         'admin.loyalty.tiers' => 'Peringkat kesetiaan',
         'admin.loyalty.members' => 'Ahli kesetiaan',
+        'admin.loyalty.members.enroll' => 'Daftar ahli kesetiaan',
         'admin.loyalty.reports' => 'Laporan kesetiaan',
         'admin.loyalty.stamp_programs' => 'Program setem kesetiaan',
         'admin.orders' => 'Pesanan',

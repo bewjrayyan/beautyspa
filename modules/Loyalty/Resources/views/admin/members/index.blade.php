@@ -25,6 +25,20 @@
                 <p class="loyalty-page-hero__lead">{{ trans('loyalty::members.index.lead') }}</p>
             </div>
             <div class="loyalty-page-hero__actions">
+                @if (($missing_members ?? 0) > 0 && auth()->user()?->hasAccess('admin.loyalty.members.enroll'))
+                    <form
+                        method="POST"
+                        action="{{ route('admin.loyalty.members.enroll') }}"
+                        class="loyalty-page-hero__enroll-form"
+                        onsubmit="return confirm(@json(trans('loyalty::members.index.enroll_missing_confirm')))"
+                    >
+                        @csrf
+                        <button type="submit" class="btn btn-primary loyalty-page-hero__btn">
+                            <i class="fa fa-user-plus" aria-hidden="true"></i>
+                            {{ trans('loyalty::members.index.enroll_missing_button') }}
+                        </button>
+                    </form>
+                @endif
                 <a href="{{ route('admin.loyalty.reports.index') }}" class="btn btn-default loyalty-page-hero__btn">
                     <i class="fa fa-bar-chart" aria-hidden="true"></i>
                     {{ trans('loyalty::sidebar.reports') }}
@@ -35,6 +49,13 @@
                 </a>
             </div>
         </header>
+
+        @if (($missing_members ?? 0) > 0)
+            <div class="alert alert-info loyalty-members__enroll-alert">
+                <strong>{{ trans('loyalty::members.index.enroll_missing_title') }}</strong>
+                <p>{{ trans('loyalty::members.index.enroll_missing_lead', ['count' => number_format($missing_members)]) }}</p>
+            </div>
+        @endif
 
         <div class="loyalty-members__stamp-tools">
             @include('loyalty::admin.members.partials.stamp-lookup', [

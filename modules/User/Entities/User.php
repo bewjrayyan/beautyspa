@@ -3,6 +3,7 @@
 namespace Modules\User\Entities;
 
 use Modules\Beautician\Entities\Beautician;
+use Modules\Loyalty\Entities\LoyaltyWallet;
 use Modules\Order\Entities\Order;
 use Modules\User\Admin\UserTable;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,7 @@ use Modules\Address\Entities\DefaultAddress;
 use Illuminate\Database\Eloquent\Collection;
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
@@ -48,6 +50,12 @@ class User extends EloquentUser implements AuthenticatableContract
     public function beauticianProfile()
     {
         return $this->hasOne(Beautician::class, 'user_id');
+    }
+
+
+    public function loyaltyWallet(): HasOne
+    {
+        return $this->hasOne(LoyaltyWallet::class, 'user_id');
     }
 
     /**
@@ -433,6 +441,6 @@ class User extends EloquentUser implements AuthenticatableContract
      */
     public function table()
     {
-        return new UserTable($this->newQuery()->with(['roles', 'files', 'beauticianProfile.files']));
+        return new UserTable($this->newQuery()->with(['roles', 'files', 'beauticianProfile.files', 'loyaltyWallet.tier']));
     }
 }

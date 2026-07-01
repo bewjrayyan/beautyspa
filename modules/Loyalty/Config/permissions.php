@@ -11,6 +11,7 @@ return [
         'index' => 'loyalty::permissions.members.index',
         'show' => 'loyalty::permissions.members.show',
         'adjust' => 'loyalty::permissions.members.adjust',
+        'enroll' => 'loyalty::permissions.members.enroll',
     ],
     'admin.loyalty.reports' => [
         'index' => 'loyalty::permissions.reports.index',

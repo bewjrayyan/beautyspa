@@ -10,6 +10,7 @@ use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\User\Events\CustomerRegistered;
 use Modules\Loyalty\Listeners\AwardStampsOnOrderPlaced;
+use Modules\Loyalty\Console\EnrollMembersCommand;
 use Modules\Loyalty\Console\ExpireLoyaltyPointsCommand;
 use Modules\Loyalty\Console\AwardBirthdayBonusCommand;
 use Modules\Loyalty\Console\GrantLoyaltyPermissionsCommand;
@@ -68,6 +69,7 @@ class LoyaltyServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                EnrollMembersCommand::class,
                 ExpireLoyaltyPointsCommand::class,
                 GrantLoyaltyPermissionsCommand::class,
                 NotifyExpiringLoyaltyPointsCommand::class,

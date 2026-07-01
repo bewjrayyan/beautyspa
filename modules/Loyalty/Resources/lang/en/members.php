@@ -38,6 +38,10 @@ return [
         'table_lead' => 'Click a row or View to open the member wallet.',
         'search_placeholder' => 'Name, email, phone, IC or passport…',
         'actions' => 'Actions',
+        'enroll_missing_title' => 'Customers without a loyalty wallet',
+        'enroll_missing_lead' => ':count customer account(s) from Users are not listed here yet. Enroll them to create a loyalty wallet at the default tier (0 points).',
+        'enroll_missing_button' => 'Enroll all customers',
+        'enroll_missing_confirm' => 'Create loyalty wallets for all customers who do not have one yet?',
     ],
     'show' => [
         'wallet_id' => 'Wallet #:id',

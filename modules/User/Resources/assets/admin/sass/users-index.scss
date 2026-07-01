@@ -105,6 +105,19 @@ $users-purple-soft: #f5f3ff;
             margin-right: 6px;
         }
     }
+
+    &__enroll-form {
+        margin: 0;
+    }
+}
+
+.admin-users-loyalty-alert {
+    margin-bottom: 20px;
+    border-radius: 12px;
+
+    p {
+        margin: 6px 0 0;
+    }
 }
 
 .admin-users-stats {
@@ -358,6 +371,20 @@ $users-purple-soft: #f5f3ff;
         border-bottom: 1px solid $users-border;
         padding: 12px 14px;
         white-space: nowrap;
+
+        &:first-child {
+            width: 48px;
+            text-align: center;
+            text-transform: none;
+            padding-left: 12px;
+            padding-right: 12px;
+
+            .checkbox {
+                margin: 0;
+                display: inline-flex;
+                justify-content: center;
+            }
+        }
     }
 
     > tbody > tr > td {
@@ -459,6 +486,46 @@ $users-purple-soft: #f5f3ff;
     border: 1px solid rgba(0, 104, 225, 0.12);
 }
 
+.admin-users-table__loyalty {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+
+    .fa {
+        font-size: 12px;
+    }
+
+    &--yes {
+        color: #6941c6;
+        background: #f9f5ff;
+        border: 1px solid #e9d7fe;
+
+        &:hover,
+        &:focus {
+            color: #53389e;
+            background: #f4ebff;
+            text-decoration: none;
+        }
+    }
+
+    &--no {
+        color: $users-muted;
+        background: #f8fafc;
+        border: 1px solid $users-border;
+    }
+}
+
+.admin-users-table__loyalty-tier {
+    font-weight: 500;
+    opacity: 0.9;
+}
+
 .admin-users-table__status {
     display: inline-flex;
     align-items: center;
@@ -550,6 +617,28 @@ $users-purple-soft: #f5f3ff;
             color: #912018;
             border-color: #fda29b;
             background: #fee4e2;
+        }
+    }
+
+    .btn-enroll-loyalty {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 8px;
+        font-weight: 600;
+        color: #6941c6;
+        border-color: #d6bbfb;
+        background: #f9f5ff;
+
+        .fa {
+            color: #7f56d9;
+        }
+
+        &:hover,
+        &:focus {
+            color: #53389e;
+            border-color: #b692f6;
+            background: #f4ebff;
         }
     }
 

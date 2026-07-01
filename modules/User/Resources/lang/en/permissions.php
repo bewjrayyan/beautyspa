@@ -40,6 +40,7 @@ return [
         'admin.gift_voucher_submissions' => 'Gift voucher submissions',
         'admin.loyalty.tiers' => 'Loyalty tiers',
         'admin.loyalty.members' => 'Loyalty members',
+        'admin.loyalty.members.enroll' => 'Enroll loyalty members',
         'admin.loyalty.reports' => 'Loyalty reports',
         'admin.loyalty.stamp_programs' => 'Loyalty stamp programs',
         'admin.orders' => 'Orders',

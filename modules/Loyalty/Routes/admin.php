@@ -128,6 +128,12 @@ Route::get('loyalty/members/index/table', [
     'middleware' => 'can:admin.loyalty.members.index',
 ]);
 
+Route::post('loyalty/members/enroll', [
+    'as' => 'admin.loyalty.members.enroll',
+    'uses' => 'MemberController@enrollMissing',
+    'middleware' => 'can:admin.loyalty.members.enroll',
+]);
+
 Route::get('loyalty/members/{wallet}', [
     'as' => 'admin.loyalty.members.show',
     'uses' => 'MemberController@show',

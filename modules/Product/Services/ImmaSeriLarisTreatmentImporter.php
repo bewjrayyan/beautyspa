@@ -403,6 +403,33 @@ class ImmaSeriLarisTreatmentImporter
     }
 
 
+    /**
+     * Remove stray birthday mega sale products (per-option duplicates, wrong slugs).
+     *
+     * @param array<int, string> $canonicalSlugs
+     */
+    public function removeBirthdayMegaSaleOrphans(array $canonicalSlugs): int
+    {
+        $removed = 0;
+        $canonical = array_flip($canonicalSlugs);
+
+        Product::withoutGlobalScope('active')
+            ->where('slug', 'like', '%birthday-founder-mega-sale%')
+            ->orderBy('id')
+            ->get()
+            ->each(function (Product $product) use ($canonical, &$removed) {
+                if (isset($canonical[$product->slug])) {
+                    return;
+                }
+
+                $this->deleteProductPermanently($product);
+                $removed++;
+            });
+
+        return $removed;
+    }
+
+
     private function updateExistingProduct(Product $product, array $data, bool $skipImages): void
     {
         if ($product->trashed()) {

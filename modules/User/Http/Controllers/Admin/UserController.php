@@ -3,6 +3,8 @@
 namespace Modules\User\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Modules\Address\Entities\Address;
@@ -11,7 +13,9 @@ use Modules\Admin\Ui\Facades\TabManager;
 use Modules\Account\Services\ProfileAvatarService;
 use Modules\Loyalty\Entities\LoyaltyWallet;
 use Modules\Loyalty\Services\LoyaltyLifetimeSpendService;
+use Modules\Loyalty\Services\LoyaltyMemberEnrollmentService;
 use Modules\Loyalty\Services\LoyaltyTierService;
+use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\Support\Country;
 use Modules\User\Entities\Role;
 use Modules\User\Entities\User;
@@ -56,7 +60,8 @@ class UserController
         private ProfileAvatarService $avatars,
         private ProfileAddressService $addresses,
         private LoyaltyLifetimeSpendService $lifetimeSpend,
-        private LoyaltyTierService $loyaltyTiers
+        private LoyaltyTierService $loyaltyTiers,
+        private LoyaltyWalletService $loyaltyWallets,
     ) {}
 
 
@@ -88,7 +93,92 @@ class UserController
                 ->orderByDesc('users_count')
                 ->limit(8)
                 ->get(),
+            'loyalty' => $this->loyaltyIndexStats(),
         ]);
+    }
+
+
+    public function enrollLoyaltyMembers(LoyaltyMemberEnrollmentService $enrollment): RedirectResponse
+    {
+        if (! app('modules')->isEnabled('Loyalty')) {
+            return redirect()
+                ->route('admin.users.index')
+                ->withError(trans('user::users.index.loyalty_module_disabled'));
+        }
+
+        $missing = $enrollment->countMissing(true);
+
+        if ($missing === 0) {
+            return redirect()
+                ->route('admin.users.index')
+                ->withSuccess(trans('user::users.index.loyalty_enroll_none'));
+        }
+
+        $result = $enrollment->enrollMissing(true);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->withSuccess(trans('user::users.index.loyalty_enroll_success', [
+                'count' => $result['enrolled'],
+            ]));
+    }
+
+
+    public function enrollLoyaltyMembersBulk(
+        string $ids,
+        LoyaltyMemberEnrollmentService $enrollment
+    ): JsonResponse {
+        if (! app('modules')->isEnabled('Loyalty')) {
+            return response()->json([
+                'message' => trans('user::users.index.loyalty_module_disabled'),
+            ], 422);
+        }
+
+        $userIds = array_filter(array_map('intval', explode(',', $ids)));
+
+        if ($userIds === []) {
+            return response()->json([
+                'message' => trans('user::users.index.loyalty_enroll_bulk_select_hint'),
+            ], 422);
+        }
+
+        $result = $enrollment->enrollUserIds($userIds, true);
+
+        if ($result['enrolled'] === 0) {
+            return response()->json([
+                'message' => trans('user::users.index.loyalty_enroll_bulk_none'),
+                'enrolled' => 0,
+                'skipped' => $result['skipped'],
+            ]);
+        }
+
+        return response()->json([
+            'message' => trans('user::users.index.loyalty_enroll_bulk_success', [
+                'enrolled' => $result['enrolled'],
+                'skipped' => $result['skipped'],
+            ]),
+            'enrolled' => $result['enrolled'],
+            'skipped' => $result['skipped'],
+        ]);
+    }
+
+
+    /**
+     * @return array{enabled: bool, missing: int, members: int}
+     */
+    private function loyaltyIndexStats(): array
+    {
+        if (! app('modules')->isEnabled('Loyalty')) {
+            return ['enabled' => false, 'missing' => 0, 'members' => 0];
+        }
+
+        $enrollment = app(LoyaltyMemberEnrollmentService::class);
+
+        return [
+            'enabled' => true,
+            'missing' => $enrollment->countMissing(true),
+            'members' => LoyaltyWallet::count(),
+        ];
     }
 
 
@@ -235,16 +325,22 @@ class UserController
             return null;
         }
 
-        $wallet = LoyaltyWallet::query()
-            ->with('tier')
-            ->where('user_id', $user->id)
-            ->first();
-
-        if ($wallet) {
-            $this->lifetimeSpend->recalculateWallet($wallet);
-            $this->loyaltyTiers->evaluate($wallet->fresh(), 'user_edit');
-            $wallet->refresh();
+        if ($user->isCustomer()) {
+            $wallet = $this->loyaltyWallets->getOrCreateForUser($user);
+        } else {
+            $wallet = LoyaltyWallet::query()
+                ->with('tier')
+                ->where('user_id', $user->id)
+                ->first();
         }
+
+        if (! $wallet) {
+            return null;
+        }
+
+        $this->lifetimeSpend->recalculateWallet($wallet);
+        $this->loyaltyTiers->evaluate($wallet->fresh(), 'user_edit');
+        $wallet->refresh();
 
         return $wallet;
     }

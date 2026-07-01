@@ -115,6 +115,7 @@ class RolesTableSeeder extends Seeder
             'admin.loyalty.members.index' => true,
             'admin.loyalty.members.show' => true,
             'admin.loyalty.members.adjust' => true,
+            'admin.loyalty.members.enroll' => true,
             'admin.loyalty.reports.index' => true,
             # menus
             'admin.menus.index' => true,
