@@ -21,9 +21,10 @@
         -webkit-backdrop-filter: blur(18px);
         border-top: 0.5px solid rgba(15, 23, 42, 0.1);
         box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
-        padding-left: env(safe-area-inset-left, 0px);
-        padding-right: env(safe-area-inset-right, 0px);
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
         padding-bottom: env(safe-area-inset-bottom, 0px);
+        box-sizing: border-box;
     }
 
     .bottom-navigation-bar {
@@ -33,29 +34,28 @@
         max-width: 100%;
         margin: 0 auto;
         padding: 4px 0 6px;
+        box-sizing: border-box;
     }
 
     .bottom-navigation-items {
         display: flex;
         align-items: stretch;
-        justify-content: space-evenly;
+        justify-content: space-between;
         width: 100%;
         max-width: 100%;
         margin: 0;
-        padding: 0 10px;
+        padding: 0;
         list-style: none;
         box-sizing: border-box;
+        gap: 2px;
 
         li {
             flex: 1 1 0;
             min-width: 0;
+            max-width: 20%;
             display: flex;
             justify-content: center;
             align-items: stretch;
-
-            &:first-child a svg {
-                transform: translateX(-3px);
-            }
         }
 
         a {
@@ -65,8 +65,9 @@
             justify-content: center;
             gap: 4px;
             width: 100%;
+            max-width: 72px;
             min-height: 50px;
-            padding: 6px 2px 4px;
+            padding: 6px 4px 4px;
             border-radius: 14px;
             position: relative;
             text-decoration: none;
@@ -130,9 +131,9 @@
 
             .count {
                 position: absolute;
-                top: 1px;
-                left: 50%;
-                margin-left: 11px;
+                top: 2px;
+                left: calc(50% + 6px);
+                margin-left: 0;
                 right: auto;
                 min-width: 16px;
                 height: 16px;
@@ -150,6 +151,7 @@
                 align-items: center;
                 justify-content: center;
                 transform: none;
+                max-width: calc(100% - 8px);
             }
         }
 
@@ -164,18 +166,19 @@
 
 @media screen and (max-width: 375px) {
     .bottom-navigation-items {
-        padding: 0 4px;
+        gap: 0;
 
         a {
-            padding-left: 1px;
-            padding-right: 1px;
+            max-width: 64px;
+            padding-left: 2px;
+            padding-right: 2px;
 
             span:not(.count) {
                 font-size: 9px;
             }
 
             .count {
-                margin-left: 9px;
+                left: calc(50% + 4px);
             }
         }
     }

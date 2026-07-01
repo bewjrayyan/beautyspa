@@ -18,5 +18,15 @@
     .header-wrap-inner {
         padding: 5px 0;
         border-bottom: 1px solid var(--border-color);
+
+        > .container {
+            padding-left: max(16px, env(safe-area-inset-left, 0px));
+            padding-right: max(16px, env(safe-area-inset-right, 0px));
+        }
+
+        > .container > .d-flex {
+            align-items: center;
+            min-height: 44px;
+        }
     }
 }

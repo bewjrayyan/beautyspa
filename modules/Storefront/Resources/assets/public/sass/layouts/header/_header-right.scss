@@ -78,11 +78,19 @@
     .header-column-right {
         height: auto;
         margin-top: unset;
+        flex-shrink: 0;
+        padding-left: 0;
+        padding-right: 0;
+        gap: 0;
+        align-items: center;
     }
 
     .header-column-right {
         .header-column-right-item {
-            margin-right: 0px;
+            margin-right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .header-localization {
@@ -90,7 +98,6 @@
         }
 
         .header-wishlist {
-            margin-right: 0;
             display: none;
         }
 
@@ -100,15 +107,26 @@
 
         .header-cart {
             display: flex;
-            margin-left: 12px;
+            margin-left: 0;
         }
 
         .icon-wrap {
-            margin-right: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            margin-right: 0;
+            flex-shrink: 0;
 
             > svg {
                 height: 24px;
                 width: 24px;
+            }
+
+            > .count {
+                top: 4px;
+                right: 4px;
             }
         }
     }

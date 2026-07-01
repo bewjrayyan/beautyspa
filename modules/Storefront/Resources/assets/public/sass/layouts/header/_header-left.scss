@@ -89,8 +89,18 @@
 }
 
 @media screen and (max-width: 991px) {
+    .sidebar-menu-icon-wrap {
+        height: 44px;
+        width: 44px;
+        min-width: 44px;
+        padding-right: 0;
+        margin-left: -6px;
+    }
+
     .header-logo {
         margin-top: unset;
+        padding-right: 8px;
+        padding-left: 0;
     }
 
     .header-logo {
@@ -102,11 +112,14 @@
 
 @media screen and (max-width: 390px) {
     .sidebar-menu-icon-wrap {
-        padding-right: 5px;
+        width: 40px;
+        min-width: 40px;
+        margin-left: -4px;
     }
 
     .header-logo {
         width: 160px;
-        padding-left: 5px;
+        padding-left: 0;
+        padding-right: 4px;
     }
 }
