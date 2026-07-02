@@ -23,6 +23,7 @@ return [
         'too_many_attempts' => 'Too many OTP requests. Please try again in :minutes minute(s).',
         'too_many_verify_attempts' => 'Too many incorrect codes. Please request a new OTP.',
         'send_failed' => 'Failed to send WhatsApp message.',
+        'connection_failed' => 'Could not reach the WhatsApp API. Check your internet connection and OneSender API URL in Settings.',
         'missing_credentials' => 'OneSender API is not configured.',
         'service_disabled' => 'WhatsApp OTP login is disabled.',
         'sms_message' => ':store login code: :otp. Valid for :minutes minutes. Do not share this code.',

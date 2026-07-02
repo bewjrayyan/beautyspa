@@ -3,6 +3,7 @@
 namespace Modules\User\Services;
 
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -659,11 +660,23 @@ class OneSenderWhatsAppService
 
     private function postPayload(array $payload): Response
     {
-        return Http::withToken((string) SettingValues::get('onesender_api_key'))
-            ->acceptJson()
-            ->asJson()
-            ->timeout(30)
-            ->post((string) SettingValues::get('onesender_api_url'), $payload);
+        $apiUrl = (string) SettingValues::get('onesender_api_url');
+
+        try {
+            return Http::withToken((string) SettingValues::get('onesender_api_key'))
+                ->acceptJson()
+                ->asJson()
+                ->connectTimeout(15)
+                ->timeout(30)
+                ->post($apiUrl, $payload);
+        } catch (ConnectionException $exception) {
+            Log::error('OneSender connection failed', [
+                'url' => $apiUrl,
+                'error' => $exception->getMessage(),
+            ]);
+
+            throw new Exception(trans('user::messages.whatsapp_otp.connection_failed'));
+        }
     }
 
 

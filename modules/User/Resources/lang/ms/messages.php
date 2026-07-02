@@ -27,6 +27,7 @@ return [
         'too_many_attempts' => 'Terlalu banyak permintaan OTP. Sila cuba lagi dalam :minutes minit.',
         'too_many_verify_attempts' => 'Terlalu banyak kod salah. Sila minta OTP baharu.',
         'send_failed' => 'Gagal menghantar mesej WhatsApp.',
+        'connection_failed' => 'Tidak dapat hubungi API WhatsApp. Semak sambungan internet dan URL API OneSender dalam Tetapan.',
         'missing_credentials' => 'API OneSender belum dikonfigurasi.',
         'service_disabled' => 'Log masuk WhatsApp OTP dinyahaktifkan.',
         'sms_message' => ':store kod log masuk: :otp. Sah untuk :minutes minit. Jangan kongsi kod ini.',
