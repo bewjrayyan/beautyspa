@@ -163,10 +163,32 @@ class User extends EloquentUser implements AuthenticatableContract
     public function adminHomeRoute(): string
     {
         if ($this->isBeauticianOnly()) {
+            $beautician = Beautician::findForUser($this->id);
+
+            if ($beautician) {
+                return route('admin.beauticians.portal.dashboard', $beautician->id);
+            }
+
             return route('admin.treatment_reservations.portal');
         }
 
         return route('admin.dashboard.index');
+    }
+
+
+    public function adminProfileRoute(): string
+    {
+        if (! $this->isBeauticianOnly()) {
+            return route('admin.profile.edit');
+        }
+
+        $beautician = Beautician::findForUser($this->id);
+
+        if ($beautician) {
+            return route('admin.beauticians.portal.account', $beautician->id);
+        }
+
+        return route('admin.treatment_reservations.portal.account');
     }
 
 

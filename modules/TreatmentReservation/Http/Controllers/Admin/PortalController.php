@@ -142,7 +142,7 @@ class PortalController extends Controller
         $routeParams = ['id' => $beautician->id];
 
         return [
-            'adminPortalPreview' => true,
+            'adminPortalPreview' => $this->isAdminBeauticianPreview($request, $beautician),
             'portalApiRoutes' => [
                 'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
                 'kanban' => route('admin.beauticians.portal.kanban', $routeParams),
@@ -150,7 +150,9 @@ class PortalController extends Controller
                 'update_notes' => route('admin.beauticians.portal.update_notes', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'send_whatsapp' => route('admin.beauticians.portal.send_whatsapp', ['id' => $beautician->id, 'booking' => '__ID__']),
             ],
-            'backUrl' => route('admin.beauticians.edit', $beautician),
+            'backUrl' => $this->isAdminBeauticianPreview($request, $beautician)
+                ? route('admin.beauticians.edit', $beautician)
+                : null,
         ];
     }
 
@@ -512,28 +514,41 @@ class PortalController extends Controller
      */
     private function crmApiRoutes(Request $request, Beautician $beautician): array
     {
-        if ($this->isAdminBeauticianPreview($request)) {
+        if ($request->routeIs('admin.beauticians.portal*')) {
             $routeParams = ['id' => $beautician->id];
+            $isPreview = $this->isAdminBeauticianPreview($request, $beautician);
 
             return [
                 'formAction' => route('admin.beauticians.portal.dashboard', $routeParams),
                 'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
+                'calendarFullView' => route('admin.beauticians.portal.calendar_page', ['id' => $beautician->id, 'focus' => 1]),
                 'updateStatus' => route('admin.beauticians.portal.update_status', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'whatsapp' => route('admin.beauticians.portal.send_whatsapp', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'reminder' => route('admin.beauticians.portal.send_reminder', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'customerProfile' => route('admin.beauticians.portal.customer_profile', $routeParams),
                 'specialistAvailability' => route('admin.beauticians.portal.specialist_availability', $routeParams),
-                'manualBookingSlots' => route('admin.treatment_reservations.manual_bookings.slots'),
-                'manualBookingCustomers' => route('admin.treatment_reservations.manual_bookings.customers'),
-                'manualBookingStore' => route('admin.treatment_reservations.manual_bookings.store'),
-                'manualBookingUpdate' => route('admin.treatment_reservations.manual_bookings.update', ['booking' => '__ID__']),
-                'manualBookingCancel' => route('admin.treatment_reservations.manual_bookings.cancel', ['booking' => '__ID__']),
+                'manualBookingSlots' => $isPreview
+                    ? route('admin.treatment_reservations.manual_bookings.slots')
+                    : route('admin.treatment_reservations.portal.manual_bookings.slots'),
+                'manualBookingCustomers' => $isPreview
+                    ? route('admin.treatment_reservations.manual_bookings.customers')
+                    : route('admin.treatment_reservations.portal.manual_bookings.customers'),
+                'manualBookingStore' => $isPreview
+                    ? route('admin.treatment_reservations.manual_bookings.store')
+                    : route('admin.treatment_reservations.portal.manual_bookings.store'),
+                'manualBookingUpdate' => $isPreview
+                    ? route('admin.treatment_reservations.manual_bookings.update', ['booking' => '__ID__'])
+                    : route('admin.treatment_reservations.portal.manual_bookings.update', ['booking' => '__ID__']),
+                'manualBookingCancel' => $isPreview
+                    ? route('admin.treatment_reservations.manual_bookings.cancel', ['booking' => '__ID__'])
+                    : route('admin.treatment_reservations.portal.manual_bookings.cancel', ['booking' => '__ID__']),
             ];
         }
 
         return [
-            'formAction' => route('admin.treatment_reservations.portal.dashboard'),
+            'formAction' => route('admin.treatment_reservations.portal'),
             'calendar' => route('admin.treatment_reservations.portal.calendar'),
+            'calendarFullView' => route('admin.treatment_reservations.portal.calendar_page', ['focus' => 1]),
             'updateStatus' => route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']),
             'whatsapp' => route('admin.treatment_reservations.portal.send_whatsapp', ['id' => '__ID__']),
             'reminder' => route('admin.treatment_reservations.portal.send_reminder', ['id' => '__ID__']),
@@ -561,8 +576,10 @@ class PortalController extends Controller
         }
 
         return [
-            'adminPortalPreview' => true,
-            'backUrl' => route('admin.beauticians.edit', $beautician),
+            'adminPortalPreview' => $this->isAdminBeauticianPreview($request, $beautician),
+            'backUrl' => $this->isAdminBeauticianPreview($request, $beautician)
+                ? route('admin.beauticians.edit', $beautician)
+                : null,
         ];
     }
 
@@ -594,11 +611,21 @@ class PortalController extends Controller
     }
 
 
-    private function isAdminBeauticianPreview(Request $request): bool
+    private function isAdminBeauticianPreview(Request $request, ?Beautician $beautician = null): bool
     {
         $routeName = (string) optional($request->route())->getName();
 
-        return str_starts_with($routeName, 'admin.beauticians.portal.');
+        if (! str_starts_with($routeName, 'admin.beauticians.portal')) {
+            return false;
+        }
+
+        $beautician ??= $request->attributes->get('portal_beautician');
+
+        if (! $beautician) {
+            return false;
+        }
+
+        return (int) auth()->id() !== (int) $beautician->user_id;
     }
 
 

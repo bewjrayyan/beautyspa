@@ -23,7 +23,7 @@ class DashboardController
     public function index()
     {
         if (auth()->user()?->isBeauticianOnly()) {
-            return redirect()->route('admin.treatment_reservations.portal');
+            return redirect()->to(auth()->user()->adminHomeRoute());
         }
 
         $loyaltyEnabled = Module::isEnabled('Loyalty');

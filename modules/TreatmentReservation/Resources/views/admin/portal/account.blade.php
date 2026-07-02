@@ -41,7 +41,7 @@
     <h3>{{ $beautician->name }}</h3>
 
     <ol class="breadcrumb">
-        <li><a href="{{ route('admin.treatment_reservations.portal') }}">{{ trans('treatmentreservation::admin.portal.title') }}</a></li>
+        <li><a href="{{ $accountRoutes['dashboard'] ?? route('admin.treatment_reservations.portal') }}">{{ trans('treatmentreservation::admin.portal.title') }}</a></li>
         <li class="active">{{ trans('treatmentreservation::admin.portal.account_title') }}</li>
     </ol>
 @endsection
@@ -67,7 +67,7 @@
                     </div>
                     <div class="bp-card-body">
                         <nav class="bp-quick-links">
-                            <a href="{{ route('admin.treatment_reservations.portal') }}" class="bp-quick-link">
+                            <a href="{{ $accountRoutes['dashboard'] ?? route('admin.treatment_reservations.portal') }}" class="bp-quick-link">
                                 <span class="bp-quick-link__icon"><i class="fa fa-columns"></i></span>
                                 <span class="bp-quick-link__body">
                                     <strong>{{ trans('treatmentreservation::admin.portal.tab_kanban') }}</strong>
@@ -75,7 +75,7 @@
                                 </span>
                                 <i class="fa fa-chevron-right bp-quick-link__arrow"></i>
                             </a>
-                            <a href="{{ route('admin.treatment_reservations.portal.availability') }}" class="bp-quick-link">
+                            <a href="{{ $accountRoutes['availability'] ?? route('admin.treatment_reservations.portal.availability') }}" class="bp-quick-link">
                                 <span class="bp-quick-link__icon"><i class="fa fa-clock-o"></i></span>
                                 <span class="bp-quick-link__body">
                                     <strong>{{ trans('treatmentreservation::admin.availability.title') }}</strong>
@@ -136,7 +136,7 @@
                         <p>{{ trans('treatmentreservation::admin.portal.profile_details_help') }}</p>
                     </div>
                     <div class="bp-card-body">
-                        <form method="POST" action="{{ route('admin.treatment_reservations.portal.account.profile') }}" class="bp-account-form">
+                        <form method="POST" action="{{ $accountRoutes['profileUpdate'] ?? route('admin.treatment_reservations.portal.account.profile') }}" class="bp-account-form">
                             @csrf
                             @method('PUT')
 
@@ -249,7 +249,7 @@
                         <p>{{ trans('treatmentreservation::admin.portal.change_password_help') }}</p>
                     </div>
                     <div class="bp-card-body">
-                        <form method="POST" action="{{ route('admin.treatment_reservations.portal.account.password') }}" class="bp-account-form">
+                        <form method="POST" action="{{ $accountRoutes['passwordUpdate'] ?? route('admin.treatment_reservations.portal.account.password') }}" class="bp-account-form">
                             @csrf
                             @method('PUT')
 

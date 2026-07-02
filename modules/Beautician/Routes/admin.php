@@ -86,7 +86,7 @@ Route::get('beautician-job-titles/index/table', [
     'middleware' => 'can:admin.beautician_job_titles.index',
 ]);
 
-Route::middleware(['can:admin.beauticians.edit', 'beautician.portal.from_route'])->group(function () {
+Route::middleware(['beautician.portal.access', 'beautician.portal.from_route'])->group(function () {
     Route::get('beauticians/{id}/portal', [
         'as' => 'admin.beauticians.portal',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@jobSheet',
@@ -160,6 +160,21 @@ Route::middleware(['can:admin.beauticians.edit', 'beautician.portal.from_route']
     Route::delete('beauticians/{id}/portal/availability/blocks/{blockId}', [
         'as' => 'admin.beauticians.portal.availability.blocks.destroy',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@destroyBlock',
+    ]);
+
+    Route::get('beauticians/{id}/portal/account', [
+        'as' => 'admin.beauticians.portal.account',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAccountController@edit',
+    ]);
+
+    Route::put('beauticians/{id}/portal/account/profile', [
+        'as' => 'admin.beauticians.portal.account.profile',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAccountController@updateProfile',
+    ]);
+
+    Route::put('beauticians/{id}/portal/account/password', [
+        'as' => 'admin.beauticians.portal.account.password',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAccountController@updatePassword',
     ]);
 });
 

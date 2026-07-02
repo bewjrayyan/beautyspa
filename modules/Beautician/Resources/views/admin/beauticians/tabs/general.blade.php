@@ -223,7 +223,7 @@
                     @if ($beautician->exists)
                         <div class="bp-portal-actions">
                             <a
-                                href="{{ route('admin.beauticians.portal', $beautician) }}"
+                                href="{{ route('admin.beauticians.portal.dashboard', $beautician) }}"
                                 class="btn btn-primary btn-sm"
                                 target="_blank"
                                 rel="noopener noreferrer"

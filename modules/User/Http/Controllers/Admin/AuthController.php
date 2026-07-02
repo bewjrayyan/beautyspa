@@ -87,7 +87,7 @@ class AuthController extends BaseAuthController
         $user = auth()->user();
 
         if ($user && $user->isBeauticianOnly()) {
-            return route('admin.treatment_reservations.portal');
+            return $user->adminHomeRoute();
         }
 
         return route('admin.dashboard.index');

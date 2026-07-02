@@ -20,7 +20,7 @@
         <div class="tr-calendar-month-nav">
             @if ($embedded && ($fullViewUrl ?? true))
                 <a
-                    href="{{ $fullViewUrl ?? route('admin.treatment_reservations.index', ['view' => 'calendar']) }}"
+                    href="{{ $fullViewUrl ?: route('admin.treatment_reservations.index', ['view' => 'calendar']) }}"
                     class="tr-calendar-month-nav__expand"
                 >
                     <i class="fa {{ $fullViewIcon ?? 'fa-expand' }}"></i>

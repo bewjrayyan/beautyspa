@@ -12,7 +12,10 @@
 
     <div class="tr-crm-calendar-agenda">
         <div class="tr-crm-calendar-agenda__calendar" data-crm-compact-calendar="1">
-            @include('treatmentreservation::admin.reservations.partials.calendar', ['embedded' => true])
+            @include('treatmentreservation::admin.reservations.partials.calendar', [
+                'embedded' => true,
+                'fullViewUrl' => $calendarFullViewUrl ?? null,
+            ])
         </div>
 
         <aside class="tr-crm-calendar-agenda__agenda" id="tr-crm-agenda-panel" aria-live="polite">

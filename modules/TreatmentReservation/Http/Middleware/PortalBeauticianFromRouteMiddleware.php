@@ -26,7 +26,10 @@ class PortalBeauticianFromRouteMiddleware
         }
 
         $request->attributes->set('portal_beautician', $beautician);
-        $this->portalPreview->activate($beautician);
+
+        if ((int) auth()->id() !== (int) $beautician->user_id) {
+            $this->portalPreview->activate($beautician);
+        }
 
         return $next($request);
     }

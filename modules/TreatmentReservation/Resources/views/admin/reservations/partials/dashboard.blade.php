@@ -160,7 +160,9 @@
     </div>
 
     <div class="tr-crm-dashboard__calendar">
-        @include('treatmentreservation::admin.reservations.partials.dashboard.calendar-agenda')
+        @include('treatmentreservation::admin.reservations.partials.dashboard.calendar-agenda', [
+            'calendarFullViewUrl' => $calendarFullViewUrl ?? null,
+        ])
     </div>
     @else
         @include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [

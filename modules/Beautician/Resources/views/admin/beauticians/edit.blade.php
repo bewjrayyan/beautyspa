@@ -17,7 +17,7 @@
         @hasAccess('admin.beauticians.edit')
             <div class="pull-right" style="margin-top: 4px;">
                 <a
-                    href="{{ route('admin.beauticians.portal', $beautician) }}"
+                    href="{{ route('admin.beauticians.portal.dashboard', $beautician) }}"
                     class="btn btn-primary"
                     target="_blank"
                     rel="noopener noreferrer"

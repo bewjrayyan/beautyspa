@@ -24,14 +24,9 @@
 
 @section('content')
     @if (! empty($adminPortalPreview))
-        <div class="alert alert-info tr-portal-admin-preview">
-            <i class="fa fa-eye"></i>
-            @if (admin_portal_preview()?->isActive())
-                {{ trans('beautician::beauticians.form.admin_portal_preview_banner', ['name' => $beautician->name]) }}
-            @else
-                {{ trans('beautician::beauticians.form.admin_portal_preview_no_user') }}
-            @endif
-        </div>
+        @include('treatmentreservation::admin.portal.partials.admin-preview-banner', [
+            'beautician' => $beautician,
+        ])
     @endif
 
     @include('treatmentreservation::admin.partials.urgency-alerts', [
@@ -286,6 +281,7 @@
                 'crmCustomerProfileUrl' => $crmRoutes['customerProfile'] ?? '',
                 'crmReminderUrlTemplate' => $crmRoutes['reminder'] ?? '',
                 'crmSpecialistProfileUrl' => $crmSpecialistProfileUrl ?? null,
+                'calendarFullViewUrl' => $crmRoutes['calendarFullView'] ?? null,
             ])
         </div>
     </div>

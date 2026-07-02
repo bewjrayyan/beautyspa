@@ -77,11 +77,19 @@
                     {{ trans('treatmentreservation::admin.manual_booking.portal_open') }}
                 </button>
             @endHasAccess
-            <a href="{{ route('admin.treatment_reservations.portal.account') }}" class="tr-portal-dashboard-hero__action">
+            @php
+                $portalAccountUrl = request()->routeIs('admin.beauticians.portal*')
+                    ? route('admin.beauticians.portal.account', $beautician->id)
+                    : route('admin.treatment_reservations.portal.account');
+                $portalAvailabilityUrl = request()->routeIs('admin.beauticians.portal*')
+                    ? route('admin.beauticians.portal.availability', $beautician->id)
+                    : route('admin.treatment_reservations.portal.availability');
+            @endphp
+            <a href="{{ $portalAccountUrl }}" class="tr-portal-dashboard-hero__action">
                 <i class="fa fa-user" aria-hidden="true"></i>
                 {{ trans('treatmentreservation::admin.portal.account_title') }}
             </a>
-            <a href="{{ route('admin.treatment_reservations.portal.availability') }}" class="tr-portal-dashboard-hero__action">
+            <a href="{{ $portalAvailabilityUrl }}" class="tr-portal-dashboard-hero__action">
                 <i class="fa fa-clock-o" aria-hidden="true"></i>
                 {{ trans('treatmentreservation::admin.availability.title') }}
             </a>

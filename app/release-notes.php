@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.64' => [
+        'en' => [
+            'summary' => 'Modernise beautician portal with SaaS job sheet UI, professional performance stats, and portal-only navigation fixes.',
+            'changes' => [
+                'Redirect beautician login to the portal dashboard and allow self-access to beauticians/{id}/portal routes.',
+                'Redesign job sheet with hero, KPI performance panel, pipeline bar, and today sidebar.',
+                'Keep full calendar, profile, and account links inside the beautician portal instead of full admin.',
+                'Add an improved admin preview banner when viewing a beautician portal as admin.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Modenkan portal beautician dengan UI job sheet SaaS, statistik prestasi profesional, dan pembetulan navigasi portal.',
+            'changes' => [
+                'Alihkan log masuk beautician ke dashboard portal dan benarkan akses sendiri ke laluan beauticians/{id}/portal.',
+                'Reka semula job sheet dengan hero, panel prestasi KPI, bar pipeline, dan sidebar hari ini.',
+                'Kekalkan kalendar penuh, profil, dan akaun dalam portal beautician tanpa menu admin penuh.',
+                'Tambah banner pratonton admin yang lebih jelas apabila melihat portal beautician sebagai admin.',
+            ],
+        ],
+    ],
     '4.9.52' => [
         'en' => [
             'summary' => 'Improve WordPress customer import command error messages and file path resolution.',

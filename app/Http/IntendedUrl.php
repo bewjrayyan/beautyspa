@@ -86,7 +86,20 @@ class IntendedUrl
     {
         $path = self::pathWithoutInstallBase($path);
 
-        return (bool) preg_match('#^/admin/my/(job-sheet|account|availability)(/|$)#', $path);
+        return (bool) preg_match('#^/admin/my/(job-sheet|account|availability)(/|$)#', $path)
+            || (bool) preg_match('#^/admin/beauticians/\d+/portal(/|$)#', $path);
+    }
+
+
+    public static function isBeauticianPortalJobSheetLandingPath(string $path): bool
+    {
+        $path = self::pathWithoutInstallBase($path);
+
+        if (preg_match('#^/admin/my/job-sheet(/|$)#', $path)) {
+            return true;
+        }
+
+        return (bool) preg_match('#^/admin/beauticians/\d+/portal$#', $path);
     }
 
 
@@ -123,6 +136,10 @@ class IntendedUrl
         $path = parse_url($normalized, PHP_URL_PATH) ?? '/';
 
         if (self::isMalformedAdminPath($path)) {
+            return $default;
+        }
+
+        if ($user->isBeauticianOnly() && self::isBeauticianPortalJobSheetLandingPath($path)) {
             return $default;
         }
 

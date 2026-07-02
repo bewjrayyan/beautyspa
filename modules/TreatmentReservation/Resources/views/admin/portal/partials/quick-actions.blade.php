@@ -48,7 +48,15 @@
         </a>
 
         @if (empty($adminPortalPreview))
-            <a href="{{ route('admin.treatment_reservations.portal.availability') }}" class="tr-portal-quick-actions__item">
+            @php
+                $portalAccountUrl = request()->routeIs('admin.beauticians.portal*')
+                    ? route('admin.beauticians.portal.account', $beautician->id)
+                    : route('admin.treatment_reservations.portal.account');
+                $portalAvailabilityUrl = request()->routeIs('admin.beauticians.portal*')
+                    ? route('admin.beauticians.portal.availability', $beautician->id)
+                    : route('admin.treatment_reservations.portal.availability');
+            @endphp
+            <a href="{{ $portalAvailabilityUrl }}" class="tr-portal-quick-actions__item">
                 <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--availability">
                     <i class="fa fa-clock-o" aria-hidden="true"></i>
                 </span>
@@ -59,7 +67,7 @@
                 <i class="fa fa-chevron-right tr-portal-quick-actions__arrow" aria-hidden="true"></i>
             </a>
 
-            <a href="{{ route('admin.treatment_reservations.portal.account') }}" class="tr-portal-quick-actions__item">
+            <a href="{{ $portalAccountUrl }}" class="tr-portal-quick-actions__item">
                 <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--account">
                     <i class="fa fa-user" aria-hidden="true"></i>
                 </span>

@@ -4,6 +4,8 @@ namespace Modules\TreatmentReservation\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Modules\Beautician\Entities\Beautician;
+use Modules\User\Entities\User;
 use Symfony\Component\HttpFoundation\Response;
 
 class RestrictBeauticianPortalMiddleware
@@ -14,6 +16,8 @@ class RestrictBeauticianPortalMiddleware
     private array $allowedRoutePatterns = [
         'admin.treatment_reservations.portal',
         'admin.treatment_reservations.portal.*',
+        'admin.beauticians.portal',
+        'admin.beauticians.portal.*',
         'admin.logout',
         'admin.profile.*',
     ];
@@ -30,11 +34,27 @@ class RestrictBeauticianPortalMiddleware
         $routeName = optional($request->route())->getName();
 
         foreach ($this->allowedRoutePatterns as $pattern) {
-            if ($routeName && fnmatch($pattern, $routeName)) {
-                return $next($request);
+            if (! $routeName || ! fnmatch($pattern, $routeName)) {
+                continue;
             }
+
+            if (str_starts_with($pattern, 'admin.beauticians.portal')
+                && ! $this->canAccessOwnBeauticianPortalRoute($request, $user)) {
+                continue;
+            }
+
+            return $next($request);
         }
 
-        return redirect()->route('admin.treatment_reservations.portal');
+        return redirect()->to($user->adminHomeRoute());
+    }
+
+
+    private function canAccessOwnBeauticianPortalRoute(Request $request, User $user): bool
+    {
+        $beautician = Beautician::findForUser($user->id);
+        $routeBeauticianId = (int) ($request->route('id') ?? $request->route('beautician')?->id ?? 0);
+
+        return $beautician && (int) $beautician->id === $routeBeauticianId;
     }
 }
