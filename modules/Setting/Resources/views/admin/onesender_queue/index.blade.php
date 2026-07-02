@@ -35,6 +35,9 @@
                     <i class="fa fa-clock-o" aria-hidden="true"></i>
                     {{ trans('setting::settings.onesender_queue.pending_count', ['count' => $pendingCount]) }}
                 </p>
+                <p class="text-muted" style="margin: 8px 0 0; font-size: 12px;">
+                    {{ trans('setting::settings.onesender_queue.scheduler_hint') }}
+                </p>
             @endif
         </div>
 
@@ -44,6 +47,16 @@
                     <i class="fa fa-list-alt" aria-hidden="true"></i>
                     {{ trans('setting::settings.form.view_onesender_logs') }}
                 </a>
+
+                @if ($pendingCount > 0)
+                    <form method="POST" action="{{ route('admin.onesender_queue.process_due') }}" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fa fa-play" aria-hidden="true"></i>
+                            {{ trans('setting::settings.onesender_queue.process_due') }}
+                        </button>
+                    </form>
+                @endif
 
                 @if ($pendingCount > 0)
                     <form method="POST" action="{{ route('admin.onesender_queue.cancel_all') }}" style="display: inline;"

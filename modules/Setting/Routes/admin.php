@@ -56,6 +56,12 @@ Route::post('settings/onesender-queue/cancel-all', [
     'middleware' => 'can:admin.settings.edit',
 ]);
 
+Route::post('settings/onesender-queue/process-due', [
+    'as' => 'admin.onesender_queue.process_due',
+    'uses' => 'OneSenderOutboundQueueController@processDue',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
 Route::delete('settings/onesender-queue/{message}', [
     'as' => 'admin.onesender_queue.destroy',
     'uses' => 'OneSenderOutboundQueueController@destroy',

@@ -71,4 +71,14 @@ class OneSenderOutboundQueueController
 
         return back()->with('success', trans('setting::settings.onesender_queue.deleted_one'));
     }
+
+
+    public function processDue(): RedirectResponse
+    {
+        $processed = app(OneSenderOutboundQueueService::class)->processDueBatch();
+
+        return back()->with('success', trans('setting::settings.onesender_queue.processed_due', [
+            'count' => $processed,
+        ]));
+    }
 }

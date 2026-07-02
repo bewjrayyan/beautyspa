@@ -33,7 +33,29 @@ class CacheHealth
             Cache::tags('_aestheticcart_probe')->put('_tag_probe', 1, 10);
             Cache::tags('_aestheticcart_probe')->forget('_tag_probe');
         } catch (\Throwable) {
+            self::purgeCorruptTagFiles('_aestheticcart_probe');
             config(['app.cache' => false]);
+        }
+    }
+
+    private static function purgeCorruptTagFiles(string $tag): void
+    {
+        $cachePath = (string) config('cache.stores.file.path', storage_path('framework/cache/data'));
+
+        if (! is_dir($cachePath)) {
+            return;
+        }
+
+        $needle = 'tag!'.$tag;
+
+        foreach (scandir($cachePath) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            if (str_contains($entry, $needle)) {
+                @unlink($cachePath.DIRECTORY_SEPARATOR.$entry);
+            }
         }
     }
 

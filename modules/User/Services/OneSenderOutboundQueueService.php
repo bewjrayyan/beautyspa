@@ -104,6 +104,8 @@ class OneSenderOutboundQueueService
 
     public function processDueBatch(int $limit = 50): int
     {
+        $this->reclaimStuckProcessing();
+
         $processed = 0;
 
         $ids = OneSenderOutboundMessage::query()
@@ -234,18 +236,31 @@ class OneSenderOutboundQueueService
 
     private function dispatchProcessingJob(OneSenderOutboundMessage $message): void
     {
-        if (config('queue.default') !== 'sync') {
-            ProcessOneSenderOutboundMessage::dispatch($message->id)
-                ->delay($message->scheduled_at);
+        if (config('queue.default') === 'sync') {
+            dispatch(function () {
+                app(self::class)->processDueBatch(10);
+            })->afterResponse();
 
             return;
         }
 
-        // Sync driver ignores job delay and would block the HTTP request on OneSender API
-        // calls. Flush due rows after the response is sent (scheduler handles the rest).
-        dispatch(function () {
-            app(self::class)->processDueBatch(10);
-        })->afterResponse();
+        // Shared hosting often has no queue worker; Kernel scheduler runs
+        // `onesender:process-outbound-queue` every minute as the primary processor.
+        ProcessOneSenderOutboundMessage::dispatch($message->id)
+            ->delay($message->scheduled_at);
+    }
+
+
+    private function reclaimStuckProcessing(): void
+    {
+        OneSenderOutboundMessage::query()
+            ->where('status', OneSenderOutboundMessage::STATUS_PROCESSING)
+            ->where('processing_at', '<=', now()->subMinutes(5))
+            ->update([
+                'status' => OneSenderOutboundMessage::STATUS_PENDING,
+                'processing_at' => null,
+                'error_message' => null,
+            ]);
     }
 
 
