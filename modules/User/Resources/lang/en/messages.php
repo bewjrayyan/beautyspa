@@ -27,5 +27,6 @@ return [
         'service_disabled' => 'WhatsApp OTP login is disabled.',
         'sms_message' => ':store login code: :otp. Valid for :minutes minutes. Do not share this code.',
         'admin_new_registration' => ':store: New customer registered via WhatsApp OTP (:phone).',
+        'admin_no_account' => 'No admin or beautician account matches this phone number.',
     ],
 ];

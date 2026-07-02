@@ -20,7 +20,10 @@ class AuthController extends BaseAuthController
         $this->sanitizeIntendedUrl();
 
         return view('user::admin.auth.login', [
-            'loginMode' => request('login') === 'whatsapp' ? 'whatsapp' : 'email',
+            'loginMode' => (bool) setting('whatsapp_otp_login_enabled') && request('login') === 'whatsapp'
+                ? 'whatsapp'
+                : 'email',
+            'whatsappOtpEnabled' => (bool) setting('whatsapp_otp_login_enabled'),
         ]);
     }
 

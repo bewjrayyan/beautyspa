@@ -31,5 +31,6 @@ return [
         'service_disabled' => 'Log masuk WhatsApp OTP dinyahaktifkan.',
         'sms_message' => ':store kod log masuk: :otp. Sah untuk :minutes minit. Jangan kongsi kod ini.',
         'admin_new_registration' => ':store: Pelanggan baharu daftar melalui WhatsApp OTP (:phone).',
+        'admin_no_account' => 'Tiada akaun admin atau beautician sepadan dengan nombor telefon ini.',
     ],
 ];

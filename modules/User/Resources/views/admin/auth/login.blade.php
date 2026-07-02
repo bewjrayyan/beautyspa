@@ -138,7 +138,7 @@
                             this.loading = true;
                             this.error = '';
 
-                            const phoneInput = document.getElementById('beautician-otp-phone');
+                            const phoneInput = document.getElementById('admin-otp-phone');
 
                             if (phoneInput?._iti) {
                                 if (! phoneInput._iti.isValidNumber()) {
@@ -199,9 +199,9 @@
                     }"
                     x-init="initPhoneInput()"
                 >
-                    @include('user::admin.auth.partials.beautician_otp_login')
+                    @include('user::admin.auth.partials.admin_whatsapp_otp_login')
 
-                    <form class="auth-form-email" method="POST" action="{{ route('admin.login.post') }}" x-show="mode === 'email'" x-data="{ formSubmitting: false }" @submit="formSubmitting = true" @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'login'])>
+                    <form class="auth-form-email" method="POST" action="{{ route('admin.login.post') }}" x-show="mode === 'email'" x-cloak x-data="{ formSubmitting: false }" @submit="formSubmitting = true" @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'login'])>
                         {{ csrf_field() }}
 
                     <div>

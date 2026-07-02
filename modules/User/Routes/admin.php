@@ -7,10 +7,10 @@ Route::post('login', 'AuthController@postLogin')
     ->middleware('throttle:auth')
     ->name('admin.login.post');
 
-Route::post('login/whatsapp/send-otp', 'BeauticianWhatsAppOtpAuthController@sendOtp')
+Route::post('login/whatsapp/send-otp', 'AdminWhatsAppOtpAuthController@sendOtp')
     ->middleware('throttle:6,1')
     ->name('admin.login.whatsapp.send_otp');
-Route::post('login/whatsapp/verify-otp', 'BeauticianWhatsAppOtpAuthController@verifyOtp')
+Route::post('login/whatsapp/verify-otp', 'AdminWhatsAppOtpAuthController@verifyOtp')
     ->middleware('throttle:10,1')
     ->name('admin.login.whatsapp.verify_otp');
 
