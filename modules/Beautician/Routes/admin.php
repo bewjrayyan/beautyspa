@@ -92,6 +92,11 @@ Route::middleware(['can:admin.beauticians.edit', 'beautician.portal.from_route']
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@jobSheet',
     ]);
 
+    Route::get('beauticians/{id}/portal/calendar', [
+        'as' => 'admin.beauticians.portal.calendar_page',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@calendarPage',
+    ]);
+
     Route::get('beauticians/{id}/portal/dashboard', [
         'as' => 'admin.beauticians.portal.dashboard',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@dashboard',

@@ -228,10 +228,10 @@
                         'fullViewUrl' => ! empty($adminPortalPreview)
                             ? ($calendarFocus
                                 ? route('admin.beauticians.portal', $beautician->id)
-                                : route('admin.beauticians.portal', ['id' => $beautician->id, 'view' => 'calendar', 'focus' => 1]))
+                                : route('admin.beauticians.portal.calendar_page', ['id' => $beautician->id, 'focus' => 1]))
                             : ($calendarFocus
-                                ? route('admin.treatment_reservations.portal')
-                                : route('admin.treatment_reservations.portal', ['view' => 'calendar', 'focus' => 1])),
+                                ? route('admin.treatment_reservations.portal.job_sheet')
+                                : route('admin.treatment_reservations.portal.calendar_page', ['focus' => 1])),
                         'fullViewIcon' => $calendarFocus ? 'fa-compress' : 'fa-expand',
                         'fullViewLabel' => $calendarFocus
                             ? trans('treatmentreservation::admin.portal.back_to_job_sheet')

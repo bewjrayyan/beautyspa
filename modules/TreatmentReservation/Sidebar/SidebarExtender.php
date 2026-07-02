@@ -17,28 +17,9 @@ class SidebarExtender extends BaseSidebarExtender
 
         $menu->group(trans('admin::sidebar.content'), function (Group $group) use ($portalPreview) {
             if ($portalPreview->isActive() && $portalPreview->beautician()) {
-                $beautician = $portalPreview->beautician();
-
-                $group->item(trans('treatmentreservation::sidebar.my_job_sheet'), function (Item $item) use ($beautician) {
-                    $item->icon('fa fa-columns');
-                    $item->weight(16);
-                    $item->route('admin.beauticians.portal.dashboard', $beautician->id);
-                    $item->authorize(true);
-                });
+                $this->registerAdminPreviewPortalItems($group, $portalPreview->beautician());
             } elseif (Beautician::findForUser($this->auth->id())) {
-                $group->item(trans('treatmentreservation::sidebar.my_job_sheet'), function (Item $item) {
-                    $item->icon('fa fa-columns');
-                    $item->weight(16);
-                    $item->route('admin.treatment_reservations.portal');
-                    $item->authorize(true);
-                });
-
-                $group->item(trans('treatmentreservation::sidebar.my_account'), function (Item $item) {
-                    $item->icon('fa fa-user');
-                    $item->weight(16);
-                    $item->route('admin.treatment_reservations.portal.account');
-                    $item->authorize(true);
-                });
+                $this->registerBeauticianPortalItems($group);
             }
 
             $group->item(trans('treatmentreservation::sidebar.reservations'), function (Item $item) {
@@ -49,6 +30,66 @@ class SidebarExtender extends BaseSidebarExtender
                     $this->auth->hasAccess('admin.treatment_reservations.index')
                 );
             });
+        });
+    }
+
+
+    private function registerAdminPreviewPortalItems(Group $group, Beautician $beautician): void
+    {
+        $beauticianId = $beautician->id;
+
+        $group->item(trans('treatmentreservation::sidebar.my_job_sheet'), function (Item $item) use ($beauticianId) {
+            $item->icon('fa fa-tachometer');
+            $item->weight(16);
+            $item->route('admin.beauticians.portal.dashboard', $beauticianId);
+            $item->authorize(true);
+        });
+
+        $group->item(trans('treatmentreservation::sidebar.my_job_sheet_kanban'), function (Item $item) use ($beauticianId) {
+            $item->icon('fa fa-columns');
+            $item->weight(17);
+            $item->route('admin.beauticians.portal', $beauticianId);
+            $item->isActiveWhen(route('admin.beauticians.portal', $beauticianId, false));
+            $item->authorize(true);
+        });
+
+        $group->item(trans('treatmentreservation::sidebar.my_calendar'), function (Item $item) use ($beauticianId) {
+            $item->icon('fa fa-calendar');
+            $item->weight(18);
+            $item->route('admin.beauticians.portal.calendar_page', $beauticianId);
+            $item->authorize(true);
+        });
+    }
+
+
+    private function registerBeauticianPortalItems(Group $group): void
+    {
+        $group->item(trans('treatmentreservation::sidebar.my_job_sheet'), function (Item $item) {
+            $item->icon('fa fa-tachometer');
+            $item->weight(16);
+            $item->route('admin.treatment_reservations.portal');
+            $item->authorize(true);
+        });
+
+        $group->item(trans('treatmentreservation::sidebar.my_job_sheet_kanban'), function (Item $item) {
+            $item->icon('fa fa-columns');
+            $item->weight(17);
+            $item->route('admin.treatment_reservations.portal.job_sheet');
+            $item->authorize(true);
+        });
+
+        $group->item(trans('treatmentreservation::sidebar.my_calendar'), function (Item $item) {
+            $item->icon('fa fa-calendar');
+            $item->weight(18);
+            $item->route('admin.treatment_reservations.portal.calendar_page');
+            $item->authorize(true);
+        });
+
+        $group->item(trans('treatmentreservation::sidebar.my_account'), function (Item $item) {
+            $item->icon('fa fa-user');
+            $item->weight(19);
+            $item->route('admin.treatment_reservations.portal.account');
+            $item->authorize(true);
         });
     }
 }

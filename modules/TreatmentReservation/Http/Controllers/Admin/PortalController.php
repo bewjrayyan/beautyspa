@@ -114,6 +114,12 @@ class PortalController extends Controller
     }
 
 
+    public function calendarPage(Request $request)
+    {
+        return $this->jobSheet($request->merge(['view' => 'calendar']));
+    }
+
+
     /**
      * @return array{adminPortalPreview: bool, portalApiRoutes: array<string, string>, backUrl: string|null}
      */

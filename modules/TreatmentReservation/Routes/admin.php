@@ -114,6 +114,11 @@ Route::middleware(['beautician.portal'])->group(function () {
         'uses' => 'PortalController@jobSheet',
     ]);
 
+    Route::get('my/calendar', [
+        'as' => 'admin.treatment_reservations.portal.calendar_page',
+        'uses' => 'PortalController@calendarPage',
+    ]);
+
     Route::get('my/dashboard/customers/profile', [
         'as' => 'admin.treatment_reservations.portal.customer_profile',
         'uses' => 'PortalController@customerProfile',
