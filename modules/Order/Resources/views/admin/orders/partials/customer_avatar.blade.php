@@ -3,14 +3,14 @@
     $avatarClass = 'order-show__customer-avatar' . ($avatarUrl ? ' order-show__customer-avatar--photo' : ' order-show__customer-avatar--initial');
 @endphp
 
-@if ($order->customer_id)
-    @can('admin.users.edit')
+@if ($customerProfileUrl ?? null)
+    @hasAccess('admin.users.edit')
         <a
-            href="{{ route('admin.users.edit', $order->customer_id) }}"
+            href="{{ $customerProfileUrl }}"
             class="order-show__customer-avatar-link"
             title="{{ $order->customer_full_name }}"
         >
-    @endcan
+    @endHasAccess
 @endif
 
 <span
@@ -24,8 +24,8 @@
     @endif
 </span>
 
-@if ($order->customer_id)
-    @can('admin.users.edit')
+@if ($customerProfileUrl ?? null)
+    @hasAccess('admin.users.edit')
         </a>
-    @endcan
+    @endHasAccess
 @endif

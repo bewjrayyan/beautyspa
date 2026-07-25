@@ -1,8 +1,17 @@
+@php
+    $customerProfileUrl = $order->customer
+        ? route('admin.users.edit', $order->customer)
+        : null;
+@endphp
+
 <div class="order-show__hero">
     <div class="order-show__hero-top">
         <div class="order-show__identity">
             <div class="order-show__identity-main">
-                @include('order::admin.orders.partials.customer_avatar', ['order' => $order])
+                @include('order::admin.orders.partials.customer_avatar', [
+                    'order' => $order,
+                    'customerProfileUrl' => $customerProfileUrl,
+                ])
 
                 <div class="order-show__identity-body">
                     <div class="order-show__identity-labels">
@@ -13,7 +22,20 @@
                             </span>
                         @endif
                     </div>
-                    <h2 class="order-show__customer-name">{{ $order->customer_full_name }}</h2>
+                    <h2 class="order-show__customer-name">
+                        @if ($customerProfileUrl)
+                            @hasAccess('admin.users.edit')
+                                <a href="{{ $customerProfileUrl }}" class="order-show__customer-name-link">
+                                    <span>{{ $order->customer_full_name }}</span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </a>
+                            @else
+                                {{ $order->customer_full_name }}
+                            @endHasAccess
+                        @else
+                            {{ $order->customer_full_name }}
+                        @endif
+                    </h2>
                     <div class="order-show__meta">
                         <span class="order-show__meta-chip">
                             <i class="fa fa-calendar-o" aria-hidden="true"></i>

@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.66' => [
+        'en' => [
+            'summary' => 'Link customers on admin order pages directly to their user profiles.',
+            'changes' => [
+                'Make the customer name and avatar clickable when the order is linked to an existing user.',
+                'Use FleetCart access permissions so authorized admins can reliably see the profile link.',
+                'Keep guest orders and deleted customer accounts as safe non-clickable text.',
+                'Add clear hover and keyboard-focus feedback to the customer profile link.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pautkan customer pada halaman order admin terus ke profil user mereka.',
+            'changes' => [
+                'Jadikan nama dan avatar customer boleh diklik apabila order dipautkan kepada user sedia ada.',
+                'Gunakan permission FleetCart supaya admin yang dibenarkan dapat melihat pautan profil dengan konsisten.',
+                'Kekalkan order tetamu dan akaun customer yang telah dipadam sebagai teks selamat tanpa pautan.',
+                'Tambah maklum balas hover dan fokus papan kekunci yang jelas pada pautan profil customer.',
+            ],
+        ],
+    ],
     '4.9.65' => [
         'en' => [
             'summary' => 'Simplify beautician creation and improve the edit profile layout for faster, clearer staff administration.',
