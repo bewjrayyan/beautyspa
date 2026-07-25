@@ -123,8 +123,11 @@ class Handler extends ExceptionHandler
             $e instanceof \Modules\Checkout\Exceptions\CheckoutException => response()->json([
                 'message' => $e->getMessage(),
             ], Response::HTTP_FORBIDDEN),
-            $this->shouldRedirectToAdminDashboard($e) => redirect()->route('admin.dashboard.index'),
-            $this->shouldShowNotFoundPage($e) => response()->view('storefront::errors.404'),
+            $this->shouldShowNotFoundPage($e) => response()->view(
+                'storefront::errors.404',
+                [],
+                Response::HTTP_NOT_FOUND
+            ),
             default => parent::render($request, $e),
         };
     }
@@ -176,23 +179,6 @@ class Handler extends ExceptionHandler
         }
 
         return back()->withInput()->with('error', $e->getMessage());
-    }
-
-
-    /**
-     * Determine whether response should redirect to the admin dashboard.
-     *
-     * @param Throwable $e
-     *
-     * @return bool
-     */
-    private function shouldRedirectToAdminDashboard(Throwable $e): bool
-    {
-        if (config('app.debug') || !$this->inAdminPanel()) {
-            return false;
-        }
-
-        return $e instanceof NotFoundHttpException || $e instanceof ModelNotFoundException;
     }
 
 

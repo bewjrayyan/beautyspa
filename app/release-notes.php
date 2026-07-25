@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.67' => [
+        'en' => [
+            'summary' => 'Replace technical server errors with friendly, branded, and accessible error pages.',
+            'changes' => [
+                'Add dedicated pages for 403, 404, 405, 419, 429, 500, and 503 errors with safe fallback pages.',
+                'Show clear recovery actions for admin and storefront visitors without exposing technical details.',
+                'Support English and Malay error messages with responsive and keyboard-accessible layouts.',
+                'Return the correct HTTP 404 status for missing storefront pages instead of an incorrect successful response.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Gantikan ralat teknikal server dengan halaman ralat yang mesra, berjenama, dan mudah diakses.',
+            'changes' => [
+                'Tambah halaman khusus untuk ralat 403, 404, 405, 419, 429, 500, dan 503 bersama halaman fallback yang selamat.',
+                'Paparkan tindakan pemulihan yang jelas untuk pengguna admin dan storefront tanpa mendedahkan maklumat teknikal.',
+                'Sokong mesej ralat Bahasa Inggeris dan Bahasa Melayu dengan susun atur responsif serta mesra papan kekunci.',
+                'Kembalikan status HTTP 404 yang betul untuk halaman storefront yang tidak ditemui.',
+            ],
+        ],
+    ],
     '4.9.66' => [
         'en' => [
             'summary' => 'Link customers on admin order pages directly to their user profiles.',
