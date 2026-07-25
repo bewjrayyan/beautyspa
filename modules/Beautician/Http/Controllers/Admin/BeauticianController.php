@@ -89,10 +89,7 @@ class BeauticianController
 
     protected function createFormData(): array
     {
-        return array_merge(
-            ['adminUsers' => $this->adminUsersForSelect()],
-            $this->spaBranchFormData()
-        );
+        return $this->spaBranchFormData();
     }
 
 
@@ -148,8 +145,23 @@ class BeauticianController
             ->whereNotNull('user_id')
             ->pluck('user_id');
 
+        $currentUserId = $currentBeauticianId
+            ? optional(Beautician::find($currentBeauticianId))->user_id
+            : null;
+
         return User::query()
             ->whereNotIn('id', $assignedIds)
+            ->when(setting('customer_role'), function ($query, $customerRoleId) use ($currentUserId) {
+                $query->where(function ($query) use ($customerRoleId, $currentUserId) {
+                    $query->whereDoesntHave('roles', function ($roleQuery) use ($customerRoleId) {
+                        $roleQuery->where('roles.id', $customerRoleId);
+                    });
+
+                    if ($currentUserId) {
+                        $query->orWhere('id', $currentUserId);
+                    }
+                });
+            })
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name', 'email'])
@@ -164,9 +176,13 @@ class BeauticianController
 
     private function makeBeauticianFromRequest(Request $request): Beautician
     {
-        $beautician = $this->getModel()->make(
-            $request->except(array_merge(array_keys(request()->query()), $this->relationRequestKeys()))
-        );
+        $attributes = $request->except(array_merge(array_keys(request()->query()), $this->relationRequestKeys()));
+
+        if (! $request->filled('position')) {
+            $attributes['position'] = ((int) Beautician::query()->max('position')) + 1;
+        }
+
+        $beautician = $this->getModel()->make($attributes);
 
         $this->applyPortalInput($beautician, $request);
 
@@ -190,7 +206,7 @@ class BeauticianController
     {
         return array_merge(
             $this->portalRequestKeys(),
-            is_module_enabled('SpaBranch') ? ['spa_branches', 'spa_branches_present'] : []
+            is_module_enabled('SpaBranch') ? ['branch_scope', 'spa_branches', 'spa_branches_present'] : []
         );
     }
 

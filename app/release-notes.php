@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.65' => [
+        'en' => [
+            'summary' => 'Simplify beautician creation and improve the edit profile layout for faster, clearer staff administration.',
+            'changes' => [
+                'Replace the multi-step create experience with one clear form that keeps all essential fields visible.',
+                'Create the secure portal login automatically and remove unnecessary account choices from the create form.',
+                'Clarify branch availability, checkout visibility, validation feedback, and automatic booking-list position.',
+                'Improve the profile photo picker and use the full edit-page width with responsive information cards.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Permudahkan penciptaan beautician dan kemaskan susun atur profil edit untuk urusan staf yang lebih cepat dan jelas.',
+            'changes' => [
+                'Gantikan proses create berbilang langkah dengan satu borang jelas yang memaparkan semua medan penting.',
+                'Cipta login portal selamat secara automatik dan buang pilihan akaun yang tidak diperlukan daripada borang create.',
+                'Jelaskan ketersediaan cawangan, paparan checkout, maklum balas validasi, dan kedudukan automatik dalam senarai tempahan.',
+                'Kemaskan pemilih gambar profil dan gunakan keseluruhan lebar halaman edit dengan kad maklumat responsif.',
+            ],
+        ],
+    ],
     '4.9.64' => [
         'en' => [
             'summary' => 'Modernise beautician portal with SaaS job sheet UI, professional performance stats, and portal-only navigation fixes.',

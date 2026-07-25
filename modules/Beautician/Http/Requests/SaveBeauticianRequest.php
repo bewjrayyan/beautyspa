@@ -18,6 +18,10 @@ class SaveBeauticianRequest extends Request
             $this->merge(['user_id' => null]);
         }
 
+        if ($this->input('branch_scope') === 'all') {
+            $this->merge(['spa_branches' => []]);
+        }
+
         if ($this->has('spa_branches_present') && ! $this->has('spa_branches')) {
             $this->merge(['spa_branches' => []]);
         }
@@ -61,7 +65,8 @@ class SaveBeauticianRequest extends Request
             ],
             'is_active' => 'required|boolean',
             'position' => 'nullable|integer|min:0',
-            'spa_branches' => 'nullable|array',
+            'branch_scope' => ['nullable', Rule::in(['all', 'specific'])],
+            'spa_branches' => ['required_if:branch_scope,specific', 'array'],
             'spa_branches.*' => [
                 'integer',
                 Rule::exists('spa_branches', 'id')->where('is_active', true),

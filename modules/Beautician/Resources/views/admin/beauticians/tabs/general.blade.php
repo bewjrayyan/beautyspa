@@ -30,6 +30,11 @@
     $memberSince = $beautician->exists && $beautician->created_at
         ? $beautician->created_at->timezone(config('app.timezone'))->format('d M Y')
         : null;
+
+    $portalErrorFields = ['user_id', 'portal_email', 'portal_password', 'portal_password_confirmation'];
+    $portalHasErrors = collect($portalErrorFields)->contains(fn ($field) => $errors->has($field));
+    $passwordDisclosureOpen = $errors->has('portal_password') || $errors->has('portal_password_confirmation');
+    $portalDisclosureOpen = $portalHasErrors || (bool) $portalUserId;
 @endphp
 
 <div class="beautician-profile-page">
@@ -129,289 +134,100 @@
             </div>
         </div>
 
-        <div class="bp-hero-insights">
-            <article class="bp-hero-insight">
-                <div class="bp-hero-insight-icon">
-                    <span class="bp-hero-insight-swatch" id="bp-hero-insight-swatch" style="background-color: {{ $profileColor }};"></span>
-                </div>
-                <div class="bp-hero-insight-body">
-                    <span class="bp-hero-insight-label">{{ trans('beautician::beauticians.form.hero_accent_color') }}</span>
-                    <span class="bp-hero-insight-value" id="bp-hero-insight-color">{{ strtoupper($profileColor) }}</span>
-                </div>
-            </article>
+        @if ($beautician->exists)
+            <div class="bp-hero-insights">
+                <article class="bp-hero-insight">
+                    <div class="bp-hero-insight-icon">
+                        <span class="bp-hero-insight-swatch" id="bp-hero-insight-swatch" style="background-color: {{ $profileColor }};"></span>
+                    </div>
+                    <div class="bp-hero-insight-body">
+                        <span class="bp-hero-insight-label">{{ trans('beautician::beauticians.form.hero_accent_color') }}</span>
+                        <span class="bp-hero-insight-value" id="bp-hero-insight-color">{{ strtoupper($profileColor) }}</span>
+                    </div>
+                </article>
 
-            <article class="bp-hero-insight">
-                <div class="bp-hero-insight-icon">
-                    <i class="fa fa-user"></i>
-                </div>
-                <div class="bp-hero-insight-body">
-                    <span class="bp-hero-insight-label">{{ trans('beautician::beauticians.form.hero_portal_account') }}</span>
-                    <span class="bp-hero-insight-value" id="bp-hero-insight-portal">{{ $portalUserLabel }}</span>
-                </div>
-            </article>
+                <article class="bp-hero-insight">
+                    <div class="bp-hero-insight-icon">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="bp-hero-insight-body">
+                        <span class="bp-hero-insight-label">{{ trans('beautician::beauticians.form.hero_portal_account') }}</span>
+                        <span class="bp-hero-insight-value" id="bp-hero-insight-portal">{{ $portalUserLabel }}</span>
+                    </div>
+                </article>
 
-            <article class="bp-hero-insight">
-                <div class="bp-hero-insight-icon">
-                    <i class="fa fa-shopping-cart"></i>
-                </div>
-                <div class="bp-hero-insight-body">
-                    <span class="bp-hero-insight-label">{{ trans('beautician::beauticians.form.hero_checkout') }}</span>
-                    <span class="bp-hero-insight-value bp-hero-insight-checkout {{ $isActive ? 'is-active' : 'is-inactive' }}" id="bp-hero-insight-checkout">
-                        {{ $isActive ? trans('beautician::beauticians.form.hero_visible_at_checkout') : trans('beautician::beauticians.form.hero_hidden_at_checkout') }}
+                <article class="bp-hero-insight">
+                    <div class="bp-hero-insight-icon">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                    <div class="bp-hero-insight-body">
+                        <span class="bp-hero-insight-label">{{ trans('beautician::beauticians.form.hero_checkout') }}</span>
+                        <span class="bp-hero-insight-value bp-hero-insight-checkout {{ $isActive ? 'is-active' : 'is-inactive' }}" id="bp-hero-insight-checkout">
+                            {{ $isActive ? trans('beautician::beauticians.form.hero_visible_at_checkout') : trans('beautician::beauticians.form.hero_hidden_at_checkout') }}
+                        </span>
+                    </div>
+                </article>
+
+                <article class="bp-hero-insight">
+                    <div class="bp-hero-insight-icon">
+                        <i class="fa fa-calendar"></i>
+                    </div>
+                    <div class="bp-hero-insight-body">
+                        <span class="bp-hero-insight-label">{{ trans('beautician::beauticians.form.hero_profile_created') }}</span>
+                        <span class="bp-hero-insight-value" id="bp-hero-insight-since">
+                            {{ $memberSince ?: trans('beautician::beauticians.form.hero_not_saved_yet') }}
+                        </span>
+                    </div>
+                </article>
+            </div>
+
+            <ul class="bp-hero-stats">
+                <li>
+                    <span class="bp-hero-stat-label">{{ trans('beautician::beauticians.table.status') }}</span>
+                    <span class="bp-hero-stat-value bp-hero-stat-status {{ $isActive ? 'is-active' : 'is-inactive' }}" id="bp-hero-stat-status">
+                        {{ $isActive ? trans('beautician::beauticians.active') : trans('beautician::beauticians.inactive') }}
                     </span>
-                </div>
-            </article>
-
-            <article class="bp-hero-insight">
-                <div class="bp-hero-insight-icon">
-                    <i class="fa fa-calendar"></i>
-                </div>
-                <div class="bp-hero-insight-body">
-                    <span class="bp-hero-insight-label">{{ trans('beautician::beauticians.form.hero_profile_created') }}</span>
-                    <span class="bp-hero-insight-value" id="bp-hero-insight-since">
-                        {{ $memberSince ?: trans('beautician::beauticians.form.hero_not_saved_yet') }}
+                </li>
+                <li>
+                    <span class="bp-hero-stat-label">{{ trans('beautician::beauticians.beautician') }}</span>
+                    <span class="bp-hero-stat-value" id="bp-hero-stat-id">
+                        {{ $beautician->id ? '#'.$beautician->id : '—' }}
                     </span>
-                </div>
-            </article>
-        </div>
-
-        <ul class="bp-hero-stats">
-            <li>
-                <span class="bp-hero-stat-label">{{ trans('beautician::beauticians.table.status') }}</span>
-                <span class="bp-hero-stat-value bp-hero-stat-status {{ $isActive ? 'is-active' : 'is-inactive' }}" id="bp-hero-stat-status">
-                    {{ $isActive ? trans('beautician::beauticians.active') : trans('beautician::beauticians.inactive') }}
-                </span>
-            </li>
-            <li>
-                <span class="bp-hero-stat-label">{{ trans('beautician::beauticians.beautician') }}</span>
-                <span class="bp-hero-stat-value" id="bp-hero-stat-id">
-                    {{ $beautician->id ? '#'.$beautician->id : '—' }}
-                </span>
-            </li>
-            <li>
-                <span class="bp-hero-stat-label">{{ trans('beautician::attributes.sort_order') }}</span>
-                <span class="bp-hero-stat-value" id="bp-hero-stat-position">{{ $displayPosition }}</span>
-            </li>
-        </ul>
+                </li>
+                <li>
+                    <span class="bp-hero-stat-label">{{ trans('beautician::attributes.sort_order') }}</span>
+                    <span class="bp-hero-stat-value" id="bp-hero-stat-position">{{ $displayPosition }}</span>
+                </li>
+            </ul>
+        @else
+            <p class="bp-hero-new-hint">{{ trans('beautician::beauticians.form.hero_new_hint') }}</p>
+        @endif
     </header>
 
-    <div class="row bp-layout">
-        <div class="col-lg-3 bp-layout-sidebar">
-            <div class="bp-card bp-card-appearance">
-                <div class="bp-card-header">
-                    <h3>{{ trans('beautician::beauticians.form.sections.appearance') }}</h3>
-                    <p>{{ trans('beautician::beauticians.form.profile_photo_help') }}</p>
-                </div>
-
-                <div class="bp-card-body">
-                    <div class="bp-color-field">
-                        {{ Form::color('profile_color', trans('beautician::attributes.profile_color'), $errors, $beautician, [
-                            'id' => 'profile-color',
-                            'class' => 'bp-color-input',
-                        ]) }}
-                        <span class="bp-color-hint">{{ trans('beautician::beauticians.form.profile_color_help') }}</span>
-                    </div>
-                </div>
+    <div class="bp-form-groups">
+        <div class="bp-card bp-card--basic">
+            <div class="bp-card-header">
+                <h3>{{ trans('beautician::beauticians.form.sections.basic') }}</h3>
+                <p>{{ trans('beautician::beauticians.form.sections.basic_help') }}</p>
             </div>
-
-            <div class="bp-card">
-                <div class="bp-card-header">
-                    <h3>{{ trans('beautician::beauticians.form.sections.portal') }}</h3>
-                    <p>{{ trans('beautician::beauticians.form.sections.portal_help') }}</p>
-                </div>
-                <div class="bp-card-body">
-                    @if ($beautician->exists)
-                        <div class="bp-portal-actions">
-                            <a
-                                href="{{ route('admin.beauticians.portal.dashboard', $beautician) }}"
-                                class="btn btn-primary btn-sm"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <i class="fa fa-external-link"></i>
-                                {{ trans('beautician::beauticians.form.open_beautician_portal') }}
-                            </a>
-                            <p class="bp-field-hint">{{ trans('beautician::beauticians.form.open_beautician_portal_help') }}</p>
-                        </div>
-                    @endif
-
-                    <div class="bp-portal-fields">
-                        <div class="bp-portal-field">
-                            <label for="beautician-user-id">{{ trans('beautician::attributes.user_id') }}</label>
-                            <select
-                                name="user_id"
-                                id="beautician-user-id"
-                                class="form-control custom-select-black"
-                            >
-                                <option value="">{{ trans('beautician::beauticians.form.no_portal_user') }}</option>
-                                @foreach ($adminUsers ?? [] as $adminUser)
-                                    <option
-                                        value="{{ $adminUser['id'] }}"
-                                        {{ (int) old('user_id', $beautician->user_id) === $adminUser['id'] ? 'selected' : '' }}
-                                    >
-                                        {{ $adminUser['label'] }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <p class="bp-field-hint">{{ trans('beautician::beauticians.form.portal_user_help') }}</p>
-                        </div>
-
-                        @if (! $portalUserId)
-                            {{ Form::email('portal_email', trans('beautician::attributes.portal_email'), $errors, $beautician, [
-                                'value' => old('portal_email'),
-                                'placeholder' => trans('beautician::beauticians.form.portal_email_placeholder'),
-                            ]) }}
-                            <p class="bp-field-hint">{{ trans('beautician::beauticians.form.portal_email_help') }}</p>
-                        @elseif ($beautician->user)
-                            <div class="bp-portal-field bp-portal-login-email">
-                                <label>{{ trans('beautician::beauticians.form.portal_login_email') }}</label>
-                                <p class="form-control-static">
-                                    {{ $beautician->user->email }}
-                                    <a href="{{ route('admin.users.edit', $beautician->user) }}" class="btn btn-default btn-xs">
-                                        {{ trans('beautician::beauticians.form.open_user_account') }}
-                                    </a>
-                                </p>
-                            </div>
-                        @endif
-
-                        {{ Form::password('portal_password', trans('beautician::attributes.portal_password'), $errors, [
-                            'value' => '',
-                            'placeholder' => trans('beautician::beauticians.form.portal_password_placeholder'),
-                        ]) }}
-
-                        {{ Form::password('portal_password_confirmation', trans('beautician::attributes.portal_password_confirmation'), $errors, [
-                            'value' => '',
-                        ]) }}
-                        <p class="bp-field-hint">{{ trans('beautician::beauticians.form.portal_password_help') }}</p>
-
-                        <div class="bp-portal-actions-bar">
-                            <p class="bp-portal-actions-bar__hint">{{ trans('beautician::beauticians.form.portal_save_account_help') }}</p>
-
-                            <div class="bp-portal-actions-bar__buttons">
-                                <button type="submit" class="btn btn-primary" data-loading>
-                                    <i class="fa fa-save"></i>
-                                    {{ trans('beautician::beauticians.form.portal_save_account') }}
-                                </button>
-
-                                @if ($beautician->user_id)
-                                    <button
-                                        type="submit"
-                                        form="beautician-reset-portal-form"
-                                        class="btn btn-default"
-                                        id="beautician-reset-portal-btn"
-                                    >
-                                        <i class="fa fa-refresh"></i>
-                                        {{ trans('beautician::beauticians.form.portal_reset_password') }}
-                                    </button>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @if (is_module_enabled('SpaBranch'))
-                <div class="bp-card">
-                    <div class="bp-card-header">
-                        <h3>{{ trans('beautician::beauticians.form.sections.branches') }}</h3>
-                        <p>{{ trans('beautician::beauticians.form.sections.branches_help') }}</p>
-                    </div>
-                    <div class="bp-card-body">
-                        @if (($spaBranches ?? collect())->isNotEmpty())
-                            @php
-                                $selectedSpaBranchIds = array_map('intval', (array) (
-                                    request()->session()->hasOldInput('spa_branches_present')
-                                        ? old('spa_branches', [])
-                                        : ($selectedSpaBranchIds ?? [])
-                                ));
-                            @endphp
-
-                            <div class="bp-spa-branches-field">
-                                <div class="form-group">
-                                    <label class="col-md-3 control-label text-left">
-                                        {{ trans('beautician::attributes.spa_branches') }}
-                                    </label>
-                                    <div class="col-md-9">
-                                        <div class="bp-spa-branch-checkboxes">
-                                            @foreach ($spaBranches as $branchId => $branchName)
-                                                <label class="bp-spa-branch-checkbox">
-                                                    <input
-                                                        type="checkbox"
-                                                        name="spa_branches[]"
-                                                        value="{{ $branchId }}"
-                                                        {{ in_array((int) $branchId, $selectedSpaBranchIds, true) ? 'checked' : '' }}
-                                                    >
-                                                    <span>{{ $branchName }}</span>
-                                                </label>
-                                            @endforeach
-                                        </div>
-
-                                        @if ($errors->has('spa_branches'))
-                                            <span class="help-block text-red">{{ $errors->first('spa_branches') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <p class="bp-field-hint">{{ trans('beautician::beauticians.form.spa_branches_help') }}</p>
-                            </div>
-                        @else
-                            <p class="bp-field-hint">{{ trans('beautician::beauticians.form.no_spa_branches_yet') }}</p>
-                            @hasAccess('admin.spa_branches.create')
-                                <a href="{{ route('admin.spa_branches.create') }}" class="btn btn-default btn-sm">
-                                    {{ trans('beautician::beauticians.form.create_spa_branch') }}
-                                </a>
-                            @endHasAccess
-                        @endif
-                    </div>
-                </div>
-            @endif
-
-            <div class="bp-card">
-                <div class="bp-card-header">
-                    <h3>{{ trans('beautician::beauticians.form.sections.visibility') }}</h3>
-                    <p>{{ trans('beautician::beauticians.form.sections.visibility_help') }}</p>
-                </div>
-                <div class="bp-card-body">
-                    <div class="bp-toggle-row">
-                        <div class="bp-toggle-copy">
-                            <strong>{{ trans('beautician::beauticians.form.enable_beautician') }}</strong>
-                            <span>{{ trans('beautician::beauticians.form.enable_beautician_help') }}</span>
-                        </div>
-                        <label class="bp-switch">
-                            <input type="hidden" name="is_active" value="0">
-                            <input
-                                type="checkbox"
-                                name="is_active"
-                                value="1"
-                                {{ $isActive ? 'checked' : '' }}
-                                id="beautician-is-active"
-                            >
-                            <span class="bp-switch-slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-9 bp-layout-main">
-            <div class="bp-card">
-                <div class="bp-card-header">
-                    <h3>{{ trans('beautician::beauticians.form.sections.basic') }}</h3>
-                    <p>{{ trans('beautician::beauticians.form.sections.basic_help') }}</p>
-                </div>
-                <div class="bp-card-body">
-                    <div class="bp-form-split">
-                        <div class="bp-form-split__col">
+            <div class="bp-card-body">
+                <div class="bp-basic-layout">
+                    <div class="bp-basic-fields">
+                        <div class="bp-basic-field">
                             {{ Form::text('first_name', trans('beautician::attributes.first_name'), $errors, $beautician, [
                                 'required' => true,
                                 'class' => 'form-control bp-input',
                             ]) }}
+                        </div>
 
+                        <div class="bp-basic-field">
                             {{ Form::text('last_name', trans('beautician::attributes.last_name'), $errors, $beautician, [
                                 'required' => true,
                                 'class' => 'form-control bp-input',
                             ]) }}
+                        </div>
 
+                        <div class="bp-basic-field">
                             {{ Form::phone('phone', trans('beautician::attributes.phone'), $errors, $beautician, [
                                 'required' => true,
                                 'class' => 'form-control bp-input',
@@ -420,30 +236,345 @@
                             <p class="bp-field-hint">{{ trans('beautician::beauticians.form.phone_help') }}</p>
                         </div>
 
-                        <div class="bp-form-split__col">
+                        <div class="bp-basic-field">
                             @include('beautician::admin.partials.job_title_field', [
                                 'beautician' => $beautician,
                                 'jobTitleOptions' => $jobTitleOptions,
                             ])
+                        </div>
+                    </div>
 
-                            {{ Form::number('position', trans('beautician::attributes.sort_order'), $errors, $beautician, [
-                                'min' => 0,
-                                'class' => 'form-control bp-input',
+                    <div class="bp-appearance-panel">
+                        <span class="bp-appearance-panel__icon" aria-hidden="true">
+                            <i class="fa fa-tint"></i>
+                        </span>
+
+                        <div class="bp-color-field bp-color-field--inline">
+                            {{ Form::color('profile_color', trans('beautician::attributes.profile_color'), $errors, $beautician, [
+                                'id' => 'profile-color',
+                                'class' => 'bp-color-input',
                             ]) }}
-                            <p class="bp-field-hint">{{ trans('beautician::beauticians.form.sort_order_help') }}</p>
+                            <span class="bp-color-hint">{{ trans('beautician::beauticians.form.profile_color_help') }}</span>
                         </div>
                     </div>
                 </div>
             </div>
-
-            @include('beautician::admin.beauticians.partials.schedule')
         </div>
+
+        <div class="bp-card bp-card--booking">
+            <div class="bp-card-header">
+                <h3>{{ trans('beautician::beauticians.form.sections.booking') }}</h3>
+                <p>{{ trans('beautician::beauticians.form.sections.booking_help') }}</p>
+            </div>
+            <div class="bp-card-body">
+                @if (is_module_enabled('SpaBranch'))
+                    @if (($spaBranches ?? collect())->isNotEmpty())
+                        @php
+                            $selectedSpaBranchIds = array_map('intval', (array) (
+                                request()->session()->hasOldInput('spa_branches_present')
+                                    ? old('spa_branches', [])
+                                    : ($selectedSpaBranchIds ?? [])
+                            ));
+                        @endphp
+
+                        <div class="bp-spa-branches-field">
+                            <div class="form-group">
+                                <label class="col-md-3 control-label text-left">
+                                    {{ trans('beautician::attributes.spa_branches') }}
+                                </label>
+                                <div class="col-md-9">
+                                    <div class="bp-spa-branch-checkboxes">
+                                        @foreach ($spaBranches as $branchId => $branchName)
+                                            <label class="bp-spa-branch-checkbox">
+                                                <input
+                                                    type="checkbox"
+                                                    name="spa_branches[]"
+                                                    value="{{ $branchId }}"
+                                                    {{ in_array((int) $branchId, $selectedSpaBranchIds, true) ? 'checked' : '' }}
+                                                >
+                                                <span>{{ $branchName }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                    @if ($errors->has('spa_branches'))
+                                        <span class="help-block text-red">{{ $errors->first('spa_branches') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <p class="bp-field-hint">{{ trans('beautician::beauticians.form.spa_branches_help') }}</p>
+                        </div>
+                    @else
+                        <p class="bp-field-hint">{{ trans('beautician::beauticians.form.no_spa_branches_yet') }}</p>
+                        @hasAccess('admin.spa_branches.create')
+                            <a href="{{ route('admin.spa_branches.create') }}" class="btn btn-default btn-sm">
+                                {{ trans('beautician::beauticians.form.create_spa_branch') }}
+                            </a>
+                        @endHasAccess
+                    @endif
+
+                    <div class="bp-group-divider"></div>
+                @endif
+
+                <div class="bp-toggle-row">
+                    <div class="bp-toggle-copy">
+                        <strong>{{ trans('beautician::beauticians.form.enable_beautician') }}</strong>
+                        <span>{{ trans('beautician::beauticians.form.enable_beautician_help') }}</span>
+                    </div>
+                    <label class="bp-switch">
+                        <input type="hidden" name="is_active" value="0">
+                        <input
+                            type="checkbox"
+                            name="is_active"
+                            value="1"
+                            {{ $isActive ? 'checked' : '' }}
+                            id="beautician-is-active"
+                        >
+                        <span class="bp-switch-slider"></span>
+                    </label>
+                </div>
+
+                <div class="bp-group-divider"></div>
+
+                {{ Form::number('position', trans('beautician::beauticians.form.position_field_label'), $errors, $beautician, [
+                    'min' => 0,
+                    'class' => 'form-control bp-input',
+                ]) }}
+                <p class="bp-field-hint">{{ trans('beautician::beauticians.form.sort_order_help') }}</p>
+            </div>
+        </div>
+
+        <div class="bp-card bp-card--portal">
+            <div class="bp-card-header">
+                <h3>{{ trans('beautician::beauticians.form.sections.portal') }}</h3>
+                <p>{{ trans('beautician::beauticians.form.sections.portal_help') }}</p>
+            </div>
+            <div class="bp-card-body">
+                @if ($beautician->exists)
+                    <div class="bp-portal-actions">
+                        <a
+                            href="{{ route('admin.beauticians.portal.dashboard', $beautician) }}"
+                            class="btn btn-primary btn-sm"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <i class="fa fa-external-link"></i>
+                            {{ trans('beautician::beauticians.form.open_beautician_portal') }}
+                        </a>
+                        <p class="bp-field-hint">{{ trans('beautician::beauticians.form.open_beautician_portal_help') }}</p>
+                    </div>
+                @endif
+
+                <p class="bp-portal-auto-note">
+                    <i class="fa fa-info-circle"></i>
+                    {{ trans('beautician::beauticians.form.portal_auto_note') }}
+                </p>
+
+                <details class="bp-disclosure bp-disclosure--portal" {{ $portalDisclosureOpen ? 'open' : '' }}>
+                    <summary>
+                        {{ trans('beautician::beauticians.form.customize_login') }}
+                        <span class="bp-disclosure-hint">{{ trans('beautician::beauticians.form.customize_login_help') }}</span>
+                    </summary>
+
+                    <div class="bp-disclosure-body">
+                        <div class="bp-portal-fields">
+                            <div class="bp-portal-field">
+                                <label for="beautician-user-id">{{ trans('beautician::attributes.user_id') }}</label>
+                                <select
+                                    name="user_id"
+                                    id="beautician-user-id"
+                                    class="form-control selectize prevent-creation"
+                                >
+                                    <option value="">{{ trans('beautician::beauticians.form.no_portal_user') }}</option>
+                                    @foreach ($adminUsers ?? [] as $adminUser)
+                                        <option
+                                            value="{{ $adminUser['id'] }}"
+                                            {{ (int) old('user_id', $beautician->user_id) === $adminUser['id'] ? 'selected' : '' }}
+                                        >
+                                            {{ $adminUser['label'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="bp-field-hint">{{ trans('beautician::beauticians.form.portal_user_help') }}</p>
+                            </div>
+
+                            @if (! $portalUserId)
+                                {{ Form::email('portal_email', trans('beautician::attributes.portal_email'), $errors, $beautician, [
+                                    'value' => old('portal_email'),
+                                    'placeholder' => trans('beautician::beauticians.form.portal_email_placeholder'),
+                                ]) }}
+                                <p class="bp-field-hint">{{ trans('beautician::beauticians.form.portal_email_help') }}</p>
+                            @elseif ($beautician->user)
+                                <div class="bp-portal-field bp-portal-login-email">
+                                    <label>{{ trans('beautician::beauticians.form.portal_login_email') }}</label>
+                                    <p class="form-control-static">
+                                        {{ $beautician->user->email }}
+                                        <a href="{{ route('admin.users.edit', $beautician->user) }}" class="btn btn-default btn-xs">
+                                            {{ trans('beautician::beauticians.form.open_user_account') }}
+                                        </a>
+                                    </p>
+                                </div>
+                            @endif
+
+                            <details class="bp-disclosure bp-disclosure--password" {{ $passwordDisclosureOpen ? 'open' : '' }}>
+                                <summary>{{ trans('beautician::beauticians.form.set_specific_password') }}</summary>
+
+                                <div class="bp-disclosure-body">
+                                    <div
+                                        class="bp-password-panel"
+                                        id="bp-password-panel"
+                                        data-bp-password-panel
+                                        data-strength-empty="{{ trans('user::users.create_page.password_strength_empty') }}"
+                                        data-strength-weak="{{ trans('user::users.create_page.password_strength_weak') }}"
+                                        data-strength-fair="{{ trans('user::users.create_page.password_strength_fair') }}"
+                                        data-strength-good="{{ trans('user::users.create_page.password_strength_good') }}"
+                                        data-strength-strong="{{ trans('user::users.create_page.password_strength_strong') }}"
+                                        data-match-empty="{{ trans('user::users.create_page.password_match_empty') }}"
+                                        data-match-match="{{ trans('user::users.create_page.password_match_match') }}"
+                                        data-match-mismatch="{{ trans('user::users.create_page.password_match_mismatch') }}"
+                                        data-show-password="{{ trans('user::auth.show_password') }}"
+                                        data-hide-password="{{ trans('user::auth.hide_password') }}"
+                                    >
+                                        <div class="bp-portal-field bp-password-field">
+                                            <div class="bp-password-field-head">
+                                                <label for="portal_password">{{ trans('beautician::attributes.portal_password') }}</label>
+                                                <button type="button" class="bp-password-generate" data-bp-password-generate>
+                                                    <i class="fa fa-magic"></i>
+                                                    {{ trans('user::users.create_page.password_generate') }}
+                                                </button>
+                                            </div>
+
+                                            <div class="bp-password-input-wrap @error('portal_password') has-error @enderror">
+                                                <input
+                                                    type="password"
+                                                    name="portal_password"
+                                                    id="portal_password"
+                                                    class="form-control"
+                                                    value=""
+                                                    placeholder="{{ trans('beautician::beauticians.form.portal_password_placeholder') }}"
+                                                    autocomplete="new-password"
+                                                    data-bp-password-input
+                                                >
+                                                <button
+                                                    type="button"
+                                                    class="bp-password-toggle"
+                                                    data-bp-password-toggle
+                                                    data-target="portal_password"
+                                                    aria-label="{{ trans('user::auth.show_password') }}"
+                                                    aria-pressed="false"
+                                                >
+                                                    <i class="fa fa-eye" data-icon-show></i>
+                                                    <i class="fa fa-eye-slash hide" data-icon-hide></i>
+                                                </button>
+                                            </div>
+
+                                            @error('portal_password')
+                                                <span class="help-block text-red">{{ $message }}</span>
+                                            @enderror
+
+                                            <div class="bp-password-strength" data-bp-password-strength hidden>
+                                                <div class="bp-password-strength-track" aria-hidden="true">
+                                                    <span class="bp-password-strength-fill" data-bp-password-strength-fill></span>
+                                                </div>
+                                                <p class="bp-password-strength-label" data-bp-password-strength-label></p>
+                                            </div>
+
+                                            <ul class="bp-password-checks" aria-live="polite">
+                                                <li data-bp-password-check="length">
+                                                    <i class="fa fa-circle-o" data-icon-pending></i>
+                                                    <i class="fa fa-check-circle hide" data-icon-done></i>
+                                                    {{ trans('user::users.create_page.password_check_length') }}
+                                                </li>
+                                                <li data-bp-password-check="length8">
+                                                    <i class="fa fa-circle-o" data-icon-pending></i>
+                                                    <i class="fa fa-check-circle hide" data-icon-done></i>
+                                                    {{ trans('user::users.create_page.password_check_length8') }}
+                                                </li>
+                                                <li data-bp-password-check="letter">
+                                                    <i class="fa fa-circle-o" data-icon-pending></i>
+                                                    <i class="fa fa-check-circle hide" data-icon-done></i>
+                                                    {{ trans('user::users.create_page.password_check_letter') }}
+                                                </li>
+                                                <li data-bp-password-check="number">
+                                                    <i class="fa fa-circle-o" data-icon-pending></i>
+                                                    <i class="fa fa-check-circle hide" data-icon-done></i>
+                                                    {{ trans('user::users.create_page.password_check_number') }}
+                                                </li>
+                                                <li data-bp-password-check="mixed">
+                                                    <i class="fa fa-circle-o" data-icon-pending></i>
+                                                    <i class="fa fa-check-circle hide" data-icon-done></i>
+                                                    {{ trans('user::users.create_page.password_check_mixed') }}
+                                                </li>
+                                            </ul>
+
+                                            <p class="bp-password-generated-hint hide" data-bp-password-generated-hint>
+                                                <i class="fa fa-info-circle"></i>
+                                                <span>{{ trans('user::users.create_page.password_generated_hint') }}</span>
+                                            </p>
+                                        </div>
+
+                                        <div class="bp-portal-field bp-password-field">
+                                            <label for="portal_password_confirmation">{{ trans('beautician::attributes.portal_password_confirmation') }}</label>
+
+                                            <div class="bp-password-input-wrap @error('portal_password_confirmation') has-error @enderror">
+                                                <input
+                                                    type="password"
+                                                    name="portal_password_confirmation"
+                                                    id="portal_password_confirmation"
+                                                    class="form-control"
+                                                    value=""
+                                                    autocomplete="new-password"
+                                                    data-bp-password-confirm
+                                                >
+                                                <button
+                                                    type="button"
+                                                    class="bp-password-toggle"
+                                                    data-bp-password-toggle
+                                                    data-target="portal_password_confirmation"
+                                                    aria-label="{{ trans('user::auth.show_password') }}"
+                                                    aria-pressed="false"
+                                                >
+                                                    <i class="fa fa-eye" data-icon-show></i>
+                                                    <i class="fa fa-eye-slash hide" data-icon-hide></i>
+                                                </button>
+                                            </div>
+
+                                            @error('portal_password_confirmation')
+                                                <span class="help-block text-red">{{ $message }}</span>
+                                            @enderror
+
+                                            <p class="bp-password-match" data-bp-password-match></p>
+                                        </div>
+                                    </div>
+                                    <p class="bp-field-hint">{{ trans('beautician::beauticians.form.portal_password_help') }}</p>
+                                </div>
+                            </details>
+
+                            @if ($beautician->user_id)
+                                <button
+                                    type="submit"
+                                    form="beautician-reset-portal-form"
+                                    class="bp-portal-reset-link"
+                                    id="beautician-reset-portal-btn"
+                                >
+                                    <i class="fa fa-refresh"></i>
+                                    {{ trans('beautician::beauticians.form.portal_reset_password') }}
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        @include('beautician::admin.beauticians.partials.schedule')
     </div>
 
     <div class="bp-form-actions">
         <span class="bp-form-actions__hint">{{ trans('beautician::beauticians.form.save_all_changes_help') }}</span>
         <button type="submit" class="btn btn-primary" data-loading>
-            {{ trans('beautician::beauticians.form.save_all_changes') }}
+            {{ $beautician->exists ? trans('beautician::beauticians.form.save_all_changes') : trans('beautician::beauticians.form.create_beautician') }}
         </button>
     </div>
 </div>
@@ -484,20 +615,90 @@
             margin: -10px 0 10px;
         }
 
-        .beautician-profile-page .bp-layout-sidebar {
-            padding-right: 8px;
+        .beautician-profile-page .bp-form-groups {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: none;
+            align-items: stretch;
         }
 
-        .beautician-profile-page .bp-layout-main {
-            padding-left: 8px;
+        .beautician-profile-page .bp-form-groups > .bp-card {
+            min-width: 0;
+            margin-bottom: 0;
         }
 
-        @@media (max-width: 991px) {
-            .beautician-profile-page .bp-layout-sidebar,
-            .beautician-profile-page .bp-layout-main {
-                padding-left: 15px;
-                padding-right: 15px;
-            }
+        .beautician-profile-page .bp-card--basic,
+        .beautician-profile-page .bp-card-schedule {
+            grid-column: 1 / -1;
+        }
+
+        .beautician-profile-page .bp-card--booking,
+        .beautician-profile-page .bp-card--portal {
+            height: 100%;
+        }
+
+        .beautician-profile-page .bp-basic-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 28px;
+            align-items: stretch;
+        }
+
+        .beautician-profile-page .bp-basic-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px 24px;
+            min-width: 0;
+        }
+
+        .beautician-profile-page .bp-basic-field {
+            min-width: 0;
+        }
+
+        .beautician-profile-page .bp-basic-field .form-group {
+            margin-bottom: 0;
+        }
+
+        .beautician-profile-page .bp-basic-field .bp-field-hint {
+            margin-bottom: 0;
+        }
+
+        .beautician-profile-page .bp-appearance-panel {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            padding: 20px;
+            border: 1px solid var(--bp-border);
+            border-radius: 14px;
+            background: linear-gradient(145deg, #fafafa 0%, #f8fafc 100%);
+        }
+
+        .beautician-profile-page .bp-appearance-panel__icon {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            color: var(--bp-primary);
+            background: var(--bp-primary-soft);
+        }
+
+        .beautician-profile-page .bp-appearance-panel .bp-color-field {
+            width: 100%;
+            padding-top: 8px;
+        }
+
+        .beautician-profile-page .bp-hero-new-hint {
+            margin: 0;
+            font-size: 13.5px;
+            color: var(--bp-muted);
         }
 
         .beautician-profile-page .form-group {
@@ -529,12 +730,118 @@
             margin-right: 0;
         }
 
-        .beautician-profile-page .bp-layout-sidebar .bp-card-header {
+        .beautician-profile-page .bp-form-groups .bp-card-header {
             padding: 18px 20px 0;
         }
 
-        .beautician-profile-page .bp-layout-sidebar .bp-card-body {
+        .beautician-profile-page .bp-form-groups .bp-card-body {
             padding: 16px 20px 20px;
+        }
+
+        .beautician-profile-page .bp-identity-row {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--bp-border);
+        }
+
+        .beautician-profile-page .bp-identity-row .bp-color-field--inline {
+            max-width: 260px;
+        }
+
+        .beautician-profile-page .bp-appearance-panel .bp-color-field--inline {
+            max-width: none;
+        }
+
+        .beautician-profile-page .bp-group-divider {
+            height: 1px;
+            background: var(--bp-border);
+            margin: 18px 0;
+        }
+
+        .beautician-profile-page .bp-portal-auto-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 0 0 4px;
+            padding: 10px 12px;
+            font-size: 13px;
+            color: var(--bp-muted);
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .beautician-profile-page .bp-portal-auto-note i {
+            margin-top: 2px;
+            color: var(--bp-primary);
+        }
+
+        .beautician-profile-page .bp-disclosure {
+            margin-top: 14px;
+            border-top: 1px solid var(--bp-border);
+            padding-top: 14px;
+        }
+
+        .beautician-profile-page .bp-disclosure summary {
+            cursor: pointer;
+            list-style: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--bp-primary);
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .beautician-profile-page .bp-disclosure summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .beautician-profile-page .bp-disclosure summary::before {
+            content: "\25B8";
+            display: inline-block;
+            font-size: 11px;
+            color: var(--bp-muted);
+            transition: transform 0.15s ease;
+        }
+
+        .beautician-profile-page .bp-disclosure[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        .beautician-profile-page .bp-disclosure summary .bp-disclosure-hint {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--bp-muted);
+        }
+
+        .beautician-profile-page .bp-disclosure-body {
+            margin-top: 14px;
+        }
+
+        .beautician-profile-page .bp-disclosure .bp-disclosure {
+            margin-top: 12px;
+            padding-top: 12px;
+        }
+
+        .beautician-profile-page .bp-portal-reset-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            padding: 0;
+            background: none;
+            border: none;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--bp-muted);
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .beautician-profile-page .bp-portal-reset-link:hover {
+            color: var(--bp-text);
         }
 
         .beautician-profile-page .bp-portal-fields > .form-group {
@@ -590,6 +897,198 @@
             margin-bottom: 0;
         }
 
+        .bp-password-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .bp-password-field-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .bp-password-field-head label {
+            margin-bottom: 0 !important;
+        }
+
+        .bp-password-generate {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--bp-primary);
+            background: var(--bp-primary-soft);
+            border: 1px solid transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .bp-password-generate:hover {
+            background: color-mix(in srgb, var(--bp-primary) 18%, #ffffff);
+        }
+
+        .bp-password-input-wrap {
+            position: relative;
+        }
+
+        .bp-password-input-wrap .form-control {
+            height: 44px;
+            padding-right: 40px;
+            border-radius: 10px;
+            border-color: var(--bp-border);
+            box-shadow: none;
+        }
+
+        .bp-password-input-wrap.has-error .form-control {
+            border-color: #dc2626;
+        }
+
+        .bp-password-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            color: var(--bp-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .bp-password-toggle:hover {
+            color: var(--bp-text);
+        }
+
+        .bp-password-toggle .hide {
+            display: none;
+        }
+
+        .bp-password-strength {
+            margin-top: 10px;
+        }
+
+        .bp-password-strength-track {
+            height: 4px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+
+        .bp-password-strength-fill {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: #dc2626;
+            transition: width 0.2s ease, background 0.2s ease;
+        }
+
+        .bp-password-strength[data-level="fair"] .bp-password-strength-fill {
+            background: #f59e0b;
+        }
+
+        .bp-password-strength[data-level="good"] .bp-password-strength-fill {
+            background: #3b82f6;
+        }
+
+        .bp-password-strength[data-level="strong"] .bp-password-strength-fill {
+            background: #16a34a;
+        }
+
+        .bp-password-strength-label {
+            margin: 6px 0 0;
+            font-size: 12px;
+            color: var(--bp-muted);
+        }
+
+        .bp-password-checks {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 4px 12px;
+            margin: 10px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .bp-password-checks li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--bp-muted);
+        }
+
+        .bp-password-checks li i {
+            font-size: 13px;
+        }
+
+        .bp-password-checks li[data-icon-done] {
+            color: #16a34a;
+        }
+
+        .bp-password-checks li.is-met {
+            color: var(--bp-text);
+        }
+
+        .bp-password-checks li.is-met [data-icon-pending] {
+            display: none;
+        }
+
+        .bp-password-checks li:not(.is-met) [data-icon-done] {
+            display: none;
+        }
+
+        .bp-password-checks .fa-check-circle {
+            color: #16a34a;
+        }
+
+        .bp-password-generated-hint {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin: 10px 0 0;
+            padding: 8px 10px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--bp-primary);
+            background: var(--bp-primary-soft);
+            border-radius: 8px;
+        }
+
+        .bp-password-generated-hint.hide {
+            display: none;
+        }
+
+        .bp-password-match {
+            margin: 8px 0 0;
+            font-size: 12px;
+            min-height: 16px;
+        }
+
+        .bp-password-match.is-match {
+            color: #16a34a;
+        }
+
+        .bp-password-match.is-mismatch {
+            color: #dc2626;
+        }
+
+        .bp-password-match.is-empty {
+            color: var(--bp-muted);
+        }
+
         .beautician-profile-page .bp-portal-actions {
             margin-bottom: 16px;
             padding-bottom: 16px;
@@ -607,37 +1106,6 @@
 
         .beautician-profile-page .bp-portal-reset {
             margin-top: 4px;
-        }
-
-        .beautician-profile-page .bp-portal-actions-bar {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #e8edf3;
-        }
-
-        .beautician-profile-page .bp-portal-actions-bar__hint {
-            margin: 0 0 12px;
-            font-size: 12px;
-            line-height: 1.45;
-            color: #64748b;
-        }
-
-        .beautician-profile-page .bp-portal-actions-bar__buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .beautician-profile-page .bp-portal-actions-bar__buttons .btn {
-            width: 100%;
-            min-height: 40px;
-            border-radius: 10px;
-            font-weight: 600;
-            white-space: normal;
-        }
-
-        .beautician-profile-page .bp-portal-actions-bar__buttons .btn-primary {
-            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
         }
 
         .beautician-profile-page .bp-field-block {
@@ -1299,6 +1767,17 @@
             transform: translateX(20px);
         }
 
+        @@media (max-width: 1199px) {
+            .beautician-profile-page .bp-form-groups {
+                grid-template-columns: 1fr;
+            }
+
+            .beautician-profile-page .bp-card--basic,
+            .beautician-profile-page .bp-card-schedule {
+                grid-column: auto;
+            }
+        }
+
         @@media (max-width: 991px) {
             .bp-hero {
                 grid-template-columns: 1fr;
@@ -1330,6 +1809,14 @@
                 font-size: 22px;
             }
 
+            .beautician-profile-page .bp-basic-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .beautician-profile-page .bp-appearance-panel {
+                min-height: 146px;
+            }
+
             .bp-form-split {
                 grid-template-columns: 1fr;
                 gap: 0;
@@ -1346,6 +1833,17 @@
                 padding-left: 0;
                 border-left: none;
                 border-top: 1px solid var(--bp-border);
+            }
+        }
+
+        @@media (max-width: 767px) {
+            .beautician-profile-page .bp-basic-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .beautician-profile-page .bp-card--booking,
+            .beautician-profile-page .bp-card--portal {
+                height: auto;
             }
         }
     </style>
@@ -1552,6 +2050,236 @@
                     event.preventDefault();
                 }
             });
+
+            initPasswordPanel(document.getElementById('bp-password-panel'));
         });
+
+        function randomIndex(max) {
+            const array = new Uint32Array(1);
+            crypto.getRandomValues(array);
+
+            return array[0] % max;
+        }
+
+        function shuffleString(value) {
+            const chars = value.split('');
+
+            for (let i = chars.length - 1; i > 0; i -= 1) {
+                const j = randomIndex(i + 1);
+                [chars[i], chars[j]] = [chars[j], chars[i]];
+            }
+
+            return chars.join('');
+        }
+
+        function generateSecurePassword(length = 14) {
+            const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+            const lower = 'abcdefghijkmnopqrstuvwxyz';
+            const numbers = '23456789';
+            const special = '!@#$%&*';
+            const all = upper + lower + numbers + special;
+
+            let password = '';
+            password += upper[randomIndex(upper.length)];
+            password += lower[randomIndex(lower.length)];
+            password += numbers[randomIndex(numbers.length)];
+            password += special[randomIndex(special.length)];
+
+            while (password.length < length) {
+                password += all[randomIndex(all.length)];
+            }
+
+            return shuffleString(password);
+        }
+
+        function analyzePasswordStrength(password) {
+            const checks = {
+                length: password.length >= 6,
+                length8: password.length >= 8,
+                letter: /[a-zA-Z]/.test(password),
+                number: /\d/.test(password),
+                mixed: /[a-z]/.test(password) && /[A-Z]/.test(password),
+            };
+
+            let score = 0;
+
+            if (checks.length) score += 20;
+            if (checks.length8) score += 15;
+            if (password.length >= 12) score += 10;
+            if (checks.letter) score += 15;
+            if (checks.number) score += 15;
+            if (checks.mixed) score += 15;
+            if (/[^a-zA-Z0-9]/.test(password)) score += 10;
+
+            let level = 'empty';
+
+            if (password.length > 0) {
+                if (score < 35) {
+                    level = 'weak';
+                } else if (score < 55) {
+                    level = 'fair';
+                } else if (score < 80) {
+                    level = 'good';
+                } else {
+                    level = 'strong';
+                }
+            }
+
+            return { checks, score: Math.min(score, 100), level };
+        }
+
+        function initPasswordPanel(root) {
+            if (!root) {
+                return;
+            }
+
+            const passwordInput = root.querySelector('[data-bp-password-input]');
+            const confirmInput = root.querySelector('[data-bp-password-confirm]');
+            const generateBtn = root.querySelector('[data-bp-password-generate]');
+            const strengthRoot = root.querySelector('[data-bp-password-strength]');
+            const strengthFill = root.querySelector('[data-bp-password-strength-fill]');
+            const strengthLabel = root.querySelector('[data-bp-password-strength-label]');
+            const matchEl = root.querySelector('[data-bp-password-match]');
+            const generatedHint = root.querySelector('[data-bp-password-generated-hint]');
+            const checkItems = root.querySelectorAll('[data-bp-password-check]');
+            const strengthLabels = {
+                empty: root.dataset.strengthEmpty || '',
+                weak: root.dataset.strengthWeak || '',
+                fair: root.dataset.strengthFair || '',
+                good: root.dataset.strengthGood || '',
+                strong: root.dataset.strengthStrong || '',
+            };
+
+            const setCheckState = (key, passed) => {
+                const item = root.querySelector(`[data-bp-password-check="${key}"]`);
+
+                if (!item) {
+                    return;
+                }
+
+                item.classList.toggle('is-met', passed);
+            };
+
+            const updateStrength = () => {
+                const password = passwordInput?.value || '';
+                const { checks, score, level } = analyzePasswordStrength(password);
+
+                checkItems.forEach((item) => {
+                    const key = item.dataset.bpPasswordCheck;
+
+                    if (key && Object.prototype.hasOwnProperty.call(checks, key)) {
+                        setCheckState(key, checks[key]);
+                    }
+                });
+
+                if (!strengthRoot || !strengthFill || !strengthLabel) {
+                    return;
+                }
+
+                if (!password) {
+                    strengthRoot.hidden = true;
+                    strengthFill.style.width = '0%';
+                    strengthLabel.textContent = strengthLabels.empty;
+
+                    return;
+                }
+
+                strengthRoot.hidden = false;
+                strengthFill.style.width = `${score}%`;
+                strengthLabel.textContent = strengthLabels[level] || strengthLabels.empty;
+                strengthRoot.dataset.level = level;
+            };
+
+            const updateMatch = () => {
+                if (!matchEl || !passwordInput || !confirmInput) {
+                    return;
+                }
+
+                const password = passwordInput.value;
+                const confirmation = confirmInput.value;
+
+                matchEl.classList.remove('is-match', 'is-mismatch', 'is-empty');
+
+                if (!confirmation) {
+                    matchEl.textContent = root.dataset.matchEmpty || '';
+                    matchEl.classList.add('is-empty');
+
+                    return;
+                }
+
+                if (password === confirmation) {
+                    matchEl.textContent = root.dataset.matchMatch || '';
+                    matchEl.classList.add('is-match');
+
+                    return;
+                }
+
+                matchEl.textContent = root.dataset.matchMismatch || '';
+                matchEl.classList.add('is-mismatch');
+            };
+
+            const bindToggle = (button) => {
+                const targetId = button.dataset.target;
+                const input = root.querySelector(`#${CSS.escape(targetId)}`);
+
+                if (!input) {
+                    return;
+                }
+
+                button.addEventListener('click', () => {
+                    const isVisible = input.type === 'text';
+
+                    input.type = isVisible ? 'password' : 'text';
+                    button.setAttribute('aria-pressed', String(!isVisible));
+                    button.setAttribute(
+                        'aria-label',
+                        isVisible ? (root.dataset.showPassword || 'Show password') : (root.dataset.hidePassword || 'Hide password')
+                    );
+
+                    button.querySelector('[data-icon-show]')?.classList.toggle('hide', !isVisible);
+                    button.querySelector('[data-icon-hide]')?.classList.toggle('hide', isVisible);
+                });
+            };
+
+            root.querySelectorAll('[data-bp-password-toggle]').forEach(bindToggle);
+
+            const refresh = () => {
+                updateStrength();
+                updateMatch();
+            };
+
+            passwordInput?.addEventListener('input', () => {
+                generatedHint?.classList.add('hide');
+                refresh();
+            });
+
+            confirmInput?.addEventListener('input', updateMatch);
+
+            generateBtn?.addEventListener('click', () => {
+                const password = generateSecurePassword();
+
+                if (!passwordInput || !confirmInput) {
+                    return;
+                }
+
+                passwordInput.value = password;
+                confirmInput.value = password;
+                passwordInput.type = 'text';
+                confirmInput.type = 'text';
+
+                root.querySelectorAll('[data-bp-password-toggle]').forEach((button) => {
+                    button.setAttribute('aria-pressed', 'true');
+                    button.setAttribute('aria-label', root.dataset.hidePassword || 'Hide password');
+                    button.querySelector('[data-icon-show]')?.classList.add('hide');
+                    button.querySelector('[data-icon-hide]')?.classList.remove('hide');
+                });
+
+                generatedHint?.classList.remove('hide');
+                refresh();
+                passwordInput.focus();
+            });
+
+            refresh();
+        }
     </script>
 @endpush

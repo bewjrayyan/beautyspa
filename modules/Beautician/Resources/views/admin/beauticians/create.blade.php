@@ -20,12 +20,11 @@
             <input type="hidden" name="spa_branches_present" value="1">
         @endif
 
-        {!! $tabs->render([
+        @include('beautician::admin.beauticians.partials.create_flow', [
             'beautician' => $beautician,
-            'adminUsers' => $adminUsers ?? [],
             'spaBranches' => $spaBranches ?? collect(),
             'selectedSpaBranchIds' => $selectedSpaBranchIds ?? [],
-        ]) !!}
+        ])
     </form>
 @endsection
 
