@@ -20,6 +20,14 @@ class SidebarExtender extends BaseSidebarExtender
                     $this->auth->hasAccess('admin.pages.index')
                 );
             });
+
+            $group->item(trans('page::sidebar.legal_content'), function (Item $item) {
+                $item->icon('fa fa-shield');
+                $item->weight(26);
+                $item->route('admin.legal_content.index');
+                $item->isActiveWhen(route('admin.legal_content.index', null, false));
+                $item->authorize($this->auth->hasAccess('admin.pages.index'));
+            });
         });
     }
 }

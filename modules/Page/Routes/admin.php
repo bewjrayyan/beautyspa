@@ -2,6 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('legal-content', [
+    'as' => 'admin.legal_content.index',
+    'uses' => 'LegalContentController@index',
+    'middleware' => 'can:admin.pages.index',
+]);
+
 Route::get('pages', [
     'as' => 'admin.pages.index',
     'uses' => 'PageController@index',

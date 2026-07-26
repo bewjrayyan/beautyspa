@@ -134,6 +134,7 @@ class PortalController extends Controller
                     'update_status' => route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']),
                     'update_notes' => route('admin.treatment_reservations.portal.update_notes', ['id' => '__ID__']),
                     'send_whatsapp' => route('admin.treatment_reservations.portal.send_whatsapp', ['id' => '__ID__']),
+                    'consultation' => route('admin.treatment_reservations.portal.consultation', ['id' => '__ID__']),
                 ],
                 'backUrl' => null,
             ];
@@ -149,6 +150,7 @@ class PortalController extends Controller
                 'update_status' => route('admin.beauticians.portal.update_status', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'update_notes' => route('admin.beauticians.portal.update_notes', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'send_whatsapp' => route('admin.beauticians.portal.send_whatsapp', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'consultation' => route('admin.beauticians.portal.consultation', ['id' => $beautician->id, 'booking' => '__ID__']),
             ],
             'backUrl' => $this->isAdminBeauticianPreview($request, $beautician)
                 ? route('admin.beauticians.edit', $beautician)
@@ -524,6 +526,7 @@ class PortalController extends Controller
                 'calendarFullView' => route('admin.beauticians.portal.calendar_page', ['id' => $beautician->id, 'focus' => 1]),
                 'updateStatus' => route('admin.beauticians.portal.update_status', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'whatsapp' => route('admin.beauticians.portal.send_whatsapp', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'consultation' => route('admin.beauticians.portal.consultation', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'reminder' => route('admin.beauticians.portal.send_reminder', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'customerProfile' => route('admin.beauticians.portal.customer_profile', $routeParams),
                 'specialistAvailability' => route('admin.beauticians.portal.specialist_availability', $routeParams),
@@ -551,6 +554,7 @@ class PortalController extends Controller
             'calendarFullView' => route('admin.treatment_reservations.portal.calendar_page', ['focus' => 1]),
             'updateStatus' => route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']),
             'whatsapp' => route('admin.treatment_reservations.portal.send_whatsapp', ['id' => '__ID__']),
+            'consultation' => route('admin.treatment_reservations.portal.consultation', ['id' => '__ID__']),
             'reminder' => route('admin.treatment_reservations.portal.send_reminder', ['id' => '__ID__']),
             'customerProfile' => route('admin.treatment_reservations.portal.customer_profile'),
             'specialistAvailability' => route('admin.treatment_reservations.portal.specialist_availability'),

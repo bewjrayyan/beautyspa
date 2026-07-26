@@ -26,6 +26,11 @@
         data-status-url="{{ $portalApiRoutes['update_status'] }}"
         data-notes-url="{{ $portalApiRoutes['update_notes'] }}"
         data-whatsapp-url="{{ $portalApiRoutes['send_whatsapp'] }}"
+        data-consultation-url="{{ $portalApiRoutes['consultation'] }}"
+        data-cal-preview-consultation="{{ trans('account::consultation.request.action') }}"
+        data-cal-preview-consultation-preparing="{{ trans('account::consultation.request.preparing') }}"
+        data-cal-preview-consultation-ready="{{ trans('account::consultation.request.ready') }}"
+        data-cal-preview-consultation-failed="{{ trans('account::consultation.request.failed') }}"
         data-initial-bookings='@json($todayBookingsPayload)'
         data-initial-month="{{ now()->format('Y-m') }}"
         data-initial-beautician="{{ $beautician->id }}"

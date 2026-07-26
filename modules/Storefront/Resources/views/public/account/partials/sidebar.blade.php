@@ -27,6 +27,16 @@
                 </a>
             </li>
 
+            <li class="{{ request()->routeIs('account.consultations.*') ? 'active' : '' }}">
+                <a href="{{ route('account.consultations.index') }}">
+                    <span class="account-app-menu__icon account-app-menu__icon--consultations" aria-hidden="true">
+                        <i class="las la-notes-medical"></i>
+                    </span>
+
+                    <span class="account-app-menu__label">{{ trans('account::consultation.menu') }}</span>
+                </a>
+            </li>
+
             <li class="{{ request()->routeIs('account.downloads.index') ? 'active' : '' }}">
                 <a href="{{ route('account.downloads.index') }}">
                     <span class="account-app-menu__icon account-app-menu__icon--downloads" aria-hidden="true">

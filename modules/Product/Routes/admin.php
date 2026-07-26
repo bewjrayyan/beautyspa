@@ -2,6 +2,24 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('consultation-forms', [
+    'as' => 'admin.consultation_forms.index',
+    'uses' => '\Modules\Account\Http\Controllers\Admin\ConsultationTemplateController@index',
+    'middleware' => 'can:admin.consultation_forms.index',
+]);
+
+Route::get('consultation-forms/{template}/edit', [
+    'as' => 'admin.consultation_forms.edit',
+    'uses' => '\Modules\Account\Http\Controllers\Admin\ConsultationTemplateController@edit',
+    'middleware' => 'can:admin.consultation_forms.edit',
+]);
+
+Route::put('consultation-forms/{template}', [
+    'as' => 'admin.consultation_forms.update',
+    'uses' => '\Modules\Account\Http\Controllers\Admin\ConsultationTemplateController@update',
+    'middleware' => 'can:admin.consultation_forms.edit',
+]);
+
 Route::get('products', [
     'as' => 'admin.products.index',
     'uses' => 'ProductController@index',

@@ -13,22 +13,20 @@
                 <div class="imma-legal-main">
                     <div class="imma-legal-header">
                         <h1>{{ $page->name }}</h1>
-                        <p class="imma-legal-intro">{{ $termsIntro }}</p>
-                        <p class="imma-legal-updated">{{ $termsUpdated }}</p>
+                        <p class="imma-legal-updated">
+                            {{ trans('page::pages.legal.public_updated', ['date' => $page->updated_at?->format('d M Y')]) }}
+                        </p>
                     </div>
 
                     <div class="imma-legal-content custom-page-content">
-                        @foreach ($termsSections ?? [] as $section)
-                            <article class="imma-legal-section">
-                                <h2>{{ $section['title'] }}</h2>
-                                {!! clean_html($section['content']) !!}
-                            </article>
-                        @endforeach
+                        {!! clean_html($page->body) !!}
                     </div>
 
                     <div class="imma-legal-footer">
-                        <p>{{ $termsFooter }}</p>
-                        <a href="{{ route('contact.create') }}" class="btn btn-primary">{{ $termsContactLabel }}</a>
+                        <p>{{ trans('page::pages.legal.public_footer') }}</p>
+                        <a href="{{ route('contact.create') }}" class="btn btn-primary">
+                            {{ trans('page::pages.legal.contact') }}
+                        </a>
                     </div>
                 </div>
 

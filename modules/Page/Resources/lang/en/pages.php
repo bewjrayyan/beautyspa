@@ -3,6 +3,20 @@
 return [
     'page' => 'Page',
     'pages' => 'Pages',
+    'legal' => [
+        'title' => 'Legal Policies',
+        'subtitle' => 'Maintain the customer-facing legal documents used by the store and consultation forms.',
+        'heading' => 'Terms & privacy content',
+        'help' => 'Edit and publish these documents without changing application code. A version snapshot is retained when a customer submits a consultation form.',
+        'published' => 'Published',
+        'draft' => 'Draft',
+        'updated' => 'Last updated :date',
+        'preview' => 'Preview',
+        'edit' => 'Edit content',
+        'public_updated' => 'Last updated: :date',
+        'public_footer' => 'Questions about this policy or your records? Contact IMMA Seri Laris.',
+        'contact' => 'Contact Us',
+    ],
     'table' => [
         'name' => 'Name',
     ],

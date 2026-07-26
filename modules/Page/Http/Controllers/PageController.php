@@ -36,16 +36,13 @@ class PageController
         }
 
         if ($slug === 'terms-conditions') {
-            return $this->immaSeriLarisLegalView(
-                $page,
-                $logo,
-                $this->immaSeriLarisTermsContent(),
-                ['latestProducts' => $this->latestProductsForSidebar()]
-            );
+            return $this->legalView($page, $logo, [
+                'latestProducts' => $this->latestProductsForSidebar(),
+            ]);
         }
 
         if ($slug === 'privacy-policy') {
-            return $this->immaSeriLarisLegalView($page, $logo, $this->immaSeriLarisPrivacyContent());
+            return $this->legalView($page, $logo);
         }
 
         if ($slug === 'about-us') {
@@ -105,16 +102,11 @@ class PageController
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    private function immaSeriLarisLegalView(Page $page, string $logo, array $content, array $extra = [])
+    private function legalView(Page $page, string $logo, array $extra = [])
     {
         return view('storefront::public.pages.terms', array_merge([
             'page' => $page,
             'logo' => $logo,
-            'termsIntro' => $content['intro'],
-            'termsUpdated' => $content['last_updated'],
-            'termsSections' => $content['sections'],
-            'termsFooter' => $content['footer'],
-            'termsContactLabel' => $content['contact_label'],
         ], $extra));
     }
 
@@ -142,63 +134,5 @@ class PageController
         }
 
         return SpaBranch::activeForContact();
-    }
-
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function immaSeriLarisLegalContent(string $configKey, string $footerEn, string $footerMs): array
-    {
-        $config = config($configKey, []);
-        $locale = array_key_exists(locale(), $config) ? locale() : 'en';
-        $data = $config[$locale] ?? $config['en'] ?? [];
-
-        $urls = [
-            '/contact' => route('contact.create'),
-            '/privacy-policy' => localized_url(locale(), 'privacy-policy'),
-            '/terms-conditions' => localized_url(locale(), 'terms-conditions'),
-        ];
-
-        $sections = collect($data['sections'] ?? [])->map(function (array $section) use ($urls) {
-            return [
-                'title' => $section['title'],
-                'content' => str_replace(array_keys($urls), array_values($urls), $section['content']),
-            ];
-        })->values()->all();
-
-        return [
-            'intro' => $data['intro'] ?? '',
-            'last_updated' => $data['last_updated'] ?? '',
-            'sections' => $sections,
-            'footer' => $locale === 'ms' ? $footerMs : $footerEn,
-            'contact_label' => $locale === 'ms' ? 'Hubungi Kami' : 'Contact Us',
-        ];
-    }
-
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function immaSeriLarisTermsContent(): array
-    {
-        return $this->immaSeriLarisLegalContent(
-            'imma_terms',
-            'IMMA Seri Laris — treatment, spa & aesthetic services at immaserilaris.com',
-            'IMMA Seri Laris — perkhidmatan rawatan, spa & estetik di immaserilaris.com'
-        );
-    }
-
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function immaSeriLarisPrivacyContent(): array
-    {
-        return $this->immaSeriLarisLegalContent(
-            'imma_privacy',
-            'IMMA Seri Laris — your privacy matters. immaserilaris.com',
-            'IMMA Seri Laris — privasi anda penting. immaserilaris.com'
-        );
     }
 }

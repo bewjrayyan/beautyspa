@@ -74,6 +74,12 @@ Route::post('treatment-reservations/{id}/whatsapp', [
     'middleware' => 'can:admin.treatment_reservations.edit',
 ]);
 
+Route::post('treatment-reservations/{id}/consultation', [
+    'as' => 'admin.treatment_reservations.consultation',
+    'uses' => '\Modules\Account\Http\Controllers\Admin\ConsultationRequestController@store',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
 Route::get('treatment-reservations/crm/customers/profile', [
     'as' => 'admin.treatment_reservations.crm.customer_profile',
     'uses' => 'ReservationController@customerProfile',
@@ -157,6 +163,11 @@ Route::middleware(['beautician.portal'])->group(function () {
     Route::post('my/job-sheet/{id}/whatsapp', [
         'as' => 'admin.treatment_reservations.portal.send_whatsapp',
         'uses' => 'PortalController@sendCustomerWhatsApp',
+    ]);
+
+    Route::post('my/job-sheet/{id}/consultation', [
+        'as' => 'admin.treatment_reservations.portal.consultation',
+        'uses' => '\Modules\Account\Http\Controllers\Admin\ConsultationRequestController@store',
     ]);
 
     Route::get('my/job-sheet/manual-bookings/slots', [

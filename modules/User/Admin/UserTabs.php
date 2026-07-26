@@ -6,6 +6,7 @@ use Modules\Admin\Ui\Tab;
 use Modules\Admin\Ui\Tabs;
 use Modules\User\Entities\Role;
 use Modules\User\Repositories\Permission;
+use Modules\Account\Services\ConsultationFormService;
 
 class UserTabs extends Tabs
 {
@@ -14,8 +15,31 @@ class UserTabs extends Tabs
         $this->group('user_information', trans('user::users.tabs.group.user_information'))
             ->active()
             ->add($this->account())
+            ->add($this->consultations())
             ->add($this->permissions())
             ->add($this->newPassword());
+    }
+
+
+    private function consultations()
+    {
+        if (! request()->routeIs('admin.users.edit')) {
+            return;
+        }
+
+        return tap(new Tab('consultations', trans('account::consultation.admin.tab')), function (Tab $tab) {
+            $tab->weight(15);
+            $tab->view(function ($data) {
+                $user = $data['user'];
+                $forms = app(ConsultationFormService::class);
+
+                return view('user::admin.users.tabs.consultations', [
+                    'user' => $user,
+                    'pendingForms' => $forms->pendingFor($user),
+                    'submissions' => $forms->historyFor($user),
+                ]);
+            });
+        });
     }
 
 

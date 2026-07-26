@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.68' => [
+        'en' => [
+            'summary' => 'Add secure consultation forms with medical body mapping, signed records, PDF downloads, and editable legal policies.',
+            'changes' => [
+                'Let beauticians send a secure consultation link from a confirmed treatment booking and let customers complete it from their account.',
+                'Add numbered bilingual medical questions, an interactive anatomy body map, customer signature, and matching admin and customer PDFs.',
+                'Show purchased treatment, appointment, branch, beautician, and order information with every consultation record.',
+                'Add database-managed Terms & Conditions and Privacy Policy pages with immutable policy snapshots for signed submissions.',
+                'Strengthen customer access, answer allowlists, signature validation, permissions, error handling, and consultation service architecture.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah borang konsultasi selamat dengan peta anatomi, rekod bertandatangan, muat turun PDF, dan polisi undang-undang yang boleh diedit.',
+            'changes' => [
+                'Benarkan beautician menghantar pautan konsultasi selamat daripada tempahan rawatan dan pelanggan melengkapkannya melalui akaun sendiri.',
+                'Tambah soalan perubatan dwibahasa bernombor, peta anatomi interaktif, tandatangan pelanggan, serta PDF admin dan pelanggan yang seragam.',
+                'Paparkan rawatan dibeli, janji temu, cawangan, beautician, dan maklumat pesanan pada setiap rekod konsultasi.',
+                'Tambah halaman Terma & Syarat dan Dasar Privasi berasaskan database bersama snapshot polisi kekal untuk submission bertandatangan.',
+                'Perketat akses pelanggan, pilihan jawapan, validasi tandatangan, permission, pengendalian ralat, dan struktur servis konsultasi.',
+            ],
+        ],
+    ],
     '4.9.67' => [
         'en' => [
             'summary' => 'Replace technical server errors with friendly, branded, and accessible error pages.',

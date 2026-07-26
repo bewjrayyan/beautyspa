@@ -5,6 +5,7 @@ namespace Modules\Page\Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Page\Entities\Page;
+use Modules\Page\Support\LegalPageDefaults;
 
 class ImmaSeriLarisPrivacyPageSeeder extends Seeder
 {
@@ -29,7 +30,7 @@ class ImmaSeriLarisPrivacyPageSeeder extends Seeder
             ['page_id' => $page->id, 'locale' => 'en'],
             [
                 'name' => 'Privacy Policy',
-                'body' => '<p>How IMMA Seri Laris protects your personal data.</p>',
+                'body' => LegalPageDefaults::body('privacy', 'en'),
             ]
         );
 
@@ -37,9 +38,11 @@ class ImmaSeriLarisPrivacyPageSeeder extends Seeder
             ['page_id' => $page->id, 'locale' => 'ms'],
             [
                 'name' => 'Dasar Privasi',
-                'body' => '<p>Bagaimana IMMA Seri Laris melindungi data peribadi anda.</p>',
+                'body' => LegalPageDefaults::body('privacy', 'ms'),
             ]
         );
+
+        $page->touch();
 
         $page->saveMetaData([
             'meta_title' => 'Privacy Policy | IMMA Seri Laris',

@@ -2,5 +2,8 @@
     "name": "Account",
     "alias": "account",
     "description": "The AestheticCart Account Module.",
-    "priority": 100
+    "priority": 100,
+    "providers": [
+        "Modules\\Account\\Providers\\AccountServiceProvider"
+    ]
 }

@@ -65,11 +65,13 @@ export function useDraggableSections() {
 
     // Load section order from localStorage or fallback to default
     function getSectionsOrder(key) {
-        const stored = JSON.parse(localStorage.getItem(key));
+        let stored = JSON.parse(localStorage.getItem(key));
 
         if (stored === null) {
             return getInitialSectionsOrder(key);
         }
+
+        stored = stored.filter((section) => section !== "consultation");
 
         if (key === "product-form-right-sections") {
             return mergeRightColumnSections(stored);

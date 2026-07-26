@@ -45,6 +45,14 @@ class SidebarExtender extends BaseSidebarExtender
                     );
                 });
             });
+
+            $group->item(trans('product::sidebar.consultation_forms'), function (Item $item) {
+                $item->icon('fa fa-file-text-o');
+                $item->weight(16);
+                $item->route('admin.consultation_forms.index');
+                $item->isActiveWhen(route('admin.consultation_forms.index', null, false));
+                $item->authorize($this->auth->hasAccess('admin.consultation_forms.index'));
+            });
         });
     }
 }

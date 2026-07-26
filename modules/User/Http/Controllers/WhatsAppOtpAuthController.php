@@ -51,14 +51,15 @@ class WhatsAppOtpAuthController extends Controller
             $user = $this->findOrCreateUser($normalizedPhone);
 
             $user->login();
+            $redirect = $request->session()->pull('url.intended', route('account.dashboard.index'));
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'redirect' => route('account.dashboard.index'),
+                    'redirect' => $redirect,
                 ]);
             }
 
-            return redirect()->intended(route('account.dashboard.index'));
+            return redirect($redirect);
         } catch (Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([

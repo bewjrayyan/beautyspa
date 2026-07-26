@@ -220,7 +220,7 @@
                                     <input 
                                         type="text"
                                         name="email"
-                                        value="{{ old('email') }}"
+                                        value="{{ old('email', request('email')) }}"
                                         class="form-control"
                                         id="email"
                                         placeholder="{{ trans('user::auth.enter_your_email') }}"
@@ -257,6 +257,7 @@
                                     @include('storefront::public.partials.phone_input', [
                                         'name' => 'phone',
                                         'id' => 'phone',
+                                        'value' => request('phone'),
                                         'required' => true,
                                         'placeholder' => trans('user::auth.phone'),
                                     ])

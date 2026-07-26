@@ -18,7 +18,7 @@ return [
             ],
             [
                 'title' => '3. Bookings & Appointments',
-                'content' => '<p>Appointments may be made through this website, by phone, WhatsApp, or in person. Online bookings are subject to confirmation by our team. Appointment times are estimates; occasional delays may occur. You agree to arrive on time; late arrival may shorten your session or require rescheduling.</p><ul><li>Bookings for third parties require correct guest details</li><li>Promotional packages are subject to stated validity and conditions</li><li>We may request a deposit for selected packages or peak periods</li></ul>',
+                'content' => '<p>Appointments may be made through this website, by phone, or WhatsApp and are subject to confirmation by our team. Services are by appointment only; walk-ins are not accepted. Appointment times are estimates and occasional delays may occur. You agree to arrive on time; late arrival may shorten your session, move the next customer ahead, or require cancellation or rescheduling.</p><ul><li>Bookings for third parties require correct guest details</li><li>Promotional packages are subject to stated validity and conditions</li><li>We may request a deposit for selected packages or peak periods</li></ul>',
             ],
             [
                 'title' => '4. Pricing & Payment',
@@ -72,7 +72,7 @@ return [
             ],
             [
                 'title' => '3. Tempahan & Janji Temu',
-                'content' => '<p>Janji temu boleh dibuat melalui laman web ini, telefon, WhatsApp, atau secara walk-in. Tempahan dalam talian tertakluk pada pengesahan pasukan kami. Masa janji temu adalah anggaran; kelewatan sekali-sekala mungkin berlaku. Anda bersetuju hadir tepat pada masanya; ketibaan lewat boleh memendekkan sesi atau memerlukan penjadualan semula.</p><ul><li>Tempahan untuk pihak ketiga memerlukan maklumat tetamu yang betul</li><li>Pakej promosi tertakluk pada tempoh sah dan syarat yang dinyatakan</li><li>Kami boleh meminta deposit untuk pakej atau tempoh puncak tertentu</li></ul>',
+                'content' => '<p>Janji temu boleh dibuat melalui laman web ini, telefon atau WhatsApp dan tertakluk pada pengesahan pasukan kami. Perkhidmatan adalah melalui janji temu sahaja; walk-in tidak diterima. Masa janji temu adalah anggaran dan kelewatan sekali-sekala mungkin berlaku. Anda bersetuju hadir tepat pada masanya; ketibaan lewat boleh memendekkan sesi, mendahulukan pelanggan seterusnya, atau memerlukan pembatalan atau penjadualan semula.</p><ul><li>Tempahan untuk pihak ketiga memerlukan maklumat tetamu yang betul</li><li>Pakej promosi tertakluk pada tempoh sah dan syarat yang dinyatakan</li><li>Kami boleh meminta deposit untuk pakej atau tempoh puncak tertentu</li></ul>',
             ],
             [
                 'title' => '4. Harga & Bayaran',

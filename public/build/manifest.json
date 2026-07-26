@@ -1195,7 +1195,7 @@
     "src": "modules/Page/Resources/assets/admin/sass/main.scss"
   },
   "modules/Product/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-Cig26AKL-v4.7.71.js",
+    "file": "assets/main-CRnCoh6z-v4.7.71.js",
     "name": "main",
     "src": "modules/Product/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1551,7 +1551,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/dashboard/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/main.scss": {
-    "file": "assets/main-DPSnIQCj-v4.7.71.css",
+    "file": "assets/main-CL1IATHQ-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
@@ -1741,7 +1741,7 @@
     "src": "modules/Translation/Resources/assets/admin/translations/sass/main.scss"
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DAPv8jjr-v4.7.71.js",
+    "file": "assets/main-CMv0UUkP-v4.7.71.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1807,7 +1807,7 @@
     "src": "modules/User/Resources/assets/admin/sass/auth/main.scss"
   },
   "modules/User/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-g3B76CVT-v4.7.71.css",
+    "file": "assets/main-DV6BC1gw-v4.7.71.css",
     "src": "modules/User/Resources/assets/admin/sass/main.scss"
   },
   "modules/Variation/Resources/assets/admin/js/create.js": {

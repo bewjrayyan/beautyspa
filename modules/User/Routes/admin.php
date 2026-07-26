@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Account\Http\Controllers\Admin\ConsultationSubmissionController;
 
 Route::get('login', 'AuthController@getLogin')->name('admin.login');
 Route::post('login', 'AuthController@postLogin')
@@ -84,6 +85,10 @@ Route::get('users/{id}/reset-password', [
     'uses' => 'UserResetPasswordController@store',
     'middleware' => 'can:admin.users.edit',
 ]);
+
+Route::get('users/consultations/{submission}/pdf', [ConsultationSubmissionController::class, 'download'])
+    ->name('admin.users.consultations.download')
+    ->middleware('can:admin.consultation_submissions.download');
 
 Route::get('roles', [
     'as' => 'admin.roles.index',

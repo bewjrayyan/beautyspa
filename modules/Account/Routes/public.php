@@ -2,11 +2,22 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('consultation/{token}', 'ConsultationAccessController@index')->name('consultations.access');
+Route::post('consultation/{token}/account', 'ConsultationAccessController@lookup')
+    ->middleware('throttle:10,1')
+    ->name('consultations.lookup');
+
 Route::middleware('auth')->group(function () {
     Route::get('account', 'AccountDashboardController@index')->name('account.dashboard.index');
 
     Route::get('account/profile', 'AccountProfileController@edit')->name('account.profile.edit');
     Route::put('account/profile', 'AccountProfileController@update')->name('account.profile.update');
+
+    Route::get('account/consultations', 'AccountConsultationController@index')->name('account.consultations.index');
+    Route::get('account/consultations/submissions/{submission}', 'AccountConsultationController@showSubmission')->name('account.consultations.show_submission');
+    Route::get('account/consultations/submissions/{submission}/pdf', 'AccountConsultationController@download')->name('account.consultations.download');
+    Route::get('account/consultations/requests/{submission}', 'AccountConsultationController@show')->name('account.consultations.form');
+    Route::post('account/consultations/requests/{submission}', 'AccountConsultationController@store')->name('account.consultations.store');
 
     Route::get('account/orders', 'AccountOrdersController@index')->name('account.orders.index');
     Route::get('account/orders/{id}', 'AccountOrdersController@show')->name('account.orders.show');
@@ -33,5 +44,3 @@ Route::middleware('auth')->group(function () {
     Route::delete('account/addresses/{id}', 'AccountAddressController@destroy')->name('account.addresses.destroy');
     Route::post('account/addresses/change-default', 'AccountAddressController@changeDefault')->name('account.addresses.change_default');
 });
-
-

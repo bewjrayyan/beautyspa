@@ -25,3 +25,56 @@
         margin-top: 10px;
     }
 }
+
+.admin-consultation-tab {
+    padding: 22px 24px 26px;
+
+    .admin-consultation-intro {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 24px;
+        padding: 22px;
+        border: 1px solid #eadfe6;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #fff7fb, #fff);
+
+        h3 { margin: 0 0 6px; font-size: 18px; }
+        p { margin: 0; color: #74707a; }
+    }
+
+    .admin-consultation-stats { display: flex; gap: 10px; align-items: center; }
+    .admin-consultation-stats span { padding: 9px 12px; border-radius: 10px; background: #fff; box-shadow: 0 3px 12px rgba(38, 22, 32, .06); color: #6a6068; white-space: nowrap; }
+    .admin-consultation-stats strong { color: #b50863; }
+    .admin-consultation-section { margin-top: 24px; }
+    .admin-consultation-section > h4 { margin: 0 0 12px; font-size: 15px; }
+    .admin-consultation-row, .admin-consultation-share__row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 16px; border: 1px solid #e7e3e6; border-radius: 11px; background: #fff; margin-bottom: 9px; }
+    .admin-consultation-row strong, .admin-consultation-row span, .admin-consultation-share__row strong, .admin-consultation-share__row code { display: block; }
+    .admin-consultation-row span { margin-top: 3px; color: #817982; font-size: 12px; }
+    .admin-consultation-row__actions { display: flex; align-items: center; gap: 9px; }
+    .admin-consultation-badge { padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .admin-consultation-badge.is-pending { color: #9a6200; background: #fff3cf; }
+    .admin-consultation-badge.is-complete { color: #087447; background: #dcf7ea; }
+    .admin-consultation-empty { padding: 18px; border: 1px dashed #d9d3d7; border-radius: 11px; color: #817982; background: #faf9fa; }
+    .admin-consultation-empty--action { display: flex; align-items: center; gap: 14px; }
+    .admin-consultation-empty--action > div { flex: 1; }
+    .admin-consultation-empty--action strong { display: block; color: #3c3038; }
+    .admin-consultation-empty--action p { margin: 3px 0 0; }
+    .admin-consultation-empty__icon { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 11px; color: #a20759; background: #fbe7f2; }
+    .admin-consultation-share > p { margin: -5px 0 14px; color: #817982; }
+    .admin-consultation-share__row code { max-width: 520px; margin-top: 5px; overflow: hidden; color: #786b73; text-overflow: ellipsis; white-space: nowrap; }
+
+    @media (max-width: 767px) {
+        padding: 16px;
+
+        .admin-consultation-intro, .admin-consultation-row, .admin-consultation-share__row { align-items: stretch; flex-direction: column; }
+        .admin-consultation-stats { flex-wrap: wrap; }
+        .admin-consultation-row__actions { justify-content: space-between; }
+        .admin-consultation-empty--action { align-items: stretch; flex-direction: column; }
+    }
+}
+
+// Consultation is a read-only monitoring tab; account changes are saved from the Account tab.
+#consultations.active ~ .form-group {
+    display: none;
+}

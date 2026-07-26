@@ -5,6 +5,7 @@ namespace Modules\Page\Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Page\Entities\Page;
+use Modules\Page\Support\LegalPageDefaults;
 
 class ImmaSeriLarisTermsPageSeeder extends Seeder
 {
@@ -29,7 +30,7 @@ class ImmaSeriLarisTermsPageSeeder extends Seeder
             ['page_id' => $page->id, 'locale' => 'en'],
             [
                 'name' => 'Terms & Conditions',
-                'body' => '<p>Please read our terms for spa, aesthetic and cosmetik services at IMMA Seri Laris.</p>',
+                'body' => LegalPageDefaults::body('terms', 'en'),
             ]
         );
 
@@ -37,9 +38,11 @@ class ImmaSeriLarisTermsPageSeeder extends Seeder
             ['page_id' => $page->id, 'locale' => 'ms'],
             [
                 'name' => 'Terma & Syarat',
-                'body' => '<p>Sila baca terma perkhidmatan spa, estetik dan cosmetik IMMA Seri Laris.</p>',
+                'body' => LegalPageDefaults::body('terms', 'ms'),
             ]
         );
+
+        $page->touch();
 
         $page->saveMetaData([
             'meta_title' => 'Terms & Conditions | IMMA Seri Laris',

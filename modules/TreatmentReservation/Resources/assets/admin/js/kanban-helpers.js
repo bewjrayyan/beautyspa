@@ -436,6 +436,13 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
         : "";
 
     const actionButtons = [
+        options.consultationUrlTemplate && booking.status !== "canceled"
+            ? previewActionButton(
+                "tr-calendar-event-preview__consultation tr-calendar-event-preview__action-btn--primary",
+                `<i class="fa fa-file-text-o" aria-hidden="true"></i><span>${escapeHtml(labels.consultation || "Send consultation form")}</span>`,
+                `data-send-consultation data-booking-id="${escapeHtml(String(booking.id))}"`
+            )
+            : "",
         (booking.customer_phone || booking.id)
             ? previewActionButton(
                 "tr-calendar-event-preview__profile tr-calendar-event-preview__action-btn--ghost",
@@ -753,6 +760,40 @@ async function sendCustomerWhatsApp(button) {
     }
 }
 
+async function prepareConsultation(button) {
+    const bookingId = button.dataset.bookingId;
+    const urlTemplate = previewOptions.consultationUrlTemplate;
+
+    if (!bookingId || !urlTemplate || !window.axios) {
+        return;
+    }
+
+    const originalHtml = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${escapeHtml(previewLabels.consultationPreparing || "Preparing…")}`;
+
+    try {
+        const response = await window.axios.post(urlTemplate.replace("__ID__", bookingId));
+        const whatsappUrl = response.data?.whatsapp_url;
+        const shareUrl = response.data?.share_url;
+
+        if (whatsappUrl) {
+            window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+        } else if (shareUrl && navigator.clipboard) {
+            await navigator.clipboard.writeText(shareUrl);
+        }
+
+        const message = response.data?.message || previewLabels.consultationReady || "Consultation link is ready";
+        window.notify?.success?.(message) || alert(message);
+    } catch (error) {
+        const message = error.response?.data?.message || previewLabels.consultationFailed || "Failed to prepare consultation form";
+        window.notify?.error?.(message) || alert(message);
+    } finally {
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    }
+}
+
 async function cancelManualBooking(button) {
     const bookingId = button.dataset.bookingId;
     const cancelUrlTemplate = previewOptions.manualBookingCancelUrlTemplate;
@@ -879,6 +920,15 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
         if (whatsappButton) {
             event.preventDefault();
             sendCustomerWhatsApp(whatsappButton);
+
+            return;
+        }
+
+        const consultationButton = event.target.closest("[data-send-consultation]");
+
+        if (consultationButton) {
+            event.preventDefault();
+            prepareConsultation(consultationButton);
 
             return;
         }

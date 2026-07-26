@@ -67,7 +67,7 @@
 
     <script type="module">
         if (window.admin?.removeSubmitButtonOffsetOn) {
-            window.admin.removeSubmitButtonOffsetOn(['#account', '#new_password', '#permissions']);
+            window.admin.removeSubmitButtonOffsetOn(['#account', '#consultations', '#new_password', '#permissions']);
         }
     </script>
 @endpush

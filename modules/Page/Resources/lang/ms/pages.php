@@ -4,6 +4,20 @@ return [
 
     'page' => 'Halaman',
     'pages' => 'Halaman',
+    'legal' => [
+        'title' => 'Polisi Undang-undang',
+        'subtitle' => 'Urus dokumen undang-undang untuk kedai dan borang konsultasi pelanggan.',
+        'heading' => 'Kandungan terma & privasi',
+        'help' => 'Edit dan terbitkan dokumen ini tanpa mengubah kod aplikasi. Salinan versi polisi disimpan apabila pelanggan menghantar borang konsultasi.',
+        'published' => 'Diterbitkan',
+        'draft' => 'Draf',
+        'updated' => 'Terakhir dikemas kini :date',
+        'preview' => 'Pratonton',
+        'edit' => 'Edit kandungan',
+        'public_updated' => 'Kemas kini terakhir: :date',
+        'public_footer' => 'Ada pertanyaan tentang polisi ini atau rekod anda? Hubungi IMMA Seri Laris.',
+        'contact' => 'Hubungi Kami',
+    ],
     'table' => [
 
         'name' => 'Nama',

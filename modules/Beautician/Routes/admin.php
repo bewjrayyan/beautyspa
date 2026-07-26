@@ -142,6 +142,11 @@ Route::middleware(['beautician.portal.access', 'beautician.portal.from_route'])-
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@sendCustomerWhatsApp',
     ]);
 
+    Route::post('beauticians/{id}/portal/{booking}/consultation', [
+        'as' => 'admin.beauticians.portal.consultation',
+        'uses' => '\Modules\Account\Http\Controllers\Admin\ConsultationRequestController@store',
+    ]);
+
     Route::get('beauticians/{id}/portal/availability', [
         'as' => 'admin.beauticians.portal.availability',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@edit',

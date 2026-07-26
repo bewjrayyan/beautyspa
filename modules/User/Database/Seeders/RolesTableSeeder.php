@@ -35,6 +35,10 @@ class RolesTableSeeder extends Seeder
             'admin.users.create' => true,
             'admin.users.edit' => true,
             'admin.users.destroy' => true,
+            # consultation forms and records
+            'admin.consultation_forms.index' => true,
+            'admin.consultation_forms.edit' => true,
+            'admin.consultation_submissions.download' => true,
             # roles
             'admin.roles.index' => true,
             'admin.roles.create' => true,
