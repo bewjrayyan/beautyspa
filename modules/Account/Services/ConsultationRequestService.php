@@ -13,6 +13,10 @@ use Modules\User\Support\PhoneNumber;
 
 class ConsultationRequestService
 {
+    public function __construct(private readonly ConsultationContextService $context)
+    {
+    }
+
     public function createForBooking(
         TreatmentBooking $booking,
         User $sender,
@@ -36,6 +40,7 @@ class ConsultationRequestService
                 'template_id' => $template->id,
                 'user_id' => $user?->id,
                 'order_id' => $booking->order_id,
+                'product_id' => $booking->product_id,
                 'treatment_booking_id' => $booking->id,
                 'beautician_id' => $booking->beautician_id,
                 'sent_by_user_id' => $sender->id,
@@ -49,6 +54,7 @@ class ConsultationRequestService
                 'form_intro' => $template->intro,
                 'consent_text' => $template->consent_text,
                 'questions_snapshot' => $template->questions ?: [],
+                'context_snapshot' => $this->context->capture($booking),
             ]);
         });
     }
@@ -108,7 +114,7 @@ class ConsultationRequestService
             $booking->customer_phone ?: $booking->order?->customer_phone
         ));
         $user = $booking->order?->customer
-            ?: ($email !== '' ? User::query()->whereRaw('LOWER(email) = ?', [$email])->first() : null)
+            ?: ($email !== '' ? User::query()->where('email', $email)->first() : null)
             ?: ($phone !== '' ? User::findByPhone($phone) : null);
 
         if (! $user && $email === '' && $phone === '') {

@@ -11,6 +11,9 @@ use Modules\Account\Http\Requests\SubmitConsultationRequest;
 use Modules\Account\Services\ConsultationCustomerAccess;
 use Modules\Account\Services\ConsultationFormService;
 use Modules\Account\Services\ConsultationPdfService;
+use Modules\Account\Services\ConsultationSignatureStorage;
+use Modules\Account\Services\ConsultationAuditLogger;
+use Modules\Account\Services\ConsultationContextService;
 use Modules\Account\Services\LegalDocumentService;
 use Modules\Account\Services\SubmitConsultation;
 
@@ -25,10 +28,10 @@ class AccountConsultationController extends Controller
 
     public function index(Request $request)
     {
-        return view('storefront::public.account.consultations.index', [
+        return response()->view('storefront::public.account.consultations.index', [
             'pendingForms' => $this->forms->pendingFor($request->user()),
             'submissions' => $this->forms->historyFor($request->user()),
-        ]);
+        ])->withHeaders($this->privateRecordHeaders());
     }
 
     public function show(Request $request, ConsultationSubmission $submission)
@@ -39,13 +42,17 @@ class AccountConsultationController extends Controller
             return redirect()->route('account.consultations.show_submission', $submission);
         }
 
-        $submission->forceFill(['opened_at' => $submission->opened_at ?: now()])->saveQuietly();
+        ConsultationSubmission::query()
+            ->whereKey($submission->id)
+            ->whereNull('opened_at')
+            ->update(['opened_at' => now()]);
+        $submission->opened_at ??= now();
         $submission->load(['treatmentBooking.product', 'beautician']);
 
-        return view('storefront::public.account.consultations.form', [
+        return response()->view('storefront::public.account.consultations.form', [
             'submission' => $submission,
             'legalDocuments' => $this->legalDocuments->documentsOrFail(),
-        ]);
+        ])->withHeaders($this->privateRecordHeaders());
     }
 
     public function store(
@@ -77,32 +84,62 @@ class AccountConsultationController extends Controller
             ->withSuccess(trans('account::consultation.messages.submitted'));
     }
 
-    public function showSubmission(Request $request, ConsultationSubmission $submission)
+    public function showSubmission(
+        Request $request,
+        ConsultationSubmission $submission,
+        ConsultationSignatureStorage $signatures,
+        ConsultationAuditLogger $audit,
+        ConsultationContextService $context
+    )
     {
         $this->customerAccess->claim($submission, $request->user());
         abort_unless($submission->isCompleted(), 404);
 
-        return view('storefront::public.account.consultations.show', [
-            'submission' => $submission->load([
-                'treatmentBooking.product',
-                'treatmentBooking.beautician.spaBranches',
-                'beautician',
-                'product',
-                'order.spaBranch',
-                'order.beautician',
-                'orderProduct',
-            ]),
-        ]);
+        $audit->record(
+            $submission,
+            $request->user(),
+            'customer',
+            ConsultationAuditLogger::VIEWED,
+            $request
+        );
+
+        return response()->view('storefront::public.account.consultations.show', [
+            'submission' => $submission,
+            'consultationContext' => $context->forDisplay($submission),
+            'signatureDataUri' => $signatures->dataUri($submission),
+        ])->withHeaders($this->privateRecordHeaders());
     }
 
     public function download(
         Request $request,
         ConsultationSubmission $submission,
-        ConsultationPdfService $pdf
+        ConsultationPdfService $pdf,
+        ConsultationAuditLogger $audit
     ): Response {
         $this->customerAccess->claim($submission, $request->user());
         abort_unless($submission->isCompleted(), 404);
 
-        return $pdf->download($submission->load(['user', 'treatmentBooking.product', 'beautician', 'order']));
+        $response = $pdf->download($submission);
+
+        $audit->record(
+            $submission,
+            $request->user(),
+            'customer',
+            ConsultationAuditLogger::PDF_DOWNLOADED,
+            $request
+        );
+
+        return $response;
+    }
+
+    /** @return array<string, string> */
+    private function privateRecordHeaders(): array
+    {
+        return [
+            'Cache-Control' => 'private, no-store, max-age=0',
+            'Pragma' => 'no-cache',
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Robots-Tag' => 'noindex, nofollow, noarchive',
+        ];
     }
 }

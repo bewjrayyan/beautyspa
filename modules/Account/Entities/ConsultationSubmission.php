@@ -4,6 +4,7 @@ namespace Modules\Account\Entities;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\Account\Casts\EncryptedArrayWithLegacyFallback;
 use Modules\Order\Entities\Order;
 use Modules\Order\Entities\OrderProduct;
 use Modules\Product\Entities\Product;
@@ -11,9 +12,34 @@ use Modules\Support\Eloquent\Model;
 use Modules\Beautician\Entities\Beautician;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\User\Entities\User;
+use LogicException;
 
 class ConsultationSubmission extends Model
 {
+    private const IMMUTABLE_AFTER_SUBMISSION = [
+        'template_id',
+        'product_id',
+        'order_id',
+        'order_product_id',
+        'treatment_booking_id',
+        'beautician_id',
+        'template_version',
+        'form_title',
+        'form_intro',
+        'consent_text',
+        'questions_snapshot',
+        'context_snapshot',
+        'answers',
+        'signature_data',
+        'signature_path',
+        'signature_hash',
+        'consent_accepted',
+        'legal_documents_snapshot',
+        'submitted_at',
+        'ip_address',
+        'user_agent',
+    ];
+
     protected $fillable = [
         'template_id',
         'user_id',
@@ -35,8 +61,13 @@ class ConsultationSubmission extends Model
         'form_intro',
         'consent_text',
         'questions_snapshot',
+        'context_snapshot',
         'answers',
         'signature_data',
+        'signature_path',
+        'signature_hash',
+        'pdf_path',
+        'pdf_hash',
         'consent_accepted',
         'legal_documents_snapshot',
         'submitted_at',
@@ -46,14 +77,28 @@ class ConsultationSubmission extends Model
 
     protected $casts = [
         'questions_snapshot' => 'array',
-        'answers' => 'array',
+        'context_snapshot' => EncryptedArrayWithLegacyFallback::class,
+        'answers' => EncryptedArrayWithLegacyFallback::class,
         'consent_accepted' => 'boolean',
-        'legal_documents_snapshot' => 'array',
+        'legal_documents_snapshot' => EncryptedArrayWithLegacyFallback::class,
         'sent_at' => 'datetime',
         'opened_at' => 'datetime',
         'revoked_at' => 'datetime',
         'submitted_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::updating(function (ConsultationSubmission $submission): void {
+            if ($submission->getOriginal('submitted_at') === null) {
+                return;
+            }
+
+            if ($submission->isDirty(self::IMMUTABLE_AFTER_SUBMISSION)) {
+                throw new LogicException('A completed consultation record is immutable.');
+            }
+        });
+    }
 
     public function template(): BelongsTo
     {
@@ -100,16 +145,23 @@ class ConsultationSubmission extends Model
         return $this->submitted_at !== null;
     }
 
-    public function scopeWithConsultationContext(Builder $query): Builder
+    public function scopeForConsultationList(Builder $query): Builder
     {
-        return $query->with([
-            'treatmentBooking.product',
-            'treatmentBooking.beautician.spaBranches',
-            'beautician',
-            'product',
-            'order.spaBranch',
-            'order.beautician',
-            'orderProduct',
+        return $query->select([
+            'id',
+            'template_id',
+            'user_id',
+            'product_id',
+            'order_id',
+            'order_product_id',
+            'treatment_booking_id',
+            'beautician_id',
+            'template_version',
+            'form_title',
+            'context_snapshot',
+            'sent_at',
+            'submitted_at',
+            'revoked_at',
         ]);
     }
 }

@@ -6,13 +6,13 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Modules\Account\Entities\ConsultationFormTemplate;
-use Modules\Account\Entities\ConsultationSubmission;
 use Modules\Account\Http\Requests\SaveConsultationTemplateRequest;
+use Modules\Account\Services\ConsultationFormService;
 use Modules\Account\Services\ConsultationTemplateNormalizer;
 
 class ConsultationTemplateController extends Controller
 {
-    public function index(): View
+    public function index(ConsultationFormService $forms): View
     {
         $templates = ConsultationFormTemplate::query()
             ->withCount([
@@ -25,11 +25,7 @@ class ConsultationTemplateController extends Controller
             ->latest('updated_at')
             ->get();
 
-        $recentRequests = ConsultationSubmission::query()
-            ->with(['user', 'beautician', 'treatmentBooking.product'])
-            ->latest('sent_at')
-            ->limit(20)
-            ->get();
+        $recentRequests = $forms->recentRequests();
 
         return view('product::admin.consultation_forms.index', compact('templates', 'recentRequests'));
     }

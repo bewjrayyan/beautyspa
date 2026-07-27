@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.69' => [
+        'en' => [
+            'summary' => 'Add conditional consultation fields and harden medical records for privacy, performance, and auditability.',
+            'changes' => [
+                'Let admins add inline follow-up fields that appear only when a customer gives the configured answer.',
+                'Encrypt consultation answers and legal snapshots, and move signatures and generated PDFs to private storage.',
+                'Reduce consultation list queries with encrypted context snapshots, lean column selection, pagination, and targeted database indexes.',
+                'Cache immutable PDFs, support background PDF generation, and record customer and admin access to completed consultations.',
+                'Improve bilingual follow-up labels, conditional validation, translation cache refreshes, sensitive-page headers, and request throttling.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah medan konsultasi bersyarat dan perketat rekod perubatan untuk privasi, prestasi, serta jejak audit.',
+            'changes' => [
+                'Benarkan admin menambah medan susulan terus yang hanya muncul apabila pelanggan memberikan jawapan yang ditetapkan.',
+                'Enkripsi jawapan konsultasi dan snapshot dokumen undang-undang, serta pindahkan tandatangan dan PDF ke storan private.',
+                'Kurangkan query senarai konsultasi melalui context snapshot terenkripsi, pemilihan kolum ringkas, pagination, dan index database khusus.',
+                'Cache PDF yang kekal, sokong penjanaan PDF melalui queue, dan rekod akses pelanggan serta admin kepada konsultasi lengkap.',
+                'Kemaskan label susulan dwibahasa, validasi bersyarat, refresh cache terjemahan, header halaman sensitif, dan rate limiting.',
+            ],
+        ],
+    ],
     '4.9.68' => [
         'en' => [
             'summary' => 'Add secure consultation forms with medical body mapping, signed records, PDF downloads, and editable legal policies.',

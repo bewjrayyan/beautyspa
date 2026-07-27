@@ -31,7 +31,13 @@ class ConsultationAccessController extends Controller
             );
         }
 
-        return view('storefront::public.consultations.access', compact('submission'));
+        return response()
+            ->view('storefront::public.consultations.access', compact('submission'))
+            ->withHeaders([
+                'Cache-Control' => 'private, no-store, max-age=0',
+                'Pragma' => 'no-cache',
+                'X-Robots-Tag' => 'noindex, nofollow, noarchive',
+            ]);
     }
 
     public function lookup(Request $request, string $token): RedirectResponse
@@ -57,7 +63,7 @@ class ConsultationAccessController extends Controller
         }
 
         $user = $isEmail
-            ? User::query()->whereRaw('LOWER(email) = ?', [mb_strtolower($identifier)])->first()
+            ? User::query()->where('email', mb_strtolower($identifier))->first()
             : User::findByPhone($identifier);
 
         $destination = route('consultations.access', ['token' => $token]);
@@ -82,6 +88,17 @@ class ConsultationAccessController extends Controller
     private function findSubmissionByToken(string $token): ConsultationSubmission
     {
         $submission = ConsultationSubmission::query()
+            ->select([
+                'id',
+                'user_id',
+                'public_token',
+                'form_title',
+                'customer_name',
+                'customer_email',
+                'customer_phone',
+                'submitted_at',
+                'revoked_at',
+            ])
             ->where('public_token', $token)
             ->whereNull('revoked_at')
             ->firstOrFail();

@@ -15,9 +15,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('account/consultations', 'AccountConsultationController@index')->name('account.consultations.index');
     Route::get('account/consultations/submissions/{submission}', 'AccountConsultationController@showSubmission')->name('account.consultations.show_submission');
-    Route::get('account/consultations/submissions/{submission}/pdf', 'AccountConsultationController@download')->name('account.consultations.download');
+    Route::get('account/consultations/submissions/{submission}/pdf', 'AccountConsultationController@download')
+        ->middleware('throttle:20,1')
+        ->name('account.consultations.download');
     Route::get('account/consultations/requests/{submission}', 'AccountConsultationController@show')->name('account.consultations.form');
-    Route::post('account/consultations/requests/{submission}', 'AccountConsultationController@store')->name('account.consultations.store');
+    Route::post('account/consultations/requests/{submission}', 'AccountConsultationController@store')
+        ->middleware('throttle:5,1')
+        ->name('account.consultations.store');
 
     Route::get('account/orders', 'AccountOrdersController@index')->name('account.orders.index');
     Route::get('account/orders/{id}', 'AccountOrdersController@show')->name('account.orders.show');

@@ -1,5 +1,6 @@
 <article class="consultation-question-row" data-question-row>
     <input type="hidden" name="questions[{{ $index }}][key]" value="{{ $question['key'] ?? '' }}">
+    <input type="hidden" name="questions[{{ $index }}][placeholder]" value="{{ $question['placeholder'] ?? '' }}" data-question-placeholder>
     <div class="consultation-question-row__top">
         <span class="consultation-question-row__number" data-question-number>{{ is_numeric($index) ? $index + 1 : '' }}</span>
         <div class="form-group @error("questions.{$index}.label") has-error @enderror">
@@ -40,6 +41,24 @@
                 <div data-question-body-zones></div>
             </div>
         </div>
+    </section>
+    <div data-condition-storage hidden>
+        <input type="hidden" name="questions[{{ $index }}][condition][enabled]" value="{{ data_get($question, 'condition.enabled', false) ? '1' : '0' }}" data-condition-enabled>
+        <input type="hidden" name="questions[{{ $index }}][condition][source_key]" value="{{ data_get($question, 'condition.source_key', '') }}" data-condition-source>
+        <input type="hidden" name="questions[{{ $index }}][condition][operator]" value="{{ data_get($question, 'condition.operator', 'equals') }}" data-condition-operator>
+        <input type="hidden" name="questions[{{ $index }}][condition][value]" value="{{ data_get($question, 'condition.value', '') }}" data-condition-value>
+    </div>
+    <section class="consultation-question-row__followup" data-followup-logic @if(($question['type'] ?? '') === 'section') hidden @endif>
+        <div class="consultation-question-row__followup-heading">
+            <div>
+                <strong><i class="fa fa-code-fork" aria-hidden="true"></i> {{ trans('product::consultation_forms.followup_logic') }}</strong>
+                <p>{{ trans('product::consultation_forms.followup_help') }}</p>
+            </div>
+            <button class="btn btn-default btn-sm" type="button" data-add-followup>
+                <i class="fa fa-plus" aria-hidden="true"></i> {{ trans('product::consultation_forms.add_followup') }}
+            </button>
+        </div>
+        <div class="consultation-question-row__followup-rules" data-followup-rules></div>
     </section>
     <label class="consultation-question-row__required" data-question-required @if(($question['type'] ?? '') === 'section') hidden @endif><input type="hidden" name="questions[{{ $index }}][required]" value="0"><input type="checkbox" name="questions[{{ $index }}][required]" value="1" @checked((bool) ($question['required'] ?? false))> {{ trans('product::consultation_forms.required') }}</label>
 </article>

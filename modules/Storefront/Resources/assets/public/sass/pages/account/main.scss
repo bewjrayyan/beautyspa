@@ -326,6 +326,8 @@
 .consultation-medical-section small { display: block; margin-bottom: 1px; color: #a20759; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .consultation-medical-section h2 { margin: 0; font-size: 15px; }
 .consultation-question { margin: 0; padding: 13px; border: 1px solid #e9e2e7; border-radius: 8px; background: #fff; }
+.consultation-question--followup { position: relative; grid-column: 1 / -1; margin-left: 32px; border-left: 3px solid #b50863; background: #fff8fc; }
+.consultation-question--followup:before { position: absolute; top: -13px; left: -22px; width: 19px; height: 19px; border-bottom: 2px solid #d99ab9; border-left: 2px solid #d99ab9; border-radius: 0 0 0 8px; content: ""; }
 .consultation-question.has-error,.consultation-consent-box.has-error,.consultation-signature-field.has-error { border-color: #d84b4b; background: #fffafa; box-shadow: 0 0 0 3px rgba(216,75,75,.08); }
 .consultation-field-error { display: block; margin-top: 7px; color: #b52323; font-size: 11px; font-weight: 700; }
 .consultation-field-error[hidden] { display: none; }
@@ -455,6 +457,7 @@
 }
 
 @media (max-width: 767px) {
+    .consultation-question--followup { margin-left: 14px; }
     .consultation-page__hero, .consultation-callout, .consultation-card, .consultation-record__header { align-items: stretch; flex-direction: column; }
     .consultation-card__mark { display: none; }
     .consultation-card__actions { flex-direction: column; }

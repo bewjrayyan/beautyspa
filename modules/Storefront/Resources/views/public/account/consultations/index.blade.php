@@ -70,6 +70,10 @@
                     <div class="consultation-empty-state"><p>{{ trans('account::consultation.no_history') }}</p></div>
                 @endforelse
             </div>
+
+            @if ($submissions->hasPages())
+                <div class="pagination-wrapper">{{ $submissions->links() }}</div>
+            @endif
         </section>
     </div>
 @endsection

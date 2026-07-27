@@ -5,6 +5,7 @@ namespace Modules\Account\Services;
 use Illuminate\Support\Collection;
 use Modules\Account\Exceptions\LegalDocumentUnavailableException;
 use Modules\Page\Entities\Page;
+use Modules\Support\Cache\TaggedCache;
 
 class LegalDocumentService
 {
@@ -12,11 +13,16 @@ class LegalDocumentService
 
     public function documents(): Collection
     {
-        return Page::query()
-            ->whereIn('slug', self::SLUGS)
-            ->get()
-            ->sortBy(fn (Page $page): int => array_search($page->slug, self::SLUGS, true))
-            ->values();
+        return TaggedCache::remember(
+            ['pages'],
+            'consultation.legal-documents.' . locale(),
+            now()->addHour(),
+            fn (): Collection => Page::query()
+                ->whereIn('slug', self::SLUGS)
+                ->get()
+                ->sortBy(fn (Page $page): int => array_search($page->slug, self::SLUGS, true))
+                ->values()
+        );
     }
 
     public function snapshot(): array

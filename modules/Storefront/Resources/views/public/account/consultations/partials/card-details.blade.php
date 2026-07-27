@@ -1,15 +1,12 @@
 @php
-    $booking = $consultation->treatmentBooking;
-    $order = $consultation->order;
-    $orderProduct = $consultation->orderProduct;
-    $treatmentName = $orderProduct?->nameWithSelections()
-        ?: $booking?->product?->name
-        ?: $consultation->product?->name
-        ?: trans('account::consultation.treatment_not_available');
-    $appointmentDate = $booking?->appointment_date ?: $order?->appointment_date;
-    $appointmentTime = $booking?->appointmentTimeRange() ?: $order?->appointment_time;
-    $branchName = $order?->spaBranch?->name ?: $booking?->spaBranchLabel();
-    $beauticianName = $consultation->beautician?->name ?: $booking?->beautician?->name ?: $order?->beautician?->name;
+    $context = app(\Modules\Account\Services\ConsultationContextService::class)->forDisplay($consultation);
+    $treatmentName = $context['treatment_name'] ?: trans('account::consultation.treatment_not_available');
+    $appointmentDate = filled($context['appointment_date'] ?? null)
+        ? \Illuminate\Support\Carbon::parse($context['appointment_date'])
+        : null;
+    $appointmentTime = $context['appointment_time'] ?? null;
+    $branchName = $context['branch_name'] ?? null;
+    $beauticianName = $context['beautician_name'] ?? null;
 @endphp
 
 <div class="consultation-card__treatment">

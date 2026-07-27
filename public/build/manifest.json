@@ -1,4 +1,84 @@
 {
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/intl-tel-input/dist/img/flags.webp": {
+    "file": "assets/flags-DjVgN9ag-v4.7.71.webp",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/intl-tel-input/dist/img/flags.webp"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/intl-tel-input/dist/img/flags@2x.webp": {
+    "file": "assets/flags@2x-QBzdwbZ8-v4.7.71.webp",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/intl-tel-input/dist/img/flags@2x.webp"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/jstree/dist/themes/default/32px.png": {
+    "file": "assets/32px-CHwblES--v4.7.71.png",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/jstree/dist/themes/default/32px.png"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/jstree/dist/themes/default/40px.png": {
+    "file": "assets/40px-fA5gcXpO-v4.7.71.png",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/jstree/dist/themes/default/40px.png"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/jstree/dist/themes/default/throbber.gif": {
+    "file": "assets/throbber-DhAvNIJO-v4.7.71.gif",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/jstree/dist/themes/default/throbber.gif"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.eot": {
+    "file": "assets/la-brands-400-LN4CMlGg-v4.7.71.eot",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.eot"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.svg": {
+    "file": "assets/la-brands-400-wsUI3UJ9-v4.7.71.svg",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.svg"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.ttf": {
+    "file": "assets/la-brands-400-gDglUfU7-v4.7.71.ttf",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.ttf"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.woff": {
+    "file": "assets/la-brands-400-D0lxOIwB-v4.7.71.woff",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.woff"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.woff2": {
+    "file": "assets/la-brands-400-Cq-R4OEF-v4.7.71.woff2",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.woff2"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.eot": {
+    "file": "assets/la-regular-400-Cx6vm3uW-v4.7.71.eot",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.eot"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.svg": {
+    "file": "assets/la-regular-400-BmVb34ql-v4.7.71.svg",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.svg"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.ttf": {
+    "file": "assets/la-regular-400-CmnW_RTo-v4.7.71.ttf",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.ttf"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.woff": {
+    "file": "assets/la-regular-400-ehe5HgcS-v4.7.71.woff",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.woff"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.woff2": {
+    "file": "assets/la-regular-400-DuFMN_sw-v4.7.71.woff2",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.woff2"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.eot": {
+    "file": "assets/la-solid-900-DkmX4G2x-v4.7.71.eot",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.eot"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.svg": {
+    "file": "assets/la-solid-900-dtlPMWb8-v4.7.71.svg",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.svg"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.ttf": {
+    "file": "assets/la-solid-900-BUOWlSBQ-v4.7.71.ttf",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.ttf"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff": {
+    "file": "assets/la-solid-900-CR_Kd-su-v4.7.71.woff",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff"
+  },
+  "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff2": {
+    "file": "assets/la-solid-900-TjMEgv3Q-v4.7.71.woff2",
+    "src": "../../../../Applications/XAMPP/xamppfiles/htdocs/fleetcart/node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff2"
+  },
   "_@ckeditor-BSJjCjF2-v4.7.71.js": {
     "file": "assets/@ckeditor-BSJjCjF2-v4.7.71.js",
     "name": "@ckeditor",
@@ -1551,7 +1631,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/dashboard/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/main.scss": {
-    "file": "assets/main-CL1IATHQ-v4.7.71.css",
+    "file": "assets/main-By6zU-uG-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
@@ -1853,86 +1933,6 @@
   "modules/Variation/Resources/assets/admin/sass/main.scss": {
     "file": "assets/main-BOM9Nxrx-v4.7.71.css",
     "src": "modules/Variation/Resources/assets/admin/sass/main.scss"
-  },
-  "node_modules/intl-tel-input/dist/img/flags.webp": {
-    "file": "assets/flags-DjVgN9ag-v4.7.71.webp",
-    "src": "node_modules/intl-tel-input/dist/img/flags.webp"
-  },
-  "node_modules/intl-tel-input/dist/img/flags@2x.webp": {
-    "file": "assets/flags@2x-QBzdwbZ8-v4.7.71.webp",
-    "src": "node_modules/intl-tel-input/dist/img/flags@2x.webp"
-  },
-  "node_modules/jstree/dist/themes/default/32px.png": {
-    "file": "assets/32px-CHwblES--v4.7.71.png",
-    "src": "node_modules/jstree/dist/themes/default/32px.png"
-  },
-  "node_modules/jstree/dist/themes/default/40px.png": {
-    "file": "assets/40px-fA5gcXpO-v4.7.71.png",
-    "src": "node_modules/jstree/dist/themes/default/40px.png"
-  },
-  "node_modules/jstree/dist/themes/default/throbber.gif": {
-    "file": "assets/throbber-DhAvNIJO-v4.7.71.gif",
-    "src": "node_modules/jstree/dist/themes/default/throbber.gif"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.eot": {
-    "file": "assets/la-brands-400-LN4CMlGg-v4.7.71.eot",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.eot"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.svg": {
-    "file": "assets/la-brands-400-wsUI3UJ9-v4.7.71.svg",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.svg"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.ttf": {
-    "file": "assets/la-brands-400-gDglUfU7-v4.7.71.ttf",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.ttf"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.woff": {
-    "file": "assets/la-brands-400-D0lxOIwB-v4.7.71.woff",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.woff"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.woff2": {
-    "file": "assets/la-brands-400-Cq-R4OEF-v4.7.71.woff2",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-brands-400.woff2"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.eot": {
-    "file": "assets/la-regular-400-Cx6vm3uW-v4.7.71.eot",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.eot"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.svg": {
-    "file": "assets/la-regular-400-BmVb34ql-v4.7.71.svg",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.svg"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.ttf": {
-    "file": "assets/la-regular-400-CmnW_RTo-v4.7.71.ttf",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.ttf"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.woff": {
-    "file": "assets/la-regular-400-ehe5HgcS-v4.7.71.woff",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.woff"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.woff2": {
-    "file": "assets/la-regular-400-DuFMN_sw-v4.7.71.woff2",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-regular-400.woff2"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.eot": {
-    "file": "assets/la-solid-900-DkmX4G2x-v4.7.71.eot",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.eot"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.svg": {
-    "file": "assets/la-solid-900-dtlPMWb8-v4.7.71.svg",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.svg"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.ttf": {
-    "file": "assets/la-solid-900-BUOWlSBQ-v4.7.71.ttf",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.ttf"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff": {
-    "file": "assets/la-solid-900-CR_Kd-su-v4.7.71.woff",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff"
-  },
-  "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff2": {
-    "file": "assets/la-solid-900-TjMEgv3Q-v4.7.71.woff2",
-    "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff2"
   },
   "resources/images/installer-bg.png": {
     "file": "assets/installer-bg-MmihlEQe-v4.7.71.png",

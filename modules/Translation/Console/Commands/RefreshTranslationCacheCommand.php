@@ -45,9 +45,9 @@ class RefreshTranslationCacheCommand extends Command
 
                 foreach (glob("{$localeDir}/*.php") ?: [] as $file) {
                     $group = basename($file, '.php');
-                    Cache::tags('translations')->forget(
-                        md5("translation_loader.{$locale}.{$group}.{$namespace}")
-                    );
+                    $baseKey = "translation_loader.{$locale}.{$group}.{$namespace}";
+                    Cache::tags('translations')->forget(md5($baseKey));
+                    Cache::tags('translations')->forget(md5($baseKey . '.' . (int) filemtime($file)));
                     $forgotten++;
 
                     if ($this->option('sync')) {

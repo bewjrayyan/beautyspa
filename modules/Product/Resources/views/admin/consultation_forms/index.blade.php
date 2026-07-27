@@ -65,14 +65,15 @@
             </div>
             <div class="consultation-library__list">
                 @forelse ($recentRequests as $requestItem)
+                    @php $requestContext = app(\Modules\Account\Services\ConsultationContextService::class)->forDisplay($requestItem); @endphp
                     <article class="consultation-library__item consultation-library__item--request">
                         <div class="consultation-library__identity">
                             <span class="consultation-library__icon"><i class="fa fa-user" aria-hidden="true"></i></span>
                             <div>
-                                <h3>{{ $requestItem->customer_name ?: $requestItem->user?->full_name }}</h3>
+                                <h3>{{ $requestItem->customer_name ?: $requestItem->customer_email ?: '—' }}</h3>
                                 <p>
-                                    {{ $requestItem->treatmentBooking?->product?->name ?: '—' }}
-                                    @if ($requestItem->beautician?->name) · {{ $requestItem->beautician->name }} @endif
+                                    {{ $requestContext['treatment_name'] ?: '—' }}
+                                    @if ($requestContext['beautician_name'] ?? null) · {{ $requestContext['beautician_name'] }} @endif
                                 </p>
                             </div>
                         </div>

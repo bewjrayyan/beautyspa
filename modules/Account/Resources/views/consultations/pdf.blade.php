@@ -52,16 +52,16 @@
 </head>
 <body>
     <div class="accent"></div>
-    <table class="header"><tr><td><div class="brand">{{ setting('store_name') ?: config('app.name') }}</div><h1>{{ $submission->form_title }}</h1><p class="subtitle">{{ $submission->treatmentBooking?->product?->name }}</p></td><td style="text-align:right"><span class="status">{{ trans('account::consultation.complete') }}</span></td></tr></table>
+    <table class="header"><tr><td><div class="brand">{{ setting('store_name') ?: config('app.name') }}</div><h1>{{ $submission->form_title }}</h1><p class="subtitle">{{ $consultationContext['treatment_name'] ?? '—' }}</p></td><td style="text-align:right"><span class="status">{{ trans('account::consultation.complete') }}</span></td></tr></table>
     <table class="meta">
         <tr>
             <td><span class="meta-label">{{ trans('account::consultation.pdf.customer') }}</span>{{ $submission->customer_name ?: $submission->user?->full_name }}</td>
-            <td><span class="meta-label">{{ trans('account::consultation.treatment') }}</span>{{ $submission->treatmentBooking?->product?->name ?: '—' }}</td>
+            <td><span class="meta-label">{{ trans('account::consultation.treatment') }}</span>{{ $consultationContext['treatment_name'] ?? '—' }}</td>
             <td><span class="meta-label">{{ trans('account::consultation.pdf.date_version') }}</span>{{ $submission->submitted_at?->format('d M Y, H:i') }} · v{{ $submission->template_version }}</td>
         </tr>
         <tr>
             <td><span class="meta-label">{{ trans('account::consultation.pdf.contact') }}</span>{{ $submission->customer_email ?: $submission->user?->email }}@if($submission->customer_phone ?: $submission->user?->phone) · {{ $submission->customer_phone ?: $submission->user?->phone }}@endif</td>
-            <td><span class="meta-label">Beautician</span>{{ $submission->beautician?->name ?: '—' }}</td>
+            <td><span class="meta-label">Beautician</span>{{ $consultationContext['beautician_name'] ?? '—' }}</td>
             <td><span class="meta-label">{{ trans('account::consultation.pdf.order') }}</span>{{ $submission->order_id ? '#'.$submission->order_id : '—' }}</td>
         </tr>
     </table>
@@ -71,6 +71,8 @@
         $answerNumber = 0;
         $sections = [];
         $currentSection = ['key' => null, 'label' => null, 'items' => []];
+        $conditionalVisibility = app(\Modules\Account\Services\ConsultationConditionEvaluator::class)
+            ->visibilityMap($submission->questions_snapshot ?: [], $submission->answers ?: []);
 
         foreach ($submission->questions_snapshot as $question) {
             if (($question['type'] ?? null) === 'section') {
@@ -79,6 +81,10 @@
                 }
 
                 $currentSection = ['key' => $question['key'] ?? null, 'label' => $question['label'], 'items' => []];
+                continue;
+            }
+
+            if (! ($conditionalVisibility[$question['key'] ?? ''] ?? true)) {
                 continue;
             }
 
@@ -160,7 +166,7 @@
                 </ul>
             @endif
         </td>
-        <td class="signature-box"><span class="meta-label">{{ trans('account::consultation.signature') }}</span><img src="{{ $submission->signature_data }}" alt="{{ trans('account::consultation.signature') }}"><div class="signature-meta">{{ trans('account::consultation.pdf.signed_by', ['name' => $submission->user?->full_name, 'date' => $submission->submitted_at?->format('d M Y, H:i')]) }}</div></td>
+        <td class="signature-box"><span class="meta-label">{{ trans('account::consultation.signature') }}</span><img src="{{ $signatureDataUri }}" alt="{{ trans('account::consultation.signature') }}"><div class="signature-meta">{{ trans('account::consultation.pdf.signed_by', ['name' => $submission->user?->full_name, 'date' => $submission->submitted_at?->format('d M Y, H:i')]) }}</div></td>
     </tr></table>
     <div class="footer">{{ setting('store_name') ?: config('app.name') }} · {{ trans('account::consultation.pdf.document_reference', ['id' => $submission->id]) }}</div>
 </body>

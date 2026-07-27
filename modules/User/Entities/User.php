@@ -73,6 +73,10 @@ class User extends EloquentUser implements AuthenticatableContract
     protected static function booted(): void
     {
         static::saving(function (User $user) {
+            if ($user->email !== null && $user->email !== '') {
+                $user->email = mb_strtolower(trim($user->email));
+            }
+
             if ($user->phone !== null && $user->phone !== '') {
                 $user->phone = PhoneNumber::normalize($user->phone);
             }

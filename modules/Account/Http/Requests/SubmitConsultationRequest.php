@@ -5,6 +5,7 @@ namespace Modules\Account\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Modules\Account\Entities\ConsultationSubmission;
 use Modules\Account\Services\ConsultationCustomerAccess;
+use Modules\Account\Services\ConsultationConditionEvaluator;
 use Modules\Account\Services\ConsultationRuleFactory;
 
 class SubmitConsultationRequest extends FormRequest
@@ -27,7 +28,8 @@ class SubmitConsultationRequest extends FormRequest
         }
 
         return app(ConsultationRuleFactory::class)->forQuestions(
-            $submission->questions_snapshot ?: []
+            $submission->questions_snapshot ?: [],
+            $this->input('answers', [])
         );
     }
 
@@ -51,6 +53,11 @@ class SubmitConsultationRequest extends FormRequest
 
     public function answers(): array
     {
-        return $this->validated('answers', []);
+        $submission = $this->route('submission');
+
+        return app(ConsultationConditionEvaluator::class)->visibleAnswers(
+            $submission->questions_snapshot ?: [],
+            $this->validated('answers', [])
+        );
     }
 }

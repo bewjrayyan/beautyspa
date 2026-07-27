@@ -88,7 +88,7 @@ Route::get('users/{id}/reset-password', [
 
 Route::get('users/consultations/{submission}/pdf', [ConsultationSubmissionController::class, 'download'])
     ->name('admin.users.consultations.download')
-    ->middleware('can:admin.consultation_submissions.download');
+    ->middleware(['can:admin.consultation_submissions.download', 'throttle:20,1']);
 
 Route::get('roles', [
     'as' => 'admin.roles.index',

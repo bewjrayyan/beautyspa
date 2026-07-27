@@ -9,17 +9,30 @@
 
 @section('panel')
     @php
-        $booking = $submission->treatmentBooking;
-        $order = $submission->order;
-        $orderProduct = $submission->orderProduct;
-        $treatmentName = $orderProduct?->nameWithSelections()
-            ?: $booking?->product?->name
-            ?: $submission->product?->name
+        $treatmentName = $consultationContext['treatment_name']
             ?: trans('account::consultation.treatment_not_available');
-        $appointmentDate = $booking?->appointment_date ?: $order?->appointment_date;
-        $appointmentTime = $booking?->appointmentTimeRange() ?: $order?->appointment_time;
-        $branchName = $order?->spaBranch?->name ?: $booking?->spaBranchLabel();
-        $beauticianName = $submission->beautician?->name ?: $booking?->beautician?->name ?: $order?->beautician?->name;
+        $appointmentDate = filled($consultationContext['appointment_date'] ?? null)
+            ? \Illuminate\Support\Carbon::parse($consultationContext['appointment_date'])
+            : null;
+        $appointmentTime = $consultationContext['appointment_time'] ?? null;
+        $branchName = $consultationContext['branch_name'] ?? null;
+        $beauticianName = $consultationContext['beautician_name'] ?? null;
+        $questionsSnapshot = $submission->questions_snapshot ?: [];
+        $conditionalVisibility = app(\Modules\Account\Services\ConsultationConditionEvaluator::class)
+            ->visibilityMap($questionsSnapshot, $submission->answers ?: []);
+        $visibleSectionKeys = [];
+        $currentSectionKey = null;
+
+        foreach ($questionsSnapshot as $snapshotQuestion) {
+            if (($snapshotQuestion['type'] ?? null) === 'section') {
+                $currentSectionKey = $snapshotQuestion['key'] ?? null;
+                continue;
+            }
+
+            if (($conditionalVisibility[$snapshotQuestion['key'] ?? ''] ?? true) && $currentSectionKey) {
+                $visibleSectionKeys[$currentSectionKey] = true;
+            }
+        }
     @endphp
 
     <div class="consultation-record">
@@ -77,15 +90,18 @@
         <section class="consultation-record__answers">
             <h2>{{ trans('account::consultation.answers') }}</h2>
             @php $questionNumber = 0; @endphp
-            @foreach ($submission->questions_snapshot as $question)
+            @foreach ($questionsSnapshot as $question)
                 @php $questionLabel = \Modules\Account\Support\ConsultationQuestionLabel::parts($question); @endphp
                 @if (($question['type'] ?? null) === 'section')
+                    @unless($visibleSectionKeys[$question['key'] ?? ''] ?? false) @continue @endunless
                     <h3 class="consultation-record__section-heading consultation-bilingual-label">
                         <span>{{ $questionLabel['primary'] }}</span>
                         @if ($questionLabel['english'])<small lang="en">{{ $questionLabel['english'] }}</small>@endif
                     </h3>
                     @continue
                 @endif
+
+                @unless($conditionalVisibility[$question['key'] ?? ''] ?? true) @continue @endunless
 
                 @php
                     $questionNumber++;
@@ -153,7 +169,7 @@
             </div>
             <div class="consultation-record__signature">
                 <h2>{{ trans('account::consultation.signature') }}</h2>
-                <img src="{{ $submission->signature_data }}" alt="{{ trans('account::consultation.signature') }}">
+                <img src="{{ $signatureDataUri }}" alt="{{ trans('account::consultation.signature') }}">
                 <small>{{ trans('account::consultation.pdf.signed_by', ['name' => $submission->customer_name, 'date' => $submission->submitted_at?->format('d M Y, H:i')]) }}</small>
             </div>
         </section>

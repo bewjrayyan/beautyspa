@@ -48,9 +48,12 @@
             </div>
 
             @php
+                $questionsSnapshot = $submission->questions_snapshot ?: [];
+                $conditionalVisibility = app(\Modules\Account\Services\ConsultationConditionEvaluator::class)
+                    ->visibilityMap($questionsSnapshot, old('answers', []));
                 $questionNumber = 0;
             @endphp
-            @foreach (($submission->questions_snapshot ?: []) as $index => $question)
+            @foreach ($questionsSnapshot as $index => $question)
                 @php
                     $key = $question['key'];
                     $type = $question['type'] ?? 'text';
@@ -75,16 +78,22 @@
                 @endif
 
                 @php
+                    $isVisible = $conditionalVisibility[$key] ?? true;
                     $questionNumber++;
                 @endphp
                 <fieldset
-                    class="consultation-question consultation-question--{{ str_replace('_', '-', $type) }} @if($errors->has("answers.{$key}")) has-error @endif"
+                    class="consultation-question consultation-question--{{ str_replace('_', '-', $type) }} @if(data_get($question, 'condition.enabled', false)) consultation-question--followup @endif @if($errors->has("answers.{$key}")) has-error @endif"
                     data-question-key="{{ $key }}"
                     data-question-label="{{ $question['label'] }}"
                     data-required="{{ $required ? 'true' : 'false' }}"
+                    data-condition-enabled="{{ data_get($question, 'condition.enabled', false) ? 'true' : 'false' }}"
+                    data-condition-source="{{ data_get($question, 'condition.source_key', '') }}"
+                    data-condition-operator="{{ data_get($question, 'condition.operator', 'equals') }}"
+                    data-condition-value="{{ data_get($question, 'condition.value', '') }}"
+                    @unless($isVisible) hidden @endunless
                 >
                     <legend>
-                        <span class="consultation-question__number">{{ $questionNumber }}</span>
+                        <span class="consultation-question__number" data-visible-question-number>{{ $questionNumber }}</span>
                         <span class="consultation-bilingual-label">
                             <span>{{ $questionLabel['primary'] }} @if($required)<em>*</em>@endif</span>
                             @if ($questionLabel['english'])<small lang="en">{{ $questionLabel['english'] }}</small>@endif
@@ -101,7 +110,7 @@
                             @endforeach
                         </div>
                     @elseif ($type === 'textarea')
-                        <textarea class="form-control" name="answers[{{ $key }}]" rows="2">{{ old("answers.{$key}") }}</textarea>
+                        <textarea class="form-control" name="answers[{{ $key }}]" rows="2" placeholder="{{ $question['placeholder'] ?? '' }}">{{ old("answers.{$key}") }}</textarea>
                     @elseif ($type === 'date')
                         <input class="form-control" type="date" name="answers[{{ $key }}]" value="{{ old("answers.{$key}") }}">
                     @elseif ($type === 'select')
@@ -140,7 +149,7 @@
                             </div>
                         </div>
                     @else
-                        <input class="form-control" type="text" name="answers[{{ $key }}]" value="{{ old("answers.{$key}") }}">
+                        <input class="form-control" type="text" name="answers[{{ $key }}]" value="{{ old("answers.{$key}") }}" placeholder="{{ $question['placeholder'] ?? '' }}">
                     @endif
 
                     {!! $errors->first("answers.{$key}", '<span class="help-block text-red">:message</span>') !!}
@@ -199,6 +208,82 @@ document.addEventListener('DOMContentLoaded', function () {
     let drawing = false;
     let signed = false;
 
+    function normalizeConditionValue(value) {
+        const normalized = String(value == null ? '' : value).trim().toLocaleLowerCase();
+
+        if (normalized === 'ya') return 'yes';
+        if (normalized === 'tidak') return 'no';
+
+        return normalized;
+    }
+
+    function answerFor(key) {
+        const scalarName = `answers[${key}]`;
+        const arrayName = `${scalarName}[]`;
+        const fields = Array.from(form.elements).filter(function (field) {
+            return field.name === scalarName || field.name === arrayName;
+        });
+        const choices = fields.filter(field => field.type === 'radio' || field.type === 'checkbox');
+
+        if (choices.length) {
+            const selected = choices.filter(field => field.checked).map(field => field.value);
+            return fields.some(field => field.name === arrayName) ? selected : (selected[0] || '');
+        }
+
+        return fields[0] ? fields[0].value : '';
+    }
+
+    function conditionMatches(answer, operator, expected) {
+        const normalizedExpected = normalizeConditionValue(expected);
+        const hasAnswer = Array.isArray(answer)
+            ? answer.some(value => normalizeConditionValue(value) !== '')
+            : normalizeConditionValue(answer) !== '';
+
+        if (!hasAnswer) return false;
+
+        let matches;
+
+        if (operator === 'contains' || operator === 'not_contains') {
+            matches = Array.isArray(answer)
+                ? answer.some(value => normalizeConditionValue(value) === normalizedExpected)
+                : normalizeConditionValue(answer).includes(normalizedExpected);
+        } else {
+            matches = Array.isArray(answer)
+                ? answer.length === 1 && normalizeConditionValue(answer[0]) === normalizedExpected
+                : normalizeConditionValue(answer) === normalizedExpected;
+        }
+
+        return ['not_equals', 'not_contains'].includes(operator) ? !matches : matches;
+    }
+
+    function refreshConditionalFields() {
+        const visibility = {};
+        let visibleNumber = 0;
+
+        form.querySelectorAll('[data-question-key]').forEach(function (block) {
+            const key = block.dataset.questionKey;
+            const enabled = block.dataset.conditionEnabled === 'true';
+            const source = block.dataset.conditionSource;
+            const visible = !enabled || (visibility[source] === true && conditionMatches(
+                answerFor(source),
+                block.dataset.conditionOperator,
+                block.dataset.conditionValue
+            ));
+
+            visibility[key] = visible;
+            block.hidden = !visible;
+            block.querySelectorAll('input, textarea, select').forEach(field => field.disabled = !visible);
+
+            if (visible) {
+                visibleNumber++;
+                const number = block.querySelector('[data-visible-question-number]');
+                if (number) number.textContent = visibleNumber;
+            } else {
+                setInvalid(block, false);
+            }
+        });
+    }
+
     function syncBodyMarker(toggle) {
         document.querySelectorAll('[data-body-marker="' + toggle.dataset.bodyMarkerToggle + '"]').forEach(function (marker) {
             marker.classList.toggle('is-visible', toggle.checked);
@@ -250,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function validateForm() {
         const invalid = [];
 
-        form.querySelectorAll('[data-required="true"]').forEach(function (block) {
+        form.querySelectorAll('[data-required="true"]:not([hidden])').forEach(function (block) {
             const isInvalid = !hasAnswer(block);
             setInvalid(block, isInvalid);
             if (isInvalid) invalid.push(block);
@@ -289,11 +374,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     form.addEventListener('input', function (event) {
+        refreshConditionalFields();
         const block = event.target.closest('[data-required="true"], [data-required-block]');
         if (block && hasAnswer(block)) setInvalid(block, false);
     });
 
+    form.addEventListener('change', refreshConditionalFields);
+
     form.addEventListener('submit', function (event) {
+        refreshConditionalFields();
         if (!validateForm()) { event.preventDefault(); return; }
         const exportCanvas = document.createElement('canvas');
         exportCanvas.width = canvas.width;
@@ -304,6 +393,8 @@ document.addEventListener('DOMContentLoaded', function () {
         exportContext.drawImage(canvas, 0, 0);
         hidden.value = exportCanvas.toDataURL('image/png');
     });
+
+    refreshConditionalFields();
 });
 </script>
 @endpush

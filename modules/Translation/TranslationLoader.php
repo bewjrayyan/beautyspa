@@ -40,10 +40,23 @@ class TranslationLoader extends FileLoader
 
         try {
             return Cache::tags('translations')
-                ->rememberForever(md5("translation_loader.{$locale}.{$group}.{$namespace}"), $loader);
+                ->rememberForever($this->cacheKey($locale, $group, $namespace), $loader);
         } catch (\Throwable) {
             return $loader();
         }
+    }
+
+
+    private function cacheKey(string $locale, string $group, ?string $namespace): string
+    {
+        $fileModifiedAt = 0;
+
+        if ($namespace && isset($this->hints[$namespace])) {
+            $file = "{$this->hints[$namespace]}/{$locale}/{$group}.php";
+            $fileModifiedAt = is_file($file) ? (int) filemtime($file) : 0;
+        }
+
+        return md5("translation_loader.{$locale}.{$group}.{$namespace}.{$fileModifiedAt}");
     }
 
 

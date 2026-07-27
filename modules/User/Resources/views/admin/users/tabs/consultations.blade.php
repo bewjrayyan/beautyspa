@@ -6,7 +6,7 @@
         </div>
         <div class="admin-consultation-stats">
             <span><strong>{{ $pendingForms->count() }}</strong> {{ trans('account::consultation.admin.pending') }}</span>
-            <span><strong>{{ $submissions->count() }}</strong> {{ trans('account::consultation.admin.completed') }}</span>
+            <span><strong>{{ $submissions->total() }}</strong> {{ trans('account::consultation.admin.completed') }}</span>
         </div>
     </div>
 
@@ -14,12 +14,13 @@
         <h4>{{ trans('account::consultation.pending_title') }}</h4>
 
         @forelse ($pendingForms as $consultation)
+            @php $consultationContext = app(\Modules\Account\Services\ConsultationContextService::class)->forDisplay($consultation); @endphp
             <article class="admin-consultation-row admin-consultation-row--pending">
                 <div>
                     <strong>{{ $consultation->form_title }}</strong>
                     <span>
-                        {{ $consultation->treatmentBooking?->product?->name ?: '—' }}
-                        @if ($consultation->beautician?->name) · {{ $consultation->beautician->name }} @endif
+                        {{ $consultationContext['treatment_name'] ?: '—' }}
+                        @if ($consultationContext['beautician_name'] ?? null) · {{ $consultationContext['beautician_name'] }} @endif
                     </span>
                 </div>
                 <span class="admin-consultation-badge is-pending">{{ trans('account::consultation.pending') }}</span>
@@ -55,6 +56,10 @@
         @empty
             <div class="admin-consultation-empty">{{ trans('account::consultation.no_history') }}</div>
         @endforelse
+
+        @if ($submissions->hasPages())
+            <div class="pagination-wrapper">{{ $submissions->links() }}</div>
+        @endif
     </section>
 
     <section class="admin-consultation-section admin-consultation-share">
