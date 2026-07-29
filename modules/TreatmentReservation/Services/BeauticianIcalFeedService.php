@@ -8,9 +8,13 @@ use Illuminate\Support\Facades\Crypt;
 use Modules\Beautician\Entities\Beautician;
 use Modules\TreatmentReservation\Entities\BeauticianCalendarToken;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Support\CalendarTokenVerifier;
 
 class BeauticianIcalFeedService
 {
+    public function __construct(private CalendarTokenVerifier $tokenVerifier) {}
+
+
     public function tokenFor(int $beauticianId): string
     {
         $record = BeauticianCalendarToken::query()->firstOrCreate(
@@ -33,17 +37,15 @@ class BeauticianIcalFeedService
             ->whereNull('revoked_at')
             ->first();
 
-        if (! $record || ($record->expires_at && $record->expires_at->isPast())) {
+        if (! $record || ! $this->tokenVerifier->matches($record, $token, now())) {
             return false;
         }
 
-        $valid = hash_equals($record->token_hash, hash('sha256', $token));
-
-        if ($valid && (! $record->last_used_at || $record->last_used_at->lt(now()->subDay()))) {
+        if (! $record->last_used_at || $record->last_used_at->lt(now()->subDay())) {
             $record->forceFill(['last_used_at' => now()])->saveQuietly();
         }
 
-        return $valid;
+        return true;
     }
 
 

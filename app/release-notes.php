@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.72' => [
+        'en' => [
+            'summary' => 'Add automated regression coverage, read-only production benchmarks, and a database-enforced booking-slot invariant.',
+            'changes' => [
+                'Install PHPUnit 11 and convert the existing Pest-style checks into an executable Laravel-compatible test suite.',
+                'Cover payment replay idempotency, calendar-token expiry and revocation, private document access, consultation security, and booking-slot collisions.',
+                'Add a bounded read-only benchmark command with representative order, category, and appointment queries plus JSON EXPLAIN summaries.',
+                'Create a normalized shared slot ledger with a unique database key across checkout orders and manual treatment bookings.',
+                'Keep the slot ledger synchronized through MySQL triggers, reject unsafe legacy duplicates during migration, and return a friendly conflict response for concurrent bookings.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah liputan regresi automatik, benchmark production read-only, dan invariant slot tempahan di peringkat database.',
+            'changes' => [
+                'Pasang PHPUnit 11 dan tukar semakan gaya Pest sedia ada kepada test suite serasi Laravel yang boleh dijalankan.',
+                'Lindungi idempotency replay pembayaran, expiry dan revocation token kalendar, akses dokumen private, keselamatan konsultasi, serta collision slot tempahan.',
+                'Tambah command benchmark read-only terkawal untuk query pesanan, kategori, dan temujanji bersama ringkasan JSON EXPLAIN.',
+                'Cipta ledger slot ternormalisasi dengan unique key database merentas pesanan checkout dan tempahan rawatan manual.',
+                'Sinkronkan ledger melalui trigger MySQL, hentikan migration jika data lama bercanggah, dan pulangkan respons mesra bagi tempahan serentak.',
+            ],
+        ],
+    ],
     '4.9.71' => [
         'en' => [
             'summary' => 'Add explicit, race-safe saved-address controls to checkout without overwriting existing addresses.',

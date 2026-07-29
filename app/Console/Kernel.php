@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
         Commands\RouteCacheCommand::class,
         Commands\RouteTranslationsCacheCommand::class,
         Commands\OptimizeCommand::class,
+        Commands\PerformanceBenchmarkCommand::class,
     ];
 
 

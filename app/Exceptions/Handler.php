@@ -9,6 +9,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Modules\Sms\Exceptions\SmsException;
+use Modules\TreatmentReservation\Support\TreatmentSlotConflict;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -51,6 +52,10 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $e): void
     {
+        if (TreatmentSlotConflict::causedBy($e)) {
+            return;
+        }
+
         if ($this->shouldSkipReportingOnLocalStorageFailure($e)) {
             return;
         }
@@ -114,6 +119,9 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $e)
     {
         return match (true) {
+            TreatmentSlotConflict::causedBy($e) => response()->json([
+                'message' => trans('treatmentreservation::public.slot_unavailable'),
+            ], Response::HTTP_CONFLICT),
             $e instanceof Swift_TransportException => $this->handleSwiftException($request, $e),
             $e instanceof SmsException => $this->handleSmsException($request, $e),
             $e instanceof ValidationException && $request->ajax() => response()->json([

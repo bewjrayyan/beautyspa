@@ -43,6 +43,7 @@ public/hot
 public/sitemaps/*
 public/sitemap.xml
 .php-cs-fixer.cache
+.phpunit.result.cache
 modules/*/yarn.lock
 vite.config.js.*
 /storage/framework/cache/laravel-excel

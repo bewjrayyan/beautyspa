@@ -1,31 +1,25 @@
 <?php
 
+namespace Tests\Unit\Account;
+
 use Modules\Account\Services\ConsultationConditionEvaluator;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
-function conditionalQuestion(string $key, ?array $condition = null): array
+class ConsultationConditionEvaluatorTest extends TestCase
 {
-    return [
-        'key' => $key,
-        'type' => 'text',
-        'condition' => $condition ?? [
-            'enabled' => false,
-            'source_key' => '',
-            'operator' => 'equals',
-            'value' => '',
-        ],
-    ];
-}
-
-it('evaluates chained conditions in question order', function () {
+    #[Test]
+    public function it_evaluates_chained_conditions_in_question_order(): void
+    {
     $questions = [
-        conditionalQuestion('has_condition'),
-        conditionalQuestion('condition_name', [
+        $this->conditionalQuestion('has_condition'),
+        $this->conditionalQuestion('condition_name', [
             'enabled' => true,
             'source_key' => 'has_condition',
             'operator' => 'equals',
             'value' => 'yes',
         ]),
-        conditionalQuestion('condition_notes', [
+        $this->conditionalQuestion('condition_notes', [
             'enabled' => true,
             'source_key' => 'condition_name',
             'operator' => 'contains',
@@ -38,17 +32,19 @@ it('evaluates chained conditions in question order', function () {
         'condition_name' => 'Skin sensitivity',
     ]);
 
-    expect($visibility)->toBe([
+        $this->assertSame([
         'has_condition' => true,
         'condition_name' => false,
         'condition_notes' => false,
-    ]);
-});
+        ], $visibility);
+    }
 
-it('supports checkbox membership and removes hidden answers', function () {
+    #[Test]
+    public function it_supports_checkbox_membership_and_removes_hidden_answers(): void
+    {
     $questions = [
-        conditionalQuestion('conditions'),
-        conditionalQuestion('allergy_details', [
+        $this->conditionalQuestion('conditions'),
+        $this->conditionalQuestion('allergy_details', [
             'enabled' => true,
             'source_key' => 'conditions',
             'operator' => 'contains',
@@ -57,16 +53,18 @@ it('supports checkbox membership and removes hidden answers', function () {
     ];
     $evaluator = new ConsultationConditionEvaluator();
 
-    expect($evaluator->visibleAnswers($questions, [
+        $this->assertSame(['conditions' => ['Asthma']], $evaluator->visibleAnswers($questions, [
         'conditions' => ['Asthma'],
         'allergy_details' => 'Injected hidden value',
-    ]))->toBe(['conditions' => ['Asthma']]);
-});
+        ]));
+    }
 
-it('keeps negative conditions hidden until the source has an answer', function () {
+    #[Test]
+    public function it_keeps_negative_conditions_hidden_until_the_source_has_an_answer(): void
+    {
     $questions = [
-        conditionalQuestion('pregnant'),
-        conditionalQuestion('general_advice', [
+        $this->conditionalQuestion('pregnant'),
+        $this->conditionalQuestion('general_advice', [
             'enabled' => true,
             'source_key' => 'pregnant',
             'operator' => 'not_equals',
@@ -74,14 +72,18 @@ it('keeps negative conditions hidden until the source has an answer', function (
         ]),
     ];
 
-    expect((new ConsultationConditionEvaluator())->visibilityMap($questions, []))
-        ->toBe(['pregnant' => true, 'general_advice' => false]);
-});
+        $this->assertSame(
+            ['pregnant' => true, 'general_advice' => false],
+            (new ConsultationConditionEvaluator())->visibilityMap($questions, [])
+        );
+    }
 
-it('matches localized Malay yes and no values with canonical answers', function () {
+    #[Test]
+    public function it_matches_localized_malay_yes_and_no_values_with_canonical_answers(): void
+    {
     $questions = [
-        conditionalQuestion('taking_medication'),
-        conditionalQuestion('medication_name', [
+        $this->conditionalQuestion('taking_medication'),
+        $this->conditionalQuestion('medication_name', [
             'enabled' => true,
             'source_key' => 'taking_medication',
             'operator' => 'equals',
@@ -89,6 +91,23 @@ it('matches localized Malay yes and no values with canonical answers', function 
         ]),
     ];
 
-    expect((new ConsultationConditionEvaluator())->visibilityMap($questions, ['taking_medication' => 'yes']))
-        ->toBe(['taking_medication' => true, 'medication_name' => true]);
-});
+        $this->assertSame(
+            ['taking_medication' => true, 'medication_name' => true],
+            (new ConsultationConditionEvaluator())->visibilityMap($questions, ['taking_medication' => 'yes'])
+        );
+    }
+
+    private function conditionalQuestion(string $key, ?array $condition = null): array
+    {
+        return [
+            'key' => $key,
+            'type' => 'text',
+            'condition' => $condition ?? [
+                'enabled' => false,
+                'source_key' => '',
+                'operator' => 'equals',
+                'value' => '',
+            ],
+        ];
+    }
+}

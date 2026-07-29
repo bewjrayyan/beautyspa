@@ -93,6 +93,7 @@
         "laravel/tinker": "^2.7",
         "nunomaduro/collision": "^8.8",
         "nunomaduro/phpinsights": "^2.10",
+        "phpunit/phpunit": "^11.5",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
@@ -100,6 +101,11 @@
             "AestheticCart\\": "app/",
             "Modules\\": "modules/",
             "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     },
     "scripts": {

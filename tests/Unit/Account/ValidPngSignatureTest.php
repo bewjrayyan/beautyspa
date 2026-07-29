@@ -1,57 +1,67 @@
 <?php
 
+namespace Tests\Unit\Account;
+
 use Modules\Account\Rules\ValidPngSignature;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
-$signatureData = function (bool $withInk): string {
-    $image = imagecreatetruecolor(240, 100);
-    $white = imagecolorallocate($image, 255, 255, 255);
-    imagefill($image, 0, 0, $white);
-
-    if ($withInk) {
-        $black = imagecolorallocate($image, 20, 20, 20);
-        imagesetthickness($image, 5);
-        imageline($image, 20, 70, 215, 25, $black);
+class ValidPngSignatureTest extends TestCase
+{
+    #[Test]
+    public function it_accepts_a_real_png_signature_containing_visible_ink(): void
+    {
+        $this->assertFalse($this->validationFails($this->signatureData(true)));
     }
 
-    ob_start();
-    imagepng($image);
-    $png = ob_get_clean();
-    imagedestroy($image);
+    #[Test]
+    #[DataProvider('invalidSignatureProvider')]
+    public function it_rejects_an_empty_signature_canvas_and_malformed_data(string $value): void
+    {
+        $this->assertTrue($this->validationFails($value));
+    }
 
-    return 'data:image/png;base64,' . base64_encode($png);
-};
+    public static function invalidSignatureProvider(): array
+    {
+        return [
+            'blank canvas' => [self::signatureData(false)],
+            'wrong data URI' => ['data:text/plain;base64,SGVsbG8='],
+        ];
+    }
 
-it('accepts a real png signature containing visible ink', function () use ($signatureData) {
-    $failed = false;
+    private function validationFails(string $value): bool
+    {
+        $failed = false;
 
-    (new ValidPngSignature())->validate('signature_data', $signatureData(true), function () use (&$failed) {
-        $failed = true;
+        (new ValidPngSignature())->validate('signature_data', $value, function () use (&$failed) {
+            $failed = true;
 
-        return new class {
-            public function translate(): void
-            {
-            }
-        };
-    });
+            return new class {
+                public function translate(): void {}
+            };
+        });
 
-    expect($failed)->toBeFalse();
-});
+        return $failed;
+    }
 
-it('rejects an empty signature canvas and malformed data', function (string $value) {
-    $failed = false;
+    private static function signatureData(bool $withInk): string
+    {
+        $image = imagecreatetruecolor(240, 100);
+        $white = imagecolorallocate($image, 255, 255, 255);
+        imagefill($image, 0, 0, $white);
 
-    (new ValidPngSignature())->validate('signature_data', $value, function () use (&$failed) {
-        $failed = true;
+        if ($withInk) {
+            $black = imagecolorallocate($image, 20, 20, 20);
+            imagesetthickness($image, 5);
+            imageline($image, 20, 70, 215, 25, $black);
+        }
 
-        return new class {
-            public function translate(): void
-            {
-            }
-        };
-    });
+        ob_start();
+        imagepng($image);
+        $png = ob_get_clean();
+        imagedestroy($image);
 
-    expect($failed)->toBeTrue();
-})->with([
-    'blank canvas' => fn () => $signatureData(false),
-    'wrong data URI' => 'data:text/plain;base64,SGVsbG8=',
-]);
+        return 'data:image/png;base64,' . base64_encode($png);
+    }
+}
