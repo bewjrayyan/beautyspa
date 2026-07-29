@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.71' => [
+        'en' => [
+            'summary' => 'Add explicit, race-safe saved-address controls to checkout without overwriting existing addresses.',
+            'changes' => [
+                'Let signed-in customers reuse saved or recent billing details and explicitly save new billing or shipping addresses.',
+                'Keep existing addresses intact and change the default address only when selected, or when the customer has no default yet.',
+                'Persist saved addresses inside the order transaction with customer row locking and atomic default-address updates.',
+                'Prevent conflicting billing and shipping default selections, validate address field types and lengths, and escape displayed address data.',
+                'Improve the checkout address interface with bilingual labels, responsive save options, and synchronized country, state, city, and postcode fields.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah kawalan alamat tersimpan yang explicit dan tahan race condition tanpa menimpa alamat sedia ada.',
+            'changes' => [
+                'Benarkan pelanggan log masuk menggunakan semula alamat atau maklumat bil terkini dan menyimpan alamat bil atau penghantaran baharu secara explicit.',
+                'Kekalkan alamat lama dan ubah alamat lalai hanya apabila dipilih, atau apabila pelanggan belum mempunyai alamat lalai.',
+                'Simpan alamat dalam transaction pesanan dengan customer row lock dan kemas kini alamat lalai secara atomic.',
+                'Cegah pilihan default bil dan penghantaran yang bercanggah, sahkan jenis serta panjang medan, dan escape paparan data alamat.',
+                'Kemaskan antaramuka alamat checkout dengan label dwibahasa, pilihan simpan responsif, serta sinkronisasi negara, negeri, bandar, dan poskod.',
+            ],
+        ],
+    ],
     '4.9.70' => [
         'en' => [
             'summary' => 'Harden checkout, bookings, private documents, public tokens, queues, and database performance.',

@@ -50,7 +50,7 @@
                                                 <span x-text="address.address_2"></span>
                                             </template>
 
-                                            <span x-html="`${address.city}, ${address.state_name ?? address.state} ${address.zip}`"></span>
+                                            <span x-text="`${address.city}, ${address.state_name ?? address.state} ${address.zip}`"></span>
                                             <span x-text="address.country_name"></span>
                                         </div>
                                     </address>
@@ -161,9 +161,9 @@
                                     <input
                                         type="text"
                                         name="shipping[city]"
-                                        :value="form.shipping.city"
                                         id="shipping-city"
                                         class="form-control"
+                                        x-model="form.shipping.city"
                                         @change="changeShippingCity($event.target.value)"
                                     >
 
@@ -182,9 +182,9 @@
                                     <input
                                         type="text"
                                         name="shipping[zip]"
-                                        :value="form.shipping.zip"
                                         id="shipping-zip"
                                         class="form-control"
+                                        x-model="form.shipping.zip"
                                         @change="changeShippingZip($event.target.value)"
                                     >
 
@@ -204,6 +204,7 @@
                                         name="shipping[country]"
                                         id="shipping-country"
                                         class="form-control arrow-black"
+                                        x-model="form.shipping.country"
                                         @change="changeShippingCountry($event.target.value)"
                                     >
                                         <option value="">{{ trans('storefront::checkout.please_select') }}
@@ -242,13 +243,14 @@
                                             name="shipping[state]"
                                             id="shipping-state"
                                             class="form-control arrow-black"
+                                            x-model="form.shipping.state"
                                             @change="changeShippingState($event.target.value)"
                                         >
                                             <option value="">{{ trans('storefront::checkout.please_select') }}
                                             </option>
 
                                             <template x-for="(name, code) in states.shipping" :key="code">
-                                                <option :value="code" x-html="name"></option>
+                                                <option :value="code" x-text="name"></option>
                                             </template>
                                         </select>
                                     </template>
@@ -258,6 +260,34 @@
                                     </template>
                                 </div>
                             </div>
+
+                            <template x-if="loggedIn && form.newShippingAddress">
+                                <div class="col-md-18">
+                                    <div class="checkout-address-save-options">
+                                        <label class="checkout-address-save-option" for="save-shipping-address">
+                                            <input
+                                                type="checkbox"
+                                                id="save-shipping-address"
+                                                x-model="form.saveShippingAddress"
+                                            >
+                                            <span>{{ trans('storefront::checkout.save_address_for_next_order') }}</span>
+                                        </label>
+
+                                        <label
+                                            x-show="form.saveShippingAddress && hasAddress"
+                                            class="checkout-address-save-option checkout-address-save-option--secondary"
+                                            for="make-shipping-address-default"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                id="make-shipping-address-default"
+                                                x-model="form.makeShippingAddressDefault"
+                                            >
+                                            <span>{{ trans('storefront::checkout.make_default_address') }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>

@@ -38,6 +38,7 @@ Alpine.data(
         availabilitySlotsUrl,
         slotLabels,
         spaBranches,
+        loggedIn: Boolean(window.AestheticCart?.loggedIn),
         form: {
             customer_email: customerEmail,
             customer_phone: customerPhone,
@@ -47,6 +48,10 @@ Alpine.data(
             shippingAddressId: null,
             newBillingAddress: false,
             newShippingAddress: false,
+            saveBillingAddress: false,
+            makeBillingAddressDefault: false,
+            saveShippingAddress: false,
+            makeShippingAddressDefault: false,
             ship_to_a_different_address: false,
             beautician_id: "",
             appointment_date: "",
@@ -105,6 +110,12 @@ Alpine.data(
 
         get hasAddress() {
             return Object.keys(this.addresses).length !== 0;
+        },
+
+        get hasReusableBilling() {
+            return (
+                this.hasAddress || this.isCompleteAddress(this.customerBilling)
+            );
         },
 
         get firstCountry() {
@@ -425,12 +436,30 @@ Alpine.data(
                 }
             });
 
+            this.$watch("form.makeBillingAddressDefault", (isDefault) => {
+                if (isDefault) {
+                    this.form.makeShippingAddressDefault = false;
+                }
+            });
+
+            this.$watch("form.makeShippingAddressDefault", (isDefault) => {
+                if (isDefault) {
+                    this.form.makeBillingAddressDefault = false;
+                }
+            });
+
             this.$watch("form.ship_to_a_different_address", (newValue) => {
                 if (newValue && this.form.shippingAddressId) {
                     this.form.shipping =
                         this.addresses[this.form.shippingAddressId];
+                } else if (newValue) {
+                    this.form.newShippingAddress = true;
+                    this.form.shipping = this.blankAddress(this.form.billing);
+                    this.form.saveShippingAddress = this.loggedIn;
                 } else {
                     this.form.shipping = {};
+                    this.form.saveShippingAddress = false;
+                    this.form.makeShippingAddressDefault = false;
                     this.resetAddressErrors("shipping");
                 }
 
@@ -695,6 +724,34 @@ Alpine.data(
                     .ship_to_a_different_address
                     ? 1
                     : 0,
+                save_billing_address:
+                    this.loggedIn &&
+                    this.form.newBillingAddress &&
+                    this.form.saveBillingAddress
+                        ? 1
+                        : 0,
+                make_billing_address_default:
+                    this.loggedIn &&
+                    this.form.newBillingAddress &&
+                    this.form.saveBillingAddress &&
+                    this.form.makeBillingAddressDefault
+                        ? 1
+                        : 0,
+                save_shipping_address:
+                    this.loggedIn &&
+                    this.form.ship_to_a_different_address &&
+                    this.form.newShippingAddress &&
+                    this.form.saveShippingAddress
+                        ? 1
+                        : 0,
+                make_shipping_address_default:
+                    this.loggedIn &&
+                    this.form.ship_to_a_different_address &&
+                    this.form.newShippingAddress &&
+                    this.form.saveShippingAddress &&
+                    this.form.makeShippingAddressDefault
+                        ? 1
+                        : 0,
                 payment_method: this.form.payment_method,
                 shipping_method: this.form.shipping_method,
                 terms_and_conditions: this.form.terms_and_conditions ? 1 : 0,
@@ -885,19 +942,27 @@ Alpine.data(
             }
 
             this.form.billingAddressId = address.id;
+            this.form.saveBillingAddress = false;
+            this.form.makeBillingAddressDefault = false;
 
             this.mergeSavedBillingAddress();
         },
 
         addNewBillingAddress() {
             this.resetAddressErrors("billing");
-
-            this.form.billing = {};
             this.form.newBillingAddress = !this.form.newBillingAddress;
 
-            if (!this.form.newBillingAddress) {
-                this.mergeSavedBillingAddress();
+            if (this.form.newBillingAddress) {
+                this.form.billing = this.blankAddress(this.form.billing);
+                this.form.saveBillingAddress = this.loggedIn;
+                this.form.makeBillingAddressDefault = false;
+
+                return;
             }
+
+            this.form.saveBillingAddress = false;
+            this.form.makeBillingAddressDefault = false;
+            this.mergeSavedBillingAddress();
         },
 
         changeShippingAddress(address) {
@@ -909,6 +974,8 @@ Alpine.data(
             }
 
             this.form.shippingAddressId = address.id;
+            this.form.saveShippingAddress = false;
+            this.form.makeShippingAddressDefault = false;
 
             this.mergeSavedShippingAddress();
         },
@@ -916,12 +983,19 @@ Alpine.data(
         addNewShippingAddress() {
             this.resetAddressErrors("shipping");
 
-            this.form.shipping = {};
             this.form.newShippingAddress = !this.form.newShippingAddress;
 
-            if (!this.form.newShippingAddress) {
-                this.mergeSavedShippingAddress();
+            if (this.form.newShippingAddress) {
+                this.form.shipping = this.blankAddress(this.form.billing);
+                this.form.saveShippingAddress = this.loggedIn;
+                this.form.makeShippingAddressDefault = false;
+
+                return;
             }
+
+            this.form.saveShippingAddress = false;
+            this.form.makeShippingAddressDefault = false;
+            this.mergeSavedShippingAddress();
         },
 
         // Reset address errors based on address type
@@ -957,13 +1031,49 @@ Alpine.data(
             if (!this.customerBilling) {
                 this.form.newBillingAddress = true;
                 this.form.newShippingAddress = true;
+                this.form.saveBillingAddress = this.loggedIn;
 
                 return;
             }
 
             this.form.billing = { ...this.customerBilling };
-            this.form.newBillingAddress = true;
+            this.form.newBillingAddress = !this.isCompleteAddress(
+                this.customerBilling
+            );
             this.form.newShippingAddress = true;
+            this.form.saveBillingAddress =
+                this.loggedIn && this.form.newBillingAddress;
+        },
+
+        isCompleteAddress(address) {
+            return [
+                "first_name",
+                "last_name",
+                "address_1",
+                "city",
+                "state",
+                "zip",
+                "country",
+            ].every((field) => String(address?.[field] || "").trim() !== "");
+        },
+
+        blankAddress(source = {}) {
+            return {
+                first_name:
+                    source?.first_name || this.customerBilling?.first_name || "",
+                last_name:
+                    source?.last_name || this.customerBilling?.last_name || "",
+                address_1: "",
+                address_2: "",
+                city: "",
+                state: "",
+                zip: "",
+                country:
+                    source?.country ||
+                    this.customerBilling?.country ||
+                    this.firstCountry ||
+                    "",
+            };
         },
 
         resolveSavedAddress(addressId) {
@@ -989,6 +1099,15 @@ Alpine.data(
                 if (address) {
                     this.form.billing = address;
                 }
+
+                return;
+            }
+
+            if (
+                !this.form.newBillingAddress &&
+                this.isCompleteAddress(this.customerBilling)
+            ) {
+                this.form.billing = { ...this.customerBilling };
             }
         },
 

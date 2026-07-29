@@ -28,10 +28,11 @@ class OrderService
     public function create($request)
     {
         $this->mergeShippingAddress($request);
-        $this->saveAddress($request);
         $this->addShippingMethodToCart($request);
 
         return DB::transaction(function () use ($request) {
+            $this->saveAddress($request);
+
             $order = $this->persistOrder($request);
 
             $this->storeOrderProducts($order);
@@ -82,54 +83,81 @@ class OrderService
             return;
         }
 
-        if ($request->newBillingAddress) {
-            $address = auth()
-                ->user()
-                ->addresses()
-                ->create($this->extractAddress($request->billing));
+        $shouldSaveBilling = $request->boolean('save_billing_address');
+        $shouldSaveShipping = $request->boolean('ship_to_a_different_address')
+            && $request->boolean('save_shipping_address');
 
-            $this->makeDefaultAddress($address);
+        if (! $shouldSaveBilling && ! $shouldSaveShipping) {
+            return;
         }
 
-        if ($request->ship_to_a_different_address && $request->newShippingAddress) {
-            auth()
-                ->user()
-                ->addresses()
-                ->create($this->extractAddress($request->shipping));
+        DB::table('users')
+            ->where('id', auth()->id())
+            ->lockForUpdate()
+            ->value('id');
+
+        if ($shouldSaveBilling) {
+            $address = $this->storeUniqueAddress($request->billing);
+
+            $this->makeDefaultAddress(
+                $address,
+                $request->boolean('make_billing_address_default')
+            );
         }
+
+        if ($shouldSaveShipping) {
+            $address = $this->storeUniqueAddress($request->shipping);
+
+            $this->makeDefaultAddress(
+                $address,
+                $request->boolean('make_shipping_address_default')
+            );
+        }
+    }
+
+
+    private function storeUniqueAddress($data): Address
+    {
+        return auth()
+            ->user()
+            ->addresses()
+            ->firstOrCreate($this->extractAddress($data));
     }
 
 
     private function extractAddress($data)
     {
         return [
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'address_1' => $data['address_1'],
-            'address_2' => $data['address_2'] ?? null,
-            'city' => $data['city'],
-            'state' => $data['state'],
-            'zip' => $data['zip'],
-            'country' => $data['country'],
+            'first_name' => trim((string) $data['first_name']),
+            'last_name' => trim((string) $data['last_name']),
+            'address_1' => trim((string) $data['address_1']),
+            'address_2' => filled($data['address_2'] ?? null)
+                ? trim((string) $data['address_2'])
+                : null,
+            'city' => trim((string) $data['city']),
+            'state' => trim((string) $data['state']),
+            'zip' => trim((string) $data['zip']),
+            'country' => trim((string) $data['country']),
         ];
     }
 
 
-    private function makeDefaultAddress(Address $address)
+    private function makeDefaultAddress(Address $address, bool $force = false)
     {
-        if (
-            auth()
-                ->user()
-                ->addresses()
-                ->count() > 1
-        ) {
+        $defaultAddressId = DefaultAddress::query()
+            ->where('customer_id', auth()->id())
+            ->value('address_id');
+
+        if (! $force && $defaultAddressId) {
             return;
         }
 
-        DefaultAddress::create([
-            'address_id' => $address->id,
-            'customer_id' => auth()->id(),
-        ]);
+        DefaultAddress::query()->upsert([
+            [
+                'customer_id' => auth()->id(),
+                'address_id' => $address->id,
+            ],
+        ], ['customer_id'], ['address_id']);
     }
 
 

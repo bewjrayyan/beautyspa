@@ -86,6 +86,34 @@ class StoreOrderRequest extends Request
                 'create_an_account' => 'boolean',
                 'password' => 'required_if:create_an_account,1',
                 'ship_to_a_different_address' => 'boolean',
+                'save_billing_address' => 'boolean',
+                'make_billing_address_default' => [
+                    'boolean',
+                    function (string $attribute, mixed $value, \Closure $fail): void {
+                        if ($this->boolean($attribute) && ! $this->boolean('save_billing_address')) {
+                            $fail(trans('validation.prohibited', [
+                                'attribute' => str_replace('_', ' ', $attribute),
+                            ]));
+                        }
+                    },
+                ],
+                'save_shipping_address' => 'boolean',
+                'make_shipping_address_default' => [
+                    'boolean',
+                    function (string $attribute, mixed $value, \Closure $fail): void {
+                        if (
+                            $this->boolean($attribute)
+                            && (
+                                ! $this->boolean('save_shipping_address')
+                                || $this->boolean('make_billing_address_default')
+                            )
+                        ) {
+                            $fail(trans('validation.prohibited', [
+                                'attribute' => str_replace('_', ' ', $attribute),
+                            ]));
+                        }
+                    },
+                ],
                 'payment_method' => ['required', Rule::in(Gateway::names())],
                 'payment_proof' => [
                     Rule::requiredIf(fn () => $this->input('payment_method') === 'bank_transfer'),
@@ -179,13 +207,14 @@ class StoreOrderRequest extends Request
     private function billingAddressRules()
     {
         return [
-            'billing.first_name' => 'required',
-            'billing.last_name' => 'required',
-            'billing.address_1' => 'required',
-            'billing.city' => 'required',
-            'billing.zip' => 'required',
+            'billing.first_name' => ['required', 'string', 'max:255'],
+            'billing.last_name' => ['required', 'string', 'max:255'],
+            'billing.address_1' => ['required', 'string', 'max:255'],
+            'billing.address_2' => ['nullable', 'string', 'max:255'],
+            'billing.city' => ['required', 'string', 'max:255'],
+            'billing.zip' => ['required', 'string', 'max:255'],
             'billing.country' => ['required', Rule::in(Country::supportedCodes())],
-            'billing.state' => 'required',
+            'billing.state' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -193,13 +222,14 @@ class StoreOrderRequest extends Request
     private function shippingAddressRules()
     {
         return [
-            'shipping.first_name' => 'required_if:ship_to_a_different_address,1',
-            'shipping.last_name' => 'required_if:ship_to_a_different_address,1',
-            'shipping.address_1' => 'required_if:ship_to_a_different_address,1',
-            'shipping.city' => 'required_if:ship_to_a_different_address,1',
-            'shipping.zip' => 'required_if:ship_to_a_different_address,1',
+            'shipping.first_name' => ['required_if:ship_to_a_different_address,1', 'nullable', 'string', 'max:255'],
+            'shipping.last_name' => ['required_if:ship_to_a_different_address,1', 'nullable', 'string', 'max:255'],
+            'shipping.address_1' => ['required_if:ship_to_a_different_address,1', 'nullable', 'string', 'max:255'],
+            'shipping.address_2' => ['nullable', 'string', 'max:255'],
+            'shipping.city' => ['required_if:ship_to_a_different_address,1', 'nullable', 'string', 'max:255'],
+            'shipping.zip' => ['required_if:ship_to_a_different_address,1', 'nullable', 'string', 'max:255'],
             'shipping.country' => ['required_if:ship_to_a_different_address,1', Rule::in(Country::supportedCodes())],
-            'shipping.state' => 'required_if:ship_to_a_different_address,1',
+            'shipping.state' => ['required_if:ship_to_a_different_address,1', 'nullable', 'string', 'max:255'],
         ];
     }
 }

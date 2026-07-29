@@ -5,57 +5,80 @@
             <h4 class="checkout-card-title">{{ trans('storefront::checkout.billing_details') }}</h4>
         </div>
 
-        <template x-if="hasAddress">
+        <template x-if="hasReusableBilling">
             <button type="button" class="checkout-card-link" @click="addNewBillingAddress">
-                <span x-text="form.newBillingAddress ? '−' : '+'"></span>
-                {{ trans('storefront::checkout.add_new_address') }}
+                <span x-text="form.newBillingAddress ? '←' : '+'"></span>
+                <span x-cloak x-show="form.newBillingAddress">{{ trans('storefront::checkout.use_saved_address') }}</span>
+                <span x-cloak x-show="!form.newBillingAddress">{{ trans('storefront::checkout.use_another_address') }}</span>
             </button>
         </template>
     </div>
 
-    <template x-if="hasAddress">
-        <div x-cloak class="address-card-wrap address-card-wrap--modern">
-            <template x-for="address in addresses" :key="address.id">
-                <address
-                    class="address-card address-card--modern"
-                    :class="{
-                        active: form.billingAddressId === address.id && !form.newBillingAddress,
-                        'cursor-default': form.newBillingAddress
-                    }"
-                    @click="changeBillingAddress(address)"
-                >
-                    <span class="address-card-radio" :class="{ 'is-checked': form.billingAddressId === address.id && !form.newBillingAddress }">
-                        <i class="las la-check"></i>
-                    </span>
+    <template x-if="hasReusableBilling && !form.newBillingAddress">
+        <div x-cloak class="checkout-saved-address-box">
+            <div class="checkout-saved-address-heading">
+                <span class="checkout-promo-label">
+                    <i class="las la-map-marker checkout-promo-label__icon"></i>
+                    {{ trans('storefront::checkout.use_saved_address') }}
+                </span>
+                <span class="address-card-badge">{{ trans('storefront::checkout.recommended') }}</span>
+            </div>
 
-                    <template x-if="defaultAddress.address_id === address.id">
-                        <span class="address-card-badge">{{ trans('storefront::checkout.default') }}</span>
+            <template x-if="hasAddress">
+                <div class="address-card-wrap address-card-wrap--modern">
+                    <template x-for="address in addresses" :key="address.id">
+                        <address
+                            class="address-card address-card--modern"
+                            :class="{ active: form.billingAddressId === address.id }"
+                            @click="changeBillingAddress(address)"
+                        >
+                            <span class="address-card-radio" :class="{ 'is-checked': form.billingAddressId === address.id }">
+                                <i class="las la-check"></i>
+                            </span>
+
+                            <template x-if="defaultAddress.address_id === address.id">
+                                <span class="address-card-badge">{{ trans('storefront::checkout.default') }}</span>
+                            </template>
+
+                            <div class="address-card-data">
+                                <strong class="address-card-name" x-text="address.full_name"></strong>
+                                <span x-text="address.address_1"></span>
+
+                                <template x-if="address.address_2">
+                                    <span x-text="address.address_2"></span>
+                                </template>
+
+                                <span x-text="`${address.city}, ${address.state_name ?? address.state} ${address.zip}`"></span>
+                                <span x-text="address.country_name"></span>
+                            </div>
+                        </address>
                     </template>
-
-                    <div class="address-card-data">
-                        <strong class="address-card-name" x-text="address.full_name"></strong>
-                        <span x-text="address.address_1"></span>
-
-                        <template x-if="address.address_2">
-                            <span x-text="address.address_2"></span>
-                        </template>
-
-                        <span x-html="`${address.city}, ${address.state_name ?? address.state} ${address.zip}`"></span>
-                        <span x-text="address.country_name"></span>
-                    </div>
-                </address>
+                </div>
             </template>
 
-            <template x-if="!form.newBillingAddress && !form.billingAddressId">
-                <span class="error-message">
-                    {{ trans('storefront::checkout.you_must_select_an_address') }}
-                </span>
+            <template x-if="!hasAddress && isCompleteAddress(customerBilling)">
+                <address class="address-card address-card--modern active checkout-recent-address">
+                    <span class="address-card-radio is-checked"><i class="las la-check"></i></span>
+                    <span class="address-card-badge">{{ trans('storefront::checkout.last_used') }}</span>
+
+                    <div class="address-card-data">
+                        <strong class="address-card-name" x-text="`${customerBilling.first_name} ${customerBilling.last_name}`"></strong>
+                        <span x-text="customerBilling.address_1"></span>
+
+                        <template x-if="customerBilling.address_2">
+                            <span x-text="customerBilling.address_2"></span>
+                        </template>
+
+                        <span x-text="`${customerBilling.city}, ${customerBilling.state} ${customerBilling.zip}`"></span>
+                        <span x-text="countries[customerBilling.country] ?? customerBilling.country"></span>
+                    </div>
+                </address>
             </template>
         </div>
     </template>
 
     <div x-cloak class="add-new-address-wrap">
-        <div class="add-new-address-form" x-show="!hasAddress || form.newBillingAddress">
+        <div class="add-new-address-form" x-show="!hasReusableBilling || form.newBillingAddress">
             <div class="row">
                 <div class="col-md-9">
                     <div class="form-group">
@@ -137,9 +160,9 @@
                         <input
                             type="text"
                             name="billing[city]"
-                            :value="form.billing.city"
                             id="billing-city"
                             class="form-control"
+                            x-model="form.billing.city"
                             @change="changeBillingCity($event.target.value)"
                         >
 
@@ -158,9 +181,9 @@
                         <input
                             type="text"
                             name="billing[zip]"
-                            :value="form.billing.zip"
                             id="billing-zip"
                             class="form-control"
+                            x-model="form.billing.zip"
                             @change="changeBillingZip($event.target.value)"
                         >
 
@@ -180,7 +203,7 @@
                             name="billing[country]"
                             id="billing-country"
                             class="form-control arrow-black"
-                            :value="form.billing.country"
+                            x-model="form.billing.country"
                             @change="changeBillingCountry($event.target.value)"
                         >
                             <option value="">{{ trans('storefront::checkout.please_select') }}</option>
@@ -217,13 +240,13 @@
                                 name="billing[state]"
                                 id="billing-state"
                                 class="form-control arrow-black"
-                                :value="form.billing.state"
+                                x-model="form.billing.state"
                                 @change="changeBillingState($event.target.value)"
                             >
                                 <option value="">{{ trans('storefront::checkout.please_select') }}</option>
 
                                 <template x-for="(name, code) in states.billing" :key="code">
-                                    <option :value="code" x-html="name"></option>
+                                    <option :value="code" x-text="name"></option>
                                 </template>
                             </select>
                         </template>
@@ -233,6 +256,34 @@
                         </template>
                     </div>
                 </div>
+
+                <template x-if="loggedIn">
+                    <div class="col-md-18">
+                        <div class="checkout-address-save-options">
+                            <label class="checkout-address-save-option" for="save-billing-address">
+                                <input
+                                    type="checkbox"
+                                    id="save-billing-address"
+                                    x-model="form.saveBillingAddress"
+                                >
+                                <span>{{ trans('storefront::checkout.save_address_for_next_order') }}</span>
+                            </label>
+
+                            <label
+                                x-show="form.saveBillingAddress && hasAddress"
+                                class="checkout-address-save-option checkout-address-save-option--secondary"
+                                for="make-billing-address-default"
+                            >
+                                <input
+                                    type="checkbox"
+                                    id="make-billing-address-default"
+                                    x-model="form.makeBillingAddressDefault"
+                                >
+                                <span>{{ trans('storefront::checkout.make_default_address') }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
     </div>
