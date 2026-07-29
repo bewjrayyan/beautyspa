@@ -69,7 +69,9 @@ class ValidPngSignature implements ValidationRule
                     $inkPixels++;
 
                     if ($inkPixels >= 8) {
-                        imagedestroy($image);
+                        if (PHP_VERSION_ID < 80500) {
+                            imagedestroy($image);
+                        }
 
                         return true;
                     }
@@ -77,7 +79,9 @@ class ValidPngSignature implements ValidationRule
             }
         }
 
-        imagedestroy($image);
+        if (PHP_VERSION_ID < 80500) {
+            imagedestroy($image);
+        }
 
         return false;
     }

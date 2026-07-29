@@ -1,6 +1,6 @@
 # BeautySpa — AestheticCart
 
-Private e-commerce and booking platform for a beauty / spa business, built on **AestheticCart** (Laravel 11, modular architecture) by **MediaCreative Solution** (Bewj Rayyan), with admin workflows for orders, reports, treatments, loyalty, and CHIP payments.
+Private e-commerce and booking platform for a beauty / spa business, built on **AestheticCart** (Laravel 12, modular architecture) by **MediaCreative Solution** (Bewj Rayyan), with admin workflows for orders, reports, treatments, loyalty, and CHIP payments.
 
 > **Repository:** [github.com/bewjrayyan/beautyspa](https://github.com/bewjrayyan/beautyspa) (private)
 
@@ -10,7 +10,7 @@ Private e-commerce and booking platform for a beauty / spa business, built on **
 
 | Layer | Technology |
 |--------|------------|
-| Backend | PHP 8.2+, Laravel 11 |
+| Backend | PHP 8.3.1–8.4.x, Laravel 12 |
 | Database | MySQL / MariaDB |
 | Frontend (admin & storefront) | Vite 7, Vue 3, Alpine.js, Bootstrap 5, Sass |
 | Modules | `nwidart/laravel-modules` |

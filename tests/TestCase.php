@@ -6,5 +6,5 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    // Laravel 11 boots the application through bootstrap/app.php automatically.
+    // Laravel boots the application through bootstrap/app.php automatically.
 }

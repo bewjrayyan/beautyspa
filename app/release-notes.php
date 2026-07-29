@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.74' => [
+        'en' => [
+            'summary' => 'Upgrade to the patched Laravel 12 stack with compatible authentication, module, data-table, and nested-collection packages.',
+            'changes' => [
+                'Upgrade Laravel to 12.64.0 to close the framework email-validation CRLF and temporary signed-URL advisories.',
+                'Upgrade Sentinel, Laravel Modules, Yajra DataTables, and NestableCollection to their Laravel 12-compatible major releases.',
+                'Require PHP 8.3.1 through 8.4.x and document the production platform check required before deployment.',
+                'Add regression coverage for the framework and upgraded package graph while keeping all 507 application routes bootable.',
+                'Remove PHP 8.5 GD cleanup deprecations and reduce Composer audit output to one low-severity JWT advisory constrained by Socialite.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Naik taraf kepada stack Laravel 12 yang telah ditampal bersama package authentication, module, data-table, dan nested collection yang serasi.',
+            'changes' => [
+                'Naik taraf Laravel kepada 12.64.0 untuk menutup advisory CRLF validasi e-mel dan temporary signed URL pada framework.',
+                'Naik taraf Sentinel, Laravel Modules, Yajra DataTables, dan NestableCollection kepada major release yang serasi dengan Laravel 12.',
+                'Wajibkan PHP 8.3.1 hingga 8.4.x dan dokumentasikan semakan platform production sebelum deployment.',
+                'Tambah liputan regresi bagi framework serta graph package baharu sambil memastikan semua 507 route aplikasi boleh diboot.',
+                'Buang deprecation pembersihan GD pada PHP 8.5 dan kurangkan audit Composer kepada satu advisory JWT tahap rendah yang dikunci oleh Socialite.',
+            ],
+        ],
+    ],
     '4.9.73' => [
         'en' => [
             'summary' => 'Refresh vulnerable dependencies and make production installs reproducible with a committed Composer lock file.',

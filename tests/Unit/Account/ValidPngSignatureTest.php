@@ -60,7 +60,10 @@ class ValidPngSignatureTest extends TestCase
         ob_start();
         imagepng($image);
         $png = ob_get_clean();
-        imagedestroy($image);
+
+        if (PHP_VERSION_ID < 80500) {
+            imagedestroy($image);
+        }
 
         return 'data:image/png;base64,' . base64_encode($png);
     }

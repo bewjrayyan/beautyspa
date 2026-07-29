@@ -102,9 +102,10 @@ Recommended rollout:
 ### Dependency security
 
 - Deploy with `composer install`, using the committed `composer.lock`; do not run an unconstrained `composer update` in production.
+- Run `composer check-platform-reqs --no-dev` on the production host after installation and fail the deployment if the actual PHP runtime or extensions do not match the lock file.
 - Run `composer audit --locked` before every release and review abandoned packages separately.
-- The dependency refresh on 2026-07-29 reduced the audit result from 42 advisory records across 14 packages to 4 records across 2 packages.
-- The remaining Laravel Framework advisories require Laravel `>=12.61.1`. Laravel 11 has no patched release, so this must be handled as a tested framework-upgrade batch rather than a patch update.
+- Laravel has been upgraded to `12.64.0`, closing the framework CRLF email-validation and temporary signed-URL advisories. Production now requires PHP `>=8.3.1 <8.5`: Sentinel 9 requires PHP 8.3, while the current sitemap dependency graph does not yet support PHP 8.5.
+- The dependency refresh and framework upgrade on 2026-07-29 reduced the audit result from 42 advisory records across 14 packages to 1 low-severity record affecting 1 package.
 - The remaining `firebase/php-jwt` advisory requires version 7, while the current Laravel Socialite release requires JWT version 6. Treat this as an upstream compatibility/replacement task; do not force the incompatible major version.
 - `doctrine/annotations`, `paypal/paypal-checkout-sdk`, and `paypal/paypalhttp` are abandoned. Replace the PayPal SDK with `paypal/paypal-server-sdk` and remove the other abandoned packages when their dependency paths have been migrated and regression-tested.
 
