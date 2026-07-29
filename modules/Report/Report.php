@@ -57,13 +57,13 @@ abstract class Report
 
     private function from($date)
     {
-        $this->query->whereDate($this->date, '>=', Carbon::parse($date));
+        $this->query->where($this->date, '>=', Carbon::parse($date)->startOfDay());
     }
 
 
     private function to($date)
     {
-        $this->query->whereDate($this->date, '<=', Carbon::parse($date));
+        $this->query->where($this->date, '<', Carbon::parse($date)->startOfDay()->addDay());
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace Modules\Account\Services;
 
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\Account\Entities\ConsultationFormTemplate;
@@ -36,6 +37,8 @@ class ConsultationRequestService
                 return $existing;
             }
 
+            $publicToken = Str::random(64);
+
             return ConsultationSubmission::create([
                 'template_id' => $template->id,
                 'user_id' => $user?->id,
@@ -44,7 +47,9 @@ class ConsultationRequestService
                 'treatment_booking_id' => $booking->id,
                 'beautician_id' => $booking->beautician_id,
                 'sent_by_user_id' => $sender->id,
-                'public_token' => Str::random(64),
+                'public_token_hash' => hash('sha256', $publicToken),
+                'public_token_ciphertext' => Crypt::encryptString($publicToken),
+                'public_token_expires_at' => now()->addDays(30),
                 'customer_name' => $booking->customer_full_name,
                 'customer_email' => $email ?: null,
                 'customer_phone' => $phone ?: null,
@@ -61,7 +66,11 @@ class ConsultationRequestService
 
     public function shareUrl(ConsultationSubmission $submission): string
     {
-        return route('consultations.access', ['token' => $submission->public_token]);
+        $token = $submission->public_token_ciphertext
+            ? Crypt::decryptString($submission->public_token_ciphertext)
+            : $submission->public_token;
+
+        return route('consultations.access', ['token' => $token]);
     }
 
     public function whatsAppUrl(ConsultationSubmission $submission): ?string
@@ -132,6 +141,7 @@ class ConsultationRequestService
             ->where('treatment_booking_id', $booking->id)
             ->whereNull('submitted_at')
             ->whereNull('revoked_at')
+            ->where('public_token_expires_at', '>', now())
             ->latest('id')
             ->first();
     }

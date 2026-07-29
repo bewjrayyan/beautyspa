@@ -72,7 +72,7 @@
                                             @if ($order->shipping_address_2)
                                                 <p style="margin:0;">{{ $order->shipping_address_2 }}</p>
                                             @endif
-                                            <p style="margin:0;">{{ $order->shipping_city }}, {!! $order->shipping_state_name !!} {{ $order->shipping_zip }}</p>
+                                            <p style="margin:0;">{{ $order->shipping_city }}, {{ $order->shipping_state_name }} {{ $order->shipping_zip }}</p>
                                             <p style="margin:0;">{{ $order->shipping_country_name }}</p>
                                         @endif
                                     </td>
@@ -87,7 +87,7 @@
                                 <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:{{ $themeColor }};">
                                     {{ trans('storefront::invoice.billing_address') }}
                                 </p>
-                                <p style="margin:0;">{{ $order->billing_full_name }}, {{ $order->billing_address_1 }}@if ($order->billing_address_2), {{ $order->billing_address_2 }}@endif, {{ $order->billing_city }}, {!! $order->billing_state_name !!} {{ $order->billing_zip }}, {{ $order->billing_country_name }}</p>
+                                <p style="margin:0;">{{ $order->billing_full_name }}, {{ $order->billing_address_1 }}@if ($order->billing_address_2), {{ $order->billing_address_2 }}@endif, {{ $order->billing_city }}, {{ $order->billing_state_name }} {{ $order->billing_zip }}, {{ $order->billing_country_name }}</p>
                             </td>
                         </tr>
                     @endif
@@ -209,7 +209,7 @@
                                 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;">
                                     <tr>
                                         <td style="padding:14px 16px;font-size:14px;color:#92400e;">
-                                            {!! setting('bank_transfer_instructions') !!}
+                                            {!! clean_html(setting('bank_transfer_instructions')) !!}
                                         </td>
                                     </tr>
                                 </table>

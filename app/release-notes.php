@@ -5,6 +5,30 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.70' => [
+        'en' => [
+            'summary' => 'Harden checkout, bookings, private documents, public tokens, queues, and database performance.',
+            'changes' => [
+                'Enforce address ownership and one atomic default address per customer to prevent IDOR and concurrent duplicate records.',
+                'Finalize payments and booking changes inside transactions with row locks, replay protection, and after-commit events.',
+                'Move payment proofs and generated order PDFs to private storage with expiring signed access and a legacy-document migration command.',
+                'Hash, encrypt, expire, and rotate consultation and beautician calendar tokens while removing customer details from calendar feeds.',
+                'Reduce availability and product query overhead, make report filters index-friendly, and add targeted production-safe indexes and foreign keys.',
+                'Queue email and WhatsApp work with database-backed deduplication, retries, cache invalidation, throttling, and safer Blade output escaping.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perketat checkout, tempahan, dokumen private, token awam, queue, dan prestasi database.',
+            'changes' => [
+                'Kuatkuasakan pemilikan alamat dan satu alamat lalai atomic bagi setiap pelanggan untuk mencegah IDOR serta rekod pendua serentak.',
+                'Selesaikan pembayaran dan perubahan tempahan dalam transaction dengan row lock, perlindungan replay, dan event selepas commit.',
+                'Pindahkan bukti bayaran dan PDF pesanan ke storan private dengan akses signed bertempoh serta command migrasi dokumen legacy.',
+                'Hash, enkripsi, tamatkan, dan putar token konsultasi serta kalendar beautician sambil membuang butiran pelanggan daripada calendar feed.',
+                'Kurangkan beban query availability dan produk, jadikan filter laporan mesra index, serta tambah index dan foreign key production-safe.',
+                'Queue email dan WhatsApp dengan deduplikasi database, retry, cache invalidation, throttling, dan escaping output Blade yang lebih selamat.',
+            ],
+        ],
+    ],
     '4.9.69' => [
         'en' => [
             'summary' => 'Add conditional consultation fields and harden medical records for privacy, performance, and auditability.',

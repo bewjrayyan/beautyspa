@@ -79,7 +79,7 @@ class HomePageComposer
             if (!is_null(setting("storefront_featured_categories_section_category_{$number}_product_type"))) {
                 return setting("storefront_featured_categories_section_category_{$number}_category_id");
             }
-        })->filter();
+        })->filter()->map(fn ($id) => (int) $id)->filter()->values();
 
         if ($categoryIds->isEmpty()) {
             return collect();
@@ -150,9 +150,12 @@ class HomePageComposer
             return collect();
         }
 
-        $topBrandIds = array_values(array_filter((array) (setting('storefront_top_brands') ?? [])));
-
-        return Cache::rememberForever(md5('storefront_top_brands:' . serialize($topBrandIds)), function () use ($topBrandIds) {
+        $topBrandIds = array_values(array_filter(array_map(
+            'intval',
+            (array) (setting('storefront_top_brands') ?? [])
+        )));
+        $cacheKey = md5('storefront_top_brands:' . locale() . ':' . serialize($topBrandIds));
+        $resolver = function () use ($topBrandIds) {
             if ($topBrandIds === []) {
                 return collect();
             }
@@ -171,7 +174,13 @@ class HomePageComposer
                         'logo' => $brand->getLogoAttribute(),
                     ];
                 });
-        });
+        };
+
+        try {
+            return Cache::tags(['brands', 'settings'])->rememberForever($cacheKey, $resolver);
+        } catch (Throwable) {
+            return $resolver();
+        }
     }
 
 

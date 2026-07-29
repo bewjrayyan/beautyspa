@@ -10,20 +10,20 @@
     <div class="order-show__hint order-show__hint--payment-proof">
         @if ($isImage)
             <a
-                href="{{ $proof->path }}"
+                href="{{ $paymentProofUrl }}"
                 class="order-show__payment-proof-preview order-show__payment-proof-preview--inline"
                 target="_blank"
                 rel="noopener noreferrer"
             >
                 <img
-                    src="{{ $proof->path }}"
+                    src="{{ $paymentProofUrl }}"
                     alt="{{ $proof->filename }}"
                     loading="lazy"
                 >
             </a>
         @else
             <a
-                href="{{ $proof->path }}"
+                href="{{ $paymentProofUrl }}"
                 class="order-show__payment-proof-file order-show__payment-proof-file--inline"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -34,7 +34,7 @@
         @endif
 
         <a
-            href="{{ $proof->path }}"
+            href="{{ $paymentProofUrl }}"
             class="order-show__payment-proof-link"
             target="_blank"
             rel="noopener noreferrer"

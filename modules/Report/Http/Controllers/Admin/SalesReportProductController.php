@@ -12,7 +12,7 @@ class SalesReportProductController
     {
         $categoryId = $request->get('category_id');
         $query = trim((string) $request->get('query', ''));
-        $limit = min(max((int) $request->get('limit', 500), 1), 1000);
+        $limit = min(max((int) $request->get('limit', 30), 1), 50);
 
         if ($query === '') {
             return response()->json([]);

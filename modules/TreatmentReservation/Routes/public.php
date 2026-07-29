@@ -54,9 +54,9 @@ Route::get('my-booking/{id}/slots', 'BookingSelfServiceController@availableSlots
 Route::get('availability/beautician/{beautician}/slots', [
     'as' => 'treatment_reservations.availability.slots',
     'uses' => 'AvailabilitySlotsController',
-]);
+])->middleware('throttle:30,1');
 
 Route::get('calendar/beautician/{beautician}/{token}.ics', [
     'as' => 'treatment_reservations.calendar.feed',
     'uses' => 'CalendarFeedController',
-]);
+])->middleware('throttle:60,1');

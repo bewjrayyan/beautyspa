@@ -75,7 +75,8 @@ function initReportProductAutocomplete(root) {
     const optionsEmpty = optionsTarget?.querySelector(".sales-report-options-empty");
     const selectedOptionValues = parseJsonDataset(optionsTarget, "selectedOptionValues");
     const selectedVariationValues = parseJsonDataset(optionsTarget, "selectedVariationValues");
-    const minChars = 1;
+    const minChars = 2;
+    let searchController;
 
     if (!input || !hiddenInput || !resultsEl || (requireCategory && !categorySelect)) {
         return;
@@ -361,7 +362,7 @@ function initReportProductAutocomplete(root) {
 
         const params = {
             query: term,
-            limit: 1000,
+            limit: 30,
         };
 
         if (requireCategory && categorySelect.value) {
@@ -369,12 +370,22 @@ function initReportProductAutocomplete(root) {
         }
 
         try {
-            const { data } = await axios.get(productsUrl, { params });
+            searchController?.abort();
+            searchController = new AbortController();
+
+            const { data } = await axios.get(productsUrl, {
+                params,
+                signal: searchController.signal,
+            });
             const products = Array.isArray(data) ? data : data?.products || [];
             const total = Array.isArray(data) ? products.length : data?.total ?? products.length;
 
             showResults(products, total);
-        } catch {
+        } catch (error) {
+            if (error?.code === "ERR_CANCELED" || error?.name === "CanceledError") {
+                return;
+            }
+
             hideResults();
         }
     }

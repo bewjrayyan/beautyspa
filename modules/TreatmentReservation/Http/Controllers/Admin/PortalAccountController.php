@@ -65,8 +65,18 @@ class PortalAccountController extends Controller
     }
 
 
+    public function rotateCalendarToken(Request $request, BeauticianIcalFeedService $ical): RedirectResponse
+    {
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+        $ical->rotate($beautician->id);
+
+        return back()->withSuccess(trans('treatmentreservation::admin.ical.rotated'));
+    }
+
+
     /**
-     * @return array{dashboard: string, availability: string, profileUpdate: string, passwordUpdate: string}
+     * @return array{dashboard: string, availability: string, profileUpdate: string, passwordUpdate: string, calendarRotate: string}
      */
     private function accountRoutes(Beautician $beautician): array
     {
@@ -78,6 +88,7 @@ class PortalAccountController extends Controller
                 'availability' => route('admin.beauticians.portal.availability', $beauticianId),
                 'profileUpdate' => route('admin.beauticians.portal.account.profile', $beauticianId),
                 'passwordUpdate' => route('admin.beauticians.portal.account.password', $beauticianId),
+                'calendarRotate' => route('admin.beauticians.portal.account.calendar_rotate', $beauticianId),
             ];
         }
 
@@ -86,6 +97,7 @@ class PortalAccountController extends Controller
             'availability' => route('admin.treatment_reservations.portal.availability'),
             'profileUpdate' => route('admin.treatment_reservations.portal.account.profile'),
             'passwordUpdate' => route('admin.treatment_reservations.portal.account.password'),
+            'calendarRotate' => route('admin.treatment_reservations.portal.account.calendar_rotate'),
         ];
     }
 }

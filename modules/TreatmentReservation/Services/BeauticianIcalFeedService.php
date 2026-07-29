@@ -4,20 +4,55 @@ namespace Modules\TreatmentReservation\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Crypt;
 use Modules\Beautician\Entities\Beautician;
+use Modules\TreatmentReservation\Entities\BeauticianCalendarToken;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 
 class BeauticianIcalFeedService
 {
     public function tokenFor(int $beauticianId): string
     {
-        return substr(hash_hmac('sha256', (string) $beauticianId, config('app.key')), 0, 32);
+        $record = BeauticianCalendarToken::query()->firstOrCreate(
+            ['beautician_id' => $beauticianId],
+            $this->newTokenAttributes()
+        );
+
+        if ($record->revoked_at || ($record->expires_at && $record->expires_at->isPast())) {
+            $record = $this->rotate($beauticianId);
+        }
+
+        return Crypt::decryptString($record->token_ciphertext);
     }
 
 
     public function isValidToken(int $beauticianId, string $token): bool
     {
-        return hash_equals($this->tokenFor($beauticianId), $token);
+        $record = BeauticianCalendarToken::query()
+            ->where('beautician_id', $beauticianId)
+            ->whereNull('revoked_at')
+            ->first();
+
+        if (! $record || ($record->expires_at && $record->expires_at->isPast())) {
+            return false;
+        }
+
+        $valid = hash_equals($record->token_hash, hash('sha256', $token));
+
+        if ($valid && (! $record->last_used_at || $record->last_used_at->lt(now()->subDay()))) {
+            $record->forceFill(['last_used_at' => now()])->saveQuietly();
+        }
+
+        return $valid;
+    }
+
+
+    public function rotate(int $beauticianId): BeauticianCalendarToken
+    {
+        $record = BeauticianCalendarToken::query()->firstOrNew(['beautician_id' => $beauticianId]);
+        $record->forceFill($this->newTokenAttributes())->save();
+
+        return $record;
     }
 
 
@@ -66,8 +101,8 @@ class BeauticianIcalFeedService
             ->where('beautician_id', $beautician->id)
             ->whereNotNull('appointment_date')
             ->whereNot('status', TreatmentBooking::STATUS_CANCELED)
-            ->whereDate('appointment_date', '>=', today()->subMonths(1))
-            ->whereDate('appointment_date', '<=', today()->addMonths(6))
+            ->where('appointment_date', '>=', today()->subMonths(1)->toDateString())
+            ->where('appointment_date', '<=', today()->addMonths(6)->toDateString())
             ->orderBy('appointment_date')
             ->orderBy('appointment_time')
             ->get();
@@ -117,10 +152,9 @@ class BeauticianIcalFeedService
         $end = (clone $start)->addHour();
         $uid = 'treatment-booking-' . $booking->id . '@' . parse_url(config('app.url'), PHP_URL_HOST);
         $summary = $booking->product?->name ?: 'Treatment';
-        $summary .= ' — ' . $booking->customer_full_name;
+        $summary .= ' — Booking #' . $booking->id;
 
         $description = collect([
-            $booking->customer_phone,
             $booking->category?->name,
             $booking->status,
         ])->filter()->implode("\n");
@@ -142,5 +176,20 @@ class BeauticianIcalFeedService
     private function escape(string $value): string
     {
         return Str::replace(["\r", "\n", ',', ';'], ['', '\\n', '\\,', '\\;'], $value);
+    }
+
+
+    /** @return array{token_hash: string, token_ciphertext: string, expires_at: \Illuminate\Support\Carbon, revoked_at: null, last_used_at: null} */
+    private function newTokenAttributes(): array
+    {
+        $token = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+
+        return [
+            'token_hash' => hash('sha256', $token),
+            'token_ciphertext' => Crypt::encryptString($token),
+            'expires_at' => now()->addYear(),
+            'revoked_at' => null,
+            'last_used_at' => null,
+        ];
     }
 }

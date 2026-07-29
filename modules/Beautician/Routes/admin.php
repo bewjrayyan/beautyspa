@@ -181,6 +181,11 @@ Route::middleware(['beautician.portal.access', 'beautician.portal.from_route'])-
         'as' => 'admin.beauticians.portal.account.password',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAccountController@updatePassword',
     ]);
+
+    Route::post('beauticians/{id}/portal/account/calendar-token/rotate', [
+        'as' => 'admin.beauticians.portal.account.calendar_rotate',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAccountController@rotateCalendarToken',
+    ]);
 });
 
 Route::get('beauticians/index/table', [

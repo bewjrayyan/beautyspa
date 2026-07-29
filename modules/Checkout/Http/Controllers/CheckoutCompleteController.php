@@ -10,9 +10,8 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Modules\Order\Entities\Order;
 use Modules\Payment\Facades\Gateway;
-use Modules\Checkout\Events\OrderPlaced;
 use Modules\Checkout\Services\OrderGoogleCalendarUrl;
-use Modules\Checkout\Services\OrderService;
+use Modules\Checkout\Services\CheckoutPaymentFinalizer;
 use Modules\Order\Services\SendOrderBeauticianNotification;
 use Modules\Checkout\Services\CheckoutCompletionGuard;
 use Modules\Payment\Libraries\Bkash\BkashService;
@@ -27,11 +26,11 @@ class CheckoutCompleteController
      * Store a newly created resource in storage.
      *
      * @param int $orderId
-     * @param OrderService $orderService
+     * @param CheckoutPaymentFinalizer $paymentFinalizer
      *
      * @return RedirectResponse|\Illuminate\Http\JsonResponse
      */
-    public function store($orderId, OrderService $orderService)
+    public function store($orderId, CheckoutPaymentFinalizer $paymentFinalizer)
     {
         $orderId = filter_var($orderId, FILTER_VALIDATE_INT);
 
@@ -74,13 +73,9 @@ class CheckoutCompleteController
                 }
 
                 $order = Order::findOrFail($orderId);
-                CheckoutCompletionGuard::assertCanComplete($order, 'iyzico');
-
-                $order->storeTransaction(
+                $paymentFinalizer->finalize($order, 'iyzico',
                     new VerifiedPaymentResponse($order, (string) request()->query('reference'))
                 );
-
-                event(new OrderPlaced($order));
 
                 return redirect()->route('checkout.complete.show');
             } catch (Exception $e) {
@@ -122,12 +117,9 @@ class CheckoutCompleteController
                 }
 
                 $order = Order::findOrFail($orderId);
-                CheckoutCompletionGuard::assertCanComplete($order, 'bkash');
-                $order->storeTransaction(
+                $paymentFinalizer->finalize($order, 'bkash',
                     new VerifiedPaymentResponse($order, (string) $paymentId)
                 );
-
-                event(new OrderPlaced($order));
 
                 return redirect()->route('checkout.complete.show');
             } catch (\Exception $e) {
@@ -149,15 +141,11 @@ class CheckoutCompleteController
                 }
 
                 $order = Order::findOrFail($orderId);
-                CheckoutCompletionGuard::assertCanComplete($order, 'nagad');
-
                 app(GatewayPaymentVerifier::class)->verifyNagad(request('payment_ref_id'));
 
-                $order->storeTransaction(
+                $paymentFinalizer->finalize($order, 'nagad',
                     new VerifiedPaymentResponse($order, (string) request('payment_ref_id'))
                 );
-
-                event(new OrderPlaced($order));
 
                 return redirect()->route('checkout.complete.show');
             } catch (Exception $e) {
@@ -228,9 +216,7 @@ class CheckoutCompleteController
             ], 403);
         }
 
-        $order->storeTransaction($response);
-
-        event(new OrderPlaced($order));
+        $paymentFinalizer->finalize($order, $paymentMethod, $response);
 
         if (! request()->ajax()) {
             return redirect()->route('checkout.complete.show');

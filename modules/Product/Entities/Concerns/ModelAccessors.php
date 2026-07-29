@@ -200,8 +200,12 @@ trait ModelAccessors
 
     public function getRatingPercentAttribute()
     {
+        if ($this->getAttribute('reviews_avg_rating') !== null) {
+            return ((float) $this->getAttribute('reviews_avg_rating') / 5) * 100;
+        }
+
         if ($this->relationLoaded('reviews')) {
-            return ($this->reviews->avg->rating / 5) * 100;
+            return ((float) $this->reviews->avg('rating') / 5) * 100;
         }
     }
 }

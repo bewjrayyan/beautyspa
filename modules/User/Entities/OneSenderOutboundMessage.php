@@ -24,10 +24,12 @@ class OneSenderOutboundMessage extends Model
         'message_type',
         'message_hash',
         'dedupe_key',
+        'active_dedupe_key',
         'source',
         'message_preview',
         'payload',
         'status',
+        'attempts',
         'scheduled_at',
         'processing_at',
         'sent_at',
@@ -41,6 +43,7 @@ class OneSenderOutboundMessage extends Model
         'processing_at' => 'datetime',
         'sent_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'attempts' => 'integer',
     ];
 
 

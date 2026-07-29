@@ -91,7 +91,7 @@ class ConsultationAccessController extends Controller
             ->select([
                 'id',
                 'user_id',
-                'public_token',
+                'public_token_expires_at',
                 'form_title',
                 'customer_name',
                 'customer_email',
@@ -99,8 +99,9 @@ class ConsultationAccessController extends Controller
                 'submitted_at',
                 'revoked_at',
             ])
-            ->where('public_token', $token)
+            ->where('public_token_hash', hash('sha256', $token))
             ->whereNull('revoked_at')
+            ->where('public_token_expires_at', '>', now())
             ->firstOrFail();
 
         return $submission;

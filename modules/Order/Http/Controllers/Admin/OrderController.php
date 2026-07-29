@@ -11,6 +11,7 @@ use Modules\Admin\Traits\HasCrudActions;
 use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
 use Modules\Order\Events\OrderUpdated;
 use Modules\Order\Http\Requests\SaveOrderRequest;
+use Modules\Order\Services\OrderPaymentProofPublicUrlService;
 
 class OrderController
 {
@@ -84,7 +85,12 @@ class OrderController
     public function show($id)
     {
         try {
-            return $this->crudShow($id);
+            $order = $this->getEntity($id);
+            $paymentProofUrl = $order->paymentProof
+                ? app(OrderPaymentProofPublicUrlService::class)->whatsAppMediaUrl($order->paymentProof, $order)
+                : null;
+
+            return view("{$this->viewPath}.show", compact('order', 'paymentProofUrl'));
         } catch (ModelNotFoundException) {
             return redirect()
                 ->route('admin.orders.index')

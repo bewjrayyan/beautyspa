@@ -102,7 +102,7 @@ class LayoutComposer
 
     public function footerTagsCallback($tagIds)
     {
-        $tagIds = array_values(array_filter((array) ($tagIds ?? [])));
+        $tagIds = array_values(array_filter(array_map('intval', (array) ($tagIds ?? []))));
 
         return function () use ($tagIds) {
             if ($tagIds === []) {

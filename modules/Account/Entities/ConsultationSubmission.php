@@ -50,6 +50,9 @@ class ConsultationSubmission extends Model
         'beautician_id',
         'sent_by_user_id',
         'public_token',
+        'public_token_expires_at',
+        'public_token_hash',
+        'public_token_ciphertext',
         'customer_name',
         'customer_email',
         'customer_phone',
@@ -75,6 +78,12 @@ class ConsultationSubmission extends Model
         'user_agent',
     ];
 
+    protected $hidden = [
+        'public_token',
+        'public_token_hash',
+        'public_token_ciphertext',
+    ];
+
     protected $casts = [
         'questions_snapshot' => 'array',
         'context_snapshot' => EncryptedArrayWithLegacyFallback::class,
@@ -84,6 +93,7 @@ class ConsultationSubmission extends Model
         'sent_at' => 'datetime',
         'opened_at' => 'datetime',
         'revoked_at' => 'datetime',
+        'public_token_expires_at' => 'datetime',
         'submitted_at' => 'datetime',
     ];
 

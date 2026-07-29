@@ -631,5 +631,9 @@ return [
         'google_calendar' => 'Google Calendar',
         'apple_calendar' => 'Apple Calendar',
         'outlook_calendar' => 'Outlook',
+        'rotate' => 'Putar URL kalendar',
+        'rotate_help' => 'Putaran akan membatalkan URL semasa serta-merta. Sambungkan semula semua kalendar yang dilanggan selepas itu.',
+        'rotate_confirm' => 'Putar URL kalendar ini dan batalkan langganan semasa?',
+        'rotated' => 'URL kalendar telah diputar. Sambungkan semula kalendar menggunakan URL baharu.',
     ],
 ];

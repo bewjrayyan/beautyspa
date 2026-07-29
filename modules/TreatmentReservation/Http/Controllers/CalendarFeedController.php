@@ -23,6 +23,9 @@ class CalendarFeedController extends Controller
         return response($feed->generate($beauticianModel), 200, [
             'Content-Type' => 'text/calendar; charset=utf-8',
             'Content-Disposition' => 'inline; filename="beautician-' . $beautician . '.ics"',
+            'Cache-Control' => 'private, no-store, max-age=0',
+            'Referrer-Policy' => 'no-referrer',
+            'X-Robots-Tag' => 'noindex, nofollow, noarchive',
         ]);
     }
 }

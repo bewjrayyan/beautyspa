@@ -9,6 +9,7 @@ use Modules\Checkout\Services\OrderGoogleCalendarUrl;
 use Modules\Media\Entities\File;
 use Modules\Order\Entities\Order;
 use Modules\Order\Services\SendOrderBeauticianNotification;
+use Modules\Order\Services\OrderPaymentProofPublicUrlService;
 use Modules\Review\Entities\Review;
 
 class AccountOrdersController
@@ -72,6 +73,9 @@ class AccountOrdersController
         $orderReviewItems = $this->orderReviewItems($order);
         $reviewerName = trim((auth()->user()->full_name ?: auth()->user()->email) ?? '');
         $orderRewards = $this->orderRewards($order);
+        $paymentProofUrl = $order->paymentProof
+            ? app(OrderPaymentProofPublicUrlService::class)->whatsAppMediaUrl($order->paymentProof, $order)
+            : null;
 
         return view('storefront::public.account.orders.show', compact(
             'order',
@@ -81,6 +85,7 @@ class AccountOrdersController
             'orderReviewItems',
             'reviewerName',
             'orderRewards',
+            'paymentProofUrl',
         ));
     }
 

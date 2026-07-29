@@ -32,10 +32,11 @@ trait ProductSearch
         $query = $model->filter($productFilter);
 
         if (request()->filled('category')) {
-            $productIds = (clone $query)->select('products.id')->resetOrders()->pluck('id');
+            $productIds = (clone $query)->select('products.id')->resetOrders();
         }
 
-        $products = $query->paginate(request('perPage', 30));
+        $perPage = min(max(request()->integer('perPage', 30), 1), 60);
+        $products = $query->paginate($perPage);
 
         event(new ShowingProductList($products));
 

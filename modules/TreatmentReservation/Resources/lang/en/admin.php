@@ -614,5 +614,9 @@ return [
         'google_calendar' => 'Google Calendar',
         'apple_calendar' => 'Apple Calendar',
         'outlook_calendar' => 'Outlook',
+        'rotate' => 'Rotate calendar URL',
+        'rotate_help' => 'Rotating immediately revokes the current URL. Reconnect every subscribed calendar afterward.',
+        'rotate_confirm' => 'Rotate this calendar URL and revoke the current subscription?',
+        'rotated' => 'The calendar URL has been rotated. Reconnect your calendar using the new URL.',
     ],
 ];

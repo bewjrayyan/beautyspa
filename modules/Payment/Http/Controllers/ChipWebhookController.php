@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Modules\Checkout\Events\OrderPlaced;
+use Modules\Checkout\Services\CheckoutPaymentFinalizer;
 use Modules\Order\Entities\Order;
 use Modules\Payment\Libraries\Chip\ChipCollectClient;
 use Modules\Payment\Responses\ChipWebhookTransaction;
@@ -90,17 +90,11 @@ class ChipWebhookController
                 return;
             }
 
-            if (! in_array($order->status, [Order::PENDING, Order::PENDING_PAYMENT], true)) {
-                return;
-            }
-
-            if ($order->payment_status === Order::PAYMENT_PAID) {
-                return;
-            }
-
-            $order->storeTransaction(new ChipWebhookTransaction($purchaseId));
-
-            event(new OrderPlaced($order));
+            app(CheckoutPaymentFinalizer::class)->finalize(
+                $order,
+                (string) $order->getRawOriginal('payment_method'),
+                new ChipWebhookTransaction($purchaseId)
+            );
         } catch (Exception $e) {
             Log::error('CHIP webhook processing failed', [
                 'purchase_id' => $purchaseId,

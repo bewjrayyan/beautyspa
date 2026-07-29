@@ -215,6 +215,11 @@ Route::middleware(['beautician.portal'])->group(function () {
         'uses' => 'PortalAccountController@updatePassword',
     ]);
 
+    Route::post('my/account/calendar-token/rotate', [
+        'as' => 'admin.treatment_reservations.portal.account.calendar_rotate',
+        'uses' => 'PortalAccountController@rotateCalendarToken',
+    ]);
+
     Route::get('my/availability', [
         'as' => 'admin.treatment_reservations.portal.availability',
         'uses' => 'PortalAvailabilityController@edit',

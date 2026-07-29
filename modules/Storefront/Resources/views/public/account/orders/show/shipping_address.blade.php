@@ -12,7 +12,7 @@
             <span>{{ $order->shipping_address_2 }}</span>
         @endif
 
-        <span>{{ $order->shipping_city }}, {!! $order->shipping_state_name !!} {{ $order->shipping_zip }}</span>
+        <span>{{ $order->shipping_city }}, {{ $order->shipping_state_name }} {{ $order->shipping_zip }}</span>
         <span>{{ $order->shipping_country_name }}</span>
     </address>
 </div>

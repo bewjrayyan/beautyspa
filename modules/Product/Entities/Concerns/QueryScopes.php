@@ -26,7 +26,8 @@ trait QueryScopes
                 },
             ])
             ->withCount('options')
-            ->with('reviews')
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
             ->withStock()
             ->withNew()
             ->addSelect(

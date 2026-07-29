@@ -122,7 +122,7 @@ class BeauticianAvailabilityService
 
         return BeauticianBlockedTime::query()
             ->where('beautician_id', $beauticianId)
-            ->whereDate('block_date', $date)
+            ->where('block_date', $date)
             ->where('note', self::CRM_DAY_OFF_NOTE)
             ->exists();
     }
@@ -132,7 +132,7 @@ class BeauticianAvailabilityService
     {
         $existing = BeauticianBlockedTime::query()
             ->where('beautician_id', $beauticianId)
-            ->whereDate('block_date', $date)
+            ->where('block_date', $date)
             ->where('note', self::CRM_DAY_OFF_NOTE)
             ->first();
 
@@ -165,7 +165,7 @@ class BeauticianAvailabilityService
     {
         return BeauticianBlockedTime::query()
             ->where('beautician_id', $beauticianId)
-            ->whereDate('block_date', '>=', today())
+            ->where('block_date', '>=', today()->toDateString())
             ->orderBy('block_date')
             ->orderBy('start_time')
             ->limit(30)
@@ -193,17 +193,42 @@ class BeauticianAvailabilityService
             return [];
         }
 
+        $excludeOrderId = $this->excludedOrderIdForBooking($excludeBookingId);
+        $blocks = BeauticianBlockedTime::query()
+            ->select(['id', 'start_time', 'end_time'])
+            ->where('beautician_id', $beauticianId)
+            ->where('block_date', $date)
+            ->get();
+        $orders = Order::query()
+            ->select(['id', 'appointment_time'])
+            ->where('beautician_id', $beauticianId)
+            ->where('appointment_date', $date)
+            ->whereNotNull('appointment_time')
+            ->whereIn('status', $this->slotBlockingOrderStatuses())
+            ->when($excludeOrderId, fn ($query) => $query->whereKeyNot($excludeOrderId))
+            ->get();
+        $bookings = TreatmentBooking::query()
+            ->select(['id', 'order_id', 'appointment_time'])
+            ->where('beautician_id', $beauticianId)
+            ->where('appointment_date', $date)
+            ->whereIn('status', $this->slotBlockingBookingStatuses())
+            ->when($excludeBookingId, fn ($query) => $query->whereKeyNot($excludeBookingId))
+            ->when($excludeOrderId, fn ($query) => $query->where(function ($nested) use ($excludeOrderId) {
+                $nested->whereNull('order_id')->orWhere('order_id', '!=', $excludeOrderId);
+            }))
+            ->get();
+
         $slots = [];
 
         for ($minute = $windowStart; $minute + self::SLOT_MINUTES <= $windowEnd; $minute += self::SLOT_MINUTES) {
             $start = $this->timeFromMinutes($minute);
             $end = $this->timeFromMinutes($minute + self::SLOT_MINUTES);
 
-            if ($this->isBlocked($beauticianId, $date, $start, $end)) {
+            if ($this->isBlocked($blocks, $start, $end)) {
                 continue;
             }
 
-            if ($this->hasBookingConflict($beauticianId, $date, $start, $end, $excludeBookingId)) {
+            if ($this->hasBookingConflict($orders, $bookings, $start, $end)) {
                 continue;
             }
 
@@ -252,14 +277,14 @@ class BeauticianAvailabilityService
 
         TreatmentBooking::query()
             ->where('beautician_id', $beauticianId)
-            ->whereDate('appointment_date', $date)
+            ->where('appointment_date', $date)
             ->whereIn('status', $this->slotBlockingBookingStatuses())
             ->lockForUpdate()
             ->get();
 
         Order::query()
             ->where('beautician_id', $beauticianId)
-            ->whereDate('appointment_date', $date)
+            ->where('appointment_date', $date)
             ->whereNotNull('appointment_time')
             ->whereIn('status', $this->slotBlockingOrderStatuses())
             ->lockForUpdate()
@@ -283,7 +308,7 @@ class BeauticianAvailabilityService
     }
 
 
-    private function isBlocked(int $beauticianId, string $date, string $start, string $end): bool
+    private function isBlocked(Collection $blocks, string $start, string $end): bool
     {
         $startMin = $this->minutesFromTime($start);
         $endMin = $this->minutesFromTime($end);
@@ -291,11 +316,6 @@ class BeauticianAvailabilityService
         if ($startMin === null || $endMin === null) {
             return true;
         }
-
-        $blocks = BeauticianBlockedTime::query()
-            ->where('beautician_id', $beauticianId)
-            ->whereDate('block_date', $date)
-            ->get();
 
         foreach ($blocks as $block) {
             $blockStart = $this->minutesFromTime($block->start_time);
@@ -315,11 +335,10 @@ class BeauticianAvailabilityService
 
 
     private function hasBookingConflict(
-        int $beauticianId,
-        string $date,
+        Collection $orders,
+        Collection $bookings,
         string $start,
-        string $end,
-        ?int $excludeBookingId
+        string $end
     ): bool {
         $startMin = $this->minutesFromTime($start);
         $endMin = $this->minutesFromTime($end);
@@ -328,32 +347,11 @@ class BeauticianAvailabilityService
             return true;
         }
 
-        $excludeOrderId = $this->excludedOrderIdForBooking($excludeBookingId);
-
-        $orders = Order::query()
-            ->where('beautician_id', $beauticianId)
-            ->whereDate('appointment_date', $date)
-            ->whereNotNull('appointment_time')
-            ->whereIn('status', $this->slotBlockingOrderStatuses())
-            ->when($excludeOrderId, fn ($q) => $q->where('id', '!=', $excludeOrderId))
-            ->get();
-
         foreach ($orders as $order) {
             if ($this->intervalsOverlap($startMin, $endMin, $order->appointment_time)) {
                 return true;
             }
         }
-
-        $bookings = TreatmentBooking::query()
-            ->where('beautician_id', $beauticianId)
-            ->whereDate('appointment_date', $date)
-            ->whereIn('status', $this->slotBlockingBookingStatuses())
-            ->when($excludeBookingId, fn ($q) => $q->where('id', '!=', $excludeBookingId))
-            ->when($excludeOrderId, fn ($q) => $q->where(function ($query) use ($excludeOrderId) {
-                $query->whereNull('order_id')
-                    ->orWhere('order_id', '!=', $excludeOrderId);
-            }))
-            ->get();
 
         foreach ($bookings as $booking) {
             if ($this->intervalsOverlap($startMin, $endMin, $booking->appointment_time)) {

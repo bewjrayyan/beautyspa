@@ -43,7 +43,7 @@ class BankTransferPaymentProofWhatsAppNotifier
         $context = [
             'source' => 'order.bank_transfer.payment_proof',
             'dedupe_key' => 'order:' . $order->id . ':payment_proof_group',
-            'immediate' => true,
+            'immediate' => false,
         ];
 
         try {

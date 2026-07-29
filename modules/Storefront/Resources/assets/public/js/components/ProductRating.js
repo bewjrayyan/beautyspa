@@ -1,6 +1,6 @@
-Alpine.data("ProductRating", ({ rating_percent, reviews }) => ({
+Alpine.data("ProductRating", ({ rating_percent, reviews, reviews_count }) => ({
     ratingPercent: rating_percent,
-    reviewCount: reviews?.length,
+    reviewCount: reviews_count ?? reviews?.length,
 
     get hasReviewCount() {
         return this.reviewCount !== undefined;

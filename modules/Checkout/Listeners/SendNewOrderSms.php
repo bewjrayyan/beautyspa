@@ -5,13 +5,13 @@ namespace Modules\Checkout\Listeners;
 use Modules\Order\Entities\Order;
 use Modules\Order\Services\OrderWhatsAppMessageBuilder;
 use Modules\Checkout\Events\OrderPlaced;
-use Modules\Sms\Exceptions\SmsException;
-use Modules\Sms\Sms;
+use Modules\User\Services\OneSenderWhatsAppService;
 
 class SendNewOrderSms
 {
     public function __construct(
         private readonly OrderWhatsAppMessageBuilder $messageBuilder,
+        private readonly OneSenderWhatsAppService $oneSender,
     ) {
     }
 
@@ -36,11 +36,10 @@ class SendNewOrderSms
             return;
         }
 
-        try {
-            Sms::sendToAdmins($this->adminMessage($order));
-        } catch (SmsException $e) {
-            //
-        }
+        $this->oneSender->notifyAdmins($this->adminMessage($order), [
+            'source' => 'checkout.order_placed.admin',
+            'dedupe_key' => "order:{$order->id}:placed:admin",
+        ]);
     }
 
 
@@ -56,14 +55,14 @@ class SendNewOrderSms
             return;
         }
 
-        try {
-            Sms::send(
-                $order->customer_phone,
-                $this->customerMessage($order)
-            );
-        } catch (SmsException $e) {
-            //
-        }
+        $this->oneSender->sendNotification(
+            $order->customer_phone,
+            $this->customerMessage($order),
+            [
+                'source' => 'checkout.order_placed.customer',
+                'dedupe_key' => "order:{$order->id}:placed:customer",
+            ]
+        );
     }
 
 

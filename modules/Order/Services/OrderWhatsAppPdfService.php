@@ -5,6 +5,7 @@ namespace Modules\Order\Services;
 use Dompdf\Dompdf;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Modules\Media\Entities\File;
 use Modules\Order\Entities\Order;
 use Modules\Support\Services\DompdfConfigurator;
@@ -39,19 +40,20 @@ class OrderWhatsAppPdfService
     {
         $order = $this->prepareOrder($order);
 
-        $relativePath = sprintf(
-            'order-whatsapp/%d/%s-%s.pdf',
-            $order->id,
-            $type,
-            md5((string) ($order->updated_at?->timestamp ?? $order->id))
+        $fingerprint = md5((string) ($order->updated_at?->timestamp ?? $order->id));
+        $relativePath = "orders/{$order->id}/{$type}-{$fingerprint}.pdf";
+
+        $disk = Storage::disk('private');
+
+        if (! $disk->exists($relativePath)) {
+            $disk->put($relativePath, $this->renderPdf($order, $view));
+        }
+
+        return URL::temporarySignedRoute(
+            'order.documents.temporary',
+            now()->addMinutes(90),
+            ['order' => $order->id, 'type' => $type, 'fingerprint' => $fingerprint]
         );
-
-        $disk = Storage::disk('public');
-        $pdf = $this->renderPdf($order, $view);
-
-        $disk->put($relativePath, $pdf);
-
-        return asset('storage/' . $relativePath);
     }
 
 

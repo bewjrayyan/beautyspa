@@ -207,6 +207,15 @@
                             </div>
                         </div>
 
+                        <form method="POST" action="{{ $accountRoutes['calendarRotate'] }}" class="bp-ical-rotate-form">
+                            {{ csrf_field() }}
+                            <p class="text-muted">{{ trans('treatmentreservation::admin.ical.rotate_help') }}</p>
+                            <button type="submit" class="btn btn-default" onclick="return confirm(@js(trans('treatmentreservation::admin.ical.rotate_confirm')))">
+                                <i class="fa fa-refresh"></i>
+                                {{ trans('treatmentreservation::admin.ical.rotate') }}
+                            </button>
+                        </form>
+
                         <div
                             class="bp-ical-actions"
                             id="tr-ical-actions"

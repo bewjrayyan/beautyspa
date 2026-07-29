@@ -5,6 +5,7 @@ namespace Modules\Media\Entities;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Modules\Media\Admin\MediaTable;
 use Modules\Media\IconResolver;
 use Modules\Media\Support\FileUsage;
@@ -42,7 +43,12 @@ class File extends Model
      */
     protected static function booted()
     {
+        static::saved(function (File $file): void {
+            static::forgetCachedFile($file->id);
+        });
+
         static::deleting(function ($file) {
+            static::forgetCachedFile($file->id);
             $disk = Storage::disk($file->disk);
             $disk->delete($file->getRawOriginal('path'));
 
@@ -52,6 +58,16 @@ class File extends Model
                 }
             }
         });
+    }
+
+
+    private static function forgetCachedFile(int $fileId): void
+    {
+        try {
+            Cache::forget(md5("files.{$fileId}"));
+        } catch (\Throwable) {
+            // A cache outage must not block media writes or cleanup.
+        }
     }
 
 

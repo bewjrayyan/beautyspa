@@ -127,8 +127,8 @@
     "file": "assets/Errors-CUe_UZOJ-v4.7.71.js",
     "name": "Errors"
   },
-  "_LandscapeProducts-oY7_Y_mE-v4.7.71.js": {
-    "file": "assets/LandscapeProducts-oY7_Y_mE-v4.7.71.js",
+  "_LandscapeProducts-miyXNqZ3-v4.7.71.js": {
+    "file": "assets/LandscapeProducts-miyXNqZ3-v4.7.71.js",
     "name": "LandscapeProducts",
     "imports": [
       "_swiper-AEc_2BbQ-v4.7.71.js",
@@ -154,8 +154,8 @@
       "_functions-DX_VpuMs-v4.7.71.js"
     ]
   },
-  "_ProductRating-Jsih_aOL-v4.7.71.js": {
-    "file": "assets/ProductRating-Jsih_aOL-v4.7.71.js",
+  "_ProductRating-D-JTI-a8-v4.7.71.js": {
+    "file": "assets/ProductRating-D-JTI-a8-v4.7.71.js",
     "name": "ProductRating"
   },
   "_Toaster-bkQoFy2F-v4.7.71.js": {
@@ -1315,7 +1315,7 @@
     "isEntry": true
   },
   "modules/Report/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-D5Fe90dz-v4.7.71.js",
+    "file": "assets/main-yfCAwyot-v4.7.71.js",
     "name": "main",
     "src": "modules/Report/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1440,24 +1440,24 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/account/orders/show/main.js": {
-    "file": "assets/main-DcMzFPWd-v4.7.71.js",
+    "file": "assets/main-BthTR4y_-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/account/orders/show/main.js",
     "isEntry": true,
     "imports": [
       "_Errors-C30A2Jtx-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js",
-      "_ProductRating-Jsih_aOL-v4.7.71.js"
+      "_ProductRating-D-JTI-a8-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/account/reviews/main.js": {
-    "file": "assets/main-Bp_Jl3Q6-v4.7.71.js",
+    "file": "assets/main-CLMF9epE-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/account/reviews/main.js",
     "isEntry": true,
     "imports": [
       "_ProductMixin-BkJMGo29-v4.7.71.js",
-      "_ProductRating-Jsih_aOL-v4.7.71.js",
+      "_ProductRating-D-JTI-a8-v4.7.71.js",
       "_Pagination-DKj6Zlmg-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js"
     ]
@@ -1486,19 +1486,19 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/cart/main.js": {
-    "file": "assets/main-Ce1mwcqb-v4.7.71.js",
+    "file": "assets/main-B4eq1frf-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/cart/main.js",
     "isEntry": true,
     "imports": [
       "_CartItem-DqkG7cGs-v4.7.71.js",
-      "_LandscapeProducts-oY7_Y_mE-v4.7.71.js",
+      "_LandscapeProducts-miyXNqZ3-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js",
       "_swiper-AEc_2BbQ-v4.7.71.js",
       "_productSliderStateMixin-CiBqc2LT-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_ProductMixin-BkJMGo29-v4.7.71.js",
-      "_ProductRating-Jsih_aOL-v4.7.71.js"
+      "_ProductRating-D-JTI-a8-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js": {
@@ -1517,14 +1517,14 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/compare/main.js": {
-    "file": "assets/main-DP6LALLR-v4.7.71.js",
+    "file": "assets/main-C60HU-1E-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/compare/main.js",
     "isEntry": true,
     "imports": [
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
-      "_ProductRating-Jsih_aOL-v4.7.71.js",
-      "_LandscapeProducts-oY7_Y_mE-v4.7.71.js",
+      "_ProductRating-D-JTI-a8-v4.7.71.js",
+      "_LandscapeProducts-miyXNqZ3-v4.7.71.js",
       "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js",
       "_swiper-AEc_2BbQ-v4.7.71.js",
@@ -1532,18 +1532,18 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js": {
-    "file": "assets/main-DHQUgoo1-v4.7.71.js",
+    "file": "assets/main-C_OlnA97-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
     "isEntry": true,
     "imports": [
       "_ProductMixin-BkJMGo29-v4.7.71.js",
-      "_ProductRating-Jsih_aOL-v4.7.71.js",
+      "_ProductRating-D-JTI-a8-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/home/main.js": {
-    "file": "assets/main-DvfcW-x_-v4.7.71.js",
+    "file": "assets/main-CP61r41B-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
     "isEntry": true,
@@ -1555,12 +1555,12 @@
       "_countdown-BHmL3SSW-v4.7.71.js",
       "_ProductMixin-BkJMGo29-v4.7.71.js",
       "_lodash-ChyoHd7S-v4.7.71.js",
-      "_ProductRating-Jsih_aOL-v4.7.71.js",
+      "_ProductRating-D-JTI-a8-v4.7.71.js",
       "_functions-DX_VpuMs-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/products/index/main.js": {
-    "file": "assets/main-BsBnizbo-v4.7.71.js",
+    "file": "assets/main-CwFeot4o-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/products/index/main.js",
     "isEntry": true,
@@ -1571,11 +1571,11 @@
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_Pagination-DKj6Zlmg-v4.7.71.js",
       "_ProductMixin-BkJMGo29-v4.7.71.js",
-      "_ProductRating-Jsih_aOL-v4.7.71.js"
+      "_ProductRating-D-JTI-a8-v4.7.71.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/products/show/main.js": {
-    "file": "assets/main-BYwKNLEF-v4.7.71.js",
+    "file": "assets/main-BjAXOMFR-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/products/show/main.js",
     "isEntry": true,
@@ -1588,7 +1588,7 @@
       "_functions-DX_VpuMs-v4.7.71.js",
       "_productSliderStateMixin-CiBqc2LT-v4.7.71.js",
       "_countdown-BHmL3SSW-v4.7.71.js",
-      "_ProductRating-Jsih_aOL-v4.7.71.js",
+      "_ProductRating-D-JTI-a8-v4.7.71.js",
       "_Pagination-DKj6Zlmg-v4.7.71.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_lodash-ChyoHd7S-v4.7.71.js",

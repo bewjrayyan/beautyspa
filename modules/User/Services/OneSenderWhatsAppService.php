@@ -206,8 +206,14 @@ class OneSenderWhatsAppService
         $context['source'] ??= 'admin.notify';
 
         foreach ($this->adminPhones() as $phone) {
+            $recipientContext = $context;
+
+            if (filled($recipientContext['dedupe_key'] ?? null)) {
+                $recipientContext['dedupe_key'] .= ':recipient:' . substr(hash('sha256', $phone), 0, 16);
+            }
+
             try {
-                $this->dispatchText($phone, $message, $context);
+                $this->dispatchText($phone, $message, $recipientContext);
             } catch (Exception $exception) {
                 Log::error('OneSender admin notification failed', [
                     'phone' => $phone,
@@ -564,7 +570,7 @@ class OneSenderWhatsAppService
             );
             $queueService->markSent($queued);
         } catch (Exception $exception) {
-            $queueService->markFailed($queued, $exception->getMessage());
+            $queueService->markFailed($queued, $exception->getMessage(), true);
         }
     }
 

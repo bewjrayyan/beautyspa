@@ -59,7 +59,7 @@ class OneSenderOutboundQueueService
     ): OneSenderOutboundMessage {
         $scheduledAt = now()->addSeconds($this->delaySeconds());
 
-        $message = OneSenderOutboundMessage::query()->create([
+        $attributes = [
             'recipient' => $recipient,
             'recipient_type' => $recipientType,
             'message_type' => $messageType,
@@ -70,9 +70,19 @@ class OneSenderOutboundQueueService
             'payload' => $payload,
             'status' => OneSenderOutboundMessage::STATUS_PENDING,
             'scheduled_at' => $scheduledAt,
-        ]);
+        ];
+        $attributes['active_dedupe_key'] = $attributes['dedupe_key'];
 
-        $this->dispatchProcessingJob($message);
+        $message = $attributes['active_dedupe_key'] !== null
+            ? OneSenderOutboundMessage::query()->firstOrCreate(
+                ['active_dedupe_key' => $attributes['active_dedupe_key']],
+                $attributes
+            )
+            : OneSenderOutboundMessage::query()->create($attributes);
+
+        if ($message->wasRecentlyCreated) {
+            $this->dispatchProcessingJob($message);
+        }
 
         return $message;
     }
@@ -133,6 +143,7 @@ class OneSenderOutboundQueueService
         $message->update([
             'status' => OneSenderOutboundMessage::STATUS_CANCELLED,
             'cancelled_at' => now(),
+            'active_dedupe_key' => null,
         ]);
 
         app(OneSenderMessageLogger::class)->recordSkipped(
@@ -186,15 +197,38 @@ class OneSenderOutboundQueueService
             'status' => OneSenderOutboundMessage::STATUS_SENT,
             'sent_at' => now(),
             'error_message' => null,
+            'active_dedupe_key' => null,
         ]);
     }
 
 
-    public function markFailed(OneSenderOutboundMessage $message, string $errorMessage): void
+    public function markFailed(
+        OneSenderOutboundMessage $message,
+        string $errorMessage,
+        bool $retryable = false
+    ): void
     {
+        $attempts = (int) $message->attempts + 1;
+
+        if ($retryable && $attempts < 3) {
+            $backoff = [30, 120, 300][$attempts - 1] ?? 300;
+            $message->update([
+                'status' => OneSenderOutboundMessage::STATUS_PENDING,
+                'attempts' => $attempts,
+                'processing_at' => null,
+                'scheduled_at' => now()->addSeconds($backoff),
+                'error_message' => mb_substr($errorMessage, 0, 2000),
+            ]);
+            $this->dispatchProcessingJob($message->fresh());
+
+            return;
+        }
+
         $message->update([
             'status' => OneSenderOutboundMessage::STATUS_FAILED,
+            'attempts' => $attempts,
             'error_message' => mb_substr($errorMessage, 0, 2000),
+            'active_dedupe_key' => null,
         ]);
     }
 

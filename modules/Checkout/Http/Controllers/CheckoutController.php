@@ -22,7 +22,7 @@ use Modules\Coupon\Checkers\CouponExists;
 use Modules\Coupon\Checkers\MinimumSpend;
 use Modules\Coupon\Checkers\MaximumSpend;
 use Modules\User\Services\CustomerService;
-use Modules\Checkout\Events\OrderPlaced;
+use Modules\Checkout\Services\CheckoutPaymentFinalizer;
 use Modules\Checkout\Services\CheckoutCompletionGuard;
 use Modules\Checkout\Services\OrderService;
 use Modules\Coupon\Checkers\AlreadyApplied;
@@ -68,11 +68,16 @@ class CheckoutController extends Controller
      * @param StoreOrderRequest $request
      * @param CustomerService $customerService
      * @param OrderService $orderService
+     * @param CheckoutPaymentFinalizer $paymentFinalizer
      *
      * @return JsonResponse
      */
-    public function store(StoreOrderRequest $request, CustomerService $customerService, OrderService $orderService)
-    {
+    public function store(
+        StoreOrderRequest $request,
+        CustomerService $customerService,
+        OrderService $orderService,
+        CheckoutPaymentFinalizer $paymentFinalizer
+    ) {
         if (auth()->guest() && $request->create_an_account) {
             $customerService->register($request)->login();
         }
@@ -102,41 +107,40 @@ class CheckoutController extends Controller
         }
 
         if (CheckoutCompletionGuard::isOfflineMethod($request->payment_method)) {
-            return $this->completeOfflineOrder($order, $gateway, $request->payment_method, $response);
+            return $this->completeOfflineOrder(
+                $order,
+                $gateway,
+                $request->payment_method,
+                $response,
+                $paymentFinalizer
+            );
         }
 
         return response()->json($response);
     }
 
 
-    private function completeOfflineOrder($order, $gateway, string $paymentMethod, $purchaseResponse): JsonResponse
+    private function completeOfflineOrder(
+        $order,
+        $gateway,
+        string $paymentMethod,
+        $purchaseResponse,
+        CheckoutPaymentFinalizer $paymentFinalizer
+    ): JsonResponse
     {
         try {
-            CheckoutCompletionGuard::assertCanComplete($order, $paymentMethod);
             $completionResponse = $gateway->complete($order);
-            $order->storeTransaction($completionResponse);
+            $paymentFinalizer->finalize($order, $paymentMethod, $completionResponse);
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => $e->getMessage() ?: trans('storefront::storefront.something_went_wrong'),
             ], 403);
         }
 
-        $this->dispatchOrderPlacedSafely($order);
-
         return response()->json(array_merge($purchaseResponse->toArray(), [
             'orderId' => $order->id,
             'redirectUrl' => storefront_route('checkout.complete.show'),
         ]));
-    }
-
-
-    private function dispatchOrderPlacedSafely(Order $order): void
-    {
-        try {
-            event(new OrderPlaced($order));
-        } catch (\Throwable $e) {
-            report($e);
-        }
     }
 
 

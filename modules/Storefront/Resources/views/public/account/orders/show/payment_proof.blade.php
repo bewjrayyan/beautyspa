@@ -17,20 +17,20 @@
             <div class="account-order-payment-proof__body">
                 @if ($isImage)
                     <a
-                        href="{{ $proof->path }}"
+                        href="{{ $paymentProofUrl }}"
                         class="account-order-payment-proof__preview"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
                         <img
-                            src="{{ $proof->path }}"
+                            src="{{ $paymentProofUrl }}"
                             alt="{{ $proof->filename }}"
                             loading="lazy"
                         >
                     </a>
                 @else
                     <a
-                        href="{{ $proof->path }}"
+                        href="{{ $paymentProofUrl }}"
                         class="account-order-payment-proof__file"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -41,7 +41,7 @@
                 @endif
 
                 <a
-                    href="{{ $proof->path }}"
+                    href="{{ $paymentProofUrl }}"
                     class="account-order-payment-proof__link"
                     target="_blank"
                     rel="noopener noreferrer"

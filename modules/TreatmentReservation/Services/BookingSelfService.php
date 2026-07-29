@@ -3,6 +3,7 @@
 namespace Modules\TreatmentReservation\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 
@@ -28,7 +29,7 @@ class BookingSelfService
                 TreatmentBooking::STATUS_PENDING,
                 TreatmentBooking::STATUS_IN_PROGRESS,
             ])
-            ->whereDate('appointment_date', '>=', today())
+            ->where('appointment_date', '>=', today()->toDateString())
             ->orderBy('appointment_date')
             ->orderBy('appointment_time')
             ->get();
@@ -44,40 +45,74 @@ class BookingSelfService
 
     public function cancel(TreatmentBooking $booking): void
     {
-        $previousStatus = $booking->status;
+        DB::transaction(function () use ($booking): void {
+            $lockedBooking = TreatmentBooking::query()
+                ->whereKey($booking->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+            $previousStatus = $lockedBooking->status;
 
-        $booking->update(['status' => TreatmentBooking::STATUS_CANCELED]);
+            if ($previousStatus === TreatmentBooking::STATUS_CANCELED) {
+                return;
+            }
 
-        $this->activityLogger->logStatusChange($booking, $previousStatus, TreatmentBooking::STATUS_CANCELED);
+            $lockedBooking->update(['status' => TreatmentBooking::STATUS_CANCELED]);
+            $this->activityLogger->logStatusChange(
+                $lockedBooking,
+                $previousStatus,
+                TreatmentBooking::STATUS_CANCELED
+            );
 
-        if ($booking->order_id) {
-            $booking->order?->update(['status' => Order::CANCELED]);
-        }
+            if ($lockedBooking->order_id) {
+                Order::query()
+                    ->whereKey($lockedBooking->order_id)
+                    ->lockForUpdate()
+                    ->first()
+                    ?->update(['status' => Order::CANCELED]);
+            }
+        });
     }
 
 
     public function reschedule(TreatmentBooking $booking, string $date, string $time): void
     {
-        if (! $booking->beautician_id) {
-            throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
-        }
+        DB::transaction(function () use ($booking, $date, $time): void {
+            $lockedBooking = TreatmentBooking::query()
+                ->whereKey($booking->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        if (! $this->availability->isSlotAvailable($booking->beautician_id, $date, $time, $booking->id)) {
-            throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
-        }
+            if (! $lockedBooking->beautician_id) {
+                throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+            }
 
-        $normalizedTime = $this->availability->normalizeTime($time) ?? $time;
+            $this->availability->lockAppointmentsForDate($lockedBooking->beautician_id, $date);
 
-        $booking->update([
-            'appointment_date' => $date,
-            'appointment_time' => $normalizedTime,
-        ]);
+            if (! $this->availability->isSlotAvailable(
+                $lockedBooking->beautician_id,
+                $date,
+                $time,
+                $lockedBooking->id
+            )) {
+                throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+            }
 
-        if ($booking->order_id && $booking->order) {
-            $booking->order->update([
+            $normalizedTime = $this->availability->normalizeTime($time) ?? $time;
+            $lockedBooking->update([
                 'appointment_date' => $date,
                 'appointment_time' => $normalizedTime,
             ]);
-        }
+
+            if ($lockedBooking->order_id) {
+                Order::query()
+                    ->whereKey($lockedBooking->order_id)
+                    ->lockForUpdate()
+                    ->first()
+                    ?->update([
+                        'appointment_date' => $date,
+                        'appointment_time' => $normalizedTime,
+                    ]);
+            }
+        });
     }
 }
