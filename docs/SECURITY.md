@@ -99,6 +99,15 @@ Recommended rollout:
 - Backup database and `storage/app` regularly.
 - Store backups encrypted, not in a public directory.
 
+### Dependency security
+
+- Deploy with `composer install`, using the committed `composer.lock`; do not run an unconstrained `composer update` in production.
+- Run `composer audit --locked` before every release and review abandoned packages separately.
+- The dependency refresh on 2026-07-29 reduced the audit result from 42 advisory records across 14 packages to 4 records across 2 packages.
+- The remaining Laravel Framework advisories require Laravel `>=12.61.1`. Laravel 11 has no patched release, so this must be handled as a tested framework-upgrade batch rather than a patch update.
+- The remaining `firebase/php-jwt` advisory requires version 7, while the current Laravel Socialite release requires JWT version 6. Treat this as an upstream compatibility/replacement task; do not force the incompatible major version.
+- `doctrine/annotations`, `paypal/paypal-checkout-sdk`, and `paypal/paypalhttp` are abandoned. Replace the PayPal SDK with `paypal/paypal-server-sdk` and remove the other abandoned packages when their dependency paths have been migrated and regression-tested.
+
 ## Reporting issues
 
 If you discover a vulnerability, contact the site owner privately. Do not post exploit details publicly before a fix is deployed.

@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.73' => [
+        'en' => [
+            'summary' => 'Refresh vulnerable dependencies and make production installs reproducible with a committed Composer lock file.',
+            'changes' => [
+                'Update 28 patch-compatible Composer packages, including AWS SDK, Dompdf, Guzzle, PhpSpreadsheet, phpseclib, PsySH, and Symfony components.',
+                'Use the patched Symfony Cache 6.4 LTS release while preserving compatibility with the existing PSR Cache v2 adapters.',
+                'Reduce Composer security advisories from 42 records across 14 packages to 4 records across 2 packages.',
+                'Commit composer.lock so production deployments install the same reviewed dependency graph instead of resolving new versions at deploy time.',
+                'Document the remaining Laravel 12, JWT/Socialite, and abandoned PayPal SDK migration work without forcing incompatible major upgrades.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kemas kini dependency terdedah dan jadikan pemasangan production reproducible melalui Composer lock file yang disimpan dalam Git.',
+            'changes' => [
+                'Kemas kini 28 pakej Composer yang serasi pada tahap patch, termasuk AWS SDK, Dompdf, Guzzle, PhpSpreadsheet, phpseclib, PsySH, dan komponen Symfony.',
+                'Gunakan Symfony Cache 6.4 LTS yang telah ditampal sambil mengekalkan keserasian dengan adapter PSR Cache v2 sedia ada.',
+                'Kurangkan advisory keselamatan Composer daripada 42 rekod merentas 14 pakej kepada 4 rekod merentas 2 pakej.',
+                'Simpan composer.lock dalam Git supaya deployment production memasang dependency graph yang sama dan telah disemak.',
+                'Dokumenkan baki migrasi Laravel 12, JWT/Socialite, dan PayPal SDK yang abandoned tanpa memaksa upgrade major yang tidak serasi.',
+            ],
+        ],
+    ],
     '4.9.72' => [
         'en' => [
             'summary' => 'Add automated regression coverage, read-only production benchmarks, and a database-enforced booking-slot invariant.',
