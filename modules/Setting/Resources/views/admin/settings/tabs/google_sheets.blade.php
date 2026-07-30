@@ -25,7 +25,7 @@
                 'description' => trans('setting::settings.form.google_excel_document_intro'),
                 'class' => 'gs-settings__section gs-settings__section--credentials',
             ])
-                {{ Form::textarea('google_service_account_json', trans('setting::attributes.google_service_account_json'), $errors, $settings, [
+                {{ Form::secretTextarea('google_service_account_json', trans('setting::attributes.google_service_account_json'), $errors, $settings, [
                     'rows' => 10,
                     'placeholder' => '{ "type": "service_account", "client_email": "...", ... }',
                     'class' => 'gs-json-textarea',

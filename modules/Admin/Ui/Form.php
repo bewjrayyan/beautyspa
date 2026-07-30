@@ -25,7 +25,16 @@ class Form
 
     public function password($name, $title, $errors, $entity = null, $options = [])
     {
-        return $this->input($name, $title, $errors, $entity, array_merge($options, ['type' => 'password']));
+        return $this->field(
+            $name,
+            $title,
+            $errors,
+            $entity,
+            array_merge($options, ['type' => 'password', 'autocomplete' => 'new-password']),
+            function ($name, $value, $class, $attributes, $options) {
+                return $this->inputField($name, '', $class, $attributes, $options);
+            }
+        );
     }
 
 
@@ -83,6 +92,23 @@ class Form
         $options = array_merge(['rows' => 10, 'cols' => 10], $options);
 
         return $this->field($name, $title, $errors, $entity, $options, [$this, 'textareaField']);
+    }
+
+
+    public function secretTextarea($name, $title, $errors, $entity = null, $options = [])
+    {
+        $options = array_merge(['rows' => 10, 'cols' => 10, 'autocomplete' => 'off'], $options);
+
+        return $this->field(
+            $name,
+            $title,
+            $errors,
+            $entity,
+            $options,
+            function ($name, $value, $class, $attributes, $options) {
+                return $this->textareaField($name, '', $class, $attributes, $options);
+            }
+        );
     }
 
 

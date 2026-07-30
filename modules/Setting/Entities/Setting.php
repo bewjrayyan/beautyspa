@@ -5,6 +5,7 @@ namespace Modules\Setting\Entities;
 use Modules\Support\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Modules\Setting\Events\SettingSaved;
+use Modules\Setting\Support\SensitiveSetting;
 use Modules\Support\Eloquent\Translatable;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -60,13 +61,15 @@ class Setting extends Model
     public static function allCached()
     {
         $loader = function () {
-            return self::all()->mapWithKeys(function ($setting) {
+            return self::all()
+                ->reject(fn (self $setting) => SensitiveSetting::isSensitive($setting->key))
+                ->mapWithKeys(function ($setting) {
                 return [$setting->key => $setting->value];
             });
         };
 
         try {
-            return Cache::rememberForever(md5('settings.all:' . locale()), $loader);
+            return Cache::rememberForever(md5('settings.public.v2:' . locale()), $loader);
         } catch (\Throwable) {
             return $loader();
         }
@@ -162,7 +165,13 @@ class Setting extends Model
             return $this->translateOrDefault(locale())->value ?? null;
         }
 
-        return unserialize($this->plain_value);
+        $stored = (string) ($this->attributes['plain_value'] ?? serialize(null));
+
+        if (SensitiveSetting::isSensitive($this->key)) {
+            $stored = SensitiveSetting::decryptSerialized($stored);
+        }
+
+        return unserialize($stored);
     }
 
 
@@ -175,6 +184,10 @@ class Setting extends Model
      */
     public function setPlainValueAttribute($value)
     {
-        $this->attributes['plain_value'] = serialize($value);
+        $serialized = serialize($value);
+
+        $this->attributes['plain_value'] = SensitiveSetting::isSensitive($this->key)
+            ? SensitiveSetting::encryptSerialized($serialized)
+            : $serialized;
     }
 }

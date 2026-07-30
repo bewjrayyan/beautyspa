@@ -413,6 +413,83 @@ if (! function_exists('storefront_route')) {
     }
 }
 
+if (! function_exists('storefront_content_url')) {
+    /**
+     * Normalize admin-managed storefront links without rewriting genuine external URLs.
+     *
+     * Legacy imports may contain absolute localhost URLs from another install path.
+     * Internal links are moved to the current APP_URL origin/base path, while unsafe
+     * schemes are rejected before they can be rendered into an href attribute.
+     */
+    function storefront_content_url(?string $url): ?string
+    {
+        if (! is_string($url) || trim($url) === '') {
+            return null;
+        }
+
+        $url = trim($url);
+
+        if (preg_match('/[\x00-\x1F\x7F]/', $url)) {
+            return null;
+        }
+
+        if (str_starts_with($url, '#')) {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+
+        if ($parts === false || isset($parts['user']) || isset($parts['pass'])) {
+            return null;
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+
+        if ($scheme !== '' && ! in_array($scheme, ['http', 'https'], true)) {
+            return null;
+        }
+
+        $origin = aestheticcart_app_url_origin();
+        $sourceHost = strtolower((string) ($parts['host'] ?? ''));
+        $currentHost = strtolower((string) ($origin['host'] ?? ''));
+        $loopbackHosts = ['localhost', '127.0.0.1', '::1'];
+        $isLoopback = in_array($sourceHost, $loopbackHosts, true);
+        $isCurrentHost = $sourceHost !== '' && $sourceHost === $currentHost;
+
+        // An explicit non-local host is an intentional external destination.
+        if ($sourceHost !== '' && ! $isLoopback && ! $isCurrentHost) {
+            return $url;
+        }
+
+        $path = (string) ($parts['path'] ?? '/');
+
+        // Remove a stale development install directory before the locale segment.
+        if ($isLoopback && ! $isCurrentHost) {
+            $localePattern = implode('|', array_map(
+                fn (string $locale) => preg_quote($locale, '#'),
+                supported_locale_keys()
+            ));
+
+            if ($localePattern !== '') {
+                $path = preg_replace(
+                    '#^/[^/]+/(?=(?:' . $localePattern . ')(?:/|$))#',
+                    '/',
+                    $path
+                ) ?? $path;
+            }
+        }
+
+        $parts['path'] = $path === '' ? '/' : $path;
+        unset($parts['user'], $parts['pass']);
+
+        $normalized = aestheticcart_build_url($parts);
+
+        return aestheticcart_apply_install_base_url(
+            aestheticcart_apply_app_url_origin($normalized)
+        );
+    }
+}
+
 if (! function_exists('storefront_pagination_path')) {
     /**
      * Path-only URL for paginator->setPath() (locale + install subdirectory).
@@ -885,4 +962,3 @@ if (!function_exists('clean_html')) {
         return HtmlSanitizer::clean($html);
     }
 }
-

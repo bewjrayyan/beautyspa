@@ -5,6 +5,7 @@ namespace Modules\Setting\Repositories;
 use ArrayAccess;
 use Illuminate\Support\Collection;
 use Modules\Setting\Entities\Setting;
+use Modules\Setting\Support\SensitiveSetting;
 
 class SettingRepository implements ArrayAccess
 {
@@ -14,6 +15,11 @@ class SettingRepository implements ArrayAccess
      * @var Collection
      */
     private $settings;
+
+    /** @var array<string, mixed> */
+    private array $sensitiveSettings = [];
+
+    private bool $sensitiveSettingsLoaded = false;
 
 
     /**
@@ -34,7 +40,9 @@ class SettingRepository implements ArrayAccess
      */
     public function all()
     {
-        return $this->settings->all();
+        $this->loadSensitiveSettings();
+
+        return array_merge($this->settings->all(), $this->sensitiveSettings);
     }
 
 
@@ -47,6 +55,12 @@ class SettingRepository implements ArrayAccess
      */
     public function offsetExists($key)
     {
+        if (SensitiveSetting::isSensitive($key)) {
+            $this->loadSensitiveSettings();
+
+            return array_key_exists($key, $this->sensitiveSettings);
+        }
+
         return $this->settings->has($key);
     }
 
@@ -60,6 +74,12 @@ class SettingRepository implements ArrayAccess
      */
     public function offsetUnset($key)
     {
+        if (SensitiveSetting::isSensitive($key)) {
+            unset($this->sensitiveSettings[$key]);
+
+            return $this->settings;
+        }
+
         return $this->settings->forget($key);
     }
 
@@ -114,6 +134,14 @@ class SettingRepository implements ArrayAccess
      */
     public function get($key, $default = null)
     {
+        if (SensitiveSetting::isSensitive($key)) {
+            $this->loadSensitiveSettings();
+
+            return array_key_exists($key, $this->sensitiveSettings)
+                ? $this->sensitiveSettings[$key]
+                : $default;
+        }
+
         if (! $this->settings->has($key)) {
             return $default;
         }
@@ -153,5 +181,20 @@ class SettingRepository implements ArrayAccess
     public function set($settings = [])
     {
         Setting::setMany($settings);
+    }
+
+
+    private function loadSensitiveSettings(): void
+    {
+        if ($this->sensitiveSettingsLoaded) {
+            return;
+        }
+
+        $this->sensitiveSettings = Setting::query()
+            ->whereIn('key', SensitiveSetting::keys())
+            ->get()
+            ->mapWithKeys(fn (Setting $setting) => [$setting->key => $setting->value])
+            ->all();
+        $this->sensitiveSettingsLoaded = true;
     }
 }

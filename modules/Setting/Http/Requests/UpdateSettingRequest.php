@@ -9,6 +9,7 @@ use Modules\Support\TimeZone;
 use Modules\Currency\Currency;
 use Modules\Setting\Services\ArtisanCommandService;
 use Modules\Setting\Support\SettingTabScope;
+use Modules\Setting\Support\SensitiveSetting;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
@@ -44,16 +45,19 @@ class UpdateSettingRequest extends Request
             ]);
         }
 
-        if (! $this->filled('onesender_api_key')
-            && setting('onesender_api_key')
-            && SettingTabScope::activeTab($this) === 'sms') {
-            $this->merge(['onesender_api_key' => setting('onesender_api_key')]);
-        }
+        $tab = SettingTabScope::activeTab($this);
+        $tabFields = SettingTabScope::fieldsForTab($tab);
 
-        if (! $this->filled('google_service_account_json')
-            && setting('google_service_account_json')
-            && SettingTabScope::activeTab($this) === 'google_sheets') {
-            $this->merge(['google_service_account_json' => setting('google_service_account_json')]);
+        foreach (SensitiveSetting::keys() as $key) {
+            if (! in_array($key, $tabFields, true) || $this->filled($key)) {
+                continue;
+            }
+
+            $current = setting($key);
+
+            if (filled($current)) {
+                $this->merge([$key => $current]);
+            }
         }
     }
 

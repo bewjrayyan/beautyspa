@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.83' => [
+        'en' => [
+            'summary' => 'Protect stored integration credentials and repair legacy storefront links at render time.',
+            'changes' => [
+                'Encrypt sensitive settings at rest with backward-compatible reads and a production-safe data migration.',
+                'Keep decrypted credentials out of persistent settings caches and clear legacy cache entries during deployment.',
+                'Stop prefilling passwords and service-account JSON in admin HTML while preserving existing secrets when a field is left blank.',
+                'Rehome legacy localhost storefront links to the current production origin and install path without rewriting genuine external destinations.',
+                'Reject unsafe CTA schemes and add regression coverage for encryption, legacy plaintext compatibility, redaction, and URL normalization.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Lindungi kredensial integrasi yang disimpan dan baiki pautan storefront lama semasa rendering.',
+            'changes' => [
+                'Enkripsi tetapan sensitif at rest dengan bacaan backward-compatible dan migration data yang selamat untuk production.',
+                'Keluarkan kredensial yang dinyah-enkripsi daripada persistent settings cache serta bersihkan cache lama semasa deployment.',
+                'Hentikan prefill password dan JSON service account dalam HTML admin sambil mengekalkan secret sedia ada apabila medan dibiarkan kosong.',
+                'Alihkan pautan storefront localhost lama kepada origin dan install path production semasa tanpa mengubah destinasi luaran sebenar.',
+                'Tolak skim CTA yang tidak selamat dan tambah ujian regresi untuk encryption, keserasian plaintext lama, redaction, dan normalisasi URL.',
+            ],
+        ],
+    ],
     '4.9.82' => [
         'en' => [
             'summary' => 'Make in-place GitHub updates safely reconcile files retired by newer releases.',

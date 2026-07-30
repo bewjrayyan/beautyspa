@@ -5,7 +5,7 @@
     $chipEnabled = (bool) old('chip_enabled', array_get($settings, 'chip_enabled'));
     $testMode = (bool) old('chip_test_mode', array_get($settings, 'chip_test_mode'));
     $brandId = trim((string) old('chip_brand_id', array_get($settings, 'chip_brand_id', '')));
-    $hasApiKey = filled(old('chip_api_key')) || filled(array_get($settings, 'chip_api_key'));
+    $hasApiKey = filled(old('chip_api_key')) || (bool) array_get($settings, 'chip_api_key_configured', false);
     $hasPublicKey = filled(old('chip_public_key', array_get($settings, 'chip_public_key', '')));
     $configuredWebhook = trim((string) old('chip_webhook_url', array_get($settings, 'chip_webhook_url', '')));
     $suggestedWebhook = route('payment.chip.webhook', [], true);

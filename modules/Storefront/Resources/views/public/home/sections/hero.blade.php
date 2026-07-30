@@ -15,7 +15,7 @@
                     >
                         <div class="swiper-wrapper">
                             @foreach ($slider->slides as $slide)
-                                <a href="{{ $slide->call_to_action_url }}" class="swiper-slide">
+                                <a href="{{ storefront_content_url($slide->call_to_action_url) ?? '#' }}" class="swiper-slide">
                                     <div
                                         class="slider-bg-image"
                                         data-swiper-parallax-x="50%"

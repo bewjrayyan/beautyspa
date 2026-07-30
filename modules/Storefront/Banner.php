@@ -16,7 +16,7 @@ class Banner
     public function __construct($image, $call_to_action_url, $open_in_new_window)
     {
         $this->image = $image;
-        $this->call_to_action_url = $call_to_action_url;
+        $this->call_to_action_url = storefront_content_url($call_to_action_url);
         $this->open_in_new_window = (bool)$open_in_new_window;
     }
 

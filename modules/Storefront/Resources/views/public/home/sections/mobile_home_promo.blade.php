@@ -1,11 +1,13 @@
+@php($mobileHomePromoUrl = storefront_content_url($mobileHomePromo['call_to_action_url'] ?? null))
+
 <section class="mobile-home-promo-wrap d-lg-none" aria-label="{{ trans('storefront::storefront.mobile_home_promo.section_label') }}">
     <div class="container">
         @if (($mobileHomePromo['type'] ?? 'image') === 'video')
             <div class="mobile-home-promo mobile-home-promo--video">
                 <div class="mobile-home-promo__media">
-                    @if (filled($mobileHomePromo['call_to_action_url'] ?? null))
+                    @if (filled($mobileHomePromoUrl))
                         <a
-                            href="{{ $mobileHomePromo['call_to_action_url'] }}"
+                            href="{{ $mobileHomePromoUrl }}"
                             class="mobile-home-promo__link"
                             target="{{ ($mobileHomePromo['open_in_new_window'] ?? false) ? '_blank' : '_self' }}"
                             @if ($mobileHomePromo['open_in_new_window'] ?? false)
@@ -69,11 +71,11 @@
             </div>
         @else
             @php
-                $tag = filled($mobileHomePromo['call_to_action_url'] ?? null) ? 'a' : 'div';
+                $tag = filled($mobileHomePromoUrl) ? 'a' : 'div';
                 $linkAttrs = $tag === 'a'
                     ? sprintf(
                         ' href="%s" target="%s"%s',
-                        e($mobileHomePromo['call_to_action_url']),
+                        e($mobileHomePromoUrl),
                         ($mobileHomePromo['open_in_new_window'] ?? false) ? '_blank' : '_self',
                         ($mobileHomePromo['open_in_new_window'] ?? false) ? ' rel="noopener noreferrer"' : ''
                     )

@@ -16,6 +16,7 @@ class ClearSettingCache
     {
         foreach (supported_locale_keys() as $locale) {
             Cache::forget(md5('settings.all:' . $locale));
+            Cache::forget(md5('settings.public.v2:' . $locale));
         }
 
         if (app()->bound('setting')) {

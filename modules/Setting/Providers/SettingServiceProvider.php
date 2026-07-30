@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ViewErrorBag;
 use Modules\Admin\Ui\Facades\TabManager;
 use Modules\Setting\Admin\SettingTabs;
+use Modules\Setting\Support\SensitiveSetting;
 use Modules\Setting\Console\RefreshWhatsAppTemplatesCommand;
 use Illuminate\Support\ServiceProvider;
 
@@ -68,7 +69,7 @@ class SettingServiceProvider extends ServiceProvider
 
             if (! $view->offsetExists('settings')) {
                 try {
-                    $view->with('settings', setting()->all());
+                    $view->with('settings', SensitiveSetting::redactForForm(setting()->all()));
                 } catch (\Throwable) {
                     $view->with('settings', []);
                 }

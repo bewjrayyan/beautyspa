@@ -20,6 +20,7 @@ use Modules\Setting\Services\MaintenanceModeService;
 use Modules\Setting\Services\ReleaseNotesService;
 use Modules\Setting\Support\MaintenancePageSettings;
 use Modules\Setting\Support\SettingTabScope;
+use Modules\Setting\Support\SensitiveSetting;
 use Modules\Support\Services\PWAService;
 
 class SettingController
@@ -39,6 +40,7 @@ class SettingController
 
         $settings['maintenance_mode'] = app()->isDownForMaintenance();
         $settings = array_merge(MaintenancePageSettings::defaults(), $settings);
+        $settings = SensitiveSetting::redactForForm($settings);
 
         $tabs = TabManager::get('settings');
 
