@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.79' => [
+        'en' => [
+            'summary' => 'Upgrade Socialite and PHP-JWT to close the remaining Composer security advisory without breaking social login.',
+            'changes' => [
+                'Upgrade Laravel Socialite to 5.29.0 and firebase/php-jwt to 7.1.0 through their supported compatibility path.',
+                'Pin the User module to the secure JWT 7 dependency line so future dependency resolution cannot silently restore JWT 6.',
+                'Add an RS256 Google ID-token regression test covering Socialite issuer, audience, signature, and claim verification.',
+                'Confirm the production dependency graph has no known security advisories after the upgrade.',
+                'Document the required manual Composer install because GitHub deployments intentionally preserve the server vendor directory.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Naik taraf Socialite dan PHP-JWT untuk menutup baki advisory keselamatan Composer tanpa merosakkan login sosial.',
+            'changes' => [
+                'Naik taraf Laravel Socialite kepada 5.29.0 dan firebase/php-jwt kepada 7.1.0 melalui laluan keserasian yang disokong.',
+                'Kunci modul User kepada dependency JWT 7 yang selamat supaya dependency resolution akan datang tidak mengembalikan JWT 6 secara senyap.',
+                'Tambah ujian regresi Google ID token RS256 yang meliputi pengesahan issuer, audience, signature, dan claim melalui Socialite.',
+                'Sahkan graph dependency production tidak lagi mempunyai advisory keselamatan yang diketahui selepas naik taraf.',
+                'Dokumentasikan keperluan Composer install secara manual kerana deployment GitHub sengaja mengekalkan direktori vendor server.',
+            ],
+        ],
+    ],
     '4.9.78' => [
         'en' => [
             'summary' => 'Show the complete Settings navigation as one full-height menu without nested scrolling.',

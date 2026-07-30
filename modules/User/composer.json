@@ -10,7 +10,8 @@
     "require": {
         "php": "^8.2.0",
         "cartalyst/sentinel": "^9.0.0",
-        "laravel/socialite": "^5.0"
+        "firebase/php-jwt": "^7.1",
+        "laravel/socialite": "^5.27"
     },
     "autoload": {
         "psr-4": {

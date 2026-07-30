@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use Composer\InstalledVersions;
+use Firebase\JWT\JWT;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+use Laravel\Socialite\Two\GoogleProvider;
 use Modules\Category\Entities\Category;
 use Modules\Menu\Entities\MenuItem;
 use PHPUnit\Framework\Attributes\Test;
@@ -32,6 +35,89 @@ class Laravel12CompatibilityTest extends TestCase
             '12.0.0',
             '>='
         ));
+        $this->assertTrue(version_compare(
+            InstalledVersions::getVersion('laravel/socialite'),
+            '5.27.0',
+            '>='
+        ));
+        $this->assertTrue(version_compare(
+            InstalledVersions::getVersion('firebase/php-jwt'),
+            '7.1.0',
+            '>='
+        ));
+    }
+
+    #[Test]
+    public function socialite_verifies_a_google_id_token_with_php_jwt_7(): void
+    {
+        $originalRandomFile = getenv('RANDFILE');
+        putenv('RANDFILE='.sys_get_temp_dir().'/fleetcart-socialite-openssl.rnd');
+
+        try {
+            $key = openssl_pkey_new([
+                'private_key_bits' => 2048,
+                'private_key_type' => OPENSSL_KEYTYPE_RSA,
+            ]);
+        } finally {
+            $originalRandomFile === false
+                ? putenv('RANDFILE')
+                : putenv('RANDFILE='.$originalRandomFile);
+        }
+
+        $this->assertNotFalse($key);
+
+        $details = openssl_pkey_get_details($key);
+
+        $this->assertIsArray($details);
+
+        $keyId = 'socialite-test-key';
+        $clientId = 'socialite-test-client';
+        $jwks = [
+            'keys' => [[
+                'kty' => 'RSA',
+                'alg' => 'RS256',
+                'use' => 'sig',
+                'kid' => $keyId,
+                'n' => JWT::urlsafeB64Encode($details['rsa']['n']),
+                'e' => JWT::urlsafeB64Encode($details['rsa']['e']),
+            ]],
+        ];
+        $token = JWT::encode([
+            'iss' => 'https://accounts.google.com',
+            'aud' => $clientId,
+            'sub' => 'social-user-123',
+            'email' => 'social-user@example.test',
+            'iat' => time(),
+            'exp' => time() + 300,
+        ], $key, 'RS256', $keyId);
+
+        $provider = new class(Request::create('/'), $clientId, 'secret', 'https://example.test/callback', $jwks) extends GoogleProvider
+        {
+            public function __construct(
+                Request $request,
+                string $clientId,
+                string $clientSecret,
+                string $redirectUrl,
+                private readonly array $jwks,
+            ) {
+                parent::__construct($request, $clientId, $clientSecret, $redirectUrl);
+            }
+
+            public function verifyIdToken(string $token): array
+            {
+                return $this->getUserFromJwtToken($token);
+            }
+
+            protected function getGoogleJwks(): array
+            {
+                return $this->jwks;
+            }
+        };
+
+        $claims = $provider->verifyIdToken($token);
+
+        $this->assertSame('social-user-123', $claims['sub']);
+        $this->assertSame('social-user@example.test', $claims['email']);
     }
 
     #[Test]
