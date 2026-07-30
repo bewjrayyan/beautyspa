@@ -123,13 +123,47 @@ class Laravel12CompatibilityTest extends TestCase
     #[Test]
     public function retired_payment_sdk_packages_are_not_installed(): void
     {
-        $this->assertFalse(InstalledVersions::isInstalled('paypal/paypal-checkout-sdk'));
-        $this->assertFalse(InstalledVersions::isInstalled('paypal/paypalhttp'));
+        foreach ([
+            'authorizenet/authorizenet',
+            'instamojo/instamojo-php',
+            'iyzico/iyzipay-php',
+            'mercadopago/dx-php',
+            'paypal/paypal-checkout-sdk',
+            'paypal/paypalhttp',
+            'paytm/js-checkout',
+            'razorpay/razorpay',
+            'stripe/stripe-php',
+            'yabacon/paystack-php',
+        ] as $package) {
+            $this->assertFalse(InstalledVersions::isInstalled($package), "{$package} must remain retired.");
+        }
+
         $this->assertFalse(class_exists(\PayPalCheckoutSdk\Core\PayPalHttpClient::class));
-        $this->assertFalse(InstalledVersions::isInstalled('mercadopago/dx-php'));
         $this->assertFalse(InstalledVersions::isInstalled('doctrine/annotations'));
         $this->assertFalse(class_exists(\MercadoPago\SDK::class));
         $this->assertFalse(class_exists(\Modules\Payment\Gateways\MercadoPago::class));
+
+        foreach ([
+            \Modules\Payment\Gateways\AuthorizeNet::class,
+            \Modules\Payment\Gateways\Bkash::class,
+            \Modules\Payment\Gateways\CheckPayment::class,
+            \Modules\Payment\Gateways\Flutterwave::class,
+            \Modules\Payment\Gateways\Instamojo::class,
+            \Modules\Payment\Gateways\Iyzico::class,
+            \Modules\Payment\Gateways\Nagad::class,
+            \Modules\Payment\Gateways\PayFast::class,
+            \Modules\Payment\Gateways\Paystack::class,
+            \Modules\Payment\Gateways\Paytm::class,
+            \Modules\Payment\Gateways\Razorpay::class,
+            \Modules\Payment\Gateways\SslCommerz::class,
+            \Modules\Payment\Gateways\Stripe::class,
+        ] as $gateway) {
+            $this->assertFalse(class_exists($gateway), "{$gateway} must remain retired.");
+        }
+
+        $this->assertTrue(class_exists(\Modules\Payment\Gateways\COD::class));
+        $this->assertTrue(class_exists(\Modules\Payment\Gateways\BankTransfer::class));
+        $this->assertTrue(class_exists(\Modules\Payment\Gateways\ChipGateway::class));
     }
 
     #[Test]

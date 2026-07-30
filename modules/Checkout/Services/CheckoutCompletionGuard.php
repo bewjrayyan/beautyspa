@@ -7,7 +7,7 @@ use Modules\Order\Entities\Order;
 
 class CheckoutCompletionGuard
 {
-    private const OFFLINE_METHODS = ['cod', 'bank_transfer', 'check_payment'];
+    private const OFFLINE_METHODS = ['cod', 'bank_transfer'];
 
     public static function isOfflineMethod(string $paymentMethod): bool
     {

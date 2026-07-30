@@ -42,54 +42,6 @@ $("#whatsapp_otp_login_enabled").on("change", () => {
     $("#whatsapp-otp-fields").toggleClass("hide");
 });
 
-$("#stripe_enabled").on("change", () => {
-    $("#stripe-fields").toggleClass("hide");
-});
-
-$("#paytm_enabled").on("change", () => {
-    $("#paytm-fields").toggleClass("hide");
-});
-
-$("#razorpay_enabled").on("change", () => {
-    $("#razorpay-fields").toggleClass("hide");
-});
-
-$("#instamojo_enabled").on("change", () => {
-    $("#instamojo-fields").toggleClass("hide");
-});
-
-$("#paystack_enabled").on("change", () => {
-    $("#paystack-fields").toggleClass("hide");
-});
-
-$("#authorizenet_enabled").on("change", () => {
-    $("#authorizenet-fields").toggleClass("hide");
-});
-
-$("#flutterwave_enabled").on("change", () => {
-    $("#flutterwave-fields").toggleClass("hide");
-});
-
-$("#iyzico_enabled").on("change", () => {
-    $("#iyzico-fields").toggleClass("hide");
-});
-
-$("#bkash_enabled").on("change", () => {
-    $("#bkash-fields").toggleClass("hide");
-});
-
-$("#nagad_enabled").on("change", () => {
-    $("#nagad-fields").toggleClass("hide");
-});
-
-$("#sslcommerz_enabled").on("change", () => {
-    $("#sslcommerz-fields").toggleClass("hide");
-});
-
-$("#payfast_enabled").on("change", () => {
-    $("#payfast-fields").toggleClass("hide");
-});
-
 $("#chip_enabled").on("change", () => {
     $("#chip-fields").toggleClass("hide");
 });
@@ -145,10 +97,6 @@ $(document).on("click", "[data-chip-copy-target]", function () {
 
 $("#bank_transfer_enabled").on("change", () => {
     $("#bank-transfer-fields").toggleClass("hide");
-});
-
-$("#check_payment_enabled").on("change", () => {
-    $("#check-payment-fields").toggleClass("hide");
 });
 
 $("#store_country").on("change", (e) => {

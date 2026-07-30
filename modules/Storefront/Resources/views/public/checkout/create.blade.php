@@ -36,64 +36,11 @@
                 </div>
             </form>
 
-            @if (setting('authorizenet_enabled'))
-                <template x-if="authorizeNetToken">
-                    <form
-                        x-ref="authorizeNetForm"
-                        method="post"
-                        action="{{
-                            setting('authorizenet_test_mode') ?
-                            'https://test.authorize.net/payment/payment' :
-                            'https://accept.authorize.net/payment/payment'
-                        }}"
-                    >
-                        <input type="hidden" name="token" :value="authorizeNetToken" />
-
-                        <button type="submit"></button>
-                    </form>
-                </template>
-            @endif
-
-            @if (setting('payfast_enabled'))
-                <form
-                    x-ref="payFastForm"
-                    method="post"
-                    action="https://{{ setting('payfast_test_mode') ? 'sandbox.' : '' }}payfast.co.za/eng/process"
-                >
-                    <template x-for="(value, name, index) in payFastFormFields" :key="index">
-                        <input :name="name" type="hidden" :value="value" />
-                    </template>
-                </form>
-            @endif
         </div>
     </section>
 @endsection
 
 @push('pre-scripts')
-    @if (setting('stripe_enabled') && setting('stripe_integration_type') === 'embedded_form')
-        <script defer src="https://js.stripe.com/v3/"></script>
-    @endif
-
-    @if (setting('paytm_enabled'))
-        <script async src="https://securegw{{ setting('paytm_test_mode') ? '-stage' : '' }}.paytm.in/merchantpgpui/checkoutjs/merchants/{{ setting('paytm_merchant_id') }}.js"></script>
-    @endif
-
-    @if (setting('razorpay_enabled'))
-        <script async src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    @endif
-
-    @if (setting('flutterwave_enabled'))
-        <script async src="https://checkout.flutterwave.com/v3.js"></script>
-    @endif
-
-    @if (setting('paystack_enabled'))
-        <script async src="https://js.paystack.co/v1/inline.js"></script>
-    @endif
-
-    @if (setting('payfast_enabled'))
-        <script async src="https://www.payfast.co.za/onsite/engine.js"></script>
-    @endif
-
     @include('storefront::public.partials.google_recaptcha_script')
 @endpush
 
@@ -101,9 +48,6 @@
     <script>
         AestheticCart.data.checkout = @json($checkoutConfig);
 
-        AestheticCart.stripePublishableKey = '{{ setting("stripe_publishable_key") }}',
-        AestheticCart.stripeEnabled = {{ setting("stripe_enabled") ? 'true' : 'false' }},
-        AestheticCart.stripeIntegrationType = '{{ setting("stripe_integration_type") }}',
         AestheticCart.langs['storefront::checkout.payment_for_order'] = '{{ trans("storefront::checkout.payment_for_order") }}';
         AestheticCart.langs['storefront::checkout.remember_about_your_order'] = '{{ trans("storefront::checkout.remember_about_your_order") }}';
     </script>

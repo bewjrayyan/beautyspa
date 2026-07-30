@@ -82,10 +82,6 @@ Alpine.data(
         spaBranchPickerOpen: false,
         appointmentSlots: [],
         loadingAppointmentSlots: false,
-        stripe: null,
-        stripeElements: null,
-        authorizeNetToken: null,
-        payFastFormFields: {},
         errors: new Errors(),
         accountEmailExists: false,
         checkingAccountEmail: false,
@@ -146,13 +142,11 @@ Alpine.data(
         },
 
         get shouldShowPaymentInstructions() {
-            return ["bank_transfer", "check_payment"].includes(
-                this.form.payment_method
-            );
+            return this.form.payment_method === "bank_transfer";
         },
 
         get offlinePaymentMethods() {
-            return ["bank_transfer", "cod", "check_payment"];
+            return ["bank_transfer", "cod"];
         },
 
         get isOfflinePaymentMethod() {
@@ -378,12 +372,6 @@ Alpine.data(
                         this.updateShippingMethod(this.firstShippingMethod);
                     }
 
-                    if (
-                        AestheticCart.stripeEnabled &&
-                        AestheticCart.stripeIntegrationType === "embedded_form"
-                    ) {
-                        this.renderStripeElements();
-                    }
                 }
             });
 
@@ -1363,26 +1351,10 @@ Alpine.data(
                         return;
                     }
 
-                    if (this.form.payment_method === "stripe") {
-                        this.confirmStripePayment(data);
-                    } else if (this.form.payment_method === "paytm") {
-                        this.confirmPaytmPayment(data);
-                    } else if (this.form.payment_method === "razorpay") {
-                        this.confirmRazorpayPayment(data);
-                    } else if (this.form.payment_method === "paystack") {
-                        this.confirmPaystackPayment(data);
-                    } else if (this.form.payment_method === "authorizenet") {
-                        this.confirmAuthorizeNetPayment(data);
-                    } else if (this.form.payment_method === "flutterwave") {
-                        this.confirmFlutterWavePayment(data);
-                    } else if (this.form.payment_method === "payfast") {
-                        this.confirmPayFastPayment(data);
-                    } else {
-                        this.confirmOrder(
-                            data.orderId,
-                            this.form.payment_method
-                        );
-                    }
+                    this.confirmOrder(
+                        data.orderId,
+                        this.form.payment_method
+                    );
                 })
                 .catch(({ response }) => {
                     this.placingOrder = false;
@@ -1445,217 +1417,5 @@ Alpine.data(
             notify(response.data.message);
         },
 
-        async renderStripeElements() {
-            this.stripe = Stripe(AestheticCart.stripePublishableKey, {});
-
-            this.stripeElements = this.stripe.elements({
-                mode: "payment",
-                amount: Math.round(this.$store.cart.total * 100),
-                currency: AestheticCart.currency.toLowerCase(),
-            });
-
-            this.stripeElements.create("payment").mount("#stripe-element");
-        },
-
-        async confirmStripePayment({ client_secret, orderId, return_url }) {
-            const elements = this.stripeElements;
-
-            const { error: submitError } = await this.stripeElements.submit();
-
-            if (submitError) {
-                this.placingOrder = false;
-
-                this.deleteOrder(orderId);
-
-                notify(submitError.message);
-
-                return;
-            }
-
-            const { error } = await this.stripe.confirmPayment({
-                elements,
-                clientSecret: client_secret,
-                confirmParams: {
-                    return_url,
-                },
-            });
-
-            if (error) {
-                this.placingOrder = false;
-
-                this.deleteOrder(orderId);
-
-                notify(error.message);
-            }
-        },
-
-        confirmPaytmPayment({ orderId, amount, txnToken }) {
-            let config = {
-                root: "",
-                flow: "DEFAULT",
-                data: {
-                    orderId: orderId,
-                    token: txnToken,
-                    tokenType: "TXN_TOKEN",
-                    amount: amount,
-                },
-                merchant: {
-                    name: AestheticCart.storeName,
-                    redirect: false,
-                },
-                handler: {
-                    transactionStatus: (response) => {
-                        if (response.STATUS === "TXN_SUCCESS") {
-                            this.confirmOrder(orderId, "paytm", response);
-                        } else if (response.STATUS === "TXN_FAILURE") {
-                            this.placingOrder = false;
-
-                            this.deleteOrder(orderId);
-                        }
-
-                        window.Paytm.CheckoutJS.close();
-                    },
-                    notifyMerchant: (eventName) => {
-                        if (eventName === "APP_CLOSED") {
-                            this.placingOrder = false;
-
-                            this.deleteOrder(orderId);
-                        }
-                    },
-                },
-            };
-
-            window.Paytm.CheckoutJS.init(config)
-                .then(() => {
-                    window.Paytm.CheckoutJS.invoke();
-                })
-                .catch(() => {
-                    this.deleteOrder(orderId);
-                });
-        },
-
-        confirmRazorpayPayment(razorpayOrder) {
-            this.placingOrder = false;
-
-            let vm = this;
-
-            new window.Razorpay({
-                key: razorpayOrder.razorpayKeyId,
-                name: AestheticCart.storeName,
-                description: trans("storefront::checkout.payment_for_order", {
-                    id: razorpayOrder.receipt,
-                }),
-                image: AestheticCart.storeLogo,
-                order_id: razorpayOrder.id,
-                handler(response) {
-                    vm.placingOrder = true;
-
-                    vm.confirmOrder(
-                        razorpayOrder.receipt,
-                        "razorpay",
-                        response
-                    );
-                },
-                modal: {
-                    ondismiss() {
-                        vm.deleteOrder(razorpayOrder.receipt);
-                    },
-                },
-                prefill: {
-                    name: `${vm.form.billing.first_name} ${vm.form.billing.last_name}`,
-                    email: vm.form.customer_email,
-                    contact: vm.form.customer_phone,
-                },
-            }).open();
-        },
-
-        confirmPaystackPayment({
-            key,
-            email,
-            amount,
-            ref,
-            currency,
-            order_id,
-        }) {
-            let vm = this;
-
-            PaystackPop.setup({
-                key,
-                email,
-                amount,
-                ref,
-                currency,
-                onClose() {
-                    vm.placingOrder = false;
-
-                    vm.deleteOrder(order_id);
-                },
-                callback(response) {
-                    vm.placingOrder = false;
-
-                    vm.confirmOrder(order_id, "paystack", response);
-                },
-                onBankTransferConfirmationPending(response) {
-                    vm.placingOrder = false;
-
-                    vm.confirmOrder(order_id, "paystack", response);
-                },
-            }).openIframe();
-        },
-
-        confirmAuthorizeNetPayment({ token }) {
-            this.authorizeNetToken = token;
-
-            this.$nextTick(() => {
-                this.$refs.authorizeNetForm.submit();
-
-                this.authorizeNetToken = null;
-            });
-        },
-
-        confirmFlutterWavePayment({
-            public_key,
-            tx_ref,
-            order_id,
-            amount,
-            currency,
-            payment_options,
-            redirect_url,
-        }) {
-            let vm = this;
-
-            FlutterwaveCheckout({
-                public_key,
-                tx_ref,
-                amount,
-                currency,
-                payment_options: payment_options.join(", "),
-                redirect_url,
-                customer: {
-                    email: this.form.customer_email,
-                    phone_number: this.form.customer_phone,
-                    name: this.form.billing.full_name,
-                },
-                customizations: {
-                    title: AestheticCart.storeName,
-                    logo: AestheticCart.storeLogo,
-                },
-                onclose(incomplete) {
-                    vm.placingOrder = false;
-
-                    if (incomplete) {
-                        vm.deleteOrder(order_id);
-                    }
-                },
-            });
-        },
-
-        confirmPayFastPayment(payFastOrder) {
-            this.payFastFormFields = payFastOrder.formFields;
-
-            this.$nextTick(() => {
-                this.$refs.payFastForm.submit();
-            });
-        },
     })
 );

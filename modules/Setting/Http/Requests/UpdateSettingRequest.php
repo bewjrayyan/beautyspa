@@ -291,27 +291,6 @@ class UpdateSettingRequest extends Request
             'translatable.flat_rate_label' => 'required_if:flat_rate_enabled,1',
             'flat_rate_cost' => ['required_if:flat_rate_enabled,1', 'nullable', 'numeric'],
 
-            'stripe_enabled' => 'required|boolean',
-            'translatable.stripe_label' => 'required_if:stripe_enabled,1',
-            'translatable.stripe_description' => 'required_if:stripe_enabled,1',
-            'stripe_publishable_key' => 'required_if:stripe_enabled,1',
-            'stripe_secret_key' => 'required_if:stripe_enabled,1',
-
-            'authorizenet_enabled' => 'required|boolean',
-            'translatable.authorizenet_label' => 'required_if:authorizenet_enabled,1',
-            'translatable.authorizenet_description' => 'required_if:authorizenet_enabled,1',
-            'authorizenet_test_mode' => 'required|boolean',
-            'authorizenet_merchant_login_id' => 'required_if:authorizenet_enabled,1',
-            'authorizenet_merchant_transaction_key' => 'required_if:authorizenet_enabled,1',
-
-            'flutterwave_enabled' => 'required|boolean',
-            'translatable.flutterwave_label' => 'required_if:flutterwave_enabled,1',
-            'translatable.flutterwave_description' => 'required_if:flutterwave_enabled,1',
-            'flutterwave_test_mode' => 'required|boolean',
-            'flutterwave_public_key' => 'required_if:flutterwave_enabled,1',
-            'flutterwave_secret_key' => 'required_if:flutterwave_enabled,1',
-            'flutterwave_encryption_key' => 'required_if:flutterwave_enabled,1',
-
             'chip_enabled' => 'required|boolean',
             'translatable.chip_label' => 'required_if:chip_enabled,1',
             'translatable.chip_description' => 'required_if:chip_enabled,1',
@@ -361,11 +340,6 @@ class UpdateSettingRequest extends Request
             'translatable.bank_transfer_label' => 'required_if:bank_transfer_enabled,1',
             'translatable.bank_transfer_description' => 'required_if:bank_transfer_enabled,1',
             'translatable.bank_transfer_instructions' => 'required_if:bank_transfer_enabled,1',
-
-            'check_payment_enabled' => 'required|boolean',
-            'translatable.check_payment_label' => 'required_if:check_payment_enabled,1',
-            'translatable.check_payment_description' => 'required_if:check_payment_enabled,1',
-            'translatable.check_payment_instructions' => 'required_if:check_payment_enabled,1',
 
             'loyalty_earn_rate_per_rm' => 'required|numeric|min:0',
             'loyalty_point_value_rm' => 'required|numeric|min:0.01',

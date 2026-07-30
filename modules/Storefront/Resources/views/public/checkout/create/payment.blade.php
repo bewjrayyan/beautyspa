@@ -115,12 +115,6 @@
     </div>
 </div>
 
-@if (setting('stripe_enabled') && setting('stripe_integration_type') === 'embedded_form')
-    <div x-cloak id="stripe-element" x-show="form.payment_method === 'stripe'">
-        {{-- A Stripe Element will be mounted here dynamically. --}}
-    </div>
-@endif
-
 <template x-if="shouldShowPaymentInstructions">
     <div class="payment-instructions payment-instructions--modern">
         <h4 class="checkout-card-title">{{ trans('storefront::checkout.payment_instructions') }}</h4>

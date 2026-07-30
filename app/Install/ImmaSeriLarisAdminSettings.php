@@ -110,8 +110,6 @@ class ImmaSeriLarisAdminSettings
             'flat_rate_enabled' => false,
             'cod_enabled' => true,
             'bank_transfer_enabled' => true,
-            'check_payment_enabled' => false,
-            'stripe_enabled' => false,
             'storefront_copyright_text' => 'Copyright © <a href="{{ store_url }}">{{ store_name }}</a> {{ year }}. All rights reserved.',
         ];
     }
@@ -130,14 +128,10 @@ class ImmaSeriLarisAdminSettings
             'free_shipping_label' => 'Free Shipping',
             'local_pickup_label' => 'In-Clinic Pickup',
             'flat_rate_label' => 'Flat Rate',
-            'stripe_label' => 'Stripe',
-            'stripe_description' => 'Pay via credit or debit card.',
             'cod_label' => 'Cash On Delivery',
             'cod_description' => 'Pay with cash upon delivery.',
             'bank_transfer_label' => 'Bank Transfer',
             'bank_transfer_description' => 'Make your payment directly into our bank account. Please use your Order ID as the payment reference.',
-            'check_payment_label' => 'Check / Money Order',
-            'check_payment_description' => 'Please send a check to our store.',
             'facebook_login_label' => 'Facebook',
             'google_login_label' => 'Google',
             'whatsapp_otp_login_label' => 'Login with OTP',

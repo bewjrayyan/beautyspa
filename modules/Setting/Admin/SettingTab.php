@@ -36,13 +36,9 @@ class SettingTab extends Tab
         'free_shipping' => 'fa-truck',
         'local_pickup' => 'fa-map-marker',
         'flat_rate' => 'fa-send',
-        'stripe' => 'fa-credit-card',
-        'authorizenet' => 'fa-credit-card',
-        'flutterwave' => 'fa-credit-card',
         'chip' => 'fa-bank',
         'cod' => 'fa-money',
         'bank_transfer' => 'fa-university',
-        'check_payment' => 'fa-check-square-o',
     ];
 
     protected function navIcon(): ?string

@@ -65,13 +65,9 @@ class SettingTabs extends Tabs
             ->add($this->flatRate());
 
         $this->group('payment_methods', trans('setting::settings.tabs.group.payment_methods'))
-            ->add($this->stripe())
-            ->add($this->authorizenet())
-            ->add($this->flutterwave())
             ->add($this->chip())
             ->add($this->cod())
-            ->add($this->bankTransfer())
-            ->add($this->checkPayment());
+            ->add($this->bankTransfer());
     }
 
 
@@ -636,47 +632,6 @@ class SettingTabs extends Tabs
     }
 
 
-    private function stripe()
-    {
-        return tap(new SettingTab('stripe', trans('setting::settings.tabs.stripe')), function (SettingTab $tab) {
-            $tab->weight(62);
-
-            $tab->fields(['stripe_enabled', 'translatable.stripe_label', 'translatable.stripe_description', 'stripe_publishable_key', 'stripe_secret_key', 'stripe_integration_type']);
-
-            $tab->view('setting::admin.settings.tabs.stripe', [
-                'stripe_integration_types' => [
-                    'embedded_form' => 'Embedded Form',
-                    'hosted_page' => 'Hosted Page'
-                ]
-            ]);
-        });
-    }
-
-
-    private function authorizenet()
-    {
-        return tap(new SettingTab('authorizenet', trans('setting::settings.tabs.authorizenet')), function (SettingTab $tab) {
-            $tab->weight(67);
-
-            $tab->fields(['authorizenet_enabled', 'translatable.authorizenet_label', 'translatable.authorizenet_description', 'authorizenet_test_mode', 'authorizenet_merchant_login_id', 'authorizenet_merchant_transaction_key']);
-
-            $tab->view('setting::admin.settings.tabs.authorizenet');
-        });
-    }
-
-
-    private function flutterwave()
-    {
-        return tap(new SettingTab('flutterwave', trans('setting::settings.tabs.flutterwave')), function (SettingTab $tab) {
-            $tab->weight(69);
-
-            $tab->fields(['flutterwave_enabled', 'translatable.flutterwave_label', 'translatable.flutterwave_description', 'flutterwave_test_mode', 'flutterwave_public_key', 'flutterwave_secret_key', 'flutterwave_encryption_key']);
-
-            $tab->view('setting::admin.settings.tabs.flutterwave');
-        });
-    }
-
-
     private function chip()
     {
         return tap(new SettingTab('chip', trans('setting::settings.tabs.chip')), function (SettingTab $tab) {
@@ -752,18 +707,6 @@ class SettingTabs extends Tabs
             $tab->fields(['bank_transfer_enabled', 'translatable.bank_transfer_label', 'translatable.bank_transfer_description', 'translatable.bank_transfer_instructions']);
 
             $tab->view('setting::admin.settings.tabs.bank_transfer');
-        });
-    }
-
-
-    private function checkPayment()
-    {
-        return tap(new SettingTab('check_payment', trans('setting::settings.tabs.check_payment')), function (SettingTab $tab) {
-            $tab->weight(74);
-
-            $tab->fields(['check_payment_enabled', 'translatable.check_payment_label', 'translatable.check_payment_description', 'translatable.check_payment_instructions']);
-
-            $tab->view('setting::admin.settings.tabs.check_payment');
         });
     }
 

@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.81' => [
+        'en' => [
+            'summary' => 'Retire every unused payment gateway so checkout supports only CHIP, COD, and bank transfer.',
+            'changes' => [
+                'Remove thirteen unused gateway implementations, callbacks, settings screens, translations, and browser checkout flows.',
+                'Remove eight retired payment SDK packages and their transitive dependencies from the Composer lock file.',
+                'Add a production-safe migration that removes retired gateway settings and credentials without changing historical orders.',
+                'Rebuild production assets without retired payment scripts while preserving CHIP, COD, and bank transfer checkout behavior.',
+                'Add regression coverage and confirm the production dependency graph has no known security advisories.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tamatkan semua gateway pembayaran yang tidak digunakan supaya checkout hanya menyokong CHIP, COD, dan pindahan bank.',
+            'changes' => [
+                'Buang tiga belas implementasi gateway, callback, skrin tetapan, terjemahan, dan aliran checkout browser yang tidak digunakan.',
+                'Buang lapan pakej SDK pembayaran lama bersama dependency transitifnya daripada fail lock Composer.',
+                'Tambah migration selamat untuk production yang membuang tetapan dan kredensial gateway lama tanpa mengubah sejarah order.',
+                'Bina semula aset production tanpa skrip pembayaran lama sambil mengekalkan aliran checkout CHIP, COD, dan pindahan bank.',
+                'Tambah liputan regresi dan sahkan graph dependency production tidak mempunyai advisory keselamatan yang diketahui.',
+            ],
+        ],
+    ],
     '4.9.80' => [
         'en' => [
             'summary' => 'Retire the unused MercadoPago checkout integration and remove its abandoned SDK dependency graph.',
