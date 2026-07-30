@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.76' => [
+        'en' => [
+            'summary' => 'Remove unintended horizontal scrolling from the Settings navigation sidebar.',
+            'changes' => [
+                'Constrain the desktop Settings navigation to vertical scrolling without exposing a horizontal scrollbar.',
+                'Preserve the existing responsive horizontal tab navigation on smaller screens.',
+                'Rebuild the production Settings stylesheet and asset manifest with the corrected overflow behavior.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Buang horizontal scrolling yang tidak disengajakan daripada sidebar navigasi Settings.',
+            'changes' => [
+                'Hadkan navigasi Settings desktop kepada vertical scrolling tanpa memaparkan horizontal scrollbar.',
+                'Kekalkan navigasi tab mendatar yang responsif pada skrin lebih kecil.',
+                'Bina semula stylesheet Settings production dan manifest aset dengan tingkah laku overflow yang telah dibetulkan.',
+            ],
+        ],
+    ],
     '4.9.75' => [
         'en' => [
             'summary' => 'Retire the unused PayPal checkout integration and remove its abandoned SDK dependency graph.',

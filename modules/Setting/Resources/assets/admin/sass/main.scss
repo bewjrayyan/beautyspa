@@ -279,6 +279,7 @@ $settings-sidebar-offset: 16px;
 .settings-sidebar__nav {
     flex: 1;
     min-height: 0;
+    overflow-x: hidden;
     overflow-y: auto;
     padding-right: 2px;
     scrollbar-width: thin;
