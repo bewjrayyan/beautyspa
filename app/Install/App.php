@@ -64,8 +64,6 @@ class App
                 'free_shipping_label' => 'Free Shipping',
                 'local_pickup_label' => 'Local Pickup',
                 'flat_rate_label' => 'Flat Rate',
-                'paypal_label' => 'PayPal',
-                'paypal_description' => 'Pay via your PayPal account.',
                 'stripe_label' => 'Stripe',
                 'stripe_description' => 'Pay via credit or debit card.',
                 'cod_label' => 'Cash On Delivery',

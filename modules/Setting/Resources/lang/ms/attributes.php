@@ -167,13 +167,6 @@ return [
     'translatable.flat_rate_label' => 'Label',
     'flat_rate_cost' => 'Kos',
 
-    'paypal_enabled' => 'Status',
-    'translatable.paypal_label' => 'Label',
-    'translatable.paypal_description' => 'Penerangan',
-    'paypal_test_mode' => 'Sandbox',
-    'paypal_client_id' => 'ID klien',
-    'paypal_secret' => 'Rahsia',
-
     'stripe_enabled' => 'Status',
     'translatable.stripe_label' => 'Label',
     'translatable.stripe_description' => 'Penerangan',

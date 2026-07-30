@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.75' => [
+        'en' => [
+            'summary' => 'Retire the unused PayPal checkout integration and remove its abandoned SDK dependency graph.',
+            'changes' => [
+                'Remove the PayPal gateway, response handler, service registration, and checkout approval flow.',
+                'Remove PayPal configuration, validation, admin settings, translations, installer defaults, and storefront assets.',
+                'Remove the abandoned paypal/paypal-checkout-sdk and paypal/paypalhttp packages from Composer and the locked dependency graph.',
+                'Rebuild production assets without the PayPal browser SDK or checkout button implementation.',
+                'Add regression coverage that prevents the retired PayPal SDK packages from being reintroduced silently.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tamatkan integrasi checkout PayPal yang tidak digunakan dan buang graph dependency SDK yang abandoned.',
+            'changes' => [
+                'Buang gateway PayPal, response handler, pendaftaran service, dan aliran kelulusan checkout.',
+                'Buang konfigurasi, validasi, tetapan admin, terjemahan, default installer, dan aset storefront PayPal.',
+                'Buang pakej abandoned paypal/paypal-checkout-sdk dan paypal/paypalhttp daripada Composer serta graph dependency yang dikunci.',
+                'Bina semula aset production tanpa browser SDK atau implementasi butang checkout PayPal.',
+                'Tambah liputan regresi bagi menghalang pakej SDK PayPal yang telah ditamatkan daripada dimasukkan semula secara senyap.',
+            ],
+        ],
+    ],
     '4.9.74' => [
         'en' => [
             'summary' => 'Upgrade to the patched Laravel 12 stack with compatible authentication, module, data-table, and nested-collection packages.',

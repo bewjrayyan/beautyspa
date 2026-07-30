@@ -42,10 +42,6 @@ $("#whatsapp_otp_login_enabled").on("change", () => {
     $("#whatsapp-otp-fields").toggleClass("hide");
 });
 
-$("#paypal_enabled").on("change", () => {
-    $("#paypal-fields").toggleClass("hide");
-});
-
 $("#stripe_enabled").on("change", () => {
     $("#stripe-fields").toggleClass("hide");
 });

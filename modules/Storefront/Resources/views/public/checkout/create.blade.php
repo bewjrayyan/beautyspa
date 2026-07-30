@@ -74,10 +74,6 @@
         <script defer src="https://js.stripe.com/v3/"></script>
     @endif
 
-    @if (setting('paypal_enabled'))
-        <script src="https://www.paypal.com/sdk/js?client-id={{ setting('paypal_client_id') }}&currency={{ setting('default_currency') }}&disable-funding=credit,card,venmo,sepa,bancontact,eps,giropay,ideal,mybank,p24,p24"></script>
-    @endif
-
     @if (setting('paytm_enabled'))
         <script async src="https://securegw{{ setting('paytm_test_mode') ? '-stage' : '' }}.paytm.in/merchantpgpui/checkoutjs/merchants/{{ setting('paytm_merchant_id') }}.js"></script>
     @endif

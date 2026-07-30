@@ -27,16 +27,6 @@
     }
 }
 
-#paypal-button-container {
-    .paypal-buttons {
-        vertical-align: top;
-
-        iframe.component-frame {
-            z-index: 0;
-        }
-    }
-}
-
 @media screen and (min-width: 767px) and (max-width: 991px) {
     .order-summary-bottom {
         .btn {

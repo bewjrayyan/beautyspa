@@ -8,7 +8,6 @@ use Modules\Payment\Gateways\Nagad;
 use Modules\Payment\Gateways\Paytm;
 use Modules\Payment\Facades\Gateway;
 use Modules\Payment\Gateways\Iyzico;
-use Modules\Payment\Gateways\PayPal;
 use Modules\Payment\Gateways\Stripe;
 use Illuminate\Support\Facades\Route;
 use Modules\Payment\Gateways\PayFast;
@@ -39,7 +38,6 @@ class PaymentServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->registerPayPalExpress();
         $this->registerStripe();
         $this->registerAuthorizenet();
         $this->registerFlutterwave();
@@ -58,14 +56,6 @@ class PaymentServiceProvider extends ServiceProvider
      */
     public function register()
     {
-    }
-
-
-    private function registerPayPalExpress()
-    {
-        if ($this->enabled('paypal')) {
-            Gateway::register('paypal', new PayPal());
-        }
     }
 
 

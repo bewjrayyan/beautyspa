@@ -291,13 +291,6 @@ class UpdateSettingRequest extends Request
             'translatable.flat_rate_label' => 'required_if:flat_rate_enabled,1',
             'flat_rate_cost' => ['required_if:flat_rate_enabled,1', 'nullable', 'numeric'],
 
-            'paypal_enabled' => 'required|boolean',
-            'translatable.paypal_label' => 'required_if:paypal_enabled,1',
-            'translatable.paypal_description' => 'required_if:paypal_enabled,1',
-            'paypal_test_mode' => 'required|boolean',
-            'paypal_client_id' => 'required_if:paypal_enabled,1',
-            'paypal_secret' => 'required_if:paypal_enabled,1',
-
             'stripe_enabled' => 'required|boolean',
             'translatable.stripe_label' => 'required_if:stripe_enabled,1',
             'translatable.stripe_description' => 'required_if:stripe_enabled,1',

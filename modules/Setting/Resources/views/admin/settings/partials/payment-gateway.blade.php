@@ -1,5 +1,4 @@
 @php
-    $prefix = $prefix ?? 'paypal';
     $fieldsId = $fieldsId ?? "{$prefix}-fields";
     $enableLabel = $enableLabel ?? trans("setting::settings.form.enable_{$prefix}");
     $hasSandbox = $hasSandbox ?? true;

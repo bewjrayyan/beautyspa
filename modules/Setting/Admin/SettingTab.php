@@ -36,7 +36,6 @@ class SettingTab extends Tab
         'free_shipping' => 'fa-truck',
         'local_pickup' => 'fa-map-marker',
         'flat_rate' => 'fa-send',
-        'paypal' => 'fa-paypal',
         'stripe' => 'fa-credit-card',
         'authorizenet' => 'fa-credit-card',
         'flutterwave' => 'fa-credit-card',

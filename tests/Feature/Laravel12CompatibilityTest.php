@@ -35,6 +35,14 @@ class Laravel12CompatibilityTest extends TestCase
     }
 
     #[Test]
+    public function retired_paypal_sdk_packages_are_not_installed(): void
+    {
+        $this->assertFalse(InstalledVersions::isInstalled('paypal/paypal-checkout-sdk'));
+        $this->assertFalse(InstalledVersions::isInstalled('paypal/paypalhttp'));
+        $this->assertFalse(class_exists(\PayPalCheckoutSdk\Core\PayPalHttpClient::class));
+    }
+
+    #[Test]
     public function category_and_menu_models_still_use_nestable_collections(): void
     {
         $this->assertInstanceOf(NestableCollection::class, (new Category())->newCollection());

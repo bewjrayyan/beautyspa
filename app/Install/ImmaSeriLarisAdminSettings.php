@@ -111,7 +111,6 @@ class ImmaSeriLarisAdminSettings
             'cod_enabled' => true,
             'bank_transfer_enabled' => true,
             'check_payment_enabled' => false,
-            'paypal_enabled' => false,
             'stripe_enabled' => false,
             'storefront_copyright_text' => 'Copyright © <a href="{{ store_url }}">{{ store_name }}</a> {{ year }}. All rights reserved.',
         ];
@@ -131,8 +130,6 @@ class ImmaSeriLarisAdminSettings
             'free_shipping_label' => 'Free Shipping',
             'local_pickup_label' => 'In-Clinic Pickup',
             'flat_rate_label' => 'Flat Rate',
-            'paypal_label' => 'PayPal',
-            'paypal_description' => 'Pay via your PayPal account.',
             'stripe_label' => 'Stripe',
             'stripe_description' => 'Pay via credit or debit card.',
             'cod_label' => 'Cash On Delivery',

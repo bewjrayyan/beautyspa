@@ -1249,7 +1249,7 @@
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DSS_j9oE-v4.7.71.js",
+    "file": "assets/main-B42MX0Hc-v4.7.71.js",
     "name": "main",
     "src": "modules/Setting/Resources/assets/admin/js/main.js",
     "isEntry": true
@@ -1422,7 +1422,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js": {
-    "file": "assets/main-Cq780F9N-v4.7.71.js",
+    "file": "assets/main-BtY1rbUX-v4.7.71.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js",
     "isEntry": true,
@@ -1556,16 +1556,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.71.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-FuQ-FuMu-v4.7.71.css",
@@ -1600,7 +1600,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/brands/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/cart/main.scss": {
-    "file": "assets/main-y5cwjz5X-v4.7.71.css",
+    "file": "assets/main-CSX23ieT-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/cart/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/categories/main.scss": {
@@ -1612,7 +1612,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/checkout/complete/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/checkout/create/main.scss": {
-    "file": "assets/main-B7OYBhZR-v4.7.71.css",
+    "file": "assets/main-BUxZe7SD-v4.7.71.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/checkout/create/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/compare/main.scss": {

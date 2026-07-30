@@ -65,7 +65,6 @@ class SettingTabs extends Tabs
             ->add($this->flatRate());
 
         $this->group('payment_methods', trans('setting::settings.tabs.group.payment_methods'))
-            ->add($this->paypal())
             ->add($this->stripe())
             ->add($this->authorizenet())
             ->add($this->flutterwave())
@@ -633,18 +632,6 @@ class SettingTabs extends Tabs
             $tab->fields(['flat_rate_enabled', 'translatable.flat_rate_label', 'flat_rate_cost']);
 
             $tab->view('setting::admin.settings.tabs.flat_rate');
-        });
-    }
-
-
-    private function paypal()
-    {
-        return tap(new SettingTab('paypal', trans('setting::settings.tabs.paypal')), function (SettingTab $tab) {
-            $tab->weight(61);
-
-            $tab->fields(['paypal_enabled', 'translatable.paypal_label', 'translatable.paypal_description', 'paypal_env', 'paypal_client_id', 'paypal_secret']);
-
-            $tab->view('setting::admin.settings.tabs.paypal');
         });
     }
 

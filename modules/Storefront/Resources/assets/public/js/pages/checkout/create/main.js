@@ -470,12 +470,6 @@ Alpine.data(
                 this.errors.clear("terms_and_conditions");
             });
 
-            this.$watch("form.payment_method", (newPaymentMethod) => {
-                if (newPaymentMethod === "paypal") {
-                    this.$nextTick(this.renderPayPalButton());
-                }
-            });
-
             this.initBillingDefaults();
 
             this.normalizeBillingCountry();
@@ -1451,47 +1445,6 @@ Alpine.data(
             );
 
             notify(response.data.message);
-        },
-
-        renderPayPalButton() {
-            let vm = this;
-            let response;
-
-            window.paypal
-                .Buttons({
-                    async createOrder() {
-                        try {
-                            response = await axios.post(
-                                "/checkout",
-                                vm.buildCheckoutPayload()
-                            );
-
-                            return response.data.resourceId;
-                        } catch ({ response }) {
-                            if (response?.status === 422) {
-                                vm.recordValidationErrors(response);
-
-                                return;
-                            }
-
-                            notify(response.data.message);
-                        }
-                    },
-                    onApprove() {
-                        vm.confirmOrder(
-                            response.data.orderId,
-                            "paypal",
-                            response.data
-                        );
-                    },
-                    onError() {
-                        vm.deleteOrder(response.data.orderId);
-                    },
-                    onCancel() {
-                        vm.deleteOrder(response.data.orderId);
-                    },
-                })
-                .render("#paypal-button-container");
         },
 
         async renderStripeElements() {

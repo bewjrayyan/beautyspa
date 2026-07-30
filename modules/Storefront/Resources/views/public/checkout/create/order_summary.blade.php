@@ -232,22 +232,16 @@
                 </div>
             </div>
 
-            <template x-if="form.payment_method === 'paypal'">
-                <div id="paypal-button-container"></div>
-            </template>
-
-            <template x-if="form.payment_method !== 'paypal'">
-                <button
-                    x-cloak
-                    type="button"
-                    class="btn btn-primary btn-place-order btn-place-order--modern"
-                    :class="{ 'btn-loading': placingOrder }"
-                    :disabled="!form.terms_and_conditions"
-                    @click="placeOrder"
-                >
-                    {{ trans('storefront::checkout.place_order_now') }}
-                </button>
-            </template>
+            <button
+                x-cloak
+                type="button"
+                class="btn btn-primary btn-place-order btn-place-order--modern"
+                :class="{ 'btn-loading': placingOrder }"
+                :disabled="!form.terms_and_conditions"
+                @click="placeOrder"
+            >
+                {{ trans('storefront::checkout.place_order_now') }}
+            </button>
         </div>
     </div>
 </aside>

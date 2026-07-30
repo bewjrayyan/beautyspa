@@ -107,7 +107,7 @@ Recommended rollout:
 - Laravel has been upgraded to `12.64.0`, closing the framework CRLF email-validation and temporary signed-URL advisories. Production now requires PHP `>=8.3.1 <8.5`: Sentinel 9 requires PHP 8.3, while the current sitemap dependency graph does not yet support PHP 8.5.
 - The dependency refresh and framework upgrade on 2026-07-29 reduced the audit result from 42 advisory records across 14 packages to 1 low-severity record affecting 1 package.
 - The remaining `firebase/php-jwt` advisory requires version 7, while the current Laravel Socialite release requires JWT version 6. Treat this as an upstream compatibility/replacement task; do not force the incompatible major version.
-- `doctrine/annotations`, `paypal/paypal-checkout-sdk`, and `paypal/paypalhttp` are abandoned. Replace the PayPal SDK with `paypal/paypal-server-sdk` and remove the other abandoned packages when their dependency paths have been migrated and regression-tested.
+- The retired PayPal checkout integration and its abandoned `paypal/paypal-checkout-sdk` and `paypal/paypalhttp` packages have been removed. `doctrine/annotations` remains abandoned and should be removed once its dependency path has been migrated and regression-tested.
 
 ## Reporting issues
 
