@@ -50,8 +50,6 @@ class SettingDatabaseSeeder extends Seeder
                 'authorizenet_description' => 'Accept payments anytime, anywhere',
                 'paystack_label' => 'Paystack',
                 'paystack_description' => 'Modern online and offline payments for Africa',
-                'mercadopago_label' => 'Mercado Pago',
-                'mercadopago_description' => 'From now on, do more with your money',
                 'flutterwave_label' => 'Flutterwave',
                 'flutterwave_description' => 'Endless possibilities for every business',
                 'iyzico_label' => 'Iyzico',

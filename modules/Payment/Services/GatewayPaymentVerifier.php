@@ -4,8 +4,6 @@ namespace Modules\Payment\Services;
 
 use Exception;
 use Illuminate\Support\Facades\Http;
-use MercadoPago\Payment as MercadoPagoPayment;
-use MercadoPago\SDK as MercadoPagoSDK;
 use Modules\Order\Entities\Order;
 use Modules\Payment\Gateways\PayFast;
 use net\authorize\api\constants\ANetEnvironment;
@@ -230,45 +228,6 @@ class GatewayPaymentVerifier
         }
 
         return $valId;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function verifyMercadoPago(Order $order): string
-    {
-        if (! setting('mercadopago_enabled')) {
-            throw new Exception(trans('payment::messages.payment_verification_failed'));
-        }
-
-        MercadoPagoSDK::setAccessToken(setting('mercadopago_access_token'));
-
-        $paymentId = request('payment_id') ?? request('collection_id');
-
-        if (! $paymentId) {
-            throw new Exception(trans('payment::messages.payment_verification_failed'));
-        }
-
-        $payment = MercadoPagoPayment::find_by_id($paymentId);
-
-        if (! $payment || ($payment->status ?? '') !== 'approved') {
-            throw new Exception(trans('payment::messages.payment_not_completed'));
-        }
-
-        $expectedRef = 'order_' . $order->id;
-
-        if ((string) ($payment->external_reference ?? '') !== $expectedRef) {
-            throw new Exception(trans('payment::messages.payment_verification_failed'));
-        }
-
-        $paidAmount = (float) ($payment->transaction_amount ?? 0);
-        $expectedAmount = (float) $order->total->convertToCurrentCurrency()->amount();
-
-        if (abs($paidAmount - $expectedAmount) > 0.02) {
-            throw new Exception(trans('payment::messages.payment_amount_mismatch'));
-        }
-
-        return (string) $payment->id;
     }
 
     /**

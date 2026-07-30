@@ -234,13 +234,6 @@ return [
     'authorizenet_merchant_login_id' => 'ID log masuk pedagang',
     'authorizenet_merchant_transaction_key' => 'Kunci transaksi pedagang',
 
-    'mercadopago_enabled' => 'Status',
-    'translatable.mercadopago_label' => 'Label',
-    'translatable.mercadopago_description' => 'Penerangan',
-    'mercadopago_test_mode' => 'Sandbox',
-    'mercadopago_public_key' => 'Kunci awam',
-    'mercadopago_access_token' => 'Token akses',
-
     'flutterwave_enabled' => 'Status',
     'translatable.flutterwave_label' => 'Label',
     'translatable.flutterwave_description' => 'Penerangan',

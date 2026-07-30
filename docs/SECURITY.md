@@ -6,7 +6,7 @@ This document summarizes security controls in this project and the checklist for
 
 ### Payments
 
-- Checkout completion verifies payments with gateway APIs (Stripe, Paystack, PayFast, Flutterwave, Instamojo, SSLCommerz, MercadoPago, Paytm, Authorize.Net, CHIP, bKash, Nagad, Iyzico).
+- Checkout completion verifies payments with gateway APIs (Stripe, Paystack, PayFast, Flutterwave, Instamojo, SSLCommerz, Paytm, Authorize.Net, CHIP, bKash, Nagad, Iyzico).
 - Orders must be pending and use the same `payment_method` as the callback.
 - Offline methods (COD, bank transfer, check) require a valid checkout session.
 - **Payment cancel** only deletes the order when it matches the active `checkout_pending_order` session.
@@ -107,7 +107,7 @@ Recommended rollout:
 - Laravel has been upgraded to `12.64.0`, closing the framework CRLF email-validation and temporary signed-URL advisories. Production now requires PHP `>=8.3.1 <8.5`: Sentinel 9 requires PHP 8.3, while the current sitemap dependency graph does not yet support PHP 8.5.
 - The dependency refresh and framework upgrade on 2026-07-29 reduced the audit result from 42 advisory records across 14 packages to 1 low-severity record affecting 1 package.
 - Laravel Socialite 5.27 or newer supports `firebase/php-jwt` 7. The application pins JWT 7.1 or newer and includes a regression test that verifies a signed Google ID token through Socialite's Google provider.
-- The retired PayPal checkout integration and its abandoned `paypal/paypal-checkout-sdk` and `paypal/paypalhttp` packages have been removed. `doctrine/annotations` remains abandoned and should be removed once its dependency path has been migrated and regression-tested.
+- The retired PayPal and MercadoPago checkout integrations have been removed together with their abandoned SDK dependency graphs. The locked production dependency graph now contains no known security advisories or abandoned packages.
 
 ## Reporting issues
 

@@ -66,10 +66,6 @@ $("#authorizenet_enabled").on("change", () => {
     $("#authorizenet-fields").toggleClass("hide");
 });
 
-$("#mercadopago_enabled").on("change", () => {
-    $("#mercadopago-fields").toggleClass("hide");
-});
-
 $("#flutterwave_enabled").on("change", () => {
     $("#flutterwave-fields").toggleClass("hide");
 });

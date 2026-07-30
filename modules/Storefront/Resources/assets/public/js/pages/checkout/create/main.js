@@ -1375,8 +1375,6 @@ Alpine.data(
                         this.confirmAuthorizeNetPayment(data);
                     } else if (this.form.payment_method === "flutterwave") {
                         this.confirmFlutterWavePayment(data);
-                    } else if (this.form.payment_method === "mercadopago") {
-                        this.confirmMercadoPagoPayment(data);
                     } else if (this.form.payment_method === "payfast") {
                         this.confirmPayFastPayment(data);
                     } else {
@@ -1649,35 +1647,6 @@ Alpine.data(
                         vm.deleteOrder(order_id);
                     }
                 },
-            });
-        },
-
-        confirmMercadoPagoPayment(mercadoPagoOrder) {
-            this.placingOrder = false;
-
-            const SUPPORTED_LOCALES = {
-                en_US: "en-US",
-                es_AR: "es-AR",
-                es_CL: "es-CL",
-                es_CO: "es-CO",
-                es_MX: "es-MX",
-                es_VE: "es-VE",
-                es_UY: "es-UY",
-                es_PE: "es-PE",
-                pt_BR: "pt-BR",
-            };
-
-            const mercadoPago = new MercadoPago(mercadoPagoOrder.publicKey, {
-                locale:
-                    SUPPORTED_LOCALES[mercadoPagoOrder.currentLocale] ||
-                    "en-US",
-            });
-
-            mercadoPago.checkout({
-                preference: {
-                    id: mercadoPagoOrder.preferenceId,
-                },
-                autoOpen: true,
             });
         },
 

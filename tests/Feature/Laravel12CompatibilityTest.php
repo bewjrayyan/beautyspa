@@ -121,11 +121,15 @@ class Laravel12CompatibilityTest extends TestCase
     }
 
     #[Test]
-    public function retired_paypal_sdk_packages_are_not_installed(): void
+    public function retired_payment_sdk_packages_are_not_installed(): void
     {
         $this->assertFalse(InstalledVersions::isInstalled('paypal/paypal-checkout-sdk'));
         $this->assertFalse(InstalledVersions::isInstalled('paypal/paypalhttp'));
         $this->assertFalse(class_exists(\PayPalCheckoutSdk\Core\PayPalHttpClient::class));
+        $this->assertFalse(InstalledVersions::isInstalled('mercadopago/dx-php'));
+        $this->assertFalse(InstalledVersions::isInstalled('doctrine/annotations'));
+        $this->assertFalse(class_exists(\MercadoPago\SDK::class));
+        $this->assertFalse(class_exists(\Modules\Payment\Gateways\MercadoPago::class));
     }
 
     #[Test]

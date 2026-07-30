@@ -234,13 +234,6 @@ return [
     'authorizenet_merchant_login_id' => 'Merchant Login ID',
     'authorizenet_merchant_transaction_key' => 'Merchant Transaction Key',
 
-    'mercadopago_enabled' => 'Status',
-    'translatable.mercadopago_label' => 'Label',
-    'translatable.mercadopago_description' => 'Description',
-    'mercadopago_test_mode' => 'Sandbox',
-    'mercadopago_public_key' => 'Public Key',
-    'mercadopago_access_token' => 'Access Token',
-
     'flutterwave_enabled' => 'Status',
     'translatable.flutterwave_label' => 'Label',
     'translatable.flutterwave_description' => 'Description',

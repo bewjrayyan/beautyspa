@@ -17,7 +17,6 @@ use Illuminate\Support\ServiceProvider;
 use Modules\Payment\Gateways\Instamojo;
 use Modules\Payment\Gateways\SslCommerz;
 use Modules\Payment\Gateways\Flutterwave;
-use Modules\Payment\Gateways\MercadoPago;
 use Modules\Payment\Gateways\AuthorizeNet;
 use Modules\Payment\Gateways\BankTransfer;
 use Modules\Payment\Gateways\CheckPayment;
@@ -113,14 +112,6 @@ class PaymentServiceProvider extends ServiceProvider
     {
         if ($this->enabled('paystack')) {
             Gateway::register('paystack', new Paystack());
-        }
-    }
-
-
-    private function registerMercadoPago()
-    {
-        if ($this->enabled('mercadopago')) {
-            Gateway::register('mercadopago', new MercadoPago());
         }
     }
 

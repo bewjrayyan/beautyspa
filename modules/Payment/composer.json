@@ -15,7 +15,6 @@
         "stripe/stripe-php": "^17.1",
         "authorizenet/authorizenet": "^2.0",
         "yabacon/paystack-php": "^2.2",
-        "mercadopago/dx-php": "^2.6.2",
         "iyzico/iyzipay-php" : "^2.0"
     },
     "autoload": {

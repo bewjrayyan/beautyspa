@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.80' => [
+        'en' => [
+            'summary' => 'Retire the unused MercadoPago checkout integration and remove its abandoned SDK dependency graph.',
+            'changes' => [
+                'Remove the MercadoPago gateway, response verification, browser SDK, settings credentials, translations, and checkout flow.',
+                'Remove mercadopago/dx-php and its abandoned Doctrine Annotations dependency graph from the Composer lock file.',
+                'Rebuild the admin and storefront production assets without MercadoPago browser code.',
+                'Add regression coverage that prevents the MercadoPago SDK and Doctrine Annotations from being reintroduced silently.',
+                'Confirm the production dependency graph has no known security advisories or abandoned packages.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tamatkan integrasi checkout MercadoPago yang tidak digunakan dan buang graph dependency SDK yang abandoned.',
+            'changes' => [
+                'Buang gateway MercadoPago, pengesahan respons, browser SDK, kredensial tetapan, terjemahan, dan aliran checkout.',
+                'Buang mercadopago/dx-php bersama graph dependency Doctrine Annotations yang abandoned daripada fail lock Composer.',
+                'Bina semula aset production admin dan storefront tanpa kod browser MercadoPago.',
+                'Tambah liputan regresi yang menghalang SDK MercadoPago dan Doctrine Annotations daripada dimasukkan semula secara senyap.',
+                'Sahkan graph dependency production tidak mempunyai advisory keselamatan atau pakej abandoned yang diketahui.',
+            ],
+        ],
+    ],
     '4.9.79' => [
         'en' => [
             'summary' => 'Upgrade Socialite and PHP-JWT to close the remaining Composer security advisory without breaking social login.',

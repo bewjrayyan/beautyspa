@@ -82,10 +82,6 @@
         <script async src="https://checkout.razorpay.com/v1/checkout.js"></script>
     @endif
 
-    @if (setting('mercadopago_enabled'))
-        <script async src="https://sdk.mercadopago.com/js/v2"></script>
-    @endif
-
     @if (setting('flutterwave_enabled'))
         <script async src="https://checkout.flutterwave.com/v3.js"></script>
     @endif
