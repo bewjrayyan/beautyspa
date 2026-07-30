@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.78' => [
+        'en' => [
+            'summary' => 'Show the complete Settings navigation as one full-height menu without nested scrolling.',
+            'changes' => [
+                'Remove the viewport-height and sticky constraints that truncated the Settings navigation card.',
+                'Let the sidebar grow naturally to contain every expanded settings group and menu item.',
+                'Remove the sidebar internal scrollbar so navigation follows the main page scroll only.',
+                'Rebuild the production Settings JavaScript, stylesheet, and asset manifest.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Paparkan keseluruhan navigasi Settings sebagai satu menu penuh tanpa nested scrolling.',
+            'changes' => [
+                'Buang kekangan tinggi viewport dan sticky yang memotong kad navigasi Settings.',
+                'Benarkan sidebar mengembang secara semula jadi untuk memuatkan setiap kumpulan dan item menu Settings.',
+                'Buang scrollbar dalaman sidebar supaya navigasi hanya mengikuti scroll halaman utama.',
+                'Bina semula JavaScript, stylesheet, dan manifest aset Settings untuk production.',
+            ],
+        ],
+    ],
     '4.9.77' => [
         'en' => [
             'summary' => 'Make the Settings navigation sidebar fit the available viewport height at every scroll position.',
