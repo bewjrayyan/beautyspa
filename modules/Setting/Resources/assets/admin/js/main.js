@@ -229,10 +229,61 @@ $(function () {
     }
     const navGroups = document.getElementById("settings-nav-groups");
     const unsavedBadge = document.getElementById("settings-unsaved-badge");
+    const settingsSidebar = document.querySelector(".settings-sidebar");
     let formDirty = false;
     let dirtyTrackingEnabled = false;
     let baselineSnapshot = "";
     let baselineTimer = null;
+
+    if (settingsSidebar) {
+        const desktopSettings = window.matchMedia("(min-width: 992px)");
+        const sidebarOffset = 16;
+        let sidebarResizeFrame = null;
+
+        const syncSidebarHeight = () => {
+            sidebarResizeFrame = null;
+
+            if (!desktopSettings.matches) {
+                settingsSidebar.style.removeProperty("--settings-sidebar-height");
+
+                return;
+            }
+
+            const sidebarTop = Math.max(
+                sidebarOffset,
+                settingsSidebar.getBoundingClientRect().top
+            );
+            const availableHeight = Math.max(
+                320,
+                window.innerHeight - sidebarTop - sidebarOffset
+            );
+
+            settingsSidebar.style.setProperty(
+                "--settings-sidebar-height",
+                `${Math.floor(availableHeight)}px`
+            );
+        };
+
+        const queueSidebarHeightSync = () => {
+            if (sidebarResizeFrame !== null) {
+                return;
+            }
+
+            sidebarResizeFrame = window.requestAnimationFrame(syncSidebarHeight);
+        };
+
+        syncSidebarHeight();
+        window.addEventListener("resize", queueSidebarHeightSync);
+        window.addEventListener("scroll", queueSidebarHeightSync, { passive: true });
+
+        if (typeof ResizeObserver !== "undefined") {
+            const content = settingsSidebar.closest(".content");
+
+            if (content) {
+                new ResizeObserver(queueSidebarHeightSync).observe(content);
+            }
+        }
+    }
 
     const getFormSnapshot = () => {
         const parts = [];

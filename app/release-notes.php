@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.77' => [
+        'en' => [
+            'summary' => 'Make the Settings navigation sidebar fit the available viewport height at every scroll position.',
+            'changes' => [
+                'Calculate the sidebar height from its actual viewport position so its lower edge remains fully visible.',
+                'Expand the sticky sidebar as the page scrolls while retaining vertical navigation scrolling.',
+                'Resynchronize the available height after viewport resizing or layout changes such as dismissed alerts.',
+                'Rebuild the production Settings JavaScript, stylesheet, and asset manifest.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pastikan sidebar navigasi Settings memenuhi tinggi viewport yang tersedia pada setiap kedudukan scroll.',
+            'changes' => [
+                'Kira tinggi sidebar daripada kedudukan viewport sebenar supaya bahagian bawahnya sentiasa kelihatan penuh.',
+                'Besarkan sidebar sticky apabila halaman discroll sambil mengekalkan vertical scrolling navigasi.',
+                'Selaraskan semula tinggi selepas viewport diresize atau layout berubah seperti alert yang ditutup.',
+                'Bina semula JavaScript, stylesheet, dan manifest aset Settings untuk production.',
+            ],
+        ],
+    ],
     '4.9.76' => [
         'en' => [
             'summary' => 'Remove unintended horizontal scrolling from the Settings navigation sidebar.',

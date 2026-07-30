@@ -154,7 +154,7 @@ $settings-sidebar-offset: 16px;
     position: sticky;
     top: $settings-sidebar-offset;
     align-self: start;
-    max-height: calc(100vh - #{$settings-sidebar-offset * 2});
+    max-height: var(--settings-sidebar-height, calc(100vh - #{$settings-sidebar-offset * 2}));
 }
 
 .settings-page-header {
@@ -183,8 +183,8 @@ $settings-sidebar-offset: 16px;
     background: #fff;
     box-shadow: $settings-shadow-md;
     padding: 12px 10px 14px;
-    height: calc(100vh - #{$settings-sidebar-offset * 2});
-    max-height: calc(100vh - #{$settings-sidebar-offset * 2});
+    height: var(--settings-sidebar-height, calc(100vh - #{$settings-sidebar-offset * 2}));
+    max-height: var(--settings-sidebar-height, calc(100vh - #{$settings-sidebar-offset * 2}));
     overflow: hidden;
 }
 
