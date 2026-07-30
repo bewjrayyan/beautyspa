@@ -44,4 +44,22 @@ class StorefrontContentUrlTest extends TestCase
         $this->assertNull(storefront_content_url('https://user:secret@example.test/private'));
         $this->assertNull(storefront_content_url("https://example.test/\nheader"));
     }
+
+    #[Test]
+    public function the_mobile_promotion_view_compiles_with_a_normalized_link(): void
+    {
+        $html = view('storefront::public.home.sections.mobile_home_promo', [
+            'mobileHomePromo' => [
+                'type' => 'image',
+                'url' => '/storage/promo.jpg',
+                'call_to_action_url' => 'http://localhost/fleetcart/en/products',
+                'open_in_new_window' => false,
+            ],
+        ])->render();
+
+        $this->assertStringContainsString(
+            'href="https://immaserilaris.com/v2/en/products"',
+            $html
+        );
+    }
 }

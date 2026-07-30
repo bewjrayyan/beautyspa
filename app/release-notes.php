@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.84' => [
+        'en' => [
+            'summary' => 'Restore storefront rendering after the secure-link release.',
+            'changes' => [
+                'Replace an invalid inline Blade assignment in the mobile promotion section with a standard compiled PHP block.',
+                'Restore HTTP 200 rendering for the localized storefront homepage while retaining CTA URL normalization.',
+                'Validate the hotfix with a real homepage request in addition to the automated regression suite.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pulihkan rendering storefront selepas release pautan selamat.',
+            'changes' => [
+                'Gantikan assignment Blade inline yang tidak sah pada seksyen promosi mudah alih dengan blok PHP standard yang boleh dikompilasi.',
+                'Pulihkan respons HTTP 200 untuk homepage storefront berlokalisasi sambil mengekalkan normalisasi URL CTA.',
+                'Sahkan hotfix menggunakan request homepage sebenar selain suite ujian regresi automatik.',
+            ],
+        ],
+    ],
     '4.9.83' => [
         'en' => [
             'summary' => 'Protect stored integration credentials and repair legacy storefront links at render time.',

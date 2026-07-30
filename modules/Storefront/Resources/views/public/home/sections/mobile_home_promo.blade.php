@@ -1,4 +1,6 @@
-@php($mobileHomePromoUrl = storefront_content_url($mobileHomePromo['call_to_action_url'] ?? null))
+@php
+    $mobileHomePromoUrl = storefront_content_url($mobileHomePromo['call_to_action_url'] ?? null);
+@endphp
 
 <section class="mobile-home-promo-wrap d-lg-none" aria-label="{{ trans('storefront::storefront.mobile_home_promo.section_label') }}">
     <div class="container">
