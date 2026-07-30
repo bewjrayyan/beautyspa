@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * Cumulative paths removed from release ZIPs.
+ *
+ * The GitHub updater deploys in place, so paths listed here are moved to
+ * storage/app/private/release-quarantine when they remain from an older build.
+ * Never list a path that still exists in the current release.
+ */
+return [
+    'version' => 1,
+    'release' => 'through-v4.9.81',
+    'paths' => [
+        'config/bkash.php',
+        'modules/Payment/Gateways/AuthorizeNet.php',
+        'modules/Payment/Gateways/Bkash.php',
+        'modules/Payment/Gateways/CheckPayment.php',
+        'modules/Payment/Gateways/Flutterwave.php',
+        'modules/Payment/Gateways/Instamojo.php',
+        'modules/Payment/Gateways/Iyzico.php',
+        'modules/Payment/Gateways/MercadoPago.php',
+        'modules/Payment/Gateways/Nagad.php',
+        'modules/Payment/Gateways/PayFast.php',
+        'modules/Payment/Gateways/PayPal.php',
+        'modules/Payment/Gateways/Paystack.php',
+        'modules/Payment/Gateways/Paytm.php',
+        'modules/Payment/Gateways/Razorpay.php',
+        'modules/Payment/Gateways/SslCommerz.php',
+        'modules/Payment/Gateways/Stripe.php',
+        'modules/Payment/Http/Controllers/BkashPaymentController.php',
+        'modules/Payment/Libraries/Bkash',
+        'modules/Payment/Libraries/Nagad',
+        'modules/Payment/Libraries/SslCommerz',
+        'modules/Payment/Responses/AuthorizenetResponse.php',
+        'modules/Payment/Responses/BkashResponse.php',
+        'modules/Payment/Responses/FlutterwaveResponse.php',
+        'modules/Payment/Responses/InstamojoResponse.php',
+        'modules/Payment/Responses/IyzicoResponse.php',
+        'modules/Payment/Responses/MercadoPagoResponse.php',
+        'modules/Payment/Responses/NagadResponse.php',
+        'modules/Payment/Responses/PayFastResponse.php',
+        'modules/Payment/Responses/PayPalResponse.php',
+        'modules/Payment/Responses/PaystackResponse.php',
+        'modules/Payment/Responses/PaytmResponse.php',
+        'modules/Payment/Responses/RazorpayResponse.php',
+        'modules/Payment/Responses/SslCommerzResponse.php',
+        'modules/Payment/Responses/StripeResponse.php',
+        'modules/Payment/Responses/VerifiedPaymentResponse.php',
+        'modules/Payment/Services/GatewayPaymentVerifier.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/authorizenet.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/bkash.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/check_payment.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/flutterwave.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/instamojo.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/iyzico.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/mercadopago.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/nagad.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/payfast.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/paypal.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/paystack.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/paytm.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/razorpay.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/sslcommerz.blade.php',
+        'modules/Setting/Resources/views/admin/settings/tabs/stripe.blade.php',
+    ],
+];

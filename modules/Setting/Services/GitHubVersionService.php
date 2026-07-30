@@ -2,8 +2,10 @@
 
 namespace Modules\Setting\Services;
 
+use AestheticCart\Support\ReleaseFilePruner;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class GitHubVersionService
@@ -140,6 +142,16 @@ class GitHubVersionService
         }
 
         $this->copyTreeOverApp($sourceRoot, base_path());
+
+        $pruneResult = app(ReleaseFilePruner::class)->apply(
+            base_path(),
+            storage_path('app/private/release-quarantine'),
+            $sourceRoot,
+        );
+
+        if ($pruneResult['paths'] !== []) {
+            Log::notice('Retired release files quarantined during GitHub update.', $pruneResult);
+        }
 
         $this->resetDirectory($workDir, false);
 

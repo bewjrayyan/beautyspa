@@ -601,7 +601,7 @@ return [
         'app_version_deploy_workflow' => 'Manual alternative: push to GitHub → deploy files (FTP, rsync, hosting panel) → Sync installed version → Check on GitHub → Post-update tasks. Frontend assets (public/build/) are included in releases.',
         'app_version_github_update' => 'Update from GitHub',
         'app_version_github_update_confirm' => 'Download the latest code from GitHub and overwrite app files on this server? Your .env, storage and uploads are kept. Continue?',
-        'app_version_github_update_workflow' => 'Downloads the latest code zip from GitHub and overwrites app files (your .env, storage and uploads are preserved). Built frontend assets in public/build/ are deployed with the release. After updating, run the Post-update Artisan tasks below. Run composer install manually only if PHP dependencies changed.',
+        'app_version_github_update_workflow' => 'Downloads the latest code zip from GitHub, overwrites app files, and quarantines paths retired by the release manifest. Your .env, storage, uploads, and vendor directory are preserved. Built frontend assets in public/build/ are deployed with the release. After updating, run the Post-update Artisan tasks below. Run composer install manually only if PHP dependencies changed.',
         'app_version_github_zip_unavailable' => 'The PHP zip extension is not available on this server, so a direct GitHub update is not possible.',
         'app_version_github_download_failed' => 'Could not download the update from GitHub (HTTP :status). Check the repository token and server internet access.',
         'app_version_github_extract_failed' => 'Could not extract the downloaded update archive.',

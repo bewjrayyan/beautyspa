@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.82' => [
+        'en' => [
+            'summary' => 'Make in-place GitHub updates safely reconcile files retired by newer releases.',
+            'changes' => [
+                'Add a cumulative release deletion manifest for obsolete PayPal, MercadoPago, and retired payment gateway files.',
+                'Move stale files into timestamped private quarantine instead of deleting them permanently, preserving a rollback path.',
+                'Protect environment, storage, uploads, vendor, Git metadata, and active release paths from manifest cleanup.',
+                'Run cleanup during GitHub deployment, normal post-update tasks, and a one-time bootstrap script for servers upgrading from the legacy overlay updater.',
+                'Add regression coverage for safe paths, active-file protection, directory quarantine, and idempotent repeated updates.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pastikan kemas kini GitHub secara in-place menyelaraskan fail yang ditamatkan oleh release baharu dengan selamat.',
+            'changes' => [
+                'Tambah manifest pemadaman release kumulatif untuk fail PayPal, MercadoPago, dan gateway pembayaran lama.',
+                'Pindahkan fail lapuk ke kuarantin private bertimestamp tanpa memadamkannya secara kekal supaya rollback masih tersedia.',
+                'Lindungi environment, storage, muat naik, vendor, metadata Git, dan path release aktif daripada cleanup manifest.',
+                'Jalankan cleanup semasa deployment GitHub, tugas post-update biasa, dan script bootstrap sekali jalan bagi pelayan yang menaik taraf daripada updater overlay lama.',
+                'Tambah liputan regresi bagi path selamat, perlindungan fail aktif, kuarantin direktori, dan kemas kini berulang yang idempotent.',
+            ],
+        ],
+    ],
     '4.9.81' => [
         'en' => [
             'summary' => 'Retire every unused payment gateway so checkout supports only CHIP, COD, and bank transfer.',

@@ -2,9 +2,11 @@
 
 namespace AestheticCart;
 
+use AestheticCart\Support\ReleaseFilePruner;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class Updater
 {
@@ -13,6 +15,7 @@ class Updater
         @set_time_limit(0);
 //TODO: update permission and translations
         self::migrate();
+        self::pruneRetiredReleaseFiles();
         self::clearViewCache();
         self::clearConfigCache();
         self::clearRouteCache();
@@ -22,6 +25,19 @@ class Updater
         self::warmProductionCaches();
 
         File::delete(storage_path('app/update'));
+    }
+
+
+    private static function pruneRetiredReleaseFiles(): void
+    {
+        $result = app(ReleaseFilePruner::class)->apply(
+            base_path(),
+            storage_path('app/private/release-quarantine'),
+        );
+
+        if ($result['paths'] !== []) {
+            Log::notice('Retired release files quarantined during update.', $result);
+        }
     }
 
 

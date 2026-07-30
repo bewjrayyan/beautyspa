@@ -108,6 +108,7 @@ Recommended rollout:
 - The dependency refresh and framework upgrade on 2026-07-29 reduced the audit result from 42 advisory records across 14 packages to 1 low-severity record affecting 1 package.
 - Laravel Socialite 5.27 or newer supports `firebase/php-jwt` 7. The application pins JWT 7.1 or newer and includes a regression test that verifies a signed Google ID token through Socialite's Google provider.
 - All unused payment integrations have been retired. Checkout supports only CHIP, COD, and bank transfer, matching verified production usage.
+- In-place GitHub updates apply a cumulative deletion manifest and move retired paths into private release quarantine; `.env`, storage, uploads, vendor, and other protected paths cannot be listed.
 
 ## Reporting issues
 
