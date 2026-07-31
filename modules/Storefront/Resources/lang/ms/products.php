@@ -27,4 +27,11 @@ return [
     ],
     'no_products_found' => 'Tiada produk dijumpai.',
     'showing_results' => 'Memaparkan :from–:to daripada :total hasil',
+    'cosmetik' => [
+        'eyebrow' => 'Koleksi kosmetik',
+        'title' => 'Kecantikan harian yang lebih mudah.',
+        'description' => 'Terokai penjagaan kulit, penjagaan badan, solekan dan keperluan diri yang dipilih untuk rutin harian anda.',
+        'shop_by_category' => 'Beli Kosmetik mengikut kategori',
+        'coming_soon' => 'Akan datang',
+    ],
 ];

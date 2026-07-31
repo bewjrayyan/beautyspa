@@ -3,6 +3,8 @@
 @section('title')
     @if (request()->has('query'))
         {{ trans('storefront::products.search_results_for') }}: "{{ request('query') }}"
+    @elseif (filled($categoryName ?? null))
+        {{ $categoryName }}
     @else
         {{ products_listing_title() }}
     @endif
@@ -44,11 +46,17 @@
                         </div>
                     </div>
 
-                    @include('storefront::public.products.index.latest_products')
+                    @unless (isset($category))
+                        @include('storefront::public.products.index.latest_products')
+                    @endunless
                 </div>
 
 
                 <div class="product-search-right">
+                    @if (($category->slug ?? null) === 'cosmetik')
+                        @include('storefront::public.products.index.cosmetik_showcase')
+                    @endif
+
                     <template x-if="brandBanner">
                         <div class="d-none d-lg-block categories-banner">
                             <img :src="brandBanner" alt="Brand banner">

@@ -161,11 +161,27 @@ class User extends EloquentUser implements AuthenticatableContract
     }
 
 
+    public function hasPendingBeauticianProfile(): bool
+    {
+        if (! $this->hasRoleName('Beautician')) {
+            return false;
+        }
+
+        $beautician = $this->beauticianProfile()->first();
+
+        return $beautician !== null && ! $beautician->is_active;
+    }
+
+
     /**
      * Preferred admin landing page for this user.
      */
     public function adminHomeRoute(): string
     {
+        if ($this->hasPendingBeauticianProfile()) {
+            return route('beauticians.registration.pending');
+        }
+
         if ($this->isBeauticianOnly()) {
             $beautician = Beautician::findForUser($this->id);
 

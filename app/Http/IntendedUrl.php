@@ -128,6 +128,10 @@ class IntendedUrl
     {
         $default = $user->adminHomeRoute();
 
+        if ($user->hasPendingBeauticianProfile()) {
+            return $default;
+        }
+
         if (! is_string($intended) || $intended === '' || ! self::isAdmin($intended)) {
             return $default;
         }

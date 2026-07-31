@@ -29,11 +29,17 @@ class CategoryProductController
             return $this->searchProducts($model, $productFilter);
         }
 
-        $category = Category::findBySlug($slug);
+        $category = Category::with('files')->where('slug', $slug)->firstOrFail();
+        $subCategories = Category::withCount('products')
+            ->where('parent_id', $category->id)
+            ->orderByRaw('-position DESC')
+            ->get();
 
         return view('storefront::public.products.index', [
+            'category' => $category,
             'categoryName' => $category->name,
             'categoryBanner' => $category->banner->path,
+            'subCategories' => $subCategories,
         ]);
     }
 }

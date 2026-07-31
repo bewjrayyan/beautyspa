@@ -13,7 +13,7 @@
             @endif
             
             <a
-                href="#"
+                href="{{ $category->url() }}"
                 @click.prevent='
                     changeCategory({
                         name: "{{ addslashes($category->name) }}",

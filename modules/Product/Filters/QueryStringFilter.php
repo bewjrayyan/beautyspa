@@ -2,6 +2,8 @@
 
 namespace Modules\Product\Filters;
 
+use Modules\Category\Entities\Category;
+
 use Modules\Support\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\JoinClause;
@@ -126,8 +128,10 @@ class QueryStringFilter
 
     public function category($query, $slug)
     {
-        $query->whereHas('categories', function ($categoryQuery) use ($slug) {
-            $categoryQuery->where('slug', $slug);
+        $categoryIds = Category::idsForSlugAndDescendants($slug);
+
+        $query->whereHas('categories', function ($categoryQuery) use ($categoryIds) {
+            $categoryQuery->whereIn('categories.id', $categoryIds);
         });
     }
 

@@ -13,7 +13,7 @@
             @endif
             
             <a
-                href="#"
+                href="{{ $subCategory->url() }}"
                 @click.prevent='
                     changeCategory({
                         name: "{{ $subCategory->name }}",

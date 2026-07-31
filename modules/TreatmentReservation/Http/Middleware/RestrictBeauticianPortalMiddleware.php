@@ -27,6 +27,14 @@ class RestrictBeauticianPortalMiddleware
     {
         $user = auth()->user();
 
+        if ($user?->hasPendingBeauticianProfile()) {
+            if (optional($request->route())->getName() === 'admin.logout') {
+                return $next($request);
+            }
+
+            return redirect()->route('beauticians.registration.pending');
+        }
+
         if (! $user || ! $user->isBeauticianOnly()) {
             return $next($request);
         }

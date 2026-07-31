@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.88' => [
+        'en' => [
+            'summary' => 'Add secure public beautician onboarding and a richer Kosmetik storefront experience.',
+            'changes' => [
+                'Add a protected public beautician registration flow with validated roles, active branch selection, spam throttling, and duplicate contact checks.',
+                'Keep newly submitted beautician profiles hidden and restricted to an approval-pending screen until an administrator activates them.',
+                'Introduce a fully responsive branded registration experience with structured profile, placement, and portal-security sections.',
+                'Fix root-category browsing so Kosmetik includes products assigned to active child categories and uses real category URLs.',
+                'Add a bilingual Kosmetik showcase, useful subcategory availability states, category-specific page titles, and refreshed production assets.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah onboarding beautician awam yang selamat dan pengalaman storefront Kosmetik yang lebih lengkap.',
+            'changes' => [
+                'Tambah aliran pendaftaran beautician awam dengan pengesahan peranan, pemilihan cawangan aktif, perlindungan spam dan semakan hubungan pendua.',
+                'Kekalkan profil beautician baharu sebagai tersembunyi dan hadkan akses kepada skrin menunggu kelulusan sehingga pentadbir mengaktifkannya.',
+                'Perkenalkan pengalaman pendaftaran berjenama yang responsif dengan bahagian profil, penempatan dan keselamatan portal yang tersusun.',
+                'Betulkan pelayaran kategori induk supaya Kosmetik merangkumi produk dalam kategori anak aktif dan menggunakan URL kategori sebenar.',
+                'Tambah paparan Kosmetik dwibahasa, status ketersediaan subkategori, tajuk halaman khusus kategori dan aset production yang dikemas kini.',
+            ],
+        ],
+    ],
     '4.9.87' => [
         'en' => [
             'summary' => 'Refine the Operations Health interface into a calmer and more structured production dashboard.',

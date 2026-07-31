@@ -349,6 +349,14 @@
                     >
                         {{ trans('user::auth.sign_in') }}
                     </button>
+
+                    @if (Route::has('beauticians.register'))
+                        <p style="margin-top: 18px; text-align: center;">
+                            <a href="{{ route('beauticians.register') }}">
+                                {{ trans('beautician::beauticians.self_registration.login_link') }}
+                            </a>
+                        </p>
+                    @endif
                 </form>
                 </div>
             </div>

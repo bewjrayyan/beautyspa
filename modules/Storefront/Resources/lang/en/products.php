@@ -27,4 +27,11 @@ return [
     ],
     'no_products_found' => 'Oops! No products found.',
     'showing_results' => 'Showing :from-:to of :total results',
+    'cosmetik' => [
+        'eyebrow' => 'Kosmetik collection',
+        'title' => 'Everyday beauty, made simple.',
+        'description' => 'Explore skincare, body care, makeup, and personal-care essentials selected for your daily routine.',
+        'shop_by_category' => 'Shop Kosmetik by category',
+        'coming_soon' => 'Coming soon',
+    ],
 ];

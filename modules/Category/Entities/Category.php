@@ -71,6 +71,34 @@ class Category extends Model implements Sitemapable
     }
 
 
+    /**
+     * Get the category IDs represented by a slug, including every active descendant.
+     *
+     * @return array<int, int>
+     */
+    public static function idsForSlugAndDescendants(string $slug): array
+    {
+        $rootIds = static::where('slug', $slug)->pluck('id')->all();
+
+        if ($rootIds === []) {
+            return [];
+        }
+
+        $categoryIds = $rootIds;
+        $parentIds = $rootIds;
+
+        while ($parentIds !== []) {
+            $parentIds = static::whereIn('parent_id', $parentIds)
+                ->pluck('id')
+                ->all();
+
+            $categoryIds = array_merge($categoryIds, $parentIds);
+        }
+
+        return array_values(array_unique($categoryIds));
+    }
+
+
     public static function tree()
     {
         try {

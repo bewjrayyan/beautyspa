@@ -18,6 +18,134 @@
     }
 }
 
+.cosmetik-showcase {
+    position: relative;
+    display: flex;
+    min-height: 275px;
+    margin-bottom: 34px;
+    padding: 38px 42px;
+    overflow: hidden;
+    color: #382f35;
+    background:
+        radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.8), transparent 26%),
+        linear-gradient(125deg, #fff8f5 0%, #f7e4e4 56%, #ead0d6 100%);
+    border: 1px solid rgba(190, 139, 151, 0.18);
+    border-radius: 22px;
+    box-shadow: 0 18px 45px rgba(91, 55, 68, 0.08);
+
+    .cosmetik-showcase-content {
+        position: relative;
+        z-index: 2;
+        width: min(690px, 80%);
+    }
+
+    .cosmetik-showcase-eyebrow {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: #a05f70;
+        font-size: 12px;
+        font-weight: var(--font-semibold);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    h1 {
+        max-width: 570px;
+        margin-bottom: 10px;
+        color: #382f35;
+        font-size: clamp(28px, 3vw, 42px);
+        line-height: 1.12;
+    }
+
+    p {
+        max-width: 620px;
+        margin-bottom: 23px;
+        color: #6f6268;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .cosmetik-category-links {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+
+        > a,
+        > .is-coming-soon {
+            display: inline-flex;
+            min-height: 39px;
+            padding: 8px 13px;
+            align-items: center;
+            gap: 7px;
+            color: #584950;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(160, 95, 112, 0.18);
+            border-radius: 999px;
+            font-size: 13px;
+            transition: var(--transition-150);
+        }
+
+        > a:hover {
+            color: #ffffff;
+            background: #a05f70;
+            border-color: #a05f70;
+            transform: translateY(-1px);
+        }
+
+        > .is-coming-soon {
+            opacity: 0.62;
+
+            small {
+                color: #9a7781;
+                font-size: 10px;
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    .cosmetik-showcase-art {
+        position: absolute;
+        z-index: 1;
+        top: 50%;
+        right: 48px;
+        display: grid;
+        width: 150px;
+        height: 150px;
+        place-items: center;
+        color: rgba(160, 95, 112, 0.7);
+        background: rgba(255, 255, 255, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-radius: 50%;
+        box-shadow: 0 20px 50px rgba(91, 55, 68, 0.12);
+        transform: translateY(-50%);
+
+        > i {
+            font-size: 62px;
+        }
+    }
+
+    .cosmetik-orb {
+        position: absolute;
+        border-radius: 50%;
+    }
+
+    .cosmetik-orb-one {
+        right: -35px;
+        bottom: -48px;
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .cosmetik-orb-two {
+        top: -24px;
+        left: -18px;
+        width: 76px;
+        height: 76px;
+        background: rgba(255, 255, 255, 0.35);
+    }
+}
+
 @media screen and (max-width: 991px) {
     .product-search-wrap {
         margin-top: 24px;
@@ -25,5 +153,51 @@
 
     .product-search {
         flex-direction: column-reverse;
+    }
+
+    .cosmetik-showcase {
+        min-height: 0;
+        margin-bottom: 26px;
+        padding: 30px;
+
+        .cosmetik-showcase-content {
+            width: 100%;
+        }
+
+        .cosmetik-showcase-art {
+            right: -38px;
+            width: 135px;
+            height: 135px;
+            opacity: 0.34;
+        }
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .cosmetik-showcase {
+        padding: 25px 20px;
+        border-radius: 16px;
+
+        h1 {
+            font-size: 29px;
+        }
+
+        p {
+            font-size: 14px;
+        }
+
+        .cosmetik-category-links {
+            gap: 7px;
+
+            > a,
+            > .is-coming-soon {
+                min-height: 36px;
+                padding: 7px 11px;
+            }
+        }
+
+        .cosmetik-showcase-art {
+            display: none;
+        }
     }
 }

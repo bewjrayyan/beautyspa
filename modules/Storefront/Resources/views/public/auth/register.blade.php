@@ -461,6 +461,14 @@
                         >
                             {{ trans('user::auth.create_account') }}
                         </button>
+
+                        @if (Route::has('beauticians.register'))
+                            <p style="margin-top: 18px; text-align: center;">
+                                <a href="{{ route('beauticians.register') }}">
+                                    {{ trans('beautician::beauticians.self_registration.customer_register_link') }}
+                                </a>
+                            </p>
+                        @endif
                     </form>
 
                     @include('storefront::public.auth.partials.social_login')
