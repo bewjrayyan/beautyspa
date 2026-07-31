@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.87' => [
+        'en' => [
+            'summary' => 'Refine the Operations Health interface into a calmer and more structured production dashboard.',
+            'changes' => [
+                'Replace the legacy high-contrast status boxes with balanced semantic metric cards and a concise overall-health banner.',
+                'Introduce consistent panel hierarchy, spacing, icons, tags, action buttons, and informative empty states.',
+                'Consolidate retention, legal-hold, observability, and audit information into clearer responsive dashboard sections.',
+                'Improve table readability and horizontal overflow behavior across desktop, tablet, and mobile viewports.',
+                'Preserve the existing authorization, privacy boundaries, queue controls, and operational behavior.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perkemas antaramuka Kesihatan Operasi menjadi dashboard production yang lebih tenang dan tersusun.',
+            'changes' => [
+                'Gantikan kotak status lama yang terlalu terang dengan kad metrik semantik seimbang dan banner kesihatan keseluruhan yang ringkas.',
+                'Tambah hierarchy panel, spacing, ikon, tag, butang tindakan dan empty state yang konsisten.',
+                'Susun retention, legal hold, observability dan maklumat audit kepada bahagian dashboard responsif yang lebih jelas.',
+                'Tingkatkan kebolehbacaan jadual dan kawalan horizontal overflow untuk paparan desktop, tablet serta mobile.',
+                'Kekalkan authorization, sempadan privasi, kawalan queue dan tingkah laku operasi sedia ada.',
+            ],
+        ],
+    ],
     '4.9.86' => [
         'en' => [
             'summary' => 'Add a permission-scoped operational control center for production health and guarded administration.',
