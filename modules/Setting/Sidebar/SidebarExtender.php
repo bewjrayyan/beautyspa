@@ -6,6 +6,7 @@ use Maatwebsite\Sidebar\Item;
 use Maatwebsite\Sidebar\Menu;
 use Maatwebsite\Sidebar\Group;
 use Modules\Admin\Sidebar\BaseSidebarExtender;
+use Modules\Setting\Services\OperationsDashboardService;
 
 class SidebarExtender extends BaseSidebarExtender
 {
@@ -33,6 +34,22 @@ class SidebarExtender extends BaseSidebarExtender
                     $child->authorize(
                         $this->auth->hasAccess('admin.settings.edit')
                     );
+                });
+
+                $item->item(trans('setting::sidebar.operations'), function (Item $child) {
+                    $child->weight(3);
+                    $child->route('admin.operations.index');
+                    $child->authorize(
+                        $this->auth->hasAccess('admin.operations.view')
+                    );
+
+                    if ($this->auth->hasAccess('admin.operations.view')) {
+                        $alerts = app(OperationsDashboardService::class)->alertCount();
+
+                        if ($alerts > 0) {
+                            $child->badge((string) $alerts, 'bg-red');
+                        }
+                    }
                 });
 
                 $item->item(trans('setting::sidebar.onesender_logs'), function (Item $child) {

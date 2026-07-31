@@ -174,6 +174,9 @@ class RolesTableSeeder extends Seeder
             'admin.reports.index' => true,
             # settings
             'admin.settings.edit' => true,
+            'admin.operations.view' => true,
+            'admin.operations.manage_queue' => true,
+            'admin.operations.manage_retention' => true,
             # storefront
             'admin.storefront.edit' => true,
         ];

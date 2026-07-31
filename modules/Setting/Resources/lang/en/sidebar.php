@@ -6,4 +6,5 @@ return [
     'all_settings' => 'All settings',
     'onesender_queue' => 'Outgoing WhatsApp queue',
     'onesender_logs' => 'OneSender send log',
+    'operations' => 'Operations health',
 ];

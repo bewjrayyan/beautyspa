@@ -14,6 +14,36 @@ Route::put('settings', [
     'middleware' => 'can:admin.settings.edit',
 ]);
 
+Route::get('settings/operations', [
+    'as' => 'admin.operations.index',
+    'uses' => 'OperationsController@index',
+    'middleware' => 'can:admin.operations.view',
+]);
+
+Route::delete('settings/operations/queue/{job}', [
+    'as' => 'admin.operations.queue.cancel',
+    'uses' => 'OperationsController@cancelPending',
+    'middleware' => ['can:admin.operations.manage_queue', 'throttle:20,1'],
+])->whereNumber('job');
+
+Route::post('settings/operations/failed-jobs/{uuid}/retry', [
+    'as' => 'admin.operations.failed.retry',
+    'uses' => 'OperationsController@retryFailed',
+    'middleware' => ['can:admin.operations.manage_queue', 'throttle:10,1'],
+])->whereUuid('uuid');
+
+Route::post('settings/operations/consultations/{submission}/legal-hold', [
+    'as' => 'admin.operations.legal_hold.place',
+    'uses' => 'OperationsController@placeLegalHold',
+    'middleware' => ['can:admin.operations.manage_retention', 'throttle:10,1'],
+])->whereNumber('submission');
+
+Route::delete('settings/operations/consultations/{submission}/legal-hold', [
+    'as' => 'admin.operations.legal_hold.release',
+    'uses' => 'OperationsController@releaseLegalHold',
+    'middleware' => ['can:admin.operations.manage_retention', 'throttle:10,1'],
+])->whereNumber('submission');
+
 Route::get('settings/onesender-logs', [
     'as' => 'admin.onesender_logs.index',
     'uses' => 'OneSenderMessageLogController@index',

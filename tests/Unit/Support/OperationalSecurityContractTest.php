@@ -7,8 +7,10 @@ use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Modules\Account\Jobs\GenerateConsultationPdf;
 use Modules\GoogleIntegration\Jobs\SyncOrderToGoogleJob;
 use Modules\Payment\Jobs\ProcessChipWebhookPurchase;
+use Modules\Setting\Http\Controllers\Admin\OperationsController;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 
 class OperationalSecurityContractTest extends TestCase
 {
@@ -56,5 +58,20 @@ class OperationalSecurityContractTest extends TestCase
         $this->assertInstanceOf(ShouldBeUnique::class, $chip);
         $this->assertSame(60, $chip->timeout);
         $this->assertSame([15, 60, 180, 600], $chip->backoff);
+    }
+
+    #[Test]
+    public function operations_dashboard_extracts_only_the_safe_job_class_name(): void
+    {
+        $method = new ReflectionMethod(OperationsController::class, 'jobDisplayName');
+        $payload = json_encode([
+            'displayName' => 'Modules\\Payment\\Jobs\\ProcessChipWebhookPurchase',
+            'data' => ['command' => 'serialized-secret-payload'],
+        ]);
+
+        $name = $method->invoke(new OperationsController(), $payload);
+
+        $this->assertSame('ProcessChipWebhookPurchase', $name);
+        $this->assertStringNotContainsString('secret', $name);
     }
 }

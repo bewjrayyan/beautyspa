@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.86' => [
+        'en' => [
+            'summary' => 'Add a permission-scoped operational control center for production health and guarded administration.',
+            'changes' => [
+                'Add an operations dashboard for queue, scheduler, retention, CSP, and slow-query health without exposing sensitive job payloads or exceptions.',
+                'Add separately authorized and rate-limited pending-job cancellation, failed-job retry, and consultation legal-hold controls.',
+                'Add immutable operational audit records with privacy-safe action metadata, actor context, IP address, and user agent.',
+                'Add scheduler heartbeat monitoring, sidebar health alerts, and bilingual administration labels.',
+                'Add database migration, authorization contracts, view compilation coverage, and safe job-class extraction tests.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah pusat kawalan operasi berasaskan permission untuk kesihatan production dan pentadbiran terkawal.',
+            'changes' => [
+                'Tambah dashboard operasi untuk kesihatan queue, scheduler, retention, CSP dan slow query tanpa mendedahkan payload job atau exception sensitif.',
+                'Tambah kawalan berasingan authorization dan rate limit untuk membatalkan pending job, retry failed job serta legal hold consultation.',
+                'Tambah rekod audit operasi immutable dengan metadata tindakan yang menjaga privasi, konteks pelaku, alamat IP dan user agent.',
+                'Tambah pemantauan heartbeat scheduler, amaran kesihatan pada sidebar dan label pentadbiran dwibahasa.',
+                'Tambah migration database, kontrak authorization, coverage kompilasi view dan ujian extraction class job yang selamat.',
+            ],
+        ],
+    ],
     '4.9.85' => [
         'en' => [
             'summary' => 'Add production privacy lifecycle, queue reliability, CSP reporting, and database observability controls.',

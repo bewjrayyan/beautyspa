@@ -8,6 +8,7 @@ use Modules\Admin\Ui\Facades\TabManager;
 use Modules\Setting\Admin\SettingTabs;
 use Modules\Setting\Support\SensitiveSetting;
 use Modules\Setting\Console\RefreshWhatsAppTemplatesCommand;
+use Modules\Setting\Console\OperationsHeartbeatCommand;
 use Illuminate\Support\ServiceProvider;
 
 class SettingServiceProvider extends ServiceProvider
@@ -46,6 +47,7 @@ class SettingServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 RefreshWhatsAppTemplatesCommand::class,
+                OperationsHeartbeatCommand::class,
             ]);
         }
 

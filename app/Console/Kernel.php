@@ -68,5 +68,7 @@ class Kernel extends ConsoleKernel
         if (config('operations.queue.monitor_enabled', false)) {
             $schedule->command('queue:health')->everyTenMinutes()->withoutOverlapping();
         }
+
+        $schedule->command('operations:heartbeat')->everyMinute()->withoutOverlapping();
     }
 }
