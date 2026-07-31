@@ -59,6 +59,9 @@ class ConsultationSubmission extends Model
         'sent_at',
         'opened_at',
         'revoked_at',
+        'legal_hold_at',
+        'legal_hold_by',
+        'legal_hold_reason',
         'template_version',
         'form_title',
         'form_intro',
@@ -93,6 +96,7 @@ class ConsultationSubmission extends Model
         'sent_at' => 'datetime',
         'opened_at' => 'datetime',
         'revoked_at' => 'datetime',
+        'legal_hold_at' => 'datetime',
         'public_token_expires_at' => 'datetime',
         'submitted_at' => 'datetime',
     ];

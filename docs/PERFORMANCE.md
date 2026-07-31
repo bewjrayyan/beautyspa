@@ -214,7 +214,10 @@ opcache.max_accelerated_files=20000
 ## 7. Monitoring
 
 - **Laravel Telescope** / **Clockwork** — local profiling
-- **MySQL slow query log** — query > 1s
+- `SLOW_QUERY_LOG_ENABLED=true` — application slow-query metadata without bindings/quoted literals
+- `php artisan performance:benchmark --iterations=5 --explain --json` — bounded read-only production baselines
+- `php artisan queue:health --json` — backlog, age, failed jobs, and stuck OneSender checks
+- **MySQL slow query log** — server-side query > 1s
 - **Google PageSpeed Insights** — LCP, CLS, TTFB
 - **Cloudflare analytics** — jika guna CDN
 
@@ -237,3 +240,5 @@ opcache.max_accelerated_files=20000
 - `config/app.php` — `APP_CACHE`
 - `modules/Support/helpers.php` — `cdn_url()`
 - `modules/Storefront/Http/ViewComposers/LayoutComposer.php` — layout data
+- `config/operations.php` — retention, queue-health, and slow-query thresholds
+- `docs/OPERATIONS_HARDENING.md` — production commands and rollback guidance

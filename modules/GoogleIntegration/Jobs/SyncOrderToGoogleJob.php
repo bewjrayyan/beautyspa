@@ -5,13 +5,14 @@ namespace Modules\GoogleIntegration\Jobs;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Modules\GoogleIntegration\Services\OrderGoogleSyncService;
 use Modules\Order\Entities\Order;
 
-class SyncOrderToGoogleJob implements ShouldQueue
+class SyncOrderToGoogleJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -22,7 +23,11 @@ class SyncOrderToGoogleJob implements ShouldQueue
     public int $tries = 3;
 
 
-    public int $backoff = 30;
+    public array $backoff = [30, 120, 300];
+
+    public int $timeout = 120;
+
+    public int $uniqueFor = 600;
 
 
     public function __construct(
@@ -30,6 +35,11 @@ class SyncOrderToGoogleJob implements ShouldQueue
         public bool $forceSheets = false,
         public string $trigger = 'auto',
     ) {
+    }
+
+    public function uniqueId(): string
+    {
+        return $this->orderId.':'.($this->forceSheets ? 'force' : 'normal');
     }
 
 

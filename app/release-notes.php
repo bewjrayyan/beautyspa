@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.85' => [
+        'en' => [
+            'summary' => 'Add production privacy lifecycle, queue reliability, CSP reporting, and database observability controls.',
+            'changes' => [
+                'Add dry-run-first consultation retention with legal holds, audited executions, bounded deletion, and private document cleanup.',
+                'Add queue health thresholds and move verified CHIP webhook processing into a unique retryable background job.',
+                'Add a rate-limited CSP report endpoint that strips URL query strings and hashes client IP addresses before logging.',
+                'Add privacy-safe slow-query logging, expanded read-only production benchmarks, and customer order lookup indexes.',
+                'Add authorization and operational regression contracts, production configuration guidance, and rollback procedures.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah kawalan lifecycle privasi, reliability queue, pelaporan CSP dan pemerhatian database untuk production.',
+            'changes' => [
+                'Tambah retention consultation berasaskan dry-run dengan legal hold, execution audit, pemadaman terhad dan cleanup dokumen private.',
+                'Tambah threshold kesihatan queue dan pindahkan pemprosesan webhook CHIP yang sah kepada background job unik dengan retry.',
+                'Tambah endpoint laporan CSP ber-rate-limit yang membuang query string URL dan hash alamat IP sebelum logging.',
+                'Tambah slow-query logging yang menjaga privasi, benchmark production read-only yang diperluas dan index carian order pelanggan.',
+                'Tambah kontrak regresi authorization dan operasi, panduan konfigurasi production serta prosedur rollback.',
+            ],
+        ],
+    ],
     '4.9.84' => [
         'en' => [
             'summary' => 'Restore storefront rendering after the secure-link release.',

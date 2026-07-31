@@ -19,6 +19,8 @@ class ProcessOneSenderOutboundMessage implements ShouldQueue
 
     public int $tries = 1;
 
+    public int $timeout = 60;
+
 
     public function __construct(
         public int $messageId,

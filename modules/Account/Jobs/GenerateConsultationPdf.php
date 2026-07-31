@@ -4,13 +4,14 @@ namespace Modules\Account\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Modules\Account\Entities\ConsultationSubmission;
 use Modules\Account\Services\ConsultationPdfService;
 
-class GenerateConsultationPdf implements ShouldQueue
+class GenerateConsultationPdf implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -18,11 +19,18 @@ class GenerateConsultationPdf implements ShouldQueue
 
     public int $timeout = 120;
 
+    public int $uniqueFor = 600;
+
     /** @var array<int, int> */
     public array $backoff = [30, 120, 300];
 
     public function __construct(public readonly int $submissionId)
     {
+    }
+
+    public function uniqueId(): string
+    {
+        return (string) $this->submissionId;
     }
 
     public function handle(ConsultationPdfService $pdf): void

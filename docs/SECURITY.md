@@ -10,7 +10,8 @@ This document summarizes security controls in this project and the checklist for
 - Orders must be pending and use the same `payment_method` as the callback.
 - Offline methods (COD and bank transfer) require a valid checkout session.
 - **Payment cancel** only deletes the order when it matches the active `checkout_pending_order` session.
-- CHIP webhook **requires** `chip_webhook_secret`; unsigned or unconfigured webhooks are rejected.
+- CHIP webhook verifies the raw body with the configured CHIP RSA public key; unsigned, invalid, or unconfigured callbacks are ignored without mutating orders.
+- Verified CHIP callbacks are queued with a purchase-level uniqueness lock, bounded retry/backoff, and idempotent payment finalization.
 
 ### Admin
 
@@ -79,7 +80,7 @@ CSP is **off by default** because checkout uses inline scripts and many third-pa
 Recommended rollout:
 
 1. Set `SECURITY_CSP_ENABLED=true` and `SECURITY_CSP_REPORT_ONLY=true`.
-2. Monitor browser console / `SECURITY_CSP_REPORT_URI` for violations.
+2. Monitor the dedicated 30-day `security` log. The built-in report endpoint strips URL query strings and hashes client IPs; `SECURITY_CSP_REPORT_URI` may override it.
 3. When clean, set `SECURITY_CSP_REPORT_ONLY=false` to enforce.
 
 ### Server
@@ -125,3 +126,4 @@ If you discover a vulnerability, contact the site owner privately. Do not post e
 | Header config | `config/security.php` |
 | Rate limiters | `app/Providers/RouteServiceProvider.php` |
 | Trusted proxies | `app/Http/Middleware/TrustProxies.php` |
+| Operational security and retention | `docs/OPERATIONS_HARDENING.md` |

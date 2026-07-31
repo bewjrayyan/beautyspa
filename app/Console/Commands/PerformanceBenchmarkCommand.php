@@ -121,7 +121,36 @@ class PerformanceBenchmarkCommand extends Command
                 SQL,
                 [(int) ($connection->table('product_categories')->min('category_id') ?? 0)],
             ],
+            'product_detail_slug_lookup' => [
+                <<<'SQL'
+                    SELECT id, slug, price, special_price, selling_price, in_stock, qty
+                    FROM products
+                    WHERE slug = ?
+                      AND deleted_at IS NULL
+                    LIMIT 1
+                SQL,
+                [(string) ($connection->table('products')->whereNull('deleted_at')->value('slug') ?? '')],
+            ],
         ];
+
+        $customerId = $connection->table('orders')
+            ->whereNotNull('customer_id')
+            ->orderByDesc('id')
+            ->value('customer_id');
+
+        if ($customerId !== null) {
+            $queries['customer_recent_orders'] = [
+                <<<'SQL'
+                    SELECT id, status, payment_status, total, currency, created_at
+                    FROM orders
+                    WHERE customer_id = ?
+                      AND deleted_at IS NULL
+                    ORDER BY created_at DESC
+                    LIMIT 20
+                SQL,
+                [(int) $customerId],
+            ];
+        }
 
         $orderSlot = $connection->selectOne(<<<'SQL'
             SELECT beautician_id, appointment_date, appointment_time

@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\ServiceProvider;
 use Jackiedo\DotenvEditor\DotenvEditorServiceProvider;
 
@@ -80,6 +83,26 @@ class AppServiceProvider extends ServiceProvider
 
         if (! config('app.debug')) {
             config(['debugbar.enabled' => false]);
+        }
+
+        if (config('operations.database.slow_query_log_enabled', false)) {
+            $threshold = max(1, (int) config('operations.database.slow_query_ms', 500));
+
+            DB::listen(function (QueryExecuted $query) use ($threshold): void {
+                if ($query->time < $threshold) {
+                    return;
+                }
+
+                // Omit bindings and redact quoted literals because they can contain PII or tokens.
+                $redactedSql = preg_replace("/'(?:''|[^'])*'/", "'?'", $query->sql) ?? $query->sql;
+
+                Log::warning('Slow database query detected.', [
+                    'connection' => $query->connectionName,
+                    'time_ms' => $query->time,
+                    'sql' => mb_substr($redactedSql, 0, 2000),
+                    'route' => app()->runningInConsole() ? 'console' : request()->route()?->getName(),
+                ]);
+            });
         }
     }
 

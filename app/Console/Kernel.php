@@ -26,6 +26,9 @@ class Kernel extends ConsoleKernel
         Commands\RouteTranslationsCacheCommand::class,
         Commands\OptimizeCommand::class,
         Commands\PerformanceBenchmarkCommand::class,
+        Commands\ApplyPrivacyRetentionCommand::class,
+        Commands\ConsultationLegalHoldCommand::class,
+        Commands\QueueHealthCommand::class,
     ];
 
 
@@ -54,6 +57,16 @@ class Kernel extends ConsoleKernel
 
         if (app('modules')->isEnabled('GoogleIntegration')) {
             $schedule->command('google-sheets:retry-failed --limit=100')->hourly();
+        }
+
+        if (config('operations.privacy.retention_enabled', false)) {
+            $schedule->command('privacy:apply-retention --execute')
+                ->dailyAt('03:30')
+                ->withoutOverlapping();
+        }
+
+        if (config('operations.queue.monitor_enabled', false)) {
+            $schedule->command('queue:health')->everyTenMinutes()->withoutOverlapping();
         }
     }
 }

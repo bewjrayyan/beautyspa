@@ -13,7 +13,7 @@ class VerifyCsrfToken extends BaseVerifier
      * @var array
      */
     protected $except = [
-        //
+        '_security/csp-report',
     ];
 
 

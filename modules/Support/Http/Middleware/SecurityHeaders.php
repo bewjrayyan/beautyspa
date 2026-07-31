@@ -54,6 +54,16 @@ class SecurityHeaders
                 $this->buildContentSecurityPolicy($isAdmin, $allowSameOriginIframe),
                 false
             );
+
+            $reportUri = $this->cspReportUri();
+
+            if ($reportUri) {
+                $response->headers->set(
+                    'Reporting-Endpoints',
+                    'csp-endpoint="'.$reportUri.'"',
+                    false
+                );
+            }
         }
 
         return $response;
@@ -137,12 +147,24 @@ class SecurityHeaders
             $directives[] = "frame-src https:";
         }
 
-        $reportUri = config('security.headers.csp_report_uri');
+        $reportUri = $this->cspReportUri();
 
         if ($reportUri) {
             $directives[] = 'report-uri ' . $reportUri;
+            $directives[] = 'report-to csp-endpoint';
         }
 
         return implode('; ', $directives);
+    }
+
+    private function cspReportUri(): ?string
+    {
+        $configured = config('security.headers.csp_report_uri');
+
+        if (is_string($configured) && $configured !== '') {
+            return $configured;
+        }
+
+        return route('security.csp_report');
     }
 }

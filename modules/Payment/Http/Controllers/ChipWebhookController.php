@@ -2,15 +2,10 @@
 
 namespace Modules\Payment\Http\Controllers;
 
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Modules\Checkout\Services\CheckoutPaymentFinalizer;
-use Modules\Order\Entities\Order;
-use Modules\Payment\Libraries\Chip\ChipCollectClient;
-use Modules\Payment\Responses\ChipWebhookTransaction;
-use Modules\Payment\Services\ChipPaymentMethodConfig;
+use Modules\Payment\Jobs\ProcessChipWebhookPurchase;
 use Modules\Payment\Services\ChipWebhookSignatureVerifier;
 
 class ChipWebhookController
@@ -36,7 +31,7 @@ class ChipWebhookController
             return response('OK', 200);
         }
 
-        dispatch(fn () => $this->processPurchase($purchaseId))->afterResponse();
+        ProcessChipWebhookPurchase::dispatch($purchaseId)->afterResponse();
 
         return response('OK', 200);
     }
@@ -63,58 +58,4 @@ class ChipWebhookController
         return $fromInput ? (string) $fromInput : null;
     }
 
-
-    private function processPurchase(string $purchaseId): void
-    {
-        try {
-            $client = new ChipCollectClient(
-                setting('chip_brand_id'),
-                setting('chip_api_key'),
-            );
-
-            $purchase = $client->getPurchase($purchaseId);
-
-            if (! $client->isPaid($purchase)) {
-                return;
-            }
-
-            $orderId = $this->resolveOrderId($purchase);
-
-            if (! $orderId) {
-                return;
-            }
-
-            $order = Order::find($orderId);
-
-            if (! $order || ! ChipPaymentMethodConfig::isChipPaymentMethod($order->payment_method)) {
-                return;
-            }
-
-            app(CheckoutPaymentFinalizer::class)->finalize(
-                $order,
-                (string) $order->getRawOriginal('payment_method'),
-                new ChipWebhookTransaction($purchaseId)
-            );
-        } catch (Exception $e) {
-            Log::error('CHIP webhook processing failed', [
-                'purchase_id' => $purchaseId,
-                'message' => $e->getMessage(),
-            ]);
-        }
-    }
-
-
-    /**
-     * @param array<string, mixed> $purchase
-     */
-    private function resolveOrderId(array $purchase): ?int
-    {
-        $reference = (string) ($purchase['reference'] ?? '');
-
-        if (preg_match('/^order_(\d+)$/', $reference, $matches)) {
-            return (int) $matches[1];
-        }
-
-        return null;
-    }
 }
