@@ -34,7 +34,7 @@ class CacheStaticResponse
         }
 
         if ($request->routeIs('home') && config('performance.response_cache.home_enabled', false)) {
-            return $this->respondFromCache($request, $next, 'home:' . locale());
+            return $this->respondFromCache($request, $next, 'home:' . $this->variantKey());
         }
 
         $slug = $request->route('slug');
@@ -43,7 +43,20 @@ class CacheStaticResponse
             return $next($request);
         }
 
-        return $this->respondFromCache($request, $next, 'page:' . locale() . ':' . $slug);
+        return $this->respondFromCache($request, $next, 'page:' . $this->variantKey() . ':' . $slug);
+    }
+
+
+    /**
+     * Everything a guest can vary the rendered HTML by.
+     *
+     * Currency comes from a per-visitor cookie, so it has to be part of the
+     * key: leaving it out would let a visitor browsing in one currency cache
+     * those prices for everybody else.
+     */
+    private function variantKey(): string
+    {
+        return locale() . ':' . currency();
     }
 
 

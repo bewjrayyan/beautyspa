@@ -6,7 +6,13 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Modules\Admin\Ui\Facades\TabManager;
+use Modules\Brand\Entities\Brand;
+use Modules\Category\Entities\Category;
 use Modules\FlashSale\Entities\FlashSale;
+use Modules\FlashSale\Entities\FlashSaleProduct;
+use Modules\Page\Listeners\ClearPageResponseCache;
+use Modules\Product\Entities\Product;
+use Modules\Slider\Entities\Slider;
 use Modules\Storefront\Admin\StorefrontTabs;
 use Modules\Storefront\Http\ViewComposers\LayoutComposer;
 use Modules\Storefront\Http\ViewComposers\HomePageComposer;
@@ -44,5 +50,33 @@ class StorefrontServiceProvider extends ServiceProvider
         View::composer('storefront::admin.storefront.tabs.*', StorefrontTabsComposer::class);
 
         Paginator::defaultView('storefront::public.pagination');
+
+        $this->invalidateResponseCacheOnContentChange();
+    }
+
+
+    /**
+     * Drop the cached storefront HTML whenever something the home page renders
+     * changes.
+     *
+     * Page, BlogPost and Setting already flush themselves. The models below are
+     * the rest of what HomePageComposer and the home sections pull in; without
+     * this an edited slider or price stays invisible until the TTL expires.
+     */
+    private function invalidateResponseCacheOnContentChange(): void
+    {
+        $models = [
+            Slider::class,
+            Category::class,
+            Brand::class,
+            Product::class,
+            FlashSale::class,
+            FlashSaleProduct::class,
+        ];
+
+        foreach ($models as $model) {
+            $model::saved(fn () => ClearPageResponseCache::flush());
+            $model::deleted(fn () => ClearPageResponseCache::flush());
+        }
     }
 }

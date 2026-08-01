@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.91' => [
+        'en' => [
+            'summary' => 'Key the storefront response cache by currency and expire it when home page content changes.',
+            'changes' => [
+                'Include the visitor currency in the response cache key, so prices rendered in one currency are no longer served to visitors browsing in another.',
+                'Expire cached storefront HTML when a slider, category, brand, product, or flash sale is saved or deleted.',
+                'Keep edited home page content visible immediately instead of waiting for the cache lifetime to run out.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kunci response cache storefront mengikut mata wang dan luputkan ia apabila kandungan halaman utama berubah.',
+            'changes' => [
+                'Masukkan mata wang pelawat ke dalam kunci response cache, supaya harga dalam satu mata wang tidak lagi dihidangkan kepada pelawat yang melayari dalam mata wang lain.',
+                'Luputkan HTML storefront yang di-cache apabila slider, kategori, jenama, produk atau flash sale disimpan atau dipadam.',
+                'Kekalkan kandungan halaman utama yang disunting supaya kelihatan serta-merta tanpa menunggu tempoh cache tamat.',
+            ],
+        ],
+    ],
     '4.9.90' => [
         'en' => [
             'summary' => 'Make the storefront response cache safe to switch on by keeping CSRF tokens per visitor.',
