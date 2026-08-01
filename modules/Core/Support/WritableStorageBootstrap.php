@@ -180,9 +180,11 @@ class WritableStorageBootstrap
             'cache.stores.file.path' => static::fileCachePath(),
             'logging.channels.single.path' => static::logPath(),
             'logging.channels.daily.path' => static::logPath(),
-            'logging.channels.single.level' => env('LOG_LEVEL', 'error'),
-            'logging.channels.daily.level' => env('LOG_LEVEL', 'error'),
         ]);
+
+        // The log levels are intentionally not overridden here: config/logging.php
+        // already resolves LOG_LEVEL, and re-reading env() at runtime would force
+        // both channels back to 'error' whenever config:cache is in effect.
     }
 
 

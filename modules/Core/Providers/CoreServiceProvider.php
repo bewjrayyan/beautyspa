@@ -244,8 +244,10 @@ class CoreServiceProvider extends ServiceProvider
             return;
         }
 
-        $driver = env('CACHE_DRIVER', 'file');
-        $this->app['config']->set('cache.default', $driver);
+        // Read the resolved config, never env(): once config:cache has run the
+        // .env file is no longer loaded, so env() returns null here and would
+        // silently downgrade a Redis-backed install to the file store.
+        $driver = (string) config('cache.default', 'file');
 
         if ($driver !== 'file') {
             return;
@@ -328,10 +330,10 @@ class CoreServiceProvider extends ServiceProvider
      */
     private function setupMailConfig()
     {
-        $host = trim((string) (setting('mail_host') ?: env('MAIL_HOST', '')));
+        $host = trim((string) (setting('mail_host') ?: config('mail.mailers.smtp.host', '')));
 
-        $this->app['config']->set('mail.from.address', setting('mail_from_address') ?: env('MAIL_FROM_ADDRESS', 'hello@example.com'));
-        $this->app['config']->set('mail.from.name', setting('mail_from_name') ?: env('MAIL_FROM_NAME', 'AestheticCart'));
+        $this->app['config']->set('mail.from.address', setting('mail_from_address') ?: config('mail.from.address', 'hello@example.com'));
+        $this->app['config']->set('mail.from.name', setting('mail_from_name') ?: config('mail.from.name', 'AestheticCart'));
 
         if ($host === '') {
             $this->app['config']->set('mail.default', 'log');
@@ -341,10 +343,10 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->app['config']->set('mail.default', 'smtp');
         $this->app['config']->set('mail.mailers.smtp.host', $host);
-        $this->app['config']->set('mail.mailers.smtp.port', setting('mail_port') ?: env('MAIL_PORT', 587));
-        $this->app['config']->set('mail.mailers.smtp.username', setting('mail_username') ?: env('MAIL_USERNAME'));
-        $this->app['config']->set('mail.mailers.smtp.password', setting('mail_password') ?: env('MAIL_PASSWORD'));
-        $this->app['config']->set('mail.mailers.smtp.encryption', setting('mail_encryption') ?: env('MAIL_ENCRYPTION'));
+        $this->app['config']->set('mail.mailers.smtp.port', setting('mail_port') ?: config('mail.mailers.smtp.port', 587));
+        $this->app['config']->set('mail.mailers.smtp.username', setting('mail_username') ?: config('mail.mailers.smtp.username'));
+        $this->app['config']->set('mail.mailers.smtp.password', setting('mail_password') ?: config('mail.mailers.smtp.password'));
+        $this->app['config']->set('mail.mailers.smtp.encryption', setting('mail_encryption') ?: config('mail.mailers.smtp.encryption'));
     }
 
 

@@ -70,8 +70,8 @@ class CacheHealth
 
     private static function usesRedis(): bool
     {
-        $cacheDriver = (string) config('cache.default', env('CACHE_DRIVER', 'file'));
-        $sessionDriver = (string) config('session.driver', env('SESSION_DRIVER', 'file'));
+        $cacheDriver = (string) config('cache.default', 'file');
+        $sessionDriver = (string) config('session.driver', 'file');
 
         if ($cacheDriver === 'redis' || $sessionDriver === 'redis') {
             return true;

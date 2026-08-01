@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.92' => [
+        'en' => [
+            'summary' => 'Stop cached configuration from silently downgrading the cache driver and log level.',
+            'changes' => [
+                'Resolve the cache driver from configuration instead of env() at runtime, so warming production caches no longer drops a Redis install back to the file store.',
+                'Read mail host, port, credentials and sender details from configuration, keeping the log-mailer fallback when no SMTP host is set.',
+                'Leave the log level to config/logging.php so cached configuration no longer forces both channels back to error.',
+                'Align the mail configuration defaults with the values the application actually expects.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Halang konfigurasi yang di-cache daripada menurunkan pemacu cache dan aras log secara senyap.',
+            'changes' => [
+                'Selesaikan pemacu cache daripada konfigurasi dan bukan env() ketika runtime, supaya memanaskan cache production tidak lagi menjatuhkan pemasangan Redis kembali ke storan fail.',
+                'Baca hos mel, port, kelayakan dan butiran penghantar daripada konfigurasi, sambil mengekalkan sandaran log-mailer apabila tiada hos SMTP ditetapkan.',
+                'Serahkan aras log kepada config/logging.php supaya konfigurasi yang di-cache tidak lagi memaksa kedua-dua saluran kembali ke error.',
+                'Selaraskan nilai lalai konfigurasi mel dengan nilai yang sebenarnya dijangka oleh aplikasi.',
+            ],
+        ],
+    ],
     '4.9.91' => [
         'en' => [
             'summary' => 'Key the storefront response cache by currency and expire it when home page content changes.',
