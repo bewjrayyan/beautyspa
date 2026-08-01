@@ -10,6 +10,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CacheStaticResponse
 {
+    /**
+     * Stand-in written to the cache in place of the CSRF token.
+     *
+     * The storefront layout embeds csrf_token() into the inline AestheticCart
+     * bootstrap object, and axios sends it as X-CSRF-TOKEN on every request.
+     * Storing that verbatim would hand one visitor's token to everybody else
+     * for the whole TTL, so every guest POST would fail with a 419. We store a
+     * placeholder instead and swap the current session's token back in on the
+     * way out.
+     */
+    private const CSRF_PLACEHOLDER = '__RESPONSE_CACHE_CSRF_TOKEN__';
+
+
     public function handle(Request $request, Closure $next): Response
     {
         if (! config('performance.response_cache.enabled', false)) {
@@ -42,7 +55,7 @@ class CacheStaticResponse
         $cached = Cache::get($cacheKey);
 
         if (is_string($cached) && $cached !== '') {
-            return response($cached)
+            return response($this->restoreCsrfToken($cached))
                 ->header('Content-Type', 'text/html; charset=UTF-8')
                 ->header('X-Response-Cache', 'HIT');
         }
@@ -52,7 +65,7 @@ class CacheStaticResponse
         if ($this->shouldStore($response)) {
             Cache::put(
                 $cacheKey,
-                $response->getContent(),
+                $this->maskCsrfToken((string) $response->getContent()),
                 now()->addMinutes((int) config('performance.response_cache.ttl_minutes', 60))
             );
         }
@@ -79,6 +92,30 @@ class CacheStaticResponse
             ->where('slug', $slug)
             ->where('is_active', true)
             ->exists();
+    }
+
+
+    /**
+     * Swap this request's CSRF token out before the HTML is cached.
+     */
+    private function maskCsrfToken(string $html): string
+    {
+        $token = csrf_token();
+
+        if (! is_string($token) || $token === '') {
+            return $html;
+        }
+
+        return str_replace($token, self::CSRF_PLACEHOLDER, $html);
+    }
+
+
+    /**
+     * Put the current session's CSRF token back into cached HTML.
+     */
+    private function restoreCsrfToken(string $html): string
+    {
+        return str_replace(self::CSRF_PLACEHOLDER, (string) csrf_token(), $html);
     }
 
 

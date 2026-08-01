@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.90' => [
+        'en' => [
+            'summary' => 'Make the storefront response cache safe to switch on by keeping CSRF tokens per visitor.',
+            'changes' => [
+                'Stop the full-page response cache from serving one visitor CSRF token to every other guest, which rejected all guest form and cart submissions with a 419 error.',
+                'Store cached HTML with a token placeholder and substitute the current session token when the page is served from cache.',
+                'Storefront home and CMS pages now respond from cache without breaking add-to-cart, wishlist, newsletter, or login requests.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Jadikan response cache storefront selamat diaktifkan dengan mengekalkan token CSRF setiap pelawat.',
+            'changes' => [
+                'Halang response cache halaman penuh daripada memberikan token CSRF seorang pelawat kepada semua tetamu lain, yang menolak setiap penghantaran borang dan troli tetamu dengan ralat 419.',
+                'Simpan HTML cache dengan placeholder token dan gantikan dengan token sesi semasa ketika halaman dihidangkan daripada cache.',
+                'Halaman utama storefront dan halaman CMS kini dihidangkan daripada cache tanpa merosakkan permintaan tambah-ke-troli, wishlist, newsletter atau log masuk.',
+            ],
+        ],
+    ],
     '4.9.89' => [
         'en' => [
             'summary' => 'Cut admin panel database load by memoizing repeated role checks and indexing order lookups.',
