@@ -59,6 +59,11 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Map routes from all enabled modules.
      *
+     * Route files are pulled in with `require`, never `require_once`: anything
+     * that boots the application twice in one PHP process (route:cache, Octane,
+     * tests) would otherwise get an empty router on the second boot, because
+     * `require_once` refuses to re-run a file it has already seen.
+     *
      * @return void
      */
     private function mapModuleRoutes()
@@ -96,7 +101,7 @@ class RouteServiceProvider extends ServiceProvider
             'prefix' => 'admin',
             'middleware' => ['web', 'admin_locale', 'admin', 'licensed', 'beautician.portal.restrict'],
         ], function () use ($path) {
-            require_once $path;
+            require $path;
         });
     }
 
@@ -131,7 +136,7 @@ class RouteServiceProvider extends ServiceProvider
     private function mapPublicRoutes($path)
     {
         if (file_exists($path)) {
-            require_once $path;
+            require $path;
         }
     }
 
@@ -147,7 +152,7 @@ class RouteServiceProvider extends ServiceProvider
             'prefix' => 'api',
             'middleware' => ['api'],
         ], function () use ($path) {
-            require_once $path;
+            require $path;
         });
     }
 

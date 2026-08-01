@@ -99,7 +99,9 @@ class DashboardController
                 'todayAppointmentsCount' => Order::query()
                     ->whereNotNull('appointment_date')
                     ->withoutCanceledOrders()
-                    ->whereDate('appointment_date', today())
+                    // appointment_date is a DATE column, so a plain comparison is
+                    // equivalent to whereDate() but can still use the index.
+                    ->where('appointment_date', today()->toDateString())
                     ->count(),
                 'totalCustomers' => User::totalCustomers(),
                 'loyaltyMembersTotal' => $loyaltyEnabled ? (int) ($loyaltyCounts->total ?? 0) : 0,
@@ -122,7 +124,7 @@ class DashboardController
         ])
             ->whereNotNull('appointment_date')
             ->withoutCanceledOrders()
-            ->whereDate('appointment_date', today())
+            ->where('appointment_date', today()->toDateString())
             ->orderBy('appointment_date')
             ->take(5)
             ->get();
@@ -142,7 +144,7 @@ class DashboardController
         ])
             ->whereNotNull('appointment_date')
             ->withoutCanceledOrders()
-            ->whereDate('appointment_date', '>', today())
+            ->where('appointment_date', '>', today()->toDateString())
             ->whereNotIn('status', [Order::CANCELED, Order::REFUNDED, Order::COMPLETED])
             ->orderBy('appointment_date')
             ->take(5)

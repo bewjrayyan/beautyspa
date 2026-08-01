@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.89' => [
+        'en' => [
+            'summary' => 'Cut admin panel database load by memoizing repeated role checks and indexing order lookups.',
+            'changes' => [
+                'Memoize role-name and role-id checks per request, removing 13-15 duplicate permission queries from every admin page render.',
+                'Add an appointment-date index so dashboard appointment widgets stop scanning the whole orders table.',
+                'Apply the pending order performance and customer lookup indexes to the orders table.',
+                'Compare appointment dates directly instead of wrapping the column in a date function, so the new index is actually used.',
+                'Load module route files with require instead of require_once, so a second application boot in the same process registers all routes.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kurangkan beban pangkalan data panel admin dengan memoize semakan peranan berulang dan index carian pesanan.',
+            'changes' => [
+                'Memoize semakan nama dan id peranan bagi setiap request, membuang 13-15 query kebenaran berulang daripada setiap paparan halaman admin.',
+                'Tambah index tarikh temujanji supaya widget temujanji dashboard tidak lagi mengimbas keseluruhan jadual pesanan.',
+                'Laksanakan index prestasi pesanan dan carian pelanggan yang masih tertunggak pada jadual pesanan.',
+                'Bandingkan tarikh temujanji secara terus tanpa membalut lajur dengan fungsi tarikh, supaya index baharu benar-benar digunakan.',
+                'Muatkan fail route modul dengan require dan bukan require_once, supaya boot aplikasi kedua dalam proses yang sama mendaftarkan semua route.',
+            ],
+        ],
+    ],
     '4.9.88' => [
         'en' => [
             'summary' => 'Add secure public beautician onboarding and a richer Kosmetik storefront experience.',

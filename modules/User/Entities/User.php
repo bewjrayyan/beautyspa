@@ -213,6 +213,38 @@ class User extends EloquentUser implements AuthenticatableContract
 
 
     /**
+     * Per-request memoization for hasRoleName() and hasRoleId().
+     *
+     * The admin layout, top nav and every sidebar extender ask the same role
+     * questions (via isCustomer/isBeauticianOnly) while rendering a single
+     * page, which previously issued 13-15 identical COUNT queries per request.
+     *
+     * @var array<string, bool>
+     */
+    protected array $roleNameCache = [];
+
+    /** @var array<string, bool> */
+    protected array $roleIdCache = [];
+
+
+    /**
+     * Forget memoized role answers.
+     *
+     * Call this after mutating the user's roles on an instance that stays in
+     * scope, otherwise later checks would read the pre-mutation answer.
+     *
+     * @return $this
+     */
+    public function flushRoleCache()
+    {
+        $this->roleNameCache = [];
+        $this->roleIdCache = [];
+
+        return $this;
+    }
+
+
+    /**
      * Checks if a user belongs to the given Role Name.
      *
      * @param string $name
@@ -221,7 +253,12 @@ class User extends EloquentUser implements AuthenticatableContract
      */
     public function hasRoleName($name)
     {
-        return $this->roles()->whereTranslation('name', $name)->count() !== 0;
+        if (array_key_exists($name, $this->roleNameCache)) {
+            return $this->roleNameCache[$name];
+        }
+
+        return $this->roleNameCache[$name] =
+            $this->roles()->whereTranslation('name', $name)->count() !== 0;
     }
 
 
@@ -245,7 +282,14 @@ class User extends EloquentUser implements AuthenticatableContract
      */
     public function hasRoleId($roleId)
     {
-        return $this->roles()->whereId($roleId)->count() !== 0;
+        $key = (string) $roleId;
+
+        if (array_key_exists($key, $this->roleIdCache)) {
+            return $this->roleIdCache[$key];
+        }
+
+        return $this->roleIdCache[$key] =
+            $this->roles()->whereId($roleId)->count() !== 0;
     }
 
 

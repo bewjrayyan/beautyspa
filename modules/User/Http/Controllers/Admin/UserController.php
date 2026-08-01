@@ -300,6 +300,7 @@ class UserController
         ]));
 
         $user->roles()->sync($request->roles);
+        $user->flushRoleCache();
 
         $this->syncPermissions($user, $request);
 

@@ -64,6 +64,7 @@ class BeauticianPortalUserService
         }
 
         $user->roles()->attach($role);
+        $user->flushRoleCache();
     }
 
 
