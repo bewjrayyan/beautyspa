@@ -111,6 +111,7 @@ return [
     'total' => 'Total',
     'google_sheets_sync_title' => 'Google Excel (Sales Sheet)',
     'google_sheets_target_tab' => 'Target tab:',
+    'google_sheets_open' => 'Open Google Sheet',
     'google_sheets_synced' => 'Synced',
     'google_sheets_synced_tab' => 'Tab: :tab',
     'google_sheets_not_synced' => 'Not synced',

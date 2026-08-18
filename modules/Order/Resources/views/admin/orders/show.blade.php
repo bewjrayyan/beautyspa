@@ -26,10 +26,11 @@
         <div class="order-show__body">
             <div class="row">
                 <div class="col-lg-8">
+                    @include('order::admin.orders.partials.items_ordered')
+
                     @include('order::admin.orders.partials.order_and_account_information')
 
                     @include('order::admin.orders.partials.address_information')
-                    @include('order::admin.orders.partials.items_ordered')
 
                     @if (! empty($treatmentBooking?->activities) && $treatmentBooking->activities->isNotEmpty())
                         <div class="order-show__section">

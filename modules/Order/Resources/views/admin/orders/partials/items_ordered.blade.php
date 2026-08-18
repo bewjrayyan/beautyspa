@@ -1,9 +1,4 @@
 <div class="order-show__section">
-    <h4 class="order-show__section-title">
-        <span class="order-show__section-title-text">{{ trans('order::orders.items_ordered') }}</span>
-        <span class="order-show__section-count">{{ $order->products->count() }}</span>
-    </h4>
-
     <div class="order-show__card order-show__card--flush">
         <div class="table-responsive">
             <table class="table order-show__items-table">

@@ -1,10 +1,14 @@
 @php
     use Modules\GoogleIntegration\Services\GoogleSheetsService;
     use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
+    use Modules\GoogleIntegration\Support\GoogleSpreadsheetUrlParser;
 
     $sheetsEnabled = GoogleSheetsService::isEnabled();
     $statusEnabled = GoogleSheetsStatusConfig::isStatusEnabled($order->status);
     $targetTab = GoogleSheetsStatusConfig::tabForStatus($order->status);
+
+    $spreadsheetId = trim((string) setting('google_spreadsheet_id', ''));
+    $sheetUrl = $spreadsheetId !== '' ? GoogleSpreadsheetUrlParser::toUrl($spreadsheetId) : null;
 @endphp
 
 @if ($sheetsEnabled && $statusEnabled)
@@ -44,6 +48,15 @@
                     <span class="order-show__hint">{{ trans('order::orders.google_sheets_not_synced_help') }}</span>
                 @endif
             </p>
+
+            @if ($sheetUrl)
+                <p class="order-show__google-sheets-link">
+                    <a href="{{ $sheetUrl }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fa fa-external-link" aria-hidden="true"></i>
+                        {{ trans('order::orders.google_sheets_open') }}
+                    </a>
+                </p>
+            @endif
 
             @if ($order->google_sheets_sync_attempted_at)
                 <p class="order-show__hint order-show__google-sheets-attempt">

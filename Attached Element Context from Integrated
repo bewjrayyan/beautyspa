@@ -1,0 +1,95 @@
+Attached Element Context from Integrated Browser
+
+Element: input#beautician-password.form-control
+
+URL: http://localhost/fleetcart/en/beauticians/register
+
+HTML Path: div.login-page > main.beautician-registration > div.beautician-registration__shell > section.beautician-registration__main > div.beautician-registration__form-wrap > form > div.beautician-registration__section > div.beautician-registration__grid > div.form-group > div > input#beautician-password.form-control
+
+Outer HTML:
+```html
+<input class="form-control" id="beautician-password" type="password" name="password" autocomplete="new-password" required="">
+```
+
+Dimensions:
+- top: 206px
+- left: 59px
+- width: 322px
+- height: 52px
+
+CSS:
+```css
+* { margin:0;padding:0;box-sizing:border-box }
+.base-font, .form-control, .form-control::placeholder, body { font-family:var(--base-font-family);font-size:var(--base-font-size);font-style:normal;font-weight:var(--font-normal);line-height:160% }
+.form-control, .form-control::placeholder { color:var(--color-dark-3) }
+.form-control { color:var(--color-dark);flex-grow:1;border-radius:var(--default-border-radius);border:1px solid var(--color-border);background:var(--color-light);height:46px;width:100%;padding:11px 16px;outline:2px solid transparent;transition:var(--transition-200) }
+.ltr .form-control { padding-left:48px }
+.beautician-registration .form-control, .beautician-registration select.form-control { width: 100%;
+            height: 52px;
+            padding: 0 15px;
+            color: var(--beautician-ink);
+            background-color: #fcfafb;
+            border: 1px solid #ded3d8;
+            border-radius: 12px;
+            outline: 0;
+            box-shadow: none;
+            transition: .2s ease; }
+
+/* Inherited */
+.beautician-registration { color: var(--beautician-ink) }
+.base-font, .form-control, .form-control::placeholder, body { font-family:var(--base-font-family); font-size:var(--base-font-size); font-style:normal; font-weight:var(--font-normal); line-height:160% }
+body { color:var(--color-dark) }
+
+/* Resolved values */
+margin: 0px;
+padding: 0px 15px;
+border-radius: 12px;
+border: 1px solid rgb(222, 211, 216);
+transition: 0.2s;
+-webkit-rtl-ordering: logical /*UA*/;
+-webkit-text-security: disc /*UA*/;
+appearance: auto /*UA*/;
+background-color: rgb(252, 250, 251);
+box-shadow: none;
+box-sizing: border-box;
+color: rgb(36, 27, 46);
+cursor: text /*UA*/;
+display: block;
+flex-grow: 1;
+font-family: Poppins, sans-serif;
+font-size: 15px;
+font-style: normal;
+font-weight: 400;
+height: 52px;
+letter-spacing: normal /*UA*/;
+line-height: 24px;
+outline-color: rgb(36, 27, 46);
+outline-style: none;
+outline-width: 0px;
+overflow-clip-margin: 0px /*UA*/;
+overflow-x: clip /*UA*/;
+overflow-y: clip /*UA*/;
+padding-block-end: 0px /*UA*/;
+padding-block-start: 0px /*UA*/;
+padding-inline-end: 15px /*UA*/;
+padding-inline-start: 15px /*UA*/;
+text-align: start /*UA*/;
+text-indent: 0px /*UA*/;
+text-rendering: auto /*UA*/;
+text-shadow: none /*UA*/;
+text-transform: none /*UA*/;
+width: 322px;
+word-spacing: 0px /*UA*/;
+
+/* CSS variables */
+--default-border-radius: 8px;
+--color-dark-3: #a0aec0;
+--transition-200: .2s ease-in-out;
+--color-border: #e1e2e4;
+--base-font-size: 15px;
+--font-normal: 400;
+--color-dark: #0e1e3e;
+--beautician-ink: #241b2e;
+--base-font-family: "Poppins", sans-serif;
+--color-light: #ffffff;
+```
