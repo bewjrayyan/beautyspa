@@ -1194,6 +1194,21 @@
     "file": "assets/main-0mSssj4U-v4.7.71.css",
     "src": "modules/Page/Resources/assets/admin/sass/main.scss"
   },
+  "modules/Product/Resources/assets/admin/consultation_forms/preview.css": {
+    "file": "assets/preview-DbNBL2PW-v4.7.71.css",
+    "src": "modules/Product/Resources/assets/admin/consultation_forms/preview.css",
+    "isEntry": true,
+    "name": "preview",
+    "names": [
+      "preview.css"
+    ]
+  },
+  "modules/Product/Resources/assets/admin/consultation_forms/preview.js": {
+    "file": "assets/preview-C5y6v1x6-v4.7.71.js",
+    "name": "preview",
+    "src": "modules/Product/Resources/assets/admin/consultation_forms/preview.js",
+    "isEntry": true
+  },
   "modules/Product/Resources/assets/admin/js/main.js": {
     "file": "assets/main-CRnCoh6z-v4.7.71.js",
     "name": "main",
@@ -1556,16 +1571,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.71.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.71.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-FuQ-FuMu-v4.7.71.css",
