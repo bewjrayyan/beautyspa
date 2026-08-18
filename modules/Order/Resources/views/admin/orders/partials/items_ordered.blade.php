@@ -15,9 +15,21 @@
                         <tr>
                             <td class="order-show__product-cell">
                                 @if ($product->trashed())
+                                    @php
+                                        $image = ($product->variant && $product->variant->base_image->id) ? $product->variant->base_image : $product->base_image;
+                                    @endphp
+                                    @if ($image && $image->id)
+                                        <img src="{{ $image->path }}" alt="{{ $product->name }}" class="order-show__product-thumb" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px; border-radius: 4px;">
+                                    @endif
                                     <span class="order-show__product-name">{{ $product->name }}</span>
                                     <span class="label label-default">{{ trans('order::orders.product_removed') }}</span>
                                 @else
+                                    @php
+                                        $image = ($product->variant && $product->variant->base_image->id) ? $product->variant->base_image : $product->base_image;
+                                    @endphp
+                                    @if ($image && $image->id)
+                                        <img src="{{ $image->path }}" alt="{{ $product->name }}" class="order-show__product-thumb" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px; border-radius: 4px;">
+                                    @endif
                                     <a href="{{ route('admin.products.edit', $product->product->id) }}" class="order-show__product-name">
                                         {{ $product->name }}
                                     </a>

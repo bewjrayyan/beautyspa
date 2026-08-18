@@ -8,7 +8,9 @@
     'order-show__payment-breakdown--inline' => $variant === 'inline',
 ])>
     @if ($showTitle)
-        <h6 class="order-show__payment-breakdown-title">{{ trans('order::orders.payment_summary') }}</h6>
+        <!-- Existing code before payment title -->
+<h6 class="order-show__payment-breakdown-title" style="margin-bottom: 20px;">{{ trans('order::orders.payment_summary') }}</h6>
+<!-- Existing code after payment title -->
     @endif
 
     <div class="order-show__payment-breakdown-inner">
