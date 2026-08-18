@@ -26,10 +26,6 @@
         <div class="order-show__body">
             <div class="row">
                 <div class="col-lg-8">
-                    @if (app('modules')->isEnabled('Loyalty') && ! empty($orderStampData))
-                        @include('loyalty::admin.orders.partials.stamp_information', $orderStampData)
-                    @endif
-
                     @include('order::admin.orders.partials.order_and_account_information')
 
                     @include('order::admin.orders.partials.address_information')
@@ -46,6 +42,10 @@
 
                 <div class="col-lg-4">
                     <div class="order-show__sidebar">
+                        @if (app('modules')->isEnabled('Loyalty') && ! empty($orderStampData))
+                            @include('loyalty::admin.orders.partials.stamp_information', $orderStampData)
+                        @endif
+
                         @include('order::admin.orders.partials.order_totals')
 
                         @if (app('modules')->isEnabled('GoogleIntegration'))
