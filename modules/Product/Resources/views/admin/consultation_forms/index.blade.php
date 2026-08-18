@@ -47,10 +47,16 @@
                                 {{ trans('product::consultation_forms.'.($template->is_active ? 'enabled' : 'disabled')) }}
                             </span>
                         </div>
-                        <a class="btn btn-primary" href="{{ route('admin.consultation_forms.edit', $template) }}">
-                            <i class="fa fa-pencil" aria-hidden="true"></i>
-                            {{ trans('product::consultation_forms.configure') }}
-                        </a>
+                        <div class="consultation-library__actions">
+                            <a class="btn btn-default btn-sm" href="{{ route('admin.consultation_forms.show', $template) }}" target="_blank">
+                                <i class="fa fa-eye" aria-hidden="true"></i>
+                                {{ trans('product::consultation_forms.view_form') }}
+                            </a>
+                            <a class="btn btn-primary btn-sm" href="{{ route('admin.consultation_forms.edit', $template) }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                {{ trans('product::consultation_forms.configure') }}
+                            </a>
+                        </div>
                     </article>
                 @endforeach
             </div>

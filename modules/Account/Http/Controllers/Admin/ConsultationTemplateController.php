@@ -35,6 +35,22 @@ class ConsultationTemplateController extends Controller
         return view('product::admin.consultation_forms.edit', compact('template'));
     }
 
+    public function show(ConsultationFormTemplate $template): View
+    {
+        // Create a mock submission for preview
+        $mockSubmission = new \Modules\Account\Entities\ConsultationSubmission([
+            'form_title' => $template->title,
+            'form_intro' => $template->intro,
+            'consent_text' => $template->consent_text,
+            'questions_snapshot' => $template->questions,
+            'customer_name' => 'Preview User',
+            'customer_email' => 'preview@example.com',
+            'customer_phone' => '+60 12-345 6789',
+        ]);
+
+        return view('product::admin.consultation_forms.show', compact('template', 'mockSubmission'));
+    }
+
     public function update(
         SaveConsultationTemplateRequest $request,
         ConsultationFormTemplate $template,

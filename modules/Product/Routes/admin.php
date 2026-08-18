@@ -14,6 +14,12 @@ Route::get('consultation-forms/{template}/edit', [
     'middleware' => 'can:admin.consultation_forms.edit',
 ]);
 
+Route::get('consultation-forms/{template}', [
+    'as' => 'admin.consultation_forms.show',
+    'uses' => '\Modules\Account\Http\Controllers\Admin\ConsultationTemplateController@show',
+    'middleware' => 'can:admin.consultation_forms.index',
+]);
+
 Route::put('consultation-forms/{template}', [
     'as' => 'admin.consultation_forms.update',
     'uses' => '\Modules\Account\Http\Controllers\Admin\ConsultationTemplateController@update',
