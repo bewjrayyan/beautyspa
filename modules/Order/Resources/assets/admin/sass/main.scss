@@ -468,8 +468,7 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     padding: 18px 20px;
     border-radius: 16px;
     background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%);
-    border: 1px solid $order-hairline;
-    border: 2px dashed $order-hairline;
+    border: 2px dashed #000000;
 }
 
 .order-show__hero-stats {
