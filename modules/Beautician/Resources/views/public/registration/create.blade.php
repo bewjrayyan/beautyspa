@@ -3,6 +3,7 @@
 @section('title', trans('beautician::beauticians.self_registration.title'))
 
 @push('globals')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --beautician-ink: #241b2e;
@@ -559,13 +560,19 @@
                             <div class="beautician-registration__grid">
                                 <div class="form-group">
                                     <label class="input-label" for="beautician-password">{{ trans('user::auth.password') }} <span>*</span></label>
-                                    <input class="form-control" id="beautician-password" type="password" name="password" autocomplete="new-password" required>
+                                    <div class="beautician-password-input">
+                                        <input class="form-control" id="beautician-password" type="password" name="password" autocomplete="new-password" required>
+                                        <i class="fa fa-eye beautician-password-toggle" style="cursor: pointer; color: #6f2948; right: 12px;" aria-hidden="true"></i>
+                                    </div>
                                     {!! $errors->first('password', '<span class="help-block text-red">:message</span>') !!}
                                 </div>
 
                                 <div class="form-group">
                                     <label class="input-label" for="beautician-password-confirmation">{{ trans('user::auth.confirm_password') }} <span>*</span></label>
-                                    <input class="form-control" id="beautician-password-confirmation" type="password" name="password_confirmation" autocomplete="new-password" required>
+                                    <div class="beautician-password-input">
+                                        <input class="form-control" id="beautician-password-confirmation" type="password" name="password_confirmation" autocomplete="new-password" required>
+                                        <i class="fa fa-eye beautician-password-toggle" style="cursor: pointer; color: #6f2948; right: 12px;" aria-hidden="true"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -598,4 +605,47 @@
 
 @push('scripts')
     @include('storefront::public.partials.google_recaptcha_script')
+    <style>
+        .beautician-password-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .beautician-password-input .form-control {
+            padding-right: 40px !important;
+        }
+        
+        .beautician-password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: auto;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for all form groups to be fully loaded
+            setTimeout(() => {
+                const toggleButtons = document.querySelectorAll('.beautician-password-toggle');
+                
+                toggleButtons.forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        // Find the password input within the same container using closest()
+                        const input = this.closest('.beautician-password-input').querySelector('input');
+                        if (!input) return;
+                        
+                        // Toggle password visibility
+                        const isPassword = input.type === 'password';
+                        input.type = isPassword ? 'text' : 'password';
+                        
+                        // Update icon states
+                        this.classList.toggle('fa-eye');
+                        this.classList.toggle('fa-eye-slash');
+                    });
+                });
+            }, 200); // Small delay to ensure elements are rendered
+        });
+    </script>
 @endpush
