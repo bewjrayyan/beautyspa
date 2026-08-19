@@ -1,8 +1,8 @@
 .fc-saas-stats {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 20px;
+    margin-bottom: 28px;
 
     &--3 {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -20,153 +20,91 @@
 .fc-saas-stat {
     position: relative;
     display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 22px 20px;
-    border-radius: 16px;
-    border: 1px solid transparent;
-    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+    flex-direction: column;
+    padding: 20px 22px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
     overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
 
     &::before {
         content: "";
         position: absolute;
-        top: -24px;
-        right: -24px;
-        width: 88px;
-        height: 88px;
-        border-radius: 50%;
-        opacity: 0.35;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        border-radius: 14px 0 0 14px;
         pointer-events: none;
     }
 
     &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+        transform: translateY(-1px);
     }
 
     @each $name, $config in (
-        sky: (
-            bg: linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%),
-            border: #bae6fd,
-            orb: #7dd3fc,
-            icon: #0284c7,
-            shadow: rgba(2, 132, 199, 0.15)
-        ),
-        violet: (
-            bg: linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%),
-            border: #ddd6fe,
-            orb: #c4b5fd,
-            icon: #7c3aed,
-            shadow: rgba(124, 58, 237, 0.15)
-        ),
-        mint: (
-            bg: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%),
-            border: #a7f3d0,
-            orb: #6ee7b7,
-            icon: #059669,
-            shadow: rgba(5, 150, 105, 0.15)
-        ),
-        peach: (
-            bg: linear-gradient(145deg, #fff7ed 0%, #ffedd5 100%),
-            border: #fed7aa,
-            orb: #fdba74,
-            icon: #ea580c,
-            shadow: rgba(234, 88, 12, 0.15)
-        ),
-        rose: (
-            bg: linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%),
-            border: #fecdd3,
-            orb: #fda4af,
-            icon: #e11d48,
-            shadow: rgba(225, 29, 72, 0.15)
-        ),
-        indigo: (
-            bg: linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%),
-            border: #c7d2fe,
-            orb: #a5b4fc,
-            icon: #4f46e5,
-            shadow: rgba(79, 70, 229, 0.15)
-        ),
-        gold: (
-            bg: linear-gradient(145deg, #fef3c7 0%, #fffbeb 100%),
-            border: #fcd34d,
-            orb: #fde68a,
-            icon: #d97706,
-            shadow: rgba(217, 119, 6, 0.15)
-        ),
-        amber: (
-            bg: linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%),
-            border: #fde68a,
-            orb: #fcd34d,
-            icon: #b45309,
-            shadow: rgba(180, 83, 9, 0.15)
-        ),
-        teal: (
-            bg: linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 100%),
-            border: #99f6e4,
-            orb: #5eead4,
-            icon: #0d9488,
-            shadow: rgba(13, 148, 136, 0.15)
-        ),
-        slate: (
-            bg: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%),
-            border: #cbd5e1,
-            orb: #94a3b8,
-            icon: #475569,
-            shadow: rgba(71, 85, 105, 0.15)
-        ),
-        coral: (
-            bg: linear-gradient(145deg, #fff7ed 0%, #ffedd5 100%),
-            border: #fdba74,
-            orb: #fb923c,
-            icon: #c2410c,
-            shadow: rgba(194, 65, 12, 0.15)
-        )
+        sky: (accent: #3b82f6, icon-bg: rgba(59, 130, 246, 0.08), icon-color: #3b82f6),
+        violet: (accent: #8b5cf6, icon-bg: rgba(139, 92, 246, 0.08), icon-color: #8b5cf6),
+        mint: (accent: #10b981, icon-bg: rgba(16, 185, 129, 0.08), icon-color: #059669),
+        peach: (accent: #f97316, icon-bg: rgba(249, 115, 22, 0.08), icon-color: #ea580c),
+        rose: (accent: #ec4899, icon-bg: rgba(236, 72, 153, 0.08), icon-color: #db2777),
+        indigo: (accent: #6366f1, icon-bg: rgba(99, 102, 241, 0.08), icon-color: #4f46e5),
+        gold: (accent: #f59e0b, icon-bg: rgba(245, 158, 11, 0.08), icon-color: #d97706),
+        amber: (accent: #d97706, icon-bg: rgba(217, 119, 6, 0.08), icon-color: #b45309),
+        teal: (accent: #14b8a6, icon-bg: rgba(20, 184, 166, 0.08), icon-color: #0d9488),
+        slate: (accent: #64748b, icon-bg: rgba(100, 116, 139, 0.06), icon-color: #475569),
+        coral: (accent: #f43f5e, icon-bg: rgba(244, 63, 94, 0.08), icon-color: #e11d48)
     ) {
         &--#{$name} {
-            background: map-get($config, bg);
-            border-color: map-get($config, border);
-
             &::before {
-                background: map-get($config, orb);
+                background: map-get($config, accent);
             }
 
             .fc-saas-stat-icon {
-                background: rgba(255, 255, 255, 0.85);
-                color: map-get($config, icon);
-                box-shadow: 0 4px 12px map-get($config, shadow);
+                background: map-get($config, icon-bg);
+                color: map-get($config, icon-color);
+            }
+
+            .fc-saas-stat-sparkline svg {
+                color: map-get($config, accent);
             }
         }
     }
 }
 
+.fc-saas-stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
 .fc-saas-stat-icon {
     flex-shrink: 0;
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 18px;
+    backdrop-filter: blur(4px);
 }
 
 .fc-saas-stat-body {
-    min-width: 0;
-    flex: 1;
-    padding-top: 2px;
+    margin-bottom: 16px;
 }
 
 .fc-saas-stat-label {
     display: block;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    color: #64748b;
-    margin-bottom: 8px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 6px;
+    letter-spacing: 0.01em;
 }
 
 .fc-saas-stat-value {
@@ -174,23 +112,70 @@
     font-size: 28px;
     font-weight: 700;
     line-height: 1.1;
-    color: #0f172a;
-    letter-spacing: -0.03em;
-    margin-bottom: 6px;
+    color: #1e293b;
+    letter-spacing: -0.02em;
+}
+
+.fc-saas-stat-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
 }
 
 .fc-saas-stat-hint {
-    display: block;
     font-size: 12px;
-    line-height: 1.45;
-    color: #64748b;
+    line-height: 1.4;
+    color: #475569;
+}
+
+.fc-saas-stat-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    .fa {
+        font-size: 9px;
+    }
+
+    &--up {
+        color: #059669;
+    }
+
+    &--down {
+        color: #dc2626;
+    }
+}
+
+.fc-saas-stat-trend-label {
+    font-weight: 400;
+    color: #9ca3af;
+    margin-left: 3px;
+    font-size: 11.5px;
+}
+
+.fc-saas-stat-sparkline {
+    flex-shrink: 0;
+    width: 76px;
+    height: 30px;
+    opacity: 0.85;
+
+    svg {
+        width: 100%;
+        height: 100%;
+        color: #f9a8d4;
+    }
 }
 
 .fc-saas-stat-link {
     display: block;
     text-decoration: none;
     color: inherit;
-    border-radius: 16px;
+    border-radius: 14px;
 
     &:hover,
     &:focus {
@@ -199,7 +184,7 @@
     }
 
     &:focus-visible {
-        outline: 2px solid #0068e1;
+        outline: 2px solid #6366f1;
         outline-offset: 2px;
     }
 
@@ -208,33 +193,121 @@
     }
 }
 
-.fc-saas-stat:has(.fc-saas-stat-cta) .fc-saas-stat-body {
-    padding-right: 56px;
-}
-
 .fc-saas-stat-cta {
-    position: absolute;
-    right: 18px;
-    top: 22px;
-    bottom: auto;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    color: #0068e1;
-    opacity: 1;
+    color: #6366f1;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
 
     .fa {
-        font-size: 10px;
-        transition: transform 0.15s ease;
+        font-size: 9px;
+        transition: transform 0.2s ease;
     }
 }
 
-.fc-saas-stat-link:hover .fc-saas-stat-cta .fa {
-    transform: translateX(3px);
+.fc-saas-stat-link:hover .fc-saas-stat-cta {
+    opacity: 1;
+
+    .fa {
+        transform: translateX(3px);
+    }
+}
+
+.fc-saas-stat--hero {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+    padding: 22px 24px;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        border-radius: 16px 16px 0 0;
+        opacity: 1;
+    }
+
+    &:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+        transform: translateY(-2px);
+    }
+
+    .fc-saas-stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        font-size: 16px;
+    }
+
+    .fc-saas-stat-label {
+        color: #64748b;
+        font-size: 12.5px;
+        font-weight: 500;
+    }
+
+    .fc-saas-stat-value {
+        color: #0f172a;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    .fc-saas-stat-trend {
+        &--up {
+            color: #16a34a;
+        }
+
+        &--down {
+            color: #dc2626;
+        }
+    }
+
+    .fc-saas-stat-trend-label {
+        color: #94a3b8;
+    }
+
+    .fc-saas-stat-cta {
+        color: #6366f1;
+        opacity: 1;
+        font-size: 10.5px;
+    }
+
+}
+
+.dashboard-hero__stats {
+    > :nth-child(1) .fc-saas-stat--hero,
+    > .fc-saas-stat--hero:nth-child(1) {
+        &::before { background: #6366f1; }
+        .fc-saas-stat-icon { background: rgba(99, 102, 241, 0.08); color: #6366f1; }
+    }
+
+    > :nth-child(2) .fc-saas-stat--hero,
+    > .fc-saas-stat--hero:nth-child(2) {
+        &::before { background: #8b5cf6; }
+        .fc-saas-stat-icon { background: rgba(139, 92, 246, 0.08); color: #8b5cf6; }
+    }
+
+    > :nth-child(3) .fc-saas-stat--hero,
+    > .fc-saas-stat--hero:nth-child(3) {
+        &::before { background: #f59e0b; }
+        .fc-saas-stat-icon { background: rgba(245, 158, 11, 0.08); color: #d97706; }
+    }
+
+    > :nth-child(4) .fc-saas-stat--hero,
+    > .fc-saas-stat--hero:nth-child(4) {
+        &::before { background: #10b981; }
+        .fc-saas-stat-icon { background: rgba(16, 185, 129, 0.08); color: #059669; }
+    }
 }
 
 @media (max-width: 1400px) {

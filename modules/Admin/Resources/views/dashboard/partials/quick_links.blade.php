@@ -1,68 +1,69 @@
 @php
-    $quickLinks = array_values(array_filter([
+    $quickActionCards = array_values(array_filter([
         [
-            'permission' => 'admin.orders.index',
-            'url' => route('admin.orders.index'),
-            'icon' => 'fa-shopping-bag',
-            'label' => trans('admin::dashboard.quick_links.orders'),
+            'permission' => 'admin.products.create',
+            'url' => route('admin.products.create'),
+            'icon' => 'fa-plus-circle',
+            'label' => trans('admin::dashboard.quick_actions.add_product'),
+            'subtitle' => trans('admin::dashboard.quick_actions.add_product_sub'),
+            'gradient' => 'qa-card--blue',
         ],
-        is_module_enabled('TreatmentReservation') ? [
-            'permission' => 'admin.treatment_reservations.index',
-            'url' => route('admin.treatment_reservations.calendar'),
-            'icon' => 'fa-calendar',
-            'label' => trans('admin::dashboard.quick_links.reservations'),
-        ] : null,
         [
-            'permission' => 'admin.products.index',
-            'url' => route('admin.products.index'),
-            'icon' => 'fa-cube',
-            'label' => trans('admin::dashboard.quick_links.products'),
+            'permission' => 'admin.users.index',
+            'url' => route('admin.users.index'),
+            'icon' => 'fa-users',
+            'label' => trans('admin::dashboard.quick_actions.approve_users'),
+            'subtitle' => trans('admin::dashboard.quick_actions.approve_users_sub'),
+            'gradient' => 'qa-card--teal',
         ],
         [
             'permission' => 'admin.reports.index',
             'url' => route('admin.reports.index'),
             'icon' => 'fa-bar-chart',
-            'label' => trans('admin::dashboard.quick_links.reports'),
+            'label' => trans('admin::dashboard.quick_actions.view_reports'),
+            'subtitle' => trans('admin::dashboard.quick_actions.view_reports_sub'),
+            'gradient' => 'qa-card--green',
         ],
-        ($showLoyaltyMembersCard ?? false) ? [
-            'permission' => 'admin.loyalty.members.index',
-            'url' => $loyaltyMembersUrl,
-            'icon' => 'fa-star',
-            'label' => trans('admin::dashboard.quick_links.loyalty'),
-        ] : null,
-        is_module_enabled('Coupon') ? [
-            'permission' => 'admin.coupons.index',
-            'url' => route('admin.coupons.index'),
-            'icon' => 'fa-ticket',
-            'label' => trans('admin::dashboard.quick_links.coupons'),
-        ] : null,
-        is_module_enabled('SpaBranch') ? [
-            'permission' => 'admin.spa_branches.index',
-            'url' => route('admin.spa_branches.index'),
-            'icon' => 'fa-map-marker',
-            'label' => trans('admin::dashboard.quick_links.spa_branches'),
-        ] : null,
-        is_module_enabled('Beautician') ? [
-            'permission' => 'admin.beauticians.index',
-            'url' => route('admin.beauticians.index'),
-            'icon' => 'fa-user-md',
-            'label' => trans('admin::dashboard.quick_links.beauticians'),
-        ] : null,
+        [
+            'permission' => 'admin.settings.edit',
+            'url' => route('admin.settings.edit'),
+            'icon' => 'fa-cog',
+            'label' => trans('admin::dashboard.quick_actions.settings'),
+            'subtitle' => trans('admin::dashboard.quick_actions.settings_sub'),
+            'gradient' => 'qa-card--orange',
+        ],
     ]));
 @endphp
 
-@if (count($quickLinks) > 0)
-    <nav class="dashboard-quick-links" aria-label="{{ trans('admin::dashboard.quick_links.title') }}">
-        <span class="dashboard-quick-links__title">{{ trans('admin::dashboard.quick_links.title') }}</span>
-        <div class="dashboard-quick-links__list">
-            @foreach ($quickLinks as $link)
-                @hasAccess($link['permission'])
-                    <a href="{{ $link['url'] }}" class="dashboard-quick-link">
-                        <i class="fa {{ $link['icon'] }}" aria-hidden="true"></i>
-                        <span>{{ $link['label'] }}</span>
-                    </a>
-                @endHasAccess
-            @endforeach
+@if (count($quickActionCards) > 0)
+    <div class="dashboard-qa-row">
+        {{-- Quick Actions --}}
+        <div class="dashboard-panel qa-panel">
+            <div class="qa-panel__header">
+                <h5 class="qa-panel__title">{{ trans('admin::dashboard.quick_actions.title') }}</h5>
+                <p class="qa-panel__subtitle">{{ trans('admin::dashboard.quick_actions.subtitle') }}</p>
+            </div>
+
+            <div class="qa-grid">
+                @foreach ($quickActionCards as $card)
+                    @hasAccess($card['permission'])
+                        <a href="{{ $card['url'] }}" class="qa-card {{ $card['gradient'] }}">
+                            <span class="qa-card__icon-wrap">
+                                <i class="fa {{ $card['icon'] }}" aria-hidden="true"></i>
+                            </span>
+                            <span class="qa-card__text">
+                                <span class="qa-card__label">{{ $card['label'] }}</span>
+                                <span class="qa-card__sub">{{ $card['subtitle'] }}</span>
+                            </span>
+                        </a>
+                    @endHasAccess
+                @endforeach
+            </div>
         </div>
-    </nav>
+
+        {{-- Top Beauticians --}}
+        @if ($showAppointmentPanels ?? false)
+            @include('admin::dashboard.panels.top_beauticians')
+        @endif
+    </div>
 @endif

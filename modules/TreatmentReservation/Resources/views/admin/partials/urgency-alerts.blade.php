@@ -118,8 +118,24 @@
         <script>
             (function () {
                 const modal = document.getElementById('tr-urgency-modal');
+                const DISMISS_KEY = 'tr_urgency_dismissed';
+                const DISMISS_HOURS = 24;
+
+                function isDismissed() {
+                    try {
+                        var ts = localStorage.getItem(DISMISS_KEY);
+                        if (!ts) return false;
+                        return (Date.now() - parseInt(ts, 10)) < (DISMISS_HOURS * 3600000);
+                    } catch (e) { return false; }
+                }
+
+                function markDismissed() {
+                    try { localStorage.setItem(DISMISS_KEY, Date.now().toString()); } catch (e) {}
+                }
 
                 function closeUrgencyModal() {
+                    markDismissed();
+
                     if (modal) {
                         modal.classList.add('tr-urgency-modal--hidden');
                         document.body.classList.remove('tr-urgency-modal-open');
@@ -132,6 +148,11 @@
                 }
 
                 if (modal) {
+                    if (isDismissed()) {
+                        modal.classList.add('tr-urgency-modal--hidden');
+                        return;
+                    }
+
                     document.body.classList.add('tr-urgency-modal-open');
 
                     modal.querySelectorAll('[data-dismiss-urgency]').forEach((button) => {

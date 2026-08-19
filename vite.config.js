@@ -8,7 +8,7 @@ import autoprefixer from "autoprefixer";
 import postcssRTLCSS from "postcss-rtlcss";
 
 // AestheticCart version
-const VERSION = "4.7.71";
+const VERSION = "4.7.72";
 
 export default defineConfig(async ({ command }) => {
     // Glob pattern for assets
@@ -30,6 +30,7 @@ export default defineConfig(async ({ command }) => {
         plugins: [
             laravel({
                 input: [
+                    "resources/sass/app.scss",
                     "modules/Admin/Resources/assets/sass/dashboard.scss",
                     "modules/Admin/Resources/assets/js/dashboard.js",
                     "modules/BeauticianReport/Resources/assets/admin/js/dashboard.js",

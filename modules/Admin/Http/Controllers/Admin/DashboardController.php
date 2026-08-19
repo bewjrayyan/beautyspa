@@ -11,6 +11,7 @@ use Modules\Review\Entities\Review;
 use Modules\Support\Money;
 use Modules\User\Entities\Role;
 use Modules\User\Entities\User;
+use Modules\Beautician\Entities\Beautician;
 use Nwidart\Modules\Facades\Module;
 
 class DashboardController
@@ -38,6 +39,8 @@ class DashboardController
             'totalCustomers' => $topStats['totalCustomers'],
             'loyaltyMembersTotal' => $topStats['loyaltyMembersTotal'],
             'loyaltyMembersWithBalance' => $topStats['loyaltyMembersWithBalance'],
+            'trends' => $topStats['trends'],
+            'sparkline' => $topStats['sparkline'],
             'topStatsShowLoyalty' => $loyaltyEnabled
                 && auth()->user()?->hasAccess('admin.loyalty.members.index'),
             'showAppointmentPanels' => $showAppointmentPanels,
@@ -58,6 +61,9 @@ class DashboardController
                 : collect(),
             'upcomingAppointments' => $showAppointmentPanels
                 ? $this->getUpcomingAppointments()
+                : collect(),
+            'topBeauticians' => $showAppointmentPanels
+                ? $this->getTopBeauticians()
                 : collect(),
             'pendingOrders' => $this->getPendingOrders(),
             'latestSearchTerms' => $this->getLatestSearchTerms(),
@@ -85,6 +91,38 @@ class DashboardController
                     ->first()
                 : null;
 
+            $thisWeekStart = now()->startOfWeek();
+            $lastWeekStart = now()->subWeek()->startOfWeek();
+            $lastWeekEnd = now()->subWeek()->endOfWeek();
+
+            $thisWeekSales = (clone $orderQuery)->where('created_at', '>=', $thisWeekStart)->sum('total');
+            $lastWeekSales = (clone $orderQuery)->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('total');
+
+            $thisWeekOrders = (clone $orderQuery)->where('created_at', '>=', $thisWeekStart)->count();
+            $lastWeekOrders = (clone $orderQuery)->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
+
+            $thisWeekCustomers = User::where('created_at', '>=', $thisWeekStart)->count();
+            $lastWeekCustomers = User::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
+
+            $thisWeekPending = (clone $orderQuery)
+                ->whereIn('payment_status', [Order::PAYMENT_PENDING, Order::PAYMENT_PROCESSING])
+                ->where('created_at', '>=', $thisWeekStart)->count();
+            $lastWeekPending = (clone $orderQuery)
+                ->whereIn('payment_status', [Order::PAYMENT_PENDING, Order::PAYMENT_PROCESSING])
+                ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
+
+            $dailySales = Order::query()->withoutCanceledOrders()
+                ->where('created_at', '>=', now()->subDays(6)->startOfDay())
+                ->selectRaw('DATE(created_at) as day, SUM(total) as amount')
+                ->groupBy('day')->orderBy('day')
+                ->pluck('amount', 'day')->toArray();
+
+            $sparkline = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $day = now()->subDays($i)->toDateString();
+                $sparkline[] = (float) ($dailySales[$day] ?? 0);
+            }
+
             return [
                 'totalSales' => Order::totalSales(),
                 'thisMonthSales' => Money::inDefaultCurrency(
@@ -99,15 +137,32 @@ class DashboardController
                 'todayAppointmentsCount' => Order::query()
                     ->whereNotNull('appointment_date')
                     ->withoutCanceledOrders()
-                    // appointment_date is a DATE column, so a plain comparison is
-                    // equivalent to whereDate() but can still use the index.
                     ->where('appointment_date', today()->toDateString())
                     ->count(),
                 'totalCustomers' => User::totalCustomers(),
                 'loyaltyMembersTotal' => $loyaltyEnabled ? (int) ($loyaltyCounts->total ?? 0) : 0,
                 'loyaltyMembersWithBalance' => $loyaltyEnabled ? (int) ($loyaltyCounts->with_balance ?? 0) : 0,
+                'trends' => [
+                    'sales' => $this->calcTrend($thisWeekSales, $lastWeekSales),
+                    'orders' => $this->calcTrend($thisWeekOrders, $lastWeekOrders),
+                    'customers' => $this->calcTrend($thisWeekCustomers, $lastWeekCustomers),
+                    'pending' => $this->calcTrend($thisWeekPending, $lastWeekPending),
+                ],
+                'sparkline' => $sparkline,
             ];
         });
+    }
+
+
+    private function calcTrend(float $current, float $previous): array
+    {
+        if ($previous == 0) {
+            $pct = $current > 0 ? 100 : 0;
+        } else {
+            $pct = round((($current - $previous) / $previous) * 100);
+        }
+
+        return ['pct' => (int) $pct, 'direction' => $pct >= 0 ? 'up' : 'down'];
     }
 
 
@@ -217,6 +272,37 @@ class DashboardController
                 'users.created_at',
             ])
             ->orderByDesc('users.created_at')
+            ->take(5)
+            ->get();
+    }
+
+
+    private function getTopBeauticians()
+    {
+        $startOfMonth = now()->subMonths(3)->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
+        return Beautician::query()
+            ->without([])
+            ->with(['files', 'user', 'spaBranches:id,name'])
+            ->select([
+                'beauticians.id',
+                'beauticians.first_name',
+                'beauticians.last_name',
+                'beauticians.profile_color',
+                'beauticians.job_title',
+            ])
+            ->selectRaw('COUNT(orders.id) as orders_count')
+            ->selectRaw('COALESCE(SUM(orders.total), 0) as revenue')
+            ->leftJoin('orders', function ($join) use ($startOfMonth, $endOfMonth) {
+                $join->on('orders.beautician_id', '=', 'beauticians.id')
+                    ->whereBetween('orders.created_at', [$startOfMonth, $endOfMonth])
+                    ->whereNotIn('orders.status', [Order::CANCELED, Order::REFUNDED]);
+            })
+            ->where('beauticians.is_active', true)
+            ->groupBy('beauticians.id', 'beauticians.first_name', 'beauticians.last_name', 'beauticians.profile_color', 'beauticians.job_title')
+            ->orderByDesc('revenue')
+            ->orderBy('beauticians.first_name')
             ->take(5)
             ->get();
     }
