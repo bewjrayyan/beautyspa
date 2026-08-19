@@ -23,7 +23,8 @@ return [
     'table' => [
         'customer_name' => 'Customer Name',
         'customer_email' => 'Customer Email',
-        'payment_status' => 'Payment Status',
+        'beautician' => 'Beautician',
+        'payment_status' => 'Pyt Status',
         'spa_branch' => 'Spa Branch',
         'total' => 'Total',
         'actions' => 'Actions',

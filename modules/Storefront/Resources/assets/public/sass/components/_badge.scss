@@ -8,21 +8,21 @@
 }
 
 .badge-success {
-    color: var(--color-green);
-    background: #edf9f6;
+    color: #fff;
+    background: var(--color-green, #10b981);
 }
 
 .badge-danger {
-    color: var(--color-red);
-    background: #fdf0ed;
+    color: #fff;
+    background: var(--color-red, #ef4444);
 }
 
 .badge-info {
-    color: var(--color-info);
-    background: #eef5fb;
+    color: #fff;
+    background: var(--color-info, #247cc6);
 }
 
 .badge-warning {
-    color: var(--color-yellow);
-    background: #fcf6ec;
+    color: #fff;
+    background: var(--color-yellow, #f59e0b);
 }

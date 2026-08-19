@@ -6,15 +6,9 @@
         <div class="fc-saas-stat-icon" aria-hidden="true">
             <i class="fa {{ $icon }}"></i>
         </div>
-        @if (! empty($cta))
-            <span class="fc-saas-stat-cta">
-                {{ $cta }}
-                <i class="fa fa-arrow-right" aria-hidden="true"></i>
-            </span>
-        @endif
+        <span class="fc-saas-stat-label">{{ $label }}</span>
     </header>
     <div class="fc-saas-stat-body">
-        <span class="fc-saas-stat-label">{{ $label }}</span>
         <span class="fc-saas-stat-value" @if (! empty($valueTitle)) title="{{ $valueTitle }}" @endif>{{ $value }}</span>
     </div>
     <footer class="fc-saas-stat-footer">
@@ -42,6 +36,12 @@
                     <polyline points="{{ implode(' ', $points) }}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
+        @endif
+        @if (! empty($cta))
+            <span class="fc-saas-stat-cta">
+                {{ $cta }}
+                <i class="fa fa-arrow-right" aria-hidden="true"></i>
+            </span>
         @endif
     </footer>
 </article>

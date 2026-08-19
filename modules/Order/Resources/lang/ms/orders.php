@@ -23,7 +23,8 @@ return [
     'table' => [
         'customer_name' => 'Nama pelanggan',
         'customer_email' => 'E-mel pelanggan',
-        'payment_status' => 'Status bayaran',
+        'beautician' => 'Beautician',
+        'payment_status' => 'Pyt Status',
         'spa_branch' => 'Cawangan spa',
         'total' => 'Jumlah',
         'actions' => 'Tindakan',

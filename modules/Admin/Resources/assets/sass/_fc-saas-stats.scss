@@ -78,7 +78,7 @@
 .fc-saas-stat-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 10px;
     margin-bottom: 12px;
 }
 
@@ -99,12 +99,11 @@
 }
 
 .fc-saas-stat-label {
-    display: block;
-    font-size: 12.5px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     color: #475569;
-    margin-bottom: 6px;
     letter-spacing: 0.01em;
+    line-height: 1.3;
 }
 
 .fc-saas-stat-value {
@@ -250,14 +249,14 @@
     }
 
     .fc-saas-stat-label {
-        color: #64748b;
-        font-size: 12.5px;
-        font-weight: 500;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 600;
     }
 
     .fc-saas-stat-value {
         color: #0f172a;
-        font-size: 24px;
+        font-size: 26px;
         font-weight: 700;
         letter-spacing: -0.02em;
     }

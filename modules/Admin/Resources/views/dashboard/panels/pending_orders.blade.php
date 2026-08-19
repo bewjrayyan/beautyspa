@@ -31,7 +31,13 @@
                             <a href="{{ route('admin.orders.show', $order) }}">{{ $order->id }}</a>
                         </td>
                         <td>
-                            <a href="{{ route('admin.orders.show', $order) }}">{{ $order->customer_full_name }}</a>
+                            <a href="{{ route('admin.orders.show', $order) }}">
+                                {{
+                                    mb_strlen($order->customer_full_name) > 20
+                                        ? mb_substr($order->customer_full_name, 0, 20) . '...'
+                                        : $order->customer_full_name
+                                }}
+                            </a>
                         </td>
                         <td>
                             <a href="{{ route('admin.orders.show', $order) }}">

@@ -626,16 +626,20 @@ class Order extends Model
             'id',
             'customer_first_name',
             'customer_last_name',
-            'customer_email',
             'currency',
             'total',
             'status',
             'payment_status',
+            'beautician_id',
             'spa_branch_id',
             'google_sheets_sync_error',
             'created_at',
             'deleted_at',
-        ])->with('spaBranch:id,name');
+        ])->with(['spaBranch:id,name', 'beautician:id,first_name,last_name']);
+
+        if (is_module_enabled('TreatmentReservation')) {
+            $query->with(['treatmentBooking:id,order_id,status']);
+        }
 
         if ($request->boolean('archived')) {
             $query->onlyTrashed();
@@ -653,6 +657,14 @@ class Order extends Model
             && in_array($paymentStatus, self::paymentStatuses(), true)
         ) {
             $query->where('payment_status', $paymentStatus);
+        }
+
+        if ($request->filled('beautician_id')) {
+            $query->where('beautician_id', $request->input('beautician_id'));
+        }
+
+        if ($request->input('date') === 'today') {
+            $query->whereDate('created_at', today());
         }
 
         return new OrderTable($query);

@@ -22,7 +22,7 @@
                     $avatarUrl = $b->displayAvatarUrl();
                     $branch = $b->spaBranches->first()?->name;
                 @endphp
-                <a href="{{ route('admin.orders.index', ['query' => trim($b->first_name . ' ' . $b->last_name)]) }}" class="top-beauticians-list__item top-beauticians-list__item--link">
+                <a href="{{ route('admin.orders.index', ['beautician_id' => $b->id]) }}" class="top-beauticians-list__item top-beauticians-list__item--link">
                     <div class="top-beauticians-list__rank">
                         @if ($avatarUrl)
                             <img src="{{ $avatarUrl }}" alt="{{ $b->name }}" class="top-beauticians-list__avatar-img">

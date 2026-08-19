@@ -35,6 +35,7 @@ class DashboardController
             'totalSales' => $topStats['totalSales'],
             'thisMonthSales' => $topStats['thisMonthSales'],
             'pendingPaymentCount' => $topStats['pendingPaymentCount'],
+            'todayOrdersCount' => $topStats['todayOrdersCount'],
             'todayAppointmentsCount' => $topStats['todayAppointmentsCount'],
             'totalCustomers' => $topStats['totalCustomers'],
             'loyaltyMembersTotal' => $topStats['loyaltyMembersTotal'],
@@ -134,6 +135,9 @@ class DashboardController
                     Order::PAYMENT_PENDING,
                     Order::PAYMENT_PROCESSING,
                 ])->count(),
+                'todayOrdersCount' => (clone $orderQuery)
+                    ->whereDate('created_at', today())
+                    ->count(),
                 'todayAppointmentsCount' => Order::query()
                     ->whereNotNull('appointment_date')
                     ->withoutCanceledOrders()

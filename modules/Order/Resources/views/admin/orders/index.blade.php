@@ -59,12 +59,12 @@
 
                         <th>{{ trans('admin::admin.table.id') }}</th>
                         <th>{{ trans('order::orders.table.customer_name') }}</th>
-                        <th>{{ trans('order::orders.table.customer_email') }}</th>
-                        <th>{{ trans('admin::admin.table.status') }}</th>
-                        <th>{{ trans('order::orders.table.payment_status') }}</th>
+                        <th>{{ trans('order::orders.table.beautician') }}</th>
                         @if (is_module_enabled('SpaBranch'))
                             <th>{{ trans('order::orders.table.spa_branch') }}</th>
                         @endif
+                        <th>{{ trans('admin::admin.table.status') }}</th>
+                        <th>{{ trans('order::orders.table.payment_status') }}</th>
                         <th>{{ trans('order::orders.table.total') }}</th>
                         <th data-sort>{{ trans('admin::admin.table.created') }}</th>
                         <th class="text-center">{{ trans('order::orders.table.actions') }}</th>
@@ -110,6 +110,8 @@
             let showArchived = urlParams.get('archived') === '1';
             let showSheetsFailed = urlParams.get('google_sheets_failed') === '1';
             let activePaymentStatus = urlParams.get('payment_status') || '';
+            let beauticianId = urlParams.get('beautician_id') || '';
+            let dateFilter = urlParams.get('date') || '';
             window.ordersIndexShowArchived = showArchived;
 
             function initOrdersIndex() {
@@ -496,12 +498,12 @@
                 orderColumns.push(
                     { data: 'id', width: '5%' },
                     { data: 'customer_name', orderable: false, searchable: false },
-                    { data: 'customer_email' },
-                    { data: 'status' },
-                    { data: 'payment_status', orderable: false, searchable: false },
+                    { data: 'beautician_name', orderable: false, searchable: false },
                     @if (is_module_enabled('SpaBranch'))
                     { data: 'spa_branch', orderable: false, searchable: false },
                     @endif
+                    { data: 'status' },
+                    { data: 'payment_status', orderable: false, searchable: false },
                     { data: 'total' },
                     { data: 'created', name: 'created_at' },
                     {
@@ -523,6 +525,14 @@
 
                             if (activePaymentStatus) {
                                 data.payment_status = activePaymentStatus;
+                            }
+
+                            if (beauticianId) {
+                                data.beautician_id = beauticianId;
+                            }
+
+                            if (dateFilter) {
+                                data.date = dateFilter;
                             }
                         },
                     },

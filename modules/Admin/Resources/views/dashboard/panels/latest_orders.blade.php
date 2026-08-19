@@ -29,7 +29,11 @@
                         </td>
                         <td>
                             <a href="{{ route('admin.orders.show', $latestOrder) }}">
-                                {{ $latestOrder->customer_full_name }}
+                                {{
+                                    mb_strlen($latestOrder->customer_full_name) > 20
+                                        ? mb_substr($latestOrder->customer_full_name, 0, 20) . '...'
+                                        : $latestOrder->customer_full_name
+                                }}
                             </a>
                         </td>
                         <td>

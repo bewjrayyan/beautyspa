@@ -3,21 +3,6 @@
 @section('title', trans('admin::dashboard.dashboard'))
 
 @section('content_header')
-    <div class="dashboard-modern-header">
-        <div>
-            <h3>{{ trans('admin::dashboard.dashboard') }}</h3>
-            <p class="dashboard-modern-subtitle">{{ trans('admin::dashboard.overview') }}</p>
-        </div>
-
-        @if ($beauticianAnalyticsUrl ?? null)
-            @hasAccess('admin.beautician_reports.index')
-                <a href="{{ $beauticianAnalyticsUrl }}" class="btn btn-default">
-                    <i class="fa fa-line-chart"></i>
-                    {{ trans('admin::dashboard.beautician_analytics') }}
-                </a>
-            @endHasAccess
-        @endif
-    </div>
 @endsection
 
 @section('content')

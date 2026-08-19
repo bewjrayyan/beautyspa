@@ -50,13 +50,29 @@ class OrderTable extends AdminTable
                 return $html;
             })
             ->addColumn('customer_name', function ($order) {
-                return $order->customer_full_name;
+                $name = $order->customer_full_name;
+                return mb_strlen($name) > 20 ? mb_substr($name, 0, 20) . '...' : $name;
+            })
+            ->addColumn('beautician_name', function ($order) {
+                if (!$order->beautician) {
+                    return '—';
+                }
+                $name = trim($order->beautician->first_name . ' ' . $order->beautician->last_name);
+                return mb_strlen($name) > 20 ? mb_substr($name, 0, 20) . '...' : e($name);
             })
             ->editColumn('total', function ($order) {
                 return $order->total->format();
             })
             ->editColumn('status', function ($order) {
-                return '<span class="badge ' . order_status_badge_class($order->status) . '">' . $order->status() . '</span>';
+                if (is_module_enabled('TreatmentReservation') && !empty($order->treatmentBooking)) {
+                    $treatmentBooking = $order->treatmentBooking;
+
+                    return '<span class="badge ' . treatment_status_badge_class($treatmentBooking->status) . '">'
+                        . e($treatmentBooking->treatmentStatusLabel())
+                        . '</span>';
+                }
+
+                return '<span class="badge ' . order_status_badge_class($order->status) . '">' . e($order->status()) . '</span>';
             })
             ->editColumn('payment_status', function ($order) {
                 return '<span class="badge ' . payment_status_badge_class($order->payment_status) . '">'
