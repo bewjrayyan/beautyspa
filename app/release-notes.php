@@ -5,6 +5,39 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.98' => [
+        'date' => '2026-08-19 20:05',
+        'en' => [
+            'summary' => 'Dashboard welcome banner redesign, Today Orders stat, per-branch sales analytics, and orders table improvements.',
+            'changes' => [
+                'Redesign welcome banner with pink sakura theme and 3D trophy icon.',
+                'Replace Pending Payment stat card with Today Orders (click filters orders by today).',
+                'Add per-branch stacked bar chart in sales analytics with distinct colors.',
+                'Add Beautician column to orders table; remove Customer Email column.',
+                'Status column now shows treatment status instead of order status.',
+                'Truncate long customer/beautician names in tables.',
+                'Full MYR currency format on dashboard stat cards.',
+                'Glassmorphism styling for report stat cards.',
+                'Solid badge colors across admin and storefront.',
+                'Add date filter support in orders index.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Reka bentuk semula banner selamat datang, stat Pesanan Hari Ini, analitik jualan per cawangan, dan penambahbaikan jadual pesanan.',
+            'changes' => [
+                'Reka bentuk semula banner selamat datang dengan tema pink sakura dan ikon trofi 3D.',
+                'Tukar kad stat Bayaran Tertunda kepada Pesanan Hari Ini (klik tapis pesanan hari ini).',
+                'Tambah carta bar bertindan per cawangan dalam analitik jualan dengan warna berbeza.',
+                'Tambah kolom Beautician dalam jadual pesanan; buang kolom Emel Pelanggan.',
+                'Kolom status kini menunjukkan status rawatan bukan status pesanan.',
+                'Potong nama pelanggan/beautician yang panjang dalam jadual.',
+                'Format mata wang MYR penuh pada kad stat dashboard.',
+                'Gaya glassmorphism untuk kad stat laporan.',
+                'Warna badge pepejal di seluruh admin dan storefront.',
+                'Tambah sokongan tapis tarikh di halaman pesanan.',
+            ],
+        ],
+    ],
     '4.9.95' => [
         'date' => '2026-08-19 18:15',
         'en' => [
