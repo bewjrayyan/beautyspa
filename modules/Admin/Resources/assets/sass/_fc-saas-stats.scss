@@ -79,7 +79,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .fc-saas-stat-icon {
@@ -95,7 +95,7 @@
 }
 
 .fc-saas-stat-body {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 
 .fc-saas-stat-label {
@@ -224,7 +224,7 @@
     border: 1px solid #f1f5f9;
     border-radius: 16px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
-    padding: 22px 24px;
+    padding: 18px 20px;
 
     &::before {
         content: "";
@@ -257,7 +257,7 @@
 
     .fc-saas-stat-value {
         color: #0f172a;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 700;
         letter-spacing: -0.02em;
     }
