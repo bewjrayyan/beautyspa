@@ -182,7 +182,7 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
     &__kpis {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
+        gap: 16px;
     }
 
     &__workspace {
@@ -717,7 +717,7 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
     &__grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
+        gap: 16px;
     }
 }
 
@@ -924,7 +924,7 @@ body.tr-crm-drawer-open {
 
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    gap: 16px;
     padding: 10px;
 
     &__column {
@@ -1924,7 +1924,7 @@ body.tr-crm-drawer-open {
 .tr-crm-stats {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
     padding: 0 16px 12px;
 }
 
@@ -2550,7 +2550,7 @@ body.tr-crm-drawer-open {
 
         i {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-size: 22px;
             color: #cbd5e1;
         }
@@ -2638,7 +2638,7 @@ body.tr-crm-drawer-open {
         flex-shrink: 0;
         padding: 0 4px 12px;
         border-bottom: 1px solid #f1f5f9;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     &__eyebrow {
@@ -3198,25 +3198,66 @@ body.tr-crm-drawer-open {
 
 .tr-reservations--mockup .tr-crm-kpi {
     display: grid;
-    grid-template-columns: 52px minmax(0, 1fr);
-    gap: 14px;
-    padding: 18px 20px;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 16px;
+    padding: 20px 22px;
     border-radius: 14px;
+
+    // Glassmorphism-like styling (visual only)
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(236, 72, 153, 0.18);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+        0 14px 38px rgba(236, 72, 153, 0.10),
+        0 2px 10px rgba(15, 23, 42, 0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 18px 48px rgba(236, 72, 153, 0.14),
+            0 4px 16px rgba(15, 23, 42, 0.06);
+        border-color: rgba(236, 72, 153, 0.26);
+        background: rgba(255, 255, 255, 0.14);
+    }
+
+    &--today { border-color: rgba(14, 165, 233, 0.25); }
+    &--pending { border-color: rgba(234, 88, 12, 0.22); }
+    &--in_progress { border-color: rgba(67, 56, 202, 0.22); }
+    &--completed { border-color: rgba(4, 120, 87, 0.22); }
 
     &__icon-wrap {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        font-size: 18px;
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        font-size: 20px;
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
     }
 
-    &--today &__icon-wrap { background: #e0f2fe; color: #0284c7; }
-    &--pending &__icon-wrap { background: #ffedd5; color: #ea580c; }
-    &--in_progress &__icon-wrap { background: #ede9fe; color: #6d28d9; }
-    &--completed &__icon-wrap { background: #d1fae5; color: #047857; }
+    &--today &__icon-wrap {
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        color: #0284c7;
+        box-shadow: 0 18px 48px rgba(2, 132, 199, 0.14);
+    }
+    &--pending &__icon-wrap {
+        background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+        color: #ea580c;
+        box-shadow: 0 18px 48px rgba(234, 88, 12, 0.14);
+    }
+    &--in_progress &__icon-wrap {
+        background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+        color: #6d28d9;
+        box-shadow: 0 18px 48px rgba(109, 40, 217, 0.14);
+    }
+    &--completed &__icon-wrap {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #047857;
+        box-shadow: 0 18px 48px rgba(4, 120, 87, 0.14);
+    }
 
     &__label {
         display: block;
@@ -3232,12 +3273,12 @@ body.tr-crm-drawer-open {
         display: flex;
         align-items: baseline;
         gap: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     &__value {
         margin: 0;
-        font-size: 2.35rem;
+        font-size: 2.25rem;
         font-weight: 800;
         line-height: 1;
         color: $crm-text;
@@ -3259,12 +3300,37 @@ body.tr-crm-drawer-open {
     &__subhint {
         margin: 0;
         font-size: 12px;
-        color: #94a3b8;
+        color: rgba(148, 163, 184, 0.95);
+        line-height: 1.35;
     }
 }
 
 .tr-reservations--mockup .tr-crm-panel {
     border-radius: 14px;
+
+    // Glassmorphism-like styling (visual only)
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(236, 72, 153, 0.18);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+        0 14px 38px rgba(236, 72, 153, 0.10),
+        0 2px 10px rgba(15, 23, 42, 0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 18px 48px rgba(236, 72, 153, 0.14),
+            0 4px 16px rgba(15, 23, 42, 0.06);
+        border-color: rgba(236, 72, 153, 0.26);
+        background: rgba(255, 255, 255, 0.14);
+    }
+
+    &--today { border-color: rgba(14, 165, 233, 0.25); }
+    &--pending { border-color: rgba(234, 88, 12, 0.22); }
+    &--in_progress { border-color: rgba(67, 56, 202, 0.22); }
+    &--completed { border-color: rgba(4, 120, 87, 0.22); }
 
     &__title--lg {
         font-size: 1.35rem;
@@ -3381,7 +3447,7 @@ body.tr-crm-drawer-open {
 
     &__label {
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
@@ -3456,7 +3522,7 @@ body.tr-crm-drawer-open {
 .tr-crm-agenda-card {
     &--compact {
         padding: 10px 12px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         border-radius: 10px;
 
         &:hover {
@@ -3851,7 +3917,7 @@ body.tr-crm-drawer-open {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     &__insight {
@@ -3877,7 +3943,7 @@ body.tr-crm-drawer-open {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     &__alert {
@@ -3955,7 +4021,7 @@ body.tr-crm-drawer-open {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     &__phone {
