@@ -22,7 +22,9 @@ async function fetchSalesAnalyticsData() {
 fetchSalesAnalyticsData();
 
 function initSalesAnalyticsChart(data) {
-    new Chart(document.querySelector(".sales-analytics .chart"), {
+    const ctx = document.querySelector(".sales-analytics .chart");
+
+    new Chart(ctx, {
         type: "bar",
         data: {
             labels: data.labels,
@@ -30,15 +32,10 @@ function initSalesAnalyticsChart(data) {
                 {
                     data: data.sales,
                     borderRadius: 6,
-                    backgroundColor: [
-                        "rgba(76, 201, 254, .7)",
-                        "rgba(71, 90, 255, .7)",
-                        "rgba(255, 119, 183, .7)",
-                        "rgba(250, 64, 50, .7)",
-                        "rgba(136, 194, 115, .7)",
-                        "rgba(139, 93, 255, .7)",
-                        "rgba(255, 127, 62, .7)",
-                    ],
+                    backgroundColor: "rgba(99, 102, 241, 0.7)",
+                    hoverBackgroundColor: "rgba(99, 102, 241, 0.9)",
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.8,
                 },
             ],
         },
@@ -65,12 +62,26 @@ function initSalesAnalyticsChart(data) {
                 },
             },
             scales: {
+                x: {
+                    grid: {
+                        display: false,
+                    },
+                    ticks: {
+                        font: { size: 11 },
+                        maxRotation: 45,
+                    },
+                },
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: "rgba(0, 0, 0, 0.04)",
+                    },
                     ticks: {
-                        // Include the currency symbol in the ticks
+                        font: { size: 11 },
                         callback: function (value) {
-                            return data.formatted[0].charAt(0) + value;
+                            if (value >= 1000000) return (value / 1000000).toFixed(1) + "M";
+                            if (value >= 1000) return (value / 1000).toFixed(0) + "K";
+                            return value;
                         },
                     },
                 },

@@ -14,7 +14,7 @@ return [
     'upcoming_appointments' => 'Temujanji Akan Datang',
     'total_sales' => 'Jumlah Jualan',
     'total_orders' => 'Jumlah Pesanan',
-    'this_month_sales' => 'Jualan Bulan Ini',
+    'this_month_sales' => 'Jualan 3 Bulan',
     'average_order_value' => 'Nilai Purata Pesanan',
     'pending_payment_orders' => 'Menunggu Bayaran',
     'total_products' => 'Jumlah Produk',
@@ -73,7 +73,7 @@ return [
     'hints' => [
         'total_sales' => 'Jumlah hasil daripada semua pesanan',
         'total_orders' => 'Pesanan tidak termasuk dibatalkan',
-        'this_month_sales' => 'Hasil pesanan bulan kalendar ini',
+        'this_month_sales' => 'Hasil pesanan 3 bulan kalendar lepas',
         'average_order_value' => 'Nilai purata setiap pesanan tidak dibatalkan',
         'pending_payment_orders' => 'Pesanan dengan bayaran tertunda atau sedang diproses',
         'treatment_sales' => 'Hasil tempahan rawatan beautician',

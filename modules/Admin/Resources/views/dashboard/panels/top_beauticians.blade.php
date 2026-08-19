@@ -22,7 +22,7 @@
                     $avatarUrl = $b->displayAvatarUrl();
                     $branch = $b->spaBranches->first()?->name;
                 @endphp
-                <div class="top-beauticians-list__item">
+                <a href="{{ route('admin.orders.index', ['query' => trim(\$b->first_name . ' ' . \$b->last_name)]) }}" class="top-beauticians-list__item top-beauticians-list__item--link">
                     <div class="top-beauticians-list__rank">
                         @if ($avatarUrl)
                             <img src="{{ $avatarUrl }}" alt="{{ $b->name }}" class="top-beauticians-list__avatar-img">
@@ -50,7 +50,7 @@
                         @endif
                         <span class="top-beauticians-list__rev-label">{{ trans('admin::dashboard.top_beauticians.revenue') }}</span>
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
     @endif

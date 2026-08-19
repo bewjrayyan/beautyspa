@@ -13,7 +13,7 @@ return [
     'upcoming_appointments' => 'Upcoming Appointments',
     'total_sales' => 'Total Sales',
     'total_orders' => 'Total Orders',
-    'this_month_sales' => 'This Month Sales',
+    'this_month_sales' => '3-Month Sales',
     'average_order_value' => 'Average Order Value',
     'pending_payment_orders' => 'Pending Payment',
     'total_products' => 'Total Products',
@@ -72,7 +72,7 @@ return [
     'hints' => [
         'total_sales' => 'Lifetime revenue from all orders',
         'total_orders' => 'Orders excluding canceled',
-        'this_month_sales' => 'Revenue from orders this calendar month',
+        'this_month_sales' => 'Revenue from the last 3 calendar months',
         'average_order_value' => 'Average value per non-canceled order',
         'pending_payment_orders' => 'Orders with pending or processing payment',
         'treatment_sales' => 'Revenue from beautician treatment bookings',

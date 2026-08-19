@@ -937,7 +937,7 @@
     ]
   },
   "modules/Admin/Resources/assets/js/dashboard.js": {
-    "file": "assets/dashboard-DaWhSMoZ-v4.7.72.js",
+    "file": "assets/dashboard-rpYyaSs5-v4.7.72.js",
     "name": "dashboard",
     "src": "modules/Admin/Resources/assets/js/dashboard.js",
     "isEntry": true,
@@ -957,7 +957,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/dashboard.scss": {
-    "file": "assets/dashboard-Dz_MXIA7-v4.7.72.css",
+    "file": "assets/dashboard-g_DSu9XF-v4.7.72.css",
     "src": "modules/Admin/Resources/assets/sass/dashboard.scss",
     "isEntry": true,
     "name": "dashboard",
@@ -1571,7 +1571,12 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
+    "isEntry": true,
+    "name": "main",
+    "names": [
+      "main.css"
+    ]
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
     "file": "assets/main-DAoR6zom-v4.7.72.css",
@@ -1579,12 +1584,7 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-FuQ-FuMu-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss",
-    "isEntry": true,
-    "name": "main",
-    "names": [
-      "main.css"
-    ]
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/profile/main.scss": {
     "file": "assets/main-BV207gSw-v4.7.72.css",

@@ -127,7 +127,7 @@ class DashboardController
                 'totalSales' => Order::totalSales(),
                 'thisMonthSales' => Money::inDefaultCurrency(
                     (clone $orderQuery)
-                        ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+                        ->whereBetween('created_at', [now()->subMonths(3)->startOfMonth(), now()->endOfMonth()])
                         ->sum('total')
                 ),
                 'pendingPaymentCount' => (clone $orderQuery)->whereIn('payment_status', [
