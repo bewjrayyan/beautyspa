@@ -1,0 +1,16 @@
+---
+description: Route CLI/subagent LLM work through local OmniRoute to avoid Cursor token burn
+alwaysApply: true
+---
+
+# OmniRoute (token saving)
+
+OmniRoute is running at `http://localhost:20128` (`/v1` for OpenAI-compatible calls).
+
+- Prefer OmniRoute for extra model calls: `omniroute chat`, Codex profiles (`~/.codex/omniroute-*.config.toml`), or Claude Code pointed at OmniRoute.
+- Do not spawn extra Cursor-billed subagents when a local OmniRoute CLI call can do the same job.
+- This Cursor Agent/Composer session still uses Cursor's own models. Chat-panel BYOK with Override OpenAI Base URL is the in-app path; Agent mode stays on Cursor.
+
+Base URL: `http://localhost:20128/v1`
+Preferred models: `auto/best-coding`, `auto/best-fast`, `auto/best-reasoning`
+API key: `OMNIROUTE_API_KEY` in `~/.omniroute/.env` (never paste it into chat or commits).

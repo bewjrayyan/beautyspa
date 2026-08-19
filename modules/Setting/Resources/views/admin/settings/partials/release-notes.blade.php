@@ -7,6 +7,12 @@
     <div class="app-release-notes {{ $highlight ? 'is-highlight' : '' }}">
         <div class="app-release-notes__head">
             <strong class="app-release-notes__version">v{{ $entry['version'] }}</strong>
+            @if (! empty($entry['date']))
+                <span class="app-release-notes__date">
+                    <i class="fa fa-clock-o"></i>
+                    {{ \Carbon\Carbon::parse($entry['date'])->translatedFormat('j M Y, g:i A') }}
+                </span>
+            @endif
             @if (! empty($entry['summary']))
                 <p class="app-release-notes__summary">{{ $entry['summary'] }}</p>
             @endif

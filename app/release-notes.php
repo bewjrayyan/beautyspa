@@ -5,7 +5,33 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.95' => [
+        'date' => '2026-08-19 18:15',
+        'en' => [
+            'summary' => 'Redesign admin dashboard with Quick Actions, Top Beauticians, and modern stat cards.',
+            'changes' => [
+                'Add Quick Actions card grid (Add Product, Approve Users, View Reports, Settings).',
+                'Add Top Beauticians panel with profile images, job title, branch, orders, and revenue (last 3 months).',
+                'Redesign stat cards with colored top accent bars and clean white cards.',
+                'Add welcome greeting header with date display.',
+                'Apply Plus Jakarta Sans font for headings.',
+                'Release notes now show date and time for each version.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Reka bentuk semula dashboard admin dengan Tindakan Pantas, Beautician Terbaik, dan kad statistik moden.',
+            'changes' => [
+                'Tambah grid kad Tindakan Pantas (Tambah Produk, Luluskan Pengguna, Lihat Laporan, Tetapan).',
+                'Tambah panel Beautician Terbaik dengan gambar profil, jawatan, cawangan, pesanan, dan hasil (3 bulan lepas).',
+                'Reka bentuk semula kad statistik dengan bar aksen berwarna di atas dan kad putih bersih.',
+                'Tambah pengepala ucapan selamat datang dengan paparan tarikh.',
+                'Guna font Plus Jakarta Sans untuk tajuk.',
+                'Nota pelepasan kini memaparkan tarikh dan masa untuk setiap versi.',
+            ],
+        ],
+    ],
     '4.9.92' => [
+        'date' => '2026-08-18 14:00',
         'en' => [
             'summary' => 'Stop cached configuration from silently downgrading the cache driver and log level.',
             'changes' => [

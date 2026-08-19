@@ -30,6 +30,7 @@ class ReleaseNotesService
 
         return [
             'version' => $version,
+            'date'    => $entry['date'] ?? null,
             'summary' => $locale['summary'] ?? '',
             'changes' => $locale['changes'] ?? [],
         ];
