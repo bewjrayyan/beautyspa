@@ -32,7 +32,9 @@
                 <button type="button" class="tr-calendar-month-nav__btn" id="tr-cal-prev" aria-label="{{ trans('treatmentreservation::admin.calendar.prev') }}">
                     <i class="fa fa-chevron-left"></i>
                 </button>
+                <button type="button" class="tr-calendar-month-nav__sibling" id="tr-cal-month-prev" data-month-offset="-1"></button>
                 <h4 class="tr-calendar-month-nav__label" id="tr-cal-month-label"></h4>
+                <button type="button" class="tr-calendar-month-nav__sibling" id="tr-cal-month-next" data-month-offset="1"></button>
                 <button type="button" class="tr-calendar-month-nav__btn" id="tr-cal-next" aria-label="{{ trans('treatmentreservation::admin.calendar.next') }}">
                     <i class="fa fa-chevron-right"></i>
                 </button>
@@ -41,6 +43,13 @@
             <button type="button" class="tr-calendar-month-nav__today" id="tr-cal-today">
                 {{ trans('treatmentreservation::admin.calendar.today') }}
             </button>
+
+            @unless ($embedded)
+                <div class="tr-calendar-view-toggle" id="tr-cal-view-toggle">
+                    <button type="button" class="tr-calendar-view-toggle__btn is-active" data-cal-view="month">Month</button>
+                    <button type="button" class="tr-calendar-view-toggle__btn" data-cal-view="day">Day</button>
+                </div>
+            @endunless
         </div>
     </div>
 
@@ -88,4 +97,19 @@
             </div>
         </div>
     </div>
+
+    @unless ($embedded)
+        <div class="tr-calendar-day-view" id="tr-cal-day-view" style="display: none;">
+            <header class="tr-calendar-day-view__header">
+                <button type="button" class="tr-calendar-day-view__nav" id="tr-cal-day-prev">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <h3 class="tr-calendar-day-view__title" id="tr-cal-day-title"></h3>
+                <button type="button" class="tr-calendar-day-view__nav" id="tr-cal-day-next">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+            </header>
+            <div class="tr-cal-week-grid" id="tr-cal-week-grid"></div>
+        </div>
+    @endunless
 </div>

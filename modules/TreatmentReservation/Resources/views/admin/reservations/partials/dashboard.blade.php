@@ -121,14 +121,23 @@
         ])
     </section>
 
+    <div class="tr-crm-dashboard__calendar">
+        @include('treatmentreservation::admin.reservations.partials.dashboard.calendar-agenda', [
+            'calendarFullViewUrl' => $calendarFullViewUrl ?? null,
+        ])
+    </div>
+
+    <div class="tr-crm-dashboard__pipeline-wrap">
+        @include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
+            'pipeline' => $pipeline,
+            'filterDateLabel' => $filterDateLabel,
+            'dateFilter' => $dateFilter,
+            'queueCount' => $queueCount,
+        ])
+    </div>
+
     <div class="tr-crm-dashboard__workspace">
         <div class="tr-crm-dashboard__main">
-            @include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
-                'pipeline' => $pipeline,
-                'filterDateLabel' => $filterDateLabel,
-                'dateFilter' => $dateFilter,
-                'queueCount' => $queueCount,
-            ])
             @include('treatmentreservation::admin.reservations.partials.dashboard.booking-stats-panel', [
                 'analytics' => $analytics,
                 'analyticsCharts' => $analyticsCharts,
@@ -153,17 +162,9 @@
             @include('treatmentreservation::admin.reservations.partials.dashboard.alerts-feed', [
                 'alerts' => $alerts,
             ])
-            @include('treatmentreservation::admin.reservations.partials.dashboard.audit-feed', [
-                'recentActivity' => $recentActivity,
-            ])
         </aside>
     </div>
 
-    <div class="tr-crm-dashboard__calendar">
-        @include('treatmentreservation::admin.reservations.partials.dashboard.calendar-agenda', [
-            'calendarFullViewUrl' => $calendarFullViewUrl ?? null,
-        ])
-    </div>
     @else
         @include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
             'pipeline' => $pipeline,

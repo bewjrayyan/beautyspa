@@ -39,6 +39,7 @@
         data-cal-status-completed="{{ TrLang::trans('admin.kanban.completed') }}"
         data-cal-empty-label="{{ TrLang::trans('admin.calendar.no_bookings') }}"
         data-calendar-url="{{ route('admin.treatment_reservations.calendar') }}"
+        data-holidays-range-url="{{ route('admin.treatment_reservations.holidays_range') }}"
         data-kanban-url="{{ route('admin.treatment_reservations.kanban') }}"
         data-status-url="{{ route('admin.treatment_reservations.update_status', ['id' => '__ID__']) }}"
         data-whatsapp-url="{{ route('admin.treatment_reservations.send_whatsapp', ['id' => '__ID__']) }}"
@@ -205,16 +206,7 @@
                                 </div>
                             </form>
 
-                            <div class="tr-crm-toolbar__search">
-                                <i class="fa fa-search" aria-hidden="true"></i>
-                                <input
-                                    type="search"
-                                    id="tr-crm-search"
-                                    placeholder="{{ TrLang::trans('admin.crm.search_placeholder') }}"
-                                    autocomplete="off"
-                                    enterkeyhint="search"
-                                >
-                            </div>
+
 
                             @hasAccess('admin.treatment_reservations.create')
                                 <div class="tr-crm-toolbar__actions">

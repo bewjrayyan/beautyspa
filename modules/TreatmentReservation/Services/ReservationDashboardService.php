@@ -498,6 +498,18 @@ class ReservationDashboardService
     {
         $minutes = max(1, (int) round($seconds / 60));
 
+        if ($minutes >= 1440) {
+            $days = round($minutes / 1440, 1);
+
+            return TrLang::trans('admin.crm.pipeline_duration_days', ['count' => $days]);
+        }
+
+        if ($minutes >= 60) {
+            $hours = round($minutes / 60, 1);
+
+            return TrLang::trans('admin.crm.pipeline_duration_hours', ['count' => $hours]);
+        }
+
         return TrLang::trans('admin.crm.pipeline_duration_minutes', ['count' => $minutes]);
     }
 

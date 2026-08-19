@@ -2686,3 +2686,26 @@ select {
 ::-webkit-scrollbar-thumb:hover {
     background: #0068e1;
 }
+
+
+/*====== Global light-grey text darkening ==========*/
+.text-muted,
+.help-block,
+small.text-muted {
+    color: #4b5563 !important;
+}
+
+.content-wrapper {
+    // Darken common light-grey text colors globally
+    color: #1e293b;
+
+    .text-muted {
+        color: #4b5563 !important;
+    }
+
+    // Target inline light greys used across modules
+    [style*="color: #999"],
+    [style*="color:#999"] {
+        color: #4b5563 !important;
+    }
+}

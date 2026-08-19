@@ -8,6 +8,16 @@
             <h2 class="tr-crm-panel__title tr-crm-panel__title--lg">{{ TrLang::trans('admin.crm.calendar_title_long') }}</h2>
             <p class="tr-crm-panel__lead">{{ TrLang::trans('admin.crm.calendar_lead_long') }}</p>
         </div>
+        <div class="tr-crm-toolbar__search">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <input
+                type="search"
+                id="tr-crm-search"
+                placeholder="{{ TrLang::trans('admin.crm.search_placeholder') }}"
+                autocomplete="off"
+                enterkeyhint="search"
+            >
+        </div>
     </header>
 
     <div class="tr-crm-calendar-agenda">

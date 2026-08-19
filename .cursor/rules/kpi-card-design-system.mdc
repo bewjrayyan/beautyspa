@@ -1,0 +1,49 @@
+# KPI / Stat Card Design System
+
+When creating **KPI cards**, **stat cards**, or **metric panels** anywhere in this project, follow this approved design system.
+
+## Visual Style
+
+- **Background**: Glassmorphism — `linear-gradient(145deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 100%)` with `backdrop-filter: blur(16px)`
+- **Border**: `1.5px solid` with variant-tinted `rgba()` color (e.g. `rgba(14,165,233,0.35)` for blue/today)
+- **Border-radius**: `18px`
+- **Padding**: `22px 24px 18px`
+- **Shadow**: Multi-layer — `0 1px 3px rgba(15,23,42,0.04), 0 8px 32px rgba(15,23,42,0.06)`
+- **Hover**: `translateY(-3px)` + deeper shadow + border-color intensifies
+
+## Layout Structure (top → bottom)
+
+1. **Top row** (`display: flex; align-items: center; gap: 12px; margin-bottom: 16px`)
+   - Icon container: `44×44px`, `border-radius: 14px`, gradient background + colored box-shadow
+   - Label: `13px`, `font-weight: 700`, muted color
+
+2. **Metric row** (`display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px`)
+   - Value: `2.5rem`, `font-weight: 800`, `letter-spacing: -0.03em`, dark text
+   - Unit: `14px`, `font-weight: 600`, muted gray `#94a3b8`
+
+3. **Footer** (optional, `padding-top: 12px; border-top: 1px solid rgba(226,232,240,0.5)`)
+   - Hint: `13px`, `font-weight: 600`, dark text
+   - Subhint: `12px`, muted gray
+
+## Color Variants
+
+| Variant       | Icon gradient                              | Icon shadow                              | Border color                        |
+|---------------|--------------------------------------------|------------------------------------------|-------------------------------------|
+| today (blue)  | `#e0f2fe → #bae6fd`                        | `rgba(2,132,199,0.18)`                   | `rgba(14,165,233,0.35)`             |
+| pending (orange) | `#ffedd5 → #fed7aa`                     | `rgba(234,88,12,0.18)`                   | `rgba(234,88,12,0.30)`              |
+| in_progress (purple) | `#ede9fe → #ddd6fe`                 | `rgba(109,40,217,0.18)`                  | `rgba(99,102,241,0.30)`             |
+| completed (green) | `#d1fae5 → #a7f3d0`                    | `rgba(4,120,87,0.18)`                    | `rgba(4,120,87,0.30)`               |
+| sales (pink)  | `#fce7f3 → #fbcfe8`                        | `rgba(236,72,153,0.18)`                  | `rgba(236,72,153,0.30)`             |
+| info (slate)  | `#f1f5f9 → #e2e8f0`                        | `rgba(100,116,139,0.14)`                 | `rgba(100,116,139,0.25)`            |
+
+## Reference Implementation
+
+- **Blade**: `modules/TreatmentReservation/Resources/views/admin/reservations/partials/dashboard/kpi-card.blade.php`
+- **SCSS**: `modules/TreatmentReservation/Resources/assets/admin/sass/_dashboard-crm.scss` — search `.tr-crm-kpi`
+
+## Usage Notes
+
+- Use CSS class prefix appropriate to the module (e.g. `tr-crm-kpi` for TreatmentReservation, `fc-saas-stat` for Admin dashboard)
+- Always include hover lift effect and colored border per variant
+- Font: Plus Jakarta Sans (already loaded globally)
+- Grid: `repeat(auto-fit, minmax(240px, 1fr))` or `repeat(4, minmax(0, 1fr))` for 4-column layouts

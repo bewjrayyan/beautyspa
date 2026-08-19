@@ -27,6 +27,15 @@ class TreatmentReservationsApp {
         return TR_KANBAN_STATUS_ACCENT[status] || "#94a3b8";
     }
 
+    static escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
     constructor(root) {
         this.root = root;
         this.activeView = root.dataset.activeView;
@@ -39,6 +48,9 @@ class TreatmentReservationsApp {
         this.calendarInitialized = false;
         this.kanbanInitialized = false;
         this.lastCalendarBookings = [];
+        this.holidaysRangeUrl = root.dataset.holidaysRangeUrl || "";
+        this.holidaysByDate = {};
+        this.holidaysRangeKey = "";
 
         if (this.root.querySelector("[data-schedule-panel]")) {
             this.initScheduleTabs();
@@ -126,7 +138,19 @@ class TreatmentReservationsApp {
         this.gridViewport = document.getElementById("tr-calendar-grid-viewport");
         this.gridTrack = document.getElementById("tr-calendar-grid-track");
         this.monthLabel = document.getElementById("tr-cal-month-label");
+        this.monthPrevLabel = document.getElementById("tr-cal-month-prev");
+        this.monthNextLabel = document.getElementById("tr-cal-month-next");
+        this.monthPrev2Label = document.getElementById("tr-cal-month-prev2");
+        this.monthNext2Label = document.getElementById("tr-cal-month-next2");
         this.monthInput = document.getElementById("tr-month");
+
+        // Clickable sibling month buttons
+        document.querySelectorAll("[data-month-offset]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const offset = parseInt(btn.dataset.monthOffset, 10);
+                this.shiftMonth(offset);
+            });
+        });
         this.emptyCalendarLabel = this.root.dataset.calEmptyLabel || "";
         this.compactCalendar = !!document.querySelector("[data-crm-compact-calendar]");
         this.pendingSlideDirection = 0;
@@ -142,11 +166,263 @@ class TreatmentReservationsApp {
             }
 
             this.month = todayMonth;
+            this.selectedDate = new Date().toISOString().slice(0, 10);
+            this.weekStart = this.getWeekStart(this.selectedDate);
             this.syncMonthInput();
             this.loadCalendar();
         });
 
         this.loadCalendar();
+
+        // Day click: update selectedDate; double-click switches to day view
+        const gridVp = this.gridViewport || this.grid;
+        if (gridVp) {
+            gridVp.addEventListener("click", (e) => {
+                const dayEl = e.target.closest("[data-date]");
+                if (!dayEl) return;
+                this.selectedDate = dayEl.dataset.date;
+                if (this.currentCalView === "day") {
+                    this.renderDayView();
+                }
+            });
+            gridVp.addEventListener("dblclick", (e) => {
+                const dayEl = e.target.closest("[data-date]");
+                if (!dayEl) return;
+                this.selectedDate = dayEl.dataset.date;
+                document.querySelector('[data-cal-view="day"]')?.click();
+            });
+        }
+
+        // Day/Month view toggle
+        this.calendarBoard = document.querySelector(".tr-calendar--page .tr-calendar-board");
+        this.calendarMeta = document.querySelector(".tr-calendar--page .tr-calendar-meta");
+        this.dayView = document.getElementById("tr-cal-day-view");
+        this.dayTitle = document.getElementById("tr-cal-day-title");
+        this.weekGrid = document.getElementById("tr-cal-week-grid");
+        this.currentCalView = "month";
+        this.selectedDate = new Date().toISOString().slice(0, 10);
+        this.weekStart = this.getWeekStart(this.selectedDate);
+
+        document.getElementById("tr-cal-day-prev")?.addEventListener("click", () => this.shiftWeek(-1));
+        document.getElementById("tr-cal-day-next")?.addEventListener("click", () => this.shiftWeek(1));
+
+        document.querySelectorAll("[data-cal-view]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const view = btn.dataset.calView;
+                if (view === this.currentCalView) return;
+
+                document.querySelectorAll("[data-cal-view]").forEach((b) => b.classList.remove("is-active"));
+                btn.classList.add("is-active");
+                this.currentCalView = view;
+
+                if (view === "day") {
+                    this.showDayView();
+                } else {
+                    this.showMonthView();
+                }
+            });
+        });
+    }
+
+    showDayView() {
+        if (this.calendarBoard) this.calendarBoard.style.display = "none";
+        if (this.calendarMeta) this.calendarMeta.style.display = "none";
+        if (this.dayView) this.dayView.style.display = "block";
+        this.weekStart = this.getWeekStart(this.selectedDate);
+        // Ensure bookings are loaded for the currently visible week range.
+        this.loadCalendar();
+    }
+
+    showMonthView() {
+        if (this.calendarBoard) this.calendarBoard.style.display = "";
+        if (this.calendarMeta) this.calendarMeta.style.display = "";
+        if (this.dayView) this.dayView.style.display = "none";
+    }
+
+    getWeekStart(dateStr) {
+        const d = new Date(dateStr + "T12:00:00");
+        const day = d.getDay();
+        const diff = day === 0 ? 6 : day - 1;
+        d.setDate(d.getDate() - diff);
+        return d.toISOString().slice(0, 10);
+    }
+
+    getWeekDays(startStr) {
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(startStr + "T12:00:00");
+            d.setDate(d.getDate() + i);
+            days.push(d.toISOString().slice(0, 10));
+        }
+        return days;
+    }
+
+    shiftWeek(delta) {
+        const d = new Date(this.weekStart + "T12:00:00");
+        d.setDate(d.getDate() + delta * 7);
+        this.weekStart = d.toISOString().slice(0, 10);
+        this.selectedDate = this.weekStart;
+
+        const newMonth = this.weekStart.slice(0, 7);
+        if (newMonth !== this.month) {
+            this.month = newMonth;
+            this.pendingSlideDirection = delta;
+            this.syncMonthInput();
+            this.updateMonthLabel();
+        }
+
+        // Always reload for the newly visible 7-day range.
+        // This guarantees bookings in adjacent months (when the week spans them)
+        // appear immediately without needing to move back.
+        this.loadCalendar();
+    }
+
+    renderDayView() {
+        if (!this.weekGrid || !this.dayTitle) return;
+
+        const days = this.getWeekDays(this.weekStart);
+        const locale = this.calendarLocale();
+        const today = new Date().toISOString().slice(0, 10);
+        const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        const startDate = new Date(days[0] + "T00:00:00");
+        const endDate = new Date(days[6] + "T00:00:00");
+        this.dayTitle.textContent =
+            startDate.toLocaleDateString(locale, { day: "numeric", month: "short" })
+            + " — "
+            + endDate.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
+
+        const bookings = this.lastBookings || [];
+        const byDate = {};
+        bookings.forEach((b) => {
+            if (!byDate[b.date]) byDate[b.date] = [];
+            byDate[b.date].push(b);
+        });
+
+        const parseHour = (timeStr) => {
+            if (!timeStr) return -1;
+            const m = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+            if (!m) return -1;
+            let h = parseInt(m[1], 10);
+            if (m[3]) {
+                const ampm = m[3].toUpperCase();
+                if (ampm === "PM" && h !== 12) h += 12;
+                if (ampm === "AM" && h === 12) h = 0;
+            }
+            return h;
+        };
+
+        const malaysiaPublicHolidays = this.holidaysByDate || {};
+
+        // Header row
+        let headerHtml = '<div class="tr-week-header"><div class="tr-week-header__time"></div>';
+        days.forEach((ds) => {
+            const d = new Date(ds + "T00:00:00");
+            const dayNum = d.getDate();
+            const dow = weekdays[d.getDay()];
+            const isToday = ds === today;
+            const count = (byDate[ds] || []).length;
+            const holiday = malaysiaPublicHolidays[ds];
+            headerHtml += '<div class="tr-week-header__day' + (isToday ? ' tr-week-header__day--today' : '') + (count ? ' tr-week-header__day--has-booking' : '') + '">'
+                + '<span class="tr-week-header__dow">' + dow + '</span>'
+                + '<span class="tr-week-header__num">' + dayNum + '</span>'
+                + (count ? '<span class="tr-week-header__dot"></span>' : '')
+                + (count ? '<span class="tr-week-header__count">' + count + '</span>' : '')
+                + '</div>';
+        });
+        headerHtml += '</div>';
+
+        const ROW_HEIGHT = 100;
+        const START_HOUR = 7;
+        const END_HOUR = 21;
+        const totalRows = END_HOUR - START_HOUR + 1;
+
+        const parseTime = (timeStr) => {
+            if (!timeStr) return null;
+            const m = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+            if (!m) return null;
+            let h = parseInt(m[1], 10);
+            const min = parseInt(m[2], 10);
+            if (m[3]) {
+                const ampm = m[3].toUpperCase();
+                if (ampm === "PM" && h !== 12) h += 12;
+                if (ampm === "AM" && h === 12) h = 0;
+            }
+            return { h, min };
+        };
+
+        // Time rows (empty grid lines)
+        let rowsHtml = '';
+        for (let hour = START_HOUR; hour <= END_HOUR; hour++) {
+            const timeLabel = (hour < 12 ? hour : (hour === 12 ? 12 : hour - 12))
+                + ":00 " + (hour < 12 ? "AM" : "PM");
+
+            rowsHtml += '<div class="tr-week-row">';
+            rowsHtml += '<div class="tr-week-row__time">' + timeLabel + '</div>';
+            for (let c = 0; c < 7; c++) {
+                rowsHtml += '<div class="tr-week-row__cell"></div>';
+            }
+            rowsHtml += '</div>';
+        }
+
+        // Overlay columns with positioned booking cards
+        let overlayHtml = '<div class="tr-week-overlay">';
+        overlayHtml += '<div class="tr-week-overlay__gutter"></div>';
+
+        days.forEach((ds) => {
+            let colHtml = '<div class="tr-week-overlay__col">';
+            const dayB = byDate[ds] || [];
+            const holiday = malaysiaPublicHolidays[ds];
+
+            if (holiday) {
+                const kindClass = String(holiday.kind || "other").replace(/[^a-z_]/gi, "");
+                const statesSummary = Array.isArray(holiday.states) && holiday.states.length
+                    ? TreatmentReservationsApp.escapeHtml(holiday.states.join(", "))
+                    : "";
+                colHtml += '<div class="tr-week-holiday-watermark tr-week-holiday-watermark--' + kindClass + '" style="--holiday-color:' + holiday.color + '">'
+                    + '<div class="tr-week-holiday-watermark__stack">'
+                    + '<span class="tr-week-holiday-watermark__title">' + TreatmentReservationsApp.escapeHtml(holiday.label) + '</span>'
+                    + (statesSummary ? '<span class="tr-week-holiday-watermark__subtitle">' + statesSummary + '</span>' : '')
+                    + '</div>'
+                    + '</div>';
+            }
+
+            dayB.forEach((b) => {
+                const start = parseTime(b.time);
+                if (!start) return;
+
+                const durationMin = b.slot_duration_minutes || 60;
+                const topMin = (start.h - START_HOUR) * 60 + start.min;
+                const topPx = (topMin / 60) * ROW_HEIGHT;
+                const heightPx = Math.max((durationMin / 60) * ROW_HEIGHT, 28);
+
+                const endTime = b.appointment_end_time || "";
+                const timeRange = b.time + (endTime ? " – " + endTime : "");
+                const statusClass = (b.status || "pending").replace("_", "-");
+
+                colHtml += '<div class="tr-week-card tr-week-card--' + statusClass
+                    + ' tr-cal-event--clickable tr-crm-drawer-booking"'
+                    + ' data-booking-id="' + (b.id ?? '') + '"'
+                    + ' role="button" tabindex="0"'
+                    + ' style="top:' + topPx + 'px;height:' + heightPx + 'px">'
+                    + '<strong>' + (b.customer_name || "—") + '</strong>'
+                    + '<span class="tr-week-card__treatment">' + (b.treatment_name || "") + '</span>'
+                    + '<span class="tr-week-card__time">' + timeRange + '</span>'
+                    + (b.beautician_name ? '<span class="tr-week-card__beautician">' + b.beautician_name + '</span>' : '')
+                    + '</div>';
+            });
+
+            colHtml += '</div>';
+            overlayHtml += colHtml;
+        });
+
+        overlayHtml += '</div>';
+
+        this.weekGrid.innerHTML = headerHtml
+            + '<div class="tr-week-body">'
+            + '<div class="tr-week-body__inner">'
+            + rowsHtml + overlayHtml
+            + '</div></div>';
     }
 
     syncMonthInput() {
@@ -172,6 +448,8 @@ class TreatmentReservationsApp {
         const [year, month] = this.month.split("-").map(Number);
         const date = new Date(year, month - 1 + delta, 1);
         this.month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        this.selectedDate = this.month + "-01";
+        this.weekStart = this.getWeekStart(this.selectedDate);
         this.pendingSlideDirection = delta;
         this.syncMonthInput();
         this.updateMonthLabel();
@@ -214,7 +492,52 @@ class TreatmentReservationsApp {
 
         try {
             const response = await axios.get(`${this.calendarUrl}?${params.toString()}`);
-            const bookings = response.data.bookings || [];
+            let bookings = response.data.bookings || [];
+
+            // Week view can span adjacent months (e.g. Jul 27 - Aug 2).
+            // Fetch those months too so bookings appear immediately without
+            // requiring extra arrow navigation.
+            if (this.currentCalView === "day" && this.weekStart) {
+                const visibleMonths = new Set(this.getWeekDays(this.weekStart).map((date) => date.slice(0, 7)));
+                visibleMonths.delete(this.month);
+
+                if (visibleMonths.size > 0) {
+                    const extraResponses = await Promise.all(
+                        Array.from(visibleMonths).map(async (month) => {
+                            const extraParams = this.getFilterParams();
+                            extraParams.set("month", month);
+                            const extraResponse = await axios.get(`${this.calendarUrl}?${extraParams.toString()}`);
+                            return extraResponse.data.bookings || [];
+                        })
+                    );
+
+                    const merged = [...bookings, ...extraResponses.flat()];
+                    const seen = new Set();
+                    bookings = merged.filter((booking) => {
+                        const key = booking.id ?? `${booking.date}-${booking.time}-${booking.customer_name}`;
+                        if (seen.has(key)) {
+                            return false;
+                        }
+
+                        seen.add(key);
+                        return true;
+                    });
+                }
+            }
+
+            const holidayFromTo = (() => {
+                if (this.currentCalView === "day" && this.weekStart) {
+                    return { from: this.weekStart, to: this.addDays(this.weekStart, 6) };
+                }
+
+                const [year, month] = this.month.split("-").map(Number);
+                const lastDay = new Date(year, month, 0).getDate();
+                const to = `${this.month}-${String(lastDay).padStart(2, "0")}`;
+
+                return { from: `${this.month}-01`, to };
+            })();
+
+            await this.ensureHolidaysForRange(holidayFromTo.from, holidayFromTo.to);
 
             this.lastCalendarBookings = bookings;
             setCalendarBookings(bookings);
@@ -232,8 +555,12 @@ class TreatmentReservationsApp {
                 this.grid.innerHTML = html;
             }
 
+            this.lastBookings = bookings;
             this.renderCalendarLegend(bookings);
             this.refreshAgendaPanel?.();
+            if (this.currentCalView === "day") {
+                this.renderDayView();
+            }
         } finally {
             this.gridViewport?.classList.remove("tr-calendar-grid-viewport--loading");
             this.grid?.classList.remove("tr-calendar-grid--loading");
@@ -329,12 +656,26 @@ class TreatmentReservationsApp {
         }
 
         const [year, month] = this.month.split("-").map(Number);
-        const firstDay = new Date(year, month - 1, 1);
+        const locale = this.calendarLocale();
+        const fmt = (d) => d.toLocaleDateString(locale, { month: "short", year: "numeric" });
 
-        this.monthLabel.textContent = firstDay.toLocaleDateString(this.calendarLocale(), {
-            month: "long",
-            year: "numeric",
-        });
+        const current = new Date(year, month - 1, 1);
+
+        this.monthLabel.textContent = fmt(current);
+
+        const siblings = [
+            { el: this.monthPrev2Label, offset: -2 },
+            { el: this.monthPrevLabel, offset: -1 },
+            { el: this.monthNextLabel, offset: 1 },
+            { el: this.monthNext2Label, offset: 2 },
+        ];
+
+        for (const { el, offset } of siblings) {
+            if (el) {
+                const d = new Date(year, month - 1 + offset, 1);
+                el.textContent = fmt(d);
+            }
+        }
     }
 
     renderCalendarLegend(bookings) {
@@ -393,6 +734,8 @@ class TreatmentReservationsApp {
         const cells = [];
         const todayStr = new Date().toISOString().slice(0, 10);
 
+                const malaysiaPublicHolidays = this.holidaysByDate || {};
+
         for (let i = 0; i < startOffset; i++) {
             cells.push('<div class="tr-cal-day tr-cal-day--muted"></div>');
         }
@@ -401,6 +744,7 @@ class TreatmentReservationsApp {
             const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             const dayBookings = byDate[dateStr] || [];
             const isToday = dateStr === todayStr;
+            const holiday = malaysiaPublicHolidays[dateStr];
             const dayIndex = (startOffset + day - 1) % 7;
             const isWeekend = dayIndex >= 5;
             const dayClasses = [
@@ -408,6 +752,7 @@ class TreatmentReservationsApp {
                 isToday ? "tr-cal-day--today" : "",
                 isWeekend ? "tr-cal-day--weekend" : "",
                 dayBookings.length ? "tr-cal-day--has-events" : "",
+                holiday ? "tr-cal-day--holiday" : "",
             ].filter(Boolean).join(" ");
 
             const events = this.compactCalendar
@@ -424,6 +769,14 @@ class TreatmentReservationsApp {
                         <div class="tr-cal-day-num ${isToday ? "tr-cal-day-num--today" : ""}">${day}</div>
                         ${countBadge}
                     </div>
+                    ${holiday ? (() => {
+                        const safeLabel = TreatmentReservationsApp.escapeHtml(holiday.label);
+                        const kindClass = String(holiday.kind || "other").replace(/[^a-z_]/gi, "");
+                        const statesSummary = Array.isArray(holiday.states) && holiday.states.length
+                            ? TreatmentReservationsApp.escapeHtml(holiday.states.join(", "))
+                            : "";
+                        return `<div class="tr-cal-holiday-badge tr-cal-holiday-badge--${kindClass}" style="--holiday-color:${holiday.color}" title="${safeLabel}${statesSummary ? " · " + statesSummary : ""}"><span class="tr-cal-holiday-badge__title">${safeLabel}</span>${statesSummary ? `<span class="tr-cal-holiday-badge__states">${statesSummary}</span>` : ""}</div>`;
+                    })() : ""}
                     <div class="tr-cal-day-events">${events || (this.compactCalendar ? "" : `<span class="tr-cal-empty">${this.emptyLabel()}</span>`)}</div>
                 </div>
             `);
@@ -462,6 +815,36 @@ class TreatmentReservationsApp {
 
     emptyLabel() {
         return this.emptyCalendarLabel;
+    }
+
+    addDays(dateStr, days) {
+        const d = new Date(dateStr + "T00:00:00");
+        d.setDate(d.getDate() + days);
+        return d.toISOString().slice(0, 10);
+    }
+
+    async ensureHolidaysForRange(from, to) {
+        if (!this.holidaysRangeUrl) {
+            return;
+        }
+
+        const key = `${from}_${to}`;
+
+        // If we already loaded something for this range, reuse it.
+        if (this.holidaysRangeKey === key && this.holidaysByDate && Object.keys(this.holidaysByDate).length > 0) {
+            return;
+        }
+
+        try {
+            const url = `${this.holidaysRangeUrl}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+            const response = await axios.get(url);
+            this.holidaysByDate = response.data?.holidays || {};
+            this.holidaysRangeKey = key;
+        } catch (error) {
+            // If holiday API fails, keep calendar working without holiday decorations.
+            this.holidaysByDate = {};
+            this.holidaysRangeKey = key;
+        }
     }
 
     initKanban() {

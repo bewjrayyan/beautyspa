@@ -44,6 +44,48 @@ Route::get('treatment-reservations/calendar/events', [
     'middleware' => 'can:admin.treatment_reservations.index',
 ]);
 
+Route::get('treatment-reservations/holidays/range', [
+    'as' => 'admin.treatment_reservations.holidays_range',
+    'uses' => 'ReservationController@holidaysRange',
+    'middleware' => 'can:admin.treatment_reservations.index',
+]);
+
+Route::post('treatment-reservations/holidays/import-api', [
+    'as' => 'admin.treatment_reservations.holidays_import',
+    'uses' => 'ReservationController@importHolidays',
+    'middleware' => 'can:admin.treatment_reservations.index',
+]);
+
+Route::get('treatment-reservations/holidays', [
+    'as' => 'admin.treatment_reservations.holidays.index',
+    'uses' => 'ReservationController@holidaysPage',
+    'middleware' => 'can:admin.treatment_reservations.index',
+]);
+
+Route::post('treatment-reservations/holidays/import', [
+    'as' => 'admin.treatment_reservations.holidays.import',
+    'uses' => 'ReservationController@importHolidaysFromForm',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
+Route::post('treatment-reservations/holidays/{holiday}/update', [
+    'as' => 'admin.treatment_reservations.holidays.update',
+    'uses' => 'ReservationController@updateHoliday',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
+Route::post('treatment-reservations/holidays/{holiday}/delete', [
+    'as' => 'admin.treatment_reservations.holidays.delete',
+    'uses' => 'ReservationController@deleteHoliday',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
+Route::post('treatment-reservations/holidays/store', [
+    'as' => 'admin.treatment_reservations.holidays.store',
+    'uses' => 'ReservationController@storeHoliday',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
 Route::get('treatment-reservations/kanban/board', [
     'as' => 'admin.treatment_reservations.kanban',
     'uses' => 'ReservationController@kanbanBoard',

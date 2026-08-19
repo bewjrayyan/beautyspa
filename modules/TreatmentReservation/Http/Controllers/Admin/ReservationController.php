@@ -22,6 +22,8 @@ use Modules\TreatmentReservation\Services\ManualBookingProductCatalogService;
 use Modules\TreatmentReservation\Services\TreatmentBookingsReportService;
 use Modules\TreatmentReservation\Services\TreatmentReservationAnalyticsService;
 use Modules\TreatmentReservation\Services\UpcomingJobUrgencyService;
+use Modules\TreatmentReservation\Services\MalaysiaHolidayImportService;
+use Modules\TreatmentReservation\Entities\TreatmentPublicHoliday;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReservationController extends Controller
@@ -123,6 +125,243 @@ class ReservationController extends Controller
             ->map(fn (TreatmentBooking $booking) => $booking->appendAdminPayload($booking->toCalendarPayload()));
 
         return response()->json(['bookings' => $bookings]);
+    }
+
+    public function holidaysRange(Request $request): JsonResponse
+    {
+        $request->validate([
+            'from' => ['required', 'date_format:Y-m-d'],
+            'to' => ['required', 'date_format:Y-m-d', 'after_or_equal:from'],
+        ]);
+
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        $holidays = TreatmentPublicHoliday::query()
+            ->whereBetween('date', [$from, $to])
+            ->orderBy('date')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn (TreatmentPublicHoliday $h) => $h->date->toDateString());
+
+        $map = [];
+
+        foreach ($holidays as $date => $items) {
+            $first = $items->first();
+
+            if (! $first) {
+                continue;
+            }
+
+            $map[$date] = [
+                'label' => $first->name,
+                'color' => $first->color,
+                'kind' => $this->holidayKindForHolidayName((string) $first->name),
+                'states' => array_values($first->state_codes ?? []),
+            ];
+        }
+
+        return response()->json(['holidays' => $map]);
+    }
+
+    private function holidayKindForHolidayName(string $name): string
+    {
+        $n = mb_strtolower($name);
+
+        if (
+            str_contains($n, 'merdeka')
+            || str_contains($n, 'malaysia day')
+            || str_contains($n, 'kebangsaan')
+            || str_contains($n, 'national')
+            || str_contains($n, 'hari malaysia')
+            || str_contains($n, 'federal')
+        ) {
+            return 'national';
+        }
+
+        if (str_contains($n, 'labour') || str_contains($n, 'pekerja')) {
+            return 'labour';
+        }
+
+        if (
+            str_contains($n, 'raya')
+            || str_contains($n, 'eid')
+            || str_contains($n, 'muharram')
+            || str_contains($n, 'ramadan')
+            || str_contains($n, 'nabi')
+            || str_contains($n, 'prophet')
+            || str_contains($n, 'maul')
+            || str_contains($n, 'awal muharram')
+            || str_contains($n, 'arwah')
+        ) {
+            return 'religious';
+        }
+
+        if (
+            str_contains($n, 'deepavali')
+            || str_contains($n, 'thaipusam')
+            || str_contains($n, 'christmas')
+            || str_contains($n, 'krismas')
+            || str_contains($n, 'weseak')
+        ) {
+            return 'festival';
+        }
+
+        return 'other';
+    }
+
+    public function importHolidays(Request $request): JsonResponse
+    {
+        $request->validate([
+            'year' => ['required', 'integer', 'min:1900', 'max:3000'],
+            'state' => ['nullable', 'string', 'max:10'],
+        ]);
+
+        $year = (int) $request->input('year');
+        $state = $request->input('state');
+
+        $imported = app(MalaysiaHolidayImportService::class)->importYear(
+            $year,
+            is_string($state) && $state !== '' ? $state : null
+        );
+
+        return response()->json([
+            'ok' => true,
+            'year' => $year,
+            'state' => $state,
+            'imported' => $imported,
+        ]);
+    }
+
+    public function holidaysPage(Request $request): View
+    {
+        $year = (int) $request->integer('year') ?: now()->year;
+
+        $rowCount = TreatmentPublicHoliday::query()
+            ->whereYear('date', $year)
+            ->count();
+
+        $holidays = TreatmentPublicHoliday::query()
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->orderBy('id')
+            ->get();
+
+        return view('treatmentreservation::admin.reservations.holidays.index', [
+            'year' => $year,
+            'rowCount' => $rowCount,
+            'holidays' => $holidays,
+        ]);
+    }
+
+    public function importHolidaysFromForm(Request $request)
+    {
+        $request->validate([
+            'year' => ['required', 'integer', 'min:1900', 'max:3000'],
+            'state' => ['nullable', 'string', 'max:10'],
+        ]);
+
+        $year = (int) $request->input('year');
+        $state = $request->input('state');
+
+        $imported = app(MalaysiaHolidayImportService::class)->importYear(
+            $year,
+            is_string($state) && $state !== '' ? $state : null
+        );
+
+        return redirect()
+            ->route('admin.treatment_reservations.holidays.index', ['year' => $year])
+            ->withSuccess(trans('treatmentreservation::admin.holidays_import_success', [
+                'count' => $imported,
+                'year' => $year,
+            ]));
+    }
+
+    public function updateHoliday(Request $request, TreatmentPublicHoliday $holiday): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'state_codes' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $stateCodesInput = trim((string) $request->input('state_codes', ''));
+
+        $stateCodes = $stateCodesInput === ''
+            ? null
+            : array_values(array_filter(
+                array_map(static fn (string $c) => strtoupper(trim($c)), explode(',', $stateCodesInput))
+            ));
+
+        $holiday->update([
+            'name' => $request->input('name'),
+            'color' => $request->input('color'),
+            'state_codes' => $stateCodes,
+        ]);
+
+        return redirect()
+            ->route('admin.treatment_reservations.holidays.index', ['year' => $holiday->date->format('Y')])
+            ->withSuccess(trans('treatmentreservation::admin.holidays_update_success', [
+                'date' => $holiday->date->toDateString(),
+            ]));
+    }
+
+    public function deleteHoliday(Request $request, TreatmentPublicHoliday $holiday): \Illuminate\Http\RedirectResponse
+    {
+        $year = $holiday->date->format('Y');
+
+        $holiday->delete();
+
+        return redirect()
+            ->route('admin.treatment_reservations.holidays.index', ['year' => $year])
+            ->withSuccess(trans('treatmentreservation::admin.holidays_delete_success', [
+                'date' => $holiday->date->toDateString(),
+            ]));
+    }
+
+    public function storeHoliday(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'date' => ['required', 'date_format:Y-m-d'],
+            'name' => ['required', 'string', 'max:255'],
+            'color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'state_codes' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $date = (string) $request->input('date');
+        $name = (string) $request->input('name');
+        $color = (string) $request->input('color');
+        $stateCodesInput = trim((string) $request->input('state_codes', ''));
+
+        $stateCodes = $stateCodesInput === ''
+            ? null
+            : array_values(array_filter(
+                array_map(static fn (string $c) => strtoupper(trim($c)), explode(',', $stateCodesInput))
+            ));
+
+        // Treat manual add as overriding the same API master-data slot for this date.
+        $source = 'malaysia-holiday-api:v1';
+
+        TreatmentPublicHoliday::query()
+            ->where('date', $date)
+            ->where('source', $source)
+            ->delete();
+
+        TreatmentPublicHoliday::query()->create([
+            'date' => $date,
+            'name' => $name,
+            'day_name' => null,
+            'state_codes' => $stateCodes,
+            'is_subject_to_change' => false,
+            'color' => $color,
+            'source' => $source,
+        ]);
+
+        return redirect()
+            ->route('admin.treatment_reservations.holidays.index', ['year' => substr($date, 0, 4)])
+            ->withSuccess(trans('treatmentreservation::admin.holidays_add_success', [
+                'date' => $date,
+            ]));
     }
 
 

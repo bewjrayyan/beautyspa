@@ -53,6 +53,7 @@
         data-cal-status-completed="{{ TrLang::trans('admin.kanban.completed') }}"
         data-cal-empty-label="{{ TrLang::trans('admin.calendar.no_bookings') }}"
         data-calendar-url="{{ $crmRoutes['calendar'] ?? '' }}"
+        data-holidays-range-url="{{ route('admin.treatment_reservations.holidays_range') }}"
         data-status-url="{{ $crmRoutes['updateStatus'] ?? '' }}"
         data-whatsapp-url="{{ $crmRoutes['whatsapp'] ?? '' }}"
         data-consultation-url="{{ $crmRoutes['consultation'] ?? '' }}"
@@ -228,16 +229,7 @@
                             </div>
                         </form>
 
-                        <div class="tr-crm-toolbar__search">
-                            <i class="fa fa-search" aria-hidden="true"></i>
-                            <input
-                                type="search"
-                                id="tr-crm-search"
-                                placeholder="{{ TrLang::trans('admin.crm.search_placeholder') }}"
-                                autocomplete="off"
-                                enterkeyhint="search"
-                            >
-                        </div>
+
 
                         @if (! empty($crmCanCreate))
                             <div class="tr-crm-toolbar__actions">

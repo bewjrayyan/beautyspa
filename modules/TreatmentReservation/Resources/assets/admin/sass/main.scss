@@ -231,7 +231,7 @@ $tr-kanban-status-colors: (
         white-space: nowrap;
 
         &--exit {
-            color: #64748b;
+            color: #0f172a;
         }
     }
 
@@ -374,7 +374,7 @@ $tr-kanban-status-colors: (
         p {
             margin: 0;
             font-size: 12px;
-            color: #64748b;
+            color: #0f172a;
             line-height: 1.45;
         }
     }
@@ -391,7 +391,7 @@ $tr-kanban-status-colors: (
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #64748b;
+        color: #0f172a;
     }
 }
 
@@ -550,7 +550,7 @@ $tr-kanban-status-colors: (
         display: block;
         font-size: 11px;
         line-height: 1.35;
-        color: #64748b;
+        color: #0f172a;
         margin-top: 2px;
         white-space: nowrap;
         overflow: hidden;
@@ -635,7 +635,7 @@ $tr-kanban-status-colors: (
 
     > li > a {
         font-weight: 600;
-        color: #64748b;
+        color: #0f172a;
 
         i {
             margin-right: 6px;
@@ -707,7 +707,7 @@ $tr-kanban-status-colors: (
         p {
             margin: 0;
             font-size: 13px;
-            color: #64748b;
+            color: #0f172a;
         }
     }
 
@@ -723,7 +723,7 @@ $tr-kanban-status-colors: (
 
     &__empty {
         margin: 0;
-        color: #94a3b8;
+        color: #0f172a;
         font-size: 13px;
         font-style: italic;
     }
@@ -767,7 +767,7 @@ $tr-kanban-status-colors: (
         span {
             display: block;
             font-size: 12px;
-            color: #64748b;
+            color: #0f172a;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -818,7 +818,7 @@ $tr-kanban-status-colors: (
 
 .tr-page-subtitle {
     margin: 0;
-    color: #64748b;
+    color: #0f172a;
     font-size: 14px;
 }
 
@@ -1077,7 +1077,7 @@ $tr-text: #1a202c;
         font-weight: 700;
         letter-spacing: 0.04em;
         text-transform: uppercase;
-        color: #64748b;
+        color: #0f172a;
         line-height: 1.3;
     }
 
@@ -1094,7 +1094,7 @@ $tr-text: #1a202c;
         margin: 0;
         font-size: 14px;
         line-height: 1.55;
-        color: #64748b;
+        color: #0f172a;
     }
 
     @each $name, $colors in $tr-kanban-status-colors {
@@ -1231,7 +1231,78 @@ $tr-text: #1a202c;
     border: 1px solid $tr-border;
     background: #fff;
 
-    &--calendar,
+    &--calendar {
+        padding: 14px 20px;
+        background: #fff;
+        border-radius: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+
+        .tr-filters__header {
+            display: none;
+        }
+
+        .tr-filters__grid {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .tr-filters__field {
+            min-width: 0;
+            flex: 0 0 auto;
+
+            label {
+                display: none;
+            }
+
+            select,
+            input {
+                height: 38px;
+                border-radius: 10px;
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
+                font-size: 13px;
+                font-weight: 600;
+                padding: 0 12px;
+                color: #1e293b;
+                min-width: 160px;
+                transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+                &:focus {
+                    outline: none;
+                    border-color: #3b82f6;
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+                    background: #fff;
+                }
+            }
+        }
+
+        .tr-filters__field--action {
+            flex: 0 0 auto;
+            flex-direction: row;
+
+            .tr-filters__submit {
+                height: 38px;
+                border-radius: 10px;
+                padding: 0 20px;
+                font-size: 13px;
+                font-weight: 700;
+                background: #3b82f6;
+                border-color: #3b82f6;
+                color: #fff;
+
+                &:hover {
+                    background: #2563eb;
+                }
+            }
+        }
+    }
+
     &--reports {
         padding: 20px 22px;
         background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
@@ -1268,7 +1339,7 @@ $tr-text: #1a202c;
     &__subtitle {
         margin: 0;
         font-size: 13px;
-        color: #64748b;
+        color: #0f172a;
     }
 
     &__grid {
@@ -1288,7 +1359,7 @@ $tr-text: #1a202c;
         label {
             font-size: 12px;
             font-weight: 600;
-            color: #475569;
+            color: #111827;
             margin-bottom: 6px;
         }
     }
@@ -1385,7 +1456,7 @@ $tr-text: #1a202c;
 
     &__text {
         margin: 0;
-        color: #64748b;
+        color: #0f172a;
         font-size: 14px;
         line-height: 1.5;
     }
@@ -1413,9 +1484,9 @@ $tr-text: #1a202c;
 .tr-calendar-month-nav__group {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    padding: 4px;
-    background: #fff;
+    gap: 4px;
+    padding: 4px 8px;
+    background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 14px;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
@@ -1426,7 +1497,7 @@ $tr-text: #1a202c;
 .tr-calendar-month-nav__expand {
     border: 0;
     background: transparent;
-    color: #475569;
+    color: #111827;
     font-weight: 600;
     transition: background 0.15s ease, color 0.15s ease;
 }
@@ -1452,11 +1523,30 @@ $tr-text: #1a202c;
 
 .tr-calendar-month-nav__label {
     margin: 0;
-    min-width: 160px;
+    min-width: 120px;
     text-align: center;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 800;
     color: #0f172a;
+}
+
+.tr-calendar-month-nav__sibling {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    min-width: 80px;
+    text-align: center;
+    padding: 6px 10px;
+    border: 0;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+        background: #f1f5f9;
+        color: #1e293b;
+    }
 }
 
 .tr-calendar-month-nav__today {
@@ -1515,7 +1605,7 @@ $tr-text: #1a202c;
         font-weight: 700;
         letter-spacing: 0.04em;
         text-transform: uppercase;
-        color: #64748b;
+        color: #0f172a;
     }
 
     &__items {
@@ -1594,7 +1684,7 @@ $tr-text: #1a202c;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.04em;
-        color: #94a3b8;
+        color: #0f172a;
         padding: 10px 0;
     }
 
@@ -1623,7 +1713,7 @@ $tr-text: #1a202c;
     justify-content: center;
     gap: 10px;
     min-height: 280px;
-    color: #64748b;
+    color: #0f172a;
     font-size: 13px;
     font-weight: 600;
 }
@@ -1679,7 +1769,7 @@ $tr-text: #1a202c;
     justify-content: center;
     font-size: 12px;
     font-weight: 700;
-    color: #475569;
+    color: #111827;
     border-radius: 999px;
 
     &--today {
@@ -1703,6 +1793,75 @@ $tr-text: #1a202c;
     justify-content: center;
 }
 
+
+.tr-cal-day--holiday {
+    background: #f0f9ff;
+    border-color: #93c5fd;
+}
+
+.tr-cal-day--holiday .tr-cal-empty {
+    color: #0f172a;
+    font-size: 11px;
+    font-weight: 600;
+    font-style: normal;
+    opacity: 0.9;
+}
+
+.tr-cal-holiday-badge {
+    margin-top: 2px;
+    align-self: flex-start;
+    max-width: 100%;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+    color: var(--holiday-color, #dc2626);
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.08);
+    padding: 6px 10px;
+    border-radius: 14px;
+    pointer-events: none;
+    white-space: normal;
+    word-break: break-word;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+
+
+.tr-cal-holiday-badge--national {
+    background: rgba(220, 38, 38, 0.07);
+    border-color: rgba(220, 38, 38, 0.22);
+}
+
+.tr-cal-holiday-badge--religious {
+    background: rgba(124, 58, 237, 0.07);
+    border-color: rgba(124, 58, 237, 0.22);
+}
+
+.tr-cal-holiday-badge--festival {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.26);
+}
+
+.tr-cal-holiday-badge--labour {
+    background: rgba(249, 115, 22, 0.08);
+    border-color: rgba(249, 115, 22, 0.26);
+}
+
+.tr-cal-holiday-badge__title {
+    display: block;
+    font-weight: 800;
+}
+
+.tr-cal-holiday-badge__states {
+    display: block;
+    margin-top: 3px;
+    font-size: 9px;
+    line-height: 1.2;
+    opacity: 0.82;
+    font-weight: 700;
+}
 .tr-cal-day-events {
     display: flex;
     flex-direction: column;
@@ -1734,7 +1893,7 @@ $tr-text: #1a202c;
         font-weight: 700;
         letter-spacing: 0.04em;
         text-transform: uppercase;
-        color: #64748b;
+        color: #0f172a;
     }
 
     &__items {
@@ -1852,7 +2011,7 @@ $tr-text: #1a202c;
 }
 
 .tr-cal-event-time {
-    color: #475569;
+    color: #111827;
     font-weight: 600;
     font-size: 10px;
 }
@@ -1971,7 +2130,7 @@ $tr-text: #1a202c;
     margin: 0 0 6px;
     font-size: 12px;
     font-weight: 600;
-    color: #64748b;
+    color: #0f172a;
     line-height: 1.3;
 }
 
@@ -1991,16 +2150,16 @@ $tr-text: #1a202c;
     margin: 0;
     font-size: 12px;
     line-height: 1.45;
-    color: #64748b;
+    color: #0f172a;
 
     &__label {
         font-weight: 600;
-        color: #475569;
+        color: #111827;
     }
 
     &__value {
         font-weight: 500;
-        color: #64748b;
+        color: #0f172a;
     }
 }
 
@@ -2015,7 +2174,7 @@ $tr-text: #1a202c;
 .tr-kanban-card-position {
     font-size: 12px;
     font-weight: 500;
-    color: #64748b;
+    color: #0f172a;
     line-height: 1.3;
 
     &::before {
@@ -2124,7 +2283,7 @@ $tr-text: #1a202c;
     border: 0;
     border-radius: 999px;
     background: #f1f5f9;
-    color: #475569;
+    color: #111827;
     font-size: 22px;
     line-height: 1;
     cursor: pointer;
@@ -2225,7 +2384,7 @@ body.tr-calendar-event-preview-open {
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #94a3b8;
+    color: #0f172a;
 }
 
 .tr-calendar-event-preview__title {
@@ -2241,7 +2400,7 @@ body.tr-calendar-event-preview-open {
     margin: 6px 0 0;
     font-size: 13px;
     font-weight: 500;
-    color: #64748b;
+    color: #0f172a;
     line-height: 1.4;
 }
 
@@ -2252,7 +2411,7 @@ body.tr-calendar-event-preview-open {
     border: 0;
     border-radius: 10px;
     background: #f1f5f9;
-    color: #64748b;
+    color: #0f172a;
     font-size: 14px;
     line-height: 1;
     cursor: pointer;
@@ -2306,7 +2465,7 @@ body.tr-calendar-event-preview-open {
     border: 1px solid #e2e8f0;
     font-size: 11px;
     font-weight: 600;
-    color: #475569;
+    color: #111827;
 
     &--source {
         background: #ecfdf5;
@@ -2341,7 +2500,7 @@ body.tr-calendar-event-preview-open {
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #94a3b8;
+    color: #0f172a;
 }
 
 .tr-calendar-event-preview__section-card {
@@ -2372,7 +2531,7 @@ body.tr-calendar-event-preview-open {
 .tr-calendar-event-preview__field-label {
     font-size: 11px;
     font-weight: 600;
-    color: #94a3b8;
+    color: #0f172a;
 }
 
 .tr-calendar-event-preview__field-value {
@@ -2446,7 +2605,7 @@ body.tr-calendar-event-preview-open {
     border: 1px solid #e2e8f0;
     font-size: 11px;
     font-weight: 600;
-    color: #64748b;
+    color: #0f172a;
 
     &--loyalty {
         background: #fffbeb;
@@ -2503,7 +2662,7 @@ body.tr-calendar-event-preview-open {
 
     span {
         font-size: 12px;
-        color: #64748b;
+        color: #0f172a;
     }
 }
 
@@ -2520,7 +2679,7 @@ body.tr-calendar-event-preview-open {
     margin-bottom: 6px;
     font-size: 11px;
     font-weight: 600;
-    color: #94a3b8;
+    color: #0f172a;
 }
 
 .tr-calendar-event-preview__note-body {
@@ -2537,13 +2696,13 @@ body.tr-calendar-event-preview-open {
         margin-bottom: 6px;
         font-size: 11px;
         font-weight: 600;
-        color: #94a3b8;
+        color: #0f172a;
     }
 
     textarea {
         margin-bottom: 10px;
         resize: vertical;
-        min-height: 72px;
+        min-height: 100px;
         border-radius: 10px;
         border-color: #e2e8f0;
     }
@@ -2698,7 +2857,7 @@ body.tr-calendar-event-preview-open {
 .tr-calendar-event-preview__activity-time {
     font-size: 11px;
     font-weight: 600;
-    color: #94a3b8;
+    color: #0f172a;
 }
 
 .tr-calendar-event-preview__activity-copy {
@@ -2713,7 +2872,7 @@ body.tr-calendar-event-preview-open {
 
     span {
         font-size: 12px;
-        color: #64748b;
+        color: #0f172a;
         line-height: 1.45;
     }
 }
@@ -2772,7 +2931,7 @@ body.tr-calendar-event-preview-open {
     margin-bottom: 4px;
     font-size: 11px;
     font-weight: 600;
-    color: #64748b;
+    color: #0f172a;
 }
 
 .tr-booking-activity-log__notes {
@@ -2782,7 +2941,7 @@ body.tr-calendar-event-preview-open {
     background: #f1f5f9;
     white-space: pre-wrap;
     font-size: 12px;
-    color: #475569;
+    color: #111827;
 }
 
 @keyframes tr-avatar-preview-in {
@@ -2814,7 +2973,7 @@ body.tr-calendar-event-preview-open {
 
 .tr-kanban-empty {
     text-align: center;
-    color: #94a3b8;
+    color: #0f172a;
     font-size: 12px;
     padding: 24px 8px;
 }
@@ -3010,11 +3169,11 @@ body.tr-calendar-event-preview-open {
         gap: 10px;
         padding: 24px;
         text-align: center;
-        color: #64748b;
+        color: #0f172a;
 
         i {
             font-size: 28px;
-            color: #94a3b8;
+            color: #0f172a;
         }
 
         p {
@@ -3079,3 +3238,545 @@ body.tr-calendar-event-preview-open {
 
 @import "urgency-alerts";
 @import "dashboard-crm";
+
+// Day/Month view toggle
+.tr-calendar-view-toggle {
+    display: inline-flex;
+    padding: 3px;
+    background: #e5e7eb;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    gap: 2px;
+    margin-left: 8px;
+
+    &__btn {
+        border: 0;
+        background: transparent;
+        padding: 8px 18px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #111827;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        line-height: 1;
+
+        &:hover:not(.is-active) {
+            background: rgba(255, 255, 255, 0.75);
+            color: #0f172a;
+        }
+
+        &.is-active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+        }
+    }
+}
+
+// Day/Week view container
+.tr-calendar-day-view {
+    padding: 0 16px 24px;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 0 12px;
+        border-bottom: 2px solid #e8edf3;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+        flex: 1;
+        text-align: center;
+    }
+
+    &__nav {
+        border: 1.5px solid #e2e8f0;
+        background: #fff;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #111827;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+
+        &:hover {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+    }
+}
+
+// Week grid
+.tr-week-header {
+    display: grid;
+    grid-template-columns: 80px repeat(7, minmax(0, 1fr));
+    border-bottom: 2px solid #e2e8f0;
+
+    &__time {
+        padding: 12px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: center;
+    }
+
+    &__day {
+        padding: 12px 8px;
+        text-align: center;
+        border-left: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        position: relative;
+        overflow: hidden;
+
+        &--today {
+            background: #eff6ff;
+
+            .tr-week-header__num {
+                background: #3b82f6;
+                color: #fff;
+                border-radius: 50%;
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        &--has-booking:not(&--today) {
+            background: #f0f9ff;
+            border-left-color: #3b82f6;
+            box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.18);
+            padding: 14px 8px;
+            transform: translateY(-2px);
+
+            .tr-week-header__dow {
+                color: #0f172a;
+                font-size: 12px;
+            }
+
+            .tr-week-header__num {
+                font-size: 26px;
+            }
+        }
+    }
+
+    &__dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.18);
+    }
+
+    &__dow {
+        font-size: 11px;
+        font-weight: 700;
+        color: #0f172a;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+
+    &__num {
+        font-size: 22px;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1.2;
+    }
+
+    &__count {
+        font-size: 11px;
+        font-weight: 700;
+        color: #3b82f6;
+        background: #eff6ff;
+        padding: 1px 8px;
+        border-radius: 10px;
+    }
+}
+
+
+
+.tr-week-header__holiday {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-10deg);
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--holiday-color, #3b82f6);
+    opacity: 0.95;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 0;
+}
+
+.tr-week-body {
+    overflow: visible;
+
+    &__inner {
+        position: relative;
+    }
+}
+
+.tr-week-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: 80px repeat(7, minmax(0, 1fr));
+    pointer-events: none;
+
+    &__gutter {
+        pointer-events: none;
+    }
+
+    &__col {
+        position: relative;
+        pointer-events: auto;
+        border-left: 1px solid transparent;
+    }
+}
+
+.tr-week-row {
+    display: grid;
+    grid-template-columns: 80px repeat(7, minmax(0, 1fr));
+    height: 100px;
+    border-bottom: 1px solid #f1f5f9;
+
+    &:hover { background: #fafbfd; }
+
+    &__time {
+        padding: 0 8px 0 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+        text-align: right;
+        border-right: 1px solid #e2e8f0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        transform: translateY(0);
+    }
+
+    &__cell {
+        border-left: 1px solid #e2e8f0;
+        height: 100px;
+        overflow: hidden;
+    }
+}
+
+
+.tr-week-holiday-watermark {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.015);
+    z-index: 0;
+}
+
+
+
+.tr-week-holiday-watermark--national {
+    background: rgba(220, 38, 38, 0.04) !important;
+}
+
+.tr-week-holiday-watermark--religious {
+    background: rgba(124, 58, 237, 0.04) !important;
+}
+
+.tr-week-holiday-watermark--festival {
+    background: rgba(245, 158, 11, 0.04) !important;
+}
+
+.tr-week-holiday-watermark--labour {
+    background: rgba(249, 115, 22, 0.04) !important;
+}
+.tr-week-holiday-watermark > span {
+    transform: none;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--holiday-color, #3b82f6);
+    opacity: 0.18;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.tr-week-holiday-watermark__stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.tr-week-holiday-watermark__title {
+    font-size: 34px;
+    font-weight: 1000;
+    color: var(--holiday-color, #3b82f6);
+    opacity: 0.22;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.tr-week-holiday-watermark__subtitle {
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--holiday-color, #3b82f6);
+    opacity: 0.55;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+// Booking cards inside week cells
+.tr-week-card {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1.5px solid #94a3b8;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 0;
+    word-break: break-word;
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+
+    &:hover {
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        z-index: 3;
+    }
+
+    strong {
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }
+
+    &__treatment {
+        color: #111827;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    &__time {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 10px;
+    }
+
+    &__beautician {
+        font-weight: 600;
+        color: #0f172a !important;
+        font-size: 10px;
+    }
+
+    &--pending { border-color: #ea580c; background: #fff7ed; }
+    &--in-progress { border-color: #6d28d9; background: #f5f3ff; }
+    &--completed { border-color: #047857; background: #ecfdf5; }
+}
+
+
+.tr-holidays-page {
+    &__header {
+        margin-bottom: 12px;
+    }
+
+    &__hero-card,
+    &__table-card,
+    &__stats-card {
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 20px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    &__hero-header,
+    &__table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 22px;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+        background: transparent;
+    }
+
+    &__hero-body {
+        padding: 22px;
+    }
+
+    &__eyebrow {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #6366f1;
+        margin-bottom: 4px;
+    }
+
+    &__hero-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    &__hero-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 68px;
+        height: 38px;
+        padding: 0 14px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #4338ca;
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    &__import-btn {
+        min-height: 42px;
+        border-radius: 12px;
+        font-weight: 700;
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+    }
+
+    &__stats-card {
+        height: 100%;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    &__stats-value {
+        font-size: 36px;
+        line-height: 1;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 10px;
+    }
+
+    &__stats-label {
+        color: #475569;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+}
+
+.tr-holidays-table {
+    thead th {
+        padding: 14px 16px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    tbody td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        border-top: 1px solid #eef2f7;
+        background: rgba(255, 255, 255, 0.92);
+    }
+
+    &__date {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    &__meta {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    &__name-input {
+        font-weight: 600;
+    }
+
+    &__color-field {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    &__color-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 8px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4);
+        flex: 0 0 24px;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .form-control,
+    .form-control-color {
+        border-radius: 10px;
+        border-color: #dbe3ee;
+        box-shadow: none;
+    }
+
+    .btn {
+        border-radius: 10px;
+        font-weight: 700;
+    }
+}

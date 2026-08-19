@@ -22,10 +22,30 @@ class SidebarExtender extends BaseSidebarExtender
                 $this->registerBeauticianPortalItems($group);
             }
 
-            $group->item(trans('treatmentreservation::sidebar.reservations'), function (Item $item) {
+            $group->item(trans('treatmentreservation::sidebar.agenda'), function (Item $item) {
                 $item->icon('fa fa-calendar-check-o');
                 $item->weight(17);
-                $item->route('admin.treatment_reservations.index');
+                $item->route('admin.treatment_reservations.index', ['view' => 'dashboard']);
+                $item->authorize(
+                    $this->auth->hasAccess('admin.treatment_reservations.index')
+                );
+            });
+
+            $group->item(trans('treatmentreservation::sidebar.calendar'), function (Item $item) {
+                $item->icon('fa fa-calendar');
+                $item->weight(18);
+                $item->route('admin.treatment_reservations.index', ['view' => 'calendar']);
+                $item->isActiveWhen(route('admin.treatment_reservations.index', ['view' => 'calendar'], false));
+                $item->authorize(
+                    $this->auth->hasAccess('admin.treatment_reservations.index')
+                );
+            });
+
+            $group->item(trans('treatmentreservation::sidebar.holidays'), function (Item $item) {
+                $item->icon('fa fa-flag-o');
+                $item->weight(19);
+                $item->route('admin.treatment_reservations.holidays.index');
+                $item->isActiveWhen(route('admin.treatment_reservations.holidays.index', [], false));
                 $item->authorize(
                     $this->auth->hasAccess('admin.treatment_reservations.index')
                 );

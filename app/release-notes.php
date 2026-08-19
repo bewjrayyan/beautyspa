@@ -5,6 +5,29 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.9.99' => [
+        'date' => '2026-08-20 00:30',
+        'en' => [
+            'summary' => 'Add backend-managed Malaysian public holidays with admin import/edit tools and calendar-wide holiday display.',
+            'changes' => [
+                'Add treatment_public_holidays table, import service, and holiday range API for calendars.',
+                'Add admin Holidays page with import-by-year, manual add, edit, delete, search, sort, and pagination tools.',
+                'Show holiday names, states, and type-aware badges across admin and portal calendars.',
+                'Fix holiday date-key mapping so saved holidays appear consistently in all calendar views.',
+                'Seed 2026 holiday master data through a committed data migration for production rollout.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah cuti umum Malaysia berasaskan backend dengan alat import/edit admin dan paparan cuti di semua kalendar.',
+            'changes' => [
+                'Tambah jadual treatment_public_holidays, servis import, dan API julat cuti untuk kalendar.',
+                'Tambah halaman Holidays admin dengan import mengikut tahun, tambah manual, edit, buang, carian, susun, dan pagination.',
+                'Paparkan nama cuti, negeri, dan badge mengikut jenis di seluruh kalendar admin dan portal.',
+                'Betulkan pemetaan date-key cuti supaya cuti yang disimpan muncul konsisten dalam semua paparan kalendar.',
+                'Seed data master holiday 2026 melalui data migration yang dikomit untuk rollout production.',
+            ],
+        ],
+    ],
     '4.9.98' => [
         'date' => '2026-08-19 20:05',
         'en' => [
