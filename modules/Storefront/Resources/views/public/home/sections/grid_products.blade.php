@@ -6,8 +6,11 @@
                     @foreach ($gridProducts as $key => $tab)
                         <li
                             class="tab-item"
-                            :class="classes({{ $key }})"
-                            @click="changeTab({{ $key }})"
+                            :class="{
+                                active: activeTabIndex === {{ $key }},
+                                loading: activeTabIndex === {{ $key }} && loading,
+                            }"
+                            @click.stop="changeTab({{ $key }})"
                             title="{{ $tab['title'] }}"
                         >
                             @include('storefront::public.partials.product_tab_label', ['label' => $tab['title']])
@@ -29,7 +32,7 @@
 
                         <template
                             x-for="product in products"
-                            :key="`${activeTab}-${product.id}`"
+                            :key="`${activeTabIndex}-${product.id}`"
                         >
                             <div class="swiper-slide">
                                 <div class="grid-products-item"> 

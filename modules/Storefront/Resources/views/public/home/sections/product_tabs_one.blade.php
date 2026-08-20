@@ -7,8 +7,11 @@
                         @foreach($productTabsOne as $key => $tab)
                             <li
                                 class="tab-item"
-                                :class="classes({{ $key }})"
-                                @click="changeTab({{ $key }})"
+                                :class="{
+                                    active: activeTabIndex === {{ $key }},
+                                    loading: activeTabIndex === {{ $key }} && loading,
+                                }"
+                                @click.stop="changeTab({{ $key }})"
                                 title="{{ $tab['title'] }}"
                             >
                                 @include('storefront::public.partials.product_tab_label', ['label' => $tab['title']])
@@ -19,7 +22,7 @@
                     <hr>
                 </div>
 
-                <a href="{{ storefront_route('products.index') }}" class="tab-products-view-all">
+                <a href="{{ storefront_route('products.index') }}" class="tab-products-view-all section-view-all-badge">
                     {{ trans('storefront::storefront.view_all') }}
                 </a>
             </div>
@@ -35,7 +38,7 @@
                         
                         <template
                             x-for="product in products"
-                            :key="`${activeTab}-${product.id}`"
+                            :key="`${activeTabIndex}-${product.id}`"
                         >
                             <div class="swiper-slide">
                                 @include('storefront::public.partials.product_card')

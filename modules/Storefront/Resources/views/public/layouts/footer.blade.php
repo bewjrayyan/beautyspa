@@ -1,7 +1,7 @@
 <footer class="footer-wrap">
     <div class="container">
         <div class="footer">
-            <h2 class="footer-app-heading d-lg-none">{{ trans('storefront::layouts.footer_title') }}</h2>
+            <h2 class="footer-app-heading d-md-none">{{ trans('storefront::layouts.footer_title') }}</h2>
 
             <div class="footer-top">
                 <div class="row footer-top__grid">
@@ -250,7 +250,7 @@
         $('.store-phone').attr('href', `tel:{{ setting('store_phone') }}`);
         $('.store-email').attr('href', `mailto:{{ setting('store_email') }}`);
 
-        const footerCardsMq = window.matchMedia('(min-width: 992px)');
+        const footerCardsMq = window.matchMedia('(min-width: 768px)');
 
         const syncFooterCards = () => {
             document.querySelectorAll('.footer-app-card').forEach((card) => {

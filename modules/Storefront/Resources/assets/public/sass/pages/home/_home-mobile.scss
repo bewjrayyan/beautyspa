@@ -383,10 +383,6 @@ $home-app-section-gap: 12px;
                     padding-top: 12px;
                     padding-bottom: 0;
                 }
-
-                .product-slider-controls {
-                    padding-top: 4px;
-                }
             }
         }
 
@@ -407,12 +403,12 @@ $home-app-section-gap: 12px;
 
             .tab-products-header {
                 text-align: left;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: space-between;
                 flex-direction: row;
-                gap: 12px;
-                overflow-x: visible;
-                overflow-y: visible;
+                flex-wrap: nowrap;
+                gap: 8px;
+                overflow: visible;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
                 margin: 0;
@@ -429,22 +425,20 @@ $home-app-section-gap: 12px;
             }
 
             .tab-products-view-all {
-                flex-shrink: 0;
-                font-size: 13px;
-                font-weight: 600;
-                line-height: 1.2;
-                color: var(--color-primary);
-                text-decoration: none;
-                white-space: nowrap;
+                flex: 0 0 auto;
+                align-self: flex-start;
+                margin-top: 0;
             }
 
             .tab-products-header-overflow {
-                flex: 1;
+                flex: 1 1 auto;
                 min-width: 0;
+                max-width: calc(100% - 76px);
                 width: auto;
                 margin: 0;
                 padding: 0;
-                overflow: visible;
+                overflow-x: auto;
+                overflow-y: hidden;
 
                 hr {
                     display: none !important;
@@ -454,16 +448,17 @@ $home-app-section-gap: 12px;
                     border-bottom: none !important;
                     justify-content: flex-start !important;
                     margin: 0 !important;
-                    width: auto;
+                    width: max-content;
+                    max-width: none;
                 }
             }
 
             .tabs {
                 display: flex;
                 flex-wrap: nowrap;
-                gap: 8px;
-                width: auto;
-                max-width: 100%;
+                gap: 6px;
+                width: max-content;
+                max-width: none;
                 min-width: 0;
                 padding: 0;
                 margin: 0;
@@ -477,7 +472,7 @@ $home-app-section-gap: 12px;
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    margin-right: 0;
+                    margin: 0 !important;
                     padding: 8px 12px;
                     font-size: 12px;
                     font-weight: 600;
@@ -489,14 +484,6 @@ $home-app-section-gap: 12px;
                     color: var(--color-gray-dark);
                     position: relative;
                     max-width: none;
-
-                    .tab-item-label--mobile {
-                        display: inline;
-                    }
-
-                    .tab-item-label--desktop {
-                        display: none;
-                    }
 
                     &::before,
                     &::after {
@@ -516,14 +503,28 @@ $home-app-section-gap: 12px;
                 .tab-products-header {
                     flex-direction: column;
                     align-items: stretch;
+                    gap: 8px;
                 }
 
                 .tab-products-header-row {
                     display: flex;
-                    align-items: center;
+                    align-items: flex-start;
                     justify-content: space-between;
-                    gap: 12px;
+                    gap: 8px;
                     width: 100%;
+                }
+
+                .tab-products-header-overflow {
+                    flex: 1 1 auto;
+                    min-width: 0;
+                    max-width: calc(100% - 76px);
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                }
+
+                .tab-products-view-all {
+                    flex: 0 0 auto;
+                    align-self: flex-start;
                 }
             }
         }
@@ -531,6 +532,41 @@ $home-app-section-gap: 12px;
         .grid-products-wrap-inner {
             margin: 0 !important;
             overflow: visible;
+        }
+
+        .grid-products-wrap {
+            .grid-products {
+                .swiper-slide {
+                    display: flex;
+                    align-items: stretch;
+                    height: auto !important;
+                }
+
+                .grid-products-item {
+                    display: flex;
+                    flex-direction: column;
+                    width: 100%;
+                    height: 100%;
+                }
+
+                .product-card {
+                    flex: 1 1 auto;
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                }
+
+                .product-card-middle {
+                    flex: 1 1 auto;
+                }
+
+                .product-name span {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+            }
         }
 
         .landscape-left-tab-products-inner,
@@ -667,10 +703,6 @@ $home-app-section-gap: 12px;
                 .google-reviews-carousel {
                     overflow: visible;
                 }
-
-                .product-slider-controls {
-                    padding-top: 4px;
-                }
             }
 
             .google-reviews-metrics-panel {
@@ -693,10 +725,6 @@ $home-app-section-gap: 12px;
 
             .blog-posts-inner {
                 overflow: visible;
-            }
-
-            .product-slider-controls {
-                padding-top: 4px;
             }
         }
 

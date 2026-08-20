@@ -1,7 +1,11 @@
+import { SLIDER_COUNTER_PRODUCT_THRESHOLD } from "./productSliderPagination";
+
 export function productSliderStateMixin(getSwiper) {
     return {
         sliderIndex: 0,
         sliderTotal: 0,
+        sliderSlideCount: 0,
+        sliderUseCounter: false,
 
         get sliderAtStart() {
             const swiper = getSwiper.call(this);
@@ -27,12 +31,30 @@ export function productSliderStateMixin(getSwiper) {
             if (!swiper || swiper.destroyed) {
                 this.sliderIndex = 0;
                 this.sliderTotal = 0;
+                this.sliderSlideCount = 0;
+                this.sliderUseCounter = false;
 
                 return;
             }
 
-            this.sliderIndex = swiper.activeIndex;
-            this.sliderTotal = swiper.slides?.length ?? 0;
+            const totalPages =
+                swiper.snapGrid?.length ??
+                swiper.pagination?.bullets?.length ??
+                swiper.slides?.length ??
+                0;
+
+            const currentPage = swiper.snapIndex ?? swiper.activeIndex ?? 0;
+            const slideCount = swiper.slides?.length ?? 0;
+
+            this.sliderSlideCount = slideCount;
+            this.sliderUseCounter =
+                slideCount > SLIDER_COUNTER_PRODUCT_THRESHOLD;
+            this.sliderTotal = totalPages;
+            this.sliderIndex = Math.min(
+                Math.max(currentPage, 0),
+                Math.max(totalPages - 1, 0)
+            );
+
         },
 
         slideProductSlider(direction) {

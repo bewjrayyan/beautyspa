@@ -1,20 +1,24 @@
 import Swiper from "swiper";
-import { wrapProductSliderOptions, syncProductSliderNav } from "../support/productSliderControlActions";
+import { wrapProductSliderOptions } from "../support/productSliderControlActions";
 import { productSliderStateMixin } from "../support/productSliderStateMixin";
 import {
     resolveProductSliderControls,
     resetProductSliderControls,
 } from "../support/productSliderPagination";
+import { whenVisible } from "../support/whenVisible";
+import { runSwiperInit } from "../support/scheduleInit";
 
 export default function (tabs) {
     return {
         tabs,
         activeTab: null,
+        activeTabIndex: null,
         loading: false,
         swiper: null,
         products: [],
         productsByTab: {},
         _renderGeneration: 0,
+        _initialFetchDone: false,
 
         ...productSliderStateMixin(function () {
             return this.swiper;
@@ -22,6 +26,27 @@ export default function (tabs) {
 
         get hasAnyProduct() {
             return this.products.length;
+        },
+
+        initProductTabs() {
+            this.activeTabIndex = 0;
+            this.activeTab = this.tab(0);
+
+            whenVisible(this.$el, () => {
+                if (this._initialFetchDone) {
+                    return;
+                }
+
+                this._initialFetchDone = true;
+
+                const tabIndex = Number(this.activeTabIndex ?? 0);
+
+                if (this.productsByTab[tabIndex] || this.loading) {
+                    return;
+                }
+
+                this.fetchProducts(tabIndex);
+            });
         },
 
         tab(index) {
@@ -49,15 +74,18 @@ export default function (tabs) {
         },
 
         isActiveTab(index) {
-            return this.activeTab === this.tab(index);
+            return this.activeTabIndex === Number(index);
         },
 
         changeTab(index) {
+            index = Number(index);
+
             if (this.isActiveTab(index) || this.tab(index) === undefined) {
                 return;
             }
 
             this._renderGeneration += 1;
+            this.activeTabIndex = index;
             this.activeTab = this.tab(index);
 
             if (this.productsByTab[index]) {
@@ -67,12 +95,14 @@ export default function (tabs) {
             }
 
             this.loading = true;
+            this.destroySwiper();
             this.products = [];
             this.fetchProducts(index);
         },
 
         classes(index) {
-            const isActive = this.isActiveTab(index);
+            const tabIndex = Number(index);
+            const isActive = this.activeTabIndex === tabIndex;
 
             return {
                 active: isActive,
@@ -111,6 +141,14 @@ export default function (tabs) {
             });
         },
 
+        destroySwiper() {
+            if (this.swiper && !this.swiper.destroyed) {
+                this.swiper.destroy(false, false);
+            }
+
+            this.swiper = null;
+        },
+
         mountSwiper(swiperEl) {
             const options = this.swiperOptions(swiperEl);
 
@@ -129,21 +167,26 @@ export default function (tabs) {
             );
         },
 
+        scheduleSwiperMount(swiperEl) {
+            return new Promise((resolve) => {
+                runSwiperInit(() => {
+                    if (swiperEl.isConnected) {
+                        this.mountSwiper(swiperEl);
+                    }
+
+                    resolve();
+                });
+            });
+        },
+
         refreshSwiper(swiperEl) {
-            if (!this.swiper || this.swiper.destroyed) {
-                this.mountSwiper(swiperEl);
-
-                return;
-            }
-
-            this.swiper.updateSlides();
-            this.swiper.slideTo(0, 0);
-            this.swiper.update();
-            syncProductSliderNav(this.swiper, swiperEl, this.$el);
-            this.updateSliderState(this.swiper);
+            this.destroySwiper();
+            return this.scheduleSwiperMount(swiperEl);
         },
 
         async renderProducts(tabIndex, products) {
+            tabIndex = Number(tabIndex);
+
             if (!this.isActiveTab(tabIndex)) {
                 return;
             }
@@ -152,41 +195,54 @@ export default function (tabs) {
             const swiperEl = this.$el.querySelector(this.selector());
 
             this.loading = true;
+            this.destroySwiper();
             this.products = Array.isArray(products) ? [...products] : products;
             this.hideSkeletons();
 
-            await this.$nextTick();
-            await this.$nextTick();
-            await this.waitForSlidesPaint();
+            try {
+                await this.$nextTick();
+                await this.$nextTick();
+                await this.waitForSlidesPaint();
 
-            if (generation !== this._renderGeneration || !this.isActiveTab(tabIndex)) {
-                this.loading = false;
+                if (
+                    generation !== this._renderGeneration ||
+                    !this.isActiveTab(tabIndex)
+                ) {
+                    return;
+                }
 
-                return;
+                if (!swiperEl) {
+                    this.sliderIndex = 0;
+                    this.sliderTotal = 0;
+
+                    return;
+                }
+
+                resetProductSliderControls(
+                    resolveProductSliderControls(swiperEl, this.$el).controls
+                );
+
+                if (this.products.length === 0) {
+                    this.sliderIndex = 0;
+                    this.sliderTotal = 0;
+
+                    return;
+                }
+
+                await this.refreshSwiper(swiperEl);
+            } finally {
+                if (
+                    generation === this._renderGeneration &&
+                    this.isActiveTab(tabIndex)
+                ) {
+                    this.loading = false;
+                }
             }
-
-            if (!swiperEl || this.products.length === 0) {
-                this.sliderIndex = 0;
-                this.sliderTotal = 0;
-                this.loading = false;
-
-                return;
-            }
-
-            resetProductSliderControls(
-                resolveProductSliderControls(swiperEl, this.$el).controls
-            );
-
-            if (!this.swiper || this.swiper.destroyed) {
-                this.mountSwiper(swiperEl);
-            } else {
-                this.refreshSwiper(swiperEl);
-            }
-
-            this.loading = false;
         },
 
         async fetchProducts(tabIndex = 0) {
+            tabIndex = Number(tabIndex);
+
             if (this.productsByTab[tabIndex]) {
                 await this.renderProducts(tabIndex, this.productsByTab[tabIndex]);
 

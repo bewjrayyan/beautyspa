@@ -1,6 +1,7 @@
 @import "footer/_footer-top";
 @import "footer/_footer-bottom";
 @import "footer/_footer-mobile";
+@import "footer/_footer-tablet";
 
 .footer-wrap {
     position: relative;
@@ -52,7 +53,7 @@
     padding-bottom: 0;
 }
 
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 768px) {
     .footer-app-card__header {
         display: block;
         margin-bottom: 18px;

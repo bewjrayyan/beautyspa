@@ -1,3 +1,5 @@
+export const SLIDER_COUNTER_PRODUCT_THRESHOLD = 18;
+
 export function productSliderPagination(paginationEl) {
     if (!paginationEl) {
         return undefined;
@@ -37,7 +39,8 @@ export function resetProductSliderControls(controls) {
 
     if (paginationEl) {
         paginationEl.innerHTML = "";
-        paginationEl.className = "swiper-pagination";
+        paginationEl.className =
+            "swiper-pagination product-slider-controls__dots";
         paginationEl.removeAttribute("style");
     }
 
@@ -52,6 +55,7 @@ export function resetProductSliderControls(controls) {
             "swiper-button-hidden"
         );
         button.removeAttribute("aria-disabled");
+        button.disabled = false;
     });
 }
 
@@ -64,10 +68,6 @@ export function productSliderNavigation(swiperEl, scopeEl) {
 }
 
 export function swiperDomObservers() {
-    if (window.matchMedia("(max-width: 991px)").matches) {
-        return {};
-    }
-
     return {
         observer: true,
         observeParents: true,

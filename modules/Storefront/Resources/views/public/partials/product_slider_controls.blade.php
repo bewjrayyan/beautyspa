@@ -1,4 +1,7 @@
-<div class="product-slider-controls" :class="{ 'is-loading': loading }">
+<div
+    class="product-slider-controls"
+    :class="{ 'is-loading': loading, 'use-counter': sliderUseCounter }"
+>
     <button
         type="button"
         class="swiper-button-prev product-slider-controls__btn product-slider-controls__btn--prev"
@@ -6,14 +9,13 @@
         aria-label="{{ trans('storefront::layouts.prev') }}"
         @click.stop.prevent="slideProductSlider('prev')"
     >
-        <span class="product-slider-controls__icon" aria-hidden="true"></span>
-        <span class="product-slider-controls__label product-slider-controls__label--desktop">{{ trans('storefront::layouts.prev') }}</span>
+        <i class="las la-angle-left product-slider-controls__icon" aria-hidden="true"></i>
     </button>
 
     <div class="product-slider-controls__meta">
         <span
             class="product-slider-controls__counter"
-            x-show="sliderTotal > 0"
+            x-show="sliderUseCounter && sliderTotal > 1"
             x-text="sliderPositionLabel"
         ></span>
         <div class="swiper-pagination product-slider-controls__dots"></div>
@@ -26,7 +28,6 @@
         aria-label="{{ trans('storefront::layouts.next') }}"
         @click.stop.prevent="slideProductSlider('next')"
     >
-        <span class="product-slider-controls__icon" aria-hidden="true"></span>
-        <span class="product-slider-controls__label product-slider-controls__label--desktop">{{ trans('storefront::layouts.next') }}</span>
+        <i class="las la-angle-right product-slider-controls__icon" aria-hidden="true"></i>
     </button>
 </div>

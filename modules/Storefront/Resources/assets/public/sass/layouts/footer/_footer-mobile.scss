@@ -1,4 +1,4 @@
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 767px) {
     .footer-wrap {
         margin-top: 32px;
         padding-top: 24px;
@@ -295,77 +295,5 @@
     .footer-payment {
         margin-top: 12px;
         justify-content: center;
-    }
-}
-
-@media screen and (min-width: 992px) {
-    .footer-app-card {
-        &__header {
-            display: block;
-            padding: 0;
-            cursor: default;
-            pointer-events: none;
-            list-style: none;
-
-            &::-webkit-details-marker {
-                display: none;
-            }
-        }
-
-        &__title {
-            display: block;
-            font-size: 20px;
-            font-weight: 500;
-            line-height: 28px;
-            margin-bottom: 0;
-        }
-
-        &__chevron {
-            display: none;
-        }
-
-        &__body {
-            padding: 0;
-        }
-    }
-
-    .footer-app-list {
-        li a {
-            display: inline-block;
-            min-height: auto;
-            padding: 0;
-            border-bottom: none;
-
-            &::after {
-                display: none;
-            }
-        }
-    }
-
-    .contact-info {
-        &__icon {
-            display: inline-flex;
-            width: auto;
-            height: auto;
-            background: transparent;
-            border-radius: 0;
-
-            i {
-                margin-top: 3px;
-                font-size: inherit;
-            }
-        }
-
-        li {
-            display: flex;
-        }
-
-        &__text {
-            margin-left: 10px !important;
-        }
-    }
-
-    .footer-app-social {
-        margin: 20px 0 0 -8px !important;
     }
 }

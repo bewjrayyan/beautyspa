@@ -1,0 +1,27 @@
+.section-view-all-badge,
+.tab-products-view-all,
+.blog-posts-wrap .view-all {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-height: 28px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--color-primary);
+    background: var(--color-primary-alpha-10, rgba(242, 116, 172, 0.1));
+    border: 1px solid var(--color-primary-alpha-30, rgba(242, 116, 172, 0.3));
+    transition: var(--transition-150);
+
+    &:hover {
+        color: var(--color-white);
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+    }
+}

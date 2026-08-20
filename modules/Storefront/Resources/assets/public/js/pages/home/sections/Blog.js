@@ -37,23 +37,19 @@ Alpine.data("Blog", () => ({
                 wrapProductSliderOptions(
                     {
                         modules: [Navigation, Pagination],
-                        slidesPerView: 1.12,
-                        spaceBetween: 12,
+                        slidesPerView: 2.4,
+                        spaceBetween: 10,
                         watchOverflow: true,
                         ...swiperDomObservers(),
                         ...productSliderNavigation(swiperEl, this.$el),
                         breakpoints: {
-                            576: {
-                                slidesPerView: 1.35,
-                                spaceBetween: 14,
-                            },
                             768: {
-                                slidesPerView: 2,
-                                spaceBetween: 16,
+                                slidesPerView: 4.3,
+                                spaceBetween: 10,
                             },
-                            991: {
-                                slidesPerView: 2.2,
-                                spaceBetween: 16,
+                            992: {
+                                slidesPerView: 4.3,
+                                spaceBetween: 14,
                             },
                             1200: {
                                 slidesPerView: 3,

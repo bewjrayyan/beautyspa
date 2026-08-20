@@ -4,7 +4,7 @@
             <div class="blog-posts-header">
                 <h3 class="section-title">{{ $blog['title'] }}</h3>
     
-                <a href="{{ route('blog_posts.index') }}" class="view-all">
+                <a href="{{ route('blog_posts.index') }}" class="view-all section-view-all-badge">
                     {{ trans("storefront::blog.blog_posts.view_all") }}
                 </a>
             </div>

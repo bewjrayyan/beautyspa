@@ -1,6 +1,5 @@
 import { Grid, Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
-import { whenVisible } from "../../../support/whenVisible";
 import { productSliderNavigation, swiperDomObservers } from "../../../support/productSliderPagination";
 import "../../../components/ProductCard";
 
@@ -8,7 +7,7 @@ Alpine.data("GridProducts", (tabs) => ({
     ...ProductTabsMixin(tabs),
 
     init() {
-        whenVisible(this.$el, () => this.changeTab(0));
+        this.initProductTabs();
     },
 
     url(tabIndex) {
@@ -27,7 +26,7 @@ Alpine.data("GridProducts", (tabs) => ({
             watchOverflow: true,
             ...swiperDomObservers(),
             grid: {
-                rows: 2,
+                rows: 1,
             },
             ...productSliderNavigation(swiperEl, this.$el),
 
@@ -40,6 +39,9 @@ Alpine.data("GridProducts", (tabs) => ({
                 },
                 991: {
                     slidesPerView: 5,
+                    grid: {
+                        rows: 2,
+                    },
                 },
                 1200: {
                     slidesPerView: 6,

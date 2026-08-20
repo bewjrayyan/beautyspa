@@ -5,6 +5,29 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.0' => [
+        'date' => '2026-08-20 10:32',
+        'en' => [
+            'summary' => 'Homepage tablet and mobile UX: tab sliders, footer layout, blog cards, and unified slider controls.',
+            'changes' => [
+                'Fix homepage product tab switching with index-based state and reliable Swiper remounts.',
+                'Add tablet homepage layout for featured categories, blog slider, and hidden header spacing.',
+                'Redesign product slider prev/next controls with pill navigation, dots, and counter mode for large sets.',
+                'Add tablet footer with four-column link layout and full-width tags row; keep accordion footer on mobile only.',
+                'Modernize bottom navigation, blog cards (1:1 images, excerpt), and section View All badges.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UX tablet dan mobile homepage: tab slider, susun atur footer, kad blog, dan kawalan slider seragam.',
+            'changes' => [
+                'Baiki pertukaran tab produk homepage dengan state berasaskan indeks dan remount Swiper yang stabil.',
+                'Tambah susun atur tablet untuk kategori pilihan, slider blog, dan jarak header.',
+                'Reka semula kawalan prev/next slider produk dengan navigasi pill, dots, dan mod counter.',
+                'Tambah footer tablet empat kolum dengan baris tags penuh; kekalkan footer accordion pada mobile sahaja.',
+                'Modenkan bottom navigation, kad blog (imej 1:1, petikan), dan badge View All.',
+            ],
+        ],
+    ],
     '4.10.0' => [
         'date' => '2026-08-20 08:39',
         'en' => [

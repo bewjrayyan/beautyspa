@@ -34,6 +34,12 @@
                 </a>
             </h4>
 
+            @if (! empty($blogPost->description))
+                <p class="blog-post-excerpt">
+                    {{ \Illuminate\Support\Str::limit(strip_tags($blogPost->description), 90) }}
+                </p>
+            @endif
+
             <a
                 href="{{ route('blog_posts.show', $blogPost->slug) }}"
                 class="blog-post-read-more"
