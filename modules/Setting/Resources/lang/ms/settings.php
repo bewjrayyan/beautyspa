@@ -276,7 +276,15 @@ return [
         'logo' => 'Logo',
         'small_logo' => 'Logo kecil',
         'enable_pwa' => 'Dayakan PWA',
+        'pwa_enabled_help' => 'Menambah metadata aplikasi boleh pasang, ikon, dan service worker pada storefront.',
         'pwa_icon' => 'Icon',
+        'pwa_icon_help' => 'Gunakan PNG atau JPEG segi empat sama sekurang-kurangnya 512×512 px. Ikon dijana secara automatik semasa simpan.',
+        'pwa_status_bar_help' => 'Mengawal gaya bar status iOS pada skrin utama (bukan warna). Warna tema ditetapkan di atas.',
+        'pwa_status_bar_styles' => [
+            'default' => 'Lalai',
+            'black' => 'Hitam',
+            'black-translucent' => 'Hitam lutsinar',
+        ],
         'pwa_displays' => [
 
             'fullscreen' => 'Fullscreen',

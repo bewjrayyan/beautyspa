@@ -24,7 +24,7 @@ class PWAServiceProvider extends ServiceProvider
             'pwa.manifest.short_name' => setting('store_name'),
             'pwa.manifest.theme_color' => setting('pwa_theme_color'),
             'pwa.manifest.background_color' => setting('pwa_background_color'),
-            'pwa.manifest.status_bar' => setting('pwa_theme_color'),
+            'pwa.manifest.status_bar' => setting('pwa_status_bar', config('pwa.manifest.status_bar')),
             'pwa.manifest.display' => setting('pwa_display'),
             'pwa.manifest.orientation' => setting('pwa_orientation'),
             'pwa.manifest.direction' => setting('pwa_direction'),

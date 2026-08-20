@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.10.0' => [
+        'date' => '2026-08-20 08:39',
+        'en' => [
+            'summary' => 'Fix PWA admin settings and add a storefront install modal with platform-specific instructions.',
+            'changes' => [
+                'Persist PWA enablement and related fields from the Settings PWA tab.',
+                'Use a valid iOS status-bar style instead of a colour picker, and generate icons from the media file path.',
+                'Show a storefront install modal with English and Bahasa Malaysia copy when PWA is enabled.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki tetapan PWA admin dan tambah modal pemasangan storefront dengan arahan mengikut platform.',
+            'changes' => [
+                'Simpan status PWA dan medan berkaitan dari tab Tetapan PWA.',
+                'Gunakan gaya bar status iOS yang sah, dan jana ikon dari path fail media.',
+                'Paparkan modal pemasangan storefront dengan teks English dan Bahasa Malaysia apabila PWA diaktifkan.',
+            ],
+        ],
+    ],
     '4.9.99' => [
         'date' => '2026-08-20 00:30',
         'en' => [

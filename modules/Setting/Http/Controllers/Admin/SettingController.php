@@ -84,10 +84,26 @@ class SettingController
             }
         }
 
-        if ($tab === 'pwa' && setting('pwa_icon') !== request('pwa_icon')) {
-            $file = File::find(request('pwa_icon'));
-            $file && $PWAService->generateIcons($file);
-            $PWAService->updatePWAVersionInServiceWorkerJs();
+        if ($tab === 'pwa') {
+            $newIconId = $request->input('pwa_icon');
+            $iconChanged = setting('pwa_icon') != $newIconId;
+            $file = $newIconId ? File::find($newIconId) : null;
+            $iconsMissing = ! is_dir(public_path('pwa/icons'))
+                || count(glob(public_path('pwa/icons/*.png')) ?: []) === 0;
+
+            if ($file?->exists && ($iconChanged || $iconsMissing)) {
+                try {
+                    $PWAService->generateIcons($file);
+                } catch (\Throwable $exception) {
+                    return redirect()
+                        ->route('admin.settings.edit', ['tab' => $tab])
+                        ->with('error', $exception->getMessage());
+                }
+            }
+
+            if ($request->boolean('pwa_enabled')) {
+                $PWAService->updatePWAVersionInServiceWorkerJs();
+            }
         }
 
         if ($tabFields !== []) {

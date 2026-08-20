@@ -271,7 +271,15 @@ return [
         'logo' => 'Logo',
         'small_logo' => 'Small Logo',
         'enable_pwa' => 'Enable PWA',
+        'pwa_enabled_help' => 'Adds installable app metadata, icons, and a service worker to the storefront.',
         'pwa_icon' => 'Icon',
+        'pwa_icon_help' => 'Use a square PNG or JPEG at least 512×512 px. Icons are generated automatically on save.',
+        'pwa_status_bar_help' => 'Controls the iOS home-screen status bar style (not a colour). Theme colour is set separately above.',
+        'pwa_status_bar_styles' => [
+            'default' => 'Default',
+            'black' => 'Black',
+            'black-translucent' => 'Black translucent',
+        ],
         'pwa_displays' => [
             'fullscreen' => 'Fullscreen',
             'standalone' => 'Standalone',

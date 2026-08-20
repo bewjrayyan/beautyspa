@@ -178,14 +178,21 @@ class UpdateSettingRequest extends Request
             'maintenance_page_grain_drift_enabled' => 'required|boolean',
             'maintenance_page_frosted_card_enabled' => 'required|boolean',
 
-            'pwa_enabled' => 'required',
+            'pwa_enabled' => 'required|boolean',
             'pwa_icon' => 'required_if:pwa_enabled,1',
+            'pwa_display' => ['nullable', Rule::in(['fullscreen', 'standalone', 'minimal-ui', 'browser'])],
+            'pwa_orientation' => ['nullable', Rule::in([
+                'any', 'natural', 'landscape', 'portrait',
+                'portrait-primary', 'portrait-secondary',
+                'landscape-primary', 'landscape-secondary',
+            ])],
+            'translatable.pwa_direction' => ['nullable', Rule::in(['ltr', 'rtl', 'auto'])],
             'admin_sidebar_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'admin_sidebar_accent_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
 
             'pwa_theme_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'pwa_background_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-            'pwa_status_bar' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'pwa_status_bar' => ['nullable', Rule::in(['default', 'black', 'black-translucent'])],
 
             'fixer_access_key' => 'required_if:currency_rate_exchange_service,fixer',
             'forge_api_key' => 'required_if:currency_rate_exchange_service,forge',

@@ -167,4 +167,4 @@ async function offlineResponse() {
     );
 }
 
-const pwaVersion = 1779717071;
+const pwaVersion = 1787184001;

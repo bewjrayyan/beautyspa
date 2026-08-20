@@ -14,7 +14,7 @@ return [
         'theme_color' => '#0068e1',
         'display' => 'standalone',
         'orientation' => 'any',
-        'status_bar' => '#0068e1',
+        'status_bar' => 'black',
         'icons' => [
             [
                 'path' => '/pwa/icons/48x48.png',

@@ -118,7 +118,18 @@
                     'storefront::product_card.price_range': '{{ trans('storefront::product_card.price_range') }}',
                     'storefront::product_card.normal_price': '{{ trans('storefront::product_card.normal_price') }}',
                     'storefront::cart.save_amount': @json(storefront_js_trans('storefront::cart.save_amount')),
-                    'storefront::cart.save_amount_with_percent': @json(storefront_js_trans('storefront::cart.save_amount_with_percent')),
+                                        'storefront::cart.save_amount_with_percent': @json(storefront_js_trans('storefront::cart.save_amount_with_percent')),
+                    'storefront::pwa.title': @json(trans('storefront::pwa.title')),
+                    'storefront::pwa.ios_title': @json(trans('storefront::pwa.ios_title')),
+                    'storefront::pwa.android_title': @json(trans('storefront::pwa.android_title')),
+                    'storefront::pwa.desktop_title': @json(trans('storefront::pwa.desktop_title')),
+                    'storefront::pwa.ios_step_1': @json(trans('storefront::pwa.ios_step_1')),
+                    'storefront::pwa.ios_step_2': @json(trans('storefront::pwa.ios_step_2')),
+                    'storefront::pwa.ios_step_3': @json(trans('storefront::pwa.ios_step_3')),
+                    'storefront::pwa.android_step_1': @json(trans('storefront::pwa.android_step_1')),
+                    'storefront::pwa.android_step_2': @json(trans('storefront::pwa.android_step_2')),
+                    'storefront::pwa.desktop_step_1': @json(trans('storefront::pwa.desktop_step_1')),
+                    'storefront::pwa.desktop_step_2': @json(trans('storefront::pwa.desktop_step_2')),
                 },
             };
         </script>
@@ -160,6 +171,7 @@
 
             @include('storefront::public.layouts.alert')
             @include('storefront::public.layouts.newsletter_popup')
+            @include('storefront::public.layouts.pwa_install_modal')
             @include('storefront::public.layouts.cookie_bar')
             @include('storefront::public.layouts.scroll_to_top')
         </div>

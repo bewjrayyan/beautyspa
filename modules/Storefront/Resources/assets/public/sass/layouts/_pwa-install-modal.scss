@@ -1,0 +1,144 @@
+.pwa-install-modal {
+    .modal-dialog {
+        width: 480px;
+        max-width: calc(100% - 30px);
+    }
+
+    .modal-content {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+}
+
+.pwa-install-modal__inner {
+    position: relative;
+    padding: 32px 28px 28px;
+
+    .close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--color-gray-lite);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition-150);
+
+        i {
+            font-size: 18px;
+            color: var(--color-gray);
+        }
+
+        &:hover {
+            background: color-mix(in srgb, var(--color-primary) 12%, #fff);
+
+            i {
+                color: var(--color-primary);
+            }
+        }
+    }
+}
+
+.pwa-install-modal__hero {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.pwa-install-modal__icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    object-fit: cover;
+    margin: 0 auto 16px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+
+    &--placeholder {
+        display: grid;
+        place-items: center;
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-primary) 18%, #fff),
+            #fff
+        );
+        color: var(--color-primary);
+        font-size: 32px;
+    }
+}
+
+.pwa-install-modal__title {
+    font-size: 24px;
+    line-height: 1.25;
+    font-weight: var(--font-medium);
+    margin-bottom: 8px;
+}
+
+.pwa-install-modal__subtitle {
+    margin: 0;
+    color: var(--color-gray);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.pwa-install-modal__steps {
+    padding: 18px 20px;
+    border-radius: 12px;
+    background: var(--color-gray-lite);
+    margin-bottom: 24px;
+}
+
+.pwa-install-modal__steps-title {
+    font-size: 14px;
+    font-weight: var(--font-medium);
+    margin: 0 0 12px;
+}
+
+.pwa-install-modal__steps-list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--color-gray-dark, #4a5568);
+
+    li + li {
+        margin-top: 8px;
+    }
+
+    li {
+        font-size: 14px;
+        line-height: 1.45;
+    }
+}
+
+.pwa-install-modal__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .btn-primary {
+        width: 100%;
+        min-height: 46px;
+    }
+}
+
+.pwa-install-modal__dismiss {
+    width: 100%;
+    color: var(--color-gray);
+    text-decoration: none;
+
+    &:hover {
+        color: var(--color-primary);
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .pwa-install-modal__inner {
+        padding: 28px 20px 22px;
+    }
+
+    .pwa-install-modal__title {
+        font-size: 21px;
+    }
+}

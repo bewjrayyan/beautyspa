@@ -15,7 +15,7 @@ class ManifestService
             'start_url' => url(config('pwa.manifest.start_url')),
             'theme_color' => setting('pwa_theme_color') ?? config('pwa.manifest.theme_color'),
             'background_color' => setting('pwa_background_color') ?? config('pwa.manifest.background_color'),
-            'status_bar' => setting('pwa_status_bar') ?? config('pwa.manifest.status_bar'),
+            'status_bar' => $this->normalizeStatusBar(setting('pwa_status_bar') ?? config('pwa.manifest.status_bar')),
             'display' => setting('pwa_display') ?? config('pwa.manifest.display'),
             'orientation' => setting('pwa_orientation') ?? config('pwa.manifest.orientation'),
             'lang' => config('pwa.manifest.lang'),
@@ -79,5 +79,17 @@ class ManifestService
         }
 
         return $manifest;
+    }
+
+
+    private function normalizeStatusBar(?string $value): string
+    {
+        $allowed = ['default', 'black', 'black-translucent'];
+
+        if ($value !== null && in_array($value, $allowed, true)) {
+            return $value;
+        }
+
+        return 'black';
     }
 }

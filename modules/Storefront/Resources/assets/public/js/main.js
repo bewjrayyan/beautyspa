@@ -11,4 +11,5 @@ import "./layouts/SidebarCart";
 import "./layouts/CookieBar";
 import "./layouts/NewsletterSubscription";
 import "./layouts/NewsletterPopup";
+import "./layouts/PwaInstallModal";
 import "./layouts/ScrollToTop";

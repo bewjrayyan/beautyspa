@@ -232,6 +232,7 @@ class SettingTabs extends Tabs
             $tab->weight(15);
 
             $tab->fields([
+                'pwa_enabled',
                 'pwa_icon',
                 'pwa_theme_color',
                 'pwa_background_color',
@@ -265,11 +266,18 @@ class SettingTabs extends Tabs
                 'browser' => trans('setting::settings.form.pwa_displays.browser'),
             ];
 
+            $statusBarStyles = [
+                'default' => trans('setting::settings.form.pwa_status_bar_styles.default'),
+                'black' => trans('setting::settings.form.pwa_status_bar_styles.black'),
+                'black-translucent' => trans('setting::settings.form.pwa_status_bar_styles.black-translucent'),
+            ];
+
             $tab->view('setting::admin.settings.tabs.pwa', [
                 'icon' => $this->getMedia(setting('pwa_icon')),
                 'directions' => $directions,
                 'orientations' => $orientations,
                 'displays' => $displays,
+                'statusBarStyles' => $statusBarStyles,
             ]);
         });
     }

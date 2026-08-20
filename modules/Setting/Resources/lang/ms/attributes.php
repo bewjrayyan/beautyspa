@@ -44,7 +44,7 @@ return [
     'pwa_icon' => 'Ikon',
     'pwa_theme_color' => 'Warna tema',
     'pwa_background_color' => 'Warna latar',
-    'pwa_status_bar' => 'Bar status',
+    'pwa_status_bar' => 'Gaya bar status',
     'pwa_display' => 'Paparan',
     'pwa_orientation' => 'Orientasi',
     'pwa_direction' => 'Arah',

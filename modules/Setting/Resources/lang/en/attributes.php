@@ -44,7 +44,7 @@ return [
     'pwa_icon' => 'Icon',
     'pwa_theme_color' => 'Theme Color',
     'pwa_background_color' => 'Background Color',
-    'pwa_status_bar' => 'Status Bar',
+    'pwa_status_bar' => 'Status Bar Style',
     'pwa_display' => 'Display',
     'pwa_orientation' => 'Orientation',
     'pwa_direction' => 'Direction',

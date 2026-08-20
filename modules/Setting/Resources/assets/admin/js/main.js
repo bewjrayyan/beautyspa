@@ -46,6 +46,10 @@ $("#chip_enabled").on("change", () => {
     $("#chip-fields").toggleClass("hide");
 });
 
+$("#pwa_enabled").on("change", () => {
+    $("#pwa-fields").toggleClass("hide");
+});
+
 ["chip_fpx", "chip_card", "chip_atome", "chip_ewallet", "chip_duitnow"].forEach((method) => {
     $(`#${method}_enabled`).on("change", () => {
         $(`#${method.replace(/_/g, "-")}-fields`).toggleClass("hide");
