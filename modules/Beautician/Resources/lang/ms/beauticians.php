@@ -41,7 +41,7 @@ return [
         'portal_login' => 'Log masuk portal beautician',
         'back_home' => 'Kembali ke kedai',
         'sign_out' => 'Log keluar',
-        'login_link' => 'Beautician baharu? Cipta akaun anda sendiri',
+        'login_link' => 'Beautician baharu? Daftar sekarang',
         'customer_register_link' => 'Adakah anda beautician? Daftar untuk portal beautician',
         'role_unavailable' => 'Pendaftaran beautician tidak tersedia buat sementara waktu. Sila hubungi pentadbir.',
         'validation' => [

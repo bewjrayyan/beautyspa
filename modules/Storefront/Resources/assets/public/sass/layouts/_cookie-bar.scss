@@ -63,7 +63,7 @@
         transform: none;
 
         &.show {
-            bottom: calc(62px + env(safe-area-inset-bottom, 0px));
+            bottom: calc(56px + env(safe-area-inset-bottom, 0px));
             transform: none;
         }
     }

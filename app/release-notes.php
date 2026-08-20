@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.1' => [
+        'date' => '2026-08-20 18:47',
+        'en' => [
+            'summary' => 'Mobile bottom nav flush bar and admin login form UX polish.',
+            'changes' => [
+                'Convert storefront mobile bottom navigation from floating pill to full-width flush bar.',
+                'Modernize admin login form: segmented Email/OTP switch, white page background, and distinct beautician register button.',
+                'Update beautician register CTA copy to "New beautician? Register Now".',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Bar navigasi bawah mobile rata dan kemas UX borang login admin.',
+            'changes' => [
+                'Tukar navigasi bawah storefront mobile dari pill terapung kepada bar penuh lebar.',
+                'Modenkan borang login admin: suis Email/OTP, latar putih, dan butang daftar beautician berasingan.',
+                'Kemas teks CTA daftar beautician kepada "Beautician baharu? Daftar sekarang".',
+            ],
+        ],
+    ],
     '4.11.0' => [
         'date' => '2026-08-20 10:32',
         'en' => [

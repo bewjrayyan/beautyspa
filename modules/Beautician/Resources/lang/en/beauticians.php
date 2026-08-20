@@ -40,7 +40,7 @@ return [
         'portal_login' => 'Beautician portal login',
         'back_home' => 'Back to storefront',
         'sign_out' => 'Sign out',
-        'login_link' => 'New beautician? Create your own account',
+        'login_link' => 'New beautician? Register Now',
         'customer_register_link' => 'Are you a beautician? Register for the beautician portal',
         'role_unavailable' => 'Beautician registration is temporarily unavailable. Please contact the administrator.',
         'validation' => [

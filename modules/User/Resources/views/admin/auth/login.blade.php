@@ -199,18 +199,18 @@
                     }"
                     x-init="initPhoneInput()"
                 >
+                    <div class="auth-form-body-top">
+                        @include('user::admin.auth.partials.logo')
+
+                        @include('user::admin.partials.language_picker')
+                    </div>
+
                     @include('user::admin.auth.partials.admin_whatsapp_otp_login')
 
                     <form class="auth-form-email" method="POST" action="{{ route('admin.login.post') }}" x-show="mode === 'email'" x-cloak x-data="{ formSubmitting: false }" @submit="formSubmitting = true" @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'login'])>
                         {{ csrf_field() }}
 
                     <div>
-                        <div class="auth-form-body-top">
-                            @include('user::admin.auth.partials.logo')
-    
-                            @include('user::admin.partials.language_picker')
-                        </div>
-
                         <div class="form-group">
                             <label 
                                 for="email"
@@ -349,15 +349,15 @@
                     >
                         {{ trans('user::auth.sign_in') }}
                     </button>
+                </form>
 
                     @if (Route::has('beauticians.register'))
-                        <p style="margin-top: 18px; text-align: center;">
-                            <a href="{{ route('beauticians.register') }}">
+                        <div class="auth-beautician-register">
+                            <a href="{{ route('beauticians.register') }}" class="btn btn-beautician-register">
                                 {{ trans('beautician::beauticians.self_registration.login_link') }}
                             </a>
-                        </p>
+                        </div>
                     @endif
-                </form>
                 </div>
             </div>
         </div>
