@@ -912,10 +912,11 @@ strong {
 /* footer */
 
 .main-footer {
-    position: absolute;
+    position: fixed;
     left: $admin-sidebar-width;
     right: 0;
     bottom: 0;
+    z-index: 1040;
     display: flex;
     align-items: center;
     justify-content: space-between;

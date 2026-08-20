@@ -5,6 +5,23 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.2' => [
+        'date' => '2026-08-20 21:00',
+        'en' => [
+            'summary' => 'Sticky admin footer stays visible on scroll.',
+            'changes' => [
+                'Change admin footer from absolute to fixed positioning so it remains pinned at the bottom of the viewport while scrolling.',
+                'Add z-index: 1040 to keep footer above content but below modals/sidebar.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Footer admin melekat nampak semasa scroll.',
+            'changes' => [
+                'Tukar footer admin dari absolute ke fixed positioning agar kekal terpang di bawah viewport semasa scroll.',
+                'Tambah z-index: 1040 supaya footer di atas kandungan tapi di bawah modal/sidebar.',
+            ],
+        ],
+    ],
     '4.11.1' => [
         'date' => '2026-08-20 18:47',
         'en' => [
