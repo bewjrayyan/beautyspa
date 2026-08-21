@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.8' => [
+        'date' => '2026-08-22 01:18',
+        'en' => [
+            'summary' => 'Safer appointment availability, reliable checkout slots, and refreshed booking UI dependencies.',
+            'changes' => [
+                'Require a complete branch and treatment context before returning treatment appointment slots.',
+                'Reject inactive branches, unavailable treatments, and beauticians who are not assigned to the selected branch.',
+                'Prevent checkout from sending incomplete slot requests and keep date exceptions aligned with the selected treatment rules.',
+                'Refresh the searchable admin selectors and storefront slider dependencies, with rebuilt production assets and expanded availability tests.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Ketersediaan temujanji lebih selamat, slot checkout lebih tepat, dan kebergantungan UI tempahan dikemas kini.',
+            'changes' => [
+                'Wajibkan konteks cawangan dan rawatan yang lengkap sebelum slot temujanji rawatan dipulangkan.',
+                'Tolak cawangan tidak aktif, rawatan tidak tersedia, dan beautician yang tidak ditugaskan kepada cawangan yang dipilih.',
+                'Halang checkout daripada menghantar permintaan slot tidak lengkap dan selaraskan pengecualian tarikh dengan peraturan rawatan yang dipilih.',
+                'Kemas kini selector carian admin dan kebergantungan slider storefront, bina semula aset production, serta tambah liputan ujian ketersediaan.',
+            ],
+        ],
+    ],
     '4.11.7' => [
         'date' => '2026-08-21 23:17',
         'en' => [
