@@ -25,7 +25,7 @@ class AvailabilitySlotsController extends Controller
     {
         $data = $request->validate([
             'date' => ['required', 'date', 'after_or_equal:today'],
-            'spa_branch_id' => ['nullable', 'integer'],
+            'spa_branch_id' => ['nullable', 'integer', 'required_with:product_id'],
             'product_id' => ['nullable', 'integer'],
         ]);
 
@@ -46,7 +46,19 @@ class AvailabilitySlotsController extends Controller
             throw ValidationException::withMessages(['product_id' => trans('validation.in')]);
         }
 
-        if ($productId && $spaBranchId && app('modules')->isEnabled('SpaBranch')) {
+        if ($productId || $spaBranchId) {
+            if (! $productId) {
+                throw ValidationException::withMessages(['product_id' => trans('validation.required')]);
+            }
+
+            if (! $spaBranchId) {
+                throw ValidationException::withMessages(['spa_branch_id' => trans('validation.required')]);
+            }
+
+            if (! app('modules')->isEnabled('SpaBranch')) {
+                throw ValidationException::withMessages(['spa_branch_id' => trans('validation.exists')]);
+            }
+
             if (! SpaBranch::query()->whereKey($spaBranchId)->where('is_active', true)->exists()
                 || ! Product::withoutGlobalScope('active')->whereKey($productId)->where('is_virtual', true)->where('is_active', true)->exists()
                 || ! Beautician::query()->whereKey($beautician)->whereHas(

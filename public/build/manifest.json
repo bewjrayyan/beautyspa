@@ -47,11 +47,11 @@
     "file": "assets/Errors-CUe_UZOJ-v4.7.72.js",
     "name": "Errors"
   },
-  "_LandscapeProducts-dGqvignn-v4.7.72.js": {
-    "file": "assets/LandscapeProducts-dGqvignn-v4.7.72.js",
+  "_LandscapeProducts-BKMCD2tK-v4.7.72.js": {
+    "file": "assets/LandscapeProducts-BKMCD2tK-v4.7.72.js",
     "name": "LandscapeProducts",
     "imports": [
-      "_swiper-AEc_2BbQ-v4.7.72.js",
+      "_swiper-HPVPsAq3-v4.7.72.js",
       "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js"
     ]
@@ -117,8 +117,8 @@
     "file": "assets/alpinejs-DLuZkmyn-v4.7.72.js",
     "name": "alpinejs"
   },
-  "_axios-DcNlVx-A-v4.7.72.js": {
-    "file": "assets/axios-DcNlVx-A-v4.7.72.js",
+  "_axios-CzApALvg-v4.7.72.js": {
+    "file": "assets/axios-CzApALvg-v4.7.72.js",
     "name": "axios"
   },
   "_bail-l0sNRNKZ-v4.7.72.js": {
@@ -785,8 +785,8 @@
       "assets/sweetalert2-B9-wARmS-v4.7.72.css"
     ]
   },
-  "_swiper-AEc_2BbQ-v4.7.72.js": {
-    "file": "assets/swiper-AEc_2BbQ-v4.7.72.js",
+  "_swiper-HPVPsAq3-v4.7.72.js": {
+    "file": "assets/swiper-HPVPsAq3-v4.7.72.js",
     "name": "swiper"
   },
   "_trim-lines-l0sNRNKZ-v4.7.72.js": {
@@ -906,14 +906,14 @@
     "src": "modules/Admin/Resources/assets/images/search-01.png"
   },
   "modules/Admin/Resources/assets/js/app.js": {
-    "file": "assets/app-DQ15cs5U-v4.7.72.js",
+    "file": "assets/app-BRwIuAhw-v4.7.72.js",
     "name": "app",
     "src": "modules/Admin/Resources/assets/js/app.js",
     "isEntry": true,
     "imports": [
       "_flatpickr-B_JH6AFf-v4.7.72.js",
       "_mousetrap-DiKwyQ_M-v4.7.72.js",
-      "_axios-DcNlVx-A-v4.7.72.js",
+      "_axios-CzApALvg-v4.7.72.js",
       "_functions-C9iwSOfz-v4.7.72.js",
       "_nprogress-CNdQ6gfE-v4.7.72.js",
       "_modernPhoneInput-MXCss1hG-v4.7.72.js",
@@ -975,7 +975,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/main.scss": {
-    "file": "assets/main-B7_aQ5u4-v4.7.72.css",
+    "file": "assets/main-CO7AeQrq-v4.7.72.css",
     "src": "modules/Admin/Resources/assets/sass/main.scss"
   },
   "modules/Attribute/Resources/assets/admin/js/main.js": {
@@ -1157,12 +1157,12 @@
     "src": "modules/Option/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-D13voFdI-v4.7.72.js",
+    "file": "assets/main-DTgY7vn9-v4.7.72.js",
     "name": "main",
     "src": "modules/Order/Resources/assets/admin/js/main.js",
     "isEntry": true,
     "imports": [
-      "_axios-DcNlVx-A-v4.7.72.js"
+      "_axios-CzApALvg-v4.7.72.js"
     ]
   },
   "modules/Order/Resources/assets/admin/sass/main.scss": {
@@ -1346,7 +1346,7 @@
     "src": "modules/Storefront/Resources/assets/public/images/top-mask.png"
   },
   "modules/Storefront/Resources/assets/public/js/app.js": {
-    "file": "assets/app-qkAWMU3E-v4.7.72.js",
+    "file": "assets/app-BZXq_NbN-v4.7.72.js",
     "name": "app",
     "src": "modules/Storefront/Resources/assets/public/js/app.js",
     "isEntry": true,
@@ -1359,7 +1359,7 @@
       "_alpinejs-DLuZkmyn-v4.7.72.js",
       "_jquery-CdqRyVhk-v4.7.72.js",
       "_bootstrap-C4BbwLG6-v4.7.72.js",
-      "_axios-DcNlVx-A-v4.7.72.js",
+      "_axios-CzApALvg-v4.7.72.js",
       "_sweetalert2-Dl3hhcK2-v4.7.72.js",
       "_flatpickr-B_JH6AFf-v4.7.72.js",
       "_intl-tel-input-Bo-AfsPf-v4.7.72.js",
@@ -1368,7 +1368,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/main.js": {
-    "file": "assets/main-DCpVkHb1-v4.7.72.js",
+    "file": "assets/main-DwXM1tXK-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/main.js",
     "isEntry": true,
@@ -1376,7 +1376,7 @@
       "_scheduleInit-mT4ow-ox-v4.7.72.js",
       "_functions-DX_VpuMs-v4.7.72.js",
       "_lodash-ChyoHd7S-v4.7.72.js",
-      "_swiper-AEc_2BbQ-v4.7.72.js",
+      "_swiper-HPVPsAq3-v4.7.72.js",
       "_CartItem-BHc5IOaw-v4.7.72.js"
     ]
   },
@@ -1438,15 +1438,15 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/cart/main.js": {
-    "file": "assets/main-eUGFj9FG-v4.7.72.js",
+    "file": "assets/main-D-AjENge-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/cart/main.js",
     "isEntry": true,
     "imports": [
       "_CartItem-BHc5IOaw-v4.7.72.js",
-      "_LandscapeProducts-dGqvignn-v4.7.72.js",
+      "_LandscapeProducts-BKMCD2tK-v4.7.72.js",
       "_functions-DX_VpuMs-v4.7.72.js",
-      "_swiper-AEc_2BbQ-v4.7.72.js",
+      "_swiper-HPVPsAq3-v4.7.72.js",
       "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_ProductMixin-tk-w0tK2-v4.7.72.js",
@@ -1454,7 +1454,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js": {
-    "file": "assets/main-wxfntRx0-v4.7.72.js",
+    "file": "assets/main-DTuqh4M5-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js",
     "isEntry": true,
@@ -1469,17 +1469,17 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/compare/main.js": {
-    "file": "assets/main-CzZqfCoJ-v4.7.72.js",
+    "file": "assets/main-AhPP_zaH-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/compare/main.js",
     "isEntry": true,
     "imports": [
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_ProductRating-D-JTI-a8-v4.7.72.js",
-      "_LandscapeProducts-dGqvignn-v4.7.72.js",
+      "_LandscapeProducts-BKMCD2tK-v4.7.72.js",
       "_ProductMixin-tk-w0tK2-v4.7.72.js",
       "_functions-DX_VpuMs-v4.7.72.js",
-      "_swiper-AEc_2BbQ-v4.7.72.js",
+      "_swiper-HPVPsAq3-v4.7.72.js",
       "_productSliderStateMixin-CgvjgpW9-v4.7.72.js"
     ]
   },
@@ -1495,12 +1495,12 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/home/main.js": {
-    "file": "assets/main-TmN7TpSF-v4.7.72.js",
+    "file": "assets/main-wN7NeOmj-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
     "isEntry": true,
     "imports": [
-      "_swiper-AEc_2BbQ-v4.7.72.js",
+      "_swiper-HPVPsAq3-v4.7.72.js",
       "_scheduleInit-mT4ow-ox-v4.7.72.js",
       "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
@@ -1512,13 +1512,13 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/products/index/main.js": {
-    "file": "assets/main-DCg9VlNh-v4.7.72.js",
+    "file": "assets/main-BpsYKtOg-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/products/index/main.js",
     "isEntry": true,
     "imports": [
       "_functions-DX_VpuMs-v4.7.72.js",
-      "_swiper-AEc_2BbQ-v4.7.72.js",
+      "_swiper-HPVPsAq3-v4.7.72.js",
       "_nouislider-B_G20eMg-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
       "_Pagination-DKj6Zlmg-v4.7.72.js",
@@ -1527,12 +1527,12 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/products/show/main.js": {
-    "file": "assets/main-BOJ_qWrU-v4.7.72.js",
+    "file": "assets/main-YRphPzN0-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/products/show/main.js",
     "isEntry": true,
     "imports": [
-      "_swiper-AEc_2BbQ-v4.7.72.js",
+      "_swiper-HPVPsAq3-v4.7.72.js",
       "_blueimp-md5-D9gul1H_-v4.7.72.js",
       "_drift-zoom-2CC1LJ4j-v4.7.72.js",
       "_glightbox-BS_mC2c1-v4.7.72.js",
@@ -1588,16 +1588,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.72.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-FuQ-FuMu-v4.7.72.css",
@@ -1703,7 +1703,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/sass/vendors/_swiper.scss": {
-    "file": "assets/_swiper-BJes4Mdy-v4.7.72.css",
+    "file": "assets/_swiper-BdShLe7H-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/vendors/_swiper.scss",
     "isEntry": true,
     "name": "_swiper",
@@ -1783,7 +1783,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DsWOJCMB-v4.7.72.js",
+    "file": "assets/main-DMDenuHq-v4.7.72.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1791,7 +1791,7 @@
       "_flatpickr-B_JH6AFf-v4.7.72.js",
       "_modernPhoneInput-MXCss1hG-v4.7.72.js",
       "_chart.js-CDYwASMv-v4.7.72.js",
-      "_axios-DcNlVx-A-v4.7.72.js",
+      "_axios-CzApALvg-v4.7.72.js",
       "_intl-tel-input-Bo-AfsPf-v4.7.72.js",
       "_@kurkle-C_POY-EF-v4.7.72.js"
     ]
@@ -1837,12 +1837,12 @@
     "isEntry": true
   },
   "modules/User/Resources/assets/admin/js/profileForm.js": {
-    "file": "assets/profileForm-B-QsQdr9-v4.7.72.js",
+    "file": "assets/profileForm-qsU1C5IR-v4.7.72.js",
     "name": "profileForm",
     "src": "modules/User/Resources/assets/admin/js/profileForm.js",
     "isEntry": true,
     "imports": [
-      "_axios-DcNlVx-A-v4.7.72.js",
+      "_axios-CzApALvg-v4.7.72.js",
       "_flatpickr-B_JH6AFf-v4.7.72.js"
     ]
   },
@@ -1985,13 +1985,13 @@
     "src": "resources/images/installer-bg.png"
   },
   "resources/js/install/app.js": {
-    "file": "assets/app-BBRm5kn4-v4.7.72.js",
+    "file": "assets/app-C8QqaStg-v4.7.72.js",
     "name": "app",
     "src": "resources/js/install/app.js",
     "isEntry": true,
     "imports": [
       "_alpinejs-DLuZkmyn-v4.7.72.js",
-      "_axios-DcNlVx-A-v4.7.72.js",
+      "_axios-CzApALvg-v4.7.72.js",
       "_modernPhoneInput-MXCss1hG-v4.7.72.js",
       "_intl-tel-input-Bo-AfsPf-v4.7.72.js"
     ]

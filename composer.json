@@ -1,6 +1,7 @@
 {
     "name": "mediacreativesolution/aestheticcart",
     "description": "The AestheticCart e-commerce CMS (BeautySpa).",
+    "license": "proprietary",
     "type": "project",
     "authors": [
         {

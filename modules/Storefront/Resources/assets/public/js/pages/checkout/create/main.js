@@ -360,7 +360,14 @@ Alpine.data(
         },
 
         async loadAppointmentSlots() {
-            if (this.isScheduleLater || !this.availabilitySlotsUrl || !this.form.beautician_id || !this.form.appointment_date) {
+            if (
+                this.isScheduleLater ||
+                !this.availabilitySlotsUrl ||
+                !this.form.spa_branch_id ||
+                !this.treatmentProductId ||
+                !this.form.beautician_id ||
+                !this.form.appointment_date
+            ) {
                 this.appointmentSlotsRequestId += 1;
                 this.appointmentSlots = [];
                 this.form.appointment_time = "";

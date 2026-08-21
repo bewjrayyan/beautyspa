@@ -6,12 +6,15 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Modules\Beautician\Entities\Beautician;
 use Modules\Product\Entities\Product;
 use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\TreatmentReservation\Entities\AppointmentDateOverride;
 use Modules\TreatmentReservation\Entities\BeauticianBlockedTime;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Controllers\Admin\AppointmentAvailabilityController;
+use Modules\TreatmentReservation\Http\Controllers\AvailabilitySlotsController;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityAdminService;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityService;
 use PHPUnit\Framework\Attributes\Test;
@@ -374,6 +377,41 @@ class AppointmentAvailabilityScenariosTest extends TestCase
         $this->assertDatabaseHas('appointment_availability_locks', [
             'lock_key' => "treatment:{$this->productId}:{$this->hq->id}:{$friday}",
         ]);
+    }
+
+    #[Test]
+    public function public_slot_endpoint_rejects_partial_treatment_scope(): void
+    {
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        $request = Request::create('/availability/slots', 'GET', [
+            'date' => Carbon::parse('next friday')->toDateString(),
+            'product_id' => $this->productId,
+        ]);
+
+        try {
+            app(AvailabilitySlotsController::class)($request, $beauticianId);
+            $this->fail('Expected partial appointment scope to be rejected.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('spa_branch_id', $exception->errors());
+        }
+    }
+
+    #[Test]
+    public function public_slot_endpoint_returns_only_scoped_appointment_slots(): void
+    {
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        Beautician::query()->findOrFail($beauticianId)->spaBranches()->sync([$this->hq->id]);
+
+        $request = Request::create('/availability/slots', 'GET', [
+            'date' => Carbon::parse('next friday')->toDateString(),
+            'spa_branch_id' => $this->hq->id,
+            'product_id' => $this->productId,
+        ]);
+
+        $response = app(AvailabilitySlotsController::class)($request, $beauticianId);
+
+        $this->assertSame(200, $response->status());
+        $this->assertSame(['12:00', '14:00', '16:00', '18:00'], $response->getData(true)['slots']);
     }
 
     #[Test]

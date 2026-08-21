@@ -61,7 +61,7 @@ export default defineConfig(async ({ command }) => {
                         src: [
                             "public/favicon.ico",
                             "node_modules/jquery/dist/jquery.min.js",
-                            "node_modules/selectize/dist/js/standalone/selectize.min.js",
+                            "modules/Admin/node_modules/selectize/dist/js/selectize.min.js",
                             "node_modules/jstree/dist/jstree.min.js",
                             "modules/Admin/Resources/assets/images/*",
                             "modules/Admin/Resources/assets/vendors/js/bootstrap.min.js",
