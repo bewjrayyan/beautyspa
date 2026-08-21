@@ -28,6 +28,9 @@ class TreatmentBooking extends Model
 
     public const STATUS_CANCELED = 'canceled';
 
+    /** Schedule flag only — not a kanban/job-sheet status. */
+    public const SCHEDULE_STATUS_TBA = 'tba';
+
     public const SOURCE_CHECKOUT = 'checkout';
 
     public const SOURCE_ADMIN_MANUAL = 'admin_manual';
@@ -56,6 +59,7 @@ class TreatmentBooking extends Model
         'customer_email',
         'appointment_date',
         'appointment_time',
+        'schedule_status',
         'status',
         'total',
         'currency',
@@ -176,6 +180,39 @@ class TreatmentBooking extends Model
         return $this->isManualBooking()
             && in_array($this->status, [self::STATUS_PENDING, self::STATUS_IN_PROGRESS], true);
     }
+
+
+    public function isTbaSchedule(): bool
+    {
+        if ($this->schedule_status === self::SCHEDULE_STATUS_TBA) {
+            return true;
+        }
+
+        // Legacy rows before schedule_status existed.
+        return $this->schedule_status === null
+            && ! filled($this->appointment_time)
+            && in_array($this->status, [self::STATUS_PENDING, self::STATUS_IN_PROGRESS], true);
+    }
+
+
+    public function canScheduleTba(): bool
+    {
+        return $this->isTbaSchedule()
+            && in_array($this->status, [self::STATUS_PENDING, self::STATUS_IN_PROGRESS], true);
+    }
+
+
+    public function scopeTbaSchedule(Builder $query): Builder
+    {
+        return $query->where(function (Builder $inner) {
+            $inner->where('schedule_status', self::SCHEDULE_STATUS_TBA)
+                ->orWhere(function (Builder $legacy) {
+                    $legacy->whereNull('schedule_status')
+                        ->whereNull('appointment_time');
+                });
+        })->whereIn('status', [self::STATUS_PENDING, self::STATUS_IN_PROGRESS]);
+    }
+
 
 
     public function canRescheduleManual(): bool
@@ -433,6 +470,59 @@ class TreatmentBooking extends Model
     }
 
 
+    /**
+     * Flag ownership for portal viewers and soft-protect PII on others' bookings.
+     *
+     * Detail drawer stays openable for clinic schedule awareness. Phone/email remain
+     * in the payload for a blurred UI preview, but contact actions stay disabled.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    public static function applyPortalViewerScope(array $payload, int $viewerBeauticianId): array
+    {
+        $isOwn = (int) ($payload['beautician_id'] ?? 0) === $viewerBeauticianId;
+        $payload['is_own_booking'] = $isOwn;
+        $payload['can_open_detail'] = true;
+        $payload['blur_customer_contact'] = ! $isOwn;
+
+        if ($isOwn) {
+            return $payload;
+        }
+
+        return array_merge($payload, [
+            'can_whatsapp_customer' => false,
+            'notes' => null,
+            'beautician_notes' => null,
+            'order_url' => null,
+            'payment_receipt_url' => null,
+            'can_edit_manual' => false,
+            'can_cancel_manual' => false,
+            'can_schedule_tba' => false,
+            'can_reschedule_manual' => false,
+            'next_status' => null,
+        ]);
+    }
+
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toPortalCalendarPayload(int $viewerBeauticianId): array
+    {
+        return self::applyPortalViewerScope($this->toCalendarPayload(), $viewerBeauticianId);
+    }
+
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toPortalKanbanPayload(int $viewerBeauticianId): array
+    {
+        return self::applyPortalViewerScope($this->toKanbanPayload(), $viewerBeauticianId);
+    }
+
+
     public function toCalendarPayload(): array
     {
         return array_merge($this->sharedDetailPayload(), [
@@ -516,6 +606,9 @@ class TreatmentBooking extends Model
             'is_manual' => $this->isManualBooking(),
             'can_edit_manual' => $this->isManualEditable(),
             'can_cancel_manual' => $this->isManualEditable(),
+            'schedule_status' => $this->schedule_status,
+            'is_tba' => $this->isTbaSchedule(),
+            'can_schedule_tba' => $this->canScheduleTba(),
             'customer_first_name' => $this->customer_first_name,
             'customer_last_name' => $this->customer_last_name,
             'product_id' => $this->product_id,

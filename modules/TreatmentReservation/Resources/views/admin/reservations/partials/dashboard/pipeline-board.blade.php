@@ -60,12 +60,15 @@
                 </header>
                 <ul class="tr-crm-pipeline__list" data-crm-list data-pipeline-list="{{ $status }}">
                     @forelse ($column['items'] as $booking)
+                        @php
+                            $canOpenDetail = ! array_key_exists('can_open_detail', $booking) || ! empty($booking['can_open_detail']);
+                        @endphp
                         <li
-                            class="tr-crm-pipeline-card tr-crm-pipeline-card--{{ $status }} tr-crm-appointment tr-crm-appointment--clickable"
+                            class="tr-crm-pipeline-card tr-crm-pipeline-card--{{ $status }} tr-crm-appointment{{ $canOpenDetail ? ' tr-crm-appointment--clickable' : ' tr-crm-appointment--readonly tr-crm-pipeline-card--readonly' }}"
                             data-booking-id="{{ $booking['id'] ?? '' }}"
+                            data-own-booking="{{ $canOpenDetail ? '1' : '0' }}"
                             data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['customer_phone'] ?? '') . ' ' . ($booking['customer_email'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '') . ' ' . ($booking['beautician_job_title'] ?? '') . ' ' . ($booking['source_label'] ?? '') . ' ' . ($booking['spa_branch_name'] ?? '') . ' ' . ($booking['appointment_date'] ?? '') . ' ' . ($booking['appointment_time_range'] ?? $booking['appointment_time'] ?? '')) }}"
-                            role="button"
-                            tabindex="0"
+                            @if ($canOpenDetail) role="button" tabindex="0" @endif
                         >
                             <header class="tr-crm-pipeline-card__head">
                                 <div class="tr-crm-pipeline-card__schedule">
@@ -178,7 +181,7 @@
                                 @endif
                             </div>
 
-                            @if ($column['action'] === 'start' && ! empty($booking['next_status']))
+                            @if ($canOpenDetail && $column['action'] === 'start' && ! empty($booking['next_status']))
                                 <footer class="tr-crm-pipeline-card__footer">
                                     <button
                                         type="button"
@@ -191,7 +194,7 @@
                                         {{ TrLang::trans('admin.crm.action_start_treatment') }}
                                     </button>
                                 </footer>
-                            @elseif ($column['action'] === 'complete' && ! empty($booking['next_status']))
+                            @elseif ($canOpenDetail && $column['action'] === 'complete' && ! empty($booking['next_status']))
                                 <footer class="tr-crm-pipeline-card__footer">
                                     <button
                                         type="button"

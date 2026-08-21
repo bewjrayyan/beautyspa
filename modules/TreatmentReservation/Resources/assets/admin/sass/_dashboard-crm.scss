@@ -4571,3 +4571,49 @@ body.tr-crm-customer-profile-open {
         color: #c2410c;
     }
 }
+
+
+/* Shared clinic schedule: other specialists' appointments (openable, read-only) */
+.tr-cal-event--others,
+.tr-week-card--others,
+.tr-kanban-card--others,
+.tr-portal-today__item--others,
+.tr-crm-appointment--readonly,
+.tr-crm-pipeline-card--readonly,
+.tr-crm-ledger__row--readonly,
+.tr-crm-agenda-card--others {
+    opacity: 0.78;
+}
+
+.tr-cal-event--others:not(.tr-cal-event--clickable),
+.tr-week-card--others:not(.tr-cal-event--clickable):not(.tr-crm-drawer-booking--clickable),
+.tr-kanban-card--others:not(.tr-kanban-card--clickable),
+.tr-portal-today__item--others:not(.tr-portal-today__item--clickable),
+.tr-crm-appointment--readonly,
+.tr-crm-pipeline-card--readonly,
+.tr-crm-ledger__row--readonly {
+    cursor: default;
+}
+
+.tr-cal-event--others.tr-cal-event--clickable,
+.tr-week-card--others.tr-cal-event--clickable,
+.tr-week-card--others.tr-crm-drawer-booking--clickable,
+.tr-kanban-card--others.tr-kanban-card--clickable,
+.tr-portal-today__item--others.tr-portal-today__item--clickable {
+    cursor: pointer;
+}
+
+.tr-cal-event--others:not(.tr-cal-event--clickable):hover,
+.tr-week-card--others:not(.tr-cal-event--clickable):not(.tr-crm-drawer-booking--clickable):hover,
+.tr-kanban-card--others:not(.tr-kanban-card--clickable):hover,
+.tr-portal-today__item--others:not(.tr-portal-today__item--clickable):hover {
+    transform: none;
+}
+
+.tr-portal-today__beautician {
+    display: block;
+    font-size: 11px;
+    font-style: normal;
+    color: #6b7280;
+    margin-top: 2px;
+}

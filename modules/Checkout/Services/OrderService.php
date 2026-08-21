@@ -226,19 +226,21 @@ class OrderService
                 'beautician_id' => $booking['beautician_id'],
                 'appointment_date' => $booking['appointment_date'],
                 'appointment_time' => $booking['appointment_time'],
+                'schedule_status' => $booking['schedule_status'],
                 'spa_branch_id' => $request->input('spa_branch_id'),
             ]);
     }
 
 
     /**
-     * @param array{beautician_id: ?int, appointment_date: ?string, appointment_time: ?string, beautician_name: ?string} $booking
+     * @param array{beautician_id: ?int, appointment_date: ?string, appointment_time: ?string, schedule_status: ?string, beautician_name: ?string} $booking
      */
     private function assertTreatmentSlotAvailable($request, array $booking): void
     {
         if (
             ! Cart::hasVirtualTreatment()
             || ! app('modules')->isEnabled('TreatmentReservation')
+            || ($booking['schedule_status'] ?? null) === 'tba'
             || ! $booking['beautician_id']
             || ! $booking['appointment_date']
             || ! $request->appointment_time
@@ -264,7 +266,7 @@ class OrderService
 
 
     /**
-     * @return array{beautician_id: ?int, appointment_date: ?string, appointment_time: ?string, beautician_name: ?string}
+     * @return array{beautician_id: ?int, appointment_date: ?string, appointment_time: ?string, schedule_status: ?string, beautician_name: ?string}
      */
     private function treatmentBookingData($request): array
     {
@@ -273,16 +275,19 @@ class OrderService
                 'beautician_id' => null,
                 'appointment_date' => null,
                 'appointment_time' => null,
+                'schedule_status' => null,
                 'beautician_name' => null,
             ];
         }
 
         $beautician = Beautician::find($request->beautician_id);
+        $scheduleLater = $request->boolean('schedule_later');
 
         return [
             'beautician_id' => $request->beautician_id,
-            'appointment_date' => $request->appointment_date,
-            'appointment_time' => $this->formatAppointmentTime($request->appointment_time),
+            'appointment_date' => $scheduleLater ? null : $request->appointment_date,
+            'appointment_time' => $scheduleLater ? null : $this->formatAppointmentTime($request->appointment_time),
+            'schedule_status' => $scheduleLater ? 'tba' : null,
             'beautician_name' => $beautician?->name,
         ];
     }
@@ -293,10 +298,14 @@ class OrderService
         $parts = array_filter([
             $request->order_note,
             $booking['beautician_name'] ? 'Beautician: ' . $booking['beautician_name'] : null,
-            $booking['appointment_date']
-                ? 'Appt.Date: ' . Carbon::parse($booking['appointment_date'])->format('d/M/Y')
-                : null,
-            $booking['appointment_time'] ? 'Appt.Time: ' . $booking['appointment_time'] : null,
+            ($booking['schedule_status'] ?? null) === 'tba'
+                ? 'Appt: TBA (to be scheduled)'
+                : ($booking['appointment_date']
+                    ? 'Appt.Date: ' . Carbon::parse($booking['appointment_date'])->format('d/M/Y')
+                    : null),
+            ($booking['schedule_status'] ?? null) === 'tba'
+                ? null
+                : ($booking['appointment_time'] ? 'Appt.Time: ' . $booking['appointment_time'] : null),
         ]);
 
         return $parts !== [] ? implode("\n", $parts) : null;

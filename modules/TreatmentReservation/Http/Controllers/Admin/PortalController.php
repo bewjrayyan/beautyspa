@@ -12,6 +12,8 @@ use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Entities\TreatmentCategory;
 use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\TreatmentReservation\Services\BookingCustomerWhatsAppService;
+use Modules\TreatmentReservation\Services\ScheduleTbaBookingService;
+use Modules\TreatmentReservation\Http\Requests\ScheduleTbaBookingRequest;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
 use Modules\TreatmentReservation\Services\CustomerAppointmentReminderService;
 use Modules\TreatmentReservation\Services\CustomerCrmProfileService;
@@ -52,24 +54,26 @@ class PortalController extends Controller
         return view('treatmentreservation::admin.portal.dashboard', array_merge([
             'beautician' => $beautician,
             'activeView' => 'dashboard',
-            'stats' => $this->dashboard->stats($beauticianId, $categoryId, $spaBranchId),
+            'stats' => $this->dashboard->stats(null, $categoryId, $spaBranchId),
             'dashboardData' => $this->dashboard->crmPayload(
-                $beauticianId,
+                null,
                 $categoryId,
                 $spaBranchId,
                 $dateFilter,
                 $urgencyPayload,
                 $customFilterDate,
+                $beauticianId,
             ),
             'urgency' => $urgencyPayload,
-            'analytics' => $this->analytics->overview($analyticsDays, $beauticianId),
-            'analyticsCharts' => $this->analytics->chartPayload($analyticsDays, $beauticianId),
+            'analytics' => $this->analytics->overview($analyticsDays, null),
+            'analyticsCharts' => $this->analytics->chartPayload($analyticsDays, null),
             'categories' => TreatmentCategory::active()->ordered()->get(),
             'spaBranches' => $this->spaBranchesForBeautician($beautician, $lockPortalFilters),
             'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
             'beauticianPickerOptions' => Beautician::activeListForCheckout(),
             'filters' => array_merge($filters, [
-                'beautician_id' => $beauticianId,
+                // Empty = show every specialist; identity chip still uses $beautician.
+                'beautician_id' => null,
                 'month' => $request->input('month', now()->format('Y-m')),
             ]),
             'portalFilterContext' => $this->portalFilterContext($beautician, $filters, $lockPortalFilters),
@@ -90,7 +94,8 @@ class PortalController extends Controller
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
 
-        $todayAppointments = $this->dashboard->todayAppointmentsForBeautician($beautician->id);
+        $viewerBeauticianId = (int) $beautician->id;
+        $todayAppointments = $this->dashboard->todayActiveAppointments(null);
 
         $activeView = in_array($request->query('view'), ['kanban', 'calendar'], true)
             ? $request->query('view')
@@ -102,10 +107,12 @@ class PortalController extends Controller
 
         return view('treatmentreservation::admin.portal.job_sheet', array_merge([
             'beautician' => $beautician,
-            'stats' => $this->dashboard->statsForBeauticianSchedule($beautician->id),
+            'stats' => $this->dashboard->stats(null),
             'performanceStats' => $this->dashboard->statsForBeautician($beautician->id),
             'todayAppointments' => $todayAppointments,
-            'todayBookingsPayload' => $todayAppointments->map->toKanbanPayload()->values(),
+            'todayBookingsPayload' => $todayAppointments
+                ->map(fn (TreatmentBooking $booking) => $booking->toPortalKanbanPayload($viewerBeauticianId))
+                ->values(),
             'activeView' => $activeView,
             'calendarFocus' => $calendarFocus,
             'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
@@ -168,10 +175,11 @@ class PortalController extends Controller
             'month' => ['required', 'date_format:Y-m'],
         ]);
 
+        $viewerBeauticianId = (int) $beautician->id;
         $bookings = TreatmentBooking::query()
-            ->forCalendar($request->input('month'), $beautician->id)
+            ->forCalendar($request->input('month'), null)
             ->get()
-            ->map->toCalendarPayload();
+            ->map(fn (TreatmentBooking $booking) => $booking->toPortalCalendarPayload($viewerBeauticianId));
 
         return response()->json(['bookings' => $bookings]);
     }
@@ -182,8 +190,9 @@ class PortalController extends Controller
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
 
+        $viewerBeauticianId = (int) $beautician->id;
         $bookings = TreatmentBooking::query()
-            ->forKanban($beautician->id, $request->integer('treatment_category_id') ?: null)
+            ->forKanban(null, $request->integer('treatment_category_id') ?: null)
             ->get();
 
         $columns = [];
@@ -192,7 +201,7 @@ class PortalController extends Controller
             $columns[$status] = $bookings
                 ->where('status', $status)
                 ->values()
-                ->map->toKanbanPayload();
+                ->map(fn (TreatmentBooking $booking) => $booking->toPortalKanbanPayload($viewerBeauticianId));
         }
 
         return response()->json(['columns' => $columns]);
@@ -265,6 +274,59 @@ class PortalController extends Controller
         ]);
     }
 
+
+
+
+    public function listTba(Request $request): JsonResponse
+    {
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+
+        $viewerBeauticianId = (int) $beautician->id;
+        $bookings = TreatmentBooking::query()
+            ->withActiveOrder()
+            ->withTreatmentProduct()
+            ->with(['beautician.files', 'product', 'category', 'order'])
+            ->tbaSchedule()
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get()
+            ->map(fn (TreatmentBooking $booking) => TreatmentBooking::applyPortalViewerScope(
+                $booking->appendAdminPayload($booking->toKanbanPayload()),
+                $viewerBeauticianId
+            ));
+
+        return response()->json(['bookings' => $bookings]);
+    }
+
+
+    public function scheduleTba(ScheduleTbaBookingRequest $request, int $id, ScheduleTbaBookingService $scheduler): JsonResponse
+    {
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+        $booking = TreatmentBooking::query()
+            ->where('beautician_id', $beautician->id)
+            ->findOrFail($id);
+
+        $payload = $request->validated();
+        $payload['beautician_id'] = $beautician->id;
+
+        try {
+            $updated = $scheduler->schedule(
+                $booking,
+                $payload,
+                $request->user(),
+                $request->boolean('notify_customer', true),
+            );
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => trans('treatmentreservation::admin.tba.scheduled'),
+            'booking' => $updated->appendAdminPayload($updated->toKanbanPayload()),
+        ]);
+    }
 
     public function sendCustomerWhatsApp(Request $request, int $id, BookingCustomerWhatsAppService $whatsapp): JsonResponse
     {

@@ -94,7 +94,8 @@
         data-cal-preview-duration-minutes="{{ TrLang::trans('admin.calendar.preview_duration_value') }}"
         data-cal-preview-status-update-failed="{{ TrLang::trans('admin.crm.agenda_status_update_failed') }}"
         data-initial-month="{{ $filters['month'] ?? now()->format('Y-m') }}"
-        data-initial-beautician="{{ $filters['beautician_id'] ?? '' }}"
+        data-initial-beautician=""
+        data-portal-beautician-id="{{ $beautician->id }}"
         data-initial-category="{{ $filters['treatment_category_id'] ?? '' }}"
     >
         <header class="tr-crm-page-header">
@@ -108,7 +109,7 @@
                             <input type="hidden" name="date_filter" id="tr-crm-date-filter" value="{{ $crmDateFilter }}">
                             <input type="hidden" name="filter_date" id="tr-crm-filter-date" value="{{ $filters['filter_date'] ?? '' }}">
                             <input type="hidden" name="treatment_category_id" id="tr-crm-hidden-category" value="{{ $filters['treatment_category_id'] ?? '' }}">
-                            <input type="hidden" name="beautician_id" value="{{ $filters['beautician_id'] ?? $beautician->id }}">
+                            <input type="hidden" name="beautician_id" value="">
 
                             @if (! empty($portalFilterContext['locked']))
                                 <div class="tr-crm-toolbar__context tr-crm-toolbar__context--beautician">
@@ -261,6 +262,7 @@
                 'updateUrlTemplate' => $crmRoutes['manualBookingUpdate'] ?? '',
                 'cancelUrlTemplate' => $crmRoutes['manualBookingCancel'] ?? '',
                 'portalMode' => true,
+                'lockedBeautician' => $beautician,
                 'defaultBeauticianId' => $beautician->id,
             ])
         @endif

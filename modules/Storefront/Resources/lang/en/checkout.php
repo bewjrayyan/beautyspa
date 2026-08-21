@@ -63,4 +63,8 @@ return [
     'appointment_date' => 'Appointment Date',
     'appointment_time' => 'Appointment Time',
     'select_appointment_time' => 'Select time',
+    'schedule_mode' => 'Appointment schedule',
+    'schedule_now' => 'Choose date & time now',
+    'schedule_later_tba' => 'Schedule later (TBA)',
+    'schedule_later_help' => 'We will confirm your appointment date and time with you based on beautician availability.',
 ];

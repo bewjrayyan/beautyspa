@@ -1,6 +1,6 @@
 import axios from "axios";
 import flatpickr from "flatpickr";
-import { getCalendarBooking, setCalendarBookings, upsertBooking } from "./kanban-helpers.js";
+import { bookingAllowsDetail, getCalendarBooking, setCalendarBookings, upsertBooking } from "./kanban-helpers.js";
 import { initCustomerProfileDrawer } from "./customer-profile.js";
 import { openManualBookingEditor } from "./manual-booking.js";
 
@@ -373,19 +373,24 @@ function renderAgendaBooking(booking, labels) {
         booking.id,
     ].filter(Boolean).join(" ");
 
+    const portalBeauticianId = document.getElementById("tr-reservations-app")?.dataset.portalBeauticianId || "";
+    const canOpen = bookingAllowsDetail(booking, portalBeauticianId || null);
+    const compactClass = canOpen
+        ? "tr-crm-agenda-card__compact tr-crm-agenda-card__compact--clickable"
+        : "tr-crm-agenda-card__compact tr-crm-agenda-card__compact--readonly";
+    const compactAttrs = canOpen
+        ? `data-agenda-open data-booking-id="${escapeHtml(booking.id)}" role="button" tabindex="0" aria-label="${escapeHtml((booking.customer_name || "—") + ", " + (booking.treatment_name || booking.product_name || "—"))}"`
+        : `data-booking-id="${escapeHtml(booking.id)}"`;
+
     return `
         <li
-            class="tr-crm-agenda-card tr-crm-agenda-card--compact"
+            class="tr-crm-agenda-card tr-crm-agenda-card--compact${canOpen ? "" : " tr-crm-agenda-card--others"}"
             data-booking-id="${escapeHtml(booking.id)}"
             data-search="${escapeHtml(searchHaystack)}"
         >
             <div
-                class="tr-crm-agenda-card__compact"
-                data-agenda-open
-                data-booking-id="${escapeHtml(booking.id)}"
-                role="button"
-                tabindex="0"
-                aria-label="${escapeHtml((booking.customer_name || "—") + ", " + (booking.treatment_name || booking.product_name || "—"))}"
+                class="${compactClass}"
+                ${compactAttrs}
             >
                 <div class="tr-crm-agenda-card__compact-row">
                     <div class="tr-crm-agenda-card__compact-time">
@@ -609,8 +614,9 @@ function initPipelineSortable(app) {
             draggable: ".tr-crm-pipeline-card",
             ghostClass: "tr-crm-pipeline-card--ghost",
             chosenClass: "tr-crm-pipeline-card--chosen",
-            filter: ".tr-crm-pipeline-card__cta, .tr-crm-pipeline-card__footer, .tr-crm-pipeline-card__links, .tr-crm-pipeline-card__link, a, button",
+            filter: ".tr-crm-pipeline-card--readonly, .tr-crm-pipeline-card__cta, .tr-crm-pipeline-card__footer, .tr-crm-pipeline-card__links, .tr-crm-pipeline-card__link, a, button",
             preventOnFilter: true,
+            onMove: (evt) => evt.dragged?.dataset?.ownBooking !== "0",
             onEnd: async (evt) => {
                 const card = evt.item;
                 const bookingId = card.dataset.bookingId;
@@ -767,6 +773,90 @@ function initPipelineActions(app) {
     });
 }
 
+
+async function scheduleTbaBooking({ bookingId, beauticianId, scheduleUrlTemplate, slotsUrl }) {
+    const date = window.prompt("Appointment date (YYYY-MM-DD)");
+
+    if (!date) {
+        return;
+    }
+
+    let slots = [];
+
+    try {
+        const { data } = await axios.get(slotsUrl, {
+            params: {
+                beautician_id: beauticianId,
+                date,
+                booking_id: bookingId,
+            },
+        });
+        slots = data.slots || [];
+    } catch (error) {
+        window.notify?.error?.(error?.response?.data?.message || "Failed to load slots")
+            || alert(error?.response?.data?.message || "Failed to load slots");
+        return;
+    }
+
+    if (!slots.length) {
+        window.notify?.error?.("No available times on this date.") || alert("No available times on this date.");
+        return;
+    }
+
+    const time = window.prompt(`Available times:\n${slots.join(", ")}\n\nEnter time (HH:MM)`, slots[0]);
+
+    if (!time) {
+        return;
+    }
+
+    const url = scheduleUrlTemplate.replace("__ID__", String(bookingId));
+
+    try {
+        const { data } = await axios.patch(url, {
+            beautician_id: beauticianId,
+            appointment_date: date,
+            appointment_time: time,
+            notify_customer: true,
+        });
+        window.notify?.success?.(data.message || "Scheduled") || alert(data.message || "Scheduled");
+        window.location.reload();
+    } catch (error) {
+        window.notify?.error?.(error?.response?.data?.message || "Failed to schedule")
+            || alert(error?.response?.data?.message || "Failed to schedule");
+    }
+}
+
+export function initTbaScheduleActions() {
+    const root =
+        document.getElementById("tr-crm-dashboard") ||
+        document.getElementById("tr-reservations-app") ||
+        document.getElementById("tr-portal-app") ||
+        document.body;
+    const scheduleUrlTemplate = root.dataset?.tbaScheduleUrl || "";
+    const slotsUrl = root.dataset?.tbaSlotsUrl || "";
+
+    if (!scheduleUrlTemplate || !slotsUrl) {
+        return;
+    }
+
+    document.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-tba-schedule]");
+
+        if (!button) {
+            return;
+        }
+
+        event.preventDefault();
+
+        scheduleTbaBooking({
+            bookingId: button.dataset.bookingId,
+            beauticianId: button.dataset.beauticianId,
+            scheduleUrlTemplate,
+            slotsUrl,
+        });
+    });
+}
+
 export function initCrmDashboard(app) {
     const root = document.getElementById("tr-crm-dashboard");
 
@@ -797,6 +887,7 @@ export function initCrmDashboard(app) {
     initPipelineActions(app);
     initSpecialistToggles();
     initCustomerProfileDrawer();
+    initTbaScheduleActions();
 
     document.addEventListener("tr-crm-booking-updated", () => {
         app.refreshAgendaPanel?.();

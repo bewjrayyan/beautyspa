@@ -22,6 +22,7 @@ class OrderTreatmentBookingObserver
             'beautician_id',
             'appointment_date',
             'appointment_time',
+            'schedule_status',
             'status',
             'payment_status',
             'customer_first_name',

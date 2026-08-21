@@ -63,5 +63,9 @@ return [
     'no_beauticians_at_branch' => 'Tidak beauticians are assigned to this spa branch.',
     'appointment_date' => 'Appointment Tarikh',
     'appointment_time' => 'Appointment Masa',
-    'select_appointment_time' => 'Pilih time',
+    'select_appointment_time' => 'Pilih masa',
+    'schedule_mode' => 'Jadual temujanji',
+    'schedule_now' => 'Pilih tarikh & masa sekarang',
+    'schedule_later_tba' => 'Jadual kemudian (TBA)',
+    'schedule_later_help' => 'Kami akan sahkan tarikh dan masa temujanji anda kemudian berdasarkan slot beautician yang tersedia.',
 ];

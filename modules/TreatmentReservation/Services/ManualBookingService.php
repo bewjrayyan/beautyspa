@@ -26,13 +26,23 @@ class ManualBookingService
     {
         return DB::transaction(function () use ($data, $actor, $source) {
             $beauticianId = (int) $data['beautician_id'];
-            $date = (string) $data['appointment_date'];
-            $time = (string) $data['appointment_time'];
+            $scheduleLater = filter_var($data['schedule_later'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            $date = $scheduleLater ? null : (string) ($data['appointment_date'] ?? '');
+            $time = $scheduleLater ? null : (string) ($data['appointment_time'] ?? '');
+            $normalizedTime = null;
 
-            $this->availability->lockAppointmentsForDate($beauticianId, $date);
+            if (! $scheduleLater) {
+                $this->availability->lockAppointmentsForDate($beauticianId, $date);
 
-            if (! $this->availability->isSlotAvailable($beauticianId, $date, $time)) {
-                throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+                if (! $this->availability->isSlotAvailable($beauticianId, $date, $time)) {
+                    throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+                }
+
+                $normalizedTime = $this->availability->normalizeTime($time);
+
+                if ($normalizedTime === null) {
+                    throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+                }
             }
 
             $selection = $this->productSelection->validateAndResolve($data);
@@ -40,12 +50,6 @@ class ManualBookingService
             Beautician::query()
                 ->where('is_active', true)
                 ->findOrFail($beauticianId);
-
-            $normalizedTime = $this->availability->normalizeTime($time);
-
-            if ($normalizedTime === null) {
-                throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
-            }
 
             $phone = PhoneNumber::normalize($data['customer_phone'] ?? '') ?: ($data['customer_phone'] ?? null);
             $receiptFileId = $this->paymentReceipts->store($data['payment_receipt'] ?? null);
@@ -64,8 +68,9 @@ class ManualBookingService
                 'customer_last_name' => $data['customer_last_name'],
                 'customer_phone' => $phone,
                 'customer_email' => $data['customer_email'] ?? null,
-                'appointment_date' => $date,
+                'appointment_date' => $scheduleLater ? null : $date,
                 'appointment_time' => $normalizedTime,
+                'schedule_status' => $scheduleLater ? TreatmentBooking::SCHEDULE_STATUS_TBA : null,
                 'status' => TreatmentBooking::STATUS_PENDING,
                 'total' => $selection['total'],
                 'currency' => currency(),
@@ -100,13 +105,23 @@ class ManualBookingService
             $beauticianId = $allowBeauticianChange
                 ? (int) ($data['beautician_id'] ?? $booking->beautician_id)
                 : (int) $booking->beautician_id;
-            $date = (string) $data['appointment_date'];
-            $time = (string) $data['appointment_time'];
+            $scheduleLater = filter_var($data['schedule_later'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            $date = $scheduleLater ? null : (string) ($data['appointment_date'] ?? '');
+            $time = $scheduleLater ? null : (string) ($data['appointment_time'] ?? '');
+            $normalizedTime = null;
 
-            $this->availability->lockAppointmentsForDate($beauticianId, $date);
+            if (! $scheduleLater) {
+                $this->availability->lockAppointmentsForDate($beauticianId, $date);
 
-            if (! $this->availability->isSlotAvailable($beauticianId, $date, $time, $booking->id)) {
-                throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+                if (! $this->availability->isSlotAvailable($beauticianId, $date, $time, $booking->id)) {
+                    throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+                }
+
+                $normalizedTime = $this->availability->normalizeTime($time);
+
+                if ($normalizedTime === null) {
+                    throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+                }
             }
 
             $selection = $this->productSelection->validateAndResolve($data);
@@ -114,12 +129,6 @@ class ManualBookingService
             Beautician::query()
                 ->where('is_active', true)
                 ->findOrFail($beauticianId);
-
-            $normalizedTime = $this->availability->normalizeTime($time);
-
-            if ($normalizedTime === null) {
-                throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
-            }
 
             $phone = PhoneNumber::normalize($data['customer_phone'] ?? '') ?: ($data['customer_phone'] ?? null);
             $receiptFileId = $this->paymentReceipts->store(
@@ -138,8 +147,9 @@ class ManualBookingService
                 'customer_last_name' => $data['customer_last_name'],
                 'customer_phone' => $phone,
                 'customer_email' => $data['customer_email'] ?? null,
-                'appointment_date' => $date,
+                'appointment_date' => $scheduleLater ? null : $date,
                 'appointment_time' => $normalizedTime,
+                'schedule_status' => $scheduleLater ? TreatmentBooking::SCHEDULE_STATUS_TBA : null,
                 'total' => $selection['total'],
                 'payment_status' => $data['payment_status']
                     ?? TreatmentBooking::normalizeManualPaymentStatus($booking->payment_status),

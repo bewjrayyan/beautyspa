@@ -55,6 +55,7 @@ Alpine.data(
             ship_to_a_different_address: false,
             beautician_id: "",
             appointment_date: "",
+            schedule_later: "1",
             appointment_time: "",
             spa_branch_id: "",
             order_note: "",
@@ -254,6 +255,14 @@ Alpine.data(
             return this.slotLabels.select_beautician || "Select beautician";
         },
 
+        get isScheduleLater() {
+            return (
+                this.form.schedule_later === true ||
+                this.form.schedule_later === 1 ||
+                this.form.schedule_later === "1"
+            );
+        },
+
         get appointmentTimeSelectOptions() {
             if (this.loadingAppointmentSlots) {
                 return [
@@ -330,7 +339,7 @@ Alpine.data(
         },
 
         async loadAppointmentSlots() {
-            if (!this.availabilitySlotsUrl || !this.form.beautician_id || !this.form.appointment_date) {
+            if (this.isScheduleLater || !this.availabilitySlotsUrl || !this.form.beautician_id || !this.form.appointment_date) {
                 return;
             }
 
@@ -479,6 +488,17 @@ Alpine.data(
             if (this.requiresTreatmentBooking && this.availabilitySlotsUrl) {
                 this.$watch("form.beautician_id", () => this.loadAppointmentSlots());
                 this.$watch("form.appointment_date", () => this.loadAppointmentSlots());
+                this.$watch("form.schedule_later", (value) => {
+                    if (value === true || value === 1 || value === "1") {
+                        this.form.appointment_date = "";
+                        this.form.appointment_time = "";
+                        this.appointmentSlots = [];
+                        const dateInput = document.getElementById("appointment-date");
+                        if (dateInput) dateInput.value = "";
+                    } else {
+                        this.loadAppointmentSlots();
+                    }
+                });
                 this.loadAppointmentSlots();
             }
 

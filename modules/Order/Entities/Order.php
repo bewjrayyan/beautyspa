@@ -94,6 +94,7 @@ class Order extends Model
         'beautician_id',
         'appointment_date',
         'appointment_time',
+        'schedule_status',
         'spa_branch_id',
         'start_date',
         'end_date',
@@ -307,6 +308,7 @@ class Order extends Model
     {
         return $this->beautician_id
             || $this->appointment_date
+            || $this->schedule_status === 'tba'
             || filled($this->appointment_time);
     }
 

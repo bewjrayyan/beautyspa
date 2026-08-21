@@ -1,4 +1,6 @@
 import {
+    bookingAllowsDetail,
+    bookingIsOwnForPortal,
     buildCalendarEventHtml,
     buildCalendarLegendHtml,
     collectBeauticiansFromBookings,
@@ -11,7 +13,7 @@ import {
     upsertBooking,
 } from "./kanban-helpers.js";
 import { initTreatmentAnalytics } from "./analytics.js";
-import { initCrmDashboard } from "./dashboard.js";
+import { initCrmDashboard, initTbaScheduleActions } from "./dashboard.js";
 import "./portal-account.js";
 import "./portal-availability.js";
 import "./manual-booking.js";
@@ -44,6 +46,7 @@ class TreatmentReservationsApp {
         this.statusUrlTemplate = root.dataset.statusUrl;
         this.month = root.dataset.initialMonth || new Date().toISOString().slice(0, 7);
         this.beauticianId = root.dataset.initialBeautician || "";
+        this.portalBeauticianId = root.dataset.portalBeauticianId || "";
         this.categoryId = root.dataset.initialCategory || "";
         this.calendarInitialized = false;
         this.kanbanInitialized = false;
@@ -400,10 +403,18 @@ class TreatmentReservationsApp {
                 const timeRange = b.time + (endTime ? " – " + endTime : "");
                 const statusClass = (b.status || "pending").replace("_", "-");
 
+                const canOpen = bookingAllowsDetail(b, this.portalBeauticianId || null);
+                const isOwn = bookingIsOwnForPortal(b, this.portalBeauticianId || null);
+                const clickClass = [
+                    canOpen ? "tr-cal-event--clickable tr-crm-drawer-booking tr-crm-drawer-booking--clickable" : "",
+                    !isOwn ? "tr-week-card--others" : "",
+                ].filter(Boolean).join(" ");
+                const clickAttrs = canOpen ? ' role="button" tabindex="0"' : '';
+
                 colHtml += '<div class="tr-week-card tr-week-card--' + statusClass
-                    + ' tr-cal-event--clickable tr-crm-drawer-booking"'
+                    + (clickClass ? ' ' + clickClass : '') + '"'
                     + ' data-booking-id="' + (b.id ?? '') + '"'
-                    + ' role="button" tabindex="0"'
+                    + clickAttrs
                     + ' style="top:' + topPx + 'px;height:' + heightPx + 'px">'
                     + '<strong>' + (b.customer_name || "—") + '</strong>'
                     + '<span class="tr-week-card__treatment">' + (b.treatment_name || "") + '</span>'
@@ -808,8 +819,13 @@ class TreatmentReservationsApp {
     }
 
     renderCalendarEvent(booking) {
+        const showBeautician = !this.beauticianId || !!this.portalBeauticianId;
+        const portalBeauticianId = this.portalBeauticianId || null;
+
         return buildCalendarEventHtml(booking, {
-            showBeautician: !this.beauticianId,
+            showBeautician,
+            clickable: bookingAllowsDetail(booking, portalBeauticianId),
+            isOwn: bookingIsOwnForPortal(booking, portalBeauticianId),
         });
     }
 
@@ -898,9 +914,20 @@ class TreatmentReservationsApp {
 
         el.dataset.id = card.id;
         el.dataset.bookingId = card.id;
-        el.classList.add("tr-kanban-card--clickable");
-        el.setAttribute("role", "button");
-        el.setAttribute("tabindex", "0");
+        const portalBeauticianId = this.portalBeauticianId || null;
+        const canOpen = bookingAllowsDetail(card, portalBeauticianId);
+        const isOwn = bookingIsOwnForPortal(card, portalBeauticianId);
+
+        if (canOpen) {
+            el.classList.add("tr-kanban-card--clickable");
+            el.setAttribute("role", "button");
+            el.setAttribute("tabindex", "0");
+        }
+
+        if (!isOwn) {
+            el.classList.add("tr-kanban-card--others");
+            el.removeAttribute("draggable");
+        }
         el.querySelector(".tr-kanban-card-accent").removeAttribute("style");
         el.querySelector(".tr-kanban-card-customer").textContent = card.customer_name;
 
@@ -959,6 +986,8 @@ class TreatmentReservationsApp {
             group: "tr-kanban",
             animation: 150,
             draggable: ".tr-kanban-card",
+            filter: ".tr-kanban-card--others",
+            onMove: (evt) => !evt.dragged?.classList.contains("tr-kanban-card--others"),
             onEnd: (evt) => this.handleKanbanMove(evt),
         });
     }
@@ -1008,6 +1037,7 @@ if (root) {
     const reservationsApp = new TreatmentReservationsApp(root);
     window.TRResolveBooking = resolveBooking;
     initCrmDashboard(reservationsApp);
+    initTbaScheduleActions();
 }
 
 const beauticianScheduleRoot = document.getElementById("tr-beautician-schedule-app");
@@ -1089,6 +1119,7 @@ function buildCalendarPreviewLabels(root) {
         session: root.dataset.calPreviewSession || "Session",
         status: root.dataset.calPreviewStatus || "Status",
         reschedule: root.dataset.calPreviewReschedule || "Reschedule",
+        scheduleTba: root.dataset.calPreviewScheduleTba || "Schedule slot",
         statusUpdateFailed: root.dataset.calPreviewStatusUpdateFailed || "Failed to update status",
         sectionSchedule: root.dataset.calPreviewSectionSchedule || "Schedule",
         sectionCustomer: root.dataset.calPreviewSectionCustomer || "Customer",
@@ -1101,7 +1132,8 @@ function buildCalendarPreviewLabels(root) {
 function buildCalendarPreviewOptions(root) {
     const manualBookingOptions = root.dataset.manualBookingEdit === "1"
         ? {
-              manualBookingEditEnabled: true,
+              tbaScheduleEnabled: true,
+            manualBookingEditEnabled: true,
               manualBookingCancelUrlTemplate: root.dataset.manualBookingCancelUrl || "",
               manualBookingModalSelector:
                   root.id === "tr-portal-app" ? "#tr-portal-manual-booking-modal" : "#tr-manual-booking-modal",
@@ -1111,9 +1143,10 @@ function buildCalendarPreviewOptions(root) {
     if (root.id === "tr-portal-app") {
         return {
             hideOrderLink: true,
-            hideBeautician: true,
+            hideBeautician: false,
             showWhatsApp: true,
             portalGenericWhatsApp: true,
+            portalBeauticianId: root.dataset.portalBeauticianId || "",
             canSendNotifications: root.dataset.crmCanEdit === "1",
             allowBeauticianNotes: true,
             notesUrlTemplate: root.dataset.notesUrl || "",
@@ -1127,6 +1160,7 @@ function buildCalendarPreviewOptions(root) {
 
     if (root.id === "tr-reservations-app") {
         const canEdit = root.dataset.crmCanEdit === "1";
+        const portalBeauticianId = root.dataset.portalBeauticianId || "";
 
         return {
             showActivityLog: true,
@@ -1139,6 +1173,7 @@ function buildCalendarPreviewOptions(root) {
             beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
             statusUrlTemplate: root.dataset.statusUrl || "",
             crmCanEdit: canEdit,
+            portalBeauticianId,
             ...manualBookingOptions,
         };
     }

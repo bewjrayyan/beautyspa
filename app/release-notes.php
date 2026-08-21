@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.5' => [
+        'date' => '2026-08-21 12:05',
+        'en' => [
+            'summary' => 'TBA scheduling defaults, portal privacy drawer, and beautician register split-scroll layout.',
+            'changes' => [
+                'Add Schedule later (TBA) booking flow with admin/portal scheduling onto available calendar slots.',
+                'Default appointment mode to Schedule later (TBA) on checkout, beautician portal, and reservation manual booking.',
+                'Allow beauticians to open other specialists’ appointment drawers while blurring customer phone and email.',
+                'Fix beautician registration desktop/tablet layout: fixed left story panel with an independently scrolling form.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Lalai jadual TBA, drawer privasi portal, dan layout scroll berasingan halaman daftar beautician.',
+            'changes' => [
+                'Tambah aliran tempahan Jadual kemudian (TBA) dengan penjadualan admin/portal ke slot kalendar tersedia.',
+                'Jadikan Jadual kemudian (TBA) sebagai pilihan lalai di checkout, portal beautician, dan tempahan manual reservation.',
+                'Benarkan beautician buka drawer temujanji spesialis lain dengan telefon dan e-mel pelanggan diburamkan.',
+                'Baiki layout daftar beautician desktop/tablet: panel kiri kekal, borang kanan sahaja yang scroll.',
+            ],
+        ],
+    ],
     '4.11.4' => [
         'date' => '2026-08-21 09:25',
         'en' => [

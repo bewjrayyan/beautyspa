@@ -2542,6 +2542,17 @@ body.tr-calendar-event-preview-open {
     overflow-wrap: anywhere;
 }
 
+.tr-calendar-event-preview__field--blurred .tr-calendar-event-preview__field-value--blurred,
+.tr-calendar-event-preview__field-value--blurred {
+    display: inline-block;
+    max-width: 100%;
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+    color: #334155;
+    letter-spacing: 0.02em;
+}
+
 .tr-calendar-event-preview__field-link {
     color: #4f46e5;
     text-decoration: none;

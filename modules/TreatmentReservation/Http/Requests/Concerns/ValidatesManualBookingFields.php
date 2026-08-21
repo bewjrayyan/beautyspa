@@ -13,7 +13,14 @@ trait ValidatesManualBookingFields
      */
     protected function manualBookingFieldRules(bool $requireReceipt = false): array
     {
+        $scheduleLater = $this->boolean('schedule_later');
+
+        $appointmentTimeRules = $scheduleLater
+            ? ['nullable', 'string', 'max:20']
+            : ['required', 'string', 'max:20', new \Modules\TreatmentReservation\Rules\ValidBeauticianSlot()];
+
         return [
+            'schedule_later' => ['sometimes', 'boolean'],
             'customer_first_name' => ['required', 'string', 'max:255'],
             'customer_last_name' => ['required', 'string', 'max:255'],
             'customer_phone' => ['required', new \Modules\Core\Rules\ValidPhone()],
@@ -24,8 +31,10 @@ trait ValidatesManualBookingFields
                 'integer',
                 Rule::exists('beauticians', 'id')->where('is_active', true),
             ],
-            'appointment_date' => ['required', 'date', 'after_or_equal:today'],
-            'appointment_time' => ['required', 'string', 'max:20', new \Modules\TreatmentReservation\Rules\ValidBeauticianSlot()],
+            'appointment_date' => $scheduleLater
+                ? ['nullable', 'date', 'after_or_equal:today']
+                : ['required', 'date', 'after_or_equal:today'],
+            'appointment_time' => $appointmentTimeRules,
             'notes' => ['nullable', 'string', 'max:5000'],
             'payment_status' => ['required', 'string', Rule::in(TreatmentBooking::manualPaymentStatuses())],
             'payment_receipt' => [

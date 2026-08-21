@@ -44,27 +44,65 @@
         .beautician-registration__shell {
             display: grid;
             min-height: 100vh;
+            align-items: stretch;
             grid-template-columns: minmax(390px, 42%) minmax(0, 1fr);
         }
 
         .beautician-registration__story {
-            position: sticky;
-            top: 0;
+            position: relative;
             display: flex;
-            height: 100vh;
-            min-height: 720px;
             padding: clamp(42px, 5vw, 82px);
-            overflow-x: hidden;
-            overflow-y: auto;
-            overscroll-behavior: contain;
-            scrollbar-color: rgba(255, 255, 255, .28) transparent;
-            scrollbar-width: thin;
+            overflow: hidden;
             color: #fff;
             flex-direction: column;
             justify-content: space-between;
             background:
                 linear-gradient(150deg, rgba(52, 21, 41, .15), rgba(52, 21, 41, .82)),
                 linear-gradient(135deg, #ad476e 0%, #6f2948 52%, #301929 100%);
+        }
+
+        /* Desktop/tablet: left panel fixed, only the form column scrolls. */
+        @media (min-width: 901px) {
+            html,
+            body {
+                height: 100% !important;
+                overflow: hidden !important;
+            }
+
+            body { position: static !important; }
+
+            .login-page {
+                height: 100% !important;
+                min-height: 0 !important;
+                overflow: hidden !important;
+            }
+
+            .beautician-registration {
+                height: 100%;
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            .beautician-registration__shell {
+                height: 100%;
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            .beautician-registration__story {
+                height: 100%;
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            .beautician-registration__main {
+                height: 100%;
+                min-height: 0;
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
         }
 
         .beautician-registration__story::before,

@@ -1,5 +1,12 @@
+<style>
+.checkout-schedule-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.checkout-schedule-option { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 12px 14px; border: 1.5px solid #d9c7cf; border-radius: 12px; background: #fff; cursor: pointer; font-size: 13px; line-height: 1.35; color: #413648; }
+.checkout-schedule-option:has(input:checked) { border-color: #f274ac; background: #fff4f8; color: #6f2948; font-weight: 600; }
+.checkout-schedule-option input { margin-top: 2px; accent-color: #f274ac; }
+@media (max-width: 640px) { .checkout-schedule-toggle { grid-template-columns: 1fr; } }
+</style>
 <template x-if="requiresTreatmentBooking">
-    <div
+<div
         class="checkout-card checkout-card-treatment treatment-booking-section"
         x-init="initAppointmentPickers()"
     >
@@ -127,7 +134,24 @@
             <span class="error-message" x-show="errors.has('beautician_id')" x-text="errors.get('beautician_id')"></span>
         </div>
 
-        <div class="row checkout-appointment-row">
+
+        <div class="form-group checkout-schedule-mode">
+            <div class="checkout-schedule-toggle" role="group" aria-label="{{ trans('storefront::checkout.schedule_mode') }}">
+                <label class="checkout-schedule-option">
+                    <input type="radio" name="schedule_later" value="1" x-model="form.schedule_later" :checked="form.schedule_later === '1' || form.schedule_later === true || form.schedule_later === 1">
+                    <span>{{ trans('storefront::checkout.schedule_later_tba') }}</span>
+                </label>
+                <label class="checkout-schedule-option">
+                    <input type="radio" name="schedule_later" value="0" x-model="form.schedule_later">
+                    <span>{{ trans('storefront::checkout.schedule_now') }}</span>
+                </label>
+            </div>
+            <p class="help-block" x-show="isScheduleLater" x-cloak>
+                {{ trans('storefront::checkout.schedule_later_help') }}
+            </p>
+        </div>
+
+        <div class="row checkout-appointment-row" x-show="!isScheduleLater" x-cloak>
             <div class="col-md-9">
                 <div class="form-group checkout-field-icon">
                     <label for="appointment-date" class="input-label">
@@ -143,7 +167,8 @@
                             class="form-control checkout-datepicker"
                             placeholder="{{ trans('storefront::checkout.appointment_date') }}"
                             readonly
-                            required
+                            :required="!isScheduleLater"
+                            :disabled="isScheduleLater"
                         >
                     </div>
 
@@ -166,8 +191,8 @@
                                     name="appointment_time"
                                     class="form-control"
                                     x-model="form.appointment_time"
-                                    :disabled="loadingAppointmentSlots || !appointmentSlots.length"
-                                    required
+                                    :disabled="isScheduleLater || loadingAppointmentSlots || !appointmentSlots.length"
+                                    :required="!isScheduleLater"
                                 >
                                     <template x-for="opt in appointmentTimeSelectOptions" :key="opt.key">
                                         <option :value="opt.value" :disabled="opt.disabled" x-text="opt.label"></option>
@@ -191,7 +216,8 @@
                                 class="form-control checkout-timepicker"
                                 placeholder="{{ trans('storefront::checkout.appointment_time') }}"
                                 readonly
-                                required
+                                :required="!isScheduleLater"
+                                :disabled="isScheduleLater"
                             >
                         </div>
                     </template>

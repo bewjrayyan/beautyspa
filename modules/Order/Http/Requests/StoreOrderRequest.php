@@ -139,13 +139,18 @@ class StoreOrderRequest extends Request
             return [];
         }
 
-        $appointmentTimeRules = ['required', 'date_format:H:i'];
+        $scheduleLater = $this->boolean('schedule_later');
 
-        if (app('modules')->isEnabled('TreatmentReservation')) {
+        $appointmentTimeRules = $scheduleLater
+            ? ['nullable']
+            : ['required', 'date_format:H:i'];
+
+        if (! $scheduleLater && app('modules')->isEnabled('TreatmentReservation')) {
             $appointmentTimeRules[] = new \Modules\TreatmentReservation\Rules\ValidBeauticianSlot();
         }
 
         return [
+            'schedule_later' => ['sometimes', 'boolean'],
             'beautician_id' => [
                 'required',
                 Rule::exists('beauticians', 'id')->where('is_active', true),
@@ -173,7 +178,9 @@ class StoreOrderRequest extends Request
                     }
                 },
             ],
-            'appointment_date' => ['required', 'date', 'after_or_equal:today'],
+            'appointment_date' => $scheduleLater
+                ? ['nullable', 'date', 'after_or_equal:today']
+                : ['required', 'date', 'after_or_equal:today'],
             'appointment_time' => $appointmentTimeRules,
         ];
     }

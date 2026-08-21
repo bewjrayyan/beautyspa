@@ -3,11 +3,14 @@
     $statusKey = 'treatmentreservation::admin.kanban.' . ($booking['status'] ?? 'pending');
 @endphp
 
+@php
+    $canOpenDetail = ! array_key_exists('can_open_detail', $booking) || ! empty($booking['can_open_detail']);
+@endphp
 <li
-    class="tr-crm-appointment tr-crm-appointment--clickable"
+    class="tr-crm-appointment{{ $canOpenDetail ? ' tr-crm-appointment--clickable' : ' tr-crm-appointment--readonly' }}"
     data-booking-id="{{ $booking['id'] ?? '' }}"
-    role="button"
-    tabindex="0"
+    data-own-booking="{{ $canOpenDetail ? '1' : '0' }}"
+    @if ($canOpenDetail) role="button" tabindex="0" @endif
     data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['customer_phone'] ?? '') . ' ' . ($booking['customer_email'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '')) }}"
 >
     <span class="tr-crm-appointment__time">{{ $booking['appointment_time'] ?? '—' }}</span>

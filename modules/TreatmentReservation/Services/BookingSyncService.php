@@ -18,7 +18,7 @@ class BookingSyncService
 
         $product = $this->resolveTreatmentProduct($order);
 
-        if (! $product || (! $order->beautician_id && ! $order->appointment_date)) {
+        if (! $product || (! $order->beautician_id && ! $order->appointment_date && $order->schedule_status !== 'tba')) {
             $this->removeBookingForOrder($order);
 
             return null;
@@ -44,6 +44,7 @@ class BookingSyncService
             'customer_email' => $order->customer_email,
             'appointment_date' => $order->appointment_date,
             'appointment_time' => $order->appointment_time,
+            'schedule_status' => $order->schedule_status,
             'total' => $order->total->amount(),
             'currency' => $order->currency,
             'notes' => $order->note,

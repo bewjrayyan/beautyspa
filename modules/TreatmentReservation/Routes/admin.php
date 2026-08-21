@@ -104,6 +104,18 @@ Route::get('treatment-reservations/export/pdf', [
     'middleware' => 'can:admin.treatment_reservations.index',
 ]);
 
+Route::get('treatment-reservations/tba', [
+    'as' => 'admin.treatment_reservations.tba.index',
+    'uses' => 'ReservationController@listTba',
+    'middleware' => 'can:admin.treatment_reservations.index',
+]);
+
+Route::patch('treatment-reservations/{id}/schedule', [
+    'as' => 'admin.treatment_reservations.tba.schedule',
+    'uses' => 'ReservationController@scheduleTba',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
 Route::patch('treatment-reservations/{id}/status', [
     'as' => 'admin.treatment_reservations.update_status',
     'uses' => 'ReservationController@updateStatus',
@@ -175,6 +187,16 @@ Route::middleware(['beautician.portal'])->group(function () {
     Route::patch('my/dashboard/specialist-availability', [
         'as' => 'admin.treatment_reservations.portal.specialist_availability',
         'uses' => 'PortalController@toggleOwnAvailability',
+    ]);
+
+    Route::get('my/job-sheet/tba', [
+        'as' => 'admin.treatment_reservations.portal.tba.index',
+        'uses' => 'PortalController@listTba',
+    ]);
+
+    Route::patch('my/job-sheet/{id}/schedule', [
+        'as' => 'admin.treatment_reservations.portal.tba.schedule',
+        'uses' => 'PortalController@scheduleTba',
     ]);
 
     Route::post('my/job-sheet/{id}/reminder', [

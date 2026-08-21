@@ -16,6 +16,8 @@
     $inProgressCount = (int) ($kpis['inProgress'] ?? 0);
     $completedCount = (int) ($kpis['completed'] ?? 0);
     $todayCount = (int) ($kpis['today'] ?? 0);
+    $tbaCount = (int) ($dashboardData['tbaCount'] ?? $kpis['tba'] ?? 0);
+    $tbaBookings = $dashboardData['tbaBookings'] ?? [];
     $queueCount = count($pipeline['all'] ?? []);
 
     $kpiBookingsLabel = match ($dateFilter) {
@@ -58,6 +60,10 @@
     data-agenda-beautician-notes-label="{{ TrLang::trans('admin.crm.agenda_beautician_notes') }}"
     data-agenda-view-order="{{ TrLang::trans('admin.crm.action_view_order') }}"
     data-agenda-reschedule="{{ TrLang::trans('admin.crm.action_reschedule') }}"
+    data-tba-schedule-url="{{ route('admin.treatment_reservations.tba.schedule', ['id' => '__ID__']) }}"
+    data-tba-slots-url="{{ route('admin.treatment_reservations.manual_bookings.slots') }}"
+    data-tba-schedule-label="{{ TrLang::trans('admin.tba.schedule') }}"
+    data-tba-badge="{{ TrLang::trans('admin.tba.badge') }}"
     data-agenda-edit-manual="{{ TrLang::trans('admin.manual_booking.edit_title') }}"
     data-agenda-whatsapp="{{ TrLang::trans('admin.crm.action_whatsapp') }}"
     data-agenda-whatsapp-sending="{{ TrLang::trans('admin.calendar.preview_whatsapp_sending') }}"
@@ -128,7 +134,34 @@
     </div>
 
     <div class="tr-crm-dashboard__pipeline-wrap">
-        @include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
+        
+    @if (! $pipelineOnly && ($tbaCount > 0 || ! empty($tbaBookings)))
+        <section class="tr-crm-panel tr-crm-tba-panel" aria-label="{{ TrLang::trans('admin.tba.title') }}">
+            <header class="tr-crm-panel__head">
+                <h3 class="tr-crm-panel__title">{{ TrLang::trans('admin.tba.title') }} <span class="badge">{{ $tbaCount }}</span></h3>
+            </header>
+            <div class="tr-crm-tba-list">
+                @forelse ($tbaBookings as $tba)
+                    <article class="tr-crm-tba-item" data-tba-booking-id="{{ $tba['id'] ?? '' }}" data-tba-beautician-id="{{ $tba['beautician_id'] ?? '' }}">
+                        <div>
+                            <strong>{{ $tba['customer_name'] ?? trim(($tba['customer_first_name'] ?? '').' '.($tba['customer_last_name'] ?? '')) }}</strong>
+                            <span>{{ $tba['product_name'] ?? '—' }}</span>
+                            <span>{{ $tba['beautician_name'] ?? '—' }} · {{ TrLang::trans('admin.tba.badge') }}</span>
+                        </div>
+                        @if ($crmCanEdit && ! empty($tba['can_schedule_tba']))
+                            <button type="button" class="btn btn-primary btn-sm" data-tba-schedule data-booking-id="{{ $tba['id'] }}" data-beautician-id="{{ $tba['beautician_id'] }}">
+                                {{ TrLang::trans('admin.tba.schedule') }}
+                            </button>
+                        @endif
+                    </article>
+                @empty
+                    <p class="text-muted">{{ TrLang::trans('admin.tba.empty') }}</p>
+                @endforelse
+            </div>
+        </section>
+    @endif
+
+@include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
             'pipeline' => $pipeline,
             'filterDateLabel' => $filterDateLabel,
             'dateFilter' => $dateFilter,

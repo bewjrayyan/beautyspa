@@ -33,7 +33,8 @@
         data-cal-preview-consultation-failed="{{ trans('account::consultation.request.failed') }}"
         data-initial-bookings='@json($todayBookingsPayload)'
         data-initial-month="{{ now()->format('Y-m') }}"
-        data-initial-beautician="{{ $beautician->id }}"
+        data-initial-beautician=""
+        data-portal-beautician-id="{{ $beautician->id }}"
         data-cal-empty-label="{{ trans('treatmentreservation::admin.calendar.no_bookings') }}"
         data-cal-preview-date="{{ trans('treatmentreservation::admin.calendar.preview_date') }}"
         data-cal-preview-time="{{ trans('treatmentreservation::admin.calendar.preview_time') }}"
@@ -57,6 +58,9 @@
         data-cal-status-in-progress="{{ trans('treatmentreservation::admin.kanban.in_progress') }}"
         data-cal-status-completed="{{ trans('treatmentreservation::admin.kanban.completed') }}"
         data-cal-preview-edit-manual="{{ trans('treatmentreservation::admin.manual_booking.edit_title') }}"
+        data-cal-preview-schedule-tba="{{ trans('treatmentreservation::admin.tba.schedule') }}"
+        data-tba-schedule-url="{{ route('admin.treatment_reservations.portal.tba.schedule', ['id' => '__ID__']) }}"
+        data-tba-slots-url="{{ route('admin.treatment_reservations.portal.manual_bookings.slots') }}"
         data-cal-preview-cancel-manual="{{ trans('treatmentreservation::admin.manual_booking.cancel') }}"
         data-cal-preview-cancel-manual-confirm="{{ trans('treatmentreservation::admin.manual_booking.cancel_confirm') }}"
         data-cal-preview-cancel-manual-success="{{ trans('treatmentreservation::admin.manual_booking.canceled') }}"
@@ -158,8 +162,11 @@
                     @else
                         <ul class="tr-portal-today__list">
                             @foreach ($todayAppointments as $appointment)
+                                @php
+                                    $isOwnAppointment = (int) $appointment->beautician_id === (int) $beautician->id;
+                                @endphp
                                 <li
-                                    class="tr-portal-today__item tr-portal-today__item--clickable tr-portal-today__item--{{ $appointment->status }}"
+                                    class="tr-portal-today__item tr-portal-today__item--{{ $appointment->status }} tr-portal-today__item--clickable{{ $isOwnAppointment ? '' : ' tr-portal-today__item--others' }}"
                                     data-booking-id="{{ $appointment->id }}"
                                     role="button"
                                     tabindex="0"
@@ -168,6 +175,9 @@
                                     <div class="tr-portal-today__body">
                                         <strong>{{ $appointment->customer_full_name }}</strong>
                                         <span>{{ $appointment->product?->name }}</span>
+                                        @if (! $isOwnAppointment && $appointment->beautician)
+                                            <em class="tr-portal-today__beautician">{{ $appointment->beautician->name }}</em>
+                                        @endif
                                     </div>
                                     <span class="tr-portal-today__status">{{ trans('treatmentreservation::admin.kanban.' . $appointment->status) }}</span>
                                 </li>

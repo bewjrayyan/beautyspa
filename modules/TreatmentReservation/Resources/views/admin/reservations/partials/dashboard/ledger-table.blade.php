@@ -29,22 +29,32 @@
             </thead>
             <tbody data-crm-list>
                 @forelse ($ledger as $row)
+                    @php
+                        $canOpenDetail = ! array_key_exists('can_open_detail', $row) || ! empty($row['can_open_detail']);
+                    @endphp
                     <tr
-                        class="tr-crm-ledger__row tr-crm-ledger__row--clickable"
+                        class="tr-crm-ledger__row{{ $canOpenDetail ? ' tr-crm-ledger__row--clickable' : ' tr-crm-ledger__row--readonly' }}"
                         data-booking-id="{{ $row['id'] ?? '' }}"
+                        data-own-booking="{{ $canOpenDetail ? '1' : '0' }}"
                         data-search="{{ strtolower(($row['customer_name'] ?? '') . ' ' . ($row['customer_phone'] ?? '') . ' ' . ($row['customer_email'] ?? '') . ' ' . ($row['treatment_name'] ?? '') . ' ' . ($row['appointment_date_short'] ?? $row['appointment_date'] ?? '') . ' ' . ($row['appointment_time'] ?? '') . ' ' . ($row['beautician_name'] ?? '') . ' ' . ($row['status_label'] ?? '') . ' ' . ($row['total_formatted'] ?? '') . ' ' . ($row['id'] ?? '')) }}"
-                        role="button"
-                        tabindex="0"
-                        aria-label="{{ ($row['customer_name'] ?? TrLang::trans('admin.crm.ledger_unknown_client')) . ', ' . ($row['treatment_name'] ?? TrLang::trans('admin.crm.ledger_unknown_treatment')) }}"
+                        @if ($canOpenDetail)
+                            role="button"
+                            tabindex="0"
+                            aria-label="{{ ($row['customer_name'] ?? TrLang::trans('admin.crm.ledger_unknown_client')) . ', ' . ($row['treatment_name'] ?? TrLang::trans('admin.crm.ledger_unknown_treatment')) }}"
+                        @endif
                     >
                         <td class="tr-crm-ledger__cell tr-crm-ledger__cell--client">
-                            <button
-                                type="button"
-                                class="tr-crm-ledger__customer-link"
-                                data-customer-profile
-                                data-booking-id="{{ $row['id'] ?? '' }}"
-                                onclick="event.stopPropagation()"
-                            >{{ $row['customer_name'] ?? TrLang::trans('admin.crm.ledger_unknown_client') }}</button>
+                            @if ($canOpenDetail)
+                                <button
+                                    type="button"
+                                    class="tr-crm-ledger__customer-link"
+                                    data-customer-profile
+                                    data-booking-id="{{ $row['id'] ?? '' }}"
+                                    onclick="event.stopPropagation()"
+                                >{{ $row['customer_name'] ?? TrLang::trans('admin.crm.ledger_unknown_client') }}</button>
+                            @else
+                                <span class="tr-crm-ledger__customer-name">{{ $row['customer_name'] ?? TrLang::trans('admin.crm.ledger_unknown_client') }}</span>
+                            @endif
                         </td>
                         <td class="tr-crm-ledger__cell tr-crm-ledger__cell--appointment">
                             <span class="tr-crm-ledger__treatment-name">{{ $row['treatment_name'] ?? TrLang::trans('admin.crm.ledger_unknown_treatment') }}</span>

@@ -86,7 +86,53 @@ function beauticianAvatarMarkup(booking, sizeClass) {
     return `<span class="${classes}" style="background-color:${escapeHtml(color)};box-shadow:0 0 0 2px ${hexToRgba(color, 0.35)}" title="${escapeHtml(name)}">${initial}</span>`;
 }
 
-export function buildCalendarEventHtml(booking, { showBeautician = true } = {}) {
+export function bookingIsOwnForPortal(booking, portalBeauticianId = null) {
+    if (!portalBeauticianId) {
+        return true;
+    }
+
+    if (typeof booking?.is_own_booking === "boolean") {
+        return booking.is_own_booking;
+    }
+
+    if (booking?.beautician_id == null || booking?.beautician_id === "") {
+        return true;
+    }
+
+    return String(booking.beautician_id) === String(portalBeauticianId);
+}
+
+export function bookingAllowsDetail(booking, portalBeauticianId = null) {
+    if (!portalBeauticianId) {
+        return true;
+    }
+
+    if (typeof booking?.can_open_detail === "boolean") {
+        return booking.can_open_detail;
+    }
+
+    // Fallback for payloads without can_open_detail: own bookings only.
+    return bookingIsOwnForPortal(booking, portalBeauticianId);
+}
+
+function previewOptionsForBooking(booking, options = {}) {
+    if (bookingIsOwnForPortal(booking, options.portalBeauticianId || null)) {
+        return options;
+    }
+
+    return {
+        ...options,
+        allowBeauticianNotes: false,
+        canSendNotifications: false,
+        crmCanEdit: false,
+        portalGenericWhatsApp: false,
+        consultationUrlTemplate: "",
+        manualBookingEditEnabled: false,
+        tbaScheduleEnabled: false,
+    };
+}
+
+export function buildCalendarEventHtml(booking, { showBeautician = true, clickable = true, isOwn = true } = {}) {
     const status = calendarStatusClass(booking.status);
     const color = booking.beautician_color || "#6366f1";
     const treatment = escapeHtml(booking.treatment_name || "Treatment");
@@ -95,9 +141,17 @@ export function buildCalendarEventHtml(booking, { showBeautician = true } = {}) 
     const beauticianRow = showBeautician && booking.beautician_name
         ? `<span class="tr-cal-event-beautician">${beauticianAvatarMarkup(booking, "tr-beautician-avatar--xs")}<span class="tr-cal-event-beautician-name">${escapeHtml(booking.beautician_name)}</span></span>`
         : "";
+    const classes = [
+        "tr-cal-event",
+        clickable ? "tr-cal-event--clickable" : "",
+        !isOwn ? "tr-cal-event--others" : "",
+    ].filter(Boolean).join(" ");
+    const clickAttrs = clickable
+        ? ` class="${classes}" role="button" tabindex="0"`
+        : ` class="${classes}"`;
 
     return `
-        <div class="tr-cal-event tr-cal-event--clickable" data-booking-id="${escapeHtml(booking.id)}" data-status="${status}" role="button" tabindex="0" style="--tr-beautician-color:${escapeHtml(color)};border-left-color:${escapeHtml(color)};background:${hexToRgba(color, 0.12)};border-color:${hexToRgba(color, 0.28)}">
+        <div${clickAttrs} data-booking-id="${escapeHtml(booking.id)}" data-status="${status}" style="--tr-beautician-color:${escapeHtml(color)};border-left-color:${escapeHtml(color)};background:${hexToRgba(color, 0.12)};border-color:${hexToRgba(color, 0.28)}">
             <div class="tr-cal-event-top">
                 <span class="tr-cal-event-time">${time}</span>
                 <span class="tr-cal-event-status-dot tr-cal-event-status-dot--${status}" title="${status.replace("_", " ")}"></span>
@@ -206,19 +260,23 @@ function getCalendarEventPreviewOverlay() {
     return overlay;
 }
 
-function previewField(label, value, { href = "", full = false, muted = false } = {}) {
+function previewField(label, value, { href = "", full = false, muted = false, blurred = false } = {}) {
     if (! value) {
         return "";
     }
 
-    const valueHtml = href
+    const valueHtml = href && !blurred
         ? `<a href="${escapeHtml(href)}" class="tr-calendar-event-preview__field-link">${escapeHtml(value)}</a>`
         : escapeHtml(value);
+    const valueClass = [
+        "tr-calendar-event-preview__field-value",
+        blurred ? "tr-calendar-event-preview__field-value--blurred" : "",
+    ].filter(Boolean).join(" ");
 
     return `
-        <div class="tr-calendar-event-preview__field${full ? " tr-calendar-event-preview__field--full" : ""}${muted ? " tr-calendar-event-preview__field--muted" : ""}">
+        <div class="tr-calendar-event-preview__field${full ? " tr-calendar-event-preview__field--full" : ""}${muted ? " tr-calendar-event-preview__field--muted" : ""}${blurred ? " tr-calendar-event-preview__field--blurred" : ""}">
             <span class="tr-calendar-event-preview__field-label">${escapeHtml(label)}</span>
-            <span class="tr-calendar-event-preview__field-value">${valueHtml}</span>
+            <span class="${valueClass}"${blurred ? ' aria-hidden="true"' : ""}>${valueHtml}</span>
         </div>
     `;
 }
@@ -348,13 +406,24 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
         </div>
     `);
 
+    const blurContact = typeof booking.blur_customer_contact === "boolean"
+        ? booking.blur_customer_contact
+        : (booking.blur_customer_contact === 1 || booking.blur_customer_contact === "1")
+            ? true
+            : !bookingIsOwnForPortal(booking, options.portalBeauticianId || null);
+
     const customerSection = previewSection(labels.sectionCustomer || "Customer", `
         <div class="tr-calendar-event-preview__grid">
             ${previewField(labels.customer, booking.customer_name || "—", { full: true })}
             ${previewField(labels.phone, booking.customer_phone || "", {
-                href: booking.customer_phone ? `tel:${booking.customer_phone.replace(/[^\d+]/g, "")}` : "",
+                href: !blurContact && booking.customer_phone
+                    ? `tel:${booking.customer_phone.replace(/[^\d+]/g, "")}`
+                    : "",
+                blurred: Boolean(blurContact && booking.customer_phone),
             })}
-            ${previewField(labels.email, booking.customer_email || "")}
+            ${previewField(labels.email, booking.customer_email || "", {
+                blurred: Boolean(blurContact && booking.customer_email),
+            })}
         </div>
         ${insightChips ? `<div class="tr-calendar-event-preview__chip-row">${insightChips}</div>` : ""}
     `);
@@ -443,7 +512,7 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 `data-send-consultation data-booking-id="${escapeHtml(String(booking.id))}"`
             )
             : "",
-        (booking.customer_phone || booking.id)
+        (bookingIsOwnForPortal(booking, options.portalBeauticianId || null) && (booking.customer_phone || booking.id))
             ? previewActionButton(
                 "tr-calendar-event-preview__profile tr-calendar-event-preview__action-btn--ghost",
                 `<i class="fa fa-user" aria-hidden="true"></i><span>${escapeHtml(labels.viewProfile || "View profile")}</span>`,
@@ -476,6 +545,13 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 "tr-calendar-event-preview__reschedule tr-calendar-event-preview__action-btn--ghost",
                 `<i class="fa fa-calendar" aria-hidden="true"></i><span>${escapeHtml(labels.reschedule || "Reschedule")}</span>`,
                 `data-preview-reschedule data-booking-id="${escapeHtml(String(booking.id))}"`
+            )
+            : "",
+        booking.can_schedule_tba && options.tbaScheduleEnabled !== false
+            ? previewActionButton(
+                "tr-calendar-event-preview__schedule-tba tr-calendar-event-preview__action-btn--primary",
+                `<i class="fa fa-calendar-plus-o" aria-hidden="true"></i><span>${escapeHtml(labels.scheduleTba || "Schedule slot")}</span>`,
+                `data-tba-schedule data-booking-id="${escapeHtml(String(booking.id))}" data-beautician-id="${escapeHtml(String(booking.beautician_id || ""))}"`
             )
             : "",
         booking.can_edit_manual && options.manualBookingEditEnabled
@@ -534,8 +610,16 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
 }
 
 export function openCalendarEventPreview(booking, labels, options = {}) {
-    previewLabels = labels;
-    previewOptions = options;
+    if (labels) {
+        previewLabels = labels;
+    }
+
+    // Prefer the original init options so a read-only open does not permanently
+    // strip actions for subsequent own-booking opens/refreshes.
+    const baseOptions = Object.keys(previewOptionsBase || {}).length
+        ? previewOptionsBase
+        : options;
+    previewOptions = previewOptionsForBooking(booking, baseOptions);
 
     const overlay = getCalendarEventPreviewOverlay();
     const eyebrow = overlay.querySelector("#tr-calendar-event-preview-eyebrow");
@@ -544,7 +628,7 @@ export function openCalendarEventPreview(booking, labels, options = {}) {
     const timeRange = (booking.appointment_time_range || booking.time || booking.appointment_time || "").trim();
 
     if (eyebrow) {
-        eyebrow.textContent = labels.previewTitle || "Appointment details";
+        eyebrow.textContent = previewLabels.previewTitle || "Appointment details";
     }
 
     if (title) {
@@ -557,8 +641,8 @@ export function openCalendarEventPreview(booking, labels, options = {}) {
 
     overlay.querySelector(".tr-calendar-event-preview__body").innerHTML = buildCalendarEventPreviewHtml(
         booking,
-        labels,
-        options
+        previewLabels,
+        previewOptions
     );
     overlay.hidden = false;
     overlay.setAttribute("aria-hidden", "false");
@@ -587,10 +671,11 @@ export function upsertBooking(booking) {
 
 let calendarEventPreviewReady = false;
 let previewResolveBooking = null;
+let previewOptionsBase = {};
 
 function findClickableBookingTarget(target) {
     return target.closest(
-        ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable, .tr-crm-appointment, .tr-crm-ledger__row--clickable, .tr-crm-drawer-booking, .tr-crm-agenda-card__compact"
+        ".tr-cal-event--clickable, .tr-kanban-card--clickable, .tr-portal-today__item--clickable, .tr-crm-appointment--clickable, .tr-crm-ledger__row--clickable, .tr-crm-drawer-booking--clickable, .tr-crm-agenda-card__compact--clickable"
     );
 }
 
@@ -608,6 +693,10 @@ function openBookingPreviewFromElement(element) {
     const booking = previewResolveBooking(bookingId);
 
     if (!booking) {
+        return;
+    }
+
+    if (!bookingAllowsDetail(booking, previewOptions.portalBeauticianId || null)) {
         return;
     }
 
@@ -889,6 +978,7 @@ async function saveBeauticianNotes(button) {
 export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
     previewResolveBooking = resolveBooking;
     previewLabels = labels;
+    previewOptionsBase = options;
     previewOptions = options;
 
     if (calendarEventPreviewReady) {

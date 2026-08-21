@@ -17,6 +17,8 @@ use Modules\TreatmentReservation\Services\ReservationDashboardService;
 use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
 use Modules\TreatmentReservation\Services\BeauticianAppointmentReminderService;
 use Modules\TreatmentReservation\Services\BookingCustomerWhatsAppService;
+use Modules\TreatmentReservation\Services\ScheduleTbaBookingService;
+use Modules\TreatmentReservation\Http\Requests\ScheduleTbaBookingRequest;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
 use Modules\TreatmentReservation\Services\ManualBookingProductCatalogService;
 use Modules\TreatmentReservation\Services\TreatmentBookingsReportService;
@@ -437,6 +439,46 @@ class ReservationController extends Controller
         ]);
     }
 
+
+
+
+    public function listTba(Request $request): JsonResponse
+    {
+        $bookings = TreatmentBooking::query()
+            ->withActiveOrder()
+            ->withTreatmentProduct()
+            ->with(['beautician.files', 'product', 'category', 'order'])
+            ->tbaSchedule()
+            ->when($request->integer('beautician_id') ?: null, fn ($q, $id) => $q->where('beautician_id', $id))
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get()
+            ->map(fn (TreatmentBooking $booking) => $booking->appendAdminPayload($booking->toKanbanPayload()));
+
+        return response()->json(['bookings' => $bookings]);
+    }
+
+
+    public function scheduleTba(ScheduleTbaBookingRequest $request, int $id, ScheduleTbaBookingService $scheduler): JsonResponse
+    {
+        $booking = TreatmentBooking::query()->findOrFail($id);
+
+        try {
+            $updated = $scheduler->schedule(
+                $booking,
+                $request->validated(),
+                $request->user(),
+                $request->boolean('notify_customer', true),
+            );
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => trans('treatmentreservation::admin.tba.scheduled'),
+            'booking' => $updated->appendAdminPayload($updated->toKanbanPayload()),
+        ]);
+    }
 
     public function sendCustomerWhatsApp(Request $request, int $id, BookingCustomerWhatsAppService $whatsapp): JsonResponse
     {

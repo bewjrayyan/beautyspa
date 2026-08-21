@@ -3,7 +3,9 @@
     $lockedBeautician = $lockedBeautician ?? null;
     $allowBeauticianSelect = ! empty($allowBeauticianSelect);
     $defaultBeauticianId = $defaultBeauticianId ?? $lockedBeautician?->id;
-    $showBeauticianSelect = ! $portalMode || $allowBeauticianSelect;
+    // Portal mode locks to the logged-in beautician unless select is explicitly allowed.
+    // Fall back to picker if lock object was omitted (avoids null->id crash).
+    $showBeauticianSelect = (! $portalMode || $allowBeauticianSelect) || ! $lockedBeautician;
     $scheduleColumnClass = $showBeauticianSelect ? 'col-md-6' : 'col-md-12';
     $selectScheduleMessage = $portalMode
         ? ($showBeauticianSelect
@@ -39,6 +41,15 @@
     $cancelUrlTemplate = $cancelUrlTemplate ?? null;
 @endphp
 
+<style>
+.tr-manual-booking-schedule-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
+.tr-manual-booking-schedule-option { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 12px 14px; border: 1.5px solid #d9c7cf; border-radius: 12px; background: #fff; cursor: pointer; font-size: 13px; line-height: 1.35; color: #413648; font-weight: 500; }
+.tr-manual-booking-schedule-option:has(input:checked) { border-color: #f274ac; background: #fff4f8; color: #6f2948; font-weight: 600; }
+.tr-manual-booking-schedule-option input { margin-top: 2px; accent-color: #f274ac; }
+.tr-manual-booking-modal.is-tba .tr-manual-booking-datetime-fields { display: none !important; }
+@media (max-width: 767px) { .tr-manual-booking-schedule-toggle { grid-template-columns: 1fr; } }
+</style>
+
 <div
     class="modal fade tr-manual-booking-modal{{ $portalMode ? ' tr-manual-booking-modal--portal' : '' }}"
     id="{{ $modalId }}"
@@ -63,6 +74,9 @@
     data-loading-slots="{{ trans('treatmentreservation::admin.manual_booking.loading_slots') }}"
     data-no-slots="{{ trans('treatmentreservation::admin.manual_booking.no_slots') }}"
     data-slot-required="{{ trans('treatmentreservation::admin.manual_booking.slot_required') }}"
+    data-schedule-now="{{ trans('treatmentreservation::admin.manual_booking.schedule_now') }}"
+    data-schedule-later="{{ trans('treatmentreservation::admin.manual_booking.schedule_later_tba') }}"
+    data-schedule-later-help="{{ trans('treatmentreservation::admin.manual_booking.schedule_later_help') }}"
     data-saving="{{ trans('treatmentreservation::admin.manual_booking.saving') }}"
     data-save="{{ trans('treatmentreservation::admin.manual_booking.save') }}"
     data-edit-title="{{ trans('treatmentreservation::admin.manual_booking.edit_title') }}"
@@ -146,6 +160,23 @@
                             </div>
                         </header>
 
+                        <div class="form-group tr-manual-booking-field tr-manual-booking-schedule-mode">
+                            <div class="tr-manual-booking-schedule-toggle" role="group" aria-label="{{ trans('treatmentreservation::admin.manual_booking.schedule_mode') }}">
+                                <label class="tr-manual-booking-schedule-option">
+                                    <input type="radio" name="schedule_later" value="1" checked>
+                                    <span>{{ trans('treatmentreservation::admin.manual_booking.schedule_later_tba') }}</span>
+                                </label>
+                                <label class="tr-manual-booking-schedule-option">
+                                    <input type="radio" name="schedule_later" value="0">
+                                    <span>{{ trans('treatmentreservation::admin.manual_booking.schedule_now') }}</span>
+                                </label>
+                            </div>
+                            <p class="help-block tr-manual-booking-schedule-later-help" hidden>
+                                {{ trans('treatmentreservation::admin.manual_booking.schedule_later_help') }}
+                            </p>
+                        </div>
+
+
                         <div class="row">
                             <div class="{{ $scheduleColumnClass }}">
                                 <div class="form-group tr-manual-booking-field">
@@ -162,11 +193,11 @@
                                             'placeholderHint' => trans('treatmentreservation::admin.manual_booking.select_beautician_hint'),
                                         ])
                                     @else
-                                        <input type="hidden" name="beautician_id" id="{{ $beauticianFieldId }}" value="{{ $lockedBeautician->id }}">
+                                        <input type="hidden" name="beautician_id" id="{{ $beauticianFieldId }}" value="{{ $lockedBeautician->id ?? $defaultBeauticianId }}">
                                         <p class="tr-manual-booking-locked-beautician">
                                             <i class="fa fa-user-md"></i>
                                             {{ $lockedBeautician->name }}
-                                            @if ($lockedBeautician->job_title)
+                                            @if (! empty($lockedBeautician->job_title))
                                                 <span>· {{ $lockedBeautician->job_title }}</span>
                                             @endif
                                         </p>
@@ -174,7 +205,7 @@
                                 </div>
                             </div>
 
-                            <div class="{{ $scheduleColumnClass }}">
+                            <div class="{{ $scheduleColumnClass }} tr-manual-booking-datetime-fields">
                                 <div class="form-group tr-manual-booking-field">
                                     <label for="{{ $dateFieldId }}">
                                         {{ trans('treatmentreservation::admin.manual_booking.appointment_date') }}
@@ -190,14 +221,13 @@
                                             placeholder="{{ trans('treatmentreservation::admin.manual_booking.appointment_date_placeholder') }}"
                                             autocomplete="off"
                                             readonly
-                                            required
                                         >
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group tr-manual-booking-field tr-manual-booking-field--slots">
+                        <div class="form-group tr-manual-booking-field tr-manual-booking-field--slots tr-manual-booking-datetime-fields">
                             <div class="tr-manual-booking-field__label-row">
                                 <label>{{ trans('treatmentreservation::admin.manual_booking.appointment_time') }}</label>
                                 <span class="tr-manual-booking-field__hint">

@@ -167,9 +167,52 @@ function bindManualBookingModal(modal) {
     const updateUrlTemplate = modal.dataset.updateUrlTemplate || "";
     const productCatalog = readProductCatalog(form);
     const productPicker = initManualBookingProducts(form, productCatalog);
+    const scheduleLaterHelp = form.querySelector(".tr-manual-booking-schedule-later-help");
     let slotsRequestId = 0;
     let lookupRequestId = 0;
     let suppressCustomerLookup = false;
+
+    const isScheduleLater = () => {
+        const checked = form.querySelector('[name="schedule_later"]:checked');
+
+        return checked?.value === "1";
+    };
+
+    const setScheduleLater = (enabled) => {
+        const value = enabled ? "1" : "0";
+        const radio = form.querySelector(`[name="schedule_later"][value="${value}"]`);
+
+        if (radio) {
+            radio.checked = true;
+        }
+
+        applyScheduleMode();
+    };
+
+    const applyScheduleMode = () => {
+        const tba = isScheduleLater();
+
+        modal.classList.toggle("is-tba", tba);
+
+        if (dateInput) {
+            dateInput.required = !tba;
+            dateInput.disabled = tba;
+        }
+
+        if (scheduleLaterHelp) {
+            scheduleLaterHelp.hidden = !tba;
+        }
+
+        if (tba) {
+            clearAppointmentDate(dateInput);
+            clearSelectedSlot();
+            renderSlotsMessage(modal.dataset.scheduleLaterHelp || "Schedule later (TBA)");
+        } else if (!dateInput?.value || !resolveBeauticianId()) {
+            renderSlotsMessage(modal.dataset.selectSchedule || "Select beautician and date first");
+        } else {
+            loadSlots();
+        }
+    };
 
     const setError = (message = "") => {
         if (!errorBox) {
@@ -303,6 +346,12 @@ function bindManualBookingModal(modal) {
     };
 
     const loadSlots = async (selectedSlot = timeInput?.value || "") => {
+        if (isScheduleLater()) {
+            renderSlotsMessage(modal.dataset.scheduleLaterHelp || "Schedule later (TBA)");
+
+            return;
+        }
+
         const beauticianId = resolveBeauticianId();
         const date = dateInput?.value;
 
@@ -547,9 +596,9 @@ function bindManualBookingModal(modal) {
         clearPhoneInput(phoneInput);
         productPicker?.reset();
         clearSelectedSlot();
+        setScheduleLater(true);
         setError("");
         hideCustomerLookup();
-        renderSlotsMessage(modal.dataset.selectSchedule || "Select beautician and date first");
         window.setTimeout(() => {
             suppressCustomerLookup = false;
         }, 0);
@@ -565,7 +614,10 @@ function bindManualBookingModal(modal) {
             beauticianField.value = String(booking.beautician_id);
         }
 
-        if (dateInput && booking.appointment_date_value) {
+        const bookingIsTba = Boolean(booking.is_tba || booking.schedule_status === "tba");
+        setScheduleLater(bookingIsTba);
+
+        if (!bookingIsTba && dateInput && booking.appointment_date_value) {
             setAppointmentDate(dateInput, booking.appointment_date_value);
         }
 
@@ -593,13 +645,16 @@ function bindManualBookingModal(modal) {
             notesInput.value = booking.notes || "";
         }
 
-        if (timeInput && booking.appointment_time) {
+        if (!bookingIsTba && timeInput && booking.appointment_time) {
             timeInput.value = booking.appointment_time;
         }
 
         setError("");
         hideCustomerLookup();
-        loadSlots(booking.appointment_time || "");
+
+        if (!bookingIsTba) {
+            loadSlots(booking.appointment_time || "");
+        }
         window.setTimeout(() => {
             suppressCustomerLookup = false;
         }, 0);
@@ -622,6 +677,12 @@ function bindManualBookingModal(modal) {
         dateInput?.addEventListener("change", () => loadSlots());
     }
 
+    form.querySelectorAll('[name="schedule_later"]').forEach((radio) => {
+        radio.addEventListener("change", () => applyScheduleMode());
+    });
+
+    applyScheduleMode();
+
     bindCustomerLookupField(firstNameInput, "customer_first_name");
     bindCustomerLookupField(lastNameInput, "customer_last_name");
     bindCustomerLookupField(emailInput, "customer_email");
@@ -634,7 +695,7 @@ function bindManualBookingModal(modal) {
         event.preventDefault();
         setError("");
 
-        if (!timeInput?.value) {
+        if (!isScheduleLater() && !timeInput?.value) {
             setError(modal.dataset.slotRequired || "Please select a time slot");
 
             return;
@@ -660,6 +721,14 @@ function bindManualBookingModal(modal) {
 
         const formData = new FormData(form);
         productPicker?.appendToFormData(formData);
+
+        if (isScheduleLater()) {
+            formData.set("schedule_later", "1");
+            formData.set("appointment_date", "");
+            formData.set("appointment_time", "");
+        } else {
+            formData.set("schedule_later", "0");
+        }
         const editing = isEditMode();
         const bookingId = bookingIdInput?.value || "";
 

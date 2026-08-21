@@ -48,11 +48,19 @@ class ReservationDashboardService
         string $dateFilter = 'today',
         ?array $urgency = null,
         ?string $customFilterDate = null,
+        ?int $portalViewerBeauticianId = null,
     ): array {
         $filterDate = $this->resolveFilterDate($dateFilter, $customFilterDate);
         $dateKpis = $this->dateKpis($beauticianId, $categoryId, $spaBranchId, $filterDate);
         $pipeline = $this->pipelineForDate($beauticianId, $categoryId, $spaBranchId, $filterDate);
         $ledger = $this->ledgerAll($beauticianId, $categoryId, $spaBranchId);
+        $tbaBookings = $this->tbaBookings($beauticianId, $categoryId, $spaBranchId);
+
+        if ($portalViewerBeauticianId) {
+            $pipeline = $this->scopePortalCrmGroup($pipeline, $portalViewerBeauticianId);
+            $ledger = $this->scopePortalCrmRows($ledger, $portalViewerBeauticianId);
+            $tbaBookings = $this->scopePortalCrmRows($tbaBookings, $portalViewerBeauticianId);
+        }
 
         return [
             'dateFilter' => $dateFilter,
@@ -69,6 +77,8 @@ class ReservationDashboardService
             'needsAttention' => collect($urgency['items'] ?? [])->take(6)->values()->all(),
             'beauticianWorkload' => $this->beauticianWorkload($beauticianId, $categoryId, $spaBranchId, $filterDate),
             'upcomingBookings' => $this->upcomingBookings($beauticianId, $categoryId, $spaBranchId),
+            'tbaBookings' => $tbaBookings,
+            'tbaCount' => $this->tbaCount($beauticianId, $categoryId, $spaBranchId),
         ];
     }
 
@@ -116,6 +126,7 @@ class ReservationDashboardService
                 'pending' => $stats['pending'],
                 'inProgress' => $stats['inProgress'],
                 'completed' => $stats['completed'],
+                'tba' => $this->tbaCount($beauticianId, $categoryId, $spaBranchId),
             ];
         }
 
@@ -541,6 +552,7 @@ class ReservationDashboardService
 
         return app(BookingCrmInsightService::class)->enrichPayload($booking, [
             'id' => $booking->id,
+            'beautician_id' => $booking->beautician_id,
             'status' => $booking->status,
             'status_label' => $this->ledgerStatusLabel($booking->status),
             'status_accent' => TreatmentBooking::statusAccentColor($booking->status),
@@ -757,4 +769,76 @@ class ReservationDashboardService
             ->where('beautician_id', $beauticianId)
             ->whereNot('status', TreatmentBooking::STATUS_CANCELED);
     }
+
+    public function tbaCount(?int $beauticianId = null, ?int $categoryId = null, ?int $spaBranchId = null): int
+    {
+        return $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
+            ->tbaSchedule()
+            ->count();
+    }
+
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function tbaBookings(?int $beauticianId = null, ?int $categoryId = null, ?int $spaBranchId = null): array
+    {
+        return $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
+            ->with(['beautician.files', 'product', 'category', 'order'])
+            ->tbaSchedule()
+            ->orderByDesc('id')
+            ->limit(40)
+            ->get()
+            ->map(fn (TreatmentBooking $booking) => $booking->appendAdminPayload($booking->toKanbanPayload()))
+            ->values()
+            ->all();
+    }
+
+
+
+    /**
+     * Today's active appointments (optionally scoped to one beautician).
+     *
+     * @return \Illuminate\Support\Collection<int, TreatmentBooking>
+     */
+    public function todayActiveAppointments(?int $beauticianId = null)
+    {
+        return $this->filteredBase($beauticianId)
+            ->with(['product', 'category', 'beautician.files'])
+            ->whereDate('appointment_date', today())
+            ->whereIn('status', [
+                TreatmentBooking::STATUS_PENDING,
+                TreatmentBooking::STATUS_IN_PROGRESS,
+            ])
+            ->orderBy('appointment_time')
+            ->get();
+    }
+
+
+    /**
+     * @param  array<string, array<int, array<string, mixed>>>  $group
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    private function scopePortalCrmGroup(array $group, int $viewerBeauticianId): array
+    {
+        foreach ($group as $key => $rows) {
+            $group[$key] = $this->scopePortalCrmRows($rows, $viewerBeauticianId);
+        }
+
+        return $group;
+    }
+
+
+    /**
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array<int, array<string, mixed>>
+     */
+    private function scopePortalCrmRows(array $rows, int $viewerBeauticianId): array
+    {
+        return array_map(
+            fn (array $row) => TreatmentBooking::applyPortalViewerScope($row, $viewerBeauticianId),
+            $rows
+        );
+    }
+
 }
