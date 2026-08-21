@@ -4,12 +4,16 @@ namespace Modules\Media\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+
 class ImageOptimizationService
 {
     /**
+     * Optimize an uploaded raster image: WebP conversion, optional edge cap, responsive variants.
+     *
+     * @param  int|null  $maxEdge  Cap longest side for the primary WebP (e.g. 800 for avatars).
      * @return array{path: string, extension: string, mime: string, size: int, responsive_paths: array<int, string>}
      */
-    public function processUploadedFile(UploadedFile $file, string $storedPath, string $diskName): array
+    public function processUploadedFile(UploadedFile $file, string $storedPath, string $diskName, ?int $maxEdge = null): array
     {
         $disk = Storage::disk($diskName);
         $absolutePath = $disk->path($storedPath);
@@ -29,12 +33,19 @@ class ImageOptimizationService
 
         $widths = config('performance.image.widths', [480, 960]);
         $quality = (int) config('performance.image.webp_quality', 82);
+        $fullMaxWidth = $maxEdge && $maxEdge > 0 ? $maxEdge : 9999;
 
         foreach ($widths as $width) {
-            $variantPath = $this->buildVariantPath($storedPath, (int) $width);
+            $targetWidth = (int) $width;
 
-            if ($this->writeWebpVariant($absolutePath, $disk->path($variantPath), (int) $width, $quality)) {
-                $responsivePaths[(int) $width] = $variantPath;
+            if ($maxEdge && $maxEdge > 0) {
+                $targetWidth = min($targetWidth, $maxEdge);
+            }
+
+            $variantPath = $this->buildVariantPath($storedPath, $targetWidth);
+
+            if ($this->writeWebpVariant($absolutePath, $disk->path($variantPath), $targetWidth, $quality)) {
+                $responsivePaths[$targetWidth] = $variantPath;
             }
         }
 
@@ -45,7 +56,7 @@ class ImageOptimizationService
         if (config('performance.image.webp_enabled', true) && function_exists('imagewebp')) {
             $webpPath = $this->buildVariantPath($storedPath, 'full');
 
-            if ($this->writeWebpVariant($absolutePath, $disk->path($webpPath), 9999, $quality)) {
+            if ($this->writeWebpVariant($absolutePath, $disk->path($webpPath), $fullMaxWidth, $quality)) {
                 if (config('performance.image.replace_original_with_webp', true)) {
                     $disk->delete($storedPath);
                     $mainPath = $webpPath;

@@ -103,6 +103,10 @@
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
             }
+
+            .beautician-registration__form-wrap {
+                padding-bottom: 96px;
+            }
         }
 
         .beautician-registration__story::before,
@@ -111,6 +115,7 @@
             content: "";
             border: 1px solid rgba(255, 255, 255, .14);
             border-radius: 50%;
+            pointer-events: none;
         }
 
         .beautician-registration__story::before {
@@ -265,23 +270,64 @@
         .beautician-registration__main {
             display: flex;
             min-width: 0;
-            padding: 54px clamp(34px, 6vw, 92px) 70px;
+            padding: 54px clamp(34px, 6vw, 92px) 0;
             justify-content: center;
+            align-items: flex-start;
         }
 
-        .beautician-registration__form-wrap { width: min(780px, 100%); }
+        .beautician-registration__form-wrap {
+            width: min(780px, 100%);
+            padding-bottom: 88px;
+        }
 
         .beautician-registration__topbar {
             display: flex;
+            position: relative;
+            z-index: 40;
             min-height: 44px;
             margin-bottom: 48px;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: space-between;
             gap: 20px;
+            overflow: visible;
         }
 
-        .beautician-registration__topbar .dropdown { z-index: 50; }
-        .beautician-registration__login { color: var(--beautician-plum); font-size: 14px; font-weight: 600; text-decoration: none; }
+        .beautician-registration__topbar .dropdown {
+            position: relative;
+            z-index: 50;
+            flex: 0 0 auto;
+        }
+
+        .beautician-registration__topbar .dropdown-menu {
+            top: calc(100% + 6px);
+            right: auto;
+            left: 0;
+            width: max-content;
+            min-width: 128px;
+            padding: 8px 0;
+        }
+
+        .beautician-registration__topbar .dropdown-item {
+            padding: 8px 14px;
+            font-size: 12px;
+            line-height: 1.3;
+            text-transform: none;
+        }
+
+        .beautician-registration__login {
+            position: relative;
+            z-index: 51;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 8px 2px;
+            color: var(--beautician-plum);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
 
         .beautician-registration__form-header { margin-bottom: 34px; }
         .beautician-registration__form-eyebrow { margin-bottom: 12px; color: var(--beautician-rose); }
@@ -401,7 +447,12 @@
         .beautician-registration__privacy input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--beautician-rose); }
         .beautician-registration__privacy a { color: var(--beautician-plum); font-weight: 600; }
 
-        .beautician-registration__actions { display: grid; gap: 14px; text-align: center; }
+        .beautician-registration__actions {
+            display: grid;
+            gap: 14px;
+            margin-bottom: 0;
+            text-align: center;
+        }
         .beautician-registration__actions .btn {
             display: inline-flex;
             width: 100%;
@@ -423,6 +474,86 @@
         .beautician-registration__actions > a { color: var(--beautician-plum); font-size: 14px; font-weight: 600; }
         .beautician-registration .help-block { display: block; margin-top: 7px; font-size: 12px; }
 
+
+        .beautician-registration__avatar-upload {
+            display: flex;
+            margin-bottom: 22px;
+            padding: 16px;
+            align-items: center;
+            gap: 18px;
+            background: #fbf7f9;
+            border: 1px dashed #c9b4be;
+            border-radius: 16px;
+        }
+
+        .beautician-registration__avatar-preview {
+            position: relative;
+            display: grid;
+            width: 88px;
+            height: 88px;
+            flex: 0 0 88px;
+            place-items: center;
+            overflow: hidden;
+            color: #fff;
+            background: linear-gradient(135deg, var(--beautician-rose), var(--beautician-plum));
+            border-radius: 50%;
+            box-shadow: 0 8px 20px rgba(111, 41, 72, .18);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .beautician-registration__avatar-preview img {
+            display: none;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .beautician-registration__avatar-preview.is-filled img { display: block; }
+        .beautician-registration__avatar-preview.is-filled span { display: none; }
+
+        .beautician-registration__avatar-copy { min-width: 0; flex: 1; }
+        .beautician-registration__avatar-copy strong { display: block; margin-bottom: 4px; color: var(--beautician-ink); font-size: 14px; }
+        .beautician-registration__avatar-copy p { margin: 0 0 12px; color: var(--beautician-muted); font-size: 13px; line-height: 1.45; }
+
+        .beautician-registration__avatar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .beautician-registration__avatar-btn {
+            display: inline-flex;
+            min-height: 40px;
+            padding: 8px 14px;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #fff;
+            background: linear-gradient(110deg, var(--beautician-plum), var(--beautician-rose));
+            border: 0;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .beautician-registration__avatar-clear {
+            display: none;
+            min-height: 40px;
+            padding: 8px 12px;
+            color: var(--beautician-plum);
+            background: transparent;
+            border: 1px solid #d8c5cd;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .beautician-registration__avatar-clear.is-visible { display: inline-flex; align-items: center; }
+        .beautician-registration__avatar-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+
         @media (max-width: 1180px) {
             .beautician-registration__shell { grid-template-columns: 38% minmax(0, 1fr); }
             .beautician-registration__story { padding: 42px 34px; }
@@ -442,10 +573,20 @@
                 min-height: 0;
                 max-height: none;
                 padding: 28px 24px 30px;
-                overflow: visible;
+                overflow: hidden;
                 overscroll-behavior: auto;
                 justify-content: flex-start;
                 gap: 20px;
+            }
+
+            .beautician-registration__main {
+                position: relative;
+                z-index: 5;
+                overflow: visible;
+            }
+
+            .beautician-registration__form-wrap {
+                overflow: visible;
             }
 
             .beautician-registration__story-content { margin-top: 0; }
@@ -460,10 +601,10 @@
                 letter-spacing: -.02em;
             }
             .beautician-registration__story-lead { font-size: 14px; line-height: 1.5; }
-            .beautician-registration__benefits { grid-template-columns: repeat(3, 1fr); margin-top: 16px; gap: 8px; }
+            .beautician-registration__benefits { grid-template-columns: repeat(2, 1fr); margin-top: 16px; gap: 8px; }
             .beautician-registration__benefit { padding: 10px 12px; align-items: flex-start; font-size: 13px; line-height: 1.4; }
             .beautician-registration__story-footer { display: none; }
-            .beautician-registration__main { padding: 28px 20px 48px; }
+            .beautician-registration__main { padding: 28px 20px 0; }
             .beautician-registration__topbar { margin-bottom: 24px; }
             .beautician-registration__login { font-size: 13px; }
             .beautician-registration__form-header { margin-bottom: 22px; }
@@ -487,6 +628,12 @@
         }
 
         @media (max-width: 640px) {
+            .beautician-registration__avatar-upload {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
             .beautician-registration__story {
                 padding: 20px 16px 22px;
                 gap: 16px;
@@ -500,8 +647,8 @@
             .beautician-registration__benefits { grid-template-columns: 1fr; margin-top: 14px; gap: 6px; }
             .beautician-registration__benefit { max-width: none; padding: 9px 11px; align-items: center; font-size: 13px; }
             .beautician-registration__benefit-icon { width: 26px; height: 26px; flex-basis: 26px; font-size: 12px; }
-            .beautician-registration__main { padding: 20px 14px 40px; }
-            .beautician-registration__topbar { margin-bottom: 18px; justify-content: space-between; }
+            .beautician-registration__main { padding: 20px 14px 0; }
+            .beautician-registration__topbar { margin-bottom: 18px; }
             .beautician-registration__form-header { margin-bottom: 18px; }
             .beautician-registration__form-header h2 { font-size: 20px; }
             .beautician-registration__form-header p { font-size: 13px; line-height: 1.45; }
@@ -555,6 +702,10 @@
                             <span class="beautician-registration__benefit-icon">✓</span>
                             <span>{{ trans('beautician::beauticians.self_registration.benefit_secure') }}</span>
                         </div>
+                        <div class="beautician-registration__benefit">
+                            <span class="beautician-registration__benefit-icon">✓</span>
+                            <span>{{ trans('beautician::beauticians.self_registration.benefit_booking') }}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -592,6 +743,7 @@
                     <form
                         method="POST"
                         action="{{ route('beauticians.register.store') }}"
+                        enctype="multipart/form-data"
                         x-data="{ formSubmitting: false }"
                         @submit="formSubmitting = true"
                         @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'register'])
@@ -605,6 +757,36 @@
                                 <div>
                                     <h3>{{ trans('beautician::beauticians.self_registration.identity_title') }}</h3>
                                     <p>{{ trans('beautician::beauticians.self_registration.identity_help') }}</p>
+                                </div>
+                            </div>
+
+                            <div class="beautician-registration__avatar-upload" data-beautician-avatar-upload>
+                                <div class="beautician-registration__avatar-preview" data-avatar-preview aria-hidden="true">
+                                    <img src="" alt="" data-avatar-image>
+                                    <span data-avatar-fallback><i class="fa fa-user" aria-hidden="true"></i></span>
+                                </div>
+                                <div class="beautician-registration__avatar-copy">
+                                    <strong>{{ trans('beautician::beauticians.self_registration.profile_image') }}</strong>
+                                    <p>{{ trans('beautician::beauticians.self_registration.profile_image_hint') }}</p>
+                                    <div class="beautician-registration__avatar-actions">
+                                        <label class="beautician-registration__avatar-btn" for="beautician-profile-image">
+                                            <i class="fa fa-camera" aria-hidden="true"></i>
+                                            <span data-avatar-label>{{ trans('beautician::beauticians.self_registration.profile_image_choose') }}</span>
+                                        </label>
+                                        <button type="button" class="beautician-registration__avatar-clear" data-avatar-clear>
+                                            {{ trans('beautician::beauticians.form.remove_photo') }}
+                                        </button>
+                                        <input
+                                            class="beautician-registration__avatar-input"
+                                            id="beautician-profile-image"
+                                            type="file"
+                                            name="profile_image"
+                                            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                                            data-avatar-input
+                                        >
+                                    </div>
+                                    <small class="help-block">{{ trans('beautician::beauticians.self_registration.profile_image_help') }}</small>
+                                    {!! $errors->first('profile_image', '<span class="help-block text-red">:message</span>') !!}
                                 </div>
                             </div>
 
@@ -789,4 +971,51 @@
             }, 200); // Small delay to ensure elements are rendered
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const root = document.querySelector('[data-beautician-avatar-upload]');
+            if (!root) return;
+
+            const input = root.querySelector('[data-avatar-input]');
+            const preview = root.querySelector('[data-avatar-preview]');
+            const image = root.querySelector('[data-avatar-image]');
+            const label = root.querySelector('[data-avatar-label]');
+            const clearBtn = root.querySelector('[data-avatar-clear]');
+            const chooseLabel = @json(trans('beautician::beauticians.self_registration.profile_image_choose'));
+            const changeLabel = @json(trans('beautician::beauticians.self_registration.profile_image_change'));
+            let objectUrl = null;
+
+            const resetPreview = () => {
+                if (objectUrl) {
+                    URL.revokeObjectURL(objectUrl);
+                    objectUrl = null;
+                }
+                if (image) image.removeAttribute('src');
+                preview?.classList.remove('is-filled');
+                clearBtn?.classList.remove('is-visible');
+                if (label) label.textContent = chooseLabel;
+            };
+
+            input?.addEventListener('change', () => {
+                const file = input.files && input.files[0];
+                if (!file) {
+                    resetPreview();
+                    return;
+                }
+                if (objectUrl) URL.revokeObjectURL(objectUrl);
+                objectUrl = URL.createObjectURL(file);
+                if (image) image.src = objectUrl;
+                preview?.classList.add('is-filled');
+                clearBtn?.classList.add('is-visible');
+                if (label) label.textContent = changeLabel;
+            });
+
+            clearBtn?.addEventListener('click', () => {
+                if (input) input.value = '';
+                resetPreview();
+            });
+        });
+    </script>
+
 @endpush

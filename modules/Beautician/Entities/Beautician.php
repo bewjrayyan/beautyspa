@@ -64,9 +64,9 @@ class Beautician extends Model
             return null;
         }
 
+        // Portal access works before admin activates booking visibility (is_active).
         return static::query()
             ->where('user_id', $userId)
-            ->where('is_active', true)
             ->first();
     }
 

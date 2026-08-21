@@ -36,6 +36,14 @@ class RegisterBeauticianRequest extends RegisterRequest
             ];
         }
 
+        $rules['profile_image'] = [
+            'nullable',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:2048',
+            'dimensions:max_width=4000,max_height=4000',
+        ];
+
         return $rules;
     }
 
@@ -45,6 +53,10 @@ class RegisterBeauticianRequest extends RegisterRequest
         return array_merge(parent::messages(), [
             'spa_branches.required' => trans('beautician::beauticians.self_registration.validation.branch_required'),
             'spa_branches.min' => trans('beautician::beauticians.self_registration.validation.branch_required'),
+            'profile_image.image' => trans('beautician::beauticians.self_registration.validation.profile_image_invalid'),
+            'profile_image.mimes' => trans('beautician::beauticians.self_registration.validation.profile_image_type'),
+            'profile_image.max' => trans('beautician::beauticians.self_registration.validation.profile_image_too_large'),
+            'profile_image.dimensions' => trans('beautician::beauticians.self_registration.validation.profile_image_dimensions'),
         ]);
     }
 }

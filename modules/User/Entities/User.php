@@ -178,15 +178,15 @@ class User extends EloquentUser implements AuthenticatableContract
      */
     public function adminHomeRoute(): string
     {
-        if ($this->hasPendingBeauticianProfile()) {
-            return route('beauticians.registration.pending');
-        }
-
-        if ($this->isBeauticianOnly()) {
+        if ($this->hasRoleName('Beautician')) {
             $beautician = Beautician::findForUser($this->id);
 
             if ($beautician) {
                 return route('admin.beauticians.portal.dashboard', $beautician->id);
+            }
+
+            if ($this->hasPendingBeauticianProfile()) {
+                return route('beauticians.registration.pending');
             }
 
             return route('admin.treatment_reservations.portal');

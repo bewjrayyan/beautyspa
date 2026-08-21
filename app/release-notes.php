@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.6' => [
+        'date' => '2026-08-21 12:32',
+        'en' => [
+            'summary' => 'Beautician self-registration profile photo, portal redirect, and mobile register UX fixes.',
+            'changes' => [
+                'Allow optional profile photo upload on beautician registration (JPG/PNG/WebP, compressed to WebP).',
+                'Log newly registered beauticians into the portal dashboard; pending profiles stay hidden from customer booking but can use the portal.',
+                'Add a fourth registration benefit for creating customer bookings, plus bottom spacing and mobile topbar fixes (sign-in tap target, language dropdown alignment).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Foto profil daftar beautician, redirect portal, dan pembetulan UX daftar di mobile.',
+            'changes' => [
+                'Benarkan muat naik foto profil pilihan semasa daftar beautician (JPG/PNG/WebP, dimampatkan ke WebP).',
+                'Log masuk beautician baharu ke dashboard portal; profil pending kekal tersembunyi daripada tempahan pelanggan tetapi boleh guna portal.',
+                'Tambah manfaat keempat untuk buat tempahan pelanggan, plus jarak bawah dan pembetulan topbar mobile (ketikan log masuk, penjajaran dropdown bahasa).',
+            ],
+        ],
+    ],
     '4.11.5' => [
         'date' => '2026-08-21 12:05',
         'en' => [

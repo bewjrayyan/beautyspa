@@ -32,6 +32,14 @@ class RestrictBeauticianPortalMiddleware
                 return $next($request);
             }
 
+            $routeName = optional($request->route())->getName();
+
+            foreach ($this->allowedRoutePatterns as $pattern) {
+                if ($routeName && fnmatch($pattern, $routeName)) {
+                    return $next($request);
+                }
+            }
+
             return redirect()->route('beauticians.registration.pending');
         }
 

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Beautician\Http\Requests\RegisterBeauticianRequest;
+use Modules\Beautician\Services\BeauticianProfilePhotoService;
 use Modules\Beautician\Support\JobTitleOptions;
 use Modules\Page\Entities\Page;
 use Modules\SpaBranch\Entities\SpaBranch;
@@ -17,8 +18,10 @@ use Modules\User\Entities\Role;
 
 class BeauticianRegistrationController extends Controller
 {
-    public function __construct(private readonly Authentication $auth)
-    {
+    public function __construct(
+        private readonly Authentication $auth,
+        private readonly BeauticianProfilePhotoService $profilePhotos,
+    ) {
         $this->middleware('guest')->except('pending');
     }
 
@@ -39,11 +42,11 @@ class BeauticianRegistrationController extends Controller
 
         if (! $role) {
             return back()
-                ->withInput($request->except(['password', 'password_confirmation']))
+                ->withInput($request->except(['password', 'password_confirmation', 'profile_image']))
                 ->withError(trans('beautician::beauticians.self_registration.role_unavailable'));
         }
 
-        DB::transaction(function () use ($request, $role) {
+        $beautician = DB::transaction(function () use ($request, $role) {
             $user = $this->auth->registerAndActivate($request->only([
                 'first_name',
                 'last_name',
@@ -53,6 +56,7 @@ class BeauticianRegistrationController extends Controller
             ]));
 
             $user->roles()->syncWithoutDetaching([$role->id]);
+            $user->flushRoleCache();
 
             $beautician = Beautician::create([
                 'user_id' => $user->id,
@@ -70,11 +74,26 @@ class BeauticianRegistrationController extends Controller
                     array_map('intval', (array) $request->input('spa_branches', []))
                 );
             }
+
+            if ($request->hasFile('profile_image')) {
+                $this->profilePhotos->attachUpload(
+                    $beautician,
+                    $request->file('profile_image'),
+                    (int) $user->id,
+                );
+            }
+
+            return $beautician;
         });
 
+        $this->auth->login([
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
+        ], true);
+
         return redirect()
-            ->route('beauticians.registration.pending')
-            ->withSuccess(trans('beautician::beauticians.self_registration.submitted'));
+            ->route('admin.beauticians.portal.dashboard', $beautician->id)
+            ->withSuccess(trans('beautician::beauticians.self_registration.submitted_portal'));
     }
 
 
