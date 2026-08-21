@@ -14,8 +14,23 @@
             --beautician-line: #eadfe4;
         }
 
-        body { background: #f8f4f5 !important; }
-        .login-page { overflow: visible !important; }
+        /* Auth layout locks html/body height + overflow on mobile; unlock for this long form page. */
+        html,
+        body {
+            height: auto !important;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body { background: #f8f4f5 !important; position: static !important; }
+
+        .login-page {
+            height: auto !important;
+            min-height: 100%;
+            overflow: visible !important;
+        }
 
         .beautician-registration {
             position: relative;
@@ -90,7 +105,28 @@
         }
 
         .beautician-registration__brand:hover { color: #fff; }
-        .beautician-registration__brand-mark { display: grid; width: 46px; height: 46px; place-items: center; color: var(--beautician-plum); background: #fff; border-radius: 50%; box-shadow: 0 9px 25px rgba(31, 10, 22, .22); font-size: 12px; font-weight: 800; letter-spacing: -.03em; }
+        .beautician-registration__brand-mark {
+            display: grid;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            overflow: hidden;
+            color: var(--beautician-plum);
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 9px 25px rgba(31, 10, 22, .22);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: -.03em;
+        }
+
+        .beautician-registration__brand-mark img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
         .beautician-registration__brand strong { font-size: 20px; letter-spacing: -.02em; }
 
         .beautician-registration__eyebrow,
@@ -275,18 +311,23 @@
             height: 52px;
             padding: 0 15px;
             color: var(--beautician-ink);
-            background-color: #fcfafb;
-            border: 1px solid #ded3d8;
+            background-color: #fff;
+            border: 1.5px solid #b7a4af;
             border-radius: 12px;
             outline: 0;
             box-shadow: none;
-            transition: .2s ease;
+            transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+        }
+
+        .beautician-registration .form-control:hover,
+        .beautician-registration select.form-control:hover {
+            border-color: #9a8492;
         }
 
         .beautician-registration .form-control:focus {
             background: #fff;
             border-color: var(--beautician-rose);
-            box-shadow: 0 0 0 4px rgba(216, 95, 136, .1);
+            box-shadow: 0 0 0 3px rgba(216, 95, 136, .18);
         }
 
         .beautician-registration__branches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -300,14 +341,14 @@
             gap: 10px;
             cursor: pointer;
             color: #554a59;
-            background: #fcfafb;
-            border: 1px solid #ded3d8;
+            background: #fff;
+            border: 1.5px solid #b7a4af;
             border-radius: 12px;
             transition: .2s ease;
         }
 
-        .beautician-registration__branch:hover { border-color: #d8a1b4; transform: translateY(-1px); }
-        .beautician-registration__branch:has(input:checked) { color: var(--beautician-plum); background: var(--beautician-blush); border-color: var(--beautician-rose); box-shadow: 0 0 0 3px rgba(216, 95, 136, .08); }
+        .beautician-registration__branch:hover { border-color: #9a8492; transform: translateY(-1px); }
+        .beautician-registration__branch:has(input:checked) { color: var(--beautician-plum); background: var(--beautician-blush); border-color: var(--beautician-rose); box-shadow: 0 0 0 3px rgba(216, 95, 136, .18); }
         .beautician-registration__branch input { width: 17px; height: 17px; accent-color: var(--beautician-rose); }
 
         .beautician-registration__privacy {
@@ -353,32 +394,87 @@
         }
 
         @media (max-width: 900px) {
-            .beautician-registration__shell { display: block; }
-            .beautician-registration__story { position: relative; height: auto; min-height: 0; padding: 38px 30px 42px; }
-            .beautician-registration__story-content { margin-top: 46px; }
-            .beautician-registration__story h1 { max-width: 650px; font-size: 44px; }
-            .beautician-registration__benefits { grid-template-columns: repeat(3, 1fr); }
-            .beautician-registration__benefit { padding: 12px; align-items: flex-start; }
+            .beautician-registration__shell { display: block; min-height: 0; }
+
+            /* Drop sticky + nested scroll on stacked layout so page scroll is never trapped. */
+            .beautician-registration__story {
+                position: relative;
+                top: auto;
+                height: auto;
+                min-height: 0;
+                max-height: none;
+                padding: 28px 24px 30px;
+                overflow: visible;
+                overscroll-behavior: auto;
+                justify-content: flex-start;
+                gap: 20px;
+            }
+
+            .beautician-registration__story-content { margin-top: 0; }
+            .beautician-registration__brand strong { font-size: 16px; }
+            .beautician-registration__eyebrow,
+            .beautician-registration__form-eyebrow { font-size: 11px; letter-spacing: .12em; }
+            .beautician-registration__story h1 {
+                max-width: none;
+                margin-bottom: 10px;
+                font-size: 24px;
+                line-height: 1.2;
+                letter-spacing: -.02em;
+            }
+            .beautician-registration__story-lead { font-size: 14px; line-height: 1.5; }
+            .beautician-registration__benefits { grid-template-columns: repeat(3, 1fr); margin-top: 16px; gap: 8px; }
+            .beautician-registration__benefit { padding: 10px 12px; align-items: flex-start; font-size: 13px; line-height: 1.4; }
             .beautician-registration__story-footer { display: none; }
-            .beautician-registration__main { padding: 36px 24px 60px; }
-            .beautician-registration__topbar { margin-bottom: 32px; }
+            .beautician-registration__main { padding: 28px 20px 48px; }
+            .beautician-registration__topbar { margin-bottom: 24px; }
+            .beautician-registration__login { font-size: 13px; }
+            .beautician-registration__form-header { margin-bottom: 22px; }
+            .beautician-registration__form-header h2 {
+                margin-bottom: 8px;
+                font-size: 22px;
+                letter-spacing: -.02em;
+            }
+            .beautician-registration__form-header p { font-size: 14px; line-height: 1.5; }
+            .beautician-registration__notice { font-size: 13px; line-height: 1.45; }
+            .beautician-registration__section-heading h3 { font-size: 16px; }
+            .beautician-registration__section-heading p { font-size: 12px; }
+            .beautician-registration .input-label { font-size: 12px; }
+            .beautician-registration .form-control,
+            .beautician-registration select.form-control { font-size: 16px; }
+            .beautician-registration__branch { font-size: 14px; }
+            .beautician-registration__privacy { font-size: 13px; }
+            .beautician-registration__actions .btn { font-size: 15px; }
+            .beautician-registration__actions > a { font-size: 13px; }
+            .beautician-registration .help-block { font-size: 12px; }
         }
 
         @media (max-width: 640px) {
-            .beautician-registration__story { padding: 26px 20px 32px; }
-            .beautician-registration__brand-mark { width: 42px; height: 42px; }
-            .beautician-registration__story-content { margin-top: 38px; }
-            .beautician-registration__story h1 { margin-bottom: 14px; font-size: 36px; }
-            .beautician-registration__story-lead { font-size: 15px; line-height: 1.6; }
-            .beautician-registration__benefits { grid-template-columns: 1fr; margin-top: 26px; gap: 8px; }
-            .beautician-registration__benefit { max-width: none; align-items: center; }
-            .beautician-registration__main { padding: 28px 14px 48px; }
-            .beautician-registration__topbar { margin-bottom: 28px; justify-content: space-between; }
-            .beautician-registration__form-header h2 { font-size: 30px; }
-            .beautician-registration__section { padding: 21px 16px; border-radius: 17px; }
+            .beautician-registration__story {
+                padding: 20px 16px 22px;
+                gap: 16px;
+            }
+
+            .beautician-registration__brand-mark { width: 36px; height: 36px; }
+            .beautician-registration__brand strong { font-size: 15px; }
+            .beautician-registration__eyebrow { margin-bottom: 8px; }
+            .beautician-registration__story h1 { margin-bottom: 8px; font-size: 22px; line-height: 1.2; }
+            .beautician-registration__story-lead { font-size: 13px; line-height: 1.45; }
+            .beautician-registration__benefits { grid-template-columns: 1fr; margin-top: 14px; gap: 6px; }
+            .beautician-registration__benefit { max-width: none; padding: 9px 11px; align-items: center; font-size: 13px; }
+            .beautician-registration__benefit-icon { width: 26px; height: 26px; flex-basis: 26px; font-size: 12px; }
+            .beautician-registration__main { padding: 20px 14px 40px; }
+            .beautician-registration__topbar { margin-bottom: 18px; justify-content: space-between; }
+            .beautician-registration__form-header { margin-bottom: 18px; }
+            .beautician-registration__form-header h2 { font-size: 20px; }
+            .beautician-registration__form-header p { font-size: 13px; line-height: 1.45; }
+            .beautician-registration__section { padding: 16px 14px; border-radius: 14px; }
+            .beautician-registration__section-heading h3 { font-size: 15px; }
             .beautician-registration__grid,
             .beautician-registration__branches { grid-template-columns: 1fr; }
             .beautician-registration__wide { grid-column: auto; }
+            .beautician-registration .form-control,
+            .beautician-registration select.form-control { height: 48px; font-size: 16px; }
+            .beautician-registration__actions .btn { min-height: 50px; font-size: 15px; }
         }
     </style>
 @endpush
@@ -388,7 +484,14 @@
         <div class="beautician-registration__shell">
             <aside class="beautician-registration__story">
                 <a href="{{ route('home') }}" class="beautician-registration__brand">
-                    <span class="beautician-registration__brand-mark" aria-hidden="true">ISL</span>
+                    @php($squareLogoUrl = storefront_square_logo_url())
+                    <span class="beautician-registration__brand-mark" aria-hidden="true">
+                        @if ($squareLogoUrl)
+                            <img src="{{ $squareLogoUrl }}" alt="" width="46" height="46">
+                        @else
+                            {{ mb_strtoupper(mb_substr((string) setting('store_name'), 0, 3)) }}
+                        @endif
+                    </span>
                     <strong>{{ setting('store_name') }}</strong>
                 </a>
 

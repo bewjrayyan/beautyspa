@@ -46,6 +46,38 @@ if (!function_exists('storefront_header_logo_id')) {
     }
 }
 
+if (!function_exists('storefront_square_logo_id')) {
+    /**
+     * Media file ID for the 1:1 square brand logo.
+     */
+    function storefront_square_logo_id()
+    {
+        return setting('storefront_square_logo')
+            ?: setting('storefront_favicon')
+            ?: setting('admin_small_logo');
+    }
+}
+
+if (!function_exists('storefront_square_logo_url')) {
+    /**
+     * Public URL for the 1:1 square brand logo, or null when none is configured.
+     */
+    function storefront_square_logo_url(): ?string
+    {
+        $fileId = storefront_square_logo_id();
+
+        if (! $fileId) {
+            return null;
+        }
+
+        $file = \Illuminate\Support\Facades\Cache::rememberForever(md5("files.{$fileId}"), function () use ($fileId) {
+            return \Modules\Media\Entities\File::findOrNew($fileId);
+        });
+
+        return ($file && $file->exists && $file->path) ? $file->path : null;
+    }
+}
+
 if (!function_exists('storefront_favicon_file')) {
     function storefront_favicon_file(): ?\Modules\Media\Entities\File
     {

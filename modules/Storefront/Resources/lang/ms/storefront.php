@@ -20,7 +20,7 @@ return [
     ],
     'tab_leads' => [
         'general' => 'Identiti kedai, tema, pautan undang-undang, dan tingkah laku carian.',
-        'logo' => 'Favicon dan logo untuk header, footer, dan e-mel transaksi.',
+        'logo' => 'Favicon dan logo untuk header, logo segi empat (1:1), footer, dan e-mel transaksi.',
         'menus' => 'Tetapkan menu navigasi untuk kawasan utama, kategori, dan footer.',
         'footer' => 'Kandungan footer, tag, dan imej kaedah bayaran diterima.',
         'newsletter' => 'Latar popup surat berita dan visual langganan.',
@@ -48,8 +48,10 @@ return [
         'search_no_results' => 'Tiada seksyen sepadan',
 
         'favicon' => 'Favicon',
-        'header_logo' => 'Header Logo',
-        'mail_logo' => 'Mail Logo',
+        'header_logo' => 'Logo header',
+        'square_logo' => 'Logo segi empat (1:1)',
+        'square_logo_help' => 'Imej segi empat disyorkan (cth. 512×512). Digunakan untuk tanda jenama, ikon aplikasi, dan lencana UI padat.',
+        'mail_logo' => 'Logo e-mel',
         'accepted_payment_methods_image' => 'Accepted Kaedah Bayarans Imej',
         'newsletter_bg_image' => 'Background Imej',
         'please_select' => 'Sila pilih',

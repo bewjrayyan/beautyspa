@@ -124,6 +124,7 @@ class StorefrontTabs extends Tabs
             $tab->view('storefront::admin.storefront.tabs.logo', [
                 'favicon' => $this->getMedia(setting('storefront_favicon')),
                 'headerLogo' => $this->getMedia(setting('storefront_header_logo')),
+                'squareLogo' => $this->getMedia(setting('storefront_square_logo')),
                 'footerLogo' => $this->getMedia(setting('storefront_footer_logo')),
                 'mailLogo' => $this->getMedia(setting('storefront_mail_logo')),
             ]);

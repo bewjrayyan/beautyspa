@@ -19,7 +19,7 @@ return [
     ],
     'tab_leads' => [
         'general' => 'Core storefront identity, theme, legal links, and search behaviour.',
-        'logo' => 'Favicon and logos for header, footer, and transactional emails.',
+        'logo' => 'Favicon and logos for header, square brand mark, footer, and transactional emails.',
         'menus' => 'Assign navigation menus for the primary, category, and footer areas.',
         'footer' => 'Footer content, tags, and accepted payment methods image.',
         'newsletter' => 'Newsletter popup background and subscription visuals.',
@@ -47,6 +47,8 @@ return [
         'search_no_results' => 'No matching section',
         'favicon' => 'Favicon',
         'header_logo' => 'Header Logo',
+        'square_logo' => 'Square Logo (1:1)',
+        'square_logo_help' => 'Recommended square image (e.g. 512×512). Used for brand marks, app icons, and compact UI badges.',
         'mail_logo' => 'Mail Logo',
         'accepted_payment_methods_image' => 'Accepted Payment Methods Image',
         'newsletter_bg_image' => 'Background Image',

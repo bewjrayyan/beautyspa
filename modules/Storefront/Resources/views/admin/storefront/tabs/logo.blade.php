@@ -31,6 +31,22 @@
 
     <div class="st-fields-grid__col">
         @component('setting::admin.settings.partials.section', [
+            'icon' => 'fa-th-large',
+            'title' => trans('storefront::storefront.form.square_logo'),
+            'description' => trans('storefront::storefront.form.square_logo_help'),
+            'class' => 'st-section--media',
+        ])
+            @include('media::admin.image_picker.single', [
+                'title' => '',
+                'aspect' => 'square',
+                'inputName' => 'translatable[storefront_square_logo]',
+                'file' => $squareLogo,
+            ])
+        @endcomponent
+    </div>
+
+    <div class="st-fields-grid__col">
+        @component('setting::admin.settings.partials.section', [
             'icon' => 'fa-envelope-o',
             'title' => trans('storefront::storefront.form.mail_logo'),
             'class' => 'st-section--media',

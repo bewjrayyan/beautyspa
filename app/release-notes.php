@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.3' => [
+        'date' => '2026-08-21 09:20',
+        'en' => [
+            'summary' => 'Beautician registration mobile UX polish and square logo setting.',
+            'changes' => [
+                'Fix mobile scroll trapping on the beautician registration story panel.',
+                'Add Storefront Square Logo (1:1) setting and use it on the registration brand mark.',
+                'Clarify form field borders and unify smaller mobile typography on the registration page.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kemas UX daftar beautician mobile dan tetapan logo segi empat.',
+            'changes' => [
+                'Baiki scroll mobile yang tersekat pada panel cerita halaman daftar beautician.',
+                'Tambah tetapan Logo Segi Empat (1:1) di Storefront dan guna pada tanda jenama daftar.',
+                'Jelas border medan borang dan seragamkan tipografi mobile yang lebih kecil pada halaman daftar.',
+            ],
+        ],
+    ],
     '4.11.2' => [
         'date' => '2026-08-20 21:00',
         'en' => [
