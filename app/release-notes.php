@@ -5,6 +5,21 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.4' => [
+        'date' => '2026-08-21 09:25',
+        'en' => [
+            'summary' => 'Uniform Email/OTP segmented switch on admin login across all devices.',
+            'changes' => [
+                'Use the same pill segmented Email login / Login with OTP switch on desktop, tablet, and mobile.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Suis Email/OTP seragam pada login admin merentas semua peranti.',
+            'changes' => [
+                'Guna suis bersegmen Email login / Login with OTP yang sama pada desktop, tablet, dan mobile.',
+            ],
+        ],
+    ],
     '4.11.3' => [
         'date' => '2026-08-21 09:20',
         'en' => [
