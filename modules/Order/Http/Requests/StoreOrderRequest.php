@@ -12,6 +12,7 @@ use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 use Modules\Checkout\Exceptions\CheckoutException;
 use Modules\Beautician\Entities\Beautician;
+use Modules\TreatmentReservation\Entities\TreatmentBranchAvailability;
 use Modules\User\Support\PhoneNumber;
 
 class StoreOrderRequest extends Request
@@ -32,6 +33,14 @@ class StoreOrderRequest extends Request
      */
     public function prepareForValidation()
     {
+        $treatmentItems = Cart::items()->filter(
+            fn ($item) => (bool) ($item->product?->is_virtual ?? false)
+        );
+
+        if ($treatmentItems->count() > 1 || $treatmentItems->contains(fn ($item) => (int) $item->qty !== 1)) {
+            throw new CheckoutException(trans('checkout::messages.single_treatment_per_order'));
+        }
+
         if (! Cart::allItemsAreVirtual() && ! $this->input('shipping_method')) {
             throw new CheckoutException(trans('checkout::messages.no_shipping_method'));
         }
@@ -150,7 +159,31 @@ class StoreOrderRequest extends Request
         }
 
         return [
-            'schedule_later' => ['sometimes', 'boolean'],
+            'schedule_later' => [
+                'sometimes',
+                'boolean',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                        return;
+                    }
+
+                    $productId = $this->resolveCartTreatmentProductId();
+                    $branchId = (int) $this->input('spa_branch_id');
+
+                    if (! $productId || ! $branchId) {
+                        return;
+                    }
+
+                    $settings = TreatmentBranchAvailability::query()
+                        ->where('product_id', $productId)
+                        ->where('spa_branch_id', $branchId)
+                        ->first(['allow_tba', 'is_bookable']);
+
+                    if ($settings && (! $settings->is_bookable || ! $settings->allow_tba)) {
+                        $fail(trans('checkout::messages.tba_not_allowed'));
+                    }
+                },
+            ],
             'beautician_id' => [
                 'required',
                 Rule::exists('beauticians', 'id')->where('is_active', true),
@@ -183,6 +216,17 @@ class StoreOrderRequest extends Request
                 : ['required', 'date', 'after_or_equal:today'],
             'appointment_time' => $appointmentTimeRules,
         ];
+    }
+
+    private function resolveCartTreatmentProductId(): ?int
+    {
+        foreach (Cart::items() as $item) {
+            if ($item->product && ($item->product->is_virtual ?? false)) {
+                return (int) $item->product->id;
+            }
+        }
+
+        return null;
     }
 
 

@@ -146,12 +146,16 @@ export function buildCalendarEventHtml(booking, { showBeautician = true, clickab
         clickable ? "tr-cal-event--clickable" : "",
         !isOwn ? "tr-cal-event--others" : "",
     ].filter(Boolean).join(" ");
+    const canDrag = isOwn && (booking.can_reschedule_manual || booking.can_schedule_tba);
+    const dragAttrs = canDrag
+        ? ` draggable="true" data-cal-draggable="1" data-product-id="${escapeHtml(String(booking.product_id || ""))}" data-spa-branch-id="${escapeHtml(String(booking.spa_branch_id || ""))}" data-beautician-id="${escapeHtml(String(booking.beautician_id || ""))}" data-is-tba="${booking.can_schedule_tba || booking.is_tba || booking.schedule_status === "tba" ? "1" : "0"}"`
+        : "";
     const clickAttrs = clickable
         ? ` class="${classes}" role="button" tabindex="0"`
         : ` class="${classes}"`;
 
     return `
-        <div${clickAttrs} data-booking-id="${escapeHtml(booking.id)}" data-status="${status}" style="--tr-beautician-color:${escapeHtml(color)};border-left-color:${escapeHtml(color)};background:${hexToRgba(color, 0.12)};border-color:${hexToRgba(color, 0.28)}">
+        <div${clickAttrs}${dragAttrs} data-booking-id="${escapeHtml(booking.id)}" data-status="${status}" style="--tr-beautician-color:${escapeHtml(color)};border-left-color:${escapeHtml(color)};background:${hexToRgba(color, 0.12)};border-color:${hexToRgba(color, 0.28)}">
             <div class="tr-cal-event-top">
                 <span class="tr-cal-event-time">${time}</span>
                 <span class="tr-cal-event-status-dot tr-cal-event-status-dot--${status}" title="${status.replace("_", " ")}"></span>
@@ -551,7 +555,7 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             ? previewActionButton(
                 "tr-calendar-event-preview__schedule-tba tr-calendar-event-preview__action-btn--primary",
                 `<i class="fa fa-calendar-plus-o" aria-hidden="true"></i><span>${escapeHtml(labels.scheduleTba || "Schedule slot")}</span>`,
-                `data-tba-schedule data-booking-id="${escapeHtml(String(booking.id))}" data-beautician-id="${escapeHtml(String(booking.beautician_id || ""))}"`
+                `data-tba-schedule data-booking-id="${escapeHtml(String(booking.id))}" data-beautician-id="${escapeHtml(String(booking.beautician_id || ""))}" data-product-id="${escapeHtml(String(booking.product_id || ""))}" data-spa-branch-id="${escapeHtml(String(booking.spa_branch_id || ""))}"`
             )
             : "",
         booking.can_edit_manual && options.manualBookingEditEnabled

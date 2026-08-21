@@ -13,7 +13,7 @@ import {
     upsertBooking,
 } from "./kanban-helpers.js";
 import { initTreatmentAnalytics } from "./analytics.js";
-import { initCrmDashboard, initTbaScheduleActions } from "./dashboard.js";
+import { initCrmDashboard, initTbaScheduleActions, initCalendarBookingDrop } from "./dashboard.js";
 import "./portal-account.js";
 import "./portal-availability.js";
 import "./manual-booking.js";
@@ -569,6 +569,7 @@ class TreatmentReservationsApp {
             this.lastBookings = bookings;
             this.renderCalendarLegend(bookings);
             this.refreshAgendaPanel?.();
+            this.applyCrmSearch?.();
             if (this.currentCalView === "day") {
                 this.renderDayView();
             }
@@ -1038,6 +1039,7 @@ if (root) {
     window.TRResolveBooking = resolveBooking;
     initCrmDashboard(reservationsApp);
     initTbaScheduleActions();
+    initCalendarBookingDrop(reservationsApp);
 }
 
 const beauticianScheduleRoot = document.getElementById("tr-beautician-schedule-app");
@@ -1057,7 +1059,9 @@ if (portalRoot?.dataset.initialBookings) {
 }
 
 if (portalRoot) {
-    new TreatmentReservationsApp(portalRoot);
+    const portalApp = new TreatmentReservationsApp(portalRoot);
+    initCalendarBookingDrop(portalApp);
+    initTbaScheduleActions();
 }
 
 function buildCalendarPreviewLabels(root) {

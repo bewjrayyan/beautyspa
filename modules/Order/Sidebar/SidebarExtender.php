@@ -11,10 +11,10 @@ class SidebarExtender extends BaseSidebarExtender
 {
     public function extend(Menu $menu)
     {
-        $menu->group(trans('admin::sidebar.content'), function (Group $group) {
+        $menu->group(trans('admin::sidebar.commerce'), function (Group $group) {
             $group->item(trans('admin::sidebar.sales'), function (Item $item) {
                 $item->icon('fa fa-dollar');
-                $item->weight(15);
+                $item->weight(5);
                 $item->route('admin.orders.index');
                 $item->authorize(
                     $this->auth->hasAnyAccess(['admin.orders.index', 'admin.transactions.index'])

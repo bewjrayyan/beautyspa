@@ -80,6 +80,18 @@ function getAgendaLabels() {
         sendReminder: root?.dataset.agendaSendReminder || "Send reminder",
         resendReminder: root?.dataset.agendaResendReminder || "Resend reminder",
         reminderSent: root?.dataset.agendaReminderSent || "Reminder sent",
+        holidayEyebrow: root?.dataset.agendaHolidayEyebrow || "Public holiday",
+        holidayStates: root?.dataset.agendaHolidayStates || "Applies to",
+        holidayType: root?.dataset.agendaHolidayType || "Type",
+        holidaySubjectToChange: root?.dataset.agendaHolidaySubjectToChange || "Date may be subject to change",
+        holidayNationwide: root?.dataset.agendaHolidayNationwide || "Nationwide",
+        holidayKinds: {
+            national: root?.dataset.agendaHolidayKindNational || "National holiday",
+            labour: root?.dataset.agendaHolidayKindLabour || "Labour day",
+            religious: root?.dataset.agendaHolidayKindReligious || "Religious holiday",
+            festival: root?.dataset.agendaHolidayKindFestival || "Festival",
+            other: root?.dataset.agendaHolidayKindOther || "Public holiday",
+        },
     };
 }
 
@@ -98,7 +110,33 @@ function manualBookingEditEnabled() {
     return document.getElementById("tr-reservations-app")?.dataset.manualBookingEdit === "1";
 }
 
-function initDashboardSearch() {
+function bookingSearchHaystack(booking = {}) {
+    return [
+        booking.customer_name,
+        booking.customer_phone,
+        booking.customer_email,
+        booking.treatment_name,
+        booking.product_name,
+        booking.treatment_subtitle,
+        booking.treatment_selection,
+        booking.category_name,
+        booking.beautician_name,
+        booking.beautician_job_title,
+        booking.source_label,
+        booking.spa_branch_name,
+        booking.appointment_date,
+        booking.appointment_date_short,
+        booking.appointment_time_range,
+        booking.appointment_time,
+        booking.time,
+        booking.date,
+        booking.payment_status_label,
+        booking.total_formatted,
+        booking.id,
+    ].filter(Boolean).join(" ");
+}
+
+function initDashboardSearch(app = null) {
     const input = document.getElementById("tr-crm-search");
     const dashboard = document.getElementById("tr-crm-dashboard");
 
@@ -115,6 +153,8 @@ function initDashboardSearch() {
         "[data-crm-list] .tr-crm-pipeline-card",
         "[data-crm-list] .tr-crm-ledger__row",
         "[data-crm-list] .tr-crm-agenda-card",
+        "[data-crm-list] .tr-crm-tba-item",
+        ".tr-crm-tba-item",
     ].join(", ");
 
     const emptySelectors = [
@@ -123,6 +163,13 @@ function initDashboardSearch() {
     ].join(", ");
 
     const noResultsMessage = dashboard.dataset.searchNoResults || "No matches for your search";
+    const labels = getAgendaLabels();
+    const agendaList = document.getElementById("tr-crm-agenda-list");
+    const agendaEmpty = document.getElementById("tr-crm-agenda-empty");
+    const agendaTitle = document.getElementById("tr-crm-agenda-title");
+    const agendaHoliday = document.getElementById("tr-crm-agenda-holiday");
+    const searchWrap = input.closest(".tr-crm-toolbar__search") || input.parentElement;
+
     let searchNotice = document.getElementById("tr-crm-search-empty");
 
     if (!searchNotice) {
@@ -130,12 +177,123 @@ function initDashboardSearch() {
         searchNotice.id = "tr-crm-search-empty";
         searchNotice.className = "tr-crm-search-empty";
         searchNotice.hidden = true;
-        dashboard.prepend(searchNotice);
+        searchWrap?.insertAdjacentElement("afterend", searchNotice);
     }
 
-    const applySearch = () => {
+    const clearCalendarSearchMarks = () => {
+        dashboard.querySelectorAll(".tr-cal-day--search-hit, .tr-cal-day--search-dim").forEach((day) => {
+            day.classList.remove("tr-cal-day--search-hit", "tr-cal-day--search-dim");
+        });
+    };
+
+    const matchingCalendarBookings = (query) => {
+        const bookings = Array.isArray(app?.lastCalendarBookings) ? app.lastCalendarBookings : [];
+
+        return bookings.filter((booking) => matchesCrmSearchQuery(bookingSearchHaystack(booking), query));
+    };
+
+    const markCalendarSearchHits = (query, matches) => {
+        clearCalendarSearchMarks();
+
+        if (!query) {
+            return;
+        }
+
+        const hitDates = new Set(matches.map((booking) => booking.date).filter(Boolean));
+
+        dashboard.querySelectorAll(".tr-cal-day[data-date]").forEach((day) => {
+            const dateStr = day.dataset.date || "";
+            const isHit = hitDates.has(dateStr);
+
+            day.classList.toggle("tr-cal-day--search-hit", isHit);
+            day.classList.toggle("tr-cal-day--search-dim", !isHit && !day.classList.contains("tr-cal-day--muted"));
+        });
+    };
+
+    const renderAgendaSearchResults = (query, matches, focusDate = "") => {
+        if (!agendaList) {
+            return matches.length;
+        }
+
+        const focused = focusDate
+            ? matches.filter((booking) => booking.date === focusDate)
+            : matches;
+        const rows = focused.length ? focused : matches;
+
+        if (agendaHoliday) {
+            agendaHoliday.hidden = true;
+            agendaHoliday.innerHTML = "";
+        }
+
+        if (agendaTitle) {
+            agendaTitle.textContent = query
+                ? (dashboard.dataset.searchResultsTitle || "Search results")
+                : agendaTitle.textContent;
+        }
+
+        if (!rows.length) {
+            agendaList.innerHTML = "";
+
+            if (agendaEmpty) {
+                agendaEmpty.hidden = false;
+                agendaEmpty.textContent = noResultsMessage;
+            }
+
+            return 0;
+        }
+
+        const byDate = rows.reduce((map, booking) => {
+            const key = booking.date || "";
+            if (!map.has(key)) {
+                map.set(key, []);
+            }
+            map.get(key).push(booking);
+            return map;
+        }, new Map());
+
+        const html = [];
+
+        [...byDate.entries()]
+            .sort(([a], [b]) => String(a).localeCompare(String(b)))
+            .forEach(([dateStr, dayBookings]) => {
+                if (dateStr) {
+                    const date = new Date(`${dateStr}T12:00:00`);
+                    const dateLabel = Number.isNaN(date.getTime())
+                        ? dateStr
+                        : date.toLocaleDateString(labels.locale, {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                        });
+                    html.push(`<li class="tr-crm-agenda-search-date" aria-hidden="true">${escapeHtml(dateLabel)}</li>`);
+                }
+
+                dayBookings
+                    .sort((a, b) => String(a.time || a.appointment_time || "").localeCompare(String(b.time || b.appointment_time || "")))
+                    .forEach((booking) => {
+                        html.push(renderAgendaBooking(booking, labels));
+                    });
+            });
+
+        agendaList.innerHTML = html.join("");
+
+        if (agendaEmpty) {
+            agendaEmpty.hidden = true;
+            agendaEmpty.textContent = dashboard.dataset.agendaEmptyDefault
+                || agendaEmpty.dataset.defaultText
+                || agendaEmpty.textContent;
+        }
+
+        return rows.length;
+    };
+
+    const applySearch = (options = {}) => {
         const query = input.value.trim();
+        const focusDate = options.focusDate || "";
         let visibleCount = 0;
+
+        dashboard.classList.toggle("tr-crm-dashboard--searching", query !== "");
 
         dashboard.querySelectorAll(itemSelectors).forEach((row) => {
             const haystack = row.dataset.search || row.textContent || "";
@@ -152,18 +310,39 @@ function initDashboardSearch() {
             row.classList.toggle("is-search-hidden", query !== "");
         });
 
+        const calendarMatches = matchingCalendarBookings(query);
+        markCalendarSearchHits(query, calendarMatches);
+
+        if (query) {
+            const agendaMatches = renderAgendaSearchResults(query, calendarMatches, focusDate);
+            visibleCount += agendaMatches;
+
+            if (agendaTitle) {
+                const countLabel = dashboard.dataset.searchResultsCount || ":count found";
+                agendaTitle.textContent = countLabel.replace(":count", String(calendarMatches.length));
+            }
+        } else {
+            clearCalendarSearchMarks();
+            app?.refreshAgendaPanel?.();
+        }
+
         searchNotice.textContent = noResultsMessage;
         searchNotice.hidden = query === "" || visibleCount > 0;
     };
 
-    input.addEventListener("input", applySearch);
-    input.addEventListener("search", applySearch);
+    input.addEventListener("input", () => applySearch());
+    input.addEventListener("search", () => applySearch());
     input.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
             event.preventDefault();
             applySearch();
         }
     });
+
+    if (app) {
+        app.applyCrmSearch = applySearch;
+        app.isCrmSearching = () => input.value.trim() !== "";
+    }
 }
 
 function presetDateForFilter(filter) {
@@ -421,6 +600,50 @@ function renderAgendaBooking(booking, labels) {
     `;
 }
 
+
+function holidayItemsForDate(app, dateStr) {
+    const holiday = app?.holidaysByDate?.[dateStr];
+
+    if (!holiday) {
+        return [];
+    }
+
+    if (Array.isArray(holiday.items) && holiday.items.length) {
+        return holiday.items;
+    }
+
+    return [holiday];
+}
+
+function renderAgendaHolidayCard(holiday, labels) {
+    const kind = String(holiday.kind || "other");
+    const kindLabel = labels.holidayKinds?.[kind] || labels.holidayKinds?.other || labels.holidayEyebrow;
+    const states = Array.isArray(holiday.states) ? holiday.states.filter(Boolean) : [];
+    const statesText = states.length ? states.join(", ") : labels.holidayNationwide;
+    const color = holiday.color || "#2563eb";
+    const subjectNote = holiday.is_subject_to_change
+        ? `<p class="tr-crm-agenda-holiday-card__note">${escapeHtml(labels.holidaySubjectToChange)}</p>`
+        : "";
+
+    return `
+        <article class="tr-crm-agenda-holiday-card" style="--holiday-color:${escapeHtml(color)}">
+            <p class="tr-crm-agenda-holiday-card__eyebrow">${escapeHtml(labels.holidayEyebrow)}</p>
+            <h5 class="tr-crm-agenda-holiday-card__title">${escapeHtml(holiday.label || "—")}</h5>
+            <dl class="tr-crm-agenda-holiday-card__meta">
+                <div>
+                    <dt>${escapeHtml(labels.holidayType)}</dt>
+                    <dd>${escapeHtml(kindLabel)}</dd>
+                </div>
+                <div>
+                    <dt>${escapeHtml(labels.holidayStates)}</dt>
+                    <dd>${escapeHtml(statesText)}</dd>
+                </div>
+            </dl>
+            ${subjectNote}
+        </article>
+    `;
+}
+
 function initAgendaPanel(app) {
     const panel = document.getElementById("tr-crm-agenda-panel");
 
@@ -437,6 +660,8 @@ function initAgendaPanel(app) {
 
     const bookingsForDate = (dateStr) => (app.lastCalendarBookings || []).filter((booking) => booking.date === dateStr);
 
+    const holidayMount = document.getElementById("tr-crm-agenda-holiday");
+
     const updateAgenda = (dateStr, bookings = null) => {
         if (!dateStr) {
             return;
@@ -444,6 +669,7 @@ function initAgendaPanel(app) {
 
         selectedDate = dateStr;
         const dayBookings = bookings ?? bookingsForDate(dateStr);
+        const dayHolidays = holidayItemsForDate(app, dateStr);
         const date = new Date(`${dateStr}T12:00:00`);
 
         if (title) {
@@ -455,6 +681,18 @@ function initAgendaPanel(app) {
             });
         }
 
+        if (holidayMount) {
+            if (dayHolidays.length) {
+                holidayMount.hidden = false;
+                holidayMount.innerHTML = dayHolidays
+                    .map((holiday) => renderAgendaHolidayCard(holiday, labels))
+                    .join("");
+            } else {
+                holidayMount.hidden = true;
+                holidayMount.innerHTML = "";
+            }
+        }
+
         if (list) {
             list.innerHTML = dayBookings
                 .sort((a, b) => String(a.time || a.appointment_time || "").localeCompare(String(b.time || b.appointment_time || "")))
@@ -463,6 +701,9 @@ function initAgendaPanel(app) {
         }
 
         if (empty) {
+            if (empty.dataset.defaultText) {
+                empty.textContent = empty.dataset.defaultText;
+            }
             empty.hidden = dayBookings.length > 0;
         }
 
@@ -477,7 +718,21 @@ function initAgendaPanel(app) {
             return;
         }
 
-        updateAgenda(day.dataset.date || "");
+        const dateStr = day.dataset.date || "";
+        const searchInput = document.getElementById("tr-crm-search");
+        const query = searchInput?.value.trim() || "";
+
+        if (query && typeof app.applyCrmSearch === "function") {
+            selectedDate = dateStr;
+            app.grid.querySelectorAll(".tr-cal-day[data-date]").forEach((node) => {
+                node.classList.toggle("tr-cal-day--selected", node.dataset.date === dateStr);
+                node.setAttribute("aria-selected", node.dataset.date === dateStr ? "true" : "false");
+            });
+            app.applyCrmSearch({ focusDate: dateStr });
+            return;
+        }
+
+        updateAgenda(dateStr);
     };
 
     const calendarInteractionRoot = app.gridViewport || app.grid;
@@ -774,8 +1029,16 @@ function initPipelineActions(app) {
 }
 
 
-async function scheduleTbaBooking({ bookingId, beauticianId, scheduleUrlTemplate, slotsUrl }) {
-    const date = window.prompt("Appointment date (YYYY-MM-DD)");
+async function scheduleTbaBooking({
+    bookingId,
+    beauticianId,
+    productId,
+    spaBranchId,
+    scheduleUrlTemplate,
+    slotsUrl,
+    appointmentDate = null,
+}) {
+    const date = appointmentDate || window.prompt("Appointment date (YYYY-MM-DD)");
 
     if (!date) {
         return;
@@ -789,6 +1052,8 @@ async function scheduleTbaBooking({ bookingId, beauticianId, scheduleUrlTemplate
                 beautician_id: beauticianId,
                 date,
                 booking_id: bookingId,
+                product_id: productId || undefined,
+                spa_branch_id: spaBranchId || undefined,
             },
         });
         slots = data.slots || [];
@@ -812,12 +1077,18 @@ async function scheduleTbaBooking({ bookingId, beauticianId, scheduleUrlTemplate
     const url = scheduleUrlTemplate.replace("__ID__", String(bookingId));
 
     try {
-        const { data } = await axios.patch(url, {
+        const payload = {
             beautician_id: beauticianId,
             appointment_date: date,
             appointment_time: time,
             notify_customer: true,
-        });
+        };
+
+        if (spaBranchId) {
+            payload.spa_branch_id = spaBranchId;
+        }
+
+        const { data } = await axios.patch(url, payload);
         window.notify?.success?.(data.message || "Scheduled") || alert(data.message || "Scheduled");
         window.location.reload();
     } catch (error) {
@@ -851,9 +1122,132 @@ export function initTbaScheduleActions() {
         scheduleTbaBooking({
             bookingId: button.dataset.bookingId,
             beauticianId: button.dataset.beauticianId,
+            productId: button.dataset.productId,
+            spaBranchId: button.dataset.spaBranchId,
             scheduleUrlTemplate,
             slotsUrl,
         });
+    });
+}
+
+
+export function initCalendarBookingDrop(app) {
+    const root =
+        document.getElementById("tr-crm-dashboard") ||
+        document.getElementById("tr-reservations-app") ||
+        document.getElementById("tr-portal-app");
+    const scheduleUrlTemplate = root?.dataset?.tbaScheduleUrl || "";
+    const slotsUrl = root?.dataset?.tbaSlotsUrl || "";
+    const grid = app?.gridViewport || app?.grid || document.getElementById("tr-calendar-grid-viewport") || document.getElementById("tr-calendar-grid");
+
+    if (!grid) {
+        return;
+    }
+
+    let dragPayload = null;
+
+    document.addEventListener("dragstart", (event) => {
+        const tbaItem = event.target.closest(".tr-crm-tba-item[draggable='true']");
+        const calEvent = event.target.closest(".tr-cal-event[data-cal-draggable='1']");
+        const source = tbaItem || calEvent;
+
+        if (!source || !event.dataTransfer) {
+            return;
+        }
+
+        const bookingId = source.dataset.bookingId || source.dataset.tbaBookingId;
+        if (!bookingId) {
+            return;
+        }
+
+        dragPayload = {
+            bookingId,
+            beauticianId: source.dataset.beauticianId || source.dataset.tbaBeauticianId || "",
+            productId: source.dataset.productId || "",
+            spaBranchId: source.dataset.spaBranchId || "",
+            isTba: tbaItem ? true : source.dataset.isTba === "1",
+        };
+
+        event.dataTransfer.setData("text/plain", bookingId);
+        event.dataTransfer.effectAllowed = "move";
+        source.classList.add("is-dragging");
+    });
+
+    document.addEventListener("dragend", (event) => {
+        event.target.closest(".is-dragging")?.classList.remove("is-dragging");
+        grid.querySelectorAll(".tr-cal-day--drop-target").forEach((el) => el.classList.remove("tr-cal-day--drop-target"));
+        dragPayload = null;
+    });
+
+    grid.addEventListener("dragover", (event) => {
+        const day = event.target.closest("[data-date]");
+        if (!day || !dragPayload) {
+            return;
+        }
+        event.preventDefault();
+        grid.querySelectorAll(".tr-cal-day--drop-target").forEach((el) => {
+            if (el !== day) el.classList.remove("tr-cal-day--drop-target");
+        });
+        day.classList.add("tr-cal-day--drop-target");
+        if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = "move";
+        }
+    });
+
+    grid.addEventListener("dragleave", (event) => {
+        const day = event.target.closest("[data-date]");
+        if (day && !day.contains(event.relatedTarget)) {
+            day.classList.remove("tr-cal-day--drop-target");
+        }
+    });
+
+    grid.addEventListener("drop", async (event) => {
+        const day = event.target.closest("[data-date]");
+        if (!day || !dragPayload) {
+            return;
+        }
+        event.preventDefault();
+        day.classList.remove("tr-cal-day--drop-target");
+
+        const date = day.dataset.date;
+        const payload = { ...dragPayload };
+        dragPayload = null;
+
+        if (payload.isTba) {
+            if (!scheduleUrlTemplate || !slotsUrl) {
+                window.notify?.error?.("Schedule URL missing") || alert("Schedule URL missing");
+                return;
+            }
+            await scheduleTbaBooking({
+                bookingId: payload.bookingId,
+                beauticianId: payload.beauticianId,
+                productId: payload.productId,
+                spaBranchId: payload.spaBranchId,
+                scheduleUrlTemplate,
+                slotsUrl,
+                appointmentDate: date,
+            });
+            return;
+        }
+
+        const booking = typeof getCalendarBooking === "function"
+            ? getCalendarBooking(payload.bookingId)
+            : null;
+
+        if (!booking) {
+            window.notify?.error?.("Booking not found") || alert("Booking not found");
+            return;
+        }
+
+        // Open manual editor on the dropped date; slots API enforces capacity via engine.
+        if (typeof openManualBookingEditor === "function") {
+            openManualBookingEditor({
+                ...booking,
+                appointment_date_value: date,
+                date,
+                appointment_date: date,
+            });
+        }
     });
 }
 
@@ -878,7 +1272,7 @@ export function initCrmDashboard(app) {
         // ignore invalid seed payload
     }
 
-    initDashboardSearch();
+    initDashboardSearch(app);
     initDateFilterPills();
     initCrmDatePicker();
     initAgendaPanel(app);

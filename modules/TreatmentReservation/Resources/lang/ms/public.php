@@ -49,6 +49,7 @@ return [
     'slot_unavailable' => 'Slot masa tersebut tidak lagi tersedia. Sila pilih slot lain.',
     'loading_slots' => 'Memuatkan masa tersedia…',
     'no_slots' => 'Tiada masa tersedia pada tarikh ini.',
+    'open_dates_hint' => 'Hanya tarikh dengan slot rawatan terbuka disenaraikan. Hari tutup tidak akan menunjukkan masa.',
     'beautician' => 'Beautician',
     'treatment' => 'Rawatan',
     'date' => 'Tarikh',

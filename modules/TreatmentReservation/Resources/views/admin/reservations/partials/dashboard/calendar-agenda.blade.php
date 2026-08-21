@@ -33,6 +33,7 @@
                 <p class="tr-crm-agenda__eyebrow">{{ TrLang::trans('admin.crm.agenda_title') }}</p>
                 <h4 class="tr-crm-agenda__title" id="tr-crm-agenda-title">—</h4>
             </header>
+            <div class="tr-crm-agenda__holiday" id="tr-crm-agenda-holiday" hidden></div>
             <ul class="tr-crm-agenda__list" id="tr-crm-agenda-list" data-crm-list></ul>
             <p class="tr-crm-agenda__empty" id="tr-crm-agenda-empty" hidden>
                 {{ TrLang::trans('admin.calendar.no_bookings') }}

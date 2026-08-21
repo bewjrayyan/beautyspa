@@ -155,11 +155,25 @@ class ReservationController extends Controller
                 continue;
             }
 
+            $payloadItems = $items->map(function (TreatmentPublicHoliday $holiday) {
+                return [
+                    'label' => $holiday->name,
+                    'color' => $holiday->color,
+                    'kind' => $this->holidayKindForHolidayName((string) $holiday->name),
+                    'states' => array_values($holiday->state_codes ?? []),
+                    'day_name' => $holiday->day_name,
+                    'is_subject_to_change' => (bool) $holiday->is_subject_to_change,
+                ];
+            })->values()->all();
+
             $map[$date] = [
                 'label' => $first->name,
                 'color' => $first->color,
                 'kind' => $this->holidayKindForHolidayName((string) $first->name),
                 'states' => array_values($first->state_codes ?? []),
+                'day_name' => $first->day_name,
+                'is_subject_to_change' => (bool) $first->is_subject_to_change,
+                'items' => $payloadItems,
             ];
         }
 

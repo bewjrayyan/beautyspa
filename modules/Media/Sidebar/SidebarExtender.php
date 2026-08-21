@@ -11,9 +11,9 @@ class SidebarExtender extends BaseSidebarExtender
 {
     public function extend(Menu $menu)
     {
-        $menu->group(trans('admin::sidebar.content'), function (Group $group) {
+        $menu->group(trans('admin::sidebar.website'), function (Group $group) {
             $group->item(trans('media::media.media'), function (Item $item) {
-                $item->weight(40);
+                $item->weight(25);
                 $item->icon('fa fa-camera');
                 $item->route('admin.media.index');
                 $item->authorize(

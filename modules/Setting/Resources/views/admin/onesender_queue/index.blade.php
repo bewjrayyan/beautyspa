@@ -13,19 +13,6 @@
 @endsection
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible">
-            @include('admin::partials.alert_close', ['times' => true])
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger alert-dismissible">
-            @include('admin::partials.alert_close', ['times' => true])
-            {{ session('error') }}
-        </div>
-    @endif
 
     <div class="box box-primary">
         <div class="box-header with-border">

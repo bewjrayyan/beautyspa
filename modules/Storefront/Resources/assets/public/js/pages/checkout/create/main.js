@@ -22,6 +22,9 @@ Alpine.data(
         requiresTreatmentBooking = false,
         beauticians = [],
         availabilitySlotsUrl = null,
+        availabilityDatesUrl = null,
+        treatmentProductId = null,
+        treatmentAllowTbaByBranch = {},
         slotLabels = {},
         spaBranches = [],
         loyaltyBalance = 0,
@@ -36,6 +39,9 @@ Alpine.data(
         requiresTreatmentBooking,
         beauticians,
         availabilitySlotsUrl,
+        availabilityDatesUrl,
+        treatmentProductId,
+        treatmentAllowTbaByBranch,
         slotLabels,
         spaBranches,
         loggedIn: Boolean(window.AestheticCart?.loggedIn),
@@ -83,6 +89,11 @@ Alpine.data(
         spaBranchPickerOpen: false,
         appointmentSlots: [],
         loadingAppointmentSlots: false,
+        appointmentSlotsRequestId: 0,
+        availableAppointmentDates: [],
+        loadingAppointmentDates: false,
+        appointmentDatesResolved: false,
+        appointmentDatesLoadFailed: false,
         errors: new Errors(),
         accountEmailExists: false,
         checkingAccountEmail: false,
@@ -263,6 +274,16 @@ Alpine.data(
             );
         },
 
+        get canScheduleLater() {
+            const branchId = String(this.form.spa_branch_id || "");
+
+            if (!branchId || !(branchId in this.treatmentAllowTbaByBranch)) {
+                return true;
+            }
+
+            return Boolean(this.treatmentAllowTbaByBranch[branchId]);
+        },
+
         get appointmentTimeSelectOptions() {
             if (this.loadingAppointmentSlots) {
                 return [
@@ -340,9 +361,13 @@ Alpine.data(
 
         async loadAppointmentSlots() {
             if (this.isScheduleLater || !this.availabilitySlotsUrl || !this.form.beautician_id || !this.form.appointment_date) {
+                this.appointmentSlotsRequestId += 1;
+                this.appointmentSlots = [];
+                this.form.appointment_time = "";
                 return;
             }
 
+            const requestId = ++this.appointmentSlotsRequestId;
             this.loadingAppointmentSlots = true;
 
             try {
@@ -351,8 +376,16 @@ Alpine.data(
                     String(this.form.beautician_id)
                 );
                 const response = await axios.get(url, {
-                    params: { date: this.form.appointment_date },
+                    params: {
+                        date: this.form.appointment_date,
+                        spa_branch_id: this.form.spa_branch_id || null,
+                        product_id: this.treatmentProductId || null,
+                    },
                 });
+
+                if (requestId !== this.appointmentSlotsRequestId) {
+                    return;
+                }
 
                 this.appointmentSlots = response.data.slots || [];
 
@@ -362,10 +395,136 @@ Alpine.data(
                     this.form.appointment_time = this.appointmentSlots[0] || "";
                 }
             } catch (error) {
+                if (requestId !== this.appointmentSlotsRequestId) {
+                    return;
+                }
+
                 this.appointmentSlots = [];
                 this.form.appointment_time = "";
             } finally {
-                this.loadingAppointmentSlots = false;
+                if (requestId === this.appointmentSlotsRequestId) {
+                    this.loadingAppointmentSlots = false;
+                }
+            }
+        },
+
+        async loadAvailableAppointmentDates() {
+            if (
+                this.isScheduleLater ||
+                !this.availabilityDatesUrl ||
+                !this.form.spa_branch_id ||
+                !this.treatmentProductId ||
+                !this.form.beautician_id
+            ) {
+                this.availableAppointmentDates = [];
+                this.appointmentDatesResolved = false;
+                this.appointmentDatesLoadFailed = false;
+                this.refreshAppointmentDatePicker();
+                this.syncAppointmentDatePickerState();
+                return;
+            }
+
+            this.loadingAppointmentDates = true;
+            this.appointmentDatesResolved = false;
+            this.appointmentDatesLoadFailed = false;
+            this.syncAppointmentDatePickerState();
+
+            try {
+                const from = this.minAppointmentDate;
+                const toDate = new Date();
+                toDate.setDate(toDate.getDate() + 60);
+                const to = toDate.toISOString().split("T")[0];
+
+                const response = await axios.get(this.availabilityDatesUrl, {
+                    params: {
+                        spa_branch_id: this.form.spa_branch_id,
+                        product_id: this.treatmentProductId,
+                        beautician_id: this.form.beautician_id || null,
+                        from,
+                        to,
+                    },
+                });
+
+                this.availableAppointmentDates = response.data.dates || [];
+                this.appointmentDatesResolved = true;
+
+                if (
+                    this.form.appointment_date &&
+                    !this.availableAppointmentDates.includes(this.form.appointment_date)
+                ) {
+                    this.form.appointment_date = this.availableAppointmentDates[0] || "";
+                    const dateInput = document.getElementById("appointment-date");
+                    if (dateInput) {
+                        dateInput.value = this.form.appointment_date;
+                    }
+                }
+
+                this.refreshAppointmentDatePicker();
+            } catch (error) {
+                this.availableAppointmentDates = [];
+                this.appointmentDatesResolved = true;
+                this.appointmentDatesLoadFailed = true;
+                this.form.appointment_date = "";
+                this.form.appointment_time = "";
+                this.refreshAppointmentDatePicker();
+            } finally {
+                this.loadingAppointmentDates = false;
+                this.syncAppointmentDatePickerState();
+            }
+        },
+
+        appointmentDateEnableRules() {
+            return this.availableAppointmentDates.filter(Boolean);
+        },
+
+        syncAppointmentDatePickerState() {
+            const dateEl = document.getElementById("appointment-date");
+            const picker = dateEl?._flatpickr;
+            const disabled =
+                this.isScheduleLater ||
+                this.loadingAppointmentDates ||
+                !this.form.spa_branch_id ||
+                !this.form.beautician_id ||
+                !this.treatmentProductId;
+
+            if (dateEl) {
+                dateEl.disabled = disabled;
+            }
+
+            if (!picker) {
+                return;
+            }
+
+            picker.input.disabled = disabled;
+            picker._input.disabled = disabled;
+            picker._input.setAttribute("aria-disabled", disabled ? "true" : "false");
+
+            if (picker.altInput) {
+                picker.altInput.disabled = disabled;
+            }
+
+            if (disabled) {
+                picker.close();
+            }
+        },
+
+        refreshAppointmentDatePicker() {
+            const dateEl = document.getElementById("appointment-date");
+            const picker = dateEl?._flatpickr;
+
+            if (!picker) {
+                return;
+            }
+
+            // Flatpickr's parseDateRules() calls `.slice()` on `enable` —
+            // never pass undefined/null here.
+            picker.set("enable", this.appointmentDateEnableRules());
+            picker.set("minDate", this.minAppointmentDate);
+
+            if (this.form.appointment_date) {
+                picker.setDate(this.form.appointment_date, false);
+            } else {
+                picker.clear(false);
             }
         },
 
@@ -479,6 +638,10 @@ Alpine.data(
                     this.beauticianPickerOpen = false;
                     this.spaBranchPickerOpen = false;
                     this.syncBeauticianWithBranch();
+                    if (!this.canScheduleLater) {
+                        this.form.schedule_later = "0";
+                    }
+                    this.loadAvailableAppointmentDates();
                 });
             }
 
@@ -486,19 +649,29 @@ Alpine.data(
             this.setTabReminder();
 
             if (this.requiresTreatmentBooking && this.availabilitySlotsUrl) {
-                this.$watch("form.beautician_id", () => this.loadAppointmentSlots());
+                this.$watch("form.beautician_id", () => {
+                    this.loadAvailableAppointmentDates();
+                    this.loadAppointmentSlots();
+                });
                 this.$watch("form.appointment_date", () => this.loadAppointmentSlots());
                 this.$watch("form.schedule_later", (value) => {
                     if (value === true || value === 1 || value === "1") {
                         this.form.appointment_date = "";
                         this.form.appointment_time = "";
                         this.appointmentSlots = [];
+                        this.availableAppointmentDates = [];
+                        this.appointmentDatesResolved = false;
+                        this.appointmentDatesLoadFailed = false;
                         const dateInput = document.getElementById("appointment-date");
                         if (dateInput) dateInput.value = "";
                     } else {
+                        this.loadAvailableAppointmentDates();
                         this.loadAppointmentSlots();
                     }
+
+                    this.$nextTick(() => this.syncAppointmentDatePickerState());
                 });
+                this.loadAvailableAppointmentDates();
                 this.loadAppointmentSlots();
             }
 
@@ -641,12 +814,14 @@ Alpine.data(
                 }
 
                 if (dateEl && !dateEl._flatpickr) {
+                    const defaultDate =
+                        this.form.appointment_date || this.minAppointmentDate;
+
                     flatpickr(dateEl, {
                         ...buildDatepickerOptions(dateEl),
                         minDate: this.minAppointmentDate,
-                        defaultDate:
-                            this.form.appointment_date ||
-                            this.minAppointmentDate,
+                        defaultDate: defaultDate || undefined,
+                        enable: this.appointmentDateEnableRules(),
                         onChange: (_selectedDates, dateStr) => {
                             this.form.appointment_date = dateStr;
 
@@ -655,6 +830,8 @@ Alpine.data(
                             }
                         },
                     });
+
+                    this.syncAppointmentDatePickerState();
                 }
 
                 if (!this.availabilitySlotsUrl && timeEl && !timeEl._flatpickr) {
@@ -762,9 +939,12 @@ Alpine.data(
             };
 
             if (this.requiresTreatmentBooking) {
+                payload.schedule_later = this.isScheduleLater ? 1 : 0;
                 payload.beautician_id = this.form.beautician_id;
-                payload.appointment_date = this.form.appointment_date;
-                payload.appointment_time = this.form.appointment_time
+                payload.appointment_date = this.isScheduleLater
+                    ? null
+                    : this.form.appointment_date;
+                payload.appointment_time = !this.isScheduleLater && this.form.appointment_time
                     ? String(this.form.appointment_time).slice(0, 5)
                     : null;
             }

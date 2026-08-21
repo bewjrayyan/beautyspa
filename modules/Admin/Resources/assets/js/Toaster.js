@@ -1,14 +1,11 @@
-import { useToast } from "vue-toast-notification";
-import "@admin/sass/toaster.scss";
+import { toast } from "./SweetNotification";
 
 export function toaster(message, options = {}) {
-    useToast().open({
-        message,
-        type: options.type || "default",
-        duration: 5000,
-        dismissible: true,
-        position: "top-right",
-        pauseOnHover: true,
+    const type = options.type || "default";
+
+    return toast(type, message, {
+        duration: options.duration ?? 5000,
+        position: options.position === "top-right" ? "top-end" : options.position,
         ...options,
     });
 }

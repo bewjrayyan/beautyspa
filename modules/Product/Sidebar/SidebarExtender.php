@@ -11,10 +11,11 @@ class SidebarExtender extends BaseSidebarExtender
 {
     public function extend(Menu $menu)
     {
-        $menu->group(trans('admin::sidebar.content'), function (Group $group) {
+        $menu->group(trans('admin::sidebar.catalog'), function (Group $group) {
+            $group->weight(3);
             $group->item(trans('product::sidebar.products'), function (Item $item) {
                 $item->icon('fa fa-cube');
-                $item->weight(10);
+                $item->weight(5);
                 $item->route('admin.products.index');
                 $item->authorize(
                     $this->auth->hasAnyAccess([
@@ -45,10 +46,13 @@ class SidebarExtender extends BaseSidebarExtender
                     );
                 });
             });
+        });
 
+        $menu->group(trans('admin::sidebar.operations'), function (Group $group) {
+            $group->weight(2);
             $group->item(trans('product::sidebar.consultation_forms'), function (Item $item) {
                 $item->icon('fa fa-file-text-o');
-                $item->weight(16);
+                $item->weight(20);
                 $item->route('admin.consultation_forms.index');
                 $item->isActiveWhen(route('admin.consultation_forms.index', null, false));
                 $item->authorize($this->auth->hasAccess('admin.consultation_forms.index'));

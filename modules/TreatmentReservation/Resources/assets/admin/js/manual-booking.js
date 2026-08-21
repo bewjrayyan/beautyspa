@@ -371,6 +371,21 @@ function bindManualBookingModal(modal) {
             params.beautician_id = beauticianId;
         }
 
+        const productId =
+            form.querySelector('[name="product_id"]')?.value || "";
+        const spaBranchId =
+            form.querySelector('[name="spa_branch_id"]')?.value ||
+            modal.dataset.spaBranchId ||
+            "";
+
+        if (productId) {
+            params.product_id = productId;
+        }
+
+        if (spaBranchId) {
+            params.spa_branch_id = spaBranchId;
+        }
+
         if (isEditMode() && bookingIdInput?.value) {
             params.booking_id = bookingIdInput.value;
         }
@@ -607,6 +622,12 @@ function bindManualBookingModal(modal) {
     const fillFormForEdit = (booking) => {
         suppressCustomerLookup = true;
         setEditMode(booking.id);
+
+        if (booking.spa_branch_id) {
+            modal.dataset.spaBranchId = String(booking.spa_branch_id);
+        } else {
+            delete modal.dataset.spaBranchId;
+        }
 
         if (beauticianPicker && booking.beautician_id) {
             setBeauticianPickerValue(beauticianPicker, String(booking.beautician_id));

@@ -16,6 +16,7 @@ import {
     warning,
     error,
 } from "./functions";
+import SweetNotification, { bootFlashes } from "./SweetNotification";
 
 const regex =
     /^\/[a-z]{2}\/admin\/(products|blog\/posts)\/(create|(\d+)\/edit)$/;
@@ -29,8 +30,24 @@ window.DataTable = DataTable;
 
 window.trans = trans;
 window.keypressAction = keypressAction;
-window.notify = notify;
+window.SweetNotification = SweetNotification;
+window.notify = Object.assign(notify, {
+    success,
+    error,
+    warning,
+    info,
+    alert: SweetNotification.alert,
+    confirm: SweetNotification.confirm,
+    confirmDelete: SweetNotification.confirmDelete,
+});
+window.confirmDelete = SweetNotification.confirmDelete;
 window.info = info;
 window.success = success;
 window.warning = warning;
 window.error = error;
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => bootFlashes());
+} else {
+    bootFlashes();
+}

@@ -11,10 +11,10 @@ class SidebarExtender extends BaseSidebarExtender
 {
     public function extend(Menu $menu)
     {
-        $menu->group(trans('admin::sidebar.content'), function (Group $group) {
+        $menu->group(trans('admin::sidebar.commerce'), function (Group $group) {
             $group->item(trans('loyalty::sidebar.loyalty'), function (Item $item) {
                 $item->icon('fa fa-star');
-                $item->weight(19);
+                $item->weight(10);
                 $item->authorize(
                     $this->auth->hasAccess('admin.loyalty.members.index')
                     || $this->auth->hasAccess('admin.loyalty.tiers.index')

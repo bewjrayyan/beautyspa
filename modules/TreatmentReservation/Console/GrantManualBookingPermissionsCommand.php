@@ -28,6 +28,7 @@ class GrantManualBookingPermissionsCommand extends Command
                 'admin.treatment_reservations.index' => true,
                 'admin.treatment_reservations.create' => true,
                 'admin.treatment_reservations.edit' => true,
+                'admin.treatment_reservations.availability' => true,
             ];
 
         $role->permissions = array_merge($role->permissions ?? [], $permissions);

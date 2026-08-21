@@ -177,8 +177,78 @@ export default class {
 
     confirmationModal() {
         let confirmationModal = $("#confirmation-modal");
+        let sweetConfirmPending = false;
 
-        $("[data-confirm]").on("click", () => {
+        const resolveConfirmText = () => {
+            const custom = confirmationModal.data("confirm-text");
+
+            if (custom) {
+                return custom;
+            }
+
+            const bodyText = confirmationModal
+                .find(".modal-body .default-message")
+                .text()
+                .trim();
+
+            return bodyText || undefined;
+        };
+
+        const openSweetConfirm = () => {
+            if (sweetConfirmPending) {
+                return;
+            }
+
+            if (typeof window.SweetNotification?.confirmDelete !== "function") {
+                confirmationModal.modal("show");
+                return;
+            }
+
+            sweetConfirmPending = true;
+
+            window.SweetNotification.confirmDelete(resolveConfirmText())
+                .then((confirmed) => {
+                    if (!confirmed) {
+                        return;
+                    }
+
+                    confirmationModal.find("form").trigger("submit");
+                })
+                .finally(() => {
+                    sweetConfirmPending = false;
+                    confirmationModal.removeData("confirm-text");
+                });
+        };
+
+        // Intercept Bootstrap confirmation modal -> SweetAlert2 dialog
+        confirmationModal.on("show.bs.modal", (e) => {
+            if (sweetConfirmPending) {
+                return;
+            }
+
+            if (typeof window.SweetNotification?.confirmDelete !== "function") {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            // Allow callers that chain `.modal("show").find("form").on("submit")`
+            // to bind handlers before the user confirms.
+            setTimeout(openSweetConfirm, 0);
+        });
+
+        $("[data-confirm]").on("click", (e) => {
+            const el = e.currentTarget;
+            const confirmText =
+                el.getAttribute("data-confirm-text") ||
+                el.getAttribute("data-confirm") ||
+                "";
+
+            if (confirmText && confirmText !== "true") {
+                confirmationModal.data("confirm-text", confirmText);
+            }
+
             confirmationModal.modal("show");
         });
 

@@ -1585,15 +1585,19 @@ $tr-text: #1a202c;
 
 .tr-calendar-meta {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 14px 24px 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 24px 24px 10px;
 }
 
 .tr-calendar-status-legend {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: 10px 16px;
     padding: 10px 14px;
     border-radius: 12px;
@@ -1873,14 +1877,16 @@ $tr-text: #1a202c;
 }
 
 .tr-calendar-legend {
-    flex: 1;
-    min-width: 280px;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
     margin-bottom: 0;
 
     &__inner {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
+        justify-content: center;
         gap: 10px 16px;
         padding: 12px 14px;
         border-radius: 12px;
@@ -1922,6 +1928,24 @@ $tr-text: #1a202c;
         flex-shrink: 0;
         box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
     }
+}
+
+
+.tr-calendar--embedded .tr-calendar-meta {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding-top: 28px;
+    padding-bottom: 12px;
+    margin-top: 4px;
+}
+
+.tr-calendar--embedded .tr-calendar-status-legend,
+.tr-calendar--embedded .tr-calendar-legend {
+    flex: 0 1 auto;
+    width: auto;
+    max-width: 100%;
 }
 
 .tr-beautician-avatar {
@@ -3249,6 +3273,7 @@ body.tr-calendar-event-preview-open {
 
 @import "urgency-alerts";
 @import "dashboard-crm";
+@import "appointment-availability";
 
 // Day/Month view toggle
 .tr-calendar-view-toggle {

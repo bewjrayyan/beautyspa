@@ -5,6 +5,7 @@ namespace Modules\TreatmentReservation\Services;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\BeauticianBlockedTime;
 use Modules\TreatmentReservation\Entities\BeauticianWorkingHour;
@@ -275,6 +276,21 @@ class BeauticianAvailabilityService
             return;
         }
 
+        if (Schema::hasTable('appointment_availability_locks')) {
+            $lockKey = "beautician:{$beauticianId}:{$date}";
+
+            DB::table('appointment_availability_locks')->insertOrIgnore([
+                'lock_key' => $lockKey,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('appointment_availability_locks')
+                ->where('lock_key', $lockKey)
+                ->lockForUpdate()
+                ->first();
+        }
+
         TreatmentBooking::query()
             ->where('beautician_id', $beauticianId)
             ->where('appointment_date', $date)
@@ -305,6 +321,20 @@ class BeauticianAvailabilityService
         }
 
         return in_array($normalized, $this->availableSlots($beauticianId, $date, $excludeBookingId), true);
+    }
+
+    /**
+     * Determine whether any CRM block overlaps the requested appointment window.
+     * This is public so every booking entry point uses the same block rules.
+     */
+    public function isTimeRangeBlocked(int $beauticianId, string $date, string $start, string $end): bool
+    {
+        $blocks = BeauticianBlockedTime::query()
+            ->where('beautician_id', $beauticianId)
+            ->whereDate('block_date', $date)
+            ->get(['start_time', 'end_time']);
+
+        return $this->isBlocked($blocks, $start, $end);
     }
 
 

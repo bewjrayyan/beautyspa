@@ -40,6 +40,7 @@ export default defineConfig(async ({ command }) => {
                     "modules/Storefront/Resources/assets/public/js/vendors/flatpickr.js",
                     "modules/User/Resources/assets/admin/js/profileForm.js",
                     "modules/Loyalty/Resources/assets/admin/js/stamp-program-products.js",
+                    "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js",
                     "modules/Product/Resources/assets/admin/consultation_forms/preview.css",
                     "modules/Product/Resources/assets/admin/consultation_forms/preview.js",
                     ...assets,

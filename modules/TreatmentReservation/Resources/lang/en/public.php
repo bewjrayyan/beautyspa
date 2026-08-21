@@ -48,6 +48,7 @@ return [
     'slot_unavailable' => 'That time slot is no longer available. Please choose another.',
     'loading_slots' => 'Loading available times…',
     'no_slots' => 'No available times on this date.',
+    'open_dates_hint' => 'Only dates with open treatment slots are listed. Closed days will show no times.',
     'beautician' => 'Beautician',
     'treatment' => 'Treatment',
     'date' => 'Date',

@@ -11,6 +11,10 @@ class BookingSyncService
 {
     public static bool $syncingFromOrder = false;
 
+    public function __construct(
+        private AppointmentAvailabilityService $availability,
+    ) {}
+
 
     public function syncFromOrder(Order $order): ?TreatmentBooking
     {
@@ -36,6 +40,7 @@ class BookingSyncService
 
         $data = [
             'beautician_id' => $order->beautician_id,
+            'spa_branch_id' => $order->spa_branch_id ?? null,
             'treatment_category_id' => $product->treatment_category_id,
             'product_id' => $product->id,
             'customer_first_name' => $order->customer_first_name,
@@ -50,6 +55,13 @@ class BookingSyncService
             'notes' => $order->note,
             'payment_status' => $order->payment_status,
         ];
+
+        if (! $existing?->duration_minutes_snapshot && $product->id && $order->spa_branch_id) {
+            $data['duration_minutes_snapshot'] = $this->availability->resolveDurationMinutes(
+                (int) $product->id,
+                (int) $order->spa_branch_id,
+            );
+        }
 
         if (! $existing) {
             $data['status'] = TreatmentBooking::statusFromOrder($order->status, $order->payment_status);

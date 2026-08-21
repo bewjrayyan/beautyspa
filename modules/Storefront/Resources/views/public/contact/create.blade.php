@@ -139,13 +139,6 @@
                         </div>
                     </div>
 
-                    @if (session('success'))
-                        <div class="contact-alert contact-alert--success" role="status">
-                            <i class="las la-check-circle" aria-hidden="true"></i>
-                            <span>{{ session('success') }}</span>
-                        </div>
-                    @endif
-
                     <div class="contact-form">
                         <form method="POST" action="{{ route('contact.store') }}" @include('storefront::public.partials.google_recaptcha_form_attrs', ['action' => 'contact'])>
                             @csrf

@@ -1,5 +1,6 @@
 import { trans, formatCurrency } from "./functions";
-import { notify } from "./components/Toaster";
+import { notify, SweetNotification } from "./components/Toaster";
+import { bootFlashes } from "./components/SweetNotification";
 import { initModernDatepickers } from "./lib/modernDatepicker";
 import { bootModernPhoneInputs } from "./lib/modernPhoneInput";
 import { initOtpDigitInput } from "./lib/otpDigitInput";
@@ -25,6 +26,14 @@ window.$ = window.jQuery = jQuery;
 window.trans = trans;
 window.formatCurrency = formatCurrency;
 window.notify = notify;
+window.SweetNotification = SweetNotification;
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => bootFlashes());
+} else {
+    bootFlashes();
+}
+
 window.initOtpDigitInput = initOtpDigitInput;
 
 Alpine.data("App", () => ({

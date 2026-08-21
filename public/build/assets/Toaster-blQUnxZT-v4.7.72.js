@@ -1,0 +1,1 @@
+import{t as a}from"./SweetNotification-DVdGnYnA-v4.7.72.js";function i(o,t={}){const r=t.type||"default";return a(r,o,{duration:t.duration??5e3,position:t.position==="top-right"?"top-end":t.position,...t})}export{i as t};

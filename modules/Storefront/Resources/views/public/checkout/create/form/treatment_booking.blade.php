@@ -137,7 +137,7 @@
 
         <div class="form-group checkout-schedule-mode">
             <div class="checkout-schedule-toggle" role="group" aria-label="{{ trans('storefront::checkout.schedule_mode') }}">
-                <label class="checkout-schedule-option">
+                <label class="checkout-schedule-option" x-show="canScheduleLater" x-cloak>
                     <input type="radio" name="schedule_later" value="1" x-model="form.schedule_later" :checked="form.schedule_later === '1' || form.schedule_later === true || form.schedule_later === 1">
                     <span>{{ trans('storefront::checkout.schedule_later_tba') }}</span>
                 </label>
@@ -168,9 +168,22 @@
                             placeholder="{{ trans('storefront::checkout.appointment_date') }}"
                             readonly
                             :required="!isScheduleLater"
-                            :disabled="isScheduleLater"
                         >
                     </div>
+
+                    <p class="help-block" x-show="loadingAppointmentDates" x-cloak>
+                        {{ trans('storefront::checkout.loading_appointment_dates') }}
+                    </p>
+                    <p class="help-block text-danger" x-show="appointmentDatesLoadFailed" x-cloak>
+                        {{ trans('storefront::checkout.appointment_dates_load_failed') }}
+                    </p>
+                    <p
+                        class="help-block"
+                        x-show="!loadingAppointmentDates && appointmentDatesResolved && !appointmentDatesLoadFailed && !availableAppointmentDates.length"
+                        x-cloak
+                    >
+                        {{ trans('storefront::checkout.no_available_appointment_dates') }}
+                    </p>
 
                     <span class="error-message" x-show="errors.has('appointment_date')" x-text="errors.get('appointment_date')"></span>
                 </div>

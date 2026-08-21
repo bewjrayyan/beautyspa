@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\TreatmentReservation\Console\GrantManualBookingPermissionsCommand;
+use Modules\TreatmentReservation\Console\SeedAppointmentAvailabilityCommand;
 use Modules\TreatmentReservation\Console\SendBeauticianAppointmentRemindersCommand;
 use Modules\TreatmentReservation\Console\SendCustomerAppointmentRemindersCommand;
 use Modules\TreatmentReservation\Console\SendCustomerFollowUpNotificationsCommand;
@@ -120,6 +121,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
                 SendCustomerFollowUpNotificationsCommand::class,
                 GrantManualBookingPermissionsCommand::class,
                 SyncTreatmentProductDurationsCommand::class,
+                SeedAppointmentAvailabilityCommand::class,
             ]);
         }
     }

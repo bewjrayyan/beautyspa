@@ -16,18 +16,6 @@
     @endphp
 
     <div class="account-loyalty-show">
-        @if (session('success'))
-            <div class="account-loyalty-alert account-loyalty-alert--success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="account-loyalty-alert account-loyalty-alert--error">
-                {{ session('error') }}
-            </div>
-        @endif
-
         @if (session('stamp_redeemed_code'))
             <div class="account-loyalty-redeem-success" id="stamp-redeem-success">
                 <div class="account-loyalty-redeem-success__icon">

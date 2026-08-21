@@ -6,18 +6,18 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Modules\TreatmentReservation\Services\BookingLookupOtpService;
 use Modules\TreatmentReservation\Services\BookingSelfService;
-use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 
 class BookingSelfServiceController extends Controller
 {
     public function __construct(
         private BookingLookupOtpService $otp,
         private BookingSelfService $selfService,
-        private BeauticianAvailabilityService $availability
-    ) {}
+    ) {
+    }
 
 
     public function index(): View
@@ -154,11 +154,38 @@ class BookingSelfServiceController extends Controller
         }
 
         return response()->json([
-            'slots' => $this->availability->availableSlots(
-                $booking->beautician_id,
-                $request->input('date'),
-                $booking->id
+            'slots' => $this->selfService->availableSlotsForBooking(
+                $booking,
+                $request->input('date')
             ),
+        ]);
+    }
+
+
+    public function availableDates(Request $request, int $id): JsonResponse
+    {
+        $verifiedPhone = $this->otp->verifiedPhone();
+
+        if (! $verifiedPhone) {
+            return response()->json(['message' => trans('treatmentreservation::public.session_expired')], 401);
+        }
+
+        $request->validate([
+            'from' => ['nullable', 'date'],
+            'to' => ['nullable', 'date', 'after_or_equal:from'],
+        ]);
+
+        $booking = $this->selfService->findOwnedBooking($verifiedPhone, $id);
+
+        if (! $booking || ! $booking->beautician_id) {
+            return response()->json(['message' => trans('treatmentreservation::public.booking_not_found')], 404);
+        }
+
+        $from = $request->input('from') ?: today()->toDateString();
+        $to = $request->input('to') ?: Carbon::parse($from)->addMonths(2)->toDateString();
+
+        return response()->json([
+            'dates' => $this->selfService->availableDatesForBooking($booking, $from, $to),
         ]);
     }
 }

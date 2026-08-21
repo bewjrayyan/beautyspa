@@ -11,9 +11,9 @@ class SidebarExtender extends BaseSidebarExtender
 {
     public function extend(Menu $menu)
     {
-        $menu->group(trans('admin::sidebar.content'), function (Group $group) {
+        $menu->group(trans('admin::sidebar.website'), function (Group $group) {
             $group->item(trans('blog::admin.blog'), function (Item $item) {
-                $item->weight(35);
+                $item->weight(20);
                 $item->icon('fa fa-pencil-square-o');
                 $item->route('admin.blog_posts.index');
                 $item->authorize(

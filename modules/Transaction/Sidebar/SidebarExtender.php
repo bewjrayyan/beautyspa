@@ -11,7 +11,7 @@ class SidebarExtender extends BaseSidebarExtender
 {
     public function extend(Menu $menu)
     {
-        $menu->group(trans('admin::sidebar.content'), function (Group $group) {
+        $menu->group(trans('admin::sidebar.commerce'), function (Group $group) {
             $group->item(trans('admin::sidebar.sales'), function (Item $item) {
                 $item->item(trans('transaction::transactions.transactions'), function (Item $item) {
                     $item->weight(10);

@@ -11,7 +11,7 @@ use Modules\User\Entities\User;
 class ScheduleTbaBookingService
 {
     public function __construct(
-        private BeauticianAvailabilityService $availability,
+        private AppointmentAvailabilityService $availability,
         private TreatmentBookingActivityLogger $activityLogger,
         private BookingCustomerWhatsAppService $customerWhatsApp,
     ) {}
@@ -32,15 +32,33 @@ class ScheduleTbaBookingService
             $beauticianId = (int) ($data['beautician_id'] ?? $booking->beautician_id);
             $date = (string) $data['appointment_date'];
             $time = (string) $data['appointment_time'];
+            $spaBranchId = (int) ($data['spa_branch_id'] ?? $booking->spa_branch_id ?? 0);
+            $productId = (int) ($booking->product_id ?? 0);
 
-            Beautician::query()
-                ->where('is_active', true)
-                ->findOrFail($beauticianId);
+            if (! Beautician::query()->whereKey($beauticianId)->where('is_active', true)->exists()) {
+                throw new \InvalidArgumentException(trans('treatmentreservation::admin.manual_booking.beautician_inactive'));
+            }
 
-            $this->availability->lockAppointmentsForDate($beauticianId, $date);
+            if ($spaBranchId && (! DB::table('spa_branches')->where('id', $spaBranchId)->where('is_active', true)->exists()
+                || ! DB::table('beautician_spa_branch')->where('beautician_id', $beauticianId)->where('spa_branch_id', $spaBranchId)->exists())) {
+                throw new \InvalidArgumentException(trans('treatmentreservation::admin.manual_booking.beautician_branch_mismatch'));
+            }
 
-            if (! $this->availability->isSlotAvailable($beauticianId, $date, $time, $booking->id)) {
-                throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+            if ($productId && $spaBranchId) {
+                $this->availability->assertSlotBookable(
+                    $productId,
+                    $spaBranchId,
+                    $date,
+                    $time,
+                    $beauticianId,
+                    $booking->id
+                );
+            } else {
+                app(BeauticianAvailabilityService::class)->lockAppointmentsForDate($beauticianId, $date);
+
+                if (! app(BeauticianAvailabilityService::class)->isSlotAvailable($beauticianId, $date, $time, $booking->id)) {
+                    throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
+                }
             }
 
             $normalizedTime = $this->availability->normalizeTime($time);
@@ -51,8 +69,12 @@ class ScheduleTbaBookingService
 
             $booking->update([
                 'beautician_id' => $beauticianId,
+                'spa_branch_id' => $spaBranchId ?: $booking->spa_branch_id,
                 'appointment_date' => $date,
                 'appointment_time' => $normalizedTime,
+                'duration_minutes_snapshot' => $productId && $spaBranchId
+                    ? $this->availability->resolveDurationMinutes($productId, $spaBranchId)
+                    : $booking->duration_minutes_snapshot,
                 'schedule_status' => null,
             ]);
 

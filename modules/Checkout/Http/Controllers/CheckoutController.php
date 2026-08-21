@@ -39,6 +39,7 @@ use Modules\Beautician\Entities\Beautician;
 use Modules\Loyalty\Services\LoyaltyConfig;
 use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\SpaBranch\Entities\SpaBranch;
+use Modules\TreatmentReservation\Entities\TreatmentBranchAvailability;
 use Modules\Coupon\Checkers\UsageLimitPerCustomer;
 use Modules\Cart\Http\Middleware\CheckCartItemsStock;
 use Modules\Cart\Http\Middleware\RedirectIfCartIsEmpty;
@@ -183,6 +184,9 @@ class CheckoutController extends Controller
         float $loyaltyWorthRm,
     ): array {
         $user = auth()->user();
+        $treatmentProductId = $requiresTreatmentBooking
+            ? $this->resolveCartTreatmentProductId()
+            : null;
 
         if ($user) {
             $user->loadMissing(['defaultAddress', 'addresses']);
@@ -205,6 +209,17 @@ class CheckoutController extends Controller
             'availabilitySlotsUrl' => $requiresTreatmentBooking && app('modules')->isEnabled('TreatmentReservation')
                 ? route('treatment_reservations.availability.slots', ['beautician' => '__BEAUTICIAN__'])
                 : null,
+            'availabilityDatesUrl' => $requiresTreatmentBooking && app('modules')->isEnabled('TreatmentReservation')
+                ? route('treatment_reservations.availability.dates')
+                : null,
+            'treatmentProductId' => $treatmentProductId,
+            'treatmentAllowTbaByBranch' => $treatmentProductId && app('modules')->isEnabled('TreatmentReservation')
+                ? TreatmentBranchAvailability::query()
+                    ->where('product_id', $treatmentProductId)
+                    ->pluck('allow_tba', 'spa_branch_id')
+                    ->map(fn ($allowed) => (bool) $allowed)
+                    ->all()
+                : [],
             'slotLabels' => array_merge(
                 [
                     'select_beautician' => trans('storefront::checkout.select_beautician'),
@@ -265,5 +280,19 @@ class CheckoutController extends Controller
         }
 
         return auth()->user()->addresses->keyBy('id');
+    }
+
+
+    private function resolveCartTreatmentProductId(): ?int
+    {
+        foreach (Cart::items() as $item) {
+            $product = $item->product ?? null;
+
+            if ($product && ($product->is_virtual ?? false)) {
+                return (int) $product->id;
+            }
+        }
+
+        return null;
     }
 }

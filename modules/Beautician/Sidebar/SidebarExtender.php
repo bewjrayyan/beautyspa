@@ -11,10 +11,10 @@ class SidebarExtender extends BaseSidebarExtender
 {
     public function extend(Menu $menu)
     {
-        $menu->group(trans('admin::sidebar.content'), function (Group $group) {
+        $menu->group(trans('admin::sidebar.operations'), function (Group $group) {
             $group->item(trans('beautician::sidebar.beauticians'), function (Item $item) {
                 $item->icon('fa fa-user-md');
-                $item->weight(18);
+                $item->weight(10);
                 $item->route('admin.beauticians.index');
                 $item->authorize(
                     $this->auth->hasAnyAccess([

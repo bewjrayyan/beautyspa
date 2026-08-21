@@ -3,6 +3,7 @@
 namespace Modules\TreatmentReservation\Http\Requests\Concerns;
 
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Requests\StoreManualBookingRequest;
 
@@ -26,10 +27,25 @@ trait ValidatesManualBookingFields
             'customer_phone' => ['required', new \Modules\Core\Rules\ValidPhone()],
             'customer_email' => ['nullable', 'email', 'max:255'],
             'product_id' => StoreManualBookingRequest::treatmentProductRule(),
+            'spa_branch_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('spa_branches', 'id')->where('is_active', true),
+            ],
             'beautician_id' => [
                 'required',
                 'integer',
                 Rule::exists('beauticians', 'id')->where('is_active', true),
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $branchId = (int) $this->input('spa_branch_id');
+
+                    if ($branchId && ! DB::table('beautician_spa_branch')
+                        ->where('beautician_id', (int) $value)
+                        ->where('spa_branch_id', $branchId)
+                        ->exists()) {
+                        $fail(trans('treatmentreservation::admin.manual_booking.beautician_branch_mismatch'));
+                    }
+                },
             ],
             'appointment_date' => $scheduleLater
                 ? ['nullable', 'date', 'after_or_equal:today']

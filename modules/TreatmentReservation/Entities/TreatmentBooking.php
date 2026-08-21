@@ -48,6 +48,7 @@ class TreatmentBooking extends Model
         'source',
         'created_by_user_id',
         'beautician_id',
+        'spa_branch_id',
         'treatment_category_id',
         'product_id',
         'variant_id',
@@ -59,6 +60,7 @@ class TreatmentBooking extends Model
         'customer_email',
         'appointment_date',
         'appointment_time',
+        'duration_minutes_snapshot',
         'schedule_status',
         'status',
         'total',
@@ -71,6 +73,7 @@ class TreatmentBooking extends Model
 
     protected $casts = [
         'appointment_date' => 'date',
+        'duration_minutes_snapshot' => 'integer',
         'total' => 'float',
         'product_options' => 'array',
         'product_variations' => 'array',
@@ -603,6 +606,7 @@ class TreatmentBooking extends Model
             'source' => $this->source ?? self::SOURCE_CHECKOUT,
             'source_label' => $this->sourceLabel(),
             'spa_branch_name' => $this->spaBranchLabel(),
+            'spa_branch_id' => $this->spa_branch_id ?? $this->order?->spa_branch_id,
             'is_manual' => $this->isManualBooking(),
             'can_edit_manual' => $this->isManualEditable(),
             'can_cancel_manual' => $this->isManualEditable(),
@@ -783,6 +787,10 @@ class TreatmentBooking extends Model
 
     public function resolveSlotDurationMinutes(): int
     {
+        if ((int) ($this->duration_minutes_snapshot ?? 0) > 0) {
+            return (int) $this->duration_minutes_snapshot;
+        }
+
         $this->loadMissing([
             'product.attributes.attribute',
             'product.attributes.values.attributeValue',

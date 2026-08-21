@@ -4,7 +4,7 @@ $.AestheticCart = {};
    - AestheticCart Options -
    ---------------------------------- */
 $.AestheticCart.options = {
-    animationSpeed: 300,
+    animationSpeed: 220,
     // Sidebar push menu toggle button selector
     sidebarToggleSelector: "[data-toggle='offcanvas']",
     // Activate sidebar push menu
@@ -133,54 +133,76 @@ function _init() {
         },
     };
 
-    // Tree
+    // Tree (accordion + auto-open active parents)
     $.AestheticCart.tree = function (menu) {
         var animationSpeed = $.AestheticCart.options.animationSpeed;
+        var $root = $(menu);
+
+        function setExpanded($link, expanded) {
+            $link.attr("aria-expanded", expanded ? "true" : "false");
+        }
+
+        function closeSiblings($li) {
+            $li.siblings(".treeview.selected, .treeview:not(.closed)")
+                .each(function () {
+                    var $sibling = $(this);
+                    var $menu = $sibling.children(".treeview-menu:visible");
+
+                    $sibling.removeClass("selected").addClass("closed");
+                    setExpanded($sibling.children("a").first(), false);
+
+                    if ($menu.length) {
+                        $menu.stop(true, true).slideUp(animationSpeed);
+                    }
+                });
+        }
+
+        // Ensure active parents start expanded
+        $root.find("li.treeview.active").each(function () {
+            var $li = $(this);
+            var $link = $li.children("a").first();
+            var $submenu = $li.children(".treeview-menu").first();
+
+            $li.removeClass("closed").addClass("selected");
+            setExpanded($link, true);
+
+            if ($submenu.length && !$("body").hasClass("sidebar-collapse")) {
+                $submenu.show();
+            }
+        });
 
         $(document)
-            .off("click", menu + " li a")
-            .on("click", menu + " li a", function (e) {
+            .off("click.aestheticSidebar", menu + " li.treeview > a")
+            .on("click.aestheticSidebar", menu + " li.treeview > a", function (e) {
                 var self = $(this);
-                var checkElement = self.next();
-                var activeElement = self
-                    .closest(".sidebar-menu")
-                    .find(".active");
+                var $li = self.parent();
+                var checkElement = self.nextAll(".treeview-menu").first();
 
-                if (checkElement.is(".treeview-menu")) {
-                    self.closest(".sidebar-menu")
-                        .find(".selected")
-                        .removeClass("selected");
-
-                    e.preventDefault();
+                if (!checkElement.length) {
+                    return;
                 }
 
-                if (self.parent().is(".active")) {
-                    activeElement.toggleClass("closed");
-                } else {
-                    activeElement.addClass("closed");
+                // Always toggle children for treeview parents
+                e.preventDefault();
+
+                if ($("body").hasClass("sidebar-collapse")) {
+                    return;
                 }
 
-                if (
-                    checkElement.is(".treeview-menu") &&
-                    checkElement.is(":visible") &&
-                    !$("body").hasClass("sidebar-collapse")
-                ) {
-                    self.parent().removeClass("selected");
+                var isOpen =
+                    checkElement.is(":visible") && !$li.hasClass("closed");
 
-                    checkElement.slideUp(animationSpeed);
-                } else if (
-                    checkElement.is(".treeview-menu") &&
-                    !checkElement.is(":visible")
-                ) {
-                    var ul = self
-                        .parents("ul")
-                        .first()
-                        .find("ul:visible")
-                        .slideUp(animationSpeed);
-
-                    self.parent().addClass("selected");
-                    checkElement.slideDown(animationSpeed);
+                if (isOpen) {
+                    $li.removeClass("selected").addClass("closed");
+                    setExpanded(self, false);
+                    checkElement.stop(true, true).slideUp(animationSpeed);
+                    return;
                 }
+
+                closeSiblings($li);
+                $li.addClass("selected").removeClass("closed");
+                setExpanded(self, true);
+                checkElement.stop(true, true).slideDown(animationSpeed);
             });
     };
 }

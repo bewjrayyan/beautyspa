@@ -56,6 +56,42 @@ Route::post('treatment-reservations/holidays/import-api', [
     'middleware' => 'can:admin.treatment_reservations.index',
 ]);
 
+Route::get('treatment-reservations/appointment-availability', [
+    'as' => 'admin.treatment_reservations.availability.index',
+    'uses' => 'AppointmentAvailabilityController@index',
+    'middleware' => 'can:admin.treatment_reservations.availability',
+]);
+
+Route::post('treatment-reservations/appointment-availability/branch', [
+    'as' => 'admin.treatment_reservations.availability.branch',
+    'uses' => 'AppointmentAvailabilityController@syncBranch',
+    'middleware' => 'can:admin.treatment_reservations.availability',
+]);
+
+Route::post('treatment-reservations/appointment-availability/treatment', [
+    'as' => 'admin.treatment_reservations.availability.treatment',
+    'uses' => 'AppointmentAvailabilityController@syncTreatment',
+    'middleware' => 'can:admin.treatment_reservations.availability',
+]);
+
+Route::post('treatment-reservations/appointment-availability/overrides', [
+    'as' => 'admin.treatment_reservations.availability.overrides.store',
+    'uses' => 'AppointmentAvailabilityController@storeOverride',
+    'middleware' => 'can:admin.treatment_reservations.availability',
+]);
+
+Route::delete('treatment-reservations/appointment-availability/overrides/{id}', [
+    'as' => 'admin.treatment_reservations.availability.overrides.destroy',
+    'uses' => 'AppointmentAvailabilityController@destroyOverride',
+    'middleware' => 'can:admin.treatment_reservations.availability',
+]);
+
+Route::get('treatment-reservations/appointment-availability/preview-slots', [
+    'as' => 'admin.treatment_reservations.availability.preview_slots',
+    'uses' => 'AppointmentAvailabilityController@previewSlots',
+    'middleware' => 'can:admin.treatment_reservations.availability',
+]);
+
 Route::get('treatment-reservations/holidays', [
     'as' => 'admin.treatment_reservations.holidays.index',
     'uses' => 'ReservationController@holidaysPage',

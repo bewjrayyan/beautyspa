@@ -14,6 +14,7 @@ return [
         'save_and_edit' => 'Simpan & Sunting',
         'save_and_exit' => 'Simpan & Keluar',
         'delete' => 'Padam',
+        'yes' => 'Ya',
         'cancel' => 'Batal',
         'close' => 'Tutup',
         'media_gallery' => 'Galeri media',
@@ -45,9 +46,15 @@ return [
         'previous' => 'Sebelum',
         'next' => 'Seterusnya',
     ],
+    'notifications' => [
+        'success' => 'Berjaya',
+        'error' => 'Berlaku ralat',
+        'warning' => 'Sila semak',
+        'info' => 'Makluman',
+    ],
     'delete' => [
-
         'confirmation' => 'Pengesahan',
+        'are_you_sure' => 'Adakah anda pasti?',
         'confirmation_message' => 'Adakah anda pasti mahu memadam?',
     ],
     'shortcuts' => [

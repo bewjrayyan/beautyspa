@@ -20,6 +20,7 @@ use Modules\Loyalty\Services\LoyaltyOrderService;
 use Modules\Payment\Services\ChipPaymentMethodConfig;
 use Modules\Payment\Services\ChipPaymentMethodsResolver;
 use Modules\Support\Money;
+use Modules\TreatmentReservation\Services\AppointmentAvailabilityService;
 use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\User\Support\PhoneNumber;
 
@@ -248,6 +249,27 @@ class OrderService
             return;
         }
 
+        $spaBranchId = (int) $request->input('spa_branch_id');
+        $productId = $this->resolveCartTreatmentProductId();
+
+        if ($productId && $spaBranchId && app('modules')->isEnabled('SpaBranch')) {
+            $availability = app(AppointmentAvailabilityService::class);
+
+            try {
+                $availability->assertSlotBookable(
+                    $productId,
+                    $spaBranchId,
+                    $booking['appointment_date'],
+                    (string) $request->appointment_time,
+                    (int) $booking['beautician_id']
+                );
+            } catch (\InvalidArgumentException $exception) {
+                throw new CheckoutException($exception->getMessage(), previous: $exception);
+            }
+
+            return;
+        }
+
         $availability = app(BeauticianAvailabilityService::class);
 
         $availability->lockAppointmentsForDate(
@@ -262,6 +284,20 @@ class OrderService
         )) {
             throw new CheckoutException(trans('treatmentreservation::public.slot_unavailable'));
         }
+    }
+
+
+    private function resolveCartTreatmentProductId(): ?int
+    {
+        foreach (Cart::items() as $item) {
+            $product = $item->product ?? null;
+
+            if ($product && ($product->is_virtual ?? false)) {
+                return (int) $product->id;
+            }
+        }
+
+        return null;
     }
 
 

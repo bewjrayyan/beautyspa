@@ -19,6 +19,22 @@ class SpaBranchDatabaseSeeder extends Seeder
                 'address' => "IMMA Seri Laris Beauty & Wellness\nKajang, Selangor 43000",
                 'position' => 1,
             ],
+            [
+                'name' => 'IMMA Sungai Petani',
+                'code' => 'SP01',
+                'phone' => '',
+                'email' => '',
+                'address' => 'Sungai Petani, Kedah',
+                'position' => 2,
+            ],
+            [
+                'name' => 'IMMA Johor Bahru',
+                'code' => 'JB01',
+                'phone' => '',
+                'email' => '',
+                'address' => 'Johor Bahru, Johor',
+                'position' => 3,
+            ],
         ];
 
         foreach ($branches as $data) {

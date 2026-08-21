@@ -73,6 +73,16 @@
     data-agenda-send-reminder="{{ TrLang::trans('admin.crm.action_send_reminder') }}"
     data-agenda-resend-reminder="{{ TrLang::trans('admin.crm.action_resend_reminder') }}"
     data-agenda-reminder-sent="{{ TrLang::trans('admin.crm.reminder_sent_label') }}"
+    data-agenda-holiday-eyebrow="{{ TrLang::trans('admin.crm.agenda_holiday_eyebrow') }}"
+    data-agenda-holiday-states="{{ TrLang::trans('admin.crm.agenda_holiday_states') }}"
+    data-agenda-holiday-type="{{ TrLang::trans('admin.crm.agenda_holiday_type') }}"
+    data-agenda-holiday-subject-to-change="{{ TrLang::trans('admin.crm.agenda_holiday_subject_to_change') }}"
+    data-agenda-holiday-kind-national="{{ TrLang::trans('admin.crm.agenda_holiday_kind_national') }}"
+    data-agenda-holiday-kind-labour="{{ TrLang::trans('admin.crm.agenda_holiday_kind_labour') }}"
+    data-agenda-holiday-kind-religious="{{ TrLang::trans('admin.crm.agenda_holiday_kind_religious') }}"
+    data-agenda-holiday-kind-festival="{{ TrLang::trans('admin.crm.agenda_holiday_kind_festival') }}"
+    data-agenda-holiday-kind-other="{{ TrLang::trans('admin.crm.agenda_holiday_kind_other') }}"
+    data-agenda-holiday-nationwide="{{ TrLang::trans('admin.crm.agenda_holiday_nationwide') }}"
     data-agenda-initial-date="{{ $filterDateValue }}"
     @if ($crmCanEdit)
         data-crm-can-edit="1"
@@ -85,6 +95,8 @@
     @endif
     data-specialist-toggle-date="{{ $filterDateValue }}"
     data-search-no-results="{{ TrLang::trans('admin.crm.search_no_results') }}"
+    data-search-results-title="{{ TrLang::trans('admin.crm.search_results_title') }}"
+    data-search-results-count="{{ TrLang::trans('admin.crm.search_results_count') }}"
     data-specialist-unavailable="{{ TrLang::trans('admin.crm.specialist_unavailable') }}"
     data-specialist-available="{{ TrLang::trans('admin.crm.specialist_available') }}"
     data-specialist-toggle-aria="{{ TrLang::trans('admin.crm.specialist_toggle_aria') }}"
@@ -142,14 +154,14 @@
             </header>
             <div class="tr-crm-tba-list">
                 @forelse ($tbaBookings as $tba)
-                    <article class="tr-crm-tba-item" data-tba-booking-id="{{ $tba['id'] ?? '' }}" data-tba-beautician-id="{{ $tba['beautician_id'] ?? '' }}">
+                    <article class="tr-crm-tba-item" draggable="{{ !empty($tba['can_schedule_tba']) && $crmCanEdit ? 'true' : 'false' }}" data-tba-booking-id="{{ $tba['id'] ?? '' }}" data-tba-beautician-id="{{ $tba['beautician_id'] ?? '' }}" data-product-id="{{ $tba['product_id'] ?? '' }}" data-spa-branch-id="{{ $tba['spa_branch_id'] ?? '' }}" data-search="{{ strtolower(($tba['customer_name'] ?? trim(($tba['customer_first_name'] ?? '').' '.($tba['customer_last_name'] ?? ''))) . ' ' . ($tba['customer_phone'] ?? '') . ' ' . ($tba['product_name'] ?? '') . ' ' . ($tba['beautician_name'] ?? '')) }}" title="{{ TrLang::trans('admin.tba.drag_to_calendar') }}">
                         <div>
                             <strong>{{ $tba['customer_name'] ?? trim(($tba['customer_first_name'] ?? '').' '.($tba['customer_last_name'] ?? '')) }}</strong>
                             <span>{{ $tba['product_name'] ?? '—' }}</span>
                             <span>{{ $tba['beautician_name'] ?? '—' }} · {{ TrLang::trans('admin.tba.badge') }}</span>
                         </div>
                         @if ($crmCanEdit && ! empty($tba['can_schedule_tba']))
-                            <button type="button" class="btn btn-primary btn-sm" data-tba-schedule data-booking-id="{{ $tba['id'] }}" data-beautician-id="{{ $tba['beautician_id'] }}">
+                            <button type="button" class="btn btn-primary btn-sm" data-tba-schedule data-booking-id="{{ $tba['id'] }}" data-beautician-id="{{ $tba['beautician_id'] }}" data-product-id="{{ $tba['product_id'] ?? '' }}" data-spa-branch-id="{{ $tba['spa_branch_id'] ?? '' }}">
                                 {{ TrLang::trans('admin.tba.schedule') }}
                             </button>
                         @endif

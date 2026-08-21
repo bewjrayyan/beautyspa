@@ -292,7 +292,7 @@
                         form?.classList.toggle('hide');
 
                         if (form && !form.classList.contains('hide')) {
-                            loadSlots(form);
+                            loadOpenDates(form).then(() => loadSlots(form));
                         }
 
                         return;
@@ -306,7 +306,7 @@
                     expandRow?.classList.toggle('hide');
 
                     if (form && expandRow && !expandRow.classList.contains('hide')) {
-                        loadSlots(form);
+                        loadOpenDates(form).then(() => loadSlots(form));
                     }
                 });
             });
@@ -320,6 +320,44 @@
                     }
                 });
             });
+
+            async function loadOpenDates(form) {
+                const datesUrl = form.dataset.datesUrl;
+                const list = form.querySelector('.js-reschedule-dates-list');
+                const hint = form.querySelector('.js-reschedule-dates-hint');
+                const dateInput = form.querySelector('.js-reschedule-date');
+
+                if (!datesUrl || !list || !dateInput) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(datesUrl, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || @json(trans('treatmentreservation::public.action_failed')));
+                    }
+
+                    const dates = data.dates || [];
+                    list.innerHTML = dates.map((d) => `<option value="${d}"></option>`).join('');
+
+                    if (hint) {
+                        hint.classList.toggle('hide', dates.length === 0);
+                    }
+
+                    if (dates.length && (!dateInput.value || !dates.includes(dateInput.value))) {
+                        dateInput.value = dates[0];
+                    }
+                } catch (error) {
+                    // Keep free date picker; slots API still enforces capacity.
+                    if (hint) {
+                        hint.classList.add('hide');
+                    }
+                }
+            }
 
             async function loadSlots(form) {
                 const date = form.querySelector('.js-reschedule-date')?.value;

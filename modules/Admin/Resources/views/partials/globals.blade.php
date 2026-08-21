@@ -29,6 +29,14 @@
     }
 
     AestheticCart.langs['admin::admin.buttons.delete'] = '{{ trans('admin::admin.buttons.delete') }}';
+    AestheticCart.langs['admin::admin.buttons.yes'] = '{{ trans('admin::admin.buttons.yes') }}';
+    AestheticCart.langs['admin::admin.buttons.cancel'] = '{{ trans('admin::admin.buttons.cancel') }}';
+    AestheticCart.langs['admin::admin.notifications.success'] = '{{ trans('admin::admin.notifications.success') }}';
+    AestheticCart.langs['admin::admin.notifications.error'] = '{{ trans('admin::admin.notifications.error') }}';
+    AestheticCart.langs['admin::admin.notifications.warning'] = '{{ trans('admin::admin.notifications.warning') }}';
+    AestheticCart.langs['admin::admin.notifications.info'] = '{{ trans('admin::admin.notifications.info') }}';
+    AestheticCart.langs['admin::admin.delete.are_you_sure'] = '{{ trans('admin::admin.delete.are_you_sure') }}';
+    AestheticCart.langs['admin::admin.delete.confirmation_message'] = '{{ trans('admin::admin.delete.confirmation_message') }}';
     AestheticCart.langs['admin::admin.buttons.media_gallery'] = '{{ trans('admin::admin.buttons.media_gallery') }}';
     AestheticCart.langs['admin::admin.buttons.replace_image'] = '{{ trans('admin::admin.buttons.replace_image') }}';
     AestheticCart.langs['media::media.file_manager.title'] = '{{ trans('media::media.file_manager.title') }}';

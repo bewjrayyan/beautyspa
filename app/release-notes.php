@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.7' => [
+        'date' => '2026-08-21 23:17',
+        'en' => [
+            'summary' => 'Appointment availability admin, SweetNotification alerts, sidebar refresh, and checkout date-picker fix.',
+            'changes' => [
+                'Add Appointment Availability management (branch weekly hours, treatment overrides, and date overrides) with checkout date enable rules.',
+                'Replace toaster flashes with SweetNotification (SweetAlert2) centered modals across admin and storefront.',
+                'Reorganize the admin sidebar into clearer groups and nest appointment tools under Appointments.',
+                'Fix checkout Flatpickr crash when no availability dates are loaded (enable was undefined).',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Ketersediaan temujanji admin, notifikasi SweetNotification, refresh sidebar, dan pembetulan date picker checkout.',
+            'changes' => [
+                'Tambah pengurusan Ketersediaan Temujanji (jadual mingguan cawangan, override rawatan, dan override tarikh) dengan peraturan tarikh di checkout.',
+                'Ganti flash toaster dengan SweetNotification (SweetAlert2) modal berpusat di admin dan storefront.',
+                'Susun semula sidebar admin kepada kumpulan lebih jelas dan letak alat temujanji di bawah Appointments.',
+                'Baiki ralat Flatpickr di checkout bila tiada tarikh ketersediaan (enable tidak boleh undefined).',
+            ],
+        ],
+    ],
     '4.11.6' => [
         'date' => '2026-08-21 12:32',
         'en' => [

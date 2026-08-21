@@ -41,6 +41,11 @@ Route::get('my-appointments/{id}/slots', [
     'uses' => 'BookingSelfServiceController@availableSlots',
 ]);
 
+Route::get('my-appointments/{id}/dates', [
+    'as' => 'treatment_reservations.booking.dates',
+    'uses' => 'BookingSelfServiceController@availableDates',
+])->middleware('throttle:30,1');
+
 // Legacy /my-booking URLs (bookmarks, old links)
 Route::get('my-booking', fn () => redirect()->route('treatment_reservations.booking.lookup', [], 301));
 
@@ -50,10 +55,16 @@ Route::post('my-booking/logout', 'BookingSelfServiceController@logout');
 Route::patch('my-booking/{id}/cancel', 'BookingSelfServiceController@cancel');
 Route::patch('my-booking/{id}/reschedule', 'BookingSelfServiceController@reschedule');
 Route::get('my-booking/{id}/slots', 'BookingSelfServiceController@availableSlots');
+Route::get('my-booking/{id}/dates', 'BookingSelfServiceController@availableDates')->middleware('throttle:30,1');
 
 Route::get('availability/beautician/{beautician}/slots', [
     'as' => 'treatment_reservations.availability.slots',
     'uses' => 'AvailabilitySlotsController',
+])->middleware('throttle:30,1');
+
+Route::get('availability/dates', [
+    'as' => 'treatment_reservations.availability.dates',
+    'uses' => 'AvailabilityDatesController',
 ])->middleware('throttle:30,1');
 
 Route::get('calendar/beautician/{beautician}/{token}.ics', [

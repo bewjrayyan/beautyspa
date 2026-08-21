@@ -1,0 +1,119 @@
+/* AestheticCart SweetNotification — centered SweetAlert + optional toast */
+
+.swal2-container {
+    z-index: 20050 !important;
+}
+
+.swal2-container.swal2-backdrop-show {
+    background: rgba(34, 41, 47, 0.5) !important;
+}
+
+/* Keep corner toasts undimmed if used explicitly */
+.swal2-container.swal2-top-end,
+.swal2-container.swal2-top,
+.swal2-container.swal2-top-start,
+.swal2-container.swal2-bottom-end,
+.swal2-container.swal2-bottom,
+.swal2-container.swal2-bottom-start {
+    background: transparent !important;
+}
+
+/* Centered modal (success / confirm) — like classic SweetAlert */
+.ac-swal-modal.swal2-popup {
+    width: min(32em, calc(100vw - 2rem)) !important;
+    padding: 2rem 1.75rem 1.5rem !important;
+    border-radius: 6px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18) !important;
+
+    .ac-swal-modal__icon,
+    .swal2-icon {
+        margin: 0.25rem auto 1.35rem !important;
+    }
+
+    .ac-swal-modal__title,
+    .swal2-title {
+        margin: 0 0 0.65rem !important;
+        padding: 0 !important;
+        font-size: 1.75rem !important;
+        font-weight: 600 !important;
+        line-height: 1.25 !important;
+        color: #595959 !important;
+        text-align: center !important;
+    }
+
+    .ac-swal-modal__text,
+    .swal2-html-container {
+        margin: 0 0 1.35rem !important;
+        padding: 0 !important;
+        font-size: 1.05rem !important;
+        font-weight: 400 !important;
+        line-height: 1.5 !important;
+        color: #545454 !important;
+        text-align: center !important;
+    }
+
+    .ac-swal-modal__actions,
+    .swal2-actions {
+        margin: 0.5rem auto 0 !important;
+        gap: 0.75rem !important;
+    }
+
+    .ac-swal-modal__confirm,
+    .ac-swal-modal__cancel,
+    .swal2-confirm,
+    .swal2-cancel {
+        border: 0 !important;
+        border-radius: 4px !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        padding: 0.65rem 1.75rem !important;
+        min-width: 6rem;
+        box-shadow: none !important;
+    }
+
+    .swal2-timer-progress-bar {
+        background: rgba(40, 199, 111, 0.55) !important;
+    }
+
+    &.swal2-icon-error .swal2-timer-progress-bar {
+        background: rgba(234, 84, 85, 0.55) !important;
+    }
+}
+
+/* Optional corner toast API */
+.ac-swal-toast.swal2-popup.swal2-toast {
+    width: 360px !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16) !important;
+    background: #fff !important;
+    border: 1px solid #eef2f7 !important;
+    align-items: flex-start !important;
+
+    .swal2-icon {
+        margin: 0 12px 0 0 !important;
+        width: 2em !important;
+        min-width: 2em !important;
+        height: 2em !important;
+    }
+
+    .ac-swal-toast__title,
+    .swal2-title {
+        margin: 0 0 2px !important;
+        padding: 0 !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: #1f2937 !important;
+        text-align: left !important;
+    }
+
+    .ac-swal-toast__text,
+    .swal2-html-container {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 13.5px !important;
+        color: #4b5563 !important;
+        text-align: left !important;
+    }
+}

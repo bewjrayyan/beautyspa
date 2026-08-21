@@ -1,4 +1,10 @@
-import { ohSnap } from "./ohsnap";
+import {
+    notify as sweetNotify,
+    success as sweetSuccess,
+    error as sweetError,
+    warning as sweetWarning,
+    info as sweetInfo,
+} from "./SweetNotification";
 
 export function trans(langKey, replace = {}) {
     let line = window.AestheticCart.langs[langKey];
@@ -64,37 +70,23 @@ export function keypressAction(actions) {
 }
 
 export function notify(type, message, options = {}) {
-    const { duration = 5000, context = document } = options || {};
-
-    let types = {
-        info: "blue",
-        success: "green",
-        warning: "yellow",
-        error: "red",
-    };
-
-    ohSnap(message || "", {
-        "container-id": "notification-toast",
-        context,
-        color: types[type],
-        duration,
-    });
+    return sweetNotify(type, message, options);
 }
 
 export function info(message, duration) {
-    notify("info", message, { duration });
+    return sweetInfo(message, typeof duration === "number" ? { duration } : duration || {});
 }
 
 export function success(message, duration) {
-    notify("success", message, { duration });
+    return sweetSuccess(message, typeof duration === "number" ? { duration } : duration || {});
 }
 
 export function warning(message, duration) {
-    notify("warning", message, { duration });
+    return sweetWarning(message, typeof duration === "number" ? { duration } : duration || {});
 }
 
 export function error(message, duration) {
-    notify("error", message, { duration });
+    return sweetError(message, typeof duration === "number" ? { duration } : duration || {});
 }
 
 export function generateSlug(name) {

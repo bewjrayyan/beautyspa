@@ -2,11 +2,13 @@
 
 return [
     'reservations' => 'Reservations',
+    'appointments' => 'Appointments',
     'agenda' => 'Agenda',
-    'my_job_sheet' => 'My Dashboard',
-    'my_job_sheet_kanban' => 'Job Sheet',
+    'my_job_sheet' => 'My dashboard',
+    'my_job_sheet_kanban' => 'Job sheet',
     'calendar' => 'Calendar',
+    'appointment_availability' => 'Availability',
     'holidays' => 'Holidays',
     'my_calendar' => 'Calendar',
-    'my_account' => 'My Account',
+    'my_account' => 'My account',
 ];

@@ -11,9 +11,9 @@ class SidebarExtender extends BaseSidebarExtender
 {
     public function extend(Menu $menu)
     {
-        $menu->group(trans('admin::sidebar.content'), function (Group $group) {
+        $menu->group(trans('admin::sidebar.website'), function (Group $group) {
             $group->item(trans('importer::importer.import'), function (Item $item) {
-                $item->weight(40);
+                $item->weight(30);
                 $item->icon('fa fa-download');
                 $item->route('admin.importer.index');
                 $item->authorize(

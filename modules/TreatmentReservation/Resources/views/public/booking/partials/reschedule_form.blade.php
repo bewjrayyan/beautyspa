@@ -1,6 +1,7 @@
 <form
     class="account-appointment-card__reschedule hide js-reschedule-form"
     data-slots-url="{{ route('treatment_reservations.booking.slots', ['id' => $booking->id]) }}"
+    data-dates-url="{{ route('treatment_reservations.booking.dates', ['id' => $booking->id]) }}"
 >
     <div class="account-appointment-card__reschedule-fields">
         <div class="form-group">
@@ -11,7 +12,10 @@
                 class="form-control js-reschedule-date"
                 required
                 min="{{ today()->toDateString() }}"
+                list="js-reschedule-dates-{{ $booking->id }}"
             >
+            <datalist id="js-reschedule-dates-{{ $booking->id }}" class="js-reschedule-dates-list"></datalist>
+            <p class="help-block js-reschedule-dates-hint hide">{{ trans('treatmentreservation::public.open_dates_hint') }}</p>
         </div>
         <div class="form-group">
             <label class="input-label">{{ trans('treatmentreservation::public.new_time') }}</label>

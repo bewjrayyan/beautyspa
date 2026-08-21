@@ -12,6 +12,7 @@ return [
         'save_and_edit' => 'Save & Edit',
         'save_and_exit' => 'Save & Exit',
         'delete' => 'Delete',
+        'yes' => 'Yes',
         'cancel' => 'Cancel',
         'close' => 'Close',
         'media_gallery' => 'Media gallery',
@@ -41,8 +42,15 @@ return [
         'previous' => 'Previous',
         'next' => 'Next',
     ],
+    'notifications' => [
+        'success' => 'Success',
+        'error' => 'Something went wrong',
+        'warning' => 'Please check',
+        'info' => 'Notice',
+    ],
     'delete' => [
         'confirmation' => 'Confirmation',
+        'are_you_sure' => 'Are you sure?',
         'confirmation_message' => 'Are you sure you want to delete?',
     ],
     'shortcuts' => [

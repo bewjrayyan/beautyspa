@@ -1,9 +1,23 @@
 import Alpine from "alpinejs";
 import { bootModernPhoneInputs } from "../../lib/modernPhoneInput";
 import { registerOtpDigitInput } from "../../lib/otpDigitInput";
+import SweetNotification, {
+    bootFlashes,
+    success,
+    error,
+    warning,
+    info,
+    notify,
+} from "../../components/SweetNotification";
 
 window.Alpine = Alpine;
 window.bootModernPhoneInputs = bootModernPhoneInputs;
+window.SweetNotification = SweetNotification;
+window.notify = Object.assign(notify, { success, error, warning, info });
+window.success = success;
+window.error = error;
+window.warning = warning;
+window.info = info;
 
 registerOtpDigitInput(Alpine);
 
@@ -133,10 +147,15 @@ Alpine.data("customerLoginMethods", () => ({
     ...createOtpMethods(() => "customer-otp-phone"),
 }));
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootModernPhoneInputs);
-} else {
+function bootAuthUi() {
     bootModernPhoneInputs();
+    bootFlashes();
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootAuthUi);
+} else {
+    bootAuthUi();
 }
 
 Alpine.start();

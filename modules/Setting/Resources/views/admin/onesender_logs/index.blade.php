@@ -13,13 +13,6 @@
 @endsection
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible">
-            @include('admin::partials.alert_close', ['times' => true])
-            {{ session('success') }}
-        </div>
-    @endif
-
     <div class="box box-primary">
         <div class="box-header with-border">
             <p class="text-muted" style="margin: 0;">{{ trans('setting::settings.onesender_logs.intro') }}</p>
