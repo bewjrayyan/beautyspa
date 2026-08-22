@@ -25,6 +25,8 @@ class AccountOrdersController
 
         if (is_module_enabled('TreatmentReservation')) {
             $with[] = 'treatmentBooking';
+            $with[] = 'treatmentBookings.product';
+            $with[] = 'treatmentBookings.beautician';
         }
 
         $orders = auth()->user()
@@ -61,6 +63,8 @@ class AccountOrdersController
 
         if (is_module_enabled('TreatmentReservation')) {
             $with[] = 'treatmentBooking';
+            $with[] = 'treatmentBookings.product';
+            $with[] = 'treatmentBookings.beautician';
         }
 
         $order = $this->findUserOrder($id, $with);

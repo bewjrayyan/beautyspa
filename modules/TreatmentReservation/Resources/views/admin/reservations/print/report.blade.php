@@ -99,7 +99,7 @@
                     <td>{{ $booking->product?->name }}</td>
                     <td>{{ $booking->beautician?->name ?? '—' }}</td>
                     <td>{{ $booking->appointment_date?->format('d M Y') }}</td>
-                    <td>{{ $booking->appointment_time }}</td>
+                    <td>{{ $booking->displayAppointmentTime() }}</td>
                     <td>{{ trans('treatmentreservation::admin.kanban.' . $booking->status) }}</td>
                     <td>{{ number_format((float) $booking->total, 2) }}</td>
                 </tr>

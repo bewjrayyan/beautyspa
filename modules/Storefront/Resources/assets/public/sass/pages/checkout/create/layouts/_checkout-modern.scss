@@ -549,6 +549,20 @@ $checkout-text-muted: #4b5563;
 }
 
 .checkout-wrap--modern .flatpickr-calendar {
+    .flatpickr-day.checkout-flatpickr-day--booked {
+        color: #9ca3af;
+        background: #f3f4f6;
+        cursor: not-allowed;
+        text-decoration: line-through;
+    }
+
+    .flatpickr-day.checkout-flatpickr-day--closed {
+        color: #d1d5db;
+        cursor: not-allowed;
+    }
+}
+
+.checkout-wrap--modern .flatpickr-calendar {
     border-radius: 12px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }

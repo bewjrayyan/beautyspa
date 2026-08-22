@@ -4,6 +4,7 @@
     "description": "The AestheticCart Checkout Module.",
     "priority": 100,
     "providers": [
-        "Modules\\Checkout\\Providers\\EventServiceProvider"
+        "Modules\\Checkout\\Providers\\EventServiceProvider",
+        "Modules\\Checkout\\Providers\\CheckoutServiceProvider"
     ]
 }

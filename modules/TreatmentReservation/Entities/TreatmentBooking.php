@@ -12,6 +12,7 @@ use Modules\Support\Eloquent\Model;
 use Modules\Support\Money;
 use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\TreatmentReservation\Services\BookingCrmInsightService;
+use Modules\TreatmentReservation\Support\AppointmentTimeFormatter;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 use Modules\User\Services\OneSenderWhatsAppService;
 use Modules\User\Support\PhoneNumber;
@@ -45,6 +46,7 @@ class TreatmentBooking extends Model
 
     protected $fillable = [
         'order_id',
+        'order_product_id',
         'source',
         'created_by_user_id',
         'beautician_id',
@@ -276,6 +278,12 @@ class TreatmentBooking extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+
+    public function orderProduct()
+    {
+        return $this->belongsTo(OrderProduct::class);
     }
 
 
@@ -550,7 +558,6 @@ class TreatmentBooking extends Model
     public function toKanbanPayload(): array
     {
         return array_merge($this->sharedDetailPayload(), [
-            'appointment_time' => $this->appointment_time,
             'category_color' => $this->category?->color ?? '#6366f1',
         ]);
     }
@@ -579,8 +586,9 @@ class TreatmentBooking extends Model
             'slot_duration_minutes' => $slotDurationMinutes,
             'duration_session_label' => TrLang::trans('admin.crm.agenda_duration_session', ['count' => $slotDurationMinutes]),
             'appointment_date' => $this->appointment_date?->format('d M Y'),
-            'appointment_time' => $this->appointment_time,
-            'time' => $this->appointment_time,
+            'appointment_time' => $this->displayAppointmentTime(),
+            'time' => $this->displayAppointmentTime(),
+            'appointment_time_value' => AppointmentTimeFormatter::to24Hour($this->appointment_time),
             'appointment_end_time' => $this->appointmentEndTime(),
             'appointment_time_range' => $this->appointmentTimeRange(),
             'beautician_id' => $this->beautician_id,
@@ -629,21 +637,13 @@ class TreatmentBooking extends Model
 
     public function formattedAppointmentTime(): string
     {
-        if (! filled($this->appointment_time)) {
-            return '';
-        }
-
-        try {
-            return \Illuminate\Support\Carbon::parse($this->appointment_time)->format('H:i');
-        } catch (\Throwable) {
-            return (string) $this->appointment_time;
-        }
+        return AppointmentTimeFormatter::toDisplay($this->appointment_time);
     }
 
 
     public function displayAppointmentTime(): string
     {
-        return filled($this->appointment_time) ? trim((string) $this->appointment_time) : '';
+        return AppointmentTimeFormatter::toDisplay($this->appointment_time);
     }
 
 
@@ -657,11 +657,13 @@ class TreatmentBooking extends Model
 
         try {
             $minutes = $this->resolveSlotDurationMinutes();
-            $parsed = \Illuminate\Support\Carbon::parse($start);
+            $parsed = AppointmentTimeFormatter::parse($this->appointment_time);
 
-            return $parsed->copy()->addMinutes($minutes)->format(
-                preg_match('/[AP]M/i', $start) ? 'g:i A' : 'H:i'
-            );
+            if (! $parsed) {
+                return null;
+            }
+
+            return $parsed->copy()->addMinutes($minutes)->format('g:i A');
         } catch (\Throwable) {
             return null;
         }

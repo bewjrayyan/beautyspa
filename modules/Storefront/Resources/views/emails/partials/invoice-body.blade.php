@@ -58,7 +58,7 @@
                                             </p>
                                             <p style="margin:0 0 4px;"><strong>{{ trans('order::print.appointment_date') }}:</strong> {{ $order->appointment_date->format('d M Y') }}</p>
                                             @if ($order->appointment_time)
-                                                <p style="margin:0 0 4px;"><strong>{{ trans('order::print.appointment_time') }}:</strong> {{ $order->appointment_time }}</p>
+                                                <p style="margin:0 0 4px;"><strong>{{ trans('order::print.appointment_time') }}:</strong> {{ $order->displayAppointmentTime() }}</p>
                                             @endif
                                             @if ($order->beautician?->name)
                                                 <p style="margin:0;"><strong>{{ trans('order::print.beautician') }}:</strong> {{ $order->beautician->name }}</p>

@@ -39,7 +39,7 @@
                         <tr>
                             <td data-label="{{ trans('report::admin.table.appointment') }}">
                                 <span class="report-booking-date">{{ $booking->appointment_date->format('d M Y') }}</span>
-                                <span class="report-booking-time">{{ $booking->appointment_time }}</span>
+                                <span class="report-booking-time">{{ $booking->displayAppointmentTime() }}</span>
                             </td>
                             <td data-label="{{ trans('report::admin.table.customer') }}">
                                 <a href="{{ route('admin.orders.show', $booking->id) }}" class="report-booking-customer">

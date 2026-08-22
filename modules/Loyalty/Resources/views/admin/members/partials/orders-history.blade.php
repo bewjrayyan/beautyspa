@@ -40,7 +40,7 @@
                             }
 
                             if (filled($order->appointment_time)) {
-                                $appointmentTimeLine = $order->appointment_time;
+                                $appointmentTimeLine = $order->displayAppointmentTime();
                             }
                         }
 

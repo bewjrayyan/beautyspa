@@ -13,7 +13,7 @@
 @if (! empty($jobUrgencyAlerts['has_alerts']))
     @if ($urgencyAsModal)
         @push('admin_modals')
-            <div class="tr-urgency-modal" id="tr-urgency-modal" role="presentation">
+            <div class="tr-urgency-modal" id="tr-urgency-modal" role="presentation" hidden>
                 <div class="tr-urgency-modal__backdrop" data-dismiss-urgency aria-hidden="true"></div>
                 <div
                     class="tr-urgency-modal__dialog"
@@ -24,9 +24,11 @@
     @endif
 
     <div
-        class="tr-urgency-alerts tr-urgency-alerts--{{ $jobUrgencyAlerts['highest_urgency'] }}{{ $urgencyAsModal ? ' tr-urgency-alerts--modal' : '' }}"
+        class="tr-urgency-alerts tr-urgency-alerts--{{ $jobUrgencyAlerts['highest_urgency'] }}{{ $urgencyAsModal ? ' tr-urgency-alerts--modal' : ' tr-urgency-alerts--inline' }}"
+        id="{{ $urgencyAsModal ? null : 'tr-urgency-alerts' }}"
         role="alert"
         aria-live="polite"
+        @unless ($urgencyAsModal) hidden @endunless
     >
         <div class="tr-urgency-alerts__header">
             <div class="tr-urgency-alerts__icon" aria-hidden="true">
@@ -50,9 +52,9 @@
             </div>
             <div class="tr-urgency-alerts__actions">
                 @if (! $urgencyAsModal && ! empty($jobUrgencyAlerts['action_url']))
-                    <a href="{{ $jobUrgencyAlerts['action_url'] }}" class="btn btn-sm btn-default">
+                    <a href="{{ $jobUrgencyAlerts['action_url'] }}" class="btn btn-sm btn-default tr-urgency-alerts__action-btn">
                         <i class="fa fa-columns" aria-hidden="true"></i>
-                        {{ $jobUrgencyAlerts['action_label'] }}
+                        <span>{{ $jobUrgencyAlerts['action_label'] }}</span>
                     </a>
                 @endif
                 <button type="button" class="tr-urgency-alerts__dismiss" data-dismiss-urgency aria-label="{{ trans('admin::admin.close') }}">
@@ -64,26 +66,36 @@
         <ul class="tr-urgency-alerts__list">
             @foreach ($jobUrgencyAlerts['items'] as $item)
                 <li class="tr-urgency-alerts__item tr-urgency-alerts__item--{{ $item['urgency'] }}">
-                    <span class="tr-urgency-alerts__badge">{{ $item['urgency_label'] }}</span>
-                    <div class="tr-urgency-alerts__item-main">
-                        <strong class="tr-urgency-alerts__item-title">
-                            {{ $item['time_display'] }} · {{ $item['date_display'] }}
-                            — {{ $item['customer_name'] }}
-                        </strong>
-                        <span class="tr-urgency-alerts__item-meta">
-                            {{ $item['treatment_name'] }}
-                            @if (! empty($item['show_beautician']) && ! empty($item['beautician_name']))
-                                <br>
-                                <span class="tr-urgency-alerts__item-beautician">{{ $item['beautician_name'] }}</span>
-                            @endif
-                            · {{ $item['status_label'] }}
-                        </span>
-                        <span class="tr-urgency-alerts__item-message">{{ $item['message'] }}</span>
-                    </div>
                     @if (! empty($item['order_url']))
-                        <a href="{{ $item['order_url'] }}" class="btn btn-xs btn-default tr-urgency-alerts__item-link">
-                            {{ TrLang::trans('admin.kanban.view_order') }}
+                        <a href="{{ $item['order_url'] }}" class="tr-urgency-alerts__item-hit">
+                    @else
+                        <div class="tr-urgency-alerts__item-hit tr-urgency-alerts__item-hit--static">
+                    @endif
+                        <div class="tr-urgency-alerts__item-time">
+                            <span class="tr-urgency-alerts__badge">{{ $item['urgency_label'] }}</span>
+                            <strong class="tr-urgency-alerts__time">{{ $item['time_display'] }}</strong>
+                            <span class="tr-urgency-alerts__date">{{ $item['date_display'] }}</span>
+                        </div>
+                        <div class="tr-urgency-alerts__item-main">
+                            <strong class="tr-urgency-alerts__item-title">{{ $item['customer_name'] }}</strong>
+                            <span class="tr-urgency-alerts__item-meta">
+                                {{ $item['treatment_name'] }}
+                                @if (! empty($item['show_beautician']) && ! empty($item['beautician_name']))
+                                    · {{ $item['beautician_name'] }}
+                                @endif
+                            </span>
+                            <span class="tr-urgency-alerts__item-message">{{ $item['message'] }}</span>
+                            <span class="tr-urgency-alerts__item-status">{{ $item['status_label'] }}</span>
+                        </div>
+                        @if (! empty($item['order_url']))
+                            <span class="tr-urgency-alerts__item-chevron" aria-hidden="true">
+                                <i class="fa fa-chevron-right"></i>
+                            </span>
+                        @endif
+                    @if (! empty($item['order_url']))
                         </a>
+                    @else
+                        </div>
                     @endif
                 </li>
             @endforeach
@@ -117,67 +129,100 @@
     @push('scripts')
         <script>
             (function () {
-                const modal = document.getElementById('tr-urgency-modal');
-                const DISMISS_KEY = 'tr_urgency_dismissed';
-                const DISMISS_HOURS = 24;
+                var DISMISS_KEY = 'tr_urgency_dismissed_session';
+                var modal = document.getElementById('tr-urgency-modal');
+                var inline = document.getElementById('tr-urgency-alerts');
 
                 function isDismissed() {
                     try {
-                        var ts = localStorage.getItem(DISMISS_KEY);
-                        if (!ts) return false;
-                        return (Date.now() - parseInt(ts, 10)) < (DISMISS_HOURS * 3600000);
-                    } catch (e) { return false; }
+                        return sessionStorage.getItem(DISMISS_KEY) === '1';
+                    } catch (e) {
+                        return false;
+                    }
                 }
 
                 function markDismissed() {
-                    try { localStorage.setItem(DISMISS_KEY, Date.now().toString()); } catch (e) {}
+                    try {
+                        sessionStorage.setItem(DISMISS_KEY, '1');
+                    } catch (e) {}
                 }
 
-                function closeUrgencyModal() {
-                    markDismissed();
-
-                    if (modal) {
-                        modal.classList.add('tr-urgency-modal--hidden');
-                        document.body.classList.remove('tr-urgency-modal-open');
+                function hideRoot(root) {
+                    if (!root) {
                         return;
                     }
 
-                    document.querySelectorAll('[data-dismiss-urgency]').forEach((trigger) => {
-                        trigger.closest('.tr-urgency-alerts')?.remove();
+                    root.hidden = true;
+                    root.classList.add('tr-urgency-modal--hidden');
+                    root.setAttribute('aria-hidden', 'true');
+                }
+
+                function showRoot(root) {
+                    if (!root) {
+                        return;
+                    }
+
+                    root.hidden = false;
+                    root.classList.remove('tr-urgency-modal--hidden');
+                    root.removeAttribute('aria-hidden');
+                }
+
+                function closeUrgency() {
+                    markDismissed();
+                    document.body.classList.remove('tr-urgency-modal-open');
+
+                    if (modal) {
+                        hideRoot(modal);
+                        return;
+                    }
+
+                    if (inline) {
+                        hideRoot(inline);
+                        return;
+                    }
+
+                    document.querySelectorAll('.tr-urgency-alerts').forEach(function (el) {
+                        hideRoot(el);
                     });
+                }
+
+                if (isDismissed()) {
+                    hideRoot(modal);
+                    hideRoot(inline);
+                    return;
                 }
 
                 if (modal) {
-                    if (isDismissed()) {
-                        modal.classList.add('tr-urgency-modal--hidden');
-                        return;
-                    }
-
+                    showRoot(modal);
                     document.body.classList.add('tr-urgency-modal-open');
 
-                    modal.querySelectorAll('[data-dismiss-urgency]').forEach((button) => {
-                        button.addEventListener('click', closeUrgencyModal);
+                    modal.querySelectorAll('[data-dismiss-urgency]').forEach(function (button) {
+                        button.addEventListener('click', closeUrgency);
                     });
 
-                    modal.querySelectorAll('[data-urgency-action]').forEach((link) => {
-                        link.addEventListener('click', () => {
+                    modal.querySelectorAll('[data-urgency-action]').forEach(function (link) {
+                        link.addEventListener('click', function () {
                             document.body.classList.remove('tr-urgency-modal-open');
                         });
                     });
 
                     document.addEventListener('keydown', function onEscape(event) {
-                        if (event.key !== 'Escape' || modal.classList.contains('tr-urgency-modal--hidden')) {
+                        if (event.key !== 'Escape' || modal.hidden) {
                             return;
                         }
 
-                        closeUrgencyModal();
+                        closeUrgency();
                     });
 
                     return;
                 }
 
-                document.querySelectorAll('[data-dismiss-urgency]').forEach((button) => {
-                    button.addEventListener('click', closeUrgencyModal);
+                if (inline) {
+                    showRoot(inline);
+                }
+
+                document.querySelectorAll('[data-dismiss-urgency]').forEach(function (button) {
+                    button.addEventListener('click', closeUrgency);
                 });
             })();
         </script>

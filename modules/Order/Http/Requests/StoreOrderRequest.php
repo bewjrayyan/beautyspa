@@ -37,8 +37,8 @@ class StoreOrderRequest extends Request
             fn ($item) => (bool) ($item->product?->is_virtual ?? false)
         );
 
-        if ($treatmentItems->count() > 1 || $treatmentItems->contains(fn ($item) => (int) $item->qty !== 1)) {
-            throw new CheckoutException(trans('checkout::messages.single_treatment_per_order'));
+        if ($treatmentItems->contains(fn ($item) => (int) $item->qty !== 1)) {
+            throw new CheckoutException(trans('checkout::messages.single_treatment_qty'));
         }
 
         if (! Cart::allItemsAreVirtual() && ! $this->input('shipping_method')) {
@@ -148,18 +148,62 @@ class StoreOrderRequest extends Request
             return [];
         }
 
-        $scheduleLater = $this->boolean('schedule_later');
+        $lines = $this->input('treatment_bookings');
 
-        $appointmentTimeRules = $scheduleLater
-            ? ['nullable']
-            : ['required', 'date_format:H:i'];
-
-        if (! $scheduleLater && app('modules')->isEnabled('TreatmentReservation')) {
-            $appointmentTimeRules[] = new \Modules\TreatmentReservation\Rules\ValidBeauticianSlot();
+        // Legacy single-field payload → normalize into treatment_bookings[]
+        if (! is_array($lines) || $lines === []) {
+            $productId = $this->resolveCartTreatmentProductId();
+            $lines = [[
+                'product_id' => $productId,
+                'beautician_id' => $this->input('beautician_id'),
+                'schedule_later' => $this->boolean('schedule_later') ? 1 : 0,
+                'appointment_date' => $this->input('appointment_date'),
+                'appointment_time' => $this->input('appointment_time'),
+            ]];
+            $this->merge(['treatment_bookings' => $lines]);
         }
 
+        $beauticianRules = [
+            'required',
+            Rule::exists('beauticians', 'id')->where('is_active', true),
+            function ($attribute, $value, $fail) {
+                if (! app('modules')->isEnabled('SpaBranch') || ! $this->filled('spa_branch_id')) {
+                    return;
+                }
+
+                $beautician = Beautician::with('spaBranches')->find($value);
+
+                if (! $beautician) {
+                    return;
+                }
+
+                $branchIds = $beautician->spaBranches->pluck('id');
+
+                if ($branchIds->isEmpty()) {
+                    $fail(trans('checkout::messages.beautician_not_assigned_to_branch'));
+
+                    return;
+                }
+
+                if (! $branchIds->contains((int) $this->input('spa_branch_id'))) {
+                    $fail(trans('checkout::messages.beautician_not_at_branch'));
+                }
+            },
+        ];
+
         return [
-            'schedule_later' => [
+            'treatment_bookings' => ['required', 'array', 'min:1', function (string $attribute, mixed $value, \Closure $fail): void {
+                $virtualCount = Cart::items()->filter(fn ($item) => (bool) ($item->product?->is_virtual ?? false))->count();
+                if (! is_array($value) || count($value) !== $virtualCount) {
+                    $fail(trans('checkout::messages.treatment_bookings_count_mismatch'));
+                }
+
+                $this->assertNoOverlappingSchedules(is_array($value) ? $value : [], $fail);
+            }],
+            'treatment_bookings.*.cart_item_id' => ['nullable', 'string'],
+            'treatment_bookings.*.product_id' => ['required', 'integer', Rule::exists('products', 'id')->where('is_virtual', true)],
+            'treatment_bookings.*.beautician_id' => $beauticianRules,
+            'treatment_bookings.*.schedule_later' => [
                 'sometimes',
                 'boolean',
                 function (string $attribute, mixed $value, \Closure $fail): void {
@@ -167,7 +211,11 @@ class StoreOrderRequest extends Request
                         return;
                     }
 
-                    $productId = $this->resolveCartTreatmentProductId();
+                    if (! preg_match('/treatment_bookings\.(\d+)\./', $attribute, $m)) {
+                        return;
+                    }
+
+                    $productId = (int) $this->input("treatment_bookings.{$m[1]}.product_id");
                     $branchId = (int) $this->input('spa_branch_id');
 
                     if (! $productId || ! $branchId) {
@@ -184,38 +232,105 @@ class StoreOrderRequest extends Request
                     }
                 },
             ],
-            'beautician_id' => [
-                'required',
-                Rule::exists('beauticians', 'id')->where('is_active', true),
-                function ($attribute, $value, $fail) {
-                    if (! app('modules')->isEnabled('SpaBranch') || ! $this->filled('spa_branch_id')) {
+            'treatment_bookings.*.appointment_date' => [
+                'nullable',
+                'date',
+                'after_or_equal:today',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! preg_match('/treatment_bookings\.(\d+)\./', $attribute, $m)) {
                         return;
                     }
-
-                    $beautician = Beautician::with('spaBranches')->find($value);
-
-                    if (! $beautician) {
-                        return;
-                    }
-
-                    $branchIds = $beautician->spaBranches->pluck('id');
-
-                    if ($branchIds->isEmpty()) {
-                        $fail(trans('checkout::messages.beautician_not_assigned_to_branch'));
-
-                        return;
-                    }
-
-                    if (! $branchIds->contains((int) $this->input('spa_branch_id'))) {
-                        $fail(trans('checkout::messages.beautician_not_at_branch'));
+                    $later = filter_var($this->input("treatment_bookings.{$m[1]}.schedule_later"), FILTER_VALIDATE_BOOLEAN);
+                    if (! $later && ! $value) {
+                        $fail(trans('validation.required', ['attribute' => 'appointment date']));
                     }
                 },
             ],
-            'appointment_date' => $scheduleLater
-                ? ['nullable', 'date', 'after_or_equal:today']
-                : ['required', 'date', 'after_or_equal:today'],
-            'appointment_time' => $appointmentTimeRules,
+            'treatment_bookings.*.appointment_time' => [
+                'nullable',
+                'date_format:H:i',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! preg_match('/treatment_bookings\.(\d+)\./', $attribute, $m)) {
+                        return;
+                    }
+                    $later = filter_var($this->input("treatment_bookings.{$m[1]}.schedule_later"), FILTER_VALIDATE_BOOLEAN);
+                    if (! $later && ! $value) {
+                        $fail(trans('validation.required', ['attribute' => 'appointment time']));
+                    }
+                },
+                ...(app('modules')->isEnabled('TreatmentReservation')
+                    ? [new \Modules\TreatmentReservation\Rules\ValidBeauticianSlot()]
+                    : []),
+            ],
+            // Legacy top-level fields optional when treatment_bookings present
+            'schedule_later' => ['sometimes', 'boolean'],
+            'beautician_id' => ['nullable'],
+            'appointment_date' => ['nullable', 'date'],
+            'appointment_time' => ['nullable', 'date_format:H:i'],
         ];
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $lines
+     */
+    private function assertNoOverlappingSchedules(array $lines, \Closure $fail): void
+    {
+        $spaBranchId = (int) $this->input('spa_branch_id');
+        $availability = app('modules')->isEnabled('TreatmentReservation')
+            ? app(\Modules\TreatmentReservation\Services\AppointmentAvailabilityService::class)
+            : null;
+        $normalize = app('modules')->isEnabled('TreatmentReservation')
+            ? app(\Modules\TreatmentReservation\Services\BeauticianAvailabilityService::class)
+            : null;
+
+        $windows = [];
+
+        foreach ($lines as $index => $line) {
+            if (filter_var($line['schedule_later'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                continue;
+            }
+
+            $beauticianId = (int) ($line['beautician_id'] ?? 0);
+            $date = (string) ($line['appointment_date'] ?? '');
+            $time = $normalize
+                ? ($normalize->normalizeTime((string) ($line['appointment_time'] ?? '')) ?? '')
+                : substr((string) ($line['appointment_time'] ?? ''), 0, 5);
+            $productId = (int) ($line['product_id'] ?? 0);
+
+            if (! $beauticianId || $date === '' || $time === '') {
+                continue;
+            }
+
+            $duration = 60;
+            if ($availability && $productId && $spaBranchId) {
+                $duration = max(1, $availability->resolveDurationMinutes($productId, $spaBranchId));
+            }
+
+            [$h, $m] = array_map('intval', explode(':', $time));
+            $startMin = ($h * 60) + $m;
+            $endMin = $startMin + $duration;
+
+            foreach ($windows as $other) {
+                if (
+                    $other['beautician_id'] === $beauticianId
+                    && $other['date'] === $date
+                    && $startMin < $other['end']
+                    && $endMin > $other['start']
+                ) {
+                    $fail(trans('checkout::messages.treatment_schedule_overlap'));
+
+                    return;
+                }
+            }
+
+            $windows[] = [
+                'beautician_id' => $beauticianId,
+                'date' => $date,
+                'start' => $startMin,
+                'end' => $endMin,
+                'index' => $index,
+            ];
+        }
     }
 
     private function resolveCartTreatmentProductId(): ?int

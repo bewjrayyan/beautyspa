@@ -247,7 +247,7 @@
                             @if ($order->appointment_time)
                                 <dl class="order-invoice__meta-fact">
                                     <dt>{{ trans('order::print.appointment_time') }}</dt>
-                                    <dd>{{ $order->appointment_time }}</dd>
+                                    <dd>{{ $order->displayAppointmentTime() }}</dd>
                                 </dl>
                             @endif
                         </div>

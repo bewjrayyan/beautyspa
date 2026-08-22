@@ -125,7 +125,7 @@
             @if ($order->spaBranch){{ trans('order::orders.spa_branch') }}: {{ $order->spaBranch->name }}<br>@endif
             @if ($order->beautician){{ trans('order::print.beautician') }}: {{ $order->beautician->name }}<br>@endif
             @if ($order->appointment_date){{ trans('order::print.appointment_date') }}: {{ $order->appointment_date->format('d M Y') }}<br>@endif
-            @if ($order->appointment_time){{ trans('order::print.appointment_time') }}: {{ $order->appointment_time }}@endif
+            @if ($order->appointment_time){{ trans('order::print.appointment_time') }}: {{ $order->displayAppointmentTime() }}@endif
         </p>
     @endif
 

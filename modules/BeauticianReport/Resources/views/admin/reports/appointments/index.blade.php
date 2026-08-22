@@ -29,7 +29,7 @@
                     @forelse ($report as $data)
                         <tr>
                             <td>{{ \Illuminate\Support\Carbon::parse($data->appointment_date)->format('d M Y') }}</td>
-                            <td>{{ $data->appointment_time }}</td>
+                            <td>{{ appointment_time_display($data->appointment_time) }}</td>
                             <td>{{ $data->beautician_name }}</td>
                             <td>{{ $data->beautician_job_title ?: '—' }}</td>
                             <td>{{ $data->total_orders }}</td>

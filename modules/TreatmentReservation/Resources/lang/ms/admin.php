@@ -8,6 +8,10 @@ return [
     'hero' => [
 
         'today' => 'Hari ini',
+        'pending_hint' => 'Menunggu mula',
+        'progress_hint' => 'Sedang berjalan',
+        'completed_hint' => 'Rawatan siap',
+        'today_hint' => 'Tempahan hari ini',
     ],
     'tabs' => [
 
@@ -293,6 +297,14 @@ return [
         'status_legend' => 'Status temujanji',
         'click_hint' => 'Klik kad temujanji untuk lihat butiran penuh',
         'loading' => 'Memuatkan kalendar…',
+        'view_month' => 'Bulan',
+        'view_day' => 'Minggu',
+        'day_modal_title' => 'Temujanji',
+        'day_modal_empty' => 'Tiada temujanji pada hari ini',
+        'day_modal_holiday' => 'Cuti umum',
+        'day_modal_count' => ':count temujanji',
+        'day_modal_view' => 'Lihat butiran',
+        'day_modal_close' => 'Tutup',
         'weekdays' => [
 
             'mon' => 'Isn',

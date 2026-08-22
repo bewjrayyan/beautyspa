@@ -10,6 +10,7 @@ use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\BeauticianBlockedTime;
 use Modules\TreatmentReservation\Entities\BeauticianWorkingHour;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Support\AppointmentTimeFormatter;
 
 class BeauticianAvailabilityService
 {
@@ -241,12 +242,87 @@ class BeauticianAvailabilityService
 
 
     /**
+     * @return list<array{time: string, status: 'available'|'booked'|'past'|'unavailable'}>
+     */
+    public function slotOptions(int $beauticianId, string $date, ?int $excludeBookingId = null): array
+    {
+        $dayOfWeek = Carbon::parse($date)->dayOfWeek;
+        $hours = $this->workingHoursFor($beauticianId)
+            ->firstWhere('day_of_week', $dayOfWeek);
+
+        if (! $hours) {
+            return [];
+        }
+
+        $windowStart = $this->minutesFromTime($hours->start_time);
+        $windowEnd = $this->minutesFromTime($hours->end_time);
+
+        if ($windowStart === null || $windowEnd === null || $windowStart >= $windowEnd) {
+            return [];
+        }
+
+        $excludeOrderId = $this->excludedOrderIdForBooking($excludeBookingId);
+        $blocks = BeauticianBlockedTime::query()
+            ->select(['id', 'start_time', 'end_time'])
+            ->where('beautician_id', $beauticianId)
+            ->where('block_date', $date)
+            ->get();
+        $orders = Order::query()
+            ->select(['id', 'appointment_time'])
+            ->where('beautician_id', $beauticianId)
+            ->where('appointment_date', $date)
+            ->whereNotNull('appointment_time')
+            ->whereIn('status', $this->slotBlockingOrderStatuses())
+            ->when($excludeOrderId, fn ($query) => $query->whereKeyNot($excludeOrderId))
+            ->get();
+        $bookings = TreatmentBooking::query()
+            ->select(['id', 'order_id', 'appointment_time'])
+            ->where('beautician_id', $beauticianId)
+            ->where('appointment_date', $date)
+            ->whereIn('status', $this->slotBlockingBookingStatuses())
+            ->when($excludeBookingId, fn ($query) => $query->whereKeyNot($excludeBookingId))
+            ->when($excludeOrderId, fn ($query) => $query->where(function ($nested) use ($excludeOrderId) {
+                $nested->whereNull('order_id')->orWhere('order_id', '!=', $excludeOrderId);
+            }))
+            ->get();
+
+        $options = [];
+
+        for ($minute = $windowStart; $minute + self::SLOT_MINUTES <= $windowEnd; $minute += self::SLOT_MINUTES) {
+            $start = $this->timeFromMinutes($minute);
+            $end = $this->timeFromMinutes($minute + self::SLOT_MINUTES);
+
+            if ($this->isPastSlot($start, $date)) {
+                $options[] = ['time' => $start, 'status' => 'past'];
+
+                continue;
+            }
+
+            if ($this->isBlocked($blocks, $start, $end)) {
+                $options[] = ['time' => $start, 'status' => 'unavailable'];
+
+                continue;
+            }
+
+            if ($this->hasBookingConflict($orders, $bookings, $start, $end)) {
+                $options[] = ['time' => $start, 'status' => 'booked'];
+
+                continue;
+            }
+
+            $options[] = ['time' => $start, 'status' => 'available'];
+        }
+
+        return AppointmentTimeFormatter::decorateSlotOptions($options);
+    }
+
+
+    /**
      * @return array<int, string>
      */
     public function slotBlockingOrderStatuses(): array
     {
         return [
-            Order::PENDING_PAYMENT,
             Order::PENDING,
             Order::PROCESSING,
             Order::ON_HOLD,
@@ -395,15 +471,8 @@ class BeauticianAvailabilityService
 
     private function excludedOrderIdForBooking(?int $excludeBookingId): ?int
     {
-        if (! $excludeBookingId) {
-            return null;
-        }
-
-        $orderId = TreatmentBooking::query()
-            ->where('id', $excludeBookingId)
-            ->value('order_id');
-
-        return $orderId ? (int) $orderId : null;
+        // Multi-booking orders: never exclude sibling bookings via shared order_id.
+        return null;
     }
 
 
@@ -421,21 +490,33 @@ class BeauticianAvailabilityService
     }
 
 
+    private function isPastSlot(string $slot, string $date): bool
+    {
+        $slotDate = Carbon::parse($date)->startOfDay();
+
+        if ($slotDate->isPast() && ! $slotDate->isToday()) {
+            return true;
+        }
+
+        if (! $slotDate->isToday()) {
+            return false;
+        }
+
+        $nowMinutes = (now()->hour * 60) + now()->minute;
+
+        return ($this->minutesFromTime($slot) ?? 0) <= $nowMinutes;
+    }
+
+
     /**
      * @param array<int, string> $slots
      * @return array<int, string>
      */
     private function filterPastSlots(array $slots, string $date): array
     {
-        if (! Carbon::parse($date)->isToday()) {
-            return $slots;
-        }
-
-        $nowMinutes = (now()->hour * 60) + now()->minute;
-
         return array_values(array_filter(
             $slots,
-            fn (string $slot) => ($this->minutesFromTime($slot) ?? 0) > $nowMinutes
+            fn (string $slot) => ! $this->isPastSlot($slot, $date)
         ));
     }
 

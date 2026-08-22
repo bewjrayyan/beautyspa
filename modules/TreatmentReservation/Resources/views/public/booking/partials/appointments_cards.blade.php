@@ -22,7 +22,7 @@
                 </span>
                 <span>
                     <i class="las la-clock" aria-hidden="true"></i>
-                    {{ $booking->appointment_time }}
+                    {{ $booking->displayAppointmentTime() }}
                 </span>
                 @if ($booking->beautician?->name)
                     <span>

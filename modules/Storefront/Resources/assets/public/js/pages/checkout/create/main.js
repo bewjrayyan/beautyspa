@@ -24,7 +24,10 @@ Alpine.data(
         availabilitySlotsUrl = null,
         availabilityDatesUrl = null,
         treatmentProductId = null,
+        treatmentCartItems = [],
         treatmentAllowTbaByBranch = {},
+        treatmentAllowTbaByProductBranch = {},
+        treatmentDurationByProductBranch = {},
         slotLabels = {},
         spaBranches = [],
         loyaltyBalance = 0,
@@ -41,7 +44,11 @@ Alpine.data(
         availabilitySlotsUrl,
         availabilityDatesUrl,
         treatmentProductId,
+        treatmentCartItems,
         treatmentAllowTbaByBranch,
+        treatmentAllowTbaByProductBranch,
+        treatmentDurationByProductBranch,
+        treatmentSchedules: [],
         slotLabels,
         spaBranches,
         loggedIn: Boolean(window.AestheticCart?.loggedIn),
@@ -356,7 +363,22 @@ Alpine.data(
             return date.toLocaleTimeString([], {
                 hour: "numeric",
                 minute: "2-digit",
+                hour12: true,
             });
+        },
+
+        formatSlotOptionLabel(option) {
+            const base = option?.time_label || this.formatAppointmentSlot(option?.time || option);
+
+            if (option?.status === "booked") {
+                return `${base} (${this.slotLabels.booked || "Booked"})`;
+            }
+
+            if (option?.status === "unavailable") {
+                return `${base} (${this.slotLabels.unavailable || "Unavailable"})`;
+            }
+
+            return base;
         },
 
         async loadAppointmentSlots() {
@@ -645,41 +667,29 @@ Alpine.data(
                     this.beauticianPickerOpen = false;
                     this.spaBranchPickerOpen = false;
                     this.syncBeauticianWithBranch();
-                    if (!this.canScheduleLater) {
-                        this.form.schedule_later = "0";
-                    }
-                    this.loadAvailableAppointmentDates();
+                    (this.treatmentSchedules || []).forEach((line, index) => {
+                        line.pickerOpen = false;
+                        line.appointment_date = "";
+                        line.appointment_time = "";
+                        line.slots = [];
+                        line.availableDates = [];
+                        line.datesResolved = false;
+                        line.datesLoadFailed = false;
+                        if (!this.canScheduleLaterForLine(line)) {
+                            line.schedule_later = "0";
+                        }
+                        this.destroyLineDatePicker(index);
+                        if (!this.isLineScheduleLater(line) && line.beautician_id) {
+                            this.loadLineAvailableDates(index);
+                        }
+                    });
                 });
             }
 
-            this.initAppointmentPickers();
             this.setTabReminder();
 
-            if (this.requiresTreatmentBooking && this.availabilitySlotsUrl) {
-                this.$watch("form.beautician_id", () => {
-                    this.loadAvailableAppointmentDates();
-                    this.loadAppointmentSlots();
-                });
-                this.$watch("form.appointment_date", () => this.loadAppointmentSlots());
-                this.$watch("form.schedule_later", (value) => {
-                    if (value === true || value === 1 || value === "1") {
-                        this.form.appointment_date = "";
-                        this.form.appointment_time = "";
-                        this.appointmentSlots = [];
-                        this.availableAppointmentDates = [];
-                        this.appointmentDatesResolved = false;
-                        this.appointmentDatesLoadFailed = false;
-                        const dateInput = document.getElementById("appointment-date");
-                        if (dateInput) dateInput.value = "";
-                    } else {
-                        this.loadAvailableAppointmentDates();
-                        this.loadAppointmentSlots();
-                    }
-
-                    this.$nextTick(() => this.syncAppointmentDatePickerState());
-                });
-                this.loadAvailableAppointmentDates();
-                this.loadAppointmentSlots();
+            if (this.requiresTreatmentBooking) {
+                this.bootTreatmentSchedules();
             }
 
             this.$nextTick(() => {
@@ -807,54 +817,778 @@ Alpine.data(
             });
         },
 
+        bootTreatmentSchedules() {
+            this.ensureTreatmentSchedules();
+            this.$nextTick(() => {
+                (this.treatmentSchedules || []).forEach((line, index) => {
+                    if (!this.isLineScheduleLater(line) && line.beautician_id) {
+                        this.loadLineAvailableDates(index);
+                        if (line.appointment_date) {
+                            this.loadLineAppointmentSlots(index);
+                        }
+                    }
+                });
+                this.initAppointmentPickers();
+            });
+        },
+
+        ensureTreatmentSchedules() {
+            if (!this.requiresTreatmentBooking) {
+                this.treatmentSchedules = [];
+                return;
+            }
+
+            const sourceItems = Array.isArray(this.treatmentCartItems)
+                ? this.treatmentCartItems.slice()
+                : [];
+
+            if (!sourceItems.length && this.treatmentProductId) {
+                sourceItems.push({
+                    cart_item_id: "legacy",
+                    product_id: this.treatmentProductId,
+                    name: "Treatment",
+                });
+            }
+
+            const existing = new Map(
+                (this.treatmentSchedules || []).map((line) => [
+                    String(line.cart_item_id || `p-${line.product_id}`),
+                    line,
+                ])
+            );
+
+            this.treatmentSchedules = sourceItems.map((item) => {
+                const key = String(item.cart_item_id || `p-${item.product_id}`);
+                const prev = existing.get(key);
+
+                return {
+                    cart_item_id: String(item.cart_item_id || ""),
+                    product_id: Number(item.product_id),
+                    name: item.name || "Treatment",
+                    beautician_id: prev?.beautician_id || "",
+                    schedule_later: prev?.schedule_later ?? "1",
+                    appointment_date: prev?.appointment_date || "",
+                    appointment_time: prev?.appointment_time || "",
+                    slots: prev?.slots || [],
+                    slotOptions: prev?.slotOptions || [],
+                    baseSlotOptions: (prev && Number(prev.product_id) === Number(item.product_id)) ? (prev.baseSlotOptions || []) : [],
+                    slotsLoadedFor: (prev && Number(prev.product_id) === Number(item.product_id)) ? (prev.slotsLoadedFor || null) : null,
+                    availableDates: prev?.availableDates || [],
+                    dateOptions: prev?.dateOptions || [],
+                    loadingSlots: false,
+                    loadingDates: false,
+                    pickerOpen: false,
+                    datesResolved: Boolean(prev?.datesResolved),
+                    datesLoadFailed: Boolean(prev?.datesLoadFailed),
+                    durationMinutes: prev?.durationMinutes || null,
+                    slotConflict: Boolean(prev?.slotConflict),
+                };
+            });
+
+            (this.treatmentSchedules || []).forEach((line) => {
+                if (!this.canScheduleLaterForLine(line) && this.isLineScheduleLater(line)) {
+                    line.schedule_later = "0";
+                }
+            });
+        },
+
+        lineBeautician(line) {
+            if (!line?.beautician_id) return null;
+            return this.beauticians.find((b) => String(b.id) === String(line.beautician_id)) ?? null;
+        },
+
+        isLineScheduleLater(line) {
+            return line?.schedule_later === true || line?.schedule_later === 1 || line?.schedule_later === "1";
+        },
+
+        canScheduleLaterForLine(line) {
+            const branchId = String(this.form.spa_branch_id || "");
+            const productId = Number(line?.product_id || 0);
+            const byProduct = this.treatmentAllowTbaByProductBranch?.[productId];
+
+            if (byProduct && branchId && Object.prototype.hasOwnProperty.call(byProduct, branchId)) {
+                return Boolean(byProduct[branchId]);
+            }
+
+            if (!branchId || !(branchId in (this.treatmentAllowTbaByBranch || {}))) {
+                return true;
+            }
+
+            return Boolean(this.treatmentAllowTbaByBranch[branchId]);
+        },
+
+        lineAppointmentTimeOptions(line) {
+            if (!line?.beautician_id) {
+                return [{
+                    key: "need-beautician",
+                    value: "",
+                    label: this.slotLabels.select_beautician || "Select beautician first",
+                    disabled: true,
+                }];
+            }
+
+            if (!line.appointment_date) {
+                return [{
+                    key: "need-date",
+                    value: "",
+                    label: this.slotLabels.select_date || "Select a date first",
+                    disabled: true,
+                }];
+            }
+
+            if (line.loadingSlots) {
+                const loadingSelected = line.appointment_time
+                    ? String(line.appointment_time).slice(0, 5)
+                    : "";
+
+                if (loadingSelected) {
+                    return [
+                        {
+                            key: `loading-selected-${loadingSelected}`,
+                            value: loadingSelected,
+                            label: this.formatAppointmentSlot(loadingSelected),
+                            disabled: true,
+                        },
+                        {
+                            key: "loading",
+                            value: "",
+                            label: this.slotLabels.loading || "Loading…",
+                            disabled: true,
+                        },
+                    ];
+                }
+
+                return [{ key: "loading", value: "", label: this.slotLabels.loading || "Loading…", disabled: true }];
+            }
+
+            const selected = line.appointment_time
+                ? String(line.appointment_time).slice(0, 5)
+                : "";
+            const slotOptions = Array.isArray(line.slotOptions) ? line.slotOptions.slice() : [];
+
+            const displayOptions = slotOptions.filter((opt) => opt.status !== "past");
+
+            if (!displayOptions.length) {
+                return [{ key: "empty", value: "", label: this.slotLabels.empty || "No available times", disabled: true }];
+            }
+
+            return [
+                {
+                    key: "placeholder",
+                    value: "",
+                    label: this.slotLabels.select || "Select time",
+                    disabled: true,
+                },
+                ...displayOptions.map((opt, index) => ({
+                    key: `slot-${index}-${opt.time}-${opt.status}`,
+                    value: opt.time,
+                    label: this.formatSlotOptionLabel(opt),
+                    disabled: opt.status !== "available",
+                })),
+            ];
+        },
+
+        selectLineBeautician(lineIndex, beautician) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line) return;
+
+            line.beautician_id = String(beautician.id);
+            line.pickerOpen = false;
+            this.spaBranchPickerOpen = false;
+            this.errors.clear(`treatment_bookings.${lineIndex}.beautician_id`);
+
+            // Reset schedule when beautician changes — slots belong to that beautician.
+            line.appointment_date = "";
+            line.appointment_time = "";
+            line.slots = [];
+            line.slotOptions = [];
+            line.baseSlotOptions = [];
+            line.slotsLoadedFor = null;
+            line.availableDates = [];
+            line.dateOptions = [];
+            line.datesResolved = false;
+            line.datesLoadFailed = false;
+
+            this.destroyLineDatePicker(lineIndex);
+
+            if (!this.isLineScheduleLater(line)) {
+                this.loadLineAvailableDates(lineIndex);
+            }
+        },
+
+        onLineScheduleModeChange(lineIndex) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line) return;
+
+            if (this.isLineScheduleLater(line)) {
+                line.appointment_date = "";
+                line.appointment_time = "";
+                line.slots = [];
+                line.slotOptions = [];
+                line.baseSlotOptions = [];
+                line.slotsLoadedFor = null;
+                line.availableDates = [];
+                line.datesResolved = false;
+                line.datesLoadFailed = false;
+                this.destroyLineDatePicker(lineIndex);
+            } else if (line.beautician_id) {
+                // Wait for x-show to reveal date inputs before Flatpickr binds.
+                this.$nextTick(() => this.loadLineAvailableDates(lineIndex));
+            } else {
+                this.$nextTick(() => this.initAppointmentPickers());
+            }
+        },
+
+        destroyLineDatePicker(lineIndex) {
+            const dateEl = this.$el?.querySelector(
+                `.checkout-datepicker[data-line-index="${lineIndex}"]`
+            );
+            if (dateEl?._flatpickr) {
+                dateEl._flatpickr.destroy();
+            }
+        },
+
+        openLineDatePicker(lineIndex) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (
+                !line ||
+                this.isLineScheduleLater(line) ||
+                !line.beautician_id ||
+                line.loadingDates ||
+                !(line.availableDates || []).length
+            ) {
+                return;
+            }
+
+            const dateEl = this.$el?.querySelector(
+                `.checkout-datepicker[data-line-index="${lineIndex}"]`
+            );
+            const picker = dateEl?._flatpickr;
+
+            if (picker) {
+                picker.open();
+                return;
+            }
+
+            this.initAppointmentPickers();
+            this.$nextTick(() => {
+                const el = this.$el?.querySelector(
+                    `.checkout-datepicker[data-line-index="${lineIndex}"]`
+                );
+                el?._flatpickr?.open();
+            });
+        },
+
+        async loadLineAvailableDates(lineIndex) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (
+                !line ||
+                this.isLineScheduleLater(line) ||
+                !this.availabilityDatesUrl ||
+                !this.form.spa_branch_id ||
+                !line.product_id ||
+                !line.beautician_id
+            ) {
+                if (line) {
+                    line.availableDates = [];
+                    line.datesResolved = false;
+                    line.datesLoadFailed = false;
+                }
+                this.$nextTick(() => this.initLineDatePicker(lineIndex));
+                return;
+            }
+
+            line.loadingDates = true;
+            line.datesLoadFailed = false;
+
+            try {
+                const from = this.minAppointmentDate;
+                const toDate = new Date(`${from}T12:00:00`);
+                toDate.setDate(toDate.getDate() + 60);
+                const to = toDate.toISOString().slice(0, 10);
+                const { data } = await axios.get(this.availabilityDatesUrl, {
+                    params: {
+                        product_id: line.product_id,
+                        spa_branch_id: this.form.spa_branch_id,
+                        beautician_id: line.beautician_id,
+                        from,
+                        to,
+                    },
+                });
+                line.dateOptions = Array.isArray(data.date_options)
+                    ? data.date_options
+                    : (Array.isArray(data.dates)
+                        ? data.dates.map((date) => ({ date, status: "available" }))
+                        : []);
+                line.availableDates = line.dateOptions
+                    .filter((opt) => opt.status === "available")
+                    .map((opt) => opt.date);
+                line.datesResolved = true;
+
+                if (
+                    line.appointment_date &&
+                    !line.availableDates.includes(line.appointment_date)
+                ) {
+                    line.appointment_date = "";
+                    line.appointment_time = "";
+                    line.slots = [];
+                    line.slotOptions = [];
+                }
+            } catch (e) {
+                line.availableDates = [];
+                line.dateOptions = [];
+                line.datesResolved = true;
+                line.datesLoadFailed = true;
+                line.appointment_date = "";
+                line.appointment_time = "";
+                line.slots = [];
+            } finally {
+                line.loadingDates = false;
+                this.destroyLineDatePicker(lineIndex);
+                this.$nextTick(() => this.initLineDatePicker(lineIndex));
+            }
+        },
+
+        lineScheduleWindow(line) {
+            const time = String(line?.appointment_time || "").slice(0, 5);
+            if (!time || !/^\d{2}:\d{2}$/.test(time)) {
+                return null;
+            }
+
+            const [hour, minute] = time.split(":").map(Number);
+            const start = (hour * 60) + minute;
+            const duration = this.resolveLineDurationMinutes(line);
+
+            return { start, end: start + duration };
+        },
+
+        resolveLineDurationMinutes(line) {
+            if (Number(line?.durationMinutes) > 0) {
+                return Number(line.durationMinutes);
+            }
+
+            const productId = Number(line?.product_id || 0);
+            const branchId = String(this.form.spa_branch_id || "");
+            const byProduct = this.treatmentDurationByProductBranch?.[productId];
+
+            if (byProduct && branchId && Object.prototype.hasOwnProperty.call(byProduct, branchId)) {
+                return Math.max(1, Number(byProduct[branchId]) || 60);
+            }
+
+            return 60;
+        },
+
+        buildSiblingHolds(excludeLineIndex) {
+            return (this.treatmentSchedules || [])
+                .filter((line, index) => index !== excludeLineIndex && !this.isLineScheduleLater(line))
+                .filter((line) => line.beautician_id && line.appointment_date && line.appointment_time)
+                .map((line) => ({
+                    beautician_id: Number(line.beautician_id),
+                    appointment_date: String(line.appointment_date),
+                    appointment_time: String(line.appointment_time).slice(0, 5),
+                    product_id: Number(line.product_id) || null,
+                    duration_minutes: this.resolveLineDurationMinutes(line),
+                }));
+        },
+
+        syncLineAppointmentTimeWithSlots(line) {
+            if (!line?.appointment_time) {
+                return;
+            }
+
+            const time = String(line.appointment_time).slice(0, 5);
+            const slot = (line.slotOptions || []).find(
+                (opt) => opt.time === time && opt.status === "available"
+            );
+
+            if (!slot) {
+                line.appointment_time = "";
+            }
+        },
+
+        onLineAppointmentTimeChange(lineIndex) {
+            this.$nextTick(() => {
+                const line = this.treatmentSchedules[lineIndex];
+                const selected = line?.appointment_time
+                    ? String(line.appointment_time).slice(0, 5)
+                    : "";
+
+                this.reapplyAllSiblingHolds();
+
+                (this.treatmentSchedules || []).forEach((otherLine, index) => {
+                    if (index === lineIndex || this.isLineScheduleLater(otherLine)) {
+                        return;
+                    }
+
+                    this.syncLineAppointmentTimeWithSlots(otherLine);
+                });
+
+                this.checkSiblingScheduleConflicts();
+
+                if (
+                    line &&
+                    selected &&
+                    (line.slots || []).includes(selected)
+                ) {
+                    line.appointment_time = selected;
+                }
+            });
+        },
+
+        applyHoldsToSlotOptions(baseOptions, line, holds) {
+            const duration = this.resolveLineDurationMinutes(line);
+
+            return (baseOptions || []).map((option) => {
+                const cloned = { ...option };
+
+                if (cloned.status !== "available" || !holds.length) {
+                    return cloned;
+                }
+
+                const startMin = this.minutesFromClock(cloned.time);
+                const endMin = startMin === null ? null : startMin + duration;
+
+                if (startMin === null || endMin === null) {
+                    return cloned;
+                }
+
+                const conflicts = holds.some((hold) => {
+                    if (Number(hold.beautician_id) !== Number(line.beautician_id)) {
+                        return false;
+                    }
+
+                    if (String(hold.appointment_date) !== String(line.appointment_date)) {
+                        return false;
+                    }
+
+                    const holdStart = this.minutesFromClock(hold.appointment_time);
+                    const holdDuration = Math.max(1, Number(hold.duration_minutes) || 60);
+                    const holdEnd = holdStart === null ? null : holdStart + holdDuration;
+
+                    if (holdStart === null || holdEnd === null) {
+                        return false;
+                    }
+
+                    return startMin < holdEnd && endMin > holdStart;
+                });
+
+                if (conflicts) {
+                    cloned.status = "booked";
+                }
+
+                return cloned;
+            });
+        },
+
+        reapplyAllSiblingHolds() {
+            (this.treatmentSchedules || []).forEach((line, index) => {
+                if (this.isLineScheduleLater(line)) {
+                    return;
+                }
+
+                const base = (line.baseSlotOptions && line.baseSlotOptions.length)
+                    ? line.baseSlotOptions
+                    : line.slotOptions;
+
+                if (!Array.isArray(base) || !base.length) {
+                    return;
+                }
+
+                const holds = this.buildSiblingHolds(index);
+                line.slotOptions = this.applyHoldsToSlotOptions(base, line, holds);
+                line.slots = line.slotOptions
+                    .filter((option) => option.status === "available")
+                    .map((option) => this.formatAppointmentSlot(option.time));
+            });
+        },
+
+        minutesFromClock(time) {
+            const normalized = String(time || "").slice(0, 5);
+
+            if (!/^\d{2}:\d{2}$/.test(normalized)) {
+                return null;
+            }
+
+            const [hour, minute] = normalized.split(":").map(Number);
+
+            return (hour * 60) + minute;
+        },
+
+        lineTimeIsInSchedule(line, time) {
+            const normalized = String(time || "").slice(0, 5);
+
+            return (line?.slotOptions || []).some(
+                (option) => option.time === normalized && option.status === "available"
+            );
+        },
+
+        lineAvailableScheduleTimes(line) {
+            return (line?.slotOptions || [])
+                .filter((option) => option.status === "available")
+                .map((option) => option.time_label || this.formatAppointmentSlot(option.time))
+                .filter(Boolean)
+                .join(", ");
+        },
+
+        checkSiblingScheduleConflicts() {
+            const lines = this.treatmentSchedules || [];
+            lines.forEach((line) => {
+                line.slotConflict = false;
+            });
+
+            const scheduled = [];
+
+            lines.forEach((line, index) => {
+                if (this.isLineScheduleLater(line)) {
+                    return;
+                }
+
+                const beauticianId = Number(line.beautician_id || 0);
+                const date = String(line.appointment_date || "");
+                const window = this.lineScheduleWindow(line);
+
+                if (!beauticianId || !date || !window) {
+                    return;
+                }
+
+                scheduled.push({ index, beauticianId, date, ...window });
+            });
+
+            for (let i = 0; i < scheduled.length; i++) {
+                for (let j = i + 1; j < scheduled.length; j++) {
+                    const a = scheduled[i];
+                    const b = scheduled[j];
+
+                    if (
+                        a.beauticianId === b.beauticianId &&
+                        a.date === b.date &&
+                        a.start < b.end &&
+                        a.end > b.start
+                    ) {
+                        lines[a.index].slotConflict = true;
+                        lines[b.index].slotConflict = true;
+                    }
+                }
+            }
+        },
+
+        async loadLineAppointmentSlots(lineIndex) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (
+                !line ||
+                this.isLineScheduleLater(line) ||
+                !this.availabilitySlotsUrl ||
+                !this.form.spa_branch_id ||
+                !line.product_id ||
+                !line.beautician_id ||
+                !line.appointment_date
+            ) {
+                if (line) {
+                    line.slots = [];
+                    if (!line.appointment_date) {
+                        line.appointment_time = "";
+                    }
+                }
+                return;
+            }
+
+            const previousTime = line.appointment_time
+                ? String(line.appointment_time).slice(0, 5)
+                : "";
+
+            line.loadingSlots = true;
+            try {
+                const url = this.availabilitySlotsUrl.replace(
+                    "__BEAUTICIAN__",
+                    String(line.beautician_id)
+                );
+                const { data } = await axios.get(url, {
+                    params: {
+                        date: line.appointment_date,
+                        product_id: line.product_id,
+                        spa_branch_id: this.form.spa_branch_id,
+                    },
+                });
+                line.baseSlotOptions = Array.isArray(data.slot_options)
+                    ? data.slot_options.map((option) => ({ ...option }))
+                    : (data.slots || []).map((time) => ({ time, status: "available" }));
+                if (data.duration_minutes) {
+                    line.durationMinutes = Number(data.duration_minutes);
+                }
+
+                line.slotsLoadedFor = {
+                    product_id: Number(line.product_id),
+                    appointment_date: String(line.appointment_date || ""),
+                    beautician_id: Number(line.beautician_id || 0),
+                    spa_branch_id: Number(this.form.spa_branch_id || 0),
+                };
+
+                this.reapplyAllSiblingHolds();
+
+                if (previousTime && line.slots.includes(previousTime)) {
+                    line.appointment_time = previousTime;
+                } else if (!previousTime && line.slots.length === 1) {
+                    line.appointment_time = line.slots[0];
+                } else if (previousTime && !line.slots.includes(previousTime)) {
+                    line.appointment_time = "";
+                } else {
+                    this.syncLineAppointmentTimeWithSlots(line);
+                }
+
+                this.checkSiblingScheduleConflicts();
+            } catch (e) {
+                line.slots = [];
+                line.slotOptions = [];
+                line.baseSlotOptions = [];
+                line.slotsLoadedFor = null;
+                line.appointment_time = "";
+            } finally {
+                line.loadingSlots = false;
+            }
+        },
+
+        initLineDatePicker(lineIndex) {
+            if (!this.requiresTreatmentBooking) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                const dateEl = this.$el?.querySelector(
+                    `.checkout-datepicker[data-line-index="${lineIndex}"]`
+                );
+                const line = this.treatmentSchedules[lineIndex];
+
+                if (!dateEl) {
+                    return;
+                }
+
+                if (!line || this.isLineScheduleLater(line)) {
+                    if (dateEl._flatpickr) {
+                        dateEl._flatpickr.destroy();
+                    }
+
+                    return;
+                }
+
+                this.mountLineDatePicker(dateEl, lineIndex, line);
+            });
+        },
+
+        mountLineDatePicker(dateEl, lineIndex, line) {
+                        if (dateEl._flatpickr) {
+                            dateEl._flatpickr.destroy();
+                        }
+
+                        const enableDates = this.lineDateEnableRules(line);
+                        const canOpen =
+                            Boolean(line.beautician_id) &&
+                            !line.loadingDates &&
+                            this.lineDateHasSelectableDays(line);
+
+                        flatpickr(dateEl, {
+                            ...buildDatepickerOptions(dateEl),
+                            altInput: false,
+                            allowInput: false,
+                            minDate: this.minAppointmentDate,
+                            defaultDate: line.appointment_date || undefined,
+                            clickOpens: canOpen,
+                            enable: enableDates.length ? enableDates : false,
+                            onDayCreate: (_selectedDates, dateStr, _instance, dayElem) => {
+                                const current = this.treatmentSchedules[lineIndex];
+                                const status = this.lineDateStatusMap(current)[dateStr];
+
+                                if (status === "fully_booked") {
+                                    dayElem.classList.add("checkout-flatpickr-day--booked");
+                                    dayElem.title = this.slotLabels.dateFullyBooked || "Fully booked";
+                                } else if (status === "closed") {
+                                    dayElem.classList.add("checkout-flatpickr-day--closed");
+                                    dayElem.title = this.slotLabels.dateClosed || "Closed";
+                                }
+                            },
+                            onOpen: (_selectedDates, _dateStr, instance) => {
+                                const current = this.treatmentSchedules[lineIndex];
+                                if (
+                                    !current?.beautician_id ||
+                                    current.loadingDates ||
+                                    !this.lineDateHasSelectableDays(current)
+                                ) {
+                                    instance.close();
+                                }
+                            },
+                            onChange: (_selectedDates, dateStr) => {
+                                const current = this.treatmentSchedules[lineIndex];
+                                if (!current) {
+                                    return;
+                                }
+
+                                if (current.appointment_date === dateStr) {
+                                    return;
+                                }
+
+                                current.appointment_date = dateStr;
+                                current.appointment_time = "";
+                                current.slots = [];
+                                current.slotOptions = [];
+                                current.baseSlotOptions = [];
+                                current.slotsLoadedFor = null;
+                                this.loadLineAppointmentSlots(lineIndex);
+                            },
+                        });
+
+                        if (line.appointment_date) {
+                            dateEl.value = line.appointment_date;
+                        } else {
+                            dateEl.value = "";
+                        }
+        },
+
         initAppointmentPickers() {
             if (!this.requiresTreatmentBooking) {
                 return;
             }
 
             this.$nextTick(() => {
-                const dateEl = document.getElementById("appointment-date");
-                const timeEl = document.getElementById("appointment-time");
-
-                if (!dateEl) {
-                    return;
-                }
-
-                if (dateEl && !dateEl._flatpickr) {
-                    const defaultDate =
-                        this.form.appointment_date || this.minAppointmentDate;
-
-                    flatpickr(dateEl, {
-                        ...buildDatepickerOptions(dateEl),
-                        minDate: this.minAppointmentDate,
-                        defaultDate: defaultDate || undefined,
-                        enable: this.appointmentDateEnableRules(),
-                        onChange: (_selectedDates, dateStr) => {
-                            this.form.appointment_date = dateStr;
-
-                            if (this.availabilitySlotsUrl) {
-                                this.loadAppointmentSlots();
+                this.$el
+                    ?.querySelectorAll(".checkout-datepicker[data-line-index]")
+                    .forEach((dateEl) => {
+                        const lineIndex = Number(dateEl.dataset.lineIndex);
+                        const line = this.treatmentSchedules[lineIndex];
+                        if (!line || this.isLineScheduleLater(line)) {
+                            if (dateEl._flatpickr) {
+                                dateEl._flatpickr.destroy();
                             }
-                        },
-                    });
+                            return;
+                        }
 
-                    this.syncAppointmentDatePickerState();
-                }
-
-                if (!this.availabilitySlotsUrl && timeEl && !timeEl._flatpickr) {
-                    flatpickr(timeEl, {
-                        ...buildDatepickerOptions(timeEl),
-                        enableTime: true,
-                        noCalendar: true,
-                        dateFormat: "H:i",
-                        altFormat: "h:i K",
-                        defaultDate: this.form.appointment_time || "10:00",
-                        onChange: (_selectedDates, timeStr) => {
-                            this.form.appointment_time = timeStr;
-                        },
+                        this.mountLineDatePicker(dateEl, lineIndex, line);
                     });
+            });
+        },
+
+        lineDateStatusMap(line) {
+            const map = {};
+
+            (line?.dateOptions || []).forEach((option) => {
+                if (option?.date) {
+                    map[option.date] = option.status;
                 }
             });
+
+            return map;
+        },
+
+        lineDateHasSelectableDays(line) {
+            return (line?.dateOptions || []).some(
+                (option) => option.status === "available" || option.status === "fully_booked"
+            );
+        },
+
+        lineDateEnableRules(line) {
+            if (!line?.beautician_id || line.loadingDates) {
+                return [];
+            }
+
+            return (line?.availableDates || []).filter(Boolean);
         },
 
         normalizeBillingCountry() {
@@ -946,14 +1680,25 @@ Alpine.data(
             };
 
             if (this.requiresTreatmentBooking) {
-                payload.schedule_later = this.isScheduleLater ? 1 : 0;
-                payload.beautician_id = this.form.beautician_id;
-                payload.appointment_date = this.isScheduleLater
-                    ? null
-                    : this.form.appointment_date;
-                payload.appointment_time = !this.isScheduleLater && this.form.appointment_time
-                    ? String(this.form.appointment_time).slice(0, 5)
-                    : null;
+                payload.treatment_bookings = (this.treatmentSchedules || []).map((line) => {
+                    const later = line.schedule_later === true || line.schedule_later === 1 || line.schedule_later === "1";
+                    return {
+                        cart_item_id: line.cart_item_id || null,
+                        product_id: line.product_id,
+                        beautician_id: line.beautician_id || null,
+                        schedule_later: later ? 1 : 0,
+                        appointment_date: later ? null : line.appointment_date || null,
+                        appointment_time: !later && line.appointment_time
+                            ? String(line.appointment_time).slice(0, 5)
+                            : null,
+                    };
+                });
+
+                const first = payload.treatment_bookings[0] || {};
+                payload.schedule_later = first.schedule_later ?? 0;
+                payload.beautician_id = first.beautician_id || null;
+                payload.appointment_date = first.appointment_date || null;
+                payload.appointment_time = first.appointment_time || null;
             }
 
             if (this.hasSpaBranches) {
@@ -969,7 +1714,7 @@ Alpine.data(
 
         appendCheckoutFormData(formData, payload) {
             Object.entries(payload).forEach(([key, value]) => {
-                if (key === "billing" || key === "shipping") {
+                if (key === "billing" || key === "shipping" || key === "treatment_bookings") {
                     return;
                 }
 
@@ -978,6 +1723,15 @@ Alpine.data(
                 }
 
                 formData.append(key, value);
+            });
+
+            (payload.treatment_bookings || []).forEach((line, index) => {
+                Object.entries(line || {}).forEach(([field, fieldValue]) => {
+                    if (fieldValue === null || fieldValue === undefined || fieldValue === "") {
+                        return;
+                    }
+                    formData.append(`treatment_bookings[${index}][${field}]`, fieldValue);
+                });
             });
 
             Object.entries(payload.billing || {}).forEach(([key, value]) => {
@@ -1023,10 +1777,17 @@ Alpine.data(
 
             this.errors.record(bag);
 
-            const firstKey = Object.keys(bag)[0];
+            const treatmentKey = Object.keys(bag).find((key) => key.startsWith("treatment_bookings."));
+            const preferredKey = treatmentKey || Object.keys(bag)[0];
 
-            if (firstKey && bag[firstKey]?.[0]) {
-                notify(bag[firstKey][0]);
+            if (preferredKey && bag[preferredKey]?.[0]) {
+                const match = preferredKey.match(/^treatment_bookings\.(\d+)\./);
+                const lineIndex = match ? Number(match[1]) : null;
+                const line = lineIndex !== null ? this.treatmentSchedules?.[lineIndex] : null;
+                const message = bag[preferredKey][0];
+                const label = line?.name ? `${line.name}: ${message}` : message;
+
+                notify(label);
 
                 return;
             }
@@ -1503,8 +2264,99 @@ Alpine.data(
                 });
         },
 
+        validateTreatmentSchedulesBeforeSubmit() {
+            if (!this.requiresTreatmentBooking) {
+                return true;
+            }
+
+            this.reapplyAllSiblingHolds();
+            this.checkSiblingScheduleConflicts();
+
+            if ((this.treatmentSchedules || []).some((line) => !this.isLineScheduleLater(line) && line.slotConflict)) {
+                notify(trans("storefront::checkout.appointment_time_conflicts_sibling"));
+                return false;
+            }
+
+            for (let index = 0; index < (this.treatmentSchedules || []).length; index++) {
+                const line = this.treatmentSchedules[index];
+
+                if (this.isLineScheduleLater(line)) {
+                    continue;
+                }
+
+                if (line.loadingDates || line.loadingSlots) {
+                    notify(trans("storefront::checkout.loading_appointment_schedule"));
+                    return false;
+                }
+
+                const loadedFor = line.slotsLoadedFor;
+                if (
+                    loadedFor &&
+                    (Number(loadedFor.product_id) !== Number(line.product_id)
+                        || String(loadedFor.appointment_date) !== String(line.appointment_date)
+                        || Number(loadedFor.beautician_id) !== Number(line.beautician_id)
+                        || Number(loadedFor.spa_branch_id) !== Number(this.form.spa_branch_id))
+                ) {
+                    notify(trans("storefront::checkout.loading_appointment_schedule"));
+                    this.loadLineAppointmentSlots(index);
+                    return false;
+                }
+
+                if (!line.beautician_id || !line.appointment_date || !line.appointment_time) {
+                    notify(trans("storefront::checkout.complete_treatment_schedule"));
+                    return false;
+                }
+
+                if (!(line.availableDates || []).includes(line.appointment_date)) {
+                    notify(trans("treatmentreservation::public.slot_unavailable"));
+                    return false;
+                }
+
+                const time = String(line.appointment_time).slice(0, 5);
+
+                if (!this.lineTimeIsInSchedule(line, time)) {
+                    notify(
+                        trans("storefront::checkout.appointment_time_not_in_schedule", {
+                            treatment: line.name || "Treatment",
+                        })
+                    );
+                    return false;
+                }
+
+                const slot = (line.slotOptions || []).find((opt) => opt.time === time);
+
+                if (line.slotConflict) {
+                    notify(trans("storefront::checkout.appointment_time_conflicts_sibling"));
+                    return false;
+                }
+
+                if (!slot || slot.status !== "available") {
+                    if (slot?.status === "unavailable") {
+                        notify(trans("treatmentreservation::public.slot_beautician_unavailable"));
+                        return false;
+                    }
+
+                    if (slot?.status === "booked") {
+                        notify(trans("treatmentreservation::public.slot_unavailable"));
+                        return false;
+                    }
+
+                    notify(trans("storefront::checkout.appointment_time_not_in_schedule", {
+                        treatment: line.name || "Treatment",
+                    }));
+                    return false;
+                }
+            }
+
+            return true;
+        },
+
         placeOrder() {
             if (!this.form.terms_and_conditions || this.placingOrder) {
+                return;
+            }
+
+            if (!this.validateTreatmentSchedulesBeforeSubmit()) {
                 return;
             }
 
@@ -1527,10 +2379,11 @@ Alpine.data(
 
             this.placingOrder = true;
 
+            const checkoutPayload = this.buildCheckoutRequestBody();
             axios
                 .post(
                     AestheticCart.url("/checkout"),
-                    this.buildCheckoutRequestBody()
+                    checkoutPayload
                 )
                 .then(({ data }) => {
                     if (data?.redirectUrl) {

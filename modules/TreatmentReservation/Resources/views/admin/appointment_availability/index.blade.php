@@ -23,7 +23,7 @@
                 : TrLang::trans('admin.appointment_availability.scope_treatment_named', [
                     'treatment' => $override->product?->name ?? TrLang::trans('admin.appointment_availability.unknown_treatment'),
                 ]),
-            'times' => $override->slots->map(fn ($s) => \Illuminate\Support\Carbon::parse($s->start_time)->format('H:i'))->values()->all(),
+            'times' => $override->slots->map(fn ($s) => \Illuminate\Support\Carbon::parse($s->start_time)->format('g:i A'))->values()->all(),
         ];
     })->values();
 
@@ -394,7 +394,7 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                {{ $override->slots->map(fn ($s) => \Illuminate\Support\Carbon::parse($s->start_time)->format('H:i'))->implode(', ') ?: '—' }}
+                                                {{ $override->slots->map(fn ($s) => \Illuminate\Support\Carbon::parse($s->start_time)->format('g:i A'))->implode(', ') ?: '—' }}
                                             </td>
                                             <td class="text-right">
                                                 <button type="button" class="btn btn-sm btn-danger tr-delete-override" data-id="{{ $override->id }}">

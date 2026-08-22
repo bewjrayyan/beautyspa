@@ -22,15 +22,35 @@ class BookingJobSheetOrderSync
             return;
         }
 
-        $orderStatus = match ($jobSheetStatus) {
-            TreatmentBooking::STATUS_COMPLETED => Order::COMPLETED,
-            default => null,
-        };
+        if ($jobSheetStatus === TreatmentBooking::STATUS_CANCELED) {
+            $hasActive = TreatmentBooking::query()
+                ->where('order_id', $booking->order_id)
+                ->whereNotIn('status', [TreatmentBooking::STATUS_CANCELED])
+                ->exists();
 
-        if ($orderStatus === null || $order->status === $orderStatus) {
+            if (! $hasActive && $order->status !== Order::CANCELED) {
+                $order->update(['status' => Order::CANCELED]);
+            }
+
             return;
         }
 
-        $order->update(['status' => $orderStatus]);
+        if ($jobSheetStatus !== TreatmentBooking::STATUS_COMPLETED) {
+            return;
+        }
+
+        $incomplete = TreatmentBooking::query()
+            ->where('order_id', $booking->order_id)
+            ->whereNotIn('status', [
+                TreatmentBooking::STATUS_COMPLETED,
+                TreatmentBooking::STATUS_CANCELED,
+            ])
+            ->exists();
+
+        if ($incomplete || $order->status === Order::COMPLETED) {
+            return;
+        }
+
+        $order->update(['status' => Order::COMPLETED]);
     }
 }

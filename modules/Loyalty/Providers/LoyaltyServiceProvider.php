@@ -10,6 +10,7 @@ use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\User\Events\CustomerRegistered;
 use Modules\Loyalty\Listeners\AwardStampsOnOrderPlaced;
+use Modules\Loyalty\Listeners\CaptureLoyaltyRedemptionOnOrderPlaced;
 use Modules\Loyalty\Console\EnrollMembersCommand;
 use Modules\Loyalty\Console\ExpireLoyaltyPointsCommand;
 use Modules\Loyalty\Console\AwardBirthdayBonusCommand;
@@ -50,6 +51,11 @@ class LoyaltyServiceProvider extends ServiceProvider
         $this->app['events']->listen(
             OrderStatusChanged::class,
             ProcessLoyaltyOnOrderStatusChanged::class
+        );
+
+        $this->app['events']->listen(
+            OrderPlaced::class,
+            CaptureLoyaltyRedemptionOnOrderPlaced::class
         );
 
         $this->app['events']->listen(

@@ -1,3 +1,5 @@
+import { formatAppointmentTimeDisplay, normalizeAppointmentTime24 } from "./time-format.js";
+
 import flatpickr from "flatpickr";
 
 /**
@@ -183,14 +185,7 @@ import flatpickr from "flatpickr";
     }
 
     function normalizeTimeInput(value) {
-        const raw = String(value || "").trim();
-        if (!raw) return null;
-        const match = raw.match(/^(\d{1,2}):(\d{2})$/);
-        if (!match) return null;
-        const h = Number(match[1]);
-        const m = Number(match[2]);
-        if (h > 23 || m > 59) return null;
-        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+        return normalizeAppointmentTime24(value);
     }
 
     function getDayTimes(row) {
@@ -206,7 +201,7 @@ import flatpickr from "flatpickr";
             chip.className = "tr-avail-day__chip";
             chip.dataset.time = time;
             chip.innerHTML =
-                `<span>${escapeHtml(time)}</span>` +
+                `<span>${escapeHtml(formatAppointmentTimeDisplay(time))}</span>` +
                 (disabled
                     ? ""
                     : `<button type="button" aria-label="${escapeAttr(root.dataset.labelRemove || "Remove")}">&times;</button>`);
@@ -224,12 +219,12 @@ import flatpickr from "flatpickr";
         flatpickr(input, {
             allowInput: true,
             clickOpens: true,
-            dateFormat: "H:i",
+            dateFormat: "g:i K",
             disableMobile: true,
             enableTime: true,
             minuteIncrement: 15,
             noCalendar: true,
-            time_24hr: true,
+            time_24hr: false,
             onReady(_dates, _dateString, instance) {
                 const calendar = instance.calendarContainer;
                 calendar.classList.add("tr-avail-timepicker");
@@ -245,10 +240,10 @@ import flatpickr from "flatpickr";
                 const quick = document.createElement("div");
                 quick.className = "tr-avail-timepicker__quick";
                 quick.innerHTML = `<span>${escapeHtml(root.dataset.labelQuickTimes || "Quick times")}</span>`;
-                ["09:00", "12:00", "15:00", "18:00"].forEach((time) => {
+                [["09:00", "9:00 AM"], ["12:00", "12:00 PM"], ["15:00", "3:00 PM"], ["18:00", "6:00 PM"]].forEach(([time, label]) => {
                     const button = document.createElement("button");
                     button.type = "button";
-                    button.textContent = time;
+                    button.textContent = label;
                     button.setAttribute("aria-label", `${root.dataset.labelSelectTime || "Select time"} ${time}`);
                     button.addEventListener("click", () => {
                         instance.setDate(time, true, "H:i");
@@ -645,7 +640,7 @@ import flatpickr from "flatpickr";
             chip.dataset.ovTimeChip = "";
             chip.dataset.time = time;
             chip.innerHTML =
-                `<span>${escapeHtml(time)}</span>` +
+                `<span>${escapeHtml(formatAppointmentTimeDisplay(time))}</span>` +
                 `<button type="button" aria-label="${escapeAttr(`${root.dataset.labelRemove || "Remove"} ${time}`)}">&times;</button>`;
             chip.querySelector("button")?.addEventListener("click", () => {
                 chip.remove();

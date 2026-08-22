@@ -1,3 +1,4 @@
+import { formatAppointmentTimeDisplay, normalizeAppointmentTime24 } from "./time-format.js";
 import flatpickr from "flatpickr";
 import {
     formatPhoneE164,
@@ -322,7 +323,7 @@ function bindManualBookingModal(modal) {
         slotsRoot.innerHTML = slots
             .map(
                 (slot) =>
-                    `<button type="button" class="tr-manual-booking-slot${selectedSlot === slot ? " is-selected" : ""}" data-slot="${slot}">${slot}</button>`
+                    `<button type="button" class="tr-manual-booking-slot${selectedSlot === slot ? " is-selected" : ""}" data-slot="${slot}">${formatAppointmentTimeDisplay(slot)}</button>`
             )
             .join("");
 
@@ -667,14 +668,14 @@ function bindManualBookingModal(modal) {
         }
 
         if (!bookingIsTba && timeInput && booking.appointment_time) {
-            timeInput.value = booking.appointment_time;
+            timeInput.value = booking.appointment_time_value || normalizeAppointmentTime24(booking.appointment_time) || booking.appointment_time;
         }
 
         setError("");
         hideCustomerLookup();
 
         if (!bookingIsTba) {
-            loadSlots(booking.appointment_time || "");
+            loadSlots(booking.appointment_time_value || normalizeAppointmentTime24(booking.appointment_time) || booking.appointment_time || "");
         }
         window.setTimeout(() => {
             suppressCustomerLookup = false;

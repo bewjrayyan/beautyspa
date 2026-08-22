@@ -113,7 +113,8 @@ class CheckoutController extends Controller
                 $gateway,
                 $request->payment_method,
                 $response,
-                $paymentFinalizer
+                $paymentFinalizer,
+                $orderService
             );
         }
 
@@ -126,13 +127,24 @@ class CheckoutController extends Controller
         $gateway,
         string $paymentMethod,
         $purchaseResponse,
-        CheckoutPaymentFinalizer $paymentFinalizer
+        CheckoutPaymentFinalizer $paymentFinalizer,
+        OrderService $orderService,
     ): JsonResponse
     {
         try {
             $completionResponse = $gateway->complete($order);
             $paymentFinalizer->finalize($order, $paymentMethod, $completionResponse);
         } catch (\Throwable $e) {
+            report($e);
+
+            try {
+                $orderService->delete($order->fresh() ?? $order);
+            } catch (\Throwable $cleanupException) {
+                report($cleanupException);
+            }
+
+            session()->forget('checkout_pending_order');
+
             return response()->json([
                 'message' => $e->getMessage() ?: trans('storefront::storefront.something_went_wrong'),
             ], 403);
@@ -184,12 +196,36 @@ class CheckoutController extends Controller
         float $loyaltyWorthRm,
     ): array {
         $user = auth()->user();
-        $treatmentProductId = $requiresTreatmentBooking
-            ? $this->resolveCartTreatmentProductId()
-            : null;
+        $treatmentCartItems = $requiresTreatmentBooking
+            ? $this->resolveCartTreatmentItems()
+            : [];
+        $treatmentProductId = $treatmentCartItems[0]['product_id'] ?? null;
 
         if ($user) {
             $user->loadMissing(['defaultAddress', 'addresses']);
+        }
+
+        $allowTbaByProductBranch = [];
+        $durationByProductBranch = [];
+        if ($treatmentCartItems !== [] && app('modules')->isEnabled('TreatmentReservation')) {
+            $productIds = collect($treatmentCartItems)->pluck('product_id')->unique()->all();
+            $rows = TreatmentBranchAvailability::query()
+                ->whereIn('product_id', $productIds)
+                ->get(['product_id', 'spa_branch_id', 'allow_tba']);
+
+            foreach ($rows as $row) {
+                $allowTbaByProductBranch[(int) $row->product_id][(int) $row->spa_branch_id] = (bool) $row->allow_tba;
+            }
+
+            $availability = app(\Modules\TreatmentReservation\Services\AppointmentAvailabilityService::class);
+            foreach ($productIds as $productId) {
+                foreach (array_keys($allowTbaByProductBranch[(int) $productId] ?? []) as $branchId) {
+                    $durationByProductBranch[(int) $productId][(int) $branchId] = $availability->resolveDurationMinutes(
+                        (int) $productId,
+                        (int) $branchId
+                    );
+                }
+            }
         }
 
         return [
@@ -213,16 +249,17 @@ class CheckoutController extends Controller
                 ? route('treatment_reservations.availability.dates')
                 : null,
             'treatmentProductId' => $treatmentProductId,
-            'treatmentAllowTbaByBranch' => $treatmentProductId && app('modules')->isEnabled('TreatmentReservation')
-                ? TreatmentBranchAvailability::query()
-                    ->where('product_id', $treatmentProductId)
-                    ->pluck('allow_tba', 'spa_branch_id')
-                    ->map(fn ($allowed) => (bool) $allowed)
-                    ->all()
+            'treatmentCartItems' => $treatmentCartItems,
+            'treatmentAllowTbaByProductBranch' => $allowTbaByProductBranch,
+            'treatmentDurationByProductBranch' => $durationByProductBranch,
+            'treatmentAllowTbaByBranch' => $treatmentProductId && isset($allowTbaByProductBranch[(int) $treatmentProductId])
+                ? $allowTbaByProductBranch[(int) $treatmentProductId]
                 : [],
             'slotLabels' => array_merge(
                 [
                     'select_beautician' => trans('storefront::checkout.select_beautician'),
+                    'select_beautician_before_date' => trans('storefront::checkout.select_beautician_before_date'),
+                    'select_date' => trans('storefront::checkout.select_date_first'),
                     'select_spa_branch_first' => trans('storefront::checkout.select_spa_branch_first'),
                     'no_beauticians_at_branch' => trans('storefront::checkout.no_beauticians_at_branch'),
                 ],
@@ -231,6 +268,10 @@ class CheckoutController extends Controller
                         'loading' => trans('treatmentreservation::public.loading_slots'),
                         'empty' => trans('treatmentreservation::public.no_slots'),
                         'select' => trans('storefront::checkout.select_appointment_time'),
+                        'booked' => trans('treatmentreservation::public.slot_booked'),
+                        'unavailable' => trans('treatmentreservation::public.slot_status_unavailable'),
+                        'dateFullyBooked' => trans('treatmentreservation::public.date_fully_booked'),
+                        'dateClosed' => trans('treatmentreservation::public.date_closed'),
                     ]
                     : []
             ),
@@ -285,14 +326,31 @@ class CheckoutController extends Controller
 
     private function resolveCartTreatmentProductId(): ?int
     {
+        return $this->resolveCartTreatmentItems()[0]['product_id'] ?? null;
+    }
+
+
+    /**
+     * @return list<array{cart_item_id: string, product_id: int, name: string}>
+     */
+    private function resolveCartTreatmentItems(): array
+    {
+        $items = [];
+
         foreach (Cart::items() as $item) {
             $product = $item->product ?? null;
 
-            if ($product && ($product->is_virtual ?? false)) {
-                return (int) $product->id;
+            if (! $product || ! ($product->is_virtual ?? false)) {
+                continue;
             }
+
+            $items[] = [
+                'cart_item_id' => (string) $item->id,
+                'product_id' => (int) $product->id,
+                'name' => (string) ($product->name ?? 'Treatment'),
+            ];
         }
 
-        return null;
+        return $items;
     }
 }

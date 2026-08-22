@@ -46,8 +46,12 @@
 
             @unless ($embedded)
                 <div class="tr-calendar-view-toggle" id="tr-cal-view-toggle">
-                    <button type="button" class="tr-calendar-view-toggle__btn is-active" data-cal-view="month">Month</button>
-                    <button type="button" class="tr-calendar-view-toggle__btn" data-cal-view="day">Day</button>
+                    <button type="button" class="tr-calendar-view-toggle__btn is-active" data-cal-view="month">
+                        {{ trans('treatmentreservation::admin.calendar.view_month') }}
+                    </button>
+                    <button type="button" class="tr-calendar-view-toggle__btn" data-cal-view="day">
+                        {{ trans('treatmentreservation::admin.calendar.view_day') }}
+                    </button>
                 </div>
             @endunless
         </div>

@@ -4,16 +4,16 @@ namespace Modules\Checkout\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
-use Modules\Cart\Facades\Cart;
 use Modules\Order\Entities\Order;
 use Modules\Checkout\Services\CheckoutCompletionGuard;
+use Modules\Checkout\Services\OrderService;
 
 class PaymentCanceledController
 {
+    public function __construct(private OrderService $orderService) {}
+
     /**
      * Cancel a pending checkout order after the customer abandons online payment.
-     *
-     * @param int $orderId
      */
     public function store(Request $request, $orderId)
     {
@@ -36,17 +36,13 @@ class PaymentCanceledController
 
         session()->forget('checkout_pending_order');
 
-        $order->forceDelete();
-
-        Cart::restoreStock();
+        $this->orderService->delete($order);
 
         if ($request->ajax()) {
-            return response()->json(
-                [
-                    'success' => true,
-                    'message' => trans('payment::messages.payment_cancelled'),
-                ]
-            );
+            return response()->json([
+                'success' => true,
+                'message' => trans('payment::messages.payment_cancelled'),
+            ]);
         }
 
         return redirect()

@@ -21,7 +21,7 @@
             <tr class="my-appointments-table__row" data-booking-id="{{ $booking->id }}">
                 <td class="my-appointments-table__treatment">{{ $booking->product?->name }}</td>
                 <td>{{ $booking->appointment_date?->format('d M Y') ?? '—' }}</td>
-                <td>{{ $booking->appointment_time ?? '—' }}</td>
+                <td>{{ $booking->displayAppointmentTime() ?: '—' }}</td>
                 <td>{{ $booking->beautician?->name ?? '—' }}</td>
                 <td>
                     <span class="account-appointment-card__status account-appointment-card__status--{{ $booking->status }}">

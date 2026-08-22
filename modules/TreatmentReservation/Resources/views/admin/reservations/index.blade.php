@@ -38,6 +38,12 @@
         data-cal-status-in-progress="{{ TrLang::trans('admin.kanban.in_progress') }}"
         data-cal-status-completed="{{ TrLang::trans('admin.kanban.completed') }}"
         data-cal-empty-label="{{ TrLang::trans('admin.calendar.no_bookings') }}"
+        data-cal-day-modal-title="{{ TrLang::trans('admin.calendar.day_modal_title') }}"
+        data-cal-day-modal-empty="{{ TrLang::trans('admin.calendar.day_modal_empty') }}"
+        data-cal-day-modal-holiday="{{ TrLang::trans('admin.calendar.day_modal_holiday') }}"
+        data-cal-day-modal-count="{{ TrLang::trans('admin.calendar.day_modal_count') }}"
+        data-cal-day-modal-view="{{ TrLang::trans('admin.calendar.day_modal_view') }}"
+        data-cal-day-modal-close="{{ TrLang::trans('admin.calendar.day_modal_close') }}"
         data-calendar-url="{{ route('admin.treatment_reservations.calendar') }}"
         data-holidays-range-url="{{ route('admin.treatment_reservations.holidays_range') }}"
         data-kanban-url="{{ route('admin.treatment_reservations.kanban') }}"
@@ -255,25 +261,49 @@
                     </button>
                 @endHasAccess
 
-                <div class="tr-reservations-hero__pipeline">
-                <div class="tr-reservations-hero__metric tr-reservations-hero__metric--pending">
-                    <span class="tr-reservations-hero__metric-value">{{ number_format($stats['pending']) }}</span>
-                    <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.pending') }}</span>
-                </div>
-                <div class="tr-reservations-hero__metric tr-reservations-hero__metric--progress">
-                    <span class="tr-reservations-hero__metric-value">{{ number_format($stats['inProgress']) }}</span>
-                    <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.in_progress') }}</span>
-                </div>
-                <div class="tr-reservations-hero__metric tr-reservations-hero__metric--completed">
-                    <span class="tr-reservations-hero__metric-value">{{ number_format($stats['completed']) }}</span>
-                    <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.completed') }}</span>
-                </div>
-                @if (isset($todayBookings))
-                    <div class="tr-reservations-hero__metric tr-reservations-hero__metric--today">
-                        <span class="tr-reservations-hero__metric-value">{{ number_format($todayBookings) }}</span>
-                        <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.hero.today') }}</span>
+                <div class="tr-reservations-hero__pipeline" role="list">
+                    <div class="tr-reservations-hero__metric tr-reservations-hero__metric--pending" role="listitem">
+                        <div class="tr-reservations-hero__metric-head">
+                            <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-clock-o"></i></span>
+                            <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.pending') }}</span>
+                        </div>
+                        <div class="tr-reservations-hero__metric-body">
+                            <span class="tr-reservations-hero__metric-value">{{ number_format($stats['pending']) }}</span>
+                            <span class="tr-reservations-hero__metric-hint">{{ TrLang::trans('admin.hero.pending_hint') }}</span>
+                        </div>
                     </div>
-                @endif
+                    <div class="tr-reservations-hero__metric tr-reservations-hero__metric--progress" role="listitem">
+                        <div class="tr-reservations-hero__metric-head">
+                            <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-play-circle"></i></span>
+                            <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.in_progress') }}</span>
+                        </div>
+                        <div class="tr-reservations-hero__metric-body">
+                            <span class="tr-reservations-hero__metric-value">{{ number_format($stats['inProgress']) }}</span>
+                            <span class="tr-reservations-hero__metric-hint">{{ TrLang::trans('admin.hero.progress_hint') }}</span>
+                        </div>
+                    </div>
+                    <div class="tr-reservations-hero__metric tr-reservations-hero__metric--completed" role="listitem">
+                        <div class="tr-reservations-hero__metric-head">
+                            <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-check-circle"></i></span>
+                            <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.completed') }}</span>
+                        </div>
+                        <div class="tr-reservations-hero__metric-body">
+                            <span class="tr-reservations-hero__metric-value">{{ number_format($stats['completed']) }}</span>
+                            <span class="tr-reservations-hero__metric-hint">{{ TrLang::trans('admin.hero.completed_hint') }}</span>
+                        </div>
+                    </div>
+                    @if (isset($todayBookings))
+                        <div class="tr-reservations-hero__metric tr-reservations-hero__metric--today" role="listitem">
+                            <div class="tr-reservations-hero__metric-head">
+                                <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-sun-o"></i></span>
+                                <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.hero.today') }}</span>
+                            </div>
+                            <div class="tr-reservations-hero__metric-body">
+                                <span class="tr-reservations-hero__metric-value">{{ number_format($todayBookings) }}</span>
+                                <span class="tr-reservations-hero__metric-hint">{{ TrLang::trans('admin.hero.today_hint') }}</span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </header>

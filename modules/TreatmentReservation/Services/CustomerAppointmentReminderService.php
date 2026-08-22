@@ -211,7 +211,7 @@ class CustomerAppointmentReminderService
         $customer = $booking->customer_full_name ?: 'Pelanggan';
         $treatment = $booking->product?->name ?: '—';
         $date = $booking->appointment_date?->format('d M Y') ?: '—';
-        $time = $booking->appointment_time ?: '—';
+        $time = $booking->displayAppointmentTime() ?: '—';
         $beautician = $booking->beautician?->name;
         $trackingUrl = $this->trackingUrl($booking);
 

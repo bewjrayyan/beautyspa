@@ -24,51 +24,99 @@
                 </div>
 
                 @if ($hasTreatmentBooking)
+                    @php
+                        $treatmentBookings = $order->relationLoaded('treatmentBookings')
+                            ? $order->treatmentBookings
+                            : collect($order->treatmentBooking ? [$order->treatmentBooking] : []);
+                        $multipleAppointments = $treatmentBookings->count() > 1;
+                    @endphp
+
                     <div class="order-complete-section" id="booking-details">
                         <h2 class="order-complete-section-title">
                             <i class="las la-spa"></i>
-                            {{ trans('storefront::order_complete.booking_details') }}
+                            {{ $multipleAppointments
+                                ? trans('storefront::order_complete.appointments')
+                                : trans('storefront::order_complete.booking_details') }}
                         </h2>
 
-                        <div class="order-complete-details-grid">
-                            @if ($order->beautician)
-                                <div class="order-complete-detail">
-                                    <span class="order-complete-detail-label">{{ trans('storefront::order_complete.beautician') }}</span>
-                                    <span class="order-complete-detail-value">
-                                        @if ($order->beautician->profile_image->exists)
-                                            <img
-                                                src="{{ $order->beautician->profile_image->path }}"
-                                                alt=""
-                                                class="order-complete-beautician-avatar"
-                                            >
+                        @if ($multipleAppointments)
+                            @foreach ($treatmentBookings as $booking)
+                                <div class="order-complete-booking" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,.08);">
+                                    <h3 class="order-complete-booking-title">{{ $booking->product?->name ?? trans('storefront::order_complete.treatment_line') }}</h3>
+
+                                    <div class="order-complete-details-grid">
+                                        @if ($booking->beautician)
+                                            <div class="order-complete-detail">
+                                                <span class="order-complete-detail-label">{{ trans('storefront::order_complete.beautician') }}</span>
+                                                <span class="order-complete-detail-value">{{ $booking->beautician->name }}</span>
+                                            </div>
+                                        @endif
+
+                                        @if ($booking->isTbaSchedule())
+                                            <div class="order-complete-detail">
+                                                <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_date') }}</span>
+                                                <span class="order-complete-detail-value">{{ trans('treatmentreservation::admin.tba.badge') }}</span>
+                                            </div>
                                         @else
-                                            <span
-                                                class="order-complete-beautician-initial"
-                                                style="background-color: {{ $order->beautician->profile_color ?? '#22c55e' }}"
-                                            >{{ strtoupper(mb_substr($order->beautician->name, 0, 1)) }}</span>
+                                            @if ($booking->appointment_date)
+                                                <div class="order-complete-detail">
+                                                    <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_date') }}</span>
+                                                    <span class="order-complete-detail-value">{{ $booking->appointment_date->format('l, d M Y') }}</span>
+                                                </div>
+                                            @endif
+                                            @if ($booking->appointment_time)
+                                                <div class="order-complete-detail">
+                                                    <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_time') }}</span>
+                                                    <span class="order-complete-detail-value">{{ $booking->displayAppointmentTime() }}</span>
+                                                </div>
+                                            @endif
                                         @endif
-                                        {{ $order->beautician->name }}
-                                        @if ($order->beautician->job_title)
-                                            <small>{{ $order->beautician->job_title }}</small>
-                                        @endif
-                                    </span>
+                                    </div>
                                 </div>
-                            @endif
+                            @endforeach
+                        @else
+                            <div class="order-complete-details-grid">
+                                @if ($order->beautician)
+                                    <div class="order-complete-detail">
+                                        <span class="order-complete-detail-label">{{ trans('storefront::order_complete.beautician') }}</span>
+                                        <span class="order-complete-detail-value">
+                                            @if ($order->beautician->profile_image->exists)
+                                                <img
+                                                    src="{{ $order->beautician->profile_image->path }}"
+                                                    alt=""
+                                                    class="order-complete-beautician-avatar"
+                                                >
+                                            @else
+                                                <span
+                                                    class="order-complete-beautician-initial"
+                                                    style="background-color: {{ $order->beautician->profile_color ?? '#22c55e' }}"
+                                                >{{ strtoupper(mb_substr($order->beautician->name, 0, 1)) }}</span>
+                                            @endif
+                                            {{ $order->beautician->name }}
+                                            @if ($order->beautician->job_title)
+                                                <small>{{ $order->beautician->job_title }}</small>
+                                            @endif
+                                        </span>
+                                    </div>
+                                @endif
 
-                            @if ($order->appointment_date)
-                                <div class="order-complete-detail">
-                                    <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_date') }}</span>
-                                    <span class="order-complete-detail-value">{{ $order->appointment_date->format('l, d M Y') }}</span>
-                                </div>
-                            @endif
+                                @if ($order->appointment_date)
+                                    <div class="order-complete-detail">
+                                        <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_date') }}</span>
+                                        <span class="order-complete-detail-value">{{ $order->appointment_date->format('l, d M Y') }}</span>
+                                    </div>
+                                @endif
 
-                            @if ($order->appointment_time)
-                                <div class="order-complete-detail">
-                                    <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_time') }}</span>
-                                    <span class="order-complete-detail-value">{{ $order->appointment_time }}</span>
-                                </div>
-                            @endif
+                                @if ($order->appointment_time)
+                                    <div class="order-complete-detail">
+                                        <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_time') }}</span>
+                                        <span class="order-complete-detail-value">{{ $order->displayAppointmentTime() }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
 
+                        <div class="order-complete-details-grid" style="margin-top: 16px;">
                             <div class="order-complete-detail">
                                 <span class="order-complete-detail-label">{{ trans('storefront::order_complete.customer') }}</span>
                                 <span class="order-complete-detail-value">

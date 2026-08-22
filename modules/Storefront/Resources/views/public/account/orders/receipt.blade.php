@@ -90,7 +90,7 @@
                     @if ($order->appointment_time)
                         <div class="payment-receipt__fact">
                             <dt>{{ trans('storefront::receipt.appointment_time') }}</dt>
-                            <dd>{{ $order->appointment_time }}</dd>
+                            <dd>{{ $order->displayAppointmentTime() }}</dd>
                         </div>
                     @endif
                 </dl>

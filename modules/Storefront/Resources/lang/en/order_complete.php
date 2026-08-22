@@ -5,6 +5,8 @@ return [
     'booking_confirmed_subtitle' => 'Thank you — your treatment booking has been received.',
     'your_order_has_been_placed' => 'Order reference <strong>#:id</strong>',
     'order_summary' => 'Order summary',
+    'appointments' => 'Appointments',
+    'treatment_line' => 'Treatment',
     'booking_details' => 'Treatment booking',
     'beautician' => 'Beautician',
     'appointment_date' => 'Date',

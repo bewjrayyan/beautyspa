@@ -78,7 +78,7 @@
                             <tr>
                                 <td>
                                     <strong>{{ $booking->appointment_date->format('d M Y') }}</strong>
-                                    <br><span class="text-muted">{{ $booking->appointment_time }}</span>
+                                    <br><span class="text-muted">{{ $booking->displayAppointmentTime() }}</span>
                                 </td>
                                 <td>
                                     {{ $booking->customer_full_name }}

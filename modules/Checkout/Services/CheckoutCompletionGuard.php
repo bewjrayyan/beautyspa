@@ -14,6 +14,15 @@ class CheckoutCompletionGuard
         return in_array($paymentMethod, self::OFFLINE_METHODS, true);
     }
 
+
+    /**
+     * @return list<string>
+     */
+    public static function offlineMethods(): array
+    {
+        return self::OFFLINE_METHODS;
+    }
+
     /**
      * @throws Exception
      */

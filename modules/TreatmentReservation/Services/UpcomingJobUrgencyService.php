@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Support\AppointmentTimeFormatter;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 
 class UpcomingJobUrgencyService
@@ -283,9 +284,11 @@ class UpcomingJobUrgencyService
             ->startOfDay();
 
         if (filled($booking->appointment_time)) {
-            $parts = explode(':', substr((string) $booking->appointment_time, 0, 5));
+            $parsed = AppointmentTimeFormatter::parse($booking->appointment_time);
 
-            return $startsAt->setTime((int) ($parts[0] ?? 0), (int) ($parts[1] ?? 0));
+            if ($parsed) {
+                return $startsAt->setTime((int) $parsed->format('H'), (int) $parsed->format('i'));
+            }
         }
 
         return $startsAt->setTime(9, 0);
@@ -345,7 +348,8 @@ class UpcomingJobUrgencyService
             return TrLang::trans('admin.urgency.time_tbc');
         }
 
-        return substr((string) $booking->appointment_time, 0, 5);
+        return AppointmentTimeFormatter::toDisplay($booking->appointment_time)
+            ?: TrLang::trans('admin.urgency.time_tbc');
     }
 
     private function formatDateDisplay(TreatmentBooking $booking, Carbon $now): string

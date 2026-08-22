@@ -50,6 +50,12 @@
 
         AestheticCart.langs['storefront::checkout.payment_for_order'] = '{{ trans("storefront::checkout.payment_for_order") }}';
         AestheticCart.langs['storefront::checkout.remember_about_your_order'] = '{{ trans("storefront::checkout.remember_about_your_order") }}';
+        AestheticCart.langs['storefront::checkout.appointment_time_conflicts_sibling'] = @json(trans('storefront::checkout.appointment_time_conflicts_sibling'));
+        AestheticCart.langs['storefront::checkout.appointment_time_not_in_schedule'] = @json(trans('storefront::checkout.appointment_time_not_in_schedule'));
+        AestheticCart.langs['storefront::checkout.loading_appointment_schedule'] = @json(trans('storefront::checkout.loading_appointment_schedule'));
+        AestheticCart.langs['storefront::checkout.complete_treatment_schedule'] = @json(trans('storefront::checkout.complete_treatment_schedule'));
+        AestheticCart.langs['treatmentreservation::public.slot_not_in_schedule'] = @json(trans('treatmentreservation::public.slot_not_in_schedule'));
+        AestheticCart.langs['treatmentreservation::public.slot_unavailable'] = @json(trans('treatmentreservation::public.slot_unavailable'));
     </script>
 
     @vite([

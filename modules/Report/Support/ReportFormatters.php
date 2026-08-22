@@ -6,6 +6,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Modules\Order\Entities\OrderProduct;
 use Modules\Support\Money;
+use Modules\TreatmentReservation\Support\AppointmentTimeFormatter;
 
 class ReportFormatters
 {
@@ -53,7 +54,7 @@ class ReportFormatters
             ? $row->appointment_date->format('d M Y')
             : Carbon::parse($row->appointment_date)->format('d M Y');
 
-        $time = trim((string) ($row->appointment_time ?? ''));
+        $time = AppointmentTimeFormatter::toDisplay($row->appointment_time ?? null);
 
         return $time !== '' ? "{$date} {$time}" : $date;
     }

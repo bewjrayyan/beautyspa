@@ -11,6 +11,7 @@ use Modules\TreatmentReservation\Entities\AppointmentDateOverride;
 use Modules\TreatmentReservation\Entities\SpaBranchWeeklyAvailability;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Entities\TreatmentBranchAvailability;
+use Modules\TreatmentReservation\Support\AppointmentTimeFormatter;
 
 /**
  * Single source of truth for treatment appointment availability.
@@ -173,10 +174,111 @@ class AppointmentAvailabilityService
                 continue;
             }
 
+            if ($beauticianId) {
+                $startMin = $this->minutesFromTime($normalized);
+                $endMin = $startMin === null ? null : $startMin + max(1, $duration);
+
+                if ($startMin === null || $endMin === null || $this->beauticianOutsideWindowOrBlocked(
+                    $beauticianId,
+                    $date,
+                    $startMin,
+                    $endMin
+                )) {
+                    continue;
+                }
+            }
+
             $slots[] = $normalized;
         }
 
         return $this->filterPastSlots($slots, $date);
+    }
+
+
+    /**
+     * All configured slot times for a day with DB-backed availability status.
+     *
+     * @return list<array{time: string, status: 'available'|'booked'|'past'|'unavailable'}>
+     */
+    public function slotOptions(
+        int $productId,
+        int $spaBranchId,
+        string $date,
+        ?int $beauticianId = null,
+        ?int $excludeBookingId = null,
+        ?int $excludeOrderId = null,
+    ): array {
+        $day = $this->resolveDaySchedule($productId, $spaBranchId, $date);
+
+        if (! $day['open']) {
+            return [];
+        }
+
+        if ($day['source'] === 'legacy_beautician') {
+            if (! $beauticianId) {
+                return [];
+            }
+
+            return AppointmentTimeFormatter::decorateSlotOptions($this->beauticianAvailability->slotOptions($beauticianId, $date, $excludeBookingId));
+        }
+
+        $capacity = $day['capacity_per_slot'];
+        $duration = $day['duration_minutes'];
+        $options = [];
+
+        foreach ($day['times'] as $time) {
+            $normalized = $this->beauticianAvailability->normalizeTime($time);
+
+            if ($normalized === null) {
+                continue;
+            }
+
+            if ($this->isSlotPast($normalized, $date)) {
+                $options[] = ['time' => $normalized, 'status' => 'past'];
+
+                continue;
+            }
+
+            if ($this->slotUsage($productId, $spaBranchId, $date, $normalized, $excludeBookingId, $excludeOrderId) >= $capacity) {
+                $options[] = ['time' => $normalized, 'status' => 'booked'];
+
+                continue;
+            }
+
+            if ($beauticianId) {
+                $startMin = $this->minutesFromTime($normalized);
+                $endMin = $startMin === null ? null : $startMin + max(1, $duration);
+
+                if ($startMin === null || $endMin === null) {
+                    $options[] = ['time' => $normalized, 'status' => 'unavailable'];
+
+                    continue;
+                }
+
+                if ($this->beauticianHasConflict(
+                    $beauticianId,
+                    $date,
+                    $normalized,
+                    $duration,
+                    $excludeBookingId,
+                    $excludeOrderId
+                )) {
+                    $options[] = ['time' => $normalized, 'status' => 'booked'];
+
+                    continue;
+                }
+
+                if ($this->beauticianOutsideWindowOrBlocked($beauticianId, $date, $startMin, $endMin)) {
+                    $options[] = ['time' => $normalized, 'status' => 'unavailable'];
+
+                    continue;
+                }
+            }
+
+            $options[] = ['time' => $normalized, 'status' => 'available'];
+        }
+
+        return AppointmentTimeFormatter::decorateSlotOptions($options);
     }
 
 
@@ -206,6 +308,66 @@ class AppointmentAvailabilityService
     }
 
 
+    /**
+     * Calendar dates in range with DB-backed availability status.
+     *
+     * @return list<array{date: string, status: 'available'|'fully_booked'|'closed'|'unavailable'}>
+     */
+    public function dateOptions(
+        int $productId,
+        int $spaBranchId,
+        string $from,
+        string $to,
+        ?int $beauticianId = null,
+    ): array {
+        $start = Carbon::parse($from)->startOfDay()->max(today()->startOfDay());
+        $end = Carbon::parse($to)->startOfDay();
+        $options = [];
+
+        for ($cursor = $start->copy(); $cursor->lte($end); $cursor->addDay()) {
+            $date = $cursor->toDateString();
+            $day = $this->resolveDaySchedule($productId, $spaBranchId, $date);
+
+            if (! $day['open']) {
+                $options[] = ['date' => $date, 'status' => 'closed'];
+
+                continue;
+            }
+
+            $slotOptions = $this->slotOptions($productId, $spaBranchId, $date, $beauticianId);
+
+            if ($slotOptions === []) {
+                $options[] = ['date' => $date, 'status' => 'unavailable'];
+
+                continue;
+            }
+
+            $hasAvailable = false;
+            $hasBooked = false;
+
+            foreach ($slotOptions as $slot) {
+                if ($slot['status'] === 'available') {
+                    $hasAvailable = true;
+                }
+
+                if ($slot['status'] === 'booked') {
+                    $hasBooked = true;
+                }
+            }
+
+            if ($hasAvailable) {
+                $options[] = ['date' => $date, 'status' => 'available'];
+            } elseif ($hasBooked) {
+                $options[] = ['date' => $date, 'status' => 'fully_booked'];
+            } else {
+                $options[] = ['date' => $date, 'status' => 'unavailable'];
+            }
+        }
+
+        return $options;
+    }
+
+
     public function isSlotAvailable(
         int $productId,
         int $spaBranchId,
@@ -214,6 +376,7 @@ class AppointmentAvailabilityService
         ?int $beauticianId = null,
         ?int $excludeBookingId = null,
         ?int $excludeOrderId = null,
+        array $holds = [],
     ): bool {
         $normalized = $this->beauticianAvailability->normalizeTime($time);
 
@@ -221,11 +384,90 @@ class AppointmentAvailabilityService
             return false;
         }
 
-        return in_array(
+        if (! in_array(
             $normalized,
             $this->availableSlots($productId, $spaBranchId, $date, $beauticianId, $excludeBookingId, $excludeOrderId),
             true
-        );
+        )) {
+            return false;
+        }
+
+        if ($beauticianId && $holds !== []) {
+            $duration = $this->resolveDurationMinutes($productId, $spaBranchId);
+
+            if (CheckoutTreatmentScheduleHolds::slotConflictsWithHolds(
+                $beauticianId,
+                $date,
+                $normalized,
+                $duration,
+                $holds
+            )) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    public function isTimeInSchedule(
+        int $productId,
+        int $spaBranchId,
+        string $date,
+        string $time,
+        ?int $beauticianId = null,
+    ): bool {
+        $normalized = $this->beauticianAvailability->normalizeTime($time);
+
+        if ($normalized === null) {
+            return false;
+        }
+
+        $day = $this->resolveDaySchedule($productId, $spaBranchId, $date);
+
+        if (! $day['open']) {
+            return false;
+        }
+
+        if ($day['source'] === 'legacy_beautician') {
+            if (! $beauticianId) {
+                return false;
+            }
+
+            foreach ($this->beauticianAvailability->slotOptions($beauticianId, $date) as $option) {
+                if (($option['time'] ?? '') === $normalized && ($option['status'] ?? '') !== 'past') {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        foreach ($day['times'] as $slotTime) {
+            if ($this->beauticianAvailability->normalizeTime($slotTime) === $normalized) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    public function isBeauticianBlockedForSlot(
+        int $beauticianId,
+        string $date,
+        string $time,
+        int $durationMinutes,
+    ): bool {
+        $normalized = $this->beauticianAvailability->normalizeTime($time);
+        $startMin = $this->minutesFromTime($normalized);
+        $endMin = $startMin === null ? null : $startMin + max(1, $durationMinutes);
+
+        if ($startMin === null || $endMin === null) {
+            return true;
+        }
+
+        return $this->beauticianOutsideWindowOrBlocked($beauticianId, $date, $startMin, $endMin);
     }
 
 
@@ -237,17 +479,41 @@ class AppointmentAvailabilityService
         ?int $beauticianId = null,
         ?int $excludeBookingId = null,
         ?int $excludeOrderId = null,
+        array $holds = [],
     ): void {
         $this->lockSlotRows($productId, $spaBranchId, $date, $beauticianId);
+
+        $normalized = $this->beauticianAvailability->normalizeTime($time);
+
+        if ($normalized === null || ! $this->isTimeInSchedule($productId, $spaBranchId, $date, $normalized, $beauticianId)) {
+            throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_not_in_schedule'));
+        }
+
+        $duration = $this->resolveDurationMinutes($productId, $spaBranchId);
+
+        if ($beauticianId && $holds !== [] && CheckoutTreatmentScheduleHolds::slotConflictsWithHolds(
+            $beauticianId,
+            $date,
+            $normalized,
+            $duration,
+            $holds
+        )) {
+            throw new \InvalidArgumentException(trans('checkout::messages.treatment_schedule_overlap'));
+        }
+
+        if ($beauticianId && $this->isBeauticianBlockedForSlot($beauticianId, $date, $normalized, $duration)) {
+            throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_beautician_unavailable'));
+        }
 
         if (! $this->isSlotAvailable(
             $productId,
             $spaBranchId,
             $date,
-            $time,
+            $normalized,
             $beauticianId,
             $excludeBookingId,
-            $excludeOrderId
+            $excludeOrderId,
+            $holds
         )) {
             throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
         }
@@ -676,7 +942,13 @@ class AppointmentAvailabilityService
             }
         }
 
-        return $this->beauticianOutsideWindowOrBlocked($beauticianId, $date, $startMin, $endMin);
+        return app(CheckoutSlotHoldService::class)->hasConflict(
+            $beauticianId,
+            $date,
+            $startTime,
+            $durationMinutes,
+            $excludeOrderId
+        );
     }
 
 
@@ -733,13 +1005,8 @@ class AppointmentAvailabilityService
 
     private function orderIdForBooking(?int $bookingId): ?int
     {
-        if (! $bookingId) {
-            return null;
-        }
-
-        $orderId = TreatmentBooking::query()->whereKey($bookingId)->value('order_id');
-
-        return $orderId ? (int) $orderId : null;
+        // Multi-booking orders: never exclude sibling bookings / shared order snapshot.
+        return null;
     }
 
 
@@ -747,23 +1014,29 @@ class AppointmentAvailabilityService
      * @param list<string> $slots
      * @return list<string>
      */
-    private function filterPastSlots(array $slots, string $date): array
+    private function isSlotPast(string $slot, string $date): bool
     {
         $slotDate = Carbon::parse($date)->startOfDay();
 
         if ($slotDate->isPast() && ! $slotDate->isToday()) {
-            return [];
+            return true;
         }
 
         if (! $slotDate->isToday()) {
-            return $slots;
+            return false;
         }
 
         $nowMinutes = (now()->hour * 60) + now()->minute;
 
+        return ($this->minutesFromTime($slot) ?? 0) <= $nowMinutes;
+    }
+
+
+    private function filterPastSlots(array $slots, string $date): array
+    {
         return array_values(array_filter(
             $slots,
-            fn (string $slot) => ($this->minutesFromTime($slot) ?? 0) > $nowMinutes
+            fn (string $slot) => ! $this->isSlotPast($slot, $date)
         ));
     }
 

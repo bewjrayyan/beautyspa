@@ -247,8 +247,12 @@
 
 @push('scripts')
     <script type="module">
-        $('.store-phone').attr('href', `tel:{{ setting('store_phone') }}`);
-        $('.store-email').attr('href', `mailto:{{ setting('store_email') }}`);
+        document.querySelectorAll('.store-phone').forEach((el) => {
+            el.setAttribute('href', `tel:{{ setting('store_phone') }}`);
+        });
+        document.querySelectorAll('.store-email').forEach((el) => {
+            el.setAttribute('href', `mailto:{{ setting('store_email') }}`);
+        });
 
         const footerCardsMq = window.matchMedia('(min-width: 768px)');
 

@@ -137,7 +137,7 @@
                     <p class="order-receipt__value">{{ trans('order::print.appointment_date') }}: {{ $order->appointment_date->format('d M Y') }}</p>
                 @endif
                 @if ($order->appointment_time)
-                    <p class="order-receipt__value">{{ trans('order::print.appointment_time') }}: {{ $order->appointment_time }}</p>
+                    <p class="order-receipt__value">{{ trans('order::print.appointment_time') }}: {{ $order->displayAppointmentTime() }}</p>
                 @endif
             </section>
         @endif

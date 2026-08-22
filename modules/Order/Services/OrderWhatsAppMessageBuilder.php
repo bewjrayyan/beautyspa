@@ -49,7 +49,7 @@ class OrderWhatsAppMessageBuilder
         $apptDate = $order->appointment_date
             ? $order->appointment_date->format('d/M/Y')
             : ($this->noteValue($order, 'appointment_date') ?: '—');
-        $apptTime = $order->appointment_time ?: ($this->noteValue($order, 'appointment_time') ?: '—');
+        $apptTime = $order->displayAppointmentTime() ?: ($this->noteValue($order, 'appointment_time') ?: '—');
         $trackingUrl = $this->trackingUrl($order);
 
         return [

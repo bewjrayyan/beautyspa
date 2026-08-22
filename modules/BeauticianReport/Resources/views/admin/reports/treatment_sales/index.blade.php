@@ -75,7 +75,7 @@
                             <td data-label="{{ trans('beauticianreport::admin.table.appointment_date') }}">
                                 @if ($order->appointment_date)
                                     <strong>{{ $order->appointment_date->format('d M Y') }}</strong>
-                                    <span class="br-cell-muted">{{ $order->appointment_time }}</span>
+                                    <span class="br-cell-muted">{{ $order->displayAppointmentTime() }}</span>
                                 @else
                                     —
                                 @endif

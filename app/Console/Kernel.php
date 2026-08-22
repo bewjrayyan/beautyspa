@@ -53,6 +53,12 @@ class Kernel extends ConsoleKernel
             $schedule->command('treatment-reservations:send-customer-followups')->dailyAt('10:00');
         }
 
+        if (app('modules')->isEnabled('Checkout')) {
+            $schedule->command('checkout:expire-stale-pending --hours=24')
+                ->hourly()
+                ->withoutOverlapping();
+        }
+
         $schedule->command('onesender:process-outbound-queue')->everyMinute();
 
         if (app('modules')->isEnabled('GoogleIntegration')) {

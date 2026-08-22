@@ -81,6 +81,7 @@ return [
     'order_note_help' => 'Termasuk nota checkout dan baris temujanji untuk eksport.',
     'order_note_export' => 'Baris temujanji (eksport)',
     'beautician' => 'Beautician',
+    'appointments_count' => ':count temujanji',
     'appointment_information' => 'Temujanji',
     'appointment_date' => 'Tarikh Temujanji',
     'appointment_time' => 'Masa Temujanji',

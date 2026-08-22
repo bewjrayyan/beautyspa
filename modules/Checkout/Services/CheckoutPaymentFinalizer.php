@@ -7,6 +7,7 @@ use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\Payment\HasTransactionReference;
+use Modules\TreatmentReservation\Services\BookingSyncService;
 
 class CheckoutPaymentFinalizer
 {
@@ -21,6 +22,8 @@ class CheckoutPaymentFinalizer
                 ->firstOrFail();
 
             if ($this->isMatchingPaidReplay($lockedOrder, $paymentMethod, $response)) {
+                $this->ensureDeferredTreatmentBookings($lockedOrder);
+
                 return $lockedOrder;
             }
 
@@ -31,24 +34,41 @@ class CheckoutPaymentFinalizer
             $lockedOrder->load('transaction');
 
             $isPaid = filled($lockedOrder->transaction?->transaction_id);
-            $lockedOrder->update([
-                'status' => $isPaid ? Order::COMPLETED : Order::PENDING,
-                'payment_status' => $isPaid ? Order::PAYMENT_PAID : Order::PAYMENT_PENDING,
-            ]);
 
-            DB::afterCommit(function () use ($lockedOrder, $previousStatus, $isPaid): void {
-                try {
-                    event(new OrderPlaced($lockedOrder));
+            return BookingSyncService::withoutOrderObserverSync(function () use (
+                $lockedOrder,
+                $isPaid,
+                $previousStatus,
+            ): Order {
+                $lockedOrder->update([
+                    'status' => $isPaid ? Order::COMPLETED : Order::PENDING,
+                    'payment_status' => $isPaid ? Order::PAYMENT_PAID : Order::PAYMENT_PENDING,
+                ]);
 
-                    if ($isPaid && $previousStatus !== Order::COMPLETED) {
-                        event(new OrderStatusChanged($lockedOrder));
-                    }
-                } catch (\Throwable $exception) {
-                    report($exception);
+                if ($isPaid && app('modules')->isEnabled('TreatmentReservation')) {
+                    $holdService = app(\Modules\TreatmentReservation\Services\CheckoutSlotHoldService::class);
+                    $holdService->extendHoldsForOrder((int) $lockedOrder->id);
+
+                    app(BookingSyncService::class)
+                        ->syncPendingCheckoutLinesAfterPayment($lockedOrder->fresh(['products.product']));
+
+                    $holdService->releaseHoldsForOrder((int) $lockedOrder->id);
                 }
-            });
 
-            return $lockedOrder;
+                DB::afterCommit(function () use ($lockedOrder, $previousStatus, $isPaid): void {
+                    try {
+                        event(new OrderPlaced($lockedOrder));
+
+                        if ($isPaid && $previousStatus !== Order::COMPLETED) {
+                            event(new OrderStatusChanged($lockedOrder));
+                        }
+                    } catch (\Throwable $exception) {
+                        report($exception);
+                    }
+                });
+
+                return $lockedOrder;
+            });
         }, 3);
     }
 
@@ -64,5 +84,31 @@ class CheckoutPaymentFinalizer
                 (string) $order->transaction?->transaction_id,
                 (string) $response->getTransactionReference()
             );
+    }
+
+
+    private function ensureDeferredTreatmentBookings(Order $order): void
+    {
+        if (! app('modules')->isEnabled('TreatmentReservation')) {
+            return;
+        }
+
+        if (! BookingSyncService::shouldDeferUntilPayment($order)) {
+            return;
+        }
+
+        if ($order->treatmentBookings()->exists()) {
+            return;
+        }
+
+        BookingSyncService::withoutOrderObserverSync(function () use ($order): void {
+            $holdService = app(\Modules\TreatmentReservation\Services\CheckoutSlotHoldService::class);
+            $holdService->extendHoldsForOrder((int) $order->id);
+
+            app(BookingSyncService::class)
+                ->syncPendingCheckoutLinesAfterPayment($order->fresh(['products.product']));
+
+            $holdService->releaseHoldsForOrder((int) $order->id);
+        });
     }
 }

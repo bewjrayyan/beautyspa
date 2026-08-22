@@ -64,8 +64,18 @@ class OrderTable extends AdminTable
                 return $order->total->format();
             })
             ->editColumn('status', function ($order) {
-                if (is_module_enabled('TreatmentReservation') && !empty($order->treatmentBooking)) {
-                    $treatmentBooking = $order->treatmentBooking;
+                if (is_module_enabled('TreatmentReservation')) {
+                    $bookings = $order->relationLoaded('treatmentBookings') ? $order->treatmentBookings : collect();
+                    if ($bookings->isEmpty() && !empty($order->treatmentBooking)) {
+                        $bookings = collect([$order->treatmentBooking]);
+                    }
+                    if ($bookings->isEmpty()) {
+                        return '';
+                    }
+                    if ($bookings->count() > 1) {
+                        return '<span class="badge badge-info">' . e(trans('order::orders.appointments_count', ['count' => $bookings->count()])) . '</span>';
+                    }
+                    $treatmentBooking = $bookings->first();
 
                     return '<span class="badge ' . treatment_status_badge_class($treatmentBooking->status) . '">'
                         . e($treatmentBooking->treatmentStatusLabel())

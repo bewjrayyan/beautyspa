@@ -134,9 +134,9 @@ class OrderCustomerWhatsAppMessage
                 ]);
             }
 
-            if ($order->appointment_time) {
+            if ($order->displayAppointmentTime()) {
                 $lines[] = trans('order::whatsapp.appointment_time', [
-                    'time' => $order->appointment_time,
+                    'time' => $order->displayAppointmentTime(),
                 ]);
             }
 

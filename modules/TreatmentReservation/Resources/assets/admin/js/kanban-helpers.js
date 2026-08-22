@@ -228,6 +228,13 @@ function getCalendarEventPreviewOverlay() {
     let overlay = document.getElementById("tr-calendar-event-preview");
 
     if (overlay) {
+        const panel = overlay.querySelector(".tr-calendar-event-preview__panel");
+        if (panel && !panel.querySelector(".tr-calendar-event-preview__handle")) {
+            const handle = document.createElement("div");
+            handle.className = "tr-calendar-event-preview__handle";
+            handle.setAttribute("aria-hidden", "true");
+            panel.insertBefore(handle, panel.firstChild);
+        }
         return overlay;
     }
 
@@ -239,6 +246,7 @@ function getCalendarEventPreviewOverlay() {
     overlay.innerHTML = `
         <div class="tr-calendar-event-preview__backdrop" data-dismiss></div>
         <div class="tr-calendar-event-preview__panel" role="dialog" aria-modal="true" aria-labelledby="tr-calendar-event-preview-title">
+            <div class="tr-calendar-event-preview__handle" aria-hidden="true"></div>
             <header class="tr-calendar-event-preview__head">
                 <div class="tr-calendar-event-preview__head-text">
                     <p class="tr-calendar-event-preview__eyebrow" id="tr-calendar-event-preview-eyebrow"></p>
@@ -264,7 +272,51 @@ function getCalendarEventPreviewOverlay() {
     return overlay;
 }
 
-function previewField(label, value, { href = "", full = false, muted = false, blurred = false } = {}) {
+
+function customerInitials(name) {
+    const parts = String(name || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (!parts.length) {
+        return "?";
+    }
+
+    if (parts.length === 1) {
+        return parts[0].slice(0, 2).toUpperCase();
+    }
+
+    return `${parts[0][0] || ""}${parts[parts.length - 1][0] || ""}`.toUpperCase();
+}
+
+function previewCrmContactRow({ icon, label, value, href = "", blurred = false }) {
+    if (!value) {
+        return "";
+    }
+
+    const valueClass = [
+        "tr-calendar-event-preview__crm-value",
+        blurred ? "tr-calendar-event-preview__crm-value--blurred" : "",
+        href && !blurred ? "tr-calendar-event-preview__crm-value--link" : "",
+    ].filter(Boolean).join(" ");
+
+    const inner = `
+        <span class="tr-calendar-event-preview__crm-icon" aria-hidden="true"><i class="fa ${escapeHtml(icon)}"></i></span>
+        <span class="tr-calendar-event-preview__crm-meta">
+            <span class="tr-calendar-event-preview__crm-label">${escapeHtml(label)}</span>
+            <span class="${valueClass}">${escapeHtml(value)}</span>
+        </span>
+    `;
+
+    if (href && !blurred) {
+        return `<a href="${escapeHtml(href)}" class="tr-calendar-event-preview__crm-row tr-calendar-event-preview__crm-row--link">${inner}</a>`;
+    }
+
+    return `<div class="tr-calendar-event-preview__crm-row">${inner}</div>`;
+}
+
+function previewField(label, value, { href = "", full = false, muted = false, blurred = false, icon = "" } = {}) {
     if (! value) {
         return "";
     }
@@ -276,10 +328,13 @@ function previewField(label, value, { href = "", full = false, muted = false, bl
         "tr-calendar-event-preview__field-value",
         blurred ? "tr-calendar-event-preview__field-value--blurred" : "",
     ].filter(Boolean).join(" ");
+    const labelHtml = icon
+        ? `<span class="tr-calendar-event-preview__field-label"><i class="fa ${escapeHtml(icon)}" aria-hidden="true"></i> ${escapeHtml(label)}</span>`
+        : `<span class="tr-calendar-event-preview__field-label">${escapeHtml(label)}</span>`;
 
     return `
         <div class="tr-calendar-event-preview__field${full ? " tr-calendar-event-preview__field--full" : ""}${muted ? " tr-calendar-event-preview__field--muted" : ""}${blurred ? " tr-calendar-event-preview__field--blurred" : ""}">
-            <span class="tr-calendar-event-preview__field-label">${escapeHtml(label)}</span>
+            ${labelHtml}
             <span class="${valueClass}"${blurred ? ' aria-hidden="true"' : ""}>${valueHtml}</span>
         </div>
     `;
@@ -374,10 +429,15 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
         `
         : `<span class="tr-calendar-event-preview__status tr-calendar-event-preview__status--${status}">${escapeHtml(statusText)}</span>`;
 
+    const orderMetaChip = booking.order_url && !options.hideOrderLink
+        ? `<a href="${escapeHtml(booking.order_url)}" class="tr-calendar-event-preview__meta-chip tr-calendar-event-preview__meta-chip--order" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i> ${escapeHtml(labels.viewOrder || "View order")}</a>`
+        : "";
+
     const metaChips = [
         booking.id ? `<span class="tr-calendar-event-preview__meta-chip">${escapeHtml(labels.bookingId || "Ref")} B${escapeHtml(String(booking.id))}</span>` : "",
         booking.source_label ? `<span class="tr-calendar-event-preview__meta-chip tr-calendar-event-preview__meta-chip--source">${escapeHtml(booking.source_label)}</span>` : "",
         booking.spa_branch_name ? `<span class="tr-calendar-event-preview__meta-chip tr-calendar-event-preview__meta-chip--branch">${escapeHtml(booking.spa_branch_name)}</span>` : "",
+        orderMetaChip,
     ].filter(Boolean).join("");
 
     const insightChips = [
@@ -403,10 +463,10 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
     ].filter(Boolean).join("");
 
     const scheduleSection = previewSection(labels.sectionSchedule || "Schedule", `
-        <div class="tr-calendar-event-preview__grid">
-            ${previewField(labels.date, booking.appointment_date || booking.date || "—")}
-            ${previewField(labels.time, timeRange)}
-            ${previewField(labels.duration, durationLabel)}
+        <div class="tr-calendar-event-preview__grid tr-calendar-event-preview__grid--3">
+            ${previewField(labels.date, booking.appointment_date || booking.date || "—", { icon: "fa-calendar" })}
+            ${previewField(labels.time, timeRange, { icon: "fa-clock-o" })}
+            ${previewField(labels.duration, durationLabel, { icon: "fa-hourglass-half" })}
         </div>
     `);
 
@@ -416,29 +476,44 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             ? true
             : !bookingIsOwnForPortal(booking, options.portalBeauticianId || null);
 
+    const customerName = booking.customer_name || "—";
+    const phoneHref = !blurContact && booking.customer_phone
+        ? `tel:${String(booking.customer_phone).replace(/[^\d+]/g, "")}`
+        : "";
     const customerSection = previewSection(labels.sectionCustomer || "Customer", `
-        <div class="tr-calendar-event-preview__grid">
-            ${previewField(labels.customer, booking.customer_name || "—", { full: true })}
-            ${previewField(labels.phone, booking.customer_phone || "", {
-                href: !blurContact && booking.customer_phone
-                    ? `tel:${booking.customer_phone.replace(/[^\d+]/g, "")}`
-                    : "",
-                blurred: Boolean(blurContact && booking.customer_phone),
-            })}
-            ${previewField(labels.email, booking.customer_email || "", {
-                blurred: Boolean(blurContact && booking.customer_email),
-            })}
+        <div class="tr-calendar-event-preview__crm">
+            <div class="tr-calendar-event-preview__crm-head">
+                <div class="tr-calendar-event-preview__crm-avatar" aria-hidden="true">${escapeHtml(customerInitials(customerName))}</div>
+                <div class="tr-calendar-event-preview__crm-identity">
+                    <strong class="tr-calendar-event-preview__crm-name">${escapeHtml(customerName)}</strong>
+                    ${insightChips ? `<div class="tr-calendar-event-preview__chip-row tr-calendar-event-preview__chip-row--crm">${insightChips}</div>` : ""}
+                </div>
+            </div>
+            <div class="tr-calendar-event-preview__crm-contacts">
+                ${previewCrmContactRow({
+                    icon: "fa-phone",
+                    label: labels.phone || "Phone",
+                    value: booking.customer_phone || "",
+                    href: phoneHref,
+                    blurred: Boolean(blurContact && booking.customer_phone),
+                })}
+                ${previewCrmContactRow({
+                    icon: "fa-envelope",
+                    label: labels.email || "Email",
+                    value: booking.customer_email || "",
+                    blurred: Boolean(blurContact && booking.customer_email),
+                })}
+            </div>
         </div>
-        ${insightChips ? `<div class="tr-calendar-event-preview__chip-row">${insightChips}</div>` : ""}
     `);
 
     const treatmentSection = previewSection(labels.sectionTreatment || "Treatment & payment", `
-        <div class="tr-calendar-event-preview__grid">
+        <div class="tr-calendar-event-preview__grid tr-calendar-event-preview__grid--stack">
             ${previewField(labels.treatment, booking.treatment_name || "—", { full: true })}
-            ${previewField(labels.session, treatmentSubtitle)}
-            ${previewField(labels.category, booking.category_name || "")}
-            ${previewField(labels.total, totalFormatted)}
-            ${previewField(labels.payment, paymentLabel)}
+            ${previewField(labels.session, treatmentSubtitle, { full: true })}
+            ${previewField(labels.category, booking.category_name || "", { full: true })}
+            ${previewField(labels.total, totalFormatted, { full: true })}
+            ${previewField(labels.payment, paymentLabel, { full: true })}
             ${previewReceiptField(
                 labels.paymentReceipt || "Payment receipt",
                 booking.payment_receipt_url,
@@ -509,13 +584,6 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
         : "";
 
     const actionButtons = [
-        options.consultationUrlTemplate && booking.status !== "canceled"
-            ? previewActionButton(
-                "tr-calendar-event-preview__consultation tr-calendar-event-preview__action-btn--primary",
-                `<i class="fa fa-file-text-o" aria-hidden="true"></i><span>${escapeHtml(labels.consultation || "Send consultation form")}</span>`,
-                `data-send-consultation data-booking-id="${escapeHtml(String(booking.id))}"`
-            )
-            : "",
         (bookingIsOwnForPortal(booking, options.portalBeauticianId || null) && (booking.customer_phone || booking.id))
             ? previewActionButton(
                 "tr-calendar-event-preview__profile tr-calendar-event-preview__action-btn--ghost",
@@ -528,6 +596,13 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 "tr-calendar-event-preview__whatsapp-reminder-customer tr-calendar-event-preview__action-btn--success",
                 `<i class="fa fa-whatsapp" aria-hidden="true"></i><span>${escapeHtml(booking.reminder_sent ? (labels.resendReminder || "Resend reminder") : (labels.whatsappReminderCustomer || "WhatsApp reminder · Customer"))}</span>`,
                 `data-send-customer-reminder data-booking-id="${escapeHtml(String(booking.id))}" data-resend="${booking.reminder_sent ? "1" : "0"}"`
+            )
+            : "",
+        options.consultationUrlTemplate && booking.status !== "canceled"
+            ? previewActionButton(
+                "tr-calendar-event-preview__consultation tr-calendar-event-preview__action-btn--primary",
+                `<i class="fa fa-file-text-o" aria-hidden="true"></i><span>${escapeHtml(labels.consultation || "Send consultation form")}</span>`,
+                `data-send-consultation data-booking-id="${escapeHtml(String(booking.id))}"`
             )
             : "",
         notify.beauticianReminder
@@ -574,10 +649,6 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             : "",
     ].filter(Boolean);
 
-    const orderLink = booking.order_url && !options.hideOrderLink
-        ? `<a href="${escapeHtml(booking.order_url)}" class="tr-calendar-event-preview__action-btn tr-calendar-event-preview__action-btn--primary tr-calendar-event-preview__order" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i><span>${escapeHtml(labels.viewOrder)}</span></a>`
-        : "";
-
     const whatsappHint = !options.whatsappConfigured && (notify.customerReminder || notify.beauticianReminder)
         ? `<p class="tr-calendar-event-preview__whatsapp-hint">${escapeHtml(labels.whatsappNotConfigured || "OneSender WhatsApp API is not configured.")}</p>`
         : "";
@@ -592,23 +663,22 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             </div>
 
             <div class="tr-calendar-event-preview__scroll">
-                ${scheduleSection}
                 ${customerSection}
+                ${scheduleSection}
                 ${staffSection}
                 ${treatmentSection}
                 ${notesSection}
                 ${activitySection}
             </div>
 
-            ${actionButtons.length || orderLink
+            ${actionButtons.length
                 ? `<div class="tr-calendar-event-preview__footer">
                     ${whatsappHint}
                     <div class="tr-calendar-event-preview__actions">
                         ${actionButtons.join("")}
-                        ${orderLink}
                     </div>
                 </div>`
-                : ""}
+                : (whatsappHint ? `<div class="tr-calendar-event-preview__footer">${whatsappHint}</div>` : "")}
         </div>
     `;
 }

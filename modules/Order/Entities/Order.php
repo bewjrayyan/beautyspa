@@ -5,6 +5,7 @@ namespace Modules\Order\Entities;
 use Modules\Cart\CartTax;
 use Modules\Cart\CartItem;
 use Modules\Support\Money;
+use Modules\TreatmentReservation\Support\AppointmentTimeFormatter;
 use Modules\Support\State;
 use Modules\Support\Country;
 use Modules\Media\Entities\File;
@@ -116,6 +117,7 @@ class Order extends Model
         'google_sheets_sync_attempted_at' => 'datetime',
         'google_sheets_row' => 'integer',
         'deleted_at' => 'datetime',
+        'checkout_treatment_lines' => 'array',
     ];
 
 
@@ -310,6 +312,16 @@ class Order extends Model
             || $this->appointment_date
             || $this->schedule_status === 'tba'
             || filled($this->appointment_time);
+    }
+
+
+    public function displayAppointmentTime(): string
+    {
+        if (! is_module_enabled('TreatmentReservation')) {
+            return AppointmentTimeFormatter::toDisplay($this->appointment_time);
+        }
+
+        return AppointmentTimeFormatter::toDisplay($this->appointment_time);
     }
 
 
@@ -640,7 +652,7 @@ class Order extends Model
         ])->with(['spaBranch:id,name', 'beautician:id,first_name,last_name']);
 
         if (is_module_enabled('TreatmentReservation')) {
-            $query->with(['treatmentBooking:id,order_id,status']);
+            $query->with(['treatmentBookings:id,order_id,status,product_id,schedule_status']);
         }
 
         if ($request->boolean('archived')) {

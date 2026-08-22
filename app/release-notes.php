@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.11' => [
+        'date' => '2026-08-22 20:45',
+        'en' => [
+            'summary' => 'Multi-treatment checkout, deferred bookings until payment, 12-hour times, and checkout hardening.',
+            'changes' => [
+                'Support multiple treatment bookings per order with per-line schedule UI, slot validation, sibling overlap checks, and 30-minute checkout slot holds during online payment.',
+                'Defer treatment booking sync until payment succeeds; re-validate slots on finalize; release holds only after bookings are created.',
+                'Standardize appointment times to 12-hour AM/PM across admin, storefront, account orders, and thank-you pages (including multi-appointment display).',
+                'Fix payment cancel cleanup, capture loyalty redemption on order placed, offline finalize rollback, and hourly stale pending_payment order expiry.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Checkout multi-rawatan, tempahan ditangguh sehingga bayaran, masa 12 jam, dan pengukuhan checkout.',
+            'changes' => [
+                'Sokong beberapa tempahan rawatan setiap pesanan dengan UI jadual per baris, validasi slot, semak pertindihan sibling, dan hold slot checkout 30 minit semasa bayaran dalam talian.',
+                'Tangguh sync tempahan sehingga bayaran berjaya; validasi semula slot semasa finalize; lepaskan hold hanya selepas tempahan dicipta.',
+                'Seragamkan masa temujanji format 12 jam AM/PM di admin, storefront, pesanan akaun, dan halaman thank-you (termasuk paparan multi-temujanji).',
+                'Baiki cleanup batal bayaran, tangkap redemption loyalty bila pesanan dibuat, rollback finalize offline, dan tamat tempoh pesanan pending_payment stale setiap jam.',
+            ],
+        ],
+    ],
     '4.11.10' => [
         'date' => '2026-08-22 10:23',
         'en' => [

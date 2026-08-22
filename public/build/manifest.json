@@ -774,6 +774,10 @@
     "file": "assets/swiper-HPVPsAq3-v4.7.72.js",
     "name": "swiper"
   },
+  "_time-format-CCdvbXny-v4.7.72.js": {
+    "file": "assets/time-format-CCdvbXny-v4.7.72.js",
+    "name": "time-format"
+  },
   "_trim-lines-l0sNRNKZ-v4.7.72.js": {
     "file": "assets/trim-lines-l0sNRNKZ-v4.7.72.js",
     "name": "trim-lines"
@@ -960,7 +964,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/dashboard.scss": {
-    "file": "assets/dashboard--KaJyvOR-v4.7.72.css",
+    "file": "assets/dashboard-BOIJEOiC-v4.7.72.css",
     "src": "modules/Admin/Resources/assets/sass/dashboard.scss",
     "isEntry": true,
     "name": "dashboard",
@@ -1618,7 +1622,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js": {
-    "file": "assets/main-BFp1oBUy-v4.7.72.js",
+    "file": "assets/main-UnZdQHYE-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js",
     "isEntry": true,
@@ -1755,16 +1759,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-BBskyT1E-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.72.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-FuQ-FuMu-v4.7.72.css",
@@ -1811,7 +1815,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/checkout/complete/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/checkout/create/main.scss": {
-    "file": "assets/main-DFhonvR8-v4.7.72.css",
+    "file": "assets/main-Ckw-KZNf-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/checkout/create/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/compare/main.scss": {
@@ -1941,20 +1945,22 @@
     "src": "modules/Translation/Resources/assets/admin/translations/sass/main.scss"
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js": {
-    "file": "assets/appointment-availability-zOJUB7xR-v4.7.72.js",
+    "file": "assets/appointment-availability-Dkg42a3Y-v4.7.72.js",
     "name": "appointment-availability",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js",
     "isEntry": true,
     "imports": [
+      "_time-format-CCdvbXny-v4.7.72.js",
       "_flatpickr-B_JH6AFf-v4.7.72.js"
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DVDTkUDi-v4.7.72.js",
+    "file": "assets/main-DxR8hZYk-v4.7.72.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
     "imports": [
+      "_time-format-CCdvbXny-v4.7.72.js",
       "_flatpickr-B_JH6AFf-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/lib/modernPhoneInput.js",
       "_chart.js-CDYwASMv-v4.7.72.js",
@@ -1964,7 +1970,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-DQH_CWCW-v4.7.72.css",
+    "file": "assets/main-dhMZvAE1-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {

@@ -212,6 +212,8 @@ class CheckoutCompleteController
                 'transaction',
                 'beautician',
                 'spaBranch',
+                'treatmentBookings.product',
+                'treatmentBookings.beautician',
             ])
             ->find($orderId);
     }

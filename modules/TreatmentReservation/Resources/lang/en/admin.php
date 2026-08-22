@@ -6,6 +6,10 @@ return [
     'view_nav_label' => 'Reservation views',
     'hero' => [
         'today' => 'Today',
+        'pending_hint' => 'Awaiting start',
+        'progress_hint' => 'In session now',
+        'completed_hint' => 'Done treatments',
+        'today_hint' => 'Booked for today',
     ],
     'tabs' => [
         'dashboard' => 'Dashboard',
@@ -286,6 +290,14 @@ return [
         'status_legend' => 'Appointment status',
         'click_hint' => 'Click an appointment card to view full details',
         'loading' => 'Loading calendar…',
+        'view_month' => 'Month',
+        'view_day' => 'Week',
+        'day_modal_title' => 'Appointments',
+        'day_modal_empty' => 'No appointments on this day',
+        'day_modal_holiday' => 'Public holiday',
+        'day_modal_count' => ':count appointments',
+        'day_modal_view' => 'View details',
+        'day_modal_close' => 'Close',
         'weekdays' => [
             'mon' => 'Mon',
             'tue' => 'Tue',

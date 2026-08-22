@@ -27,12 +27,23 @@ class BookingSelfService
             ->withTreatmentProduct()
             ->with(['beautician', 'product', 'category', 'order'])
             ->matchingCustomerPhone($normalizedPhone)
-            ->whereNotNull('appointment_date')
             ->whereIn('status', [
                 TreatmentBooking::STATUS_PENDING,
                 TreatmentBooking::STATUS_IN_PROGRESS,
             ])
-            ->where('appointment_date', '>=', today()->toDateString())
+            ->where(function ($q) {
+                $q->where(function ($scheduled) {
+                    $scheduled->whereNotNull('appointment_date')
+                        ->where('appointment_date', '>=', today()->toDateString());
+                })->orWhere(function ($tba) {
+                    $tba->where('schedule_status', TreatmentBooking::SCHEDULE_STATUS_TBA)
+                        ->orWhere(function ($legacy) {
+                            $legacy->whereNull('schedule_status')
+                                ->whereNull('appointment_time');
+                        });
+                });
+            })
+            ->orderByRaw("CASE WHEN schedule_status = 'tba' OR appointment_date IS NULL THEN 1 ELSE 0 END")
             ->orderBy('appointment_date')
             ->orderBy('appointment_time')
             ->get();
@@ -67,11 +78,26 @@ class BookingSelfService
             );
 
             if ($lockedBooking->order_id) {
-                Order::query()
-                    ->whereKey($lockedBooking->order_id)
-                    ->lockForUpdate()
-                    ->first()
-                    ?->update(['status' => Order::CANCELED]);
+                $orderId = (int) $lockedBooking->order_id;
+
+                $activeSiblings = TreatmentBooking::query()
+                    ->where('order_id', $orderId)
+                    ->whereKeyNot($lockedBooking->id)
+                    ->whereNotIn('status', [TreatmentBooking::STATUS_CANCELED])
+                    ->exists();
+
+                if (! $activeSiblings) {
+                    Order::query()
+                        ->whereKey($orderId)
+                        ->lockForUpdate()
+                        ->first()
+                        ?->update(['status' => Order::CANCELED]);
+                } else {
+                    $order = Order::query()->find($orderId);
+                    if ($order) {
+                        app(BookingSyncService::class)->refreshOrderAppointmentSnapshot($order);
+                    }
+                }
             }
         });
     }
@@ -192,15 +218,11 @@ class BookingSelfService
             ]);
 
             if ($lockedBooking->order_id) {
-                Order::query()
-                    ->whereKey($lockedBooking->order_id)
-                    ->lockForUpdate()
-                    ->first()
-                    ?->update([
-                        'appointment_date' => $date,
-                        'appointment_time' => $normalizedTime,
-                        'schedule_status' => null,
-                    ]);
+                $order = Order::query()->whereKey($lockedBooking->order_id)->lockForUpdate()->first();
+
+                if ($order) {
+                    app(BookingSyncService::class)->refreshOrderAppointmentSnapshot($order);
+                }
             }
         });
     }

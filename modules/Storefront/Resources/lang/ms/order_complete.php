@@ -6,6 +6,8 @@ return [
     'booking_confirmed_subtitle' => 'Terima kasih — tempahan rawatan anda telah diterima.',
     'your_order_has_been_placed' => 'Rujukan pesanan <strong>#:id</strong>',
     'order_summary' => 'Ringkasan pesanan',
+    'appointments' => 'Temujanji',
+    'treatment_line' => 'Rawatan',
     'booking_details' => 'Butiran tempahan rawatan',
     'beautician' => 'Beautician',
     'appointment_date' => 'Tarikh',

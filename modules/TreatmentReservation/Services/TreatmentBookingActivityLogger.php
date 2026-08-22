@@ -91,7 +91,7 @@ class TreatmentBookingActivityLogger
             'treatment_booking_id' => $booking->id,
             'user_id' => $userId ?? auth()->id(),
             'action' => TreatmentBookingActivity::ACTION_UPDATED,
-            'to_value' => $booking->appointment_date?->format('Y-m-d') . ' ' . $booking->appointment_time,
+            'to_value' => $booking->appointment_date?->format('Y-m-d') . ' ' . $booking->displayAppointmentTime(),
         ]);
     }
 }

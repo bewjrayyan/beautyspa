@@ -36,6 +36,8 @@ class TreatmentReservationServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        require_once module_path('TreatmentReservation', 'helpers.php');
+
         $this->app['router']->aliasMiddleware('beautician.portal', BeauticianPortalMiddleware::class);
         $this->app['router']->aliasMiddleware('beautician.portal.access', BeauticianPortalAccessMiddleware::class);
         $this->app['router']->aliasMiddleware('beautician.portal.from_route', PortalBeauticianFromRouteMiddleware::class);
@@ -100,17 +102,22 @@ class TreatmentReservationServiceProvider extends ServiceProvider
                 return;
             }
 
-            $view->with(
-                'treatmentBooking',
-                TreatmentBooking::query()
-                    ->with(['activities.user'])
-                    ->where('order_id', $order->id)
-                    ->first()
-            );
+            $bookings = TreatmentBooking::query()
+                ->with(['activities.user', 'product', 'beautician'])
+                ->where('order_id', $order->id)
+                ->orderBy('id')
+                ->get();
+
+            $view->with('treatmentBookings', $bookings);
+            $view->with('treatmentBooking', $bookings->first());
+        });
+
+        Order::resolveRelationUsing('treatmentBookings', function (Order $order) {
+            return $order->hasMany(TreatmentBooking::class);
         });
 
         Order::resolveRelationUsing('treatmentBooking', function (Order $order) {
-            return $order->hasOne(TreatmentBooking::class);
+            return $order->hasOne(TreatmentBooking::class)->oldestOfMany();
         });
 
         if ($this->app->runningInConsole()) {

@@ -31,14 +31,14 @@ class AvailabilityDatesController extends Controller
         ]);
 
         $branchId = (int) $data['spa_branch_id'];
-        $cartProductId = $this->resolveCartTreatmentProductId();
-        $productId = (int) ($data['product_id'] ?? 0) ?: $cartProductId;
+        $cartProductIds = $this->resolveCartTreatmentProductIds();
+        $productId = (int) ($data['product_id'] ?? 0) ?: ($cartProductIds[0] ?? 0);
 
         if (! $productId) {
             return response()->json(['dates' => []]);
         }
 
-        if ($cartProductId && $productId !== $cartProductId) {
+        if ($cartProductIds !== [] && ! in_array($productId, $cartProductIds, true)) {
             throw ValidationException::withMessages(['product_id' => trans('validation.in')]);
         }
 
@@ -54,14 +54,24 @@ class AvailabilityDatesController extends Controller
             ])]);
         }
 
+        $beauticianId = isset($data['beautician_id']) ? (int) $data['beautician_id'] : null;
+
+        $dateOptions = $this->availability->dateOptions(
+            $productId,
+            $branchId,
+            $from,
+            $to,
+            $beauticianId,
+        );
+
+        $dates = array_values(array_map(
+            static fn (array $option) => $option['date'],
+            array_filter($dateOptions, static fn (array $option) => $option['status'] === 'available')
+        ));
+
         return response()->json([
-            'dates' => $this->availability->availableDates(
-                $productId,
-                $branchId,
-                $from,
-                $to,
-                isset($data['beautician_id']) ? (int) $data['beautician_id'] : null,
-            ),
+            'dates' => $dates,
+            'date_options' => $dateOptions,
         ]);
     }
 
@@ -85,16 +95,21 @@ class AvailabilityDatesController extends Controller
     }
 
 
-    private function resolveCartTreatmentProductId(): ?int
+    /**
+     * @return list<int>
+     */
+    private function resolveCartTreatmentProductIds(): array
     {
+        $ids = [];
+
         foreach (Cart::items() as $item) {
             $product = $item->product ?? null;
 
             if ($product && ($product->is_virtual ?? false)) {
-                return (int) $product->id;
+                $ids[] = (int) $product->id;
             }
         }
 
-        return null;
+        return array_values(array_unique($ids));
     }
 }

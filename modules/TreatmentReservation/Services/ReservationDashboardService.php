@@ -490,7 +490,7 @@ class ReservationDashboardService
             'notes' => $booking->notes,
             'session_started_at' => $booking->sessionStartedAt()?->toIso8601String(),
             'session_finished_at' => $finishedAt?->toIso8601String(),
-            'session_finished_at_label' => $finishedAt?->format('H:i'),
+            'session_finished_at_label' => $finishedAt?->format('g:i A'),
             'session_duration_seconds' => $durationSeconds,
             'session_duration_label' => $durationSeconds !== null
                 ? $this->formatSessionDurationLabel($durationSeconds)

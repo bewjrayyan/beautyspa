@@ -82,14 +82,7 @@ class ScheduleTbaBookingService
                 $order = Order::query()->find($booking->order_id);
 
                 if ($order) {
-                    Order::withoutEvents(function () use ($order, $beauticianId, $date, $normalizedTime) {
-                        $order->update([
-                            'beautician_id' => $beauticianId,
-                            'appointment_date' => $date,
-                            'appointment_time' => $normalizedTime,
-                            'schedule_status' => null,
-                        ]);
-                    });
+                    app(BookingSyncService::class)->refreshOrderAppointmentSnapshot($order);
                 }
             }
 

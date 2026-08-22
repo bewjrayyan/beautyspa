@@ -235,7 +235,7 @@ class CustomerCrmProfileService
             'status' => $booking->status,
             'status_label' => TrLang::trans('admin.kanban.' . $booking->status),
             'appointment_date' => $booking->appointment_date?->format('d M Y'),
-            'appointment_time' => $booking->appointment_time_range ?? $booking->appointment_time,
+            'appointment_time' => $booking->appointment_time_range ?? $booking->displayAppointmentTime(),
             'treatment_name' => $payload['treatment_name'] ?? $booking->product?->name ?? '—',
             'beautician_name' => $payload['beautician_name'] ?? $booking->beautician?->name,
             'total_formatted' => $payload['total_formatted'] ?? null,

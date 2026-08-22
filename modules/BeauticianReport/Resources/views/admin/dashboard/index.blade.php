@@ -154,7 +154,7 @@
                                         <td>
                                             <a href="{{ route('admin.orders.show', $order->id) }}">#{{ $order->id }}</a>
                                             @if ($order->appointment_date)
-                                                <br><small>{{ $order->appointment_date->format('d M Y') }} {{ $order->appointment_time }}</small>
+                                                <br><small>{{ $order->appointment_date->format('d M Y') }} {{ $order->displayAppointmentTime() }}</small>
                                             @endif
                                         </td>
                                         <td>{{ $order->customer_full_name }}</td>

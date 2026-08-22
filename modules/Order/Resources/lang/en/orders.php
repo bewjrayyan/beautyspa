@@ -81,6 +81,7 @@ return [
     'order_note_help' => 'Includes checkout note and appointment lines stored for exports.',
     'order_note_export' => 'Appointment lines (export)',
     'beautician' => 'Beautician',
+    'appointments_count' => ':count appointments',
     'appointment_information' => 'Appointment',
     'appointment_date' => 'Appointment Date',
     'appointment_time' => 'Appointment Time',

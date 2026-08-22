@@ -43,7 +43,7 @@
                                 {{ $order->appointment_date->format('d M Y') }}
                             @endif
                             @if ($order->appointment_time)
-                                {{ $order->appointment_date ? ' · ' : '' }}{{ $order->appointment_time }}
+                                {{ $order->appointment_date ? ' · ' : '' }}{{ $order->displayAppointmentTime() }}
                             @endif
                         </span>
                     @endif

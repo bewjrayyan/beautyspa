@@ -6,6 +6,7 @@ import {
     collectBeauticiansFromBookings,
     initBeauticianAvatarLightbox,
     initCalendarEventPreview,
+    openCalendarEventPreview,
     renderKanbanBeautician,
     resolveBooking,
     setCalendarBookings,
@@ -36,6 +37,12 @@ class TreatmentReservationsApp {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#39;");
+    }
+
+    static safeCssColor(value) {
+        const raw = String(value || "").trim();
+
+        return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(raw) ? raw : "";
     }
 
     constructor(root) {
@@ -155,7 +162,12 @@ class TreatmentReservationsApp {
             });
         });
         this.emptyCalendarLabel = this.root.dataset.calEmptyLabel || "";
-        this.compactCalendar = !!document.querySelector("[data-crm-compact-calendar]");
+        this.compactCalendar =
+            !!document.querySelector("[data-crm-compact-calendar]")
+            || (
+                this.root.classList.contains("tr-reservations--view-calendar")
+                && window.matchMedia("(max-width: 991px)").matches
+            );
         this.pendingSlideDirection = 0;
         this.calendarAnimating = false;
 
@@ -177,19 +189,42 @@ class TreatmentReservationsApp {
 
         this.loadCalendar();
 
-        // Day click: update selectedDate; double-click switches to day view
+        // Day click: mobile day-info modal; desktop select / day-view sync
         const gridVp = this.gridViewport || this.grid;
         if (gridVp) {
             gridVp.addEventListener("click", (e) => {
-                const dayEl = e.target.closest("[data-date]");
-                if (!dayEl) return;
-                this.selectedDate = dayEl.dataset.date;
-                if (this.currentCalView === "day") {
-                    this.renderDayView();
+                if (e.target.closest(".tr-cal-event--clickable")) {
+                    return;
                 }
+
+                const dayEl = e.target.closest(".tr-cal-day[data-date]");
+                if (!dayEl || dayEl.classList.contains("tr-cal-day--muted")) {
+                    return;
+                }
+
+                this.handleCalendarDayActivate(dayEl);
             });
+
+            gridVp.addEventListener("keydown", (e) => {
+                if (e.key !== "Enter" && e.key !== " ") {
+                    return;
+                }
+
+                const dayEl = e.target.closest(".tr-cal-day[data-date]");
+                if (!dayEl || dayEl.classList.contains("tr-cal-day--muted")) {
+                    return;
+                }
+
+                e.preventDefault();
+                this.handleCalendarDayActivate(dayEl);
+            });
+
             gridVp.addEventListener("dblclick", (e) => {
-                const dayEl = e.target.closest("[data-date]");
+                if (this.isMobileCalendarView()) {
+                    return;
+                }
+
+                const dayEl = e.target.closest(".tr-cal-day[data-date]");
                 if (!dayEl) return;
                 this.selectedDate = dayEl.dataset.date;
                 document.querySelector('[data-cal-view="day"]')?.click();
@@ -240,6 +275,209 @@ class TreatmentReservationsApp {
         if (this.calendarBoard) this.calendarBoard.style.display = "";
         if (this.calendarMeta) this.calendarMeta.style.display = "";
         if (this.dayView) this.dayView.style.display = "none";
+    }
+
+    isMobileCalendarView() {
+        return (
+            this.root.classList.contains("tr-reservations--view-calendar")
+            && window.matchMedia("(max-width: 991px)").matches
+        );
+    }
+
+    handleCalendarDayActivate(dayEl) {
+        const dateStr = dayEl.dataset.date;
+        this.selectedDate = dateStr;
+
+        this.grid?.querySelectorAll(".tr-cal-day[data-date]").forEach((node) => {
+            const selected = node.dataset.date === dateStr;
+            node.classList.toggle("tr-cal-day--selected", selected);
+            node.setAttribute("aria-selected", selected ? "true" : "false");
+        });
+
+        if (this.currentCalView === "day") {
+            this.renderDayView();
+        }
+
+        if (!this.isMobileCalendarView() || this.currentCalView !== "month") {
+            return;
+        }
+
+        const bookings = (this.lastCalendarBookings || this.lastBookings || []).filter(
+            (booking) => booking.date === dateStr
+        );
+        const holiday = (this.holidaysByDate || {})[dateStr] || null;
+
+        if (!bookings.length && !holiday) {
+            return;
+        }
+
+        this.openDayEventsModal(dateStr, bookings, holiday);
+    }
+
+    ensureDayEventsModal() {
+        let modal = document.getElementById("tr-cal-day-events-modal");
+
+        if (modal) {
+            return modal;
+        }
+
+        modal = document.createElement("div");
+        modal.id = "tr-cal-day-events-modal";
+        modal.className = "tr-cal-day-events-modal";
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+        modal.innerHTML = `
+            <div class="tr-cal-day-events-modal__backdrop" data-day-modal-dismiss></div>
+            <div class="tr-cal-day-events-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="tr-cal-day-events-title">
+                <div class="tr-cal-day-events-modal__handle" aria-hidden="true"></div>
+                <header class="tr-cal-day-events-modal__head">
+                    <div class="tr-cal-day-events-modal__head-text">
+                        <p class="tr-cal-day-events-modal__eyebrow" id="tr-cal-day-events-count"></p>
+                        <h3 class="tr-cal-day-events-modal__title" id="tr-cal-day-events-title"></h3>
+                    </div>
+                    <button type="button" class="tr-cal-day-events-modal__close" data-day-modal-dismiss aria-label="${TreatmentReservationsApp.escapeHtml(this.root.dataset.calDayModalClose || "Close")}">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                </header>
+                <div class="tr-cal-day-events-modal__body" id="tr-cal-day-events-body"></div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.addEventListener("click", (event) => {
+            if (event.target.closest("[data-day-modal-dismiss]")) {
+                this.closeDayEventsModal();
+                return;
+            }
+
+            const item = event.target.closest("[data-day-modal-booking-id]");
+            if (!item) {
+                return;
+            }
+
+            const bookingId = item.dataset.dayModalBookingId;
+            const booking = resolveBooking(bookingId)
+                || (this.lastCalendarBookings || []).find((row) => String(row.id) === String(bookingId));
+
+            if (!booking) {
+                return;
+            }
+
+            if (!bookingAllowsDetail(booking, this.portalBeauticianId || null)) {
+                return;
+            }
+
+            this.closeDayEventsModal();
+            openCalendarEventPreview(
+                booking,
+                buildCalendarPreviewLabels(this.root),
+                buildCalendarPreviewOptions(this.root)
+            );
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && modal && !modal.hidden) {
+                this.closeDayEventsModal();
+            }
+        });
+
+        return modal;
+    }
+
+    openDayEventsModal(dateStr, bookings, holiday) {
+        const modal = this.ensureDayEventsModal();
+        const titleEl = modal.querySelector("#tr-cal-day-events-title");
+        const countEl = modal.querySelector("#tr-cal-day-events-count");
+        const bodyEl = modal.querySelector("#tr-cal-day-events-body");
+        const labels = {
+            title: this.root.dataset.calDayModalTitle || "Appointments",
+            empty: this.root.dataset.calDayModalEmpty || "No appointments on this day",
+            holiday: this.root.dataset.calDayModalHoliday || "Public holiday",
+            count: this.root.dataset.calDayModalCount || ":count appointments",
+            view: this.root.dataset.calDayModalView || "View details",
+            pending: this.root.dataset.calStatusPending || "Pending",
+            inProgress: this.root.dataset.calStatusInProgress || "In progress",
+            completed: this.root.dataset.calStatusCompleted || "Completed",
+        };
+
+        const dateLabel = new Date(`${dateStr}T12:00:00`).toLocaleDateString(
+            this.root.dataset.agendaLocale || undefined,
+            { weekday: "short", day: "numeric", month: "short", year: "numeric" }
+        );
+
+        titleEl.textContent = dateLabel;
+        countEl.textContent = bookings.length
+            ? labels.count.replace(":count", String(bookings.length))
+            : labels.title;
+
+        const statusLabel = (status) => {
+            if (status === "in_progress") return labels.inProgress;
+            if (status === "completed") return labels.completed;
+            if (status === "canceled") return status;
+            return labels.pending;
+        };
+
+        const holidayHtml = holiday
+            ? `<div class="tr-cal-day-events-modal__holiday">
+                    <span class="tr-cal-day-events-modal__holiday-label">${TreatmentReservationsApp.escapeHtml(labels.holiday)}</span>
+                    <strong>${TreatmentReservationsApp.escapeHtml(holiday.label || "")}</strong>
+                    ${Array.isArray(holiday.states) && holiday.states.length
+                        ? `<span class="tr-cal-day-events-modal__holiday-states">${TreatmentReservationsApp.escapeHtml(holiday.states.join(", "))}</span>`
+                        : ""}
+               </div>`
+            : "";
+
+        const sorted = [...bookings].sort((a, b) =>
+            String(a.time || a.appointment_time || "").localeCompare(String(b.time || b.appointment_time || ""))
+        );
+
+        const listHtml = sorted.length
+            ? `<ul class="tr-cal-day-events-modal__list">
+                ${sorted.map((booking) => {
+                    const time = booking.appointment_time_range || booking.time || booking.appointment_time || "—";
+                    const status = booking.status || "pending";
+                    const canOpen = bookingAllowsDetail(booking, this.portalBeauticianId || null);
+                    const tag = canOpen ? "button" : "div";
+                    const attrs = canOpen
+                        ? `type="button" data-day-modal-booking-id="${TreatmentReservationsApp.escapeHtml(String(booking.id))}"`
+                        : "";
+
+                    return `<li>
+                        <${tag} class="tr-cal-day-events-modal__item tr-cal-day-events-modal__item--${TreatmentReservationsApp.escapeHtml(status)}${canOpen ? " is-clickable" : ""}" ${attrs}>
+                            <div class="tr-cal-day-events-modal__item-time">
+                                <strong>${TreatmentReservationsApp.escapeHtml(time)}</strong>
+                                <span class="tr-cal-day-events-modal__status tr-cal-day-events-modal__status--${TreatmentReservationsApp.escapeHtml(status)}">${TreatmentReservationsApp.escapeHtml(statusLabel(status))}</span>
+                            </div>
+                            <div class="tr-cal-day-events-modal__item-main">
+                                <strong>${TreatmentReservationsApp.escapeHtml(booking.customer_name || "—")}</strong>
+                                <span>${TreatmentReservationsApp.escapeHtml(booking.treatment_name || booking.product_name || "—")}</span>
+                                ${booking.beautician_name ? `<span class="tr-cal-day-events-modal__beautician">${TreatmentReservationsApp.escapeHtml(booking.beautician_name)}</span>` : ""}
+                            </div>
+                            ${canOpen ? `<span class="tr-cal-day-events-modal__chevron" aria-hidden="true"><i class="fa fa-chevron-right"></i></span>` : ""}
+                        </${tag}>
+                    </li>`;
+                }).join("")}
+               </ul>`
+            : `<p class="tr-cal-day-events-modal__empty">${TreatmentReservationsApp.escapeHtml(labels.empty)}</p>`;
+
+        bodyEl.innerHTML = `${holidayHtml}${listHtml}`;
+
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("tr-cal-day-events-modal-open");
+        modal.querySelector(".tr-cal-day-events-modal__close")?.focus();
+    }
+
+    closeDayEventsModal() {
+        const modal = document.getElementById("tr-cal-day-events-modal");
+        if (!modal) {
+            return;
+        }
+
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("tr-cal-day-events-modal-open");
     }
 
     getWeekStart(dateStr) {
@@ -326,9 +564,15 @@ class TreatmentReservationsApp {
             const isToday = ds === today;
             const count = (byDate[ds] || []).length;
             const holiday = malaysiaPublicHolidays[ds];
-            headerHtml += '<div class="tr-week-header__day' + (isToday ? ' tr-week-header__day--today' : '') + (count ? ' tr-week-header__day--has-booking' : '') + '">'
+            const holidayColor = holiday ? TreatmentReservationsApp.safeCssColor(holiday.color) : "";
+            headerHtml += '<div class="tr-week-header__day'
+                + (isToday ? ' tr-week-header__day--today' : '')
+                + (count ? ' tr-week-header__day--has-booking' : '')
+                + (holiday ? ' tr-week-header__day--holiday' : '') + '"'
+                + (holidayColor ? ' style="--holiday-color:' + holidayColor + '"' : '') + '>'
                 + '<span class="tr-week-header__dow">' + dow + '</span>'
                 + '<span class="tr-week-header__num">' + dayNum + '</span>'
+                + (holiday ? '<span class="tr-week-header__holiday-name">' + TreatmentReservationsApp.escapeHtml(holiday.label || "") + '</span>' : '')
                 + (count ? '<span class="tr-week-header__dot"></span>' : '')
                 + (count ? '<span class="tr-week-header__count">' + count + '</span>' : '')
                 + '</div>';
@@ -379,12 +623,14 @@ class TreatmentReservationsApp {
 
             if (holiday) {
                 const kindClass = String(holiday.kind || "other").replace(/[^a-z_]/gi, "");
+                const holidayColor = TreatmentReservationsApp.safeCssColor(holiday.color);
                 const statesSummary = Array.isArray(holiday.states) && holiday.states.length
                     ? TreatmentReservationsApp.escapeHtml(holiday.states.join(", "))
                     : "";
-                colHtml += '<div class="tr-week-holiday-watermark tr-week-holiday-watermark--' + kindClass + '" style="--holiday-color:' + holiday.color + '">'
+                colHtml += '<div class="tr-week-holiday-watermark tr-week-holiday-watermark--' + kindClass + '"'
+                    + (holidayColor ? ' style="--holiday-color:' + holidayColor + '"' : '') + '>'
                     + '<div class="tr-week-holiday-watermark__stack">'
-                    + '<span class="tr-week-holiday-watermark__title">' + TreatmentReservationsApp.escapeHtml(holiday.label) + '</span>'
+                    + '<span class="tr-week-holiday-watermark__title">' + TreatmentReservationsApp.escapeHtml(holiday.label || "") + '</span>'
                     + (statesSummary ? '<span class="tr-week-holiday-watermark__subtitle">' + statesSummary + '</span>' : '')
                     + '</div>'
                     + '</div>';
@@ -787,7 +1033,9 @@ class TreatmentReservationsApp {
                         const statesSummary = Array.isArray(holiday.states) && holiday.states.length
                             ? TreatmentReservationsApp.escapeHtml(holiday.states.join(", "))
                             : "";
-                        return `<div class="tr-cal-holiday-badge tr-cal-holiday-badge--${kindClass}" style="--holiday-color:${holiday.color}" title="${safeLabel}${statesSummary ? " · " + statesSummary : ""}"><span class="tr-cal-holiday-badge__title">${safeLabel}</span>${statesSummary ? `<span class="tr-cal-holiday-badge__states">${statesSummary}</span>` : ""}</div>`;
+                        const holidayColor = TreatmentReservationsApp.safeCssColor(holiday.color);
+                        const colorAttr = holidayColor ? ` style="--holiday-color:${holidayColor}"` : "";
+                        return `<div class="tr-cal-holiday-badge tr-cal-holiday-badge--${kindClass}"${colorAttr} title="${safeLabel}${statesSummary ? " · " + statesSummary : ""}"><span class="tr-cal-holiday-badge__title">${safeLabel}</span>${statesSummary ? `<span class="tr-cal-holiday-badge__states">${statesSummary}</span>` : ""}</div>`;
                     })() : ""}
                     <div class="tr-cal-day-events">${events || (this.compactCalendar ? "" : `<span class="tr-cal-empty">${this.emptyLabel()}</span>`)}</div>
                 </div>

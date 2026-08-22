@@ -16,12 +16,21 @@ class SyncTreatmentBookingFromOrder
     {
         $order = $event->order;
 
-        $booking = TreatmentBooking::query()
-            ->where('order_id', $order->id)
-            ->first();
+        if (
+            BookingSyncService::shouldDeferUntilPayment($order)
+            && $order->treatmentBookings()->count() === 0
+            && (
+                (is_array($order->checkout_treatment_lines) && $order->checkout_treatment_lines !== [])
+                || BookingSyncService::resolvePendingCheckoutLines($order) !== null
+            )
+        ) {
+            return;
+        }
 
-        if ($booking && $order->wasChanged('status')) {
-            $this->applyJobSheetStatusFromOrder($booking, $order);
+        if ($order->wasChanged('status')) {
+            TreatmentBooking::query()
+                ->where('order_id', $order->id)
+                ->each(fn (TreatmentBooking $booking) => $this->applyJobSheetStatusFromOrder($booking, $order));
         }
 
         $this->sync->syncFromOrder($order);

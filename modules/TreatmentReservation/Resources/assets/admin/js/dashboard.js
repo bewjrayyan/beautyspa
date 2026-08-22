@@ -1,3 +1,4 @@
+import { formatAppointmentTimeDisplay } from "./time-format.js";
 import axios from "axios";
 import flatpickr from "flatpickr";
 import { bookingAllowsDetail, getCalendarBooking, setCalendarBookings, upsertBooking } from "./kanban-helpers.js";
@@ -1068,7 +1069,7 @@ async function scheduleTbaBooking({
         return;
     }
 
-    const time = window.prompt(`Available times:\n${slots.join(", ")}\n\nEnter time (HH:MM)`, slots[0]);
+    const time = window.prompt(`Available times:\n${slots.map((slot) => formatAppointmentTimeDisplay(slot)).join(", ")}\n\nEnter time (e.g. 3:00 PM)`, formatAppointmentTimeDisplay(slots[0]));
 
     if (!time) {
         return;
