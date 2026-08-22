@@ -20,6 +20,7 @@ export default defineConfig(async ({ command }) => {
         "**/create.js",
         "**/edit.js",
         "modules/Storefront/Resources/assets/public/sass/vendors/*.scss",
+        "modules/Storefront/Resources/assets/public/fonts/*.css",
     ];
 
     // Fetching the asset files asynchronously

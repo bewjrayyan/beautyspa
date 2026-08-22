@@ -8,9 +8,7 @@
             @yield('title') - {{ setting('store_name') }}
         </title>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="{{ font_url(setting('storefront_display_font', 'Rubik')) }}" rel="stylesheet">
+        @vite([font_vite_entry(setting('storefront_display_font', 'Rubik'))])
 
         @include('storefront::public.auth.partials.variables')
 

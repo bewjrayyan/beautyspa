@@ -1,5 +1,65 @@
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
+let Swal = null;
+let Toast = null;
+let Modal = null;
+let swalReady = null;
+
+async function ensureSwal() {
+    if (Swal) {
+        return Swal;
+    }
+
+    if (!swalReady) {
+        swalReady = Promise.all([
+            import("sweetalert2"),
+            import("sweetalert2/dist/sweetalert2.min.css"),
+        ]).then(([mod]) => {
+            Swal = mod.default;
+
+            Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    showCloseButton: true,
+    timer: 3500,
+    timerProgressBar: true,
+    backdrop: false,
+    target: "body",
+    customClass: {
+        popup: "ac-swal-toast",
+        title: "ac-swal-toast__title",
+        htmlContainer: "ac-swal-toast__text",
+        closeButton: "ac-swal-toast__close",
+        timerProgressBar: "ac-swal-toast__timer",
+    },
+    didOpen: (el) => {
+        el.addEventListener("mouseenter", Swal.stopTimer);
+        el.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+            });
+
+            Modal = Swal.mixin({
+    toast: false,
+    position: "center",
+    target: "body",
+    heightAuto: false,
+    backdrop: true,
+    customClass: {
+        popup: "ac-swal-modal",
+        title: "ac-swal-modal__title",
+        htmlContainer: "ac-swal-modal__text",
+        confirmButton: "ac-swal-modal__confirm",
+        cancelButton: "ac-swal-modal__cancel",
+        actions: "ac-swal-modal__actions",
+        icon: "ac-swal-modal__icon",
+    },
+            });
+
+            return Swal;
+        });
+    }
+
+    return swalReady;
+}
 
 /**
  * AestheticCart SweetNotification (SweetAlert2)
@@ -71,47 +131,9 @@ function headlineFor(type, options = {}) {
     return t(key, fallback);
 }
 
-const Toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    showCloseButton: true,
-    timer: 3500,
-    timerProgressBar: true,
-    backdrop: false,
-    target: "body",
-    customClass: {
-        popup: "ac-swal-toast",
-        title: "ac-swal-toast__title",
-        htmlContainer: "ac-swal-toast__text",
-        closeButton: "ac-swal-toast__close",
-        timerProgressBar: "ac-swal-toast__timer",
-    },
-    didOpen: (el) => {
-        el.addEventListener("mouseenter", Swal.stopTimer);
-        el.addEventListener("mouseleave", Swal.resumeTimer);
-    },
-});
-
-const Modal = Swal.mixin({
-    toast: false,
-    position: "center",
-    target: "body",
-    heightAuto: false,
-    backdrop: true,
-    customClass: {
-        popup: "ac-swal-modal",
-        title: "ac-swal-modal__title",
-        htmlContainer: "ac-swal-modal__text",
-        confirmButton: "ac-swal-modal__confirm",
-        cancelButton: "ac-swal-modal__cancel",
-        actions: "ac-swal-modal__actions",
-        icon: "ac-swal-modal__icon",
-    },
-});
-
 /** Optional corner toast */
-function toast(type, message, options = {}) {
+async function toast(type, message, options = {}) {
+    await ensureSwal();
     const icon = normalizeType(type);
     const text = message == null ? "" : String(message).trim();
 
@@ -143,7 +165,8 @@ function toast(type, message, options = {}) {
  * Centered SweetAlert (default for success/error/warning/info)
  * Matches classic SweetAlert layout: icon on top, title, message, dimmed backdrop.
  */
-function centered(type, message, options = {}) {
+async function centered(type, message, options = {}) {
+    await ensureSwal();
     const icon = normalizeType(type);
     const text = message == null ? "" : String(message).trim();
 
@@ -212,7 +235,8 @@ function notify(typeOrMessage, messageOrOptions, options = {}) {
     return centered("info", typeOrMessage, messageOrOptions || {});
 }
 
-function alert(message, options = {}) {
+async function alert(message, options = {}) {
+    await ensureSwal();
     const opts = { ...(options || {}) };
     const icon = normalizeType(opts.type || opts.icon || "info");
     const text = message == null ? "" : String(message);
@@ -233,7 +257,8 @@ function alert(message, options = {}) {
     });
 }
 
-function confirm(message, options = {}) {
+async function confirm(message, options = {}) {
+    await ensureSwal();
     const opts = { ...(options || {}) };
 
     return Modal.fire({
@@ -266,7 +291,7 @@ function confirmDelete(message, options = {}) {
     return confirm(message, options);
 }
 
-function bootFlashes(root = document) {
+async function bootFlashes(root = document) {
     const el = root.querySelector("#sweet-notification-flashes");
 
     if (!el) {
@@ -280,6 +305,12 @@ function bootFlashes(root = document) {
     } catch (e) {
         return;
     }
+
+    if (!Object.values(flashes).some(Boolean)) {
+        return;
+    }
+
+    await ensureSwal();
 
     Object.entries(flashes).forEach(([type, message]) => {
         if (message) {
@@ -300,7 +331,10 @@ export const SweetNotification = {
     confirm,
     confirmDelete,
     bootFlashes,
-    Swal,
+    ensureSwal,
+    get Swal() {
+        return Swal;
+    },
 };
 
 export {

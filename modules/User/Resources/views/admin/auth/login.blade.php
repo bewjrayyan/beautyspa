@@ -128,9 +128,13 @@
                         verifyUrl: @js(route('admin.login.whatsapp.verify_otp')),
                         csrf: @js(csrf_token()),
                         initPhoneInput() {
-                            this.$nextTick(() => {
+                            if (this.mode !== 'whatsapp') {
+                                return;
+                            }
+
+                            this.$nextTick(async () => {
                                 if (typeof window.bootModernPhoneInputs === 'function') {
-                                    window.bootModernPhoneInputs(this.$el);
+                                    await window.bootModernPhoneInputs(this.$el);
                                 }
                             });
                         },
@@ -197,7 +201,7 @@
                             }
                         },
                     }"
-                    x-init="initPhoneInput()"
+                    x-init="initPhoneInput(); $watch('mode', () => initPhoneInput())"
                 >
                     <div class="auth-form-body-top">
                         @include('user::admin.auth.partials.logo')

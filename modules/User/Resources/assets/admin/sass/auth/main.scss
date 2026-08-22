@@ -1,5 +1,6 @@
 /*===== Variables =======*/
 
+@import "./fonts";
 @import "../../../../../../Storefront/Resources/assets/public/sass/components/modern-phone-input";
 @import "../../../../../../Storefront/Resources/assets/public/sass/components/otp-digit-input";
 
@@ -253,6 +254,10 @@ body {
         width: 40%;
         height: 100%;
         background-image: url("../../images/login-page-bg.png");
+        background-image: image-set(
+            url("../../images/login-page-bg.webp") type("image/webp"),
+            url("../../images/login-page-bg.png") type("image/png")
+        );
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;
@@ -1230,6 +1235,10 @@ body {
 
                 .auth-form-header {
                     background-image: url("../../images/login-page-mobile-bg.png");
+                    background-image: image-set(
+                        url("../../images/login-page-mobile-bg.webp") type("image/webp"),
+                        url("../../images/login-page-mobile-bg.png") type("image/png")
+                    );
                     background-repeat: no-repeat;
                     background-position: center;
                     background-size: cover;

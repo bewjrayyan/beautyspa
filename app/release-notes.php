@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.9' => [
+        'date' => '2026-08-22 10:02',
+        'en' => [
+            'summary' => 'Faster storefront loads, self-hosted fonts, stricter CSP, and safer social-login settings.',
+            'changes' => [
+                'Speed up storefront pages by lazy-loading phone input, datepicker, SweetAlert2, product zoom, and lightbox only when needed, and by removing unused jQuery from the global bundle.',
+                'Self-host display fonts with @fontsource (latin 300/400/500) and remove Google Fonts requests from the storefront and auth layouts.',
+                'Enforce Content-Security-Policy by default, sanitize custom header/footer assets to an HTTPS script allowlist, escape social-login related XSS sinks, and harden WhatsApp OTP intended redirects.',
+                'Improve Google/Facebook login settings UX (credentials first, collapsed setup guide, compact callback copy) and polish customer/admin login performance and Email/OTP switching.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Storefront lebih pantas, fon self-hosted, CSP lebih ketat, dan tetapan social login lebih selamat.',
+            'changes' => [
+                'Percepat halaman storefront dengan lazy-load input telefon, datepicker, SweetAlert2, zoom produk, dan lightbox hanya bila diperlukan, serta buang jQuery tidak digunakan daripada bundle global.',
+                'Hos sendiri fon paparan dengan @fontsource (latin 300/400/500) dan buang permintaan Google Fonts daripada layout storefront dan auth.',
+                'Kuatkuasakan Content-Security-Policy secara lalai, sanitaskan aset header/footer tersuai kepada allowlist skrip HTTPS, escape sink XSS berkaitan social login, dan perkukuh redirect intended WhatsApp OTP.',
+                'Perbaiki UX tetapan log masuk Google/Facebook (kredensial dahulu, panduan setup tertutup, salin callback padat) serta poles prestasi log masuk pelanggan/admin dan suis Email/OTP.',
+            ],
+        ],
+    ],
     '4.11.8' => [
         'date' => '2026-08-22 01:18',
         'en' => [

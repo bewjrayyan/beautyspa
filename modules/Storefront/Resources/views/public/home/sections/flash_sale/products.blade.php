@@ -3,7 +3,7 @@
         <div class="daily-deals-wrap">
             <div class="daily-deals-header clearfix">
                 <h3 class="section-title">
-                    {!! $flashSale['title'] !!}
+                    {{ $flashSale['title'] }}
                 </h3>
             </div>
 

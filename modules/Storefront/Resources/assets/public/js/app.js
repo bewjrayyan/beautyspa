@@ -1,39 +1,49 @@
 import { trans, formatCurrency } from "./functions";
 import { notify, SweetNotification } from "./components/Toaster";
 import { bootFlashes } from "./components/SweetNotification";
-import { initModernDatepickers } from "./lib/modernDatepicker";
-import { bootModernPhoneInputs } from "./lib/modernPhoneInput";
 import { initOtpDigitInput } from "./lib/otpDigitInput";
 import Alpine from "alpinejs";
-import jQuery from "jquery";
 import * as bootstrap from "bootstrap/dist/js/bootstrap.js";
 import "./vendors/axios";
 
-function bootFormEnhancements() {
-    initModernDatepickers();
-    bootModernPhoneInputs();
+/**
+ * Load datepicker / phone widgets only when matching inputs exist.
+ * Keeps flatpickr and intl-tel-input off most storefront pages.
+ */
+async function bootFormEnhancements() {
+    const hasDatepicker = document.querySelector("input.modern-datepicker");
+    const hasPhone = document.querySelector("input.modern-phone-input");
+
+    if (hasDatepicker) {
+        const { initModernDatepickers } = await import("./lib/modernDatepicker");
+        initModernDatepickers();
+    }
+
+    if (hasPhone) {
+        const { bootModernPhoneInputs } = await import("./lib/modernPhoneInput");
+        bootModernPhoneInputs();
+    }
 }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootFormEnhancements);
-} else {
-    bootFormEnhancements();
+function onReady(fn) {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", fn);
+    } else {
+        fn();
+    }
 }
+
+onReady(() => {
+    bootFormEnhancements();
+    bootFlashes();
+});
 
 window.Alpine = Alpine;
 window.bootstrap = bootstrap;
-window.$ = window.jQuery = jQuery;
 window.trans = trans;
 window.formatCurrency = formatCurrency;
 window.notify = notify;
 window.SweetNotification = SweetNotification;
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => bootFlashes());
-} else {
-    bootFlashes();
-}
-
 window.initOtpDigitInput = initOtpDigitInput;
 
 Alpine.data("App", () => ({

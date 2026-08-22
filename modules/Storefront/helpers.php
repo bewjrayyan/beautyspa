@@ -442,9 +442,49 @@ if (!function_exists('vite_build_asset')) {
     }
 }
 
+if (!function_exists('font_slug')) {
+    /**
+     * Map storefront display font name to local @fontsource CSS slug.
+     */
+    function font_slug(?string $font): string
+    {
+        return match ($font) {
+            'Rubik' => 'rubik',
+            'Roboto' => 'roboto',
+            'Open Sans' => 'open-sans',
+            'Montserrat' => 'montserrat',
+            'Nunito' => 'nunito',
+            'Raleway' => 'raleway',
+            'Oswald' => 'oswald',
+            'Quicksand' => 'quicksand',
+            'Hind' => 'hind',
+            'Fira Sans' => 'fira-sans',
+            'Mukta' => 'mukta',
+            'Karla' => 'karla',
+            'Barlow' => 'barlow',
+            'Source Sans 3' => 'source-sans-3',
+            'IBM Plex Sans' => 'ibm-plex-sans',
+            'Work Sans' => 'work-sans',
+            default => 'poppins',
+        };
+    }
+}
+
+if (!function_exists('font_vite_entry')) {
+    /**
+     * Vite entry path for the selected self-hosted display font.
+     */
+    function font_vite_entry(?string $font = null): string
+    {
+        $slug = font_slug($font ?: setting('storefront_display_font', 'Poppins'));
+
+        return "modules/Storefront/Resources/assets/public/fonts/{$slug}.css";
+    }
+}
+
 if (!function_exists('font_url')) {
     /**
-     * Get the url for the given font.
+     * Public URL for the selected self-hosted display font stylesheet.
      *
      * @param string $font
      *
@@ -452,27 +492,16 @@ if (!function_exists('font_url')) {
      */
     function font_url($font)
     {
-        return match ($font) {
-            'Poppins' => 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap',
-            'Rubik' => 'https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500&display=swap',
-            'Roboto' => 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap',
-            'Open Sans' => 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap',
-            'Montserrat' => 'https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap',
-            'Nunito' => 'https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,200..1000&display=swap',
-            'Raleway' => 'https://fonts.googleapis.com/css2?family=Raleway:wght@100..900&display=swap',
-            'Oswald' => 'https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap',
-            'Quicksand' => 'https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap',
-            'Hind' => 'https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500&display=swap',
-            'Fira Sans' => 'https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500&display=swap',
-            'Mukta' => 'https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500&display=swap',
-            'Karla' => 'https://fonts.googleapis.com/css2?family=Karla:wght@200..800&display=swap',
-            'Barlow' => 'https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&display=swap',
-            'Source Sans 3' => 'https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200..900&display=swap',
-            'IBM Plex Sans' => 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&display=swap',
-            'Work Sans' => 'https://fonts.googleapis.com/css2?family=Work+Sans:wght@100..900&display=swap',
-        };
+        $entry = font_vite_entry($font);
+
+        try {
+            return \Illuminate\Support\Facades\Vite::asset($entry);
+        } catch (\Throwable $e) {
+            return $entry;
+        }
     }
 }
+
 
 if (!function_exists('category_menu_item_icon')) {
     /**

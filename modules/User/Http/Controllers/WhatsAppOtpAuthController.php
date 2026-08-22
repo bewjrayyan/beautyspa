@@ -51,7 +51,7 @@ class WhatsAppOtpAuthController extends Controller
             $user = $this->findOrCreateUser($normalizedPhone);
 
             $user->login();
-            $redirect = $request->session()->pull('url.intended', route('account.dashboard.index'));
+            $redirect = $this->safeIntendedUrl($request);
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -59,7 +59,7 @@ class WhatsAppOtpAuthController extends Controller
                 ]);
             }
 
-            return redirect($redirect);
+            return redirect()->to($redirect);
         } catch (Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -71,6 +71,45 @@ class WhatsAppOtpAuthController extends Controller
         }
     }
 
+
+
+
+    /**
+     * Only allow same-host http(s) intended URLs (open-redirect guard).
+     */
+    private function safeIntendedUrl(\Illuminate\Http\Request $request): string
+    {
+        $fallback = route('account.dashboard.index');
+        $intended = $request->session()->pull('url.intended', $fallback);
+
+        if (! is_string($intended) || $intended === '') {
+            return $fallback;
+        }
+
+        if (str_starts_with($intended, '/')) {
+            return url($intended);
+        }
+
+        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+        $intendedParts = parse_url($intended);
+
+        if (! is_array($intendedParts)) {
+            return $fallback;
+        }
+
+        $scheme = strtolower((string) ($intendedParts['scheme'] ?? ''));
+        $host = $intendedParts['host'] ?? null;
+
+        if (! in_array($scheme, ['http', 'https'], true)) {
+            return $fallback;
+        }
+
+        if (! is_string($host) || ! is_string($appHost) || strcasecmp($host, $appHost) !== 0) {
+            return $fallback;
+        }
+
+        return $intended;
+    }
 
     private function findOrCreateUser(string $normalizedPhone): User
     {

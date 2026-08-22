@@ -1,3 +1,13 @@
+@php
+    $heroLcpUrl = $slider->slides->first()?->file?->path;
+@endphp
+
+@if ($heroLcpUrl)
+    @push('meta')
+        <link rel="preload" as="image" href="{{ $heroLcpUrl }}" fetchpriority="high">
+    @endpush
+@endif
+
 @php($sliderSideBannersEnabled = (bool) (int) setting('storefront_slider_banners_enabled', 1))
 
 <section x-data="Hero" class="home-section-wrap">

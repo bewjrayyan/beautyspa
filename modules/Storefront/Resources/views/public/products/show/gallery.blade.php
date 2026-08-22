@@ -10,7 +10,8 @@
                         <div class="swiper-slide">
                             <div class="gallery-preview-slide">
                                 <div class="gallery-preview-item" @click="triggerGalleryPreviewLightbox($event)">
-                                    <img src="{{ $media->path }}" data-zoom="{{ $media->path }}" alt="{{ $product->name }}">
+                                    <img src="{{ $media->path }}"
+                                        @if ($loop->first) fetchpriority="high" decoding="async" @else loading="lazy" decoding="async" @endif data-zoom="{{ $media->path }}" alt="{{ $product->name }}">
                                 </div>
 
                                 <a href="{{ $media->path }}" data-gallery="product-gallery-preview" class="gallery-view-icon glightbox">

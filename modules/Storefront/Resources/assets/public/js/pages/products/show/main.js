@@ -1,8 +1,6 @@
 import { Manipulation, Pagination, Navigation, Thumbs } from "swiper/modules";
 import md5 from "blueimp-md5";
 import Swiper from "swiper";
-import Drift from "drift-zoom";
-import GLightbox from "glightbox";
 import Errors from "../../../components/Errors";
 import { formatCurrency, resolveRecaptchaToken } from "../../../functions";
 import {
@@ -19,6 +17,29 @@ import "../../../components/ProductCard";
 let galleryPreviewSlider;
 let galleryPreviewLightbox;
 let galleryPreviewZoomInstances = [];
+
+
+let DriftModule = null;
+let GLightboxModule = null;
+
+async function loadDrift() {
+    if (!DriftModule) {
+        const mod = await import("drift-zoom");
+        DriftModule = mod.default || mod;
+    }
+
+    return DriftModule;
+}
+
+async function loadGLightbox() {
+    if (!GLightboxModule) {
+        const mod = await import("glightbox");
+        GLightboxModule = mod.default || mod;
+    }
+
+    return GLightboxModule;
+}
+
 
 Alpine.data(
     "ProductShow",
@@ -380,7 +401,7 @@ Alpine.data(
             return Math.ceil(this.reviews.total / 5);
         },
 
-        init() {
+        async init() {
             this.$watch("cartItemForm.options", () => {
                 this.productPriceWithOptionsPrice();
             });
@@ -401,11 +422,11 @@ Alpine.data(
             }
 
             galleryPreviewSlider = this.initGalleryPreviewSlider();
-            galleryPreviewLightbox = this.initGalleryPreviewLightbox();
+            galleryPreviewLightbox = await this.initGalleryPreviewLightbox();
 
             this.fetchReviews();
             this.setOldMediaLength();
-            this.initGalleryPreviewZoom();
+            await this.initGalleryPreviewZoom();
             this.setActiveVariationsValue();
             this.setDescriptionContentHeight();
             this.initUpSellProductsSlider();
@@ -653,25 +674,27 @@ Alpine.data(
         },
 
         addGalleryEventListeners() {
-            this.$nextTick(() => {
-                this.initGalleryPreviewZoom();
-                galleryPreviewLightbox.reload();
+            this.$nextTick(async () => {
+                await this.initGalleryPreviewZoom();
+                galleryPreviewLightbox?.reload();
                 this.refreshGallerySliderLayout();
             });
         },
 
-        initGalleryPreviewZoom() {
+        async initGalleryPreviewZoom() {
             if (this.isMobileDevice()) {
                 this.destroyGalleryPreviewZoomInstances();
 
                 return;
             }
 
-            this.initGalleryPreviewDesktopZoom();
+            await this.initGalleryPreviewDesktopZoom();
         },
 
-        initGalleryPreviewMobileZoom() {
+        async initGalleryPreviewMobileZoom() {
             this.destroyGalleryPreviewZoomInstances();
+
+            const Drift = await loadDrift();
 
             [
                 ...document.querySelectorAll(".gallery-preview-item > img"),
@@ -687,8 +710,10 @@ Alpine.data(
             });
         },
 
-        initGalleryPreviewDesktopZoom() {
+        async initGalleryPreviewDesktopZoom() {
             this.destroyGalleryPreviewZoomInstances();
+
+            const Drift = await loadDrift();
 
             [
                 ...document.querySelectorAll(".gallery-preview-item > img"),
@@ -713,7 +738,9 @@ Alpine.data(
             }
         },
 
-        initGalleryPreviewLightbox() {
+        async initGalleryPreviewLightbox() {
+            const GLightbox = await loadGLightbox();
+
             return GLightbox({
                 zoomable: true,
                 preload: false,

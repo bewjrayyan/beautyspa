@@ -33,6 +33,7 @@
                                 <div class="gallery-preview-item" @click="triggerGalleryPreviewLightbox($event)">
                                     <img
                                         src="{{ $media->path }}"
+                                        @if ($loop->first) fetchpriority="high" decoding="async" @else loading="lazy" decoding="async" @endif
                                         @if ($media->srcset) srcset="{{ $media->srcset }}" sizes="(max-width: 768px) 100vw, 600px" @endif
                                         data-zoom="{{ $media->path }}"
                                         alt="{{ $product->name }}"

@@ -9,9 +9,21 @@
             @yield('title') - {{ setting('store_name') }}
         </title>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+        @php
+            $authLoginBg = null;
+
+            try {
+                $authLoginBg = \Illuminate\Support\Facades\Vite::asset(
+                    'modules/User/Resources/assets/admin/images/login-page-bg.webp'
+                );
+            } catch (\Throwable $e) {
+                $authLoginBg = null;
+            }
+        @endphp
+
+        @if ($authLoginBg)
+            <link rel="preload" as="image" href="{{ $authLoginBg }}" type="image/webp" fetchpriority="high">
+        @endif
 
         @vite([
             'modules/User/Resources/assets/admin/sass/auth/main.scss',

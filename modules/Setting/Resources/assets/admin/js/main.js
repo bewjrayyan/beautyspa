@@ -30,14 +30,6 @@ const toggleGoogleRecaptchaV3Fields = () => {
 $("#google_recaptcha_type").on("change", toggleGoogleRecaptchaV3Fields);
 toggleGoogleRecaptchaV3Fields();
 
-$("#facebook_login_enabled").on("change", () => {
-    $("#facebook-login-fields").toggleClass("hide");
-});
-
-$("#google_login_enabled").on("change", () => {
-    $("#google-login-fields").toggleClass("hide");
-});
-
 $("#whatsapp_otp_login_enabled").on("change", () => {
     $("#whatsapp-otp-fields").toggleClass("hide");
 });
@@ -1146,3 +1138,55 @@ function initGoogleSheetsColumnsRoot(root) {
         setPanelVisible(toggle.checked);
     });
 })();
+
+$(document).on("click", "[data-copy-target]", function () {
+    const button = $(this);
+    const target = $(button.data("copy-target"));
+    const text = (target.text() || target.val() || "").trim();
+
+    if (!text) {
+        return;
+    }
+
+    const label = button.find("span").first();
+    const original = label.length ? label.text() : button.text();
+    const copied = button.data("copied-label") || "Copied";
+
+    const done = () => {
+        if (label.length) {
+            label.text(copied);
+        } else {
+            button.text(copied);
+        }
+
+        setTimeout(() => {
+            if (label.length) {
+                label.text(original);
+            } else {
+                button.html(button.data("original-html") || original);
+            }
+        }, 1600);
+    };
+
+    button.data("original-html", button.html());
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(() => {
+            window.prompt("Copy URL:", text);
+            done();
+        });
+    } else {
+        window.prompt("Copy URL:", text);
+        done();
+    }
+});
+
+$(document).on("toggle", "details.social-login-help", function () {
+    const hint = $(this).find(".social-login-help__summary-hint").first();
+    if (!hint.length) {
+        return;
+    }
+
+    hint.text(this.open ? hint.data("open-label") : hint.data("closed-label"));
+});
+

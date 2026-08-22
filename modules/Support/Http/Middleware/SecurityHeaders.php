@@ -132,16 +132,18 @@ class SecurityHeaders
             $directives[] = $allowSameOriginIframe
                 ? "frame-ancestors 'self'"
                 : "frame-ancestors 'none'";
+            // Admin still allows broad https: for CKEditor/CDN widgets.
             $directives[] = "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:";
-            $directives[] = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com";
-            $directives[] = "font-src 'self' data: https://fonts.gstatic.com";
+            $directives[] = "style-src 'self' 'unsafe-inline' https:";
+            $directives[] = "font-src 'self' data: https:";
             $directives[] = "img-src 'self' data: https: blob:";
             $directives[] = "connect-src 'self' https: wss:";
         } else {
             $directives[] = "frame-ancestors 'self'";
+            // Storefront: self-hosted fonts; allow https scripts for allowlisted analytics embeds.
             $directives[] = "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob:";
-            $directives[] = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com";
-            $directives[] = "font-src 'self' data: https://fonts.gstatic.com";
+            $directives[] = "style-src 'self' 'unsafe-inline'";
+            $directives[] = "font-src 'self' data:";
             $directives[] = "img-src 'self' data: https: blob:";
             $directives[] = "connect-src 'self' https: wss:";
             $directives[] = "frame-src https:";

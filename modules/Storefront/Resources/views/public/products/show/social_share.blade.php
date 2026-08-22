@@ -6,7 +6,7 @@
             <a
                 :href="`https://www.facebook.com/sharer.php?u=${productUrl}`"
                 title="{{ trans('storefront::product.facebook') }}"
-                target="_blank"
+                target="_blank" rel="noopener noreferrer"
             >
                 <i class="lab la-facebook"></i>
             </a>
@@ -16,7 +16,7 @@
             <a
                 :href="`https://twitter.com/share?url=${productUrl}&text={{ $product->name }}`"
                 title="{{ trans('storefront::product.twitter') }}"
-                target="_blank"
+                target="_blank" rel="noopener noreferrer"
             >
                 <svg
                     class="twitter-icon"
@@ -34,7 +34,7 @@
             <a
                 :href="`https://www.linkedin.com/shareArticle?mini=true&url=${productUrl}`"
                 title="{{ trans('storefront::product.linkedin') }}"
-                target="_blank"
+                target="_blank" rel="noopener noreferrer"
             >
                 <i class="lab la-linkedin"></i>
             </a>
@@ -44,7 +44,7 @@
             <a
                 :href="`https://www.tumblr.com/share?v=3&u=${productUrl}`"
                 title="{{ trans('storefront::product.tumblr') }}"
-                target="_blank"
+                target="_blank" rel="noopener noreferrer"
             >
                 <i class="lab la-tumblr"></i>
             </a>
@@ -55,8 +55,7 @@
                 <a
                     :href="whatsAppShareUrl"
                     title="{{ trans('storefront::product.whatsapp') }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_blank" rel="noopener noreferrer"
                 >
                     <i class="lab la-whatsapp"></i>
                 </a>

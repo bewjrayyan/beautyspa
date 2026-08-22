@@ -32,9 +32,7 @@
 
         @include('storefront::public.partials.performance_head')
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="{{ font_url(setting('storefront_display_font', 'Poppins')) }}" rel="stylesheet">
+        @vite([font_vite_entry(setting('storefront_display_font', 'Poppins'))])
 
         @include('storefront::public.partials.variables')
 
@@ -50,7 +48,7 @@
 
         @stack('styles')
 
-        {!! setting('custom_header_assets') !!}
+        {!! sanitize_custom_assets(setting('custom_header_assets')) !!}
 
         <script>
             window.AestheticCart = {
@@ -183,6 +181,6 @@
             Alpine.start();
         </script>
 
-        {!! setting('custom_footer_assets') !!}
+        {!! sanitize_custom_assets(setting('custom_footer_assets')) !!}
     </body>
 </html>

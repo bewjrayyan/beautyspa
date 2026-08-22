@@ -35,7 +35,7 @@ class HtmlSanitizer
             'mailto' => true,
         ]);
         $config->set('Attr.AllowedFrameTargets', ['_blank', '_self']);
-        $config->set('CSS.Trusted', true);
+        $config->set('CSS.Trusted', false);
         $config->set('HTML.DefinitionID', 'aestheticcart-html5-layout');
         $config->set('HTML.DefinitionRev', 1);
 

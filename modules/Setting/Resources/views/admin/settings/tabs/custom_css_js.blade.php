@@ -1,4 +1,8 @@
 @component('setting::admin.settings.partials.settings-wrap')
+    <div class="alert alert-info st-custom-assets-hint">
+        {{ trans('setting::settings.form.custom_assets_security_hint') }}
+    </div>
+
     @component('setting::admin.settings.partials.fields-grid', ['class' => 'st-fields-grid--sections'])
         @slot('left')
             <div class="box-content clearfix">

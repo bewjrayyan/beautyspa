@@ -1,6 +1,6 @@
 import Swiper from "swiper";
 import { Navigation } from "swiper/modules";
-import { chunk } from "lodash";
+import chunk from "lodash/chunk";
 import { whenVisible } from "../../../../support/whenVisible";
 import { runWhenIdle } from "../../../../support/scheduleInit";
 import "../../../../components/ProductCard";

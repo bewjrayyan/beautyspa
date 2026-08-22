@@ -138,11 +138,6 @@
                     >
                         @csrf
 
-                        @if ($whatsappOtpEnabled)
-                            @include('storefront::public.auth.partials.login_method_tabs')
-                        @endif
-
-                        <div @if ($whatsappOtpEnabled) x-show="mode === 'email'" x-cloak @endif>
                         <div class="auth-form-body-top">
                             <a href="{{ route('home') }}" class="auth-form-header-logo">
                                 @if (is_null($logo))
@@ -154,7 +149,12 @@
 
                             @include('storefront::public.auth.partials.language_picker')
                         </div>
-    
+
+                        @if ($whatsappOtpEnabled)
+                            @include('storefront::public.auth.partials.login_method_tabs')
+                        @endif
+
+                        <div @if ($whatsappOtpEnabled) x-show="mode === 'email'" x-cloak @endif>
                         <div>
                             <div class="form-group">
                                 <label 
@@ -298,9 +298,9 @@
                             {{ trans('user::auth.sign_in') }}
                         </button>
                         </div>
-                    </form>
 
-                    @include('storefront::public.auth.partials.social_login')
+                        @include('storefront::public.auth.partials.social_login')
+                    </form>
                 </div>
             </div>
         </div>

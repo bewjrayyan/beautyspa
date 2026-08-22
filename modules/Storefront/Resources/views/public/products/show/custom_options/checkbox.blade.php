@@ -2,10 +2,7 @@
     <div class="row">
         <div class="col-lg-18">
             <label>
-                {!!
-                    $option->name .
-                    ($option->is_required ? '<span>*</span>' : '')
-                !!}
+                {{ $option->name }}@if ($option->is_required)<span>*</span>@endif
             </label>
         </div>
 

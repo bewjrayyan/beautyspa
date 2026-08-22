@@ -962,3 +962,14 @@ if (!function_exists('clean_html')) {
         return HtmlSanitizer::clean($html);
     }
 }
+
+
+if (! function_exists('sanitize_custom_assets')) {
+    /**
+     * Sanitize admin custom header/footer HTML/JS snippets for storefront output.
+     */
+    function sanitize_custom_assets(?string $html): string
+    {
+        return \Modules\Support\Services\CustomAssetsSanitizer::clean($html);
+    }
+}
