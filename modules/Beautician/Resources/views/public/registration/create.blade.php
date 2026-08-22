@@ -3,8 +3,17 @@
 @section('title', trans('beautician::beauticians.self_registration.title'))
 
 @push('globals')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="prefetch" href="{{ route('admin.login') }}" as="document">
     <style>
+        .beautician-icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.125em;
+            fill: currentColor;
+        }
+        .beautician-icon--lg { width: 1.25em; height: 1.25em; }
+
         :root {
             --beautician-ink: #241b2e;
             --beautician-muted: #786f7e;
@@ -720,7 +729,7 @@
                 <div class="beautician-registration__form-wrap">
                     <div class="beautician-registration__topbar">
                         @include('storefront::public.auth.partials.language_picker')
-                        <a class="beautician-registration__login" href="{{ route('admin.login') }}">
+                        <a class="beautician-registration__login" href="{{ route('admin.login') }}" rel="nofollow">
                             {{ trans('beautician::beauticians.self_registration.sign_in_short') }} →
                         </a>
                     </div>
@@ -763,14 +772,16 @@
                             <div class="beautician-registration__avatar-upload" data-beautician-avatar-upload>
                                 <div class="beautician-registration__avatar-preview" data-avatar-preview aria-hidden="true">
                                     <img src="" alt="" data-avatar-image>
-                                    <span data-avatar-fallback><i class="fa fa-user" aria-hidden="true"></i></span>
+                                    <span data-avatar-fallback>
+                                        <svg class="beautician-icon beautician-icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"/></svg>
+                                    </span>
                                 </div>
                                 <div class="beautician-registration__avatar-copy">
                                     <strong>{{ trans('beautician::beauticians.self_registration.profile_image') }}</strong>
                                     <p>{{ trans('beautician::beauticians.self_registration.profile_image_hint') }}</p>
                                     <div class="beautician-registration__avatar-actions">
                                         <label class="beautician-registration__avatar-btn" for="beautician-profile-image">
-                                            <i class="fa fa-camera" aria-hidden="true"></i>
+                                            <svg class="beautician-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 7.17 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.17L15 3H9Zm3 15a5 5 0 1 1 5-5 5 5 0 0 1-5 5Z"/></svg>
                                             <span data-avatar-label>{{ trans('beautician::beauticians.self_registration.profile_image_choose') }}</span>
                                         </label>
                                         <button type="button" class="beautician-registration__avatar-clear" data-avatar-clear>
@@ -885,7 +896,10 @@
                                     <label class="input-label" for="beautician-password">{{ trans('user::auth.password') }} <span>*</span></label>
                                     <div class="beautician-password-input">
                                         <input class="form-control" id="beautician-password" type="password" name="password" autocomplete="new-password" required>
-                                        <i class="fa fa-eye beautician-password-toggle" style="cursor: pointer; color: #6f2948; right: 12px;" aria-hidden="true"></i>
+                                        <button type="button" class="beautician-password-toggle" aria-label="{{ trans('user::auth.password') }}" data-visible="0">
+                                            <svg class="beautician-icon" data-icon-show viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 5-5 5 5 0 0 1-5 5Zm0-8a3 3 0 1 0 3 3 3 3 0 0 0-3-3Z"/></svg>
+                                            <svg class="beautician-icon" data-icon-hide hidden viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4.27 3.28 3 21 20.72 19.73 22l-2.2-2.2A11.7 11.7 0 0 1 12 19c-7 0-10-7-10-7a18.5 18.5 0 0 1 5.06-5.58L2 4.27Zm6.5 6.5 1.56 1.56A2.9 2.9 0 0 0 12 15a3 3 0 0 0 2.67-4.24l1.56 1.56A5 5 0 0 1 8.5 10.77ZM12 5c1.3 0 2.5.25 3.6.68l-1.55 1.55A5 5 0 0 0 8.23 13L6.5 11.27A18.2 18.2 0 0 1 12 5c7 0 10 7 10 7a17.6 17.6 0 0 1-3.17 4.2l-1.45-1.45A11.4 11.4 0 0 0 20.66 12S17.8 7 12 7a8.7 8.7 0 0 0-2.2.28L8.2 5.68A11.5 11.5 0 0 1 12 5Z"/></svg>
+                                        </button>
                                     </div>
                                     {!! $errors->first('password', '<span class="help-block text-red">:message</span>') !!}
                                 </div>
@@ -894,7 +908,10 @@
                                     <label class="input-label" for="beautician-password-confirmation">{{ trans('user::auth.confirm_password') }} <span>*</span></label>
                                     <div class="beautician-password-input">
                                         <input class="form-control" id="beautician-password-confirmation" type="password" name="password_confirmation" autocomplete="new-password" required>
-                                        <i class="fa fa-eye beautician-password-toggle" style="cursor: pointer; color: #6f2948; right: 12px;" aria-hidden="true"></i>
+                                        <button type="button" class="beautician-password-toggle" aria-label="{{ trans('user::auth.confirm_password') }}" data-visible="0">
+                                            <svg class="beautician-icon" data-icon-show viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 5-5 5 5 0 0 1-5 5Zm0-8a3 3 0 1 0 3 3 3 3 0 0 0-3-3Z"/></svg>
+                                            <svg class="beautician-icon" data-icon-hide hidden viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4.27 3.28 3 21 20.72 19.73 22l-2.2-2.2A11.7 11.7 0 0 1 12 19c-7 0-10-7-10-7a18.5 18.5 0 0 1 5.06-5.58L2 4.27Zm6.5 6.5 1.56 1.56A2.9 2.9 0 0 0 12 15a3 3 0 0 0 2.67-4.24l1.56 1.56A5 5 0 0 1 8.5 10.77ZM12 5c1.3 0 2.5.25 3.6.68l-1.55 1.55A5 5 0 0 0 8.23 13L6.5 11.27A18.2 18.2 0 0 1 12 5c7 0 10 7 10 7a17.6 17.6 0 0 1-3.17 4.2l-1.45-1.45A11.4 11.4 0 0 0 20.66 12S17.8 7 12 7a8.7 8.7 0 0 0-2.2.28L8.2 5.68A11.5 11.5 0 0 1 12 5Z"/></svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -934,41 +951,45 @@
             display: flex;
             align-items: center;
         }
-        
+
         .beautician-password-input .form-control {
             padding-right: 40px !important;
         }
-        
+
         .beautician-password-toggle {
             position: absolute;
-            right: 12px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
-            pointer-events: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: #6f2948;
+            cursor: pointer;
         }
     </style>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for all form groups to be fully loaded
-            setTimeout(() => {
-                const toggleButtons = document.querySelectorAll('.beautician-password-toggle');
-                
-                toggleButtons.forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        // Find the password input within the same container using closest()
-                        const input = this.closest('.beautician-password-input').querySelector('input');
-                        if (!input) return;
-                        
-                        // Toggle password visibility
-                        const isPassword = input.type === 'password';
-                        input.type = isPassword ? 'text' : 'password';
-                        
-                        // Update icon states
-                        this.classList.toggle('fa-eye');
-                        this.classList.toggle('fa-eye-slash');
-                    });
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.beautician-password-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const input = this.closest('.beautician-password-input')?.querySelector('input');
+                    if (!input) return;
+
+                    const show = input.type === 'password';
+                    input.type = show ? 'text' : 'password';
+                    this.dataset.visible = show ? '1' : '0';
+
+                    const iconShow = this.querySelector('[data-icon-show]');
+                    const iconHide = this.querySelector('[data-icon-hide]');
+                    if (iconShow) iconShow.hidden = show;
+                    if (iconHide) iconHide.hidden = !show;
                 });
-            }, 200); // Small delay to ensure elements are rendered
+            });
         });
     </script>
 

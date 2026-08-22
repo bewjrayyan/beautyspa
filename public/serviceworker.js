@@ -1,6 +1,7 @@
 const staticCacheName = "pwa-v" + new Date().getTime();
 const basePath = new URL(self.location.href).pathname.replace(/serviceworker\.js$/, "");
-const offlineUrl = basePath + "offline.html";
+// Named Laravel route is /offline (not offline.html) under the install base path.
+const offlineUrl = basePath + "offline";
 
 const manifestKeys = {
     css: "modules/Storefront/Resources/assets/public/sass/app.scss",
@@ -110,6 +111,13 @@ self.addEventListener("fetch", (event) => {
     }
 
     if (event.request.mode === "navigate") {
+        // Never intercept admin panel navigations. Storefront SW network-first
+        // adds latency and can surface offline/404-like failures when the
+        // fetch races (common when leaving beautician registration → /admin/login).
+        if (requestUrl.pathname.startsWith(basePath + "admin/")) {
+            return;
+        }
+
         event.respondWith(networkFirstWithOfflineFallback(event.request));
 
         return;
@@ -167,4 +175,4 @@ async function offlineResponse() {
     );
 }
 
-const pwaVersion = 1787184001;
+const pwaVersion = 1787365263;

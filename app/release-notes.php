@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.10' => [
+        'date' => '2026-08-22 10:23',
+        'en' => [
+            'summary' => 'Faster, more reliable Sign in from beautician registration to admin login.',
+            'changes' => [
+                'Stop the storefront PWA service worker from intercepting /admin/* navigations so Sign in opens admin login without SW delays or intermittent 404/offline fallbacks.',
+                'Harden legacy /{locale}/admin redirects to keep the install subdirectory (e.g. /fleetcart) so localized admin URLs never land on a domain-root 404.',
+                'Remove the blocked Font Awesome CDN from beautician registration (inline SVG icons instead) and prefetch the admin login document for snappier navigation.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Sign in dari pendaftaran beautician ke admin login lebih pantas dan lebih dipercayai.',
+            'changes' => [
+                'Hentikan service worker PWA storefront daripada memintas navigasi /admin/* supaya Sign in membuka admin login tanpa kelewatan SW atau fallback 404/offline sekali-sekala.',
+                'Perkukuh redirect legacy /{locale}/admin supaya subdirectory install (cth. /fleetcart) kekal, agar URL admin berlocale tidak jatuh ke 404 di root domain.',
+                'Buang CDN Font Awesome yang dihalang CSP daripada pendaftaran beautician (ganti ikon SVG sebaris) dan prefetch dokumen admin login untuk navigasi lebih pantas.',
+            ],
+        ],
+    ],
     '4.11.9' => [
         'date' => '2026-08-22 10:02',
         'en' => [

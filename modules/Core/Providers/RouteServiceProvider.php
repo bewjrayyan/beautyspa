@@ -175,11 +175,21 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::middleware('web')->group(function () use ($locales) {
             Route::get('{locale}/admin', function () {
-                return redirect()->route('admin.login', status: 301);
+                return redirect()->to(route('admin.login'), 301);
             })->where(['locale' => $locales]);
 
             Route::get('{locale}/admin/{path}', function (string $locale, string $path) {
-                return redirect('/admin/' . $path, 301);
+                // Always go through UrlGenerator + install-base helper so subdirectory
+                // installs (e.g. /fleetcart) never redirect to /admin/... at domain root (404).
+                $target = url('/admin/' . ltrim($path, '/'));
+
+                if (function_exists('aestheticcart_apply_install_base_url')) {
+                    $target = aestheticcart_normalize_install_url(
+                        aestheticcart_apply_install_base_url($target)
+                    );
+                }
+
+                return redirect()->to($target, 301);
             })->where([
                 'locale' => $locales,
                 'path' => '.*',
