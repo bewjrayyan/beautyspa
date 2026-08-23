@@ -45,6 +45,44 @@ class BeauticianBookingNotificationService
     }
 
 
+    public function notifyRescheduledBooking(TreatmentBooking $booking, ?string $oldDate, ?string $oldTime): bool
+    {
+        if ($booking->status === TreatmentBooking::STATUS_CANCELED) {
+            return false;
+        }
+
+        $booking->loadMissing(['beautician', 'product']);
+        $phone = trim((string) $booking->beautician?->phone);
+
+        if ($phone === '') {
+            return false;
+        }
+
+        try {
+            return app(OneSenderWhatsAppService::class)->sendNotification(
+                $phone,
+                $this->buildRescheduleMessage($booking, $oldDate, $oldTime),
+                [
+                    'source' => 'treatment.beautician.rescheduled',
+                    'dedupe_key' => sprintf(
+                        'booking:%s:rescheduled:beautician:%s:%s',
+                        $booking->id,
+                        $booking->appointment_date?->format('Ymd') ?: 'date',
+                        str_replace(':', '', (string) $booking->appointment_time),
+                    ),
+                ],
+            );
+        } catch (\Throwable $exception) {
+            Log::error('Beautician reschedule WhatsApp failed', [
+                'booking_id' => $booking->id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+
     private function buildMessage(TreatmentBooking $booking): string
     {
         $store = setting('store_name');
@@ -71,5 +109,26 @@ class BeauticianBookingNotificationService
             '',
             "Buka job sheet: {$portalUrl}",
         ]));
+    }
+
+
+    private function buildRescheduleMessage(TreatmentBooking $booking, ?string $oldDate, ?string $oldTime): string
+    {
+        $portalUrl = route('admin.treatment_reservations.portal.calendar_page', [
+            'focus' => 1,
+            'booking_id' => $booking->id,
+            'month' => $booking->appointment_date?->format('Y-m'),
+        ]);
+
+        return trans('treatmentreservation::admin.reschedule.beautician_message', [
+            'store' => setting('store_name'),
+            'customer' => $booking->customer_full_name ?: '—',
+            'treatment' => $booking->product?->name ?: '—',
+            'old_date' => $oldDate ? \Illuminate\Support\Carbon::parse($oldDate)->format('d M Y') : '—',
+            'old_time' => $oldTime ?: '—',
+            'date' => $booking->appointment_date?->format('d M Y') ?: '—',
+            'time' => $booking->displayAppointmentTime() ?: '—',
+            'portal_url' => $portalUrl,
+        ]);
     }
 }

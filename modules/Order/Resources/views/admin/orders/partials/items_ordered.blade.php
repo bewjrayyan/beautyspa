@@ -19,6 +19,17 @@
                 </thead>
                 <tbody>
                     @foreach ($order->products as $product)
+                        @php
+                            $discountPricing = $orderProductDiscounts[$product->getKey()] ?? null;
+                            $originalLineAmount = $discountPricing
+                                ? $discountPricing['original_line_total']->amount()
+                                : 0;
+                            $savingsPercent = $discountPricing && $originalLineAmount > 0
+                                ? min(100, max(1, (int) round(
+                                    ($discountPricing['savings']->amount() / $originalLineAmount) * 100
+                                )))
+                                : null;
+                        @endphp
                         <tr>
                             <td class="order-show__product-cell">
                                 @if ($product->trashed())
@@ -64,9 +75,42 @@
                                     </div>
                                 @endif
                             </td>
-                            <td class="text-right">{{ $product->unit_price->format() }}</td>
+                            <td class="text-right">
+                                @if ($discountPricing)
+                                    <div class="order-show__price-stack">
+                                        <del
+                                            class="order-show__price-original"
+                                            aria-label="{{ trans('order::orders.price_before_discount') }}"
+                                        >{{ $discountPricing['original_unit_price']->format() }}</del>
+                                        <strong
+                                            class="order-show__price-paid"
+                                            aria-label="{{ trans('order::orders.price_after_discount') }}"
+                                        >{{ $discountPricing['discounted_unit_price']->format() }}</strong>
+                                        <span class="order-show__save-badge">
+                                            {{ trans('order::orders.save_percent', ['percent' => $savingsPercent]) }}
+                                        </span>
+                                    </div>
+                                @else
+                                    <span class="order-show__price-paid">{{ $product->unit_price->format() }}</span>
+                                @endif
+                            </td>
                             <td class="text-center"><span class="order-show__qty">{{ $product->qty }}</span></td>
-                            <td class="text-right"><strong>{{ $product->line_total->format() }}</strong></td>
+                            <td class="text-right">
+                                @if ($discountPricing)
+                                    <div class="order-show__price-stack order-show__price-stack--line-total">
+                                        <del
+                                            class="order-show__price-original"
+                                            aria-label="{{ trans('order::orders.line_total_before_discount') }}"
+                                        >{{ $discountPricing['original_line_total']->format() }}</del>
+                                        <strong
+                                            class="order-show__price-paid"
+                                            aria-label="{{ trans('order::orders.line_total_after_discount') }}"
+                                        >{{ $discountPricing['discounted_line_total']->format() }}</strong>
+                                    </div>
+                                @else
+                                    <strong>{{ $product->line_total->format() }}</strong>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

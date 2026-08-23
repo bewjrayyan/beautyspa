@@ -2,6 +2,17 @@
     $style = $style ?? 'invoice';
     $alwaysShow = $alwaysShow ?? ($style === 'admin');
     $pricingLines = app(\Modules\Order\Services\OrderPricingBreakdown::class)->lines($order, $alwaysShow);
+
+    if ($style === 'admin' && isset($loyaltyPointsEarnedOverride)) {
+        $pricingLines = collect($pricingLines)->map(function (array $line) use ($loyaltyPointsEarnedOverride) {
+            if (! empty($line['meta']) && $line['label'] === trans('loyalty::orders.points_earned')) {
+                $line['value'] = number_format((int) $loyaltyPointsEarnedOverride)
+                    . ' ' . trans('order::orders.loyalty_pts');
+            }
+
+            return $line;
+        })->all();
+    }
 @endphp
 
 @foreach ($pricingLines as $line)

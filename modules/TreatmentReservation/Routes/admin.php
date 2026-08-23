@@ -152,6 +152,18 @@ Route::patch('treatment-reservations/{id}/schedule', [
     'middleware' => 'can:admin.treatment_reservations.edit',
 ]);
 
+Route::patch('treatment-reservations/{id}/reschedule', [
+    'as' => 'admin.treatment_reservations.reschedule',
+    'uses' => 'ReservationController@reschedule',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
+Route::get('treatment-reservations/{id}/reschedule-dates', [
+    'as' => 'admin.treatment_reservations.reschedule_dates',
+    'uses' => 'ReservationController@rescheduleDates',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
 Route::patch('treatment-reservations/{id}/status', [
     'as' => 'admin.treatment_reservations.update_status',
     'uses' => 'ReservationController@updateStatus',
@@ -233,6 +245,21 @@ Route::middleware(['beautician.portal'])->group(function () {
     Route::patch('my/job-sheet/{id}/schedule', [
         'as' => 'admin.treatment_reservations.portal.tba.schedule',
         'uses' => 'PortalController@scheduleTba',
+    ]);
+
+    Route::patch('my/job-sheet/{id}/reschedule', [
+        'as' => 'admin.treatment_reservations.portal.reschedule',
+        'uses' => 'PortalController@reschedule',
+    ]);
+
+    Route::get('my/job-sheet/{id}/reschedule-slots', [
+        'as' => 'admin.treatment_reservations.portal.reschedule_slots',
+        'uses' => 'PortalController@rescheduleSlots',
+    ]);
+
+    Route::get('my/job-sheet/{id}/reschedule-dates', [
+        'as' => 'admin.treatment_reservations.portal.reschedule_dates',
+        'uses' => 'PortalController@rescheduleDates',
     ]);
 
     Route::post('my/job-sheet/{id}/reminder', [

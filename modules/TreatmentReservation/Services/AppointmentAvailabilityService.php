@@ -291,6 +291,8 @@ class AppointmentAvailabilityService
         string $from,
         string $to,
         ?int $beauticianId = null,
+        ?int $excludeBookingId = null,
+        ?int $excludeOrderId = null,
     ): array {
         $start = Carbon::parse($from)->startOfDay()->max(today()->startOfDay());
         $end = Carbon::parse($to)->startOfDay();
@@ -299,7 +301,14 @@ class AppointmentAvailabilityService
         for ($cursor = $start->copy(); $cursor->lte($end); $cursor->addDay()) {
             $date = $cursor->toDateString();
 
-            if ($this->availableSlots($productId, $spaBranchId, $date, $beauticianId) !== []) {
+            if ($this->availableSlots(
+                $productId,
+                $spaBranchId,
+                $date,
+                $beauticianId,
+                $excludeBookingId,
+                $excludeOrderId,
+            ) !== []) {
                 $dates[] = $date;
             }
         }
@@ -319,6 +328,8 @@ class AppointmentAvailabilityService
         string $from,
         string $to,
         ?int $beauticianId = null,
+        ?int $excludeBookingId = null,
+        ?int $excludeOrderId = null,
     ): array {
         $start = Carbon::parse($from)->startOfDay()->max(today()->startOfDay());
         $end = Carbon::parse($to)->startOfDay();
@@ -334,7 +345,14 @@ class AppointmentAvailabilityService
                 continue;
             }
 
-            $slotOptions = $this->slotOptions($productId, $spaBranchId, $date, $beauticianId);
+            $slotOptions = $this->slotOptions(
+                $productId,
+                $spaBranchId,
+                $date,
+                $beauticianId,
+                $excludeBookingId,
+                $excludeOrderId,
+            );
 
             if ($slotOptions === []) {
                 $options[] = ['date' => $date, 'status' => 'unavailable'];

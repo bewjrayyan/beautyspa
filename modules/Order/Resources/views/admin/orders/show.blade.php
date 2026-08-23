@@ -28,6 +28,10 @@
                 <main class="order-show__main">
                     @include('order::admin.orders.partials.items_ordered')
 
+                    @if (app('modules')->isEnabled('Loyalty') && ! empty($orderRewardData))
+                        @include('loyalty::admin.orders.partials.order_rewards_breakdown')
+                    @endif
+
                     @include('order::admin.orders.partials.order_and_account_information')
 
                     @include('order::admin.orders.partials.address_information')

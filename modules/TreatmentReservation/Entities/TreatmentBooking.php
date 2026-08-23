@@ -227,6 +227,16 @@ class TreatmentBooking extends Model
     }
 
 
+    public function canRescheduleAppointment(): bool
+    {
+        return ! $this->isTbaSchedule()
+            && filled($this->appointment_date)
+            && filled($this->appointment_time)
+            && filled($this->beautician_id)
+            && $this->status === self::STATUS_PENDING;
+    }
+
+
     public static function statusFromOrder(string $orderStatus, ?string $paymentStatus = null): string
     {
         if (in_array($orderStatus, [Order::CANCELED, Order::REFUNDED], true)
@@ -438,6 +448,7 @@ class TreatmentBooking extends Model
                 'beautician.spaBranches',
                 'category',
                 'paymentReceipt',
+                'product.files',
                 'product.attributes.attribute',
                 'product.attributes.values.attributeValue',
             ])
@@ -456,7 +467,7 @@ class TreatmentBooking extends Model
         return $query
             ->withActiveOrder()
             ->withTreatmentProduct()
-            ->with(['beautician.files', 'beautician.user', 'beautician.spaBranches', 'category', 'paymentReceipt', 'product', 'order.products.product'])
+            ->with(['beautician.files', 'beautician.user', 'beautician.spaBranches', 'category', 'paymentReceipt', 'product.files', 'order.products.product'])
             ->whereIn('status', self::kanbanStatuses())
             ->when($beauticianId, fn (Builder $q) => $q->where('beautician_id', $beauticianId))
             ->when($categoryId, fn (Builder $q) => $q->where('treatment_category_id', $categoryId))
@@ -511,6 +522,7 @@ class TreatmentBooking extends Model
             'can_cancel_manual' => false,
             'can_schedule_tba' => false,
             'can_reschedule_manual' => false,
+            'can_reschedule' => false,
             'next_status' => null,
         ]);
     }
@@ -570,6 +582,7 @@ class TreatmentBooking extends Model
     {
         $treatmentLine = $this->treatmentLineMeta();
         $slotDurationMinutes = $this->resolveSlotDurationMinutes();
+        $productImage = $this->product?->base_image;
 
         return [
             'id' => $this->id,
@@ -581,6 +594,7 @@ class TreatmentBooking extends Model
                 && OneSenderWhatsAppService::isConfigured(),
             'treatment_name' => $treatmentLine['product_name'],
             'product_name' => $treatmentLine['product_name'],
+            'product_image' => $productImage?->id ? $productImage->path : null,
             'treatment_selection' => $treatmentLine['treatment_selection'],
             'treatment_subtitle' => $this->agendaSubtitleLine($treatmentLine, $slotDurationMinutes),
             'slot_duration_minutes' => $slotDurationMinutes,
@@ -604,6 +618,8 @@ class TreatmentBooking extends Model
             'category_color' => $this->category?->color ?? '#6366f1',
             'status_accent' => self::statusAccentColor($this->status),
             'total_formatted' => Money::inDefaultCurrency($this->total ?? 0)->format(),
+            'order_total_formatted' => $this->order?->total?->format(),
+            'payment_method_label' => $this->order?->payment_method,
             'payment_status_label' => $this->paymentStatusLabel(),
             'notes' => $this->notes,
             'beautician_notes' => $this->beautician_notes,
@@ -621,6 +637,7 @@ class TreatmentBooking extends Model
             'schedule_status' => $this->schedule_status,
             'is_tba' => $this->isTbaSchedule(),
             'can_schedule_tba' => $this->canScheduleTba(),
+            'can_reschedule' => $this->canRescheduleAppointment(),
             'customer_first_name' => $this->customer_first_name,
             'customer_last_name' => $this->customer_last_name,
             'product_id' => $this->product_id,
@@ -957,18 +974,30 @@ class TreatmentBooking extends Model
             return null;
         }
 
-        $this->loadMissing(['order.products.product']);
+        if ($this->order_product_id) {
+            $this->loadMissing('orderProduct');
 
-        foreach ($this->order?->products ?? [] as $line) {
-            if ($this->product_id && (int) $line->product_id === (int) $this->product_id) {
-                return $line;
-            }
-
-            if ($line->product?->is_virtual) {
-                return $line;
+            if ($this->orderProduct) {
+                return $this->orderProduct;
             }
         }
 
-        return null;
+        $this->loadMissing(['order.products.product']);
+
+        $orderProducts = $this->order?->products ?? collect();
+
+        if ($this->product_id) {
+            $matchingProduct = $orderProducts->first(
+                fn (OrderProduct $line) => (int) $line->product_id === (int) $this->product_id
+            );
+
+            if ($matchingProduct) {
+                return $matchingProduct;
+            }
+        }
+
+        return $orderProducts->first(
+            fn (OrderProduct $line) => (bool) $line->product?->is_virtual
+        );
     }
 }

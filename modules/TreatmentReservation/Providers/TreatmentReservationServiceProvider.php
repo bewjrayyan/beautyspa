@@ -103,7 +103,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
             }
 
             $bookings = TreatmentBooking::query()
-                ->with(['activities.user', 'product', 'beautician'])
+                ->with(['activities.user', 'product', 'beautician', 'orderProduct'])
                 ->where('order_id', $order->id)
                 ->orderBy('id')
                 ->get();

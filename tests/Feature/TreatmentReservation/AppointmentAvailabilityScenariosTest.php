@@ -6,17 +6,24 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Product\Entities\Product;
+use Modules\Setting\Entities\Setting;
 use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\TreatmentReservation\Entities\AppointmentDateOverride;
 use Modules\TreatmentReservation\Entities\BeauticianBlockedTime;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Controllers\Admin\AppointmentAvailabilityController;
+use Modules\TreatmentReservation\Http\Controllers\Admin\PortalController;
 use Modules\TreatmentReservation\Http\Controllers\AvailabilitySlotsController;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityAdminService;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityService;
+use Modules\TreatmentReservation\Services\BookingSelfService;
+use Modules\TreatmentReservation\Services\RescheduleTreatmentBookingService;
+use Modules\User\Entities\User;
+use Modules\User\Entities\OneSenderOutboundMessage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -377,6 +384,150 @@ class AppointmentAvailabilityScenariosTest extends TestCase
         $this->assertDatabaseHas('appointment_availability_locks', [
             'lock_key' => "treatment:{$this->productId}:{$this->hq->id}:{$friday}",
         ]);
+    }
+
+    #[Test]
+    public function pending_checkout_booking_can_be_rescheduled_with_the_same_beautician(): void
+    {
+        $friday = Carbon::parse('next friday')->toDateString();
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        Beautician::query()->findOrFail($beauticianId)->spaBranches()->syncWithoutDetaching([$this->hq->id]);
+
+        $booking = $this->makeBooking(
+            $this->productId,
+            (int) $this->hq->id,
+            $friday,
+            '12:00',
+            $beauticianId,
+        );
+        $booking->update(['source' => TreatmentBooking::SOURCE_CHECKOUT]);
+
+        $result = app(RescheduleTreatmentBookingService::class)->reschedule(
+            $booking,
+            ['appointment_date' => $friday, 'appointment_time' => '18:00'],
+            User::query()->firstOrFail(),
+            false,
+            false,
+        );
+
+        $this->assertSame($friday, $result['booking']->appointment_date?->toDateString());
+        $this->assertSame('18:00', substr((string) $result['booking']->getRawOriginal('appointment_time'), 0, 5));
+        $this->assertSame($beauticianId, (int) $result['booking']->beautician_id);
+        $this->assertFalse($result['customer_notified']);
+        $this->assertFalse($result['beautician_notified']);
+    }
+
+    #[Test]
+    public function reschedule_queues_whatsapp_notifications_without_waiting_for_outbound_http(): void
+    {
+        Http::fake();
+        config()->set('setting.whatsapp_notifications.onesender_allow_in_local', true);
+        Setting::setMany([
+            'onesender_enabled' => true,
+            'onesender_api_url' => 'https://onesender.example.test/messages',
+            'onesender_api_key' => 'test-key',
+            'onesender_outbound_queue_enabled' => true,
+            'onesender_outbound_delay_seconds' => 30,
+        ]);
+
+        $friday = Carbon::parse('next friday')->toDateString();
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        $beautician = Beautician::query()->findOrFail($beauticianId);
+        $beautician->update(['phone' => '60111111111']);
+        $beautician->spaBranches()->syncWithoutDetaching([$this->hq->id]);
+
+        $booking = $this->makeBooking(
+            $this->productId,
+            (int) $this->hq->id,
+            $friday,
+            '12:00',
+            $beauticianId,
+        );
+        $booking->update([
+            'source' => TreatmentBooking::SOURCE_CHECKOUT,
+            'customer_phone' => '60122222222',
+        ]);
+
+        $result = app(RescheduleTreatmentBookingService::class)->reschedule(
+            $booking,
+            ['appointment_date' => $friday, 'appointment_time' => '18:00'],
+            User::query()->firstOrFail(),
+            true,
+            true,
+        );
+
+        $this->assertTrue($result['customer_notified']);
+        $this->assertTrue($result['beautician_notified']);
+        $this->assertSame(2, OneSenderOutboundMessage::query()
+            ->whereIn('source', [
+                'treatment.booking.rescheduled.customer',
+                'treatment.beautician.rescheduled',
+            ])
+            ->where('dedupe_key', 'like', 'booking:' . $booking->id . ':rescheduled:%')
+            ->where('status', OneSenderOutboundMessage::STATUS_PENDING)
+            ->count());
+        Http::assertNothingSent();
+    }
+
+    #[Test]
+    public function completed_booking_cannot_be_rescheduled(): void
+    {
+        $friday = Carbon::parse('next friday')->toDateString();
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        Beautician::query()->findOrFail($beauticianId)->spaBranches()->syncWithoutDetaching([$this->hq->id]);
+        $booking = $this->makeBooking($this->productId, (int) $this->hq->id, $friday, '12:00', $beauticianId);
+        $booking->update(['status' => TreatmentBooking::STATUS_COMPLETED]);
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        app(RescheduleTreatmentBookingService::class)->reschedule(
+            $booking,
+            ['appointment_date' => $friday, 'appointment_time' => '18:00'],
+            User::query()->firstOrFail(),
+            false,
+            false,
+        );
+    }
+
+    #[Test]
+    public function beautician_reschedule_slots_are_scoped_to_their_existing_booking(): void
+    {
+        $friday = Carbon::parse('next friday')->toDateString();
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        $beautician = Beautician::query()->findOrFail($beauticianId);
+        $beautician->spaBranches()->syncWithoutDetaching([$this->hq->id]);
+        $booking = $this->makeBooking($this->productId, (int) $this->hq->id, $friday, '12:00', $beauticianId);
+        $request = Request::create('/admin/my/job-sheet/reschedule-slots', 'GET', ['date' => $friday]);
+        $request->attributes->set('portal_beautician', $beautician);
+
+        $response = app(PortalController::class)->rescheduleSlots($request, $booking->id, $this->engine);
+
+        $this->assertSame(200, $response->status());
+        $this->assertContains('18:00', $response->getData(true)['slots']);
+    }
+
+    #[Test]
+    public function beautician_reschedule_calendar_returns_only_dates_with_available_slots(): void
+    {
+        $friday = Carbon::parse('next friday')->toDateString();
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        $beautician = Beautician::query()->findOrFail($beauticianId);
+        $beautician->spaBranches()->syncWithoutDetaching([$this->hq->id]);
+        $booking = $this->makeBooking($this->productId, (int) $this->hq->id, $friday, '12:00', $beauticianId);
+        $request = Request::create('/admin/my/job-sheet/reschedule-dates', 'GET', [
+            'from' => $friday,
+            'to' => $friday,
+        ]);
+        $request->attributes->set('portal_beautician', $beautician);
+
+        $response = app(PortalController::class)->rescheduleDates(
+            $request,
+            $booking->id,
+            app(BookingSelfService::class),
+        );
+
+        $this->assertSame(200, $response->status());
+        $this->assertSame([$friday], $response->getData(true)['dates']);
     }
 
     #[Test]

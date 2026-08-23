@@ -3,6 +3,7 @@
         || $order->beautician
         || $order->spaBranch
         || ! empty($treatmentBooking?->beautician_notes);
+    $displayEarnedPoints = (int) ($orderRewardData['points_earned'] ?? $order->loyalty_points_earned);
 @endphp
 
 <section id="order-overview" class="order-show__section">
@@ -47,8 +48,8 @@
                     <div class="order-show__dl-row">
                         <dt>{{ trans('loyalty::orders.points_earned') }}</dt>
                         <dd>
-                            @if ($order->loyalty_points_earned > 0)
-                                {{ number_format($order->loyalty_points_earned) }} {{ trans('order::orders.loyalty_pts') }}
+                            @if ($displayEarnedPoints > 0)
+                                {{ number_format($displayEarnedPoints) }} {{ trans('order::orders.loyalty_pts') }}
                             @else
                                 —
                             @endif

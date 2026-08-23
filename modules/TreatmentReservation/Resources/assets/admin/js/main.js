@@ -54,6 +54,8 @@ class TreatmentReservationsApp {
         this.month = root.dataset.initialMonth || new Date().toISOString().slice(0, 7);
         this.beauticianId = root.dataset.initialBeautician || "";
         this.portalBeauticianId = root.dataset.portalBeauticianId || "";
+        this.calendarFocusBookingId = root.dataset.calendarFocusBookingId || "";
+        this.calendarFocusHandled = false;
         this.categoryId = root.dataset.initialCategory || "";
         this.calendarInitialized = false;
         this.kanbanInitialized = false;
@@ -819,6 +821,18 @@ class TreatmentReservationsApp {
             if (this.currentCalView === "day") {
                 this.renderDayView();
             }
+
+            if (this.calendarFocusBookingId && !this.calendarFocusHandled) {
+                const focused = this.grid?.querySelector(
+                    `.tr-cal-event[data-booking-id="${CSS.escape(String(this.calendarFocusBookingId))}"]`
+                );
+
+                if (focused) {
+                    this.calendarFocusHandled = true;
+                    focused.classList.add("tr-cal-event--focused");
+                    window.setTimeout(() => focused.click(), 0);
+                }
+            }
         } finally {
             this.gridViewport?.classList.remove("tr-calendar-grid-viewport--loading");
             this.grid?.classList.remove("tr-calendar-grid--loading");
@@ -1404,6 +1418,7 @@ function buildCalendarPreviewOptions(root) {
             notesUrlTemplate: root.dataset.notesUrl || "",
             whatsappUrlTemplate: root.dataset.whatsappUrl || "",
             consultationUrlTemplate: root.dataset.consultationUrl || "",
+            rescheduleUrlTemplate: root.dataset.rescheduleUrl || "",
             reminderUrlTemplate: root.dataset.reminderUrl || "",
             beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
             ...manualBookingOptions,
@@ -1421,6 +1436,7 @@ function buildCalendarPreviewOptions(root) {
             whatsappConfigured: root.dataset.whatsappConfigured === "1",
             whatsappUrlTemplate: root.dataset.whatsappUrl || "",
             consultationUrlTemplate: root.dataset.consultationUrl || "",
+            rescheduleUrlTemplate: root.dataset.rescheduleUrl || "",
             reminderUrlTemplate: root.dataset.reminderUrl || "",
             beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
             statusUrlTemplate: root.dataset.statusUrl || "",

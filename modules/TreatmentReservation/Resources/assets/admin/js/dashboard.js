@@ -1,7 +1,14 @@
 import { formatAppointmentTimeDisplay } from "./time-format.js";
 import axios from "axios";
 import flatpickr from "flatpickr";
-import { bookingAllowsDetail, getCalendarBooking, setCalendarBookings, upsertBooking } from "./kanban-helpers.js";
+import {
+    bookingAllowsDetail,
+    closeCalendarEventPreview,
+    getCalendarBooking,
+    getCalendarBookingsForOrder,
+    setCalendarBookings,
+    upsertBooking,
+} from "./kanban-helpers.js";
 import { initCustomerProfileDrawer } from "./customer-profile.js";
 import { openManualBookingEditor } from "./manual-booking.js";
 
@@ -1030,72 +1037,693 @@ function initPipelineActions(app) {
 }
 
 
-async function scheduleTbaBooking({
+let rescheduleWorkspaceState = null;
+
+function getRescheduleWorkspace() {
+    let workspace = document.getElementById("tr-reschedule-workspace");
+
+    if (workspace) {
+        return workspace;
+    }
+
+    workspace = document.createElement("div");
+    workspace.id = "tr-reschedule-workspace";
+    workspace.className = "tr-reschedule-workspace";
+    workspace.hidden = true;
+    workspace.setAttribute("aria-hidden", "true");
+    workspace.innerHTML = `
+        <button class="tr-reschedule-workspace__backdrop" type="button" data-reschedule-close tabindex="-1" aria-label="Close"></button>
+        <section class="tr-reschedule-workspace__panel" role="dialog" aria-modal="true" aria-labelledby="tr-reschedule-workspace-title">
+            <header class="tr-reschedule-workspace__head">
+                <div>
+                    <span class="tr-reschedule-workspace__eyebrow" data-reschedule-eyebrow></span>
+                    <h2 id="tr-reschedule-workspace-title" data-reschedule-title></h2>
+                    <p data-reschedule-subtitle></p>
+                </div>
+                <button class="tr-reschedule-workspace__close" type="button" data-reschedule-close aria-label="Close">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </button>
+            </header>
+            <div class="tr-reschedule-workspace__body">
+                <aside class="tr-reschedule-workspace__treatments" aria-labelledby="tr-reschedule-treatments-title">
+                    <div class="tr-reschedule-workspace__section-head">
+                        <h3 id="tr-reschedule-treatments-title" data-reschedule-list-title></h3>
+                        <span class="tr-reschedule-workspace__count" data-reschedule-count></span>
+                    </div>
+                    <p class="tr-reschedule-workspace__help" data-reschedule-list-help></p>
+                    <div data-reschedule-order-summary></div>
+                    <div class="tr-reschedule-workspace__treatment-list" data-reschedule-treatment-list></div>
+                </aside>
+                <main class="tr-reschedule-workspace__editor">
+                    <div class="tr-reschedule-workspace__selection" data-reschedule-selection></div>
+                    <div class="tr-reschedule-workspace__field">
+                        <span class="tr-reschedule-workspace__field-label" id="tr-reschedule-date-label" data-reschedule-date-label></span>
+                        <div class="tr-reschedule-calendar" data-reschedule-calendar aria-labelledby="tr-reschedule-date-label">
+                            <div class="tr-reschedule-calendar__head">
+                                <button type="button" data-reschedule-calendar-shift="-1" data-reschedule-calendar-prev>
+                                    <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                                </button>
+                                <strong data-reschedule-calendar-title></strong>
+                                <button type="button" data-reschedule-calendar-shift="1" data-reschedule-calendar-next>
+                                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="tr-reschedule-calendar__weekdays" data-reschedule-calendar-weekdays aria-hidden="true"></div>
+                            <div class="tr-reschedule-calendar__grid" data-reschedule-calendar-grid role="grid"></div>
+                            <div class="tr-reschedule-calendar__status" data-reschedule-calendar-status aria-live="polite"></div>
+                        </div>
+                        <input id="tr-reschedule-date" type="hidden" data-reschedule-date>
+                        <small data-reschedule-date-help></small>
+                    </div>
+                    <fieldset class="tr-reschedule-workspace__slots">
+                        <legend data-reschedule-slots-label></legend>
+                        <div class="tr-reschedule-workspace__slot-status" data-reschedule-slot-status aria-live="polite"></div>
+                        <div class="tr-reschedule-workspace__slot-grid" data-reschedule-slot-grid></div>
+                    </fieldset>
+                    <div class="tr-reschedule-workspace__notifications">
+                        <label><input type="checkbox" data-reschedule-notify-customer checked> <span data-reschedule-notify-customer-label></span></label>
+                        <label data-reschedule-beautician-option><input type="checkbox" data-reschedule-notify-beautician checked> <span data-reschedule-notify-beautician-label></span></label>
+                        <small data-reschedule-notifications-help></small>
+                    </div>
+                    <div class="tr-reschedule-workspace__error" data-reschedule-error role="alert" hidden></div>
+                </main>
+            </div>
+            <footer class="tr-reschedule-workspace__footer">
+                <button class="btn btn-default" type="button" data-reschedule-close data-reschedule-cancel></button>
+                <button class="btn btn-primary" type="button" data-reschedule-save disabled>
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                    <span data-reschedule-save-label></span>
+                </button>
+            </footer>
+        </section>`;
+    document.body.appendChild(workspace);
+
+    workspace.addEventListener("click", (event) => {
+        if (event.target.closest("[data-reschedule-close]")) {
+            closeRescheduleWorkspace();
+            return;
+        }
+
+        const treatment = event.target.closest("[data-reschedule-treatment]");
+        if (treatment && !treatment.disabled) {
+            selectRescheduleTreatment(treatment.dataset.rescheduleTreatment);
+            return;
+        }
+
+        const slot = event.target.closest("[data-reschedule-slot]");
+        if (slot && !slot.disabled) {
+            rescheduleWorkspaceState.selectedSlot = slot.dataset.rescheduleSlot;
+            workspace.querySelectorAll("[data-reschedule-slot]").forEach((button) => {
+                button.classList.toggle("is-selected", button === slot);
+                button.setAttribute("aria-pressed", button === slot ? "true" : "false");
+            });
+            updateRescheduleSaveState();
+            return;
+        }
+
+        const calendarShift = event.target.closest("[data-reschedule-calendar-shift]");
+        if (calendarShift && !calendarShift.disabled) {
+            changeRescheduleCalendarMonth(Number(calendarShift.dataset.rescheduleCalendarShift || 0));
+            return;
+        }
+
+        const calendarDate = event.target.closest("[data-reschedule-calendar-date]");
+        if (calendarDate && !calendarDate.disabled) {
+            selectRescheduleDate(calendarDate.dataset.rescheduleCalendarDate);
+            return;
+        }
+
+        if (event.target.closest("[data-reschedule-save]")) {
+            saveRescheduledAppointment();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !workspace.hidden) {
+            closeRescheduleWorkspace();
+        }
+    });
+
+    return workspace;
+}
+
+function closeRescheduleWorkspace() {
+    const workspace = document.getElementById("tr-reschedule-workspace");
+    const returnFocus = rescheduleWorkspaceState?.trigger;
+
+    if (!workspace) {
+        return;
+    }
+
+    workspace.hidden = true;
+    workspace.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("tr-reschedule-workspace-open");
+    rescheduleWorkspaceState = null;
+    returnFocus?.focus?.();
+}
+
+function rescheduleTreatmentCard(booking, index, total, selectedId, labels) {
+    const selected = String(booking.id) === String(selectedId);
+    const disabled = booking.can_reschedule === false;
+    const schedule = [booking.appointment_date, booking.appointment_time].filter(Boolean).join(" · ") || labels.notScheduled;
+    const status = labels.statuses?.[booking.status] || booking.status || "";
+
+    return `
+        <button type="button" class="tr-reschedule-treatment${selected ? " is-selected" : ""}" data-reschedule-treatment="${escapeHtml(booking.id)}" aria-pressed="${selected ? "true" : "false"}" ${disabled ? "disabled" : ""}>
+            <span class="tr-reschedule-treatment__topline">
+                <span>${escapeHtml((labels.treatmentSequence || "Treatment :current of :total").replace(":current", index + 1).replace(":total", total))}</span>
+                <span class="tr-reschedule-treatment__status tr-reschedule-treatment__status--${escapeHtml(booking.status || "pending")}">${escapeHtml(status)}</span>
+            </span>
+            <strong>${escapeHtml(booking.treatment_name || booking.product_name || labels.treatmentFallback)}</strong>
+            ${booking.treatment_selection ? `<span class="tr-reschedule-treatment__selection">${escapeHtml(booking.treatment_selection)}</span>` : ""}
+            <span class="tr-reschedule-treatment__meta"><i class="fa fa-calendar" aria-hidden="true"></i>${escapeHtml(schedule)}</span>
+            <span class="tr-reschedule-treatment__meta"><i class="fa fa-user" aria-hidden="true"></i>${escapeHtml(booking.beautician_name || "—")}</span>
+        </button>`;
+}
+
+function rescheduleOrderSummaryHtml(bookings, labels) {
+    const booking = bookings.find((item) => item.order_id) || bookings[0] || {};
+    const orderNumber = booking.order_id ? `#${booking.order_id}` : labels.notAvailable;
+    const rows = [
+        [labels.orderNumber, orderNumber],
+        [labels.customer, booking.customer_name || labels.notAvailable],
+        [labels.contact, booking.customer_phone || labels.notAvailable],
+        [labels.branch, booking.spa_branch_name || labels.notAvailable],
+        [labels.payment, booking.payment_status_label || labels.notAvailable],
+        [labels.paymentMethod, booking.payment_method_label || labels.notAvailable],
+        [labels.orderTotal, booking.order_total_formatted || labels.notAvailable],
+    ];
+
+    return `
+        <section class="tr-reschedule-order-summary" aria-labelledby="tr-reschedule-order-summary-title">
+            <div class="tr-reschedule-order-summary__head">
+                <span aria-hidden="true"><i class="fa fa-file-text-o"></i></span>
+                <h4 id="tr-reschedule-order-summary-title">${escapeHtml(labels.bookingInformation)}</h4>
+            </div>
+            <dl>
+                ${rows.map(([label, value]) => `
+                    <div>
+                        <dt>${escapeHtml(label)}</dt>
+                        <dd>${escapeHtml(value)}</dd>
+                    </div>`).join("")}
+            </dl>
+        </section>`;
+}
+
+function selectedTreatmentHtml(booking, labels) {
+    const treatmentName = booking.treatment_name || booking.product_name || labels.treatmentFallback;
+    const thumbnail = booking.product_image
+        ? `<img class="tr-reschedule-workspace__selection-thumb" src="${escapeHtml(booking.product_image)}" alt="${escapeHtml(treatmentName)}" loading="lazy" decoding="async">`
+        : `<span class="tr-reschedule-workspace__selection-thumb tr-reschedule-workspace__selection-thumb--fallback" aria-hidden="true"><i class="fa fa-image"></i></span>`;
+
+    return `
+        ${thumbnail}
+        <div class="tr-reschedule-workspace__selection-copy">
+            <span>${escapeHtml(labels.selectedTreatment)}</span>
+            <strong>${escapeHtml(treatmentName)}</strong>
+            ${booking.treatment_selection ? `<small>${escapeHtml(booking.treatment_selection)}</small>` : ""}
+            <div><i class="fa fa-user" aria-hidden="true"></i> ${escapeHtml(booking.beautician_name || "—")}</div>
+        </div>`;
+}
+
+function localDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function parseLocalDate(value) {
+    const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+    return match
+        ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+        : null;
+}
+
+function currentOrFutureDate(value) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const candidate = parseLocalDate(value);
+
+    return candidate && candidate >= today ? candidate : today;
+}
+
+function calendarLocale() {
+    return document.documentElement.lang || undefined;
+}
+
+function renderRescheduleCalendar() {
+    const state = rescheduleWorkspaceState;
+    if (!state?.calendarMonth) {
+        return;
+    }
+
+    const workspace = getRescheduleWorkspace();
+    const grid = workspace.querySelector("[data-reschedule-calendar-grid]");
+    const title = workspace.querySelector("[data-reschedule-calendar-title]");
+    const weekdays = workspace.querySelector("[data-reschedule-calendar-weekdays]");
+    const previous = workspace.querySelector("[data-reschedule-calendar-prev]");
+    const first = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth(), 1);
+    const startOffset = (first.getDay() + 6) % 7;
+    const gridStart = new Date(first);
+    gridStart.setDate(first.getDate() - startOffset);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const formatter = new Intl.DateTimeFormat(calendarLocale(), { month: "long", year: "numeric" });
+    const dayFormatter = new Intl.DateTimeFormat(calendarLocale(), { weekday: "short" });
+    const fullDateFormatter = new Intl.DateTimeFormat(calendarLocale(), {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
+
+    title.textContent = formatter.format(first);
+    weekdays.innerHTML = Array.from({ length: 7 }, (_, index) => {
+        const weekday = new Date(2024, 0, 1 + index);
+        return `<span>${escapeHtml(dayFormatter.format(weekday).replace(/\.$/, ""))}</span>`;
+    }).join("");
+    previous.disabled = first <= currentMonth;
+
+    grid.innerHTML = Array.from({ length: 42 }, (_, index) => {
+        const date = new Date(gridStart);
+        date.setDate(gridStart.getDate() + index);
+        const dateKey = localDateKey(date);
+        const inMonth = date.getMonth() === first.getMonth();
+        const isPast = date < today;
+        const isAvailable = inMonth && !isPast && state.availableDates.has(dateKey);
+        const selected = dateKey === state.selectedDate;
+        const isToday = dateKey === localDateKey(today);
+        const classes = [
+            "tr-reschedule-calendar__day",
+            !inMonth ? "is-outside" : "",
+            isAvailable ? "is-available" : "is-unavailable",
+            selected ? "is-selected" : "",
+            isToday ? "is-today" : "",
+        ].filter(Boolean).join(" ");
+
+        return `<button type="button" class="${classes}" data-reschedule-calendar-date="${dateKey}"
+            aria-label="${escapeHtml(fullDateFormatter.format(date))}"
+            aria-pressed="${selected ? "true" : "false"}"
+            ${isAvailable ? "" : "disabled"}>
+            <span>${date.getDate()}</span>
+            ${isAvailable ? `<i aria-hidden="true"></i>` : ""}
+        </button>`;
+    }).join("");
+}
+
+function selectRescheduleDate(date) {
+    const state = rescheduleWorkspaceState;
+
+    if (!state?.availableDates.has(date)) {
+        return;
+    }
+
+    state.selectedDate = date;
+    state.preferredDate = date;
+    state.selectedSlot = "";
+    getRescheduleWorkspace().querySelector("[data-reschedule-date]").value = date;
+    renderRescheduleCalendar();
+    loadRescheduleSlots();
+}
+
+function changeRescheduleCalendarMonth(offset) {
+    const state = rescheduleWorkspaceState;
+    if (!state?.calendarMonth || !offset) {
+        return;
+    }
+
+    state.calendarMonth = new Date(
+        state.calendarMonth.getFullYear(),
+        state.calendarMonth.getMonth() + offset,
+        1,
+    );
+    state.selectedDate = "";
+    state.selectedSlot = "";
+    getRescheduleWorkspace().querySelector("[data-reschedule-date]").value = "";
+    loadRescheduleDates();
+}
+
+async function loadRescheduleDates() {
+    const state = rescheduleWorkspaceState;
+    if (!state?.booking || !state.calendarMonth) {
+        return;
+    }
+
+    const workspace = getRescheduleWorkspace();
+    const calendar = workspace.querySelector("[data-reschedule-calendar]");
+    const status = workspace.querySelector("[data-reschedule-calendar-status]");
+    const first = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth(), 1);
+    const last = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth() + 1, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const fromDate = first < today ? today : first;
+    const from = localDateKey(fromDate);
+    const to = localDateKey(last);
+    const requestToken = `${state.booking.id}:${from}:${to}:${Date.now()}`;
+    state.datesRequestToken = requestToken;
+    state.availableDates = new Set();
+    state.selectedSlot = "";
+    calendar.setAttribute("aria-busy", "true");
+    status.innerHTML = `<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> ${escapeHtml(state.labels.loadingDates)}`;
+    renderRescheduleCalendar();
+    updateRescheduleSaveState();
+
+    if (!state.datesUrl && !state.reschedule) {
+        for (let cursor = new Date(fromDate); cursor <= last; cursor.setDate(cursor.getDate() + 1)) {
+            state.availableDates.add(localDateKey(cursor));
+        }
+        calendar.setAttribute("aria-busy", "false");
+        status.textContent = state.labels.availableDatesHint;
+        renderRescheduleCalendar();
+        return;
+    }
+
+    if (!state.datesUrl) {
+        state.selectedDate = "";
+        workspace.querySelector("[data-reschedule-date]").value = "";
+        workspace.querySelector("[data-reschedule-slot-grid]").innerHTML = "";
+        workspace.querySelector("[data-reschedule-slot-status]").textContent = state.labels.chooseDate;
+        calendar.setAttribute("aria-busy", "false");
+        status.textContent = state.labels.noAvailableDates;
+        showRescheduleError(state.labels.datesLoadFailed);
+        renderRescheduleCalendar();
+        updateRescheduleSaveState();
+        return;
+    }
+
+    try {
+        const url = state.datesUrl.replace("__ID__", String(state.booking.id));
+        const { data } = await axios.get(url, {
+            params: { from, to, _: Date.now() },
+        });
+
+        if (rescheduleWorkspaceState?.datesRequestToken !== requestToken) {
+            return;
+        }
+
+        state.availableDates = new Set(data.dates || []);
+        calendar.setAttribute("aria-busy", "false");
+        status.textContent = state.availableDates.size
+            ? state.labels.availableDatesHint
+            : state.labels.noAvailableDates;
+        renderRescheduleCalendar();
+
+        const preferred = state.preferredDate;
+        const preferredDate = parseLocalDate(preferred);
+        if (preferredDate
+            && preferredDate.getFullYear() === first.getFullYear()
+            && preferredDate.getMonth() === first.getMonth()
+            && state.availableDates.has(preferred)) {
+            selectRescheduleDate(preferred);
+        } else {
+            state.selectedDate = "";
+            workspace.querySelector("[data-reschedule-date]").value = "";
+            workspace.querySelector("[data-reschedule-slot-grid]").innerHTML = "";
+            workspace.querySelector("[data-reschedule-slot-status]").textContent = state.labels.chooseDate;
+            updateRescheduleSaveState();
+        }
+    } catch (error) {
+        if (rescheduleWorkspaceState?.datesRequestToken !== requestToken) {
+            return;
+        }
+        console.error("Unable to load reschedule dates", error);
+        calendar.setAttribute("aria-busy", "false");
+        status.textContent = "";
+        showRescheduleError(error?.response?.data?.message || state.labels.datesLoadFailed);
+        renderRescheduleCalendar();
+    }
+}
+
+function updateRescheduleSaveState() {
+    const workspace = getRescheduleWorkspace();
+    const save = workspace.querySelector("[data-reschedule-save]");
+    save.disabled = !rescheduleWorkspaceState?.selectedDate || !rescheduleWorkspaceState?.selectedSlot || rescheduleWorkspaceState?.saving;
+}
+
+function showRescheduleError(message = "") {
+    const error = getRescheduleWorkspace().querySelector("[data-reschedule-error]");
+    error.textContent = message;
+    error.hidden = !message;
+}
+
+async function loadRescheduleSlots() {
+    const state = rescheduleWorkspaceState;
+    if (!state?.selectedDate || !state.booking) {
+        return;
+    }
+
+    const workspace = getRescheduleWorkspace();
+    const status = workspace.querySelector("[data-reschedule-slot-status]");
+    const grid = workspace.querySelector("[data-reschedule-slot-grid]");
+    const requestToken = `${state.booking.id}:${state.selectedDate}:${Date.now()}`;
+    state.requestToken = requestToken;
+    showRescheduleError();
+    grid.innerHTML = "";
+    status.innerHTML = `<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> ${escapeHtml(state.labels.loadingSlots)}`;
+    updateRescheduleSaveState();
+
+    try {
+        const resolvedSlotsUrl = state.slotsUrl.replace("__ID__", String(state.booking.id));
+        const { data } = await axios.get(resolvedSlotsUrl, {
+            params: {
+                beautician_id: state.booking.beautician_id,
+                date: state.selectedDate,
+                booking_id: state.booking.id,
+                product_id: state.booking.product_id || undefined,
+                spa_branch_id: state.booking.spa_branch_id || undefined,
+                _: Date.now(),
+            },
+        });
+
+        if (rescheduleWorkspaceState?.requestToken !== requestToken) {
+            return;
+        }
+
+        const slots = data.slots || [];
+        status.textContent = slots.length ? state.labels.chooseSlot : state.labels.noSlots;
+        grid.innerHTML = slots.map((slot) => `
+            <button type="button" data-reschedule-slot="${escapeHtml(slot)}" aria-pressed="false">
+                ${escapeHtml(formatAppointmentTimeDisplay(slot))}
+            </button>`).join("");
+    } catch (error) {
+        if (rescheduleWorkspaceState?.requestToken !== requestToken) {
+            return;
+        }
+        status.textContent = "";
+        showRescheduleError(error?.response?.data?.message || state.labels.loadFailed);
+    }
+}
+
+function selectRescheduleTreatment(bookingId) {
+    const state = rescheduleWorkspaceState;
+    const booking = state?.bookings.find((item) => String(item.id) === String(bookingId));
+
+    if (!booking) {
+        return;
+    }
+
+    state.booking = booking;
+    state.preferredDate = booking.appointment_date_value || booking.date || "";
+    state.selectedDate = "";
+    state.selectedSlot = "";
+    const preferredDate = currentOrFutureDate(state.preferredDate);
+    state.calendarMonth = new Date(preferredDate.getFullYear(), preferredDate.getMonth(), 1);
+    const workspace = getRescheduleWorkspace();
+    workspace.querySelector("[data-reschedule-treatment-list]").innerHTML = state.bookings
+        .map((item, index) => rescheduleTreatmentCard(item, index, state.bookings.length, booking.id, state.labels))
+        .join("");
+    workspace.querySelector("[data-reschedule-selection]").innerHTML = selectedTreatmentHtml(booking, state.labels);
+    workspace.querySelector("[data-reschedule-date]").value = "";
+    workspace.querySelector("[data-reschedule-beautician-option]").hidden = !state.reschedule;
+    workspace.querySelector("[data-reschedule-slot-grid]").innerHTML = "";
+    workspace.querySelector("[data-reschedule-slot-status]").textContent = state.labels.chooseDate;
+    loadRescheduleDates();
+}
+
+async function saveRescheduledAppointment() {
+    const state = rescheduleWorkspaceState;
+    if (!state?.booking || !state.selectedDate || !state.selectedSlot || state.saving) {
+        return;
+    }
+
+    const workspace = getRescheduleWorkspace();
+    const save = workspace.querySelector("[data-reschedule-save]");
+    const label = save.querySelector("[data-reschedule-save-label]");
+    state.saving = true;
+    label.textContent = state.labels.saving;
+    save.querySelector("i").className = "fa fa-spinner fa-spin";
+    updateRescheduleSaveState();
+    showRescheduleError();
+
+    try {
+        const payload = {
+            beautician_id: state.booking.beautician_id,
+            appointment_date: state.selectedDate,
+            appointment_time: state.selectedSlot,
+            notify_customer: workspace.querySelector("[data-reschedule-notify-customer]").checked,
+            notify_beautician: state.reschedule && workspace.querySelector("[data-reschedule-notify-beautician]").checked,
+        };
+
+        if (state.booking.spa_branch_id) {
+            payload.spa_branch_id = state.booking.spa_branch_id;
+        }
+
+        const url = state.urlTemplate.replace("__ID__", String(state.booking.id));
+        const { data } = await axios.patch(url, payload);
+        window.notify?.success?.(data.message || state.labels.saved);
+        window.location.reload();
+    } catch (error) {
+        state.saving = false;
+        label.textContent = state.labels.save;
+        save.querySelector("i").className = "fa fa-check";
+        updateRescheduleSaveState();
+        showRescheduleError(error?.response?.data?.message || state.labels.saveFailed);
+    }
+}
+
+function openAppointmentSchedulingWorkspace({
     bookingId,
     beauticianId,
     productId,
     spaBranchId,
-    scheduleUrlTemplate,
+    urlTemplate,
     slotsUrl,
+    datesUrl = "",
     appointmentDate = null,
+    reschedule = false,
+    labels = {},
+    trigger = null,
 }) {
-    const date = appointmentDate || window.prompt("Appointment date (YYYY-MM-DD)");
+    const current = getCalendarBooking(bookingId) || {
+        id: bookingId,
+        beautician_id: beauticianId,
+        product_id: productId,
+        spa_branch_id: spaBranchId,
+        can_reschedule: true,
+    };
+    const siblings = current.order_id ? getCalendarBookingsForOrder(current.order_id) : [];
+    const bookings = siblings.some((item) => String(item.id) === String(current.id)) ? siblings : [current, ...siblings];
+    const workspace = getRescheduleWorkspace();
+    const preferredDateValue = appointmentDate || current.appointment_date_value || current.date || "";
+    const preferredDate = currentOrFutureDate(preferredDateValue);
 
-    if (!date) {
-        return;
-    }
+    closeCalendarEventPreview();
+    rescheduleWorkspaceState = {
+        booking: current,
+        bookings,
+        urlTemplate,
+        slotsUrl,
+        datesUrl,
+        preferredDate: preferredDateValue,
+        selectedDate: "",
+        selectedSlot: "",
+        calendarMonth: new Date(preferredDate.getFullYear(), preferredDate.getMonth(), 1),
+        availableDates: new Set(),
+        reschedule,
+        labels,
+        trigger,
+        saving: false,
+    };
 
-    let slots = [];
+    workspace.querySelector("[data-reschedule-eyebrow]").textContent = current.order_id
+        ? labels.orderEyebrow.replace(":order", current.order_id)
+        : labels.scheduleEyebrow;
+    workspace.querySelector("[data-reschedule-title]").textContent = reschedule ? labels.title : labels.scheduleTitle;
+    workspace.querySelector("[data-reschedule-subtitle]").textContent = labels.subtitle;
+    workspace.querySelector("[data-reschedule-list-title]").textContent = labels.orderTreatments;
+    workspace.querySelector("[data-reschedule-list-help]").textContent = labels.orderTreatmentsHelp;
+    workspace.querySelector("[data-reschedule-count]").textContent = labels.treatmentCount.replace(":count", bookings.length);
+    workspace.querySelector("[data-reschedule-date-label]").textContent = labels.newDate;
+    workspace.querySelector("[data-reschedule-date-help]").textContent = labels.newDateHelp;
+    workspace.querySelector("[data-reschedule-calendar-prev]").setAttribute("aria-label", labels.previousMonth);
+    workspace.querySelector("[data-reschedule-calendar-next]").setAttribute("aria-label", labels.nextMonth);
+    workspace.querySelector("[data-reschedule-slots-label]").textContent = labels.availableSlots;
+    workspace.querySelector("[data-reschedule-notify-customer-label]").textContent = labels.notifyCustomer;
+    workspace.querySelector("[data-reschedule-notify-beautician-label]").textContent = labels.notifyBeautician;
+    workspace.querySelector("[data-reschedule-notifications-help]").textContent = labels.notificationsHelp;
+    workspace.querySelector("[data-reschedule-cancel]").textContent = labels.cancel;
+    workspace.querySelector("[data-reschedule-save-label]").textContent = labels.save;
+    workspace.querySelector("[data-reschedule-date]").value = "";
+    workspace.querySelector("[data-reschedule-order-summary]").innerHTML = rescheduleOrderSummaryHtml(bookings, labels);
+    workspace.querySelector("[data-reschedule-treatment-list]").innerHTML = bookings
+        .map((booking, index) => rescheduleTreatmentCard(booking, index, bookings.length, current.id, labels))
+        .join("");
+    workspace.querySelector("[data-reschedule-selection]").innerHTML = selectedTreatmentHtml(current, labels);
+    workspace.querySelector("[data-reschedule-beautician-option]").hidden = !reschedule;
+    workspace.querySelector("[data-reschedule-slot-grid]").innerHTML = "";
+    workspace.querySelector("[data-reschedule-slot-status]").textContent = labels.chooseDate;
+    showRescheduleError();
+    updateRescheduleSaveState();
+    workspace.hidden = false;
+    workspace.setAttribute("aria-hidden", "false");
+    document.body.classList.add("tr-reschedule-workspace-open");
+    workspace.querySelector("[data-reschedule-close]")?.focus();
+
+    loadRescheduleDates();
+}
+
+function schedulingLabels(root) {
+    let translated = {};
 
     try {
-        const { data } = await axios.get(slotsUrl, {
-            params: {
-                beautician_id: beauticianId,
-                date,
-                booking_id: bookingId,
-                product_id: productId || undefined,
-                spa_branch_id: spaBranchId || undefined,
-            },
-        });
-        slots = data.slots || [];
+        translated = JSON.parse(root?.dataset?.rescheduleLabels || "{}");
     } catch (error) {
-        window.notify?.error?.(error?.response?.data?.message || "Failed to load slots")
-            || alert(error?.response?.data?.message || "Failed to load slots");
-        return;
+        translated = {};
     }
 
-    if (!slots.length) {
-        window.notify?.error?.("No available times on this date.") || alert("No available times on this date.");
-        return;
-    }
-
-    const time = window.prompt(`Available times:\n${slots.map((slot) => formatAppointmentTimeDisplay(slot)).join(", ")}\n\nEnter time (e.g. 3:00 PM)`, formatAppointmentTimeDisplay(slots[0]));
-
-    if (!time) {
-        return;
-    }
-
-    const url = scheduleUrlTemplate.replace("__ID__", String(bookingId));
-
-    try {
-        const payload = {
-            beautician_id: beauticianId,
-            appointment_date: date,
-            appointment_time: time,
-            notify_customer: true,
-        };
-
-        if (spaBranchId) {
-            payload.spa_branch_id = spaBranchId;
-        }
-
-        const { data } = await axios.patch(url, payload);
-        window.notify?.success?.(data.message || "Scheduled") || alert(data.message || "Scheduled");
-        window.location.reload();
-    } catch (error) {
-        window.notify?.error?.(error?.response?.data?.message || "Failed to schedule")
-            || alert(error?.response?.data?.message || "Failed to schedule");
-    }
+    return {
+        ...translated,
+        datePrompt: root?.dataset?.rescheduleDatePrompt || "Appointment date (YYYY-MM-DD)",
+        timesPrompt: root?.dataset?.rescheduleTimesPrompt || "Available times:\n__TIMES__\n\nEnter time",
+        loadFailed: root?.dataset?.rescheduleLoadFailed || "Failed to load slots",
+        saveFailed: root?.dataset?.rescheduleSaveFailed || "Failed to reschedule",
+        noSlots: root?.dataset?.rescheduleNoSlots || "No available times on this date.",
+        orderEyebrow: translated.order_eyebrow || "Order #:order",
+        scheduleEyebrow: translated.schedule_eyebrow || "Appointment scheduling",
+        title: translated.workspace_title || "Reschedule appointments",
+        scheduleTitle: translated.schedule_title || "Schedule appointment",
+        subtitle: translated.workspace_subtitle || "Choose a treatment, date, and available time before saving.",
+        orderTreatments: translated.order_treatments || "Treatments in this order",
+        orderTreatmentsHelp: translated.order_treatments_help || "Select one treatment to reschedule. Other treatments remain unchanged.",
+        bookingInformation: translated.booking_information || "Booking information",
+        orderNumber: translated.order_number || "Order",
+        customer: translated.customer || "Customer",
+        contact: translated.contact || "Contact",
+        branch: translated.branch || "Branch",
+        payment: translated.payment || "Payment",
+        paymentMethod: translated.payment_method || "Payment method",
+        orderTotal: translated.order_total || "Order total",
+        notAvailable: translated.not_available || "—",
+        treatmentCount: translated.treatment_count || ":count treatments",
+        treatmentSequence: translated.treatment_sequence || "Treatment :current of :total",
+        selectedTreatment: translated.selected_treatment || "Selected treatment",
+        treatmentFallback: translated.treatment_fallback || "Treatment",
+        notScheduled: translated.not_scheduled || "Not scheduled",
+        newDate: translated.new_date || "New appointment date",
+        newDateHelp: translated.new_date_help || "Available times are checked against this beautician, branch, and treatment.",
+        availableSlots: translated.available_slots || "Available times",
+        chooseDate: translated.choose_date || "Choose a date to see available times.",
+        chooseSlot: translated.choose_slot || "Choose one available time.",
+        loadingSlots: translated.loading_slots || "Checking available times…",
+        loadingDates: translated.loading_dates || "Checking available dates…",
+        availableDatesHint: translated.available_dates_hint || "Only dates with an available time can be selected.",
+        noAvailableDates: translated.no_available_dates || "No available dates in this month.",
+        datesLoadFailed: translated.dates_load_failed || "Unable to load available dates.",
+        previousMonth: translated.previous_month || "Previous month",
+        nextMonth: translated.next_month || "Next month",
+        notifyCustomer: translated.notify_customer || "Notify customer on WhatsApp",
+        notifyBeautician: translated.notify_beautician || "Notify beautician on WhatsApp",
+        notificationsHelp: translated.notifications_help || "Notifications are sent only after the new schedule is saved.",
+        cancel: translated.cancel || "Cancel",
+        save: translated.save || "Save new schedule",
+        saving: translated.saving || "Saving…",
+        saved: translated.saved || "Appointment saved.",
+        statuses: translated.statuses || {},
+    };
 }
 
 export function initTbaScheduleActions() {
@@ -1104,15 +1732,23 @@ export function initTbaScheduleActions() {
         document.getElementById("tr-reservations-app") ||
         document.getElementById("tr-portal-app") ||
         document.body;
+    const routeRoot = document.querySelector("[data-reschedule-url][data-reschedule-slots-url]") || root;
     const scheduleUrlTemplate = root.dataset?.tbaScheduleUrl || "";
+    const rescheduleUrlTemplate = routeRoot.dataset?.rescheduleUrl || "";
     const slotsUrl = root.dataset?.tbaSlotsUrl || "";
+    const rescheduleSlotsUrl = routeRoot.dataset?.rescheduleSlotsUrl || slotsUrl;
+    const rescheduleDatesUrl = routeRoot.dataset?.rescheduleDatesUrl || "";
 
-    if (!scheduleUrlTemplate || !slotsUrl) {
+    if ((!scheduleUrlTemplate && !rescheduleUrlTemplate)
+        || (!slotsUrl && !rescheduleSlotsUrl)
+        || root.dataset?.scheduleActionsReady === "1") {
         return;
     }
 
+    root.dataset.scheduleActionsReady = "1";
+
     document.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-tba-schedule]");
+        const button = event.target.closest("[data-tba-schedule], [data-reschedule-booking]");
 
         if (!button) {
             return;
@@ -1120,13 +1756,19 @@ export function initTbaScheduleActions() {
 
         event.preventDefault();
 
-        scheduleTbaBooking({
+        const isReschedule = button.hasAttribute("data-reschedule-booking");
+
+        openAppointmentSchedulingWorkspace({
             bookingId: button.dataset.bookingId,
             beauticianId: button.dataset.beauticianId,
             productId: button.dataset.productId,
             spaBranchId: button.dataset.spaBranchId,
-            scheduleUrlTemplate,
-            slotsUrl,
+            urlTemplate: isReschedule ? rescheduleUrlTemplate : scheduleUrlTemplate,
+            slotsUrl: isReschedule ? rescheduleSlotsUrl : slotsUrl,
+            datesUrl: isReschedule ? rescheduleDatesUrl : "",
+            reschedule: isReschedule,
+            labels: schedulingLabels(routeRoot),
+            trigger: button,
         });
     });
 }
@@ -1137,8 +1779,12 @@ export function initCalendarBookingDrop(app) {
         document.getElementById("tr-crm-dashboard") ||
         document.getElementById("tr-reservations-app") ||
         document.getElementById("tr-portal-app");
+    const routeRoot = document.querySelector("[data-reschedule-url][data-reschedule-slots-url]") || root;
     const scheduleUrlTemplate = root?.dataset?.tbaScheduleUrl || "";
+    const rescheduleUrlTemplate = routeRoot?.dataset?.rescheduleUrl || "";
     const slotsUrl = root?.dataset?.tbaSlotsUrl || "";
+    const rescheduleSlotsUrl = routeRoot?.dataset?.rescheduleSlotsUrl || slotsUrl;
+    const rescheduleDatesUrl = routeRoot?.dataset?.rescheduleDatesUrl || "";
     const grid = app?.gridViewport || app?.grid || document.getElementById("tr-calendar-grid-viewport") || document.getElementById("tr-calendar-grid");
 
     if (!grid) {
@@ -1219,36 +1865,37 @@ export function initCalendarBookingDrop(app) {
                 window.notify?.error?.("Schedule URL missing") || alert("Schedule URL missing");
                 return;
             }
-            await scheduleTbaBooking({
+            openAppointmentSchedulingWorkspace({
                 bookingId: payload.bookingId,
                 beauticianId: payload.beauticianId,
                 productId: payload.productId,
                 spaBranchId: payload.spaBranchId,
-                scheduleUrlTemplate,
+                urlTemplate: scheduleUrlTemplate,
                 slotsUrl,
                 appointmentDate: date,
+                labels: schedulingLabels(root),
             });
             return;
         }
 
-        const booking = typeof getCalendarBooking === "function"
-            ? getCalendarBooking(payload.bookingId)
-            : null;
-
-        if (!booking) {
-            window.notify?.error?.("Booking not found") || alert("Booking not found");
+        if (!rescheduleUrlTemplate || !rescheduleSlotsUrl) {
+            const message = schedulingLabels(routeRoot).saveFailed;
+            window.notify?.error?.(message) || alert(message);
             return;
         }
 
-        // Open manual editor on the dropped date; slots API enforces capacity via engine.
-        if (typeof openManualBookingEditor === "function") {
-            openManualBookingEditor({
-                ...booking,
-                appointment_date_value: date,
-                date,
-                appointment_date: date,
-            });
-        }
+        openAppointmentSchedulingWorkspace({
+            bookingId: payload.bookingId,
+            beauticianId: payload.beauticianId,
+            productId: payload.productId,
+            spaBranchId: payload.spaBranchId,
+            urlTemplate: rescheduleUrlTemplate,
+            slotsUrl: rescheduleSlotsUrl,
+            datesUrl: rescheduleDatesUrl,
+            appointmentDate: date,
+            reschedule: true,
+            labels: schedulingLabels(routeRoot),
+        });
     });
 }
 

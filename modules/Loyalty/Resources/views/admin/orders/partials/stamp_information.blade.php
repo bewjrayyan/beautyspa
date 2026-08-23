@@ -5,11 +5,11 @@
 
 <div class="order-show__card order-show__card--stamps">
     <h4 class="order-show__section-title">
-        <span class="order-show__section-title-text">#### Stamp cards</span>
+        <span class="order-show__section-title-text">{{ trans('loyalty::orders.stamps.title') }}</span>
     </h4>
 
     <p class="order-show__hint order-show__hint--section">
-        Visit stamps awarded from this order.
+        {{ trans('loyalty::orders.stamps.lead') }}
     </p>
 
     <div class="loyalty-stamp-cards order-show-stamp-cards">

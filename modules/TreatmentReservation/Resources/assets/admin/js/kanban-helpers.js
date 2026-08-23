@@ -26,6 +26,23 @@ export function getCalendarBooking(id) {
     return calendarBookingsById.get(String(id));
 }
 
+export function getCalendarBookingsForOrder(orderId) {
+    const normalizedOrderId = String(orderId || "");
+
+    if (!normalizedOrderId) {
+        return [];
+    }
+
+    return Array.from(calendarBookingsById.values())
+        .filter((booking) => String(booking.order_id || "") === normalizedOrderId)
+        .sort((left, right) => {
+            const leftSchedule = `${left.appointment_date_value || left.date || ""} ${left.appointment_time_value || left.time || ""}`;
+            const rightSchedule = `${right.appointment_date_value || right.date || ""} ${right.appointment_time_value || right.time || ""}`;
+
+            return leftSchedule.localeCompare(rightSchedule) || Number(left.id) - Number(right.id);
+        });
+}
+
 export function getKanbanBooking(id) {
     return kanbanBookingsById.get(String(id));
 }
@@ -146,7 +163,7 @@ export function buildCalendarEventHtml(booking, { showBeautician = true, clickab
         clickable ? "tr-cal-event--clickable" : "",
         !isOwn ? "tr-cal-event--others" : "",
     ].filter(Boolean).join(" ");
-    const canDrag = isOwn && (booking.can_reschedule_manual || booking.can_schedule_tba);
+    const canDrag = isOwn && (booking.can_reschedule || booking.can_schedule_tba);
     const dragAttrs = canDrag
         ? ` draggable="true" data-cal-draggable="1" data-product-id="${escapeHtml(String(booking.product_id || ""))}" data-spa-branch-id="${escapeHtml(String(booking.spa_branch_id || ""))}" data-beautician-id="${escapeHtml(String(booking.beautician_id || ""))}" data-is-tba="${booking.can_schedule_tba || booking.is_tba || booking.schedule_status === "tba" ? "1" : "0"}"`
         : "";
@@ -619,11 +636,11 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 `data-booking-id="${escapeHtml(String(booking.id))}"`
             )
             : "",
-        booking.can_reschedule_manual && options.manualBookingEditEnabled
+        booking.can_reschedule && options.rescheduleUrlTemplate
             ? previewActionButton(
                 "tr-calendar-event-preview__reschedule tr-calendar-event-preview__action-btn--ghost",
                 `<i class="fa fa-calendar" aria-hidden="true"></i><span>${escapeHtml(labels.reschedule || "Reschedule")}</span>`,
-                `data-preview-reschedule data-booking-id="${escapeHtml(String(booking.id))}"`
+                `data-reschedule-booking data-booking-id="${escapeHtml(String(booking.id))}" data-beautician-id="${escapeHtml(String(booking.beautician_id || ""))}" data-product-id="${escapeHtml(String(booking.product_id || ""))}" data-spa-branch-id="${escapeHtml(String(booking.spa_branch_id || ""))}"`
             )
             : "",
         booking.can_schedule_tba && options.tbaScheduleEnabled !== false
@@ -1129,15 +1146,6 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
         if (editManualButton) {
             event.preventDefault();
             openManualBookingEditorFromPreview(editManualButton);
-
-            return;
-        }
-
-        const rescheduleButton = event.target.closest("[data-preview-reschedule]");
-
-        if (rescheduleButton) {
-            event.preventDefault();
-            openManualBookingEditorFromPreview(rescheduleButton);
 
             return;
         }

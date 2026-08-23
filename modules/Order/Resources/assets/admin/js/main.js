@@ -2,6 +2,12 @@ import axios from "axios";
 import { bindOrderWhatsAppSend } from "./orderWhatsApp";
 
 (function () {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindOrderWorkspaceNavigation);
+    } else {
+        bindOrderWorkspaceNavigation();
+    }
+
     const $ = window.jQuery || window.$;
 
     if (!$) {
@@ -158,47 +164,57 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
     }
 
     function bindOrderWorkspaceNavigation() {
-        const $nav = $(".order-show__workspace-nav");
+        const nav = document.querySelector(".order-show__workspace-nav");
 
-        if (!$nav.length) {
+        if (!nav || nav.dataset.navigationBound === "true") {
             return;
         }
 
-        const $links = $nav.find("a[data-order-section]");
-        const prefersReducedMotion = window.matchMedia?.(
-            "(prefers-reduced-motion: reduce)"
-        ).matches;
+        nav.dataset.navigationBound = "true";
 
-        function markActive($activeLink) {
-            $links.removeClass("is-active").removeAttr("aria-current");
-            $activeLink.addClass("is-active").attr("aria-current", "location");
+        const links = Array.from(nav.querySelectorAll("a[data-order-section]"));
+        function markActive(activeLink) {
+            links.forEach((link) => {
+                const isActive = link === activeLink;
+
+                link.classList.toggle("is-active", isActive);
+
+                if (isActive) {
+                    link.setAttribute("aria-current", "location");
+                } else {
+                    link.removeAttribute("aria-current");
+                }
+            });
         }
 
-        $links.on("click.orderWorkspaceNavigation", function (event) {
-            const sectionId = this.dataset.orderSection;
-            const section = document.getElementById(sectionId);
+        links.forEach((link) => {
+            link.addEventListener("click", (event) => {
+                const sectionId = link.dataset.orderSection;
+                const section = document.getElementById(sectionId);
 
-            if (!section) {
-                return;
-            }
+                if (!section) {
+                    return;
+                }
 
-            event.preventDefault();
-            section.scrollIntoView({
-                behavior: prefersReducedMotion ? "auto" : "smooth",
-                block: "start",
+                event.preventDefault();
+                const sectionUrl = `${window.location.pathname}${window.location.search}#${sectionId}`;
+                window.history.replaceState(null, "", sectionUrl);
+                const sectionTop = Math.max(
+                    0,
+                    section.getBoundingClientRect().top + window.pageYOffset - 84
+                );
+
+                window.scrollTo(0, sectionTop);
+                markActive(link);
             });
-
-            const sectionUrl = `${window.location.pathname}${window.location.search}#${sectionId}`;
-            window.history.replaceState(null, "", sectionUrl);
-            markActive($(this));
         });
 
         const initialSection = window.location.hash.slice(1);
-        const $initialLink = $links.filter(
-            `[data-order-section="${initialSection}"]`
+        const initialLink = links.find(
+            (link) => link.dataset.orderSection === initialSection
         );
 
-        markActive($initialLink.length ? $initialLink : $links.first());
+        markActive(initialLink || links[0]);
     }
 
     function init() {
@@ -224,7 +240,6 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
         );
 
         bindOrderActionsDropdown();
-        bindOrderWorkspaceNavigation();
         bindOrderWhatsAppSend();
         bindGoogleSheetsSync();
     }

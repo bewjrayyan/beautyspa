@@ -14,7 +14,11 @@
     <div class="order-show__payment-breakdown-inner">
         <table class="order-show__totals-table">
             <tbody>
-                @include('order::partials.pricing_breakdown', ['order' => $order, 'style' => 'admin'])
+                @include('order::partials.pricing_breakdown', [
+                    'order' => $order,
+                    'style' => 'admin',
+                    'loyaltyPointsEarnedOverride' => $orderRewardData['points_earned'] ?? null,
+                ])
             </tbody>
         </table>
 

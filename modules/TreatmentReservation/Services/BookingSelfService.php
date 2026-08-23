@@ -145,7 +145,8 @@ class BookingSelfService
                 $spaBranchId,
                 $from,
                 $to,
-                $beauticianId ?: null
+                $beauticianId ?: null,
+                (int) $booking->id,
             );
         }
 

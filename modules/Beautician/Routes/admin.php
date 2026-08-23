@@ -132,6 +132,21 @@ Route::middleware(['beautician.portal.access', 'beautician.portal.from_route'])-
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@updateStatus',
     ]);
 
+    Route::patch('beauticians/{id}/portal/{booking}/reschedule', [
+        'as' => 'admin.beauticians.portal.reschedule',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@reschedule',
+    ]);
+
+    Route::get('beauticians/{id}/portal/{booking}/reschedule-slots', [
+        'as' => 'admin.beauticians.portal.reschedule_slots',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@rescheduleSlots',
+    ]);
+
+    Route::get('beauticians/{id}/portal/{booking}/reschedule-dates', [
+        'as' => 'admin.beauticians.portal.reschedule_dates',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@rescheduleDates',
+    ]);
+
     Route::patch('beauticians/{id}/portal/{booking}/notes', [
         'as' => 'admin.beauticians.portal.update_notes',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@updateBeauticianNotes',

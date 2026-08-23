@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.14' => [
+        'date' => '2026-08-23 16:23',
+        'en' => [
+            'summary' => 'Enterprise appointment rescheduling for beauticians, availability-safe calendars, and complete order rewards context.',
+            'changes' => [
+                'Add a dedicated reschedule workspace in the admin and beautician portals with every treatment from the order, product thumbnails, booking details, and direct job-sheet calendar access.',
+                'Restrict selectable dates and times to live branch, treatment, duration, beautician availability, capacity, and existing-booking rules; prevent stale cached availability and fail closed when availability cannot be verified.',
+                'Save rescheduled appointments through validated services, keep customer orders and calendars synchronized, and queue optional WhatsApp notifications for customers and beauticians.',
+                'Expand the admin order workspace with clearer treatment appointments, promotional pricing, loyalty points and stamp audit details, payment context, and responsive enterprise CRM presentation.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penjadualan semula temujanji enterprise untuk beautician, kalendar berasaskan availability, dan konteks ganjaran pesanan yang lengkap.',
+            'changes' => [
+                'Tambah ruang kerja reschedule khusus dalam portal admin dan beautician dengan semua rawatan dalam pesanan, thumbnail produk, maklumat tempahan, serta akses terus ke kalendar job sheet.',
+                'Hadkan tarikh dan masa yang boleh dipilih kepada peraturan langsung cawangan, rawatan, tempoh, availability beautician, kapasiti, dan tempahan sedia ada; elakkan cache availability lapuk dan tutup pemilihan apabila availability tidak dapat disahkan.',
+                'Simpan temujanji yang dijadualkan semula melalui servis tervalidasi, selaraskan pesanan pelanggan dan kalendar, serta queue notifikasi WhatsApp pilihan untuk pelanggan dan beautician.',
+                'Lengkapkan ruang kerja pesanan admin dengan maklumat temujanji rawatan, harga promosi, audit mata loyalty dan stamp, konteks bayaran, serta paparan CRM enterprise responsif yang lebih jelas.',
+            ],
+        ],
+    ],
     '4.11.13' => [
         'date' => '2026-08-23 13:03',
         'en' => [

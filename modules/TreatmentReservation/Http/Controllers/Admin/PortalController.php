@@ -5,6 +5,8 @@ namespace Modules\TreatmentReservation\Http\Controllers\Admin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Product\Entities\Product;
@@ -12,8 +14,11 @@ use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Entities\TreatmentCategory;
 use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\TreatmentReservation\Services\BookingCustomerWhatsAppService;
+use Modules\TreatmentReservation\Services\BookingSelfService;
 use Modules\TreatmentReservation\Services\ScheduleTbaBookingService;
 use Modules\TreatmentReservation\Http\Requests\ScheduleTbaBookingRequest;
+use Modules\TreatmentReservation\Http\Requests\RescheduleTreatmentBookingRequest;
+use Modules\TreatmentReservation\Services\RescheduleTreatmentBookingService;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
 use Modules\TreatmentReservation\Services\CustomerAppointmentReminderService;
 use Modules\TreatmentReservation\Services\CustomerCrmProfileService;
@@ -22,6 +27,7 @@ use Modules\TreatmentReservation\Services\ReservationDashboardService;
 use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
 use Modules\TreatmentReservation\Services\TreatmentReservationAnalyticsService;
 use Modules\TreatmentReservation\Services\UpcomingJobUrgencyService;
+use Modules\TreatmentReservation\Services\AppointmentAvailabilityService;
 use Modules\User\Services\OneSenderWhatsAppService;
 
 class PortalController extends Controller
@@ -102,6 +108,14 @@ class PortalController extends Controller
             : 'kanban';
 
         $calendarFocus = $request->boolean('focus') && $activeView === 'calendar';
+        $calendarFocusBookingId = $request->integer('booking_id') ?: null;
+
+        if ($calendarFocusBookingId && ! TreatmentBooking::query()
+            ->whereKey($calendarFocusBookingId)
+            ->where('beautician_id', $beautician->id)
+            ->exists()) {
+            $calendarFocusBookingId = null;
+        }
 
         $portalContext = $this->portalContext($request, $beautician);
 
@@ -115,6 +129,7 @@ class PortalController extends Controller
                 ->values(),
             'activeView' => $activeView,
             'calendarFocus' => $calendarFocus,
+            'calendarFocusBookingId' => $calendarFocusBookingId,
             'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
             'beauticianPickerOptions' => Beautician::activeListForCheckout(),
         ], $portalContext));
@@ -142,6 +157,10 @@ class PortalController extends Controller
                     'update_notes' => route('admin.treatment_reservations.portal.update_notes', ['id' => '__ID__']),
                     'send_whatsapp' => route('admin.treatment_reservations.portal.send_whatsapp', ['id' => '__ID__']),
                     'consultation' => route('admin.treatment_reservations.portal.consultation', ['id' => '__ID__']),
+                    'reschedule' => route('admin.treatment_reservations.portal.reschedule', ['id' => '__ID__']),
+                    'slots' => route('admin.treatment_reservations.portal.reschedule_slots', ['id' => '__ID__']),
+                    'dates' => route('admin.treatment_reservations.portal.reschedule_dates', ['id' => '__ID__']),
+                    'tba_slots' => route('admin.treatment_reservations.portal.manual_bookings.slots'),
                 ],
                 'backUrl' => null,
             ];
@@ -158,6 +177,18 @@ class PortalController extends Controller
                 'update_notes' => route('admin.beauticians.portal.update_notes', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'send_whatsapp' => route('admin.beauticians.portal.send_whatsapp', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'consultation' => route('admin.beauticians.portal.consultation', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'reschedule' => route('admin.beauticians.portal.reschedule', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'slots' => route('admin.beauticians.portal.reschedule_slots', [
+                    'id' => $beautician->id,
+                    'booking' => '__ID__',
+                ]),
+                'dates' => route('admin.beauticians.portal.reschedule_dates', [
+                    'id' => $beautician->id,
+                    'booking' => '__ID__',
+                ]),
+                'tba_slots' => $this->isAdminBeauticianPreview($request, $beautician)
+                    ? route('admin.treatment_reservations.manual_bookings.slots')
+                    : route('admin.treatment_reservations.portal.manual_bookings.slots'),
             ],
             'backUrl' => $this->isAdminBeauticianPreview($request, $beautician)
                 ? route('admin.beauticians.edit', $beautician)
@@ -286,7 +317,7 @@ class PortalController extends Controller
         $bookings = TreatmentBooking::query()
             ->withActiveOrder()
             ->withTreatmentProduct()
-            ->with(['beautician.files', 'product', 'category', 'order'])
+            ->with(['beautician.files', 'product.files', 'category', 'order'])
             ->tbaSchedule()
             ->orderByDesc('id')
             ->limit(100)
@@ -325,6 +356,124 @@ class PortalController extends Controller
         return response()->json([
             'message' => trans('treatmentreservation::admin.tba.scheduled'),
             'booking' => $updated->appendAdminPayload($updated->toKanbanPayload()),
+        ]);
+    }
+
+
+    public function reschedule(
+        RescheduleTreatmentBookingRequest $request,
+        int $id,
+        RescheduleTreatmentBookingService $scheduler,
+    ): JsonResponse {
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+        $booking = TreatmentBooking::query()
+            ->where('beautician_id', $beautician->id)
+            ->findOrFail($this->bookingIdFromRoute($request, $id));
+
+        try {
+            $result = $scheduler->reschedule(
+                $booking,
+                $request->validated(),
+                $request->user(),
+                $request->boolean('notify_customer', true),
+                $request->boolean('notify_beautician', true),
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => trans('treatmentreservation::admin.reschedule.saved'),
+            'booking' => TreatmentBooking::applyPortalViewerScope(
+                $result['booking']->appendAdminPayload($result['booking']->toKanbanPayload()),
+                (int) $beautician->id,
+            ),
+            'notifications' => [
+                'customer' => $result['customer_notified'],
+                'beautician' => $result['beautician_notified'],
+            ],
+        ]);
+    }
+
+
+    public function rescheduleSlots(Request $request, int $id, AppointmentAvailabilityService $availability): JsonResponse
+    {
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+        $data = $request->validate([
+            'date' => ['required', 'date', 'after_or_equal:today'],
+        ]);
+        $booking = TreatmentBooking::query()
+            ->with('order')
+            ->where('beautician_id', $beautician->id)
+            ->findOrFail($this->bookingIdFromRoute($request, $id));
+
+        if (! $booking->canRescheduleAppointment()) {
+            return response()->json([
+                'message' => trans('treatmentreservation::admin.reschedule.not_allowed'),
+            ], 422);
+        }
+
+        $productId = (int) ($booking->product_id ?? 0);
+        $branchId = (int) ($booking->spa_branch_id ?? $booking->order?->spa_branch_id ?? 0);
+
+        if ($productId && $branchId) {
+            $slots = $availability->availableSlots(
+                $productId,
+                $branchId,
+                $data['date'],
+                (int) $beautician->id,
+                (int) $booking->id,
+            );
+        } else {
+            $slots = app(BeauticianAvailabilityService::class)->availableSlots(
+                (int) $beautician->id,
+                $data['date'],
+                (int) $booking->id,
+            );
+        }
+
+        return response()->json(['slots' => $slots])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
+        ]);
+    }
+
+    public function rescheduleDates(Request $request, int $id, BookingSelfService $availability): JsonResponse
+    {
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+        $data = $request->validate([
+            'from' => ['required', 'date', 'after_or_equal:today'],
+            'to' => ['required', 'date', 'after_or_equal:from'],
+        ]);
+
+        if (Carbon::parse($data['from'])->diffInDays(Carbon::parse($data['to'])) > 42) {
+            throw ValidationException::withMessages(['to' => trans('validation.max.numeric', [
+                'attribute' => 'to',
+                'max' => 42,
+            ])]);
+        }
+
+        $booking = TreatmentBooking::query()
+            ->with('order')
+            ->where('beautician_id', $beautician->id)
+            ->findOrFail($this->bookingIdFromRoute($request, $id));
+
+        if (! $booking->canRescheduleAppointment()) {
+            return response()->json([
+                'message' => trans('treatmentreservation::admin.reschedule.not_allowed'),
+            ], 422);
+        }
+
+        return response()->json([
+            'dates' => $availability->availableDatesForBooking($booking, $data['from'], $data['to']),
+            'from' => $data['from'],
+            'to' => $data['to'],
+        ])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
         ]);
     }
 
@@ -587,6 +736,9 @@ class PortalController extends Controller
                 'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
                 'calendarFullView' => route('admin.beauticians.portal.calendar_page', ['id' => $beautician->id, 'focus' => 1]),
                 'updateStatus' => route('admin.beauticians.portal.update_status', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'reschedule' => route('admin.beauticians.portal.reschedule', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'rescheduleSlots' => route('admin.beauticians.portal.reschedule_slots', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'rescheduleDates' => route('admin.beauticians.portal.reschedule_dates', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'whatsapp' => route('admin.beauticians.portal.send_whatsapp', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'consultation' => route('admin.beauticians.portal.consultation', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'reminder' => route('admin.beauticians.portal.send_reminder', ['id' => $beautician->id, 'booking' => '__ID__']),
@@ -615,6 +767,9 @@ class PortalController extends Controller
             'calendar' => route('admin.treatment_reservations.portal.calendar'),
             'calendarFullView' => route('admin.treatment_reservations.portal.calendar_page', ['focus' => 1]),
             'updateStatus' => route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']),
+            'reschedule' => route('admin.treatment_reservations.portal.reschedule', ['id' => '__ID__']),
+            'rescheduleSlots' => route('admin.treatment_reservations.portal.reschedule_slots', ['id' => '__ID__']),
+            'rescheduleDates' => route('admin.treatment_reservations.portal.reschedule_dates', ['id' => '__ID__']),
             'whatsapp' => route('admin.treatment_reservations.portal.send_whatsapp', ['id' => '__ID__']),
             'consultation' => route('admin.treatment_reservations.portal.consultation', ['id' => '__ID__']),
             'reminder' => route('admin.treatment_reservations.portal.send_reminder', ['id' => '__ID__']),

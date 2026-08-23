@@ -101,6 +101,15 @@
         data-cal-preview-schedule-tba="{{ TrLang::trans('admin.tba.schedule') }}"
         data-tba-schedule-url="{{ route('admin.treatment_reservations.tba.schedule', ['id' => '__ID__']) }}"
         data-tba-slots-url="{{ route('admin.treatment_reservations.manual_bookings.slots') }}"
+        data-reschedule-slots-url="{{ route('admin.treatment_reservations.manual_bookings.slots') }}"
+        data-reschedule-dates-url="{{ route('admin.treatment_reservations.reschedule_dates', ['id' => '__ID__']) }}"
+        data-reschedule-url="{{ route('admin.treatment_reservations.reschedule', ['id' => '__ID__']) }}"
+        data-reschedule-date-prompt="{{ TrLang::trans('admin.reschedule.date_prompt') }}"
+        data-reschedule-times-prompt="{{ TrLang::trans('admin.reschedule.available_times', ['times' => '__TIMES__']) }}"
+        data-reschedule-load-failed="{{ TrLang::trans('admin.reschedule.load_failed') }}"
+        data-reschedule-save-failed="{{ TrLang::trans('admin.reschedule.save_failed') }}"
+        data-reschedule-no-slots="{{ TrLang::trans('admin.reschedule.no_slots') }}"
+        data-reschedule-labels='@json(trans('treatmentreservation::admin.reschedule'))'
         data-cal-preview-status-update-failed="{{ TrLang::trans('admin.crm.agenda_status_update_failed') }}"
         @hasAccess('admin.treatment_reservations.edit')
             data-manual-booking-edit="1"

@@ -6,7 +6,7 @@
         ? $treatmentBookings
         : collect(! empty($treatmentBooking) ? [$treatmentBooking] : []);
     $primaryBooking = $orderBookings->first();
-    $orderWorkspaceUrl = request()->url();
+    $orderWorkspaceUrl = route('admin.orders.show', $order);
 @endphp
 
 <div class="order-show__hero">
@@ -165,6 +165,9 @@
 
     <nav class="order-show__workspace-nav" aria-label="{{ trans('order::orders.workspace_navigation') }}">
         <a href="{{ $orderWorkspaceUrl }}#order-items" data-order-section="order-items" aria-controls="order-items"><i class="fa fa-shopping-bag" aria-hidden="true"></i>{{ trans('order::orders.items_ordered') }}</a>
+        @if (app('modules')->isEnabled('Loyalty') && ! empty($orderRewardData))
+            <a href="{{ $orderWorkspaceUrl }}#order-rewards" data-order-section="order-rewards" aria-controls="order-rewards"><i class="fa fa-gift" aria-hidden="true"></i>{{ trans('loyalty::orders.rewards.title') }}</a>
+        @endif
         <a href="{{ $orderWorkspaceUrl }}#order-overview" data-order-section="order-overview" aria-controls="order-overview"><i class="fa fa-file-text-o" aria-hidden="true"></i>{{ trans('order::orders.order_information') }}</a>
         @if ($order->hasAppointmentDetails() || $orderBookings->isNotEmpty())
             <a href="{{ $orderWorkspaceUrl }}#order-fulfillment" data-order-section="order-fulfillment" aria-controls="order-fulfillment"><i class="fa fa-calendar-check-o" aria-hidden="true"></i>{{ trans('order::orders.appointment_information') }}</a>

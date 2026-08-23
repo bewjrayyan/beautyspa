@@ -50,6 +50,7 @@ class BookingCrmInsightService
 
         $payload['inline_alerts'] = $this->urgency->inlineAlertsFor($booking);
         $payload['can_reschedule_manual'] = $booking->canRescheduleManual();
+        $payload['can_reschedule'] = $booking->canRescheduleAppointment();
 
         return array_merge(
             $payload,

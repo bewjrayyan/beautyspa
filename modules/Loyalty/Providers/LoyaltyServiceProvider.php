@@ -5,6 +5,7 @@ namespace Modules\Loyalty\Providers;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Modules\Loyalty\Services\LoyaltyStampAdminService;
+use Modules\Loyalty\Services\LoyaltyOrderAdminRewardService;
 use Modules\Order\Entities\Order;
 use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Events\OrderStatusChanged;
@@ -42,10 +43,10 @@ class LoyaltyServiceProvider extends ServiceProvider
                 return;
             }
 
-            $view->with(
-                'orderStampData',
-                app(LoyaltyStampAdminService::class)->orderStampData($order)
-            );
+            $view->with([
+                'orderStampData' => app(LoyaltyStampAdminService::class)->orderStampData($order),
+                'orderRewardData' => app(LoyaltyOrderAdminRewardService::class)->forOrder($order),
+            ]);
         });
 
         $this->app['events']->listen(

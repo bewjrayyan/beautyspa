@@ -5,6 +5,8 @@ namespace Modules\TreatmentReservation\Http\Controllers\Admin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Product\Entities\Product;
@@ -19,7 +21,10 @@ use Modules\TreatmentReservation\Services\BeauticianAppointmentReminderService;
 use Modules\TreatmentReservation\Services\BookingCustomerWhatsAppService;
 use Modules\TreatmentReservation\Services\ScheduleTbaBookingService;
 use Modules\TreatmentReservation\Http\Requests\ScheduleTbaBookingRequest;
+use Modules\TreatmentReservation\Http\Requests\RescheduleTreatmentBookingRequest;
+use Modules\TreatmentReservation\Services\RescheduleTreatmentBookingService;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
+use Modules\TreatmentReservation\Services\BookingSelfService;
 use Modules\TreatmentReservation\Services\ManualBookingProductCatalogService;
 use Modules\TreatmentReservation\Services\TreatmentBookingsReportService;
 use Modules\TreatmentReservation\Services\TreatmentReservationAnalyticsService;
@@ -491,6 +496,65 @@ class ReservationController extends Controller
         return response()->json([
             'message' => trans('treatmentreservation::admin.tba.scheduled'),
             'booking' => $updated->appendAdminPayload($updated->toKanbanPayload()),
+        ]);
+    }
+
+
+    public function reschedule(
+        RescheduleTreatmentBookingRequest $request,
+        int $id,
+        RescheduleTreatmentBookingService $scheduler,
+    ): JsonResponse {
+        $booking = TreatmentBooking::query()->findOrFail($id);
+
+        try {
+            $result = $scheduler->reschedule(
+                $booking,
+                $request->validated(),
+                $request->user(),
+                $request->boolean('notify_customer', true),
+                $request->boolean('notify_beautician', true),
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => trans('treatmentreservation::admin.reschedule.saved'),
+            'booking' => $result['booking']->appendAdminPayload($result['booking']->toKanbanPayload()),
+            'notifications' => [
+                'customer' => $result['customer_notified'],
+                'beautician' => $result['beautician_notified'],
+            ],
+        ]);
+    }
+
+    public function rescheduleDates(Request $request, int $id, BookingSelfService $availability): JsonResponse
+    {
+        $data = $request->validate([
+            'from' => ['required', 'date', 'after_or_equal:today'],
+            'to' => ['required', 'date', 'after_or_equal:from'],
+        ]);
+
+        if (Carbon::parse($data['from'])->diffInDays(Carbon::parse($data['to'])) > 42) {
+            throw ValidationException::withMessages(['to' => trans('validation.max.numeric', [
+                'attribute' => 'to',
+                'max' => 42,
+            ])]);
+        }
+
+        $booking = TreatmentBooking::query()->with('order')->findOrFail($id);
+
+        if (! $booking->canRescheduleAppointment()) {
+            return response()->json([
+                'message' => trans('treatmentreservation::admin.reschedule.not_allowed'),
+            ], 422);
+        }
+
+        return response()->json([
+            'dates' => $availability->availableDatesForBooking($booking, $data['from'], $data['to']),
+            'from' => $data['from'],
+            'to' => $data['to'],
         ]);
     }
 
