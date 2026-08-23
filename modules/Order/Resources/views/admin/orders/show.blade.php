@@ -24,8 +24,8 @@
         @include('order::admin.orders.partials.order_header', ['canSendOrderWhatsApp' => $canSendOrderWhatsApp])
 
         <div class="order-show__body">
-            <div class="row">
-                <div class="col-lg-8">
+            <div class="order-show__layout">
+                <main class="order-show__main">
                     @include('order::admin.orders.partials.items_ordered')
 
                     @include('order::admin.orders.partials.order_and_account_information')
@@ -33,16 +33,22 @@
                     @include('order::admin.orders.partials.address_information')
 
                     @if (! empty($treatmentBooking?->activities) && $treatmentBooking->activities->isNotEmpty())
-                        <div class="order-show__section">
+                        <section id="order-activity" class="order-show__section order-show__section--activity">
                             @include('treatmentreservation::admin.partials.booking_activity_log', [
                                 'activities' => $treatmentBooking->activities,
                             ])
-                        </div>
+                        </section>
                     @endif
-                </div>
+                </main>
 
-                <div class="col-lg-4">
+                <aside class="order-show__aside">
                     <div class="order-show__sidebar">
+                        @include('order::admin.orders.partials.order_sidebar_controls', [
+                            'order' => $order,
+                            'canSendOrderWhatsApp' => $canSendOrderWhatsApp,
+                            'treatmentBooking' => $treatmentBooking ?? null,
+                        ])
+
                         @if (app('modules')->isEnabled('Loyalty') && ! empty($orderStampData))
                             @include('loyalty::admin.orders.partials.stamp_information', $orderStampData)
                         @endif
@@ -56,7 +62,7 @@
                         @include('order::admin.orders.partials.order_customer_note')
                         @include('order::admin.orders.partials.order_tracking')
                     </div>
-                </div>
+                </aside>
             </div>
         </div>
     </div>

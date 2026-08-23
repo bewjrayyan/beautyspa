@@ -1,4 +1,4 @@
-<div class="order-show__section">
+<section id="order-customer" class="order-show__section">
     <h4 class="order-show__section-title">
         <span class="order-show__section-title-text">{{ trans('order::orders.address_information') }}</span>
     </h4>
@@ -34,4 +34,4 @@
             </address>
         </div>
     </div>
-</div>
+</section>

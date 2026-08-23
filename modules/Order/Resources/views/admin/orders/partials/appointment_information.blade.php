@@ -5,7 +5,7 @@
 @endphp
 
 @if ($order->hasAppointmentDetails() || $order->beautician || $order->spaBranch || $bookings->isNotEmpty())
-    <div class="order-show__card order-show__card--appointment">
+    <div id="order-fulfillment" class="order-show__card order-show__card--appointment">
         <div class="order-show__card-head">
             <h5><i class="fa fa-calendar-check-o" aria-hidden="true"></i> {{ trans('order::orders.appointment_information') }}</h5>
         </div>
@@ -18,9 +18,11 @@
         @endif
 
         @forelse ($bookings as $booking)
-            <div class="order-show__appt-booking" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
-                <strong>{{ $booking->product?->name ?? trans('order::orders.appointment_information') }}</strong>
-                <span class="badge {{ treatment_status_badge_class($booking->status) }}">{{ $booking->treatmentStatusLabel() }}</span>
+            <div class="order-show__appt-booking">
+                <div class="order-show__appt-booking-head">
+                    <strong>{{ $booking->product?->name ?? trans('order::orders.appointment_information') }}</strong>
+                    <span class="badge {{ treatment_status_badge_class($booking->status) }}">{{ $booking->treatmentStatusLabel() }}</span>
+                </div>
 
                 @if ($booking->isTbaSchedule())
                     <div class="order-show__appt-slot">
@@ -45,7 +47,7 @@
                 @endif
 
                 @if ($booking->beautician)
-                    <div class="order-show__beautician-card" style="margin-top: 8px;">
+                    <div class="order-show__beautician-card order-show__beautician-card--booking">
                         @if ($booking->beautician->profile_image->exists)
                             <img src="{{ $booking->beautician->profile_image->path }}" alt="" class="order-show__avatar order-show__avatar--lg">
                         @else

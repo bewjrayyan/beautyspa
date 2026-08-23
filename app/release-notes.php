@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.12' => [
+        'date' => '2026-08-23 12:53',
+        'en' => [
+            'summary' => 'Enterprise CRM order workspace with responsive operations, customer context, and reliable section navigation.',
+            'changes' => [
+                'Redesign Admin Order Detail as a focused two-column CRM workspace with customer identity, lifecycle statuses, order total, and operational snapshot.',
+                'Improve ordered items, payment summary, appointment, address, activity, and workflow control cards for faster order handling across desktop and mobile.',
+                'Add accessible workspace navigation with active states, reduced-motion support, and reliable section scrolling that remains on the admin order URL.',
+                'Rebuild the Order admin CSS and JavaScript production assets.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Ruang kerja pesanan CRM enterprise dengan operasi responsif, konteks pelanggan, dan navigasi seksyen yang stabil.',
+            'changes' => [
+                'Reka semula Butiran Pesanan Admin sebagai ruang kerja CRM dua kolum dengan identiti pelanggan, status kitar hayat, jumlah pesanan, dan ringkasan operasi.',
+                'Perkemas kad item pesanan, ringkasan bayaran, temujanji, alamat, aktiviti, dan kawalan aliran kerja untuk pengendalian lebih pantas di desktop dan mudah alih.',
+                'Tambah navigasi ruang kerja yang boleh diakses dengan status aktif, sokongan reduced-motion, dan scroll seksyen yang kekal pada URL pesanan admin.',
+                'Bina semula aset production CSS dan JavaScript admin Order.',
+            ],
+        ],
+    ],
     '4.11.11' => [
         'date' => '2026-08-22 20:45',
         'en' => [

@@ -5,7 +5,7 @@
         || ! empty($treatmentBooking?->beautician_notes);
 @endphp
 
-<div class="order-show__section">
+<section id="order-overview" class="order-show__section">
     <div @class(['order-show__grid', 'order-show__grid--2' => $hasAppointmentCard])>
         <div class="order-show__card">
             <div class="order-show__card-head">
@@ -95,4 +95,4 @@
             @include('order::admin.orders.partials.appointment_information')
         @endif
     </div>
-</div>
+</section>

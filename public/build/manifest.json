@@ -1155,7 +1155,7 @@
     "src": "modules/Option/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DTgY7vn9-v4.7.72.js",
+    "file": "assets/main-CwzRarZy-v4.7.72.js",
     "name": "main",
     "src": "modules/Order/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1164,7 +1164,7 @@
     ]
   },
   "modules/Order/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-B0UCfzzL-v4.7.72.css",
+    "file": "assets/main-B0JmIoqv-v4.7.72.css",
     "src": "modules/Order/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/sass/print.scss": {
