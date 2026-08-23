@@ -37,6 +37,14 @@ return [
         'title' => 'Too many requests',
         'message' => 'We received several requests in a short time. Please wait a moment before trying again.',
     ],
+    'security_throttle' => [
+        'eyebrow' => 'Account protection',
+        'title' => 'Let’s pause for a moment',
+        'message' => 'We noticed several sign-in attempts from this connection. As a precaution, access has been paused temporarily. Your account and order information remain safe.',
+        'guidance_title' => 'What you can do',
+        'guidance' => 'Please wait a few minutes before trying again. Avoid refreshing repeatedly, as this may make the wait longer.',
+        'support' => 'Still unable to continue after waiting? Contact our team and we will be happy to help.',
+    ],
     '500' => [
         'eyebrow' => 'Temporary server issue',
         'title' => 'We could not complete your request',

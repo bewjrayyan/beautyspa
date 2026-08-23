@@ -7,7 +7,7 @@
         <label>{{ trans('storefront::account.view_order.total') }}</label>
 
         <span class="total-price">
-            {{ $order->total->convert($order->currency, $order->currency_rate)->format($order->currency) }}
+            {{ $formatOrderMoney($order->total) }}
         </span>
     </div>
 </div>

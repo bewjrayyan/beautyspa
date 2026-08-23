@@ -360,6 +360,7 @@ class UpdateSettingRequest extends Request
             'loyalty_allow_with_coupon' => 'required|boolean',
             'loyalty_birthday_bonus_enabled' => 'required|boolean',
             'loyalty_birthday_bonus_points' => 'required|integer|min:0',
+            'loyalty_review_reward_points' => 'required|integer|min:0|max:10000',
             'loyalty_referral_enabled' => 'required|boolean',
             'loyalty_referral_bonus_referrer' => 'required|integer|min:0',
             'loyalty_referral_bonus_referee' => 'required|integer|min:0',

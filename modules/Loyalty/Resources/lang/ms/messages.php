@@ -9,5 +9,6 @@ return [
     'redeem_for_order' => 'Mata ditebus untuk pesanan #:id',
     'refund_redeem_for_order' => 'Mata dikembalikan untuk pesanan dibatalkan #:id',
     'birthday_bonus' => 'Mata bonus hari lahir',
+    'review_bonus' => 'Mata bonus kerana menghantar ulasan rawatan',
     'referral_bonus' => 'Mata bonus rujukan',
 ];

@@ -4,6 +4,7 @@ return [
     'title' => 'Ganjaran Anda',
     'stamp_cards' => 'Kad-Kad Setem',
     'loyalty_points' => 'Mata kesetiaan',
+    'equivalent_value' => 'Nilai setara',
     'points_balance' => 'Anda mempunyai :points mata kesetiaan bernilai :worth',
     'stamps_progress' => ':earned / :required cop',
     'stamps_complete' => 'Ganjaran dibuka!',

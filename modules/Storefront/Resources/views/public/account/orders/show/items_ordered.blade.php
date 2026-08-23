@@ -5,45 +5,62 @@
         <table class="table table-borderless order-details-table account-order-items__table">
             <thead>
                 <tr>
-                    <th>{{ trans('storefront::account.product_name') }}</th>
-                    <th>{{ trans('storefront::account.view_order.unit_price') }}</th>
-                    <th>{{ trans('storefront::account.view_order.quantity') }}</th>
-                    <th>{{ trans('storefront::account.view_order.line_total') }}</th>
+                    <th scope="col">{{ trans('storefront::account.product_name') }}</th>
+                    <th scope="col">{{ trans('storefront::account.view_order.unit_price') }}</th>
+                    <th scope="col" class="account-order-items__quantity-heading">{{ trans('storefront::account.view_order.quantity') }}</th>
+                    <th scope="col" class="account-order-items__total-heading">{{ trans('storefront::account.view_order.line_total') }}</th>
                 </tr>
             </thead>
 
             <tbody>
                 @foreach ($order->products as $product)
+                    @php
+                        $productImage = $product->product?->base_image?->path;
+                    @endphp
+
                     <tr>
                         <td>
-                            <a href="{{ $product->url() }}" class="product-name">
-                                {{ $product->name }}
-                            </a>
+                            <div class="account-order-items__product">
+                                <a href="{{ $product->url() }}" class="account-order-items__thumb">
+                                    <img
+                                        src="{{ $productImage ?: asset('build/assets/image-placeholder.png') }}"
+                                        alt="{{ $product->name }}"
+                                        width="58"
+                                        height="58"
+                                        loading="lazy"
+                                        decoding="async"
+                                        @class(['image-placeholder' => ! $productImage])
+                                    >
+                                </a>
 
-                            @if ($product->hasAnyVariation())
-                                <ul class="list-inline product-options">
-                                    @foreach ($product->variations as $variation)
-                                        <li>
-                                            <label>{{ $variation->name }}:</label>
-                                            {{ $variation->values()->first()?->label }}{{ $loop->last ? "" : "," }}
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @endif
+                                <div class="account-order-items__product-info">
+                                    <span class="account-order-items__eyebrow">
+                                        {{ trans('storefront::account.view_order.item_number', ['number' => str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)]) }}
+                                    </span>
 
-                            @if ($product->hasAnyOption())
-                                <ul class="list-inline product-options">
-                                    @foreach ($product->options as $option)
-                                        <li>
-                                            @if ($option->isFieldType())
-                                                <label>{{ $option->name }}:</label> {{ $option->value }}
-                                            @else
-                                                <label>{{ $option->name }}:</label> {{ $option->values->implode('label', ', ') }}
-                                            @endif
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @endif
+                                    <a href="{{ $product->url() }}" class="product-name">
+                                        {{ $product->name }}
+                                    </a>
+
+                                    @if ($product->hasAnyVariation() || $product->hasAnyOption())
+                                        <ul class="list-inline product-options">
+                                            @foreach ($product->variations as $variation)
+                                                <li>
+                                                    <span>{{ $variation->name }}</span>
+                                                    <strong>{{ $variation->values->first()?->label ?? $variation->value }}</strong>
+                                                </li>
+                                            @endforeach
+
+                                            @foreach ($product->options as $option)
+                                                <li>
+                                                    <span>{{ $option->name }}</span>
+                                                    <strong>{{ $option->isFieldType() ? $option->value : $option->values->implode('label', ', ') }}</strong>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
                         </td>
 
                         <td>
@@ -52,24 +69,31 @@
                                     'order' => $order,
                                     'product' => $product,
                                     'compact' => true,
+                                    'tablePriceOnly' => true,
                                 ])
                             </div>
                         </td>
 
-                        <td>
-                            <label>{{ trans('storefront::account.view_order.quantity') }}</label>
-
-                            <span class="quantity">
+                        <td class="account-order-items__quantity-cell">
+                            <span class="quantity" aria-label="{{ trans('storefront::account.view_order.quantity') }}">
                                 {{ $product->qty }}
                             </span>
                         </td>
 
-                        <td>
-                            <label>{{ trans('storefront::account.view_order.line_total') }}</label>
+                        <td class="account-order-items__total-cell">
+                            @php
+                                $discountPricing = $orderProductDiscounts[$product->getKey()] ?? null;
+                            @endphp
 
-                            <span class="product-price">
-                                {{ $product->line_total->convert($order->currency, $order->currency_rate)->format($order->currency) }}
-                            </span>
+                            @if ($discountPricing)
+                                <span class="product-price">
+                                    {{ $formatOrderMoney($discountPricing['discounted_line_total']) }}
+                                </span>
+                            @else
+                                <span class="product-price">
+                                    {{ $formatOrderMoney($product->line_total) }}
+                                </span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

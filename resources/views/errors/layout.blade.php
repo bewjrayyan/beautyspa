@@ -161,6 +161,45 @@
             line-height: 1.7;
         }
 
+        .error-guidance {
+            display: grid;
+            grid-template-columns: 38px minmax(0, 1fr);
+            gap: 13px;
+            align-items: start;
+            margin-top: 22px;
+            padding: 16px;
+            border: 1px solid rgba(181, 8, 99, .14);
+            border-radius: 14px;
+            color: #4d4149;
+            background: var(--brand-soft);
+        }
+
+        .error-guidance__icon {
+            display: inline-grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            color: var(--brand-deep);
+            background: #fff;
+            font-size: 19px;
+            font-weight: 800;
+            box-shadow: 0 5px 14px rgba(55, 20, 40, .08);
+        }
+
+        .error-guidance strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--ink);
+            font-size: 14px;
+        }
+
+        .error-guidance p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
         .error-path {
             margin-top: 26px;
             padding: 13px 15px;
@@ -279,6 +318,10 @@
 
                 <p class="error-message">@yield('message')</p>
 
+                @hasSection('guidance')
+                    @yield('guidance')
+                @endif
+
                 <div class="error-path">
                     <span>{{ trans('errors.requested_page') }}</span>
                     <code>{{ $requestedPath }}</code>
@@ -293,7 +336,13 @@
                     </button>
                 </div>
 
-                <p class="error-support">{{ trans('errors.support', ['code' => $statusCode]) }}</p>
+                <p class="error-support">
+                    @hasSection('support')
+                        @yield('support')
+                    @else
+                        {{ trans('errors.support', ['code' => $statusCode]) }}
+                    @endif
+                </p>
             </div>
         </section>
     </main>

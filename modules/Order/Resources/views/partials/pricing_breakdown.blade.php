@@ -1,6 +1,7 @@
 @php
     $style = $style ?? 'invoice';
-    $pricingLines = app(\Modules\Order\Services\OrderPricingBreakdown::class)->lines($order);
+    $alwaysShow = $alwaysShow ?? ($style === 'admin');
+    $pricingLines = app(\Modules\Order\Services\OrderPricingBreakdown::class)->lines($order, $alwaysShow);
 @endphp
 
 @foreach ($pricingLines as $line)

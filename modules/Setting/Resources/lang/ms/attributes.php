@@ -229,6 +229,7 @@ return [
     'loyalty_allow_with_coupon' => 'Mata bersama kupon',
     'loyalty_birthday_bonus_enabled' => 'Bonus hari lahir',
     'loyalty_birthday_bonus_points' => 'Mata bonus hari lahir',
+    'loyalty_review_reward_points' => 'Mata ganjaran ulasan',
     'loyalty_referral_enabled' => 'Program rujukan',
     'loyalty_referral_bonus_referrer' => 'Mata bonus perujuk',
     'loyalty_referral_bonus_referee' => 'Mata bonus ahli baharu',

@@ -3,6 +3,7 @@
 namespace AestheticCart\Exceptions;
 
 use Throwable;
+use Cartalyst\Sentinel\Checkpoints\ThrottlingException;
 use Illuminate\Http\Request;
 use Swift_TransportException;
 use Illuminate\Http\Response;
@@ -27,6 +28,7 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         CommandNotFoundException::class,
         NamespaceNotFoundException::class,
+        ThrottlingException::class,
     ];
 
     /**
@@ -119,6 +121,7 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $e)
     {
         return match (true) {
+            $e instanceof ThrottlingException => $this->handleThrottlingException($request),
             TreatmentSlotConflict::causedBy($e) => response()->json([
                 'message' => trans('treatmentreservation::public.slot_unavailable'),
             ], Response::HTTP_CONFLICT),
@@ -138,6 +141,26 @@ class Handler extends ExceptionHandler
             ),
             default => parent::render($request, $e),
         };
+    }
+
+
+    /**
+     * Render Sentinel throttling as a safe, customer-friendly response.
+     */
+    private function handleThrottlingException(Request $request): Response|JsonResponse
+    {
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'message' => trans('errors.security_throttle.message'),
+                'next_step' => trans('errors.security_throttle.guidance'),
+            ], Response::HTTP_TOO_MANY_REQUESTS);
+        }
+
+        return response()->view(
+            'errors.security-throttle',
+            [],
+            Response::HTTP_TOO_MANY_REQUESTS
+        );
     }
 
 

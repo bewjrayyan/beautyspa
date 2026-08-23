@@ -133,6 +133,10 @@
         @endif
     </div>
 
+    @include('storefront::public.account.orders.show.order_rewards', [
+        'wrapperClass' => 'account-order-sidebar__rewards d-none d-lg-block',
+    ])
+
     <div class="account-order-sidebar__card account-order-sidebar__card--payment d-none d-lg-block">
         <h3 class="account-order-sidebar__title">
             <i class="las la-credit-card"></i>
@@ -155,156 +159,109 @@
                 <i class="las la-spa"></i>
                 {{ $multipleAppointments
                     ? trans('storefront::account.view_order.appointments')
-                    : trans('storefront::account.view_order.beautician') }}
+                    : trans('storefront::account.view_order.appointment_details') }}
             </h3>
 
-            @if ($order->beautician && ! $multipleAppointments)
-                <div class="account-order-sidebar__beautician">
-                    @if ($order->beautician->profile_image->exists)
-                        <img
-                            src="{{ $order->beautician->profile_image->path }}"
-                            alt=""
-                            class="account-order-sidebar__avatar"
-                        >
-                    @else
-                        <span
-                            class="account-order-sidebar__avatar account-order-sidebar__avatar--initial"
-                            style="background-color: {{ $order->beautician->profile_color ?? 'var(--color-primary, #f274ac)' }}"
-                        >{{ strtoupper(mb_substr($order->beautician->name, 0, 1)) }}</span>
-                    @endif
-
-                    <div>
-                        <span class="account-order-sidebar__beautician-name">{{ $order->beautician->name }}</span>
-                        @if ($order->beautician->job_title)
-                            <span class="account-order-sidebar__beautician-role">{{ $order->beautician->job_title }}</span>
-                        @endif
-                    </div>
+            @if ($order->spaBranch)
+                <div class="account-order-sidebar__appointment-location">
+                    <span class="account-order-sidebar__appointment-icon" aria-hidden="true">
+                        <i class="las la-map-marker"></i>
+                    </span>
+                    <span>
+                        <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.spa_branch') }}</span>
+                        <strong class="account-order-sidebar__appointment-location-name">{{ $order->spaBranch->name }}</strong>
+                    </span>
                 </div>
             @endif
 
-            @if ($multipleAppointments)
-                <ul class="account-order-sidebar__list">
-                    @if ($order->spaBranch)
-                        <li>
-                            <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.spa_branch') }}</span>
-                            <span class="account-order-sidebar__value">{{ $order->spaBranch->name }}</span>
-                        </li>
-                    @endif
-                </ul>
-
+            <div class="account-order-sidebar__bookings">
                 @foreach ($treatmentBookings as $booking)
-                    <div class="account-order-sidebar__booking" style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,.08);">
-                        <strong class="account-order-sidebar__booking-title">{{ $booking->product?->name ?? trans('storefront::account.view_order.treatment_line') }}</strong>
+                    @php
+                        $appointmentBeautician = $booking->beautician ?? $order->beautician;
+                        $appointmentAvatarUrl = $appointmentBeautician?->displayAvatarUrl();
+                    @endphp
 
-                        @if ($booking->beautician)
-                            <p class="account-order-sidebar__booking-meta">{{ $booking->beautician->name }}</p>
-                        @endif
+                    <article class="account-order-sidebar__booking">
+                        <div class="account-order-sidebar__booking-head">
+                            @if ($appointmentBeautician)
+                                <span @class([
+                                    'account-order-sidebar__avatar',
+                                    'account-order-sidebar__avatar--photo' => $appointmentAvatarUrl,
+                                    'account-order-sidebar__avatar--initial' => ! $appointmentAvatarUrl,
+                                ]) @unless($appointmentAvatarUrl) style="background-color: {{ $appointmentBeautician->profile_color ?? 'var(--color-primary, #f274ac)' }}" @endunless>
+                                    @if ($appointmentAvatarUrl)
+                                        <img
+                                            src="{{ $appointmentAvatarUrl }}"
+                                            alt="{{ $appointmentBeautician->name }}"
+                                            width="48"
+                                            height="48"
+                                            loading="lazy"
+                                            decoding="async"
+                                        >
+                                    @else
+                                        {{ $appointmentBeautician->initials }}
+                                    @endif
+                                </span>
 
-                        <ul class="account-order-sidebar__list">
+                                <span class="account-order-sidebar__booking-person">
+                                    <strong class="account-order-sidebar__beautician-name">{{ $appointmentBeautician->name }}</strong>
+                                    @if ($appointmentBeautician->job_title)
+                                        <span class="account-order-sidebar__beautician-role">{{ $appointmentBeautician->job_title }}</span>
+                                    @endif
+                                </span>
+                            @endif
+
+                            <span class="badge {{ treatment_status_badge_class($booking->status) }}">
+                                {{ $booking->treatmentStatusLabel() }}
+                            </span>
+                        </div>
+
+                        <div class="account-order-sidebar__booking-treatment">
+                            <i class="las la-spa" aria-hidden="true"></i>
+                            <strong>{{ $booking->product?->name ?? trans('storefront::account.view_order.treatment_line') }}</strong>
+                        </div>
+
+                        <dl class="account-order-sidebar__schedule">
                             @if ($booking->isTbaSchedule())
-                                <li>
-                                    <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.appointment_date') }}</span>
-                                    <span class="account-order-sidebar__value">{{ trans('treatmentreservation::admin.tba.badge') }}</span>
-                                </li>
+                                <div class="account-order-sidebar__schedule-item account-order-sidebar__schedule-item--wide">
+                                    <dt><i class="las la-calendar" aria-hidden="true"></i>{{ trans('storefront::account.view_order.appointment_date') }}</dt>
+                                    <dd>{{ trans('treatmentreservation::admin.tba.badge') }}</dd>
+                                </div>
                             @else
                                 @if ($booking->appointment_date)
-                                    <li>
-                                        <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.appointment_date') }}</span>
-                                        <span class="account-order-sidebar__value">{{ $booking->appointment_date->format('l, d M Y') }}</span>
-                                    </li>
+                                    <div class="account-order-sidebar__schedule-item">
+                                        <dt><i class="las la-calendar" aria-hidden="true"></i>{{ trans('storefront::account.view_order.appointment_date') }}</dt>
+                                        <dd>{{ $booking->appointment_date->format('l, d M Y') }}</dd>
+                                    </div>
                                 @endif
                                 @if ($booking->appointment_time)
-                                    <li>
-                                        <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.appointment_time') }}</span>
-                                        <span class="account-order-sidebar__value">{{ $booking->displayAppointmentTime() }}</span>
-                                    </li>
+                                    <div class="account-order-sidebar__schedule-item">
+                                        <dt><i class="las la-clock" aria-hidden="true"></i>{{ trans('storefront::account.view_order.appointment_time') }}</dt>
+                                        <dd>{{ $booking->displayAppointmentTime() }}</dd>
+                                    </div>
                                 @endif
                             @endif
-                            <li>
-                                <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.treatment_status') }}</span>
-                                <span class="account-order-sidebar__value">
-                                    <span class="badge {{ treatment_status_badge_class($booking->status) }}">
-                                        {{ $booking->treatmentStatusLabel() }}
-                                    </span>
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
+                        </dl>
+                    </article>
                 @endforeach
+            </div>
 
-                @if ($canNotifyBeautician)
-                    <form
-                        action="{{ route('account.orders.notify_beautician', $order->id) }}"
-                        method="POST"
-                        class="account-order-sidebar__notify-form"
-                        style="margin-top: 12px;"
+            @if ($canNotifyBeautician)
+                <form
+                    action="{{ route('account.orders.notify_beautician', $order->id) }}"
+                    method="POST"
+                    class="account-order-sidebar__notify-form account-order-sidebar__notify-form--standalone"
+                >
+                    @csrf
+                    <button
+                        type="submit"
+                        class="account-order-sidebar__notify-btn account-order-sidebar__notify-btn--wide"
+                        title="{{ trans('storefront::account.view_order.notify_beautician_hint') }}"
                     >
-                        @csrf
-                        <button
-                            type="submit"
-                            class="account-order-sidebar__notify-btn"
-                            title="{{ trans('storefront::account.view_order.notify_beautician_hint') }}"
-                        >
-                            <i class="lab la-whatsapp" aria-hidden="true"></i>
-                            {{ trans('storefront::account.view_order.notify') }}
-                        </button>
-                    </form>
-                @endif
-            @else
-                <ul class="account-order-sidebar__list">
-                    @if ($order->spaBranch)
-                        <li>
-                            <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.spa_branch') }}</span>
-                            <span class="account-order-sidebar__value">{{ $order->spaBranch->name }}</span>
-                        </li>
-                    @endif
-                    @if ($order->appointment_date)
-                        <li>
-                            <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.appointment_date') }}</span>
-                            <span class="account-order-sidebar__value">{{ $order->appointment_date->format('l, d M Y') }}</span>
-                        </li>
-                    @endif
-                    @if ($order->appointment_time)
-                        <li class="account-order-sidebar__li--appointment-time">
-                            <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.appointment_time') }}</span>
-                            <div class="account-order-sidebar__value-row">
-                                <span class="account-order-sidebar__value">{{ $order->displayAppointmentTime() }}</span>
-
-                                @if ($canNotifyBeautician)
-                                    <form
-                                        action="{{ route('account.orders.notify_beautician', $order->id) }}"
-                                        method="POST"
-                                        class="account-order-sidebar__notify-form"
-                                    >
-                                        @csrf
-                                        <button
-                                            type="submit"
-                                            class="account-order-sidebar__notify-btn"
-                                            title="{{ trans('storefront::account.view_order.notify_beautician_hint') }}"
-                                        >
-                                            <i class="lab la-whatsapp" aria-hidden="true"></i>
-                                            {{ trans('storefront::account.view_order.notify') }}
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </li>
-                    @endif
-                    @if (is_module_enabled('TreatmentReservation'))
-                        <li>
-                            <span class="account-order-sidebar__label">{{ trans('storefront::account.view_order.treatment_status') }}</span>
-                            <span class="account-order-sidebar__value">
-                                @if ($order->treatmentBooking)
-                                    <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
-                                        {{ $order->treatmentBooking->treatmentStatusLabel() }}
-                                    </span>
-                                @else
-                                    —
-                                @endif
-                            </span>
-                        </li>
-                    @endif
-                </ul>
+                        <i class="lab la-whatsapp" aria-hidden="true"></i>
+                        {{ trans('storefront::account.view_order.remind_beautician') }}
+                    </button>
+                </form>
             @endif
         </div>
     @endif

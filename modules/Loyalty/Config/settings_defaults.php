@@ -14,6 +14,7 @@ return [
 
     'loyalty_birthday_bonus_enabled' => filter_var(env('LOYALTY_BIRTHDAY_BONUS_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
     'loyalty_birthday_bonus_points' => (int) env('LOYALTY_BIRTHDAY_BONUS_POINTS', 100),
+    'loyalty_review_reward_points' => (int) env('LOYALTY_REVIEW_REWARD_POINTS', 20),
     'loyalty_referral_enabled' => filter_var(env('LOYALTY_REFERRAL_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
     'loyalty_referral_bonus_referrer' => (int) env('LOYALTY_REFERRAL_BONUS_REFERRER', 50),
     'loyalty_referral_bonus_referee' => (int) env('LOYALTY_REFERRAL_BONUS_REFEREE', 25),

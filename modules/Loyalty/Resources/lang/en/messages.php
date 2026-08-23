@@ -8,5 +8,6 @@ return [
     'redeem_for_order' => 'Points redeemed for order #:id',
     'refund_redeem_for_order' => 'Points refunded for canceled order #:id',
     'birthday_bonus' => 'Birthday bonus points',
+    'review_bonus' => 'Bonus points for submitting a treatment review',
     'referral_bonus' => 'Referral bonus points',
 ];

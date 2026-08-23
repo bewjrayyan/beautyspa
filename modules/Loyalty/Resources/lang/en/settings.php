@@ -16,6 +16,7 @@ return [
     'section_engagement_help' => 'Birthday bonus, referral rewards, and expiry reminders.',
     'birthday_bonus_enabled' => 'Enable birthday bonus',
     'birthday_bonus_points' => 'Birthday bonus points',
+    'review_reward_points' => 'Points per eligible review',
     'referral_enabled' => 'Enable referral program',
     'referral_bonus_referrer' => 'Referrer bonus points',
     'referral_bonus_referee' => 'New member bonus points',

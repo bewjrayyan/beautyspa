@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Modules\Checkout\Services\OrderGoogleCalendarUrl;
 use Modules\Media\Entities\File;
 use Modules\Order\Entities\Order;
+use Modules\Order\Services\OrderProductDiscountAllocator;
 use Modules\Order\Services\SendOrderBeauticianNotification;
 use Modules\Order\Services\OrderPaymentProofPublicUrlService;
 use Modules\Review\Entities\Review;
@@ -46,10 +47,14 @@ class AccountOrdersController
      *
      * @return Response
      */
-    public function show(int $id, OrderGoogleCalendarUrl $calendarUrl)
+    public function show(
+        int $id,
+        OrderGoogleCalendarUrl $calendarUrl,
+        OrderProductDiscountAllocator $discountAllocator
+    )
     {
         $with = [
-            'products.product',
+            'products.product.files',
             'products.variations',
             'products.options.option',
             'products.options.values',
@@ -77,6 +82,7 @@ class AccountOrdersController
         $orderReviewItems = $this->orderReviewItems($order);
         $reviewerName = trim((auth()->user()->full_name ?: auth()->user()->email) ?? '');
         $orderRewards = $this->orderRewards($order);
+        $orderProductDiscounts = $discountAllocator->forOrder($order);
         $paymentProofUrl = $order->paymentProof
             ? app(OrderPaymentProofPublicUrlService::class)->whatsAppMediaUrl($order->paymentProof, $order)
             : null;
@@ -89,6 +95,7 @@ class AccountOrdersController
             'orderReviewItems',
             'reviewerName',
             'orderRewards',
+            'orderProductDiscounts',
             'paymentProofUrl',
         ));
     }

@@ -1,5 +1,5 @@
 @if ($orderReviewItems->isNotEmpty())
-    <section class="account-order-show__section account-order-reviews">
+    <section id="reviews" class="account-order-show__section account-order-reviews">
         <h2 class="account-order-show__section-title">
             <i class="las la-star"></i>
             {{ trans('storefront::account.view_order.leave_reviews') }}
@@ -69,8 +69,8 @@
                         >
                             @honeypot
 
-                            <div class="form-group">
-                                <label>{{ trans('storefront::product.review_form.your_rating') }}<span>*</span></label>
+                            <fieldset class="form-group account-order-review-card__rating-field">
+                                <legend>{{ trans('storefront::product.review_form.your_rating') }}<span>*</span></legend>
 
                                 <div class="account-order-review-card__rating">
                                     <input type="radio" name="rating" :value="5" x-model.number="reviewForm.rating" id="order-review-star-5-{{ $item['product_id'] }}">
@@ -102,7 +102,7 @@
                                 <template x-if="errors.has('rating')">
                                     <span class="error-message" x-text="errors.get('rating')"></span>
                                 </template>
-                            </div>
+                            </fieldset>
 
                             <div class="form-group">
                                 <label for="order-review-name-{{ $item['product_id'] }}">
@@ -123,7 +123,7 @@
                                 </template>
                             </div>
 
-                            <div class="form-group">
+                            <div class="form-group account-order-review-card__comment-field">
                                 <label for="order-review-comment-{{ $item['product_id'] }}">
                                     {{ trans('storefront::product.review_form.comment') }}<span>*</span>
                                 </label>

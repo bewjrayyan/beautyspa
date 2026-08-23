@@ -12,6 +12,9 @@
 }
 
 .account-order-review-card {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.32fr) minmax(0, 1fr);
+    gap: 22px;
     padding: 18px;
     background: $order-surface;
     border: 1px solid $order-border;
@@ -20,15 +23,19 @@
 }
 
 .account-order-review-card__header {
+    align-content: start;
     display: flex;
+    flex-direction: column;
     gap: 14px;
-    margin-bottom: 16px;
+    margin-bottom: 0;
+    padding-right: 18px;
+    border-right: 1px solid $order-border;
 }
 
 .account-order-review-card__thumb {
     flex-shrink: 0;
-    width: 64px;
-    height: 64px;
+    width: 72px;
+    height: 72px;
     overflow: hidden;
     border-radius: 12px;
     background: #f8fafc;
@@ -79,6 +86,7 @@
 }
 
 .account-order-review-card__submitted {
+    align-self: center;
     padding-top: 4px;
 }
 
@@ -100,12 +108,20 @@
 }
 
 .account-order-review-card__form {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.36fr) minmax(220px, 1fr);
+    gap: 0 16px;
+
     .form-group {
         margin-bottom: 14px;
 
-        > label {
+        > label,
+        > legend {
             display: block;
+            float: none;
+            width: auto;
             margin-bottom: 8px;
+            padding: 0;
             font-size: 13px;
             font-weight: 600;
             color: $order-text;
@@ -128,7 +144,7 @@
     }
 
     textarea.form-control {
-        min-height: 96px;
+        min-height: 92px;
         resize: vertical;
     }
 
@@ -140,15 +156,31 @@
     }
 }
 
+.account-order-review-card__rating-field {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+}
+
+.account-order-review-card__comment-field,
+.account-order-review-card__submit {
+    grid-column: 1 / -1;
+}
+
 .account-order-review-card__rating {
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-end;
-    gap: 2px;
+    gap: 1px;
 
     label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 44px;
         margin: 0;
-        font-size: 24px;
+        font-size: 25px;
         line-height: 1;
         color: var(--color-gray-lite);
         cursor: pointer;
@@ -165,12 +197,25 @@
     }
 
     input[type="radio"] {
-        display: none;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
 
         &:checked {
             ~ label {
                 color: var(--color-yellow);
             }
+        }
+
+
+        &:focus-visible + label {
+            border-radius: 8px;
+            outline: 3px solid $order-pink-soft;
+            outline-offset: 1px;
         }
     }
 }
@@ -190,12 +235,18 @@
     }
 
     .account-order-review-card {
+        display: block;
         padding: 16px;
         border-radius: 16px;
     }
 
     .account-order-review-card__header {
+        flex-direction: row;
         margin-bottom: 14px;
+        padding-right: 0;
+        padding-bottom: 14px;
+        border-right: 0;
+        border-bottom: 1px solid $order-border;
     }
 
     .account-order-review-card__thumb {
@@ -206,5 +257,9 @@
 
     .account-order-review-card__name {
         font-size: 15px;
+    }
+
+    .account-order-review-card__form {
+        display: block;
     }
 }

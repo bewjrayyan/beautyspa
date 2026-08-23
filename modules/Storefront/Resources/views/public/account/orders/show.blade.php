@@ -1,5 +1,13 @@
 @extends('storefront::public.account.layout')
 
+@php
+    $formatOrderMoney = static function ($amount) use ($order): string {
+        $convertedAmount = $amount->convert($order->currency, $order->currency_rate)->amount();
+
+        return currency_symbol_fallback('MYR').' '.number_format((float) $convertedAmount, 2);
+    };
+@endphp
+
 @section('account_mobile_hero', true)
 
 @section('title', trans('storefront::account.view_order.view_order') . ' #' . $order->id)
@@ -29,15 +37,24 @@
                 </p>
 
                 <div class="account-order-show__badges account-order-show__badges--mobile d-lg-none">
-                    <span class="badge {{ order_status_badge_class($order->status) }}">
-                        {{ $order->status() }}
+                    <span class="account-order-show__status">
+                        <span class="account-order-show__status-label">{{ trans('storefront::account.orders.order_status') }}</span>
+                        <span class="badge {{ order_status_badge_class($order->status) }}">
+                            {{ $order->status() }}
+                        </span>
                     </span>
-                    <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
-                        {{ $order->paymentStatusLabel() }}
+                    <span class="account-order-show__status">
+                        <span class="account-order-show__status-label">{{ trans('storefront::account.orders.payment_status') }}</span>
+                        <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
+                            {{ $order->paymentStatusLabel() }}
+                        </span>
                     </span>
                     @if (is_module_enabled('TreatmentReservation') && $order->treatmentBooking)
-                        <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
-                            {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                        <span class="account-order-show__status">
+                            <span class="account-order-show__status-label">{{ trans('storefront::account.orders.treatment_status') }}</span>
+                            <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
+                                {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                            </span>
                         </span>
                     @endif
                 </div>
@@ -46,19 +63,28 @@
             <div class="account-order-show__hero-total">
                 <span class="account-order-show__hero-total-label">{{ trans('storefront::account.view_order.total') }}</span>
                 <span class="account-order-show__hero-total-value">
-                    {{ $order->total->convert($order->currency, $order->currency_rate)->format($order->currency) }}
+                    {{ $formatOrderMoney($order->total) }}
                 </span>
 
                 <div class="account-order-show__badges account-order-show__badges--desktop d-none d-lg-flex">
-                    <span class="badge {{ order_status_badge_class($order->status) }}">
-                        {{ $order->status() }}
+                    <span class="account-order-show__status">
+                        <span class="account-order-show__status-label">{{ trans('storefront::account.orders.order_status') }}</span>
+                        <span class="badge {{ order_status_badge_class($order->status) }}">
+                            {{ $order->status() }}
+                        </span>
                     </span>
-                    <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
-                        {{ $order->paymentStatusLabel() }}
+                    <span class="account-order-show__status">
+                        <span class="account-order-show__status-label">{{ trans('storefront::account.orders.payment_status') }}</span>
+                        <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
+                            {{ $order->paymentStatusLabel() }}
+                        </span>
                     </span>
                     @if (is_module_enabled('TreatmentReservation') && $order->treatmentBooking)
-                        <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
-                            {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                        <span class="account-order-show__status">
+                            <span class="account-order-show__status-label">{{ trans('storefront::account.orders.treatment_status') }}</span>
+                            <span class="badge {{ treatment_status_badge_class($order->treatmentBooking->status) }}">
+                                {{ $order->treatmentBooking->treatmentStatusLabel() }}
+                            </span>
                         </span>
                     @endif
                 </div>
@@ -75,19 +101,39 @@
                     @endif
                 </div>
 
-                <section class="account-order-show__section">
-                    <h2 class="account-order-show__section-title">
-                        <i class="las la-shopping-bag"></i>
-                        {{ trans('storefront::account.view_order.items_ordered') }}
-                    </h2>
+                <section class="account-order-show__section account-order-show__section--items">
+                    <div class="account-order-show__section-heading">
+                        <div>
+                            <h2 class="account-order-show__section-title">
+                                <i class="las la-shopping-bag"></i>
+                                {{ trans('storefront::account.view_order.items_ordered') }}
+                            </h2>
+                            <p class="account-order-show__section-description">
+                                {{ trans('storefront::account.view_order.items_ordered_hint') }}
+                            </p>
+                        </div>
 
-                    @include('storefront::public.account.orders.show.items_ordered')
-                    @include('storefront::public.account.orders.show.order_totals')
+                        <span class="account-order-show__item-count">
+                            <i class="las la-box" aria-hidden="true"></i>
+                            {{ trans_choice(
+                                'storefront::account.view_order.items_count',
+                                $order->products->sum('qty'),
+                                ['count' => number_format($order->products->sum('qty'))]
+                            ) }}
+                        </span>
+                    </div>
+
+                    <div class="account-order-items__surface">
+                        @include('storefront::public.account.orders.show.items_ordered')
+                        @include('storefront::public.account.orders.show.order_totals')
+                    </div>
                 </section>
 
                 @include('storefront::public.account.orders.show.order_reviews')
 
-                @include('storefront::public.account.orders.show.order_rewards')
+                @include('storefront::public.account.orders.show.order_rewards', [
+                    'wrapperClass' => 'd-lg-none',
+                ])
 
                 <section class="account-order-show__section account-order-show__section--payment d-lg-none">
                     <h2 class="account-order-show__section-title">

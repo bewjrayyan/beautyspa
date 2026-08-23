@@ -229,6 +229,7 @@ return [
     'loyalty_allow_with_coupon' => 'Allow points with coupon',
     'loyalty_birthday_bonus_enabled' => 'Birthday bonus',
     'loyalty_birthday_bonus_points' => 'Birthday bonus points',
+    'loyalty_review_reward_points' => 'Review reward points',
     'loyalty_referral_enabled' => 'Referral program',
     'loyalty_referral_bonus_referrer' => 'Referrer bonus points',
     'loyalty_referral_bonus_referee' => 'New member bonus points',

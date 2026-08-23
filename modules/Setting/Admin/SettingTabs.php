@@ -588,6 +588,7 @@ class SettingTabs extends Tabs
                 'loyalty_allow_with_coupon',
                 'loyalty_birthday_bonus_enabled',
                 'loyalty_birthday_bonus_points',
+                'loyalty_review_reward_points',
                 'loyalty_referral_enabled',
                 'loyalty_referral_bonus_referrer',
                 'loyalty_referral_bonus_referee',

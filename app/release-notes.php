@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.13' => [
+        'date' => '2026-08-23 13:03',
+        'en' => [
+            'summary' => 'Account order and reviews UI polish, fuller order pricing breakdown, review loyalty rewards, and friendlier rate-limit errors.',
+            'changes' => [
+                'Refresh the customer account order detail and reviews pages with clearer payment, rewards, and mobile layout.',
+                'Show complete admin/storefront payment summary lines (shipping, tax, discount, loyalty, fees) even when values are zero, and surface loyalty redemption gaps reliably.',
+                'Add loyalty points rewards for product reviews with admin settings, order-complete messaging, and coverage tests.',
+                'Improve throttling and security rate-limit error pages with clearer customer-facing copy.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pengemaskinian UI pesanan akaun & ulasan, ringkasan harga lebih lengkap, ganjaran ulasan loyalty, dan ralat had kadar yang lebih mesra.',
+            'changes' => [
+                'Kemaskini halaman butiran pesanan akaun pelanggan dan ulasan dengan paparan bayaran, ganjaran, serta susun atur mudah alih yang lebih jelas.',
+                'Paparkan baris ringkasan bayaran lengkap (penghantaran, cukai, diskaun, loyalty, yuran) walaupun nilai sifar, dan paparkan jurang penebusan mata dengan lebih tepat.',
+                'Tambah ganjaran mata loyalty untuk ulasan produk dengan tetapan admin, mesej order-complete, dan ujian liputan.',
+                'Perbaiki halaman ralat throttling / had kadar keselamatan dengan teks yang lebih mesra pelanggan.',
+            ],
+        ],
+    ],
     '4.11.12' => [
         'date' => '2026-08-23 12:53',
         'en' => [

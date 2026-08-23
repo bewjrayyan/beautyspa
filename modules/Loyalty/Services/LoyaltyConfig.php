@@ -68,6 +68,12 @@ class LoyaltyConfig
     }
 
 
+    public function reviewRewardPoints(): int
+    {
+        return max(0, (int) $this->get('review_reward_points', 20));
+    }
+
+
     public function referralEnabled(): bool
     {
         return $this->getBool('referral_enabled', true);

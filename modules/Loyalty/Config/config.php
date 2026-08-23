@@ -10,6 +10,7 @@ return [
     'expiring_notify_days' => 14,
     'birthday_bonus_enabled' => true,
     'birthday_bonus_points' => 100,
+    'review_reward_points' => (int) env('LOYALTY_REVIEW_REWARD_POINTS', 20),
     'referral_enabled' => true,
     'referral_bonus_referrer' => 50,
     'referral_bonus_referee' => 25,

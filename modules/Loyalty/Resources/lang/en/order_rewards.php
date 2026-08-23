@@ -4,6 +4,7 @@ return [
     'title' => 'Your rewards',
     'stamp_cards' => 'Stamp cards',
     'loyalty_points' => 'Loyalty points',
+    'equivalent_value' => 'Equivalent value',
     'points_balance' => 'You have :points loyalty points worth :worth',
     'stamps_progress' => ':earned / :required stamps',
     'stamps_complete' => 'Reward unlocked!',

@@ -78,7 +78,18 @@ Alpine.data(
                     };
                     this.errors.reset();
 
-                    notify(trans("storefront::product.review_submitted"));
+                    const rewardPoints = Number(response.data.reward_points || 0);
+
+                    if (rewardPoints > 0) {
+                        notify(
+                            trans("storefront::account.reviews.reward_earned").replace(
+                                ":points",
+                                rewardPoints.toLocaleString()
+                            )
+                        );
+                    } else {
+                        notify(trans("storefront::product.review_submitted"));
+                    }
                 })
                 .catch(({ response }) => {
                     if (response.status === 422) {

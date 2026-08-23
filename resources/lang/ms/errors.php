@@ -37,6 +37,14 @@ return [
         'title' => 'Terlalu banyak permintaan',
         'message' => 'Kami menerima beberapa permintaan dalam masa yang singkat. Tunggu sebentar sebelum mencuba lagi.',
     ],
+    'security_throttle' => [
+        'eyebrow' => 'Perlindungan akaun',
+        'title' => 'Mari berhenti seketika',
+        'message' => 'Kami mengesan beberapa percubaan log masuk daripada sambungan ini. Sebagai langkah berjaga-jaga, akses dihentikan sementara. Akaun dan maklumat pesanan anda kekal selamat.',
+        'guidance_title' => 'Apa yang boleh anda lakukan',
+        'guidance' => 'Tunggu beberapa minit sebelum mencuba semula. Elakkan memuat semula halaman berulang kali kerana ia mungkin memanjangkan masa menunggu.',
+        'support' => 'Masih tidak dapat meneruskan selepas menunggu? Hubungi pasukan kami dan kami sedia membantu.',
+    ],
     '500' => [
         'eyebrow' => 'Gangguan sementara pada server',
         'title' => 'Permintaan anda tidak dapat diselesaikan',

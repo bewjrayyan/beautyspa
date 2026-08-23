@@ -61,6 +61,11 @@
                         'min' => 0,
                         'value' => $loyaltyVal('loyalty_birthday_bonus_points'),
                     ]) }}
+                    {{ Form::number('loyalty_review_reward_points', trans('loyalty::settings.review_reward_points'), $errors, $settings, [
+                        'min' => 0,
+                        'max' => 10000,
+                        'value' => $loyaltyVal('loyalty_review_reward_points'),
+                    ]) }}
                     {{ Form::checkbox('loyalty_referral_enabled', trans('loyalty::settings.referral_enabled'), trans('loyalty::settings.enable'), $errors, $settings) }}
                     {{ Form::number('loyalty_referral_bonus_referrer', trans('loyalty::settings.referral_bonus_referrer'), $errors, $settings, [
                         'min' => 0,

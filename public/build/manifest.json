@@ -1558,7 +1558,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/account/orders/show/main.js": {
-    "file": "assets/main-Pg6rSr5N-v4.7.72.js",
+    "file": "assets/main-DTeSskfn-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/account/orders/show/main.js",
     "isEntry": true,
@@ -1771,7 +1771,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
-    "file": "assets/main-FuQ-FuMu-v4.7.72.css",
+    "file": "assets/main-CvmX_-RN-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/profile/main.scss": {
@@ -1779,7 +1779,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/profile/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/reviews/main.scss": {
-    "file": "assets/main-BFpNywyr-v4.7.72.css",
+    "file": "assets/main-CzyPhtHA-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/account/reviews/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/wishlist/main.scss": {

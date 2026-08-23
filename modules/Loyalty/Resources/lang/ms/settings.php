@@ -16,6 +16,7 @@ return [
     'section_engagement_help' => 'Bonus hari lahir, ganjaran rujukan, dan peringatan sebelum luput.',
     'birthday_bonus_enabled' => 'Dayakan bonus hari lahir',
     'birthday_bonus_points' => 'Mata bonus hari lahir',
+    'review_reward_points' => 'Mata bagi setiap ulasan yang layak',
     'referral_enabled' => 'Dayakan program rujukan',
     'referral_bonus_referrer' => 'Mata bonus untuk perujuk',
     'referral_bonus_referee' => 'Mata bonus untuk ahli baharu',

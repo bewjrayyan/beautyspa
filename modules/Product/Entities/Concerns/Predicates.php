@@ -11,8 +11,17 @@ trait Predicates
      */
     public function purchasedByUser(): bool
     {
-        //TODO: implement
-        return true;
+        if (! auth()->check()) {
+            return false;
+        }
+
+        return \Modules\Order\Entities\Order::query()
+            ->where('customer_id', auth()->id())
+            ->where('status', \Modules\Order\Entities\Order::COMPLETED)
+            ->whereHas('products', function ($query) {
+                $query->where('product_id', $this->getKey());
+            })
+            ->exists();
     }
 
 
