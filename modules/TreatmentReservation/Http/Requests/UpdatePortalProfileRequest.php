@@ -3,6 +3,7 @@
 namespace Modules\TreatmentReservation\Http\Requests;
 
 use Illuminate\Validation\Rule;
+use Modules\Beautician\Entities\Beautician;
 use Modules\Core\Http\Requests\Request;
 use Modules\Core\Rules\ValidPhone;
 use Modules\User\Support\PhoneNumber;
@@ -24,7 +25,10 @@ class UpdatePortalProfileRequest extends Request
      */
     public function rules(): array
     {
-        $userId = auth()->id();
+        $beautician = $this->attributes->get('portal_beautician');
+        $userId = $beautician instanceof Beautician
+            ? $beautician->user_id
+            : auth()->id();
 
         return [
             'first_name' => ['required', 'string', 'max:255'],

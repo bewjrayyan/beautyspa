@@ -27,6 +27,15 @@ export function buildDatepickerOptions(el) {
         options.minDate = el.dataset.minDate;
     }
 
+    if (el.hasAttribute("data-enable-dates")) {
+        const enabledDates = (el.dataset.enableDates || "")
+            .split(",")
+            .map((date) => date.trim())
+            .filter(Boolean);
+
+        options.enable = enabledDates.length ? enabledDates : [() => false];
+    }
+
     return options;
 }
 

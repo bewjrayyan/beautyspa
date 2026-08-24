@@ -506,7 +506,7 @@ return [
         'google_sheets_columns_include' => 'Include',
         'google_sheets_columns_move_up' => 'Move up',
         'google_sheets_columns_move_down' => 'Move down',
-        'google_sheets_columns_help' => 'Changes apply to new tabs and empty tabs. After changing columns, run Sync all orders to refresh existing rows. Existing tabs with different headers are left unchanged.',
+        'google_sheets_columns_help' => 'Changes apply to new tabs and compatible existing tabs. After changing columns, run Sync all orders to refresh existing rows. Tabs with custom or incompatible headers are left unchanged.',
         'google_sheets_columns' => [
             'order_id' => 'Order ID',
             'order_date' => 'Order Date',
@@ -531,6 +531,9 @@ return [
             'order_note' => 'Order Note',
             'synced_at' => 'Synced At',
             'spa_branch' => 'Spa Branch',
+            'treatment_work_log_at' => 'Treatment Work Log At',
+            'treatment_checklist_progress' => 'Treatment Checklist Progress',
+            'beautician_notes' => 'Customer-visible Beautician Notes',
         ],
         'google_sheets_setup_title' => 'How to get the Service Account JSON key',
         'google_sheets_setup_intro' => 'Paste the full contents of the downloaded JSON key file into the field below. It must include type, client_email, and private_key.',

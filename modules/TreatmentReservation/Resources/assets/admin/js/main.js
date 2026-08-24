@@ -1327,8 +1327,24 @@ if (portalRoot) {
 }
 
 function buildCalendarPreviewLabels(root) {
+    let workLog = {};
+    let scheduling = {};
+
+    try {
+        workLog = JSON.parse(root.dataset.calWorkLogLabels || "{}");
+    } catch (error) {
+        workLog = {};
+    }
+
+    try {
+        scheduling = JSON.parse(root.dataset.rescheduleLabels || "{}");
+    } catch (error) {
+        scheduling = {};
+    }
+
     return {
         previewTitle: root.dataset.calPreviewTitle || "Appointment details",
+        orderEyebrow: scheduling.order_eyebrow || "Order #:order",
         date: root.dataset.calPreviewDate || "Date",
         time: root.dataset.calPreviewTime || "Time",
         customer: root.dataset.calPreviewCustomer || "Customer",
@@ -1353,6 +1369,8 @@ function buildCalendarPreviewLabels(root) {
         whatsappFailed: root.dataset.calPreviewWhatsappFailed || "Failed to send WhatsApp message",
         whatsappNotConfigured: root.dataset.calPreviewWhatsappNotConfigured || "OneSender WhatsApp API is not configured.",
         activityTitle: root.dataset.calPreviewActivityTitle || "Activity log",
+        activityShow: root.dataset.calPreviewActivityShow || "Show",
+        activityHide: root.dataset.calPreviewActivityHide || "Hide",
         statusPending: root.dataset.calStatusPending || "Pending",
         statusInProgress: root.dataset.calStatusInProgress || "In Progress",
         statusCompleted: root.dataset.calStatusCompleted || "Completed",
@@ -1375,6 +1393,13 @@ function buildCalendarPreviewLabels(root) {
         beauticianReminderFailed: root.dataset.calPreviewBeauticianReminderFailed || "Failed to send beautician reminder",
         duration: root.dataset.calPreviewDuration || "Duration",
         durationMinutes: root.dataset.calPreviewDurationMinutes || ":count min",
+        durationHour: root.dataset.calPreviewDurationHour || ":count hour",
+        durationHours: root.dataset.calPreviewDurationHours || ":count hours",
+        durationSession: root.dataset.calPreviewDurationSession || ":duration session",
+        durationBadgeMinutes: root.dataset.calPreviewDurationBadgeMinutes || ":countMin Session",
+        durationBadgeHour: root.dataset.calPreviewDurationBadgeHour || ":countHr Session",
+        durationBadgeHours: root.dataset.calPreviewDurationBadgeHours || ":countHrs Session",
+        durationBadgeHoursMinutes: root.dataset.calPreviewDurationBadgeHoursMinutes || ":hoursHrs :minutesMin Session",
         payment: root.dataset.calPreviewPayment || "Payment",
         paymentReceipt: root.dataset.calPreviewPaymentReceipt || "Payment receipt",
         viewReceipt: root.dataset.calPreviewViewReceipt || "View receipt",
@@ -1385,6 +1410,11 @@ function buildCalendarPreviewLabels(root) {
         session: root.dataset.calPreviewSession || "Session",
         status: root.dataset.calPreviewStatus || "Status",
         reschedule: root.dataset.calPreviewReschedule || "Reschedule",
+        actionProfileShort: root.dataset.calPreviewActionProfileShort || "Profile",
+        actionCustomerShort: root.dataset.calPreviewActionCustomerShort || "Customer",
+        actionConsultationShort: root.dataset.calPreviewActionConsultationShort || "Consultation",
+        actionBeauticianShort: root.dataset.calPreviewActionBeauticianShort || "Beautician",
+        actionRescheduleShort: root.dataset.calPreviewActionRescheduleShort || "Reschedule",
         scheduleTba: root.dataset.calPreviewScheduleTba || "Schedule slot",
         statusUpdateFailed: root.dataset.calPreviewStatusUpdateFailed || "Failed to update status",
         sectionSchedule: root.dataset.calPreviewSectionSchedule || "Schedule",
@@ -1392,6 +1422,7 @@ function buildCalendarPreviewLabels(root) {
         sectionTreatment: root.dataset.calPreviewSectionTreatment || "Treatment & payment",
         sectionNotes: root.dataset.calPreviewSectionNotes || "Notes",
         sectionStaff: root.dataset.calPreviewSectionStaff || "Specialist",
+        workLog,
     };
 }
 
@@ -1441,6 +1472,8 @@ function buildCalendarPreviewOptions(root) {
             beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
             statusUrlTemplate: root.dataset.statusUrl || "",
             crmCanEdit: canEdit,
+            allowBeauticianNotes: canEdit && Boolean(root.dataset.notesUrl),
+            notesUrlTemplate: root.dataset.notesUrl || "",
             portalBeauticianId,
             ...manualBookingOptions,
         };

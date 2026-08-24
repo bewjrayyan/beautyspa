@@ -44,6 +44,12 @@ Route::get('treatment-reservations/calendar/events', [
     'middleware' => 'can:admin.treatment_reservations.index',
 ]);
 
+Route::patch('treatment-reservations/{id}/notes', [
+    'as' => 'admin.treatment_reservations.update_notes',
+    'uses' => 'PortalController@updateBeauticianNotes',
+    'middleware' => 'can:admin.treatment_reservations.edit',
+]);
+
 Route::get('treatment-reservations/holidays/range', [
     'as' => 'admin.treatment_reservations.holidays_range',
     'uses' => 'ReservationController@holidaysRange',

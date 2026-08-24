@@ -4,6 +4,7 @@ namespace Modules\GoogleIntegration\Services;
 
 use Exception;
 use Illuminate\Support\Str;
+use Modules\GoogleIntegration\Support\GoogleSheetsCellSanitizer;
 use Modules\GoogleIntegration\Support\GoogleSheetsStatusConfig;
 use Modules\Order\Entities\Order;
 
@@ -213,6 +214,7 @@ class GoogleSheetsService
      */
     private function appendOrderRowToTab(string $spreadsheetId, string $tabName, array $row): int
     {
+        $row = GoogleSheetsCellSanitizer::sanitizeRow($row);
         $range = rawurlencode($this->sheetRange($tabName, 'A1'));
 
         $response = $this->client->http()
@@ -246,6 +248,7 @@ class GoogleSheetsService
      */
     private function updateOrderRowAt(string $spreadsheetId, string $tabName, int $rowNumber, array $row): void
     {
+        $row = GoogleSheetsCellSanitizer::sanitizeRow($row);
         $range = rawurlencode($this->sheetRange($tabName, "A{$rowNumber}"));
 
         $response = $this->client->http()
@@ -348,7 +351,7 @@ class GoogleSheetsService
             return;
         }
 
-        if (! empty($values)) {
+        if (! empty($values) && array_slice($headers, 0, count($values)) !== $values) {
             return;
         }
 

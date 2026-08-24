@@ -6,6 +6,26 @@
 @endsection
 
 @section('content')
+    @php
+        $workLogLabels = [
+            'title' => trans('treatmentreservation::admin.calendar.work_log_title'),
+            'help' => trans('treatmentreservation::admin.calendar.work_log_help'),
+            'date' => trans('treatmentreservation::admin.calendar.work_log_date'),
+            'time' => trans('treatmentreservation::admin.calendar.work_log_time'),
+            'checklist' => trans('treatmentreservation::admin.calendar.work_log_checklist'),
+            'quickAdd' => trans('treatmentreservation::admin.calendar.work_log_quick_add'),
+            'customItem' => trans('treatmentreservation::admin.calendar.work_log_custom_item'),
+            'itemPlaceholder' => trans('treatmentreservation::admin.calendar.work_log_item_placeholder'),
+            'removeItem' => trans('treatmentreservation::admin.calendar.work_log_remove_item'),
+            'customerNote' => trans('treatmentreservation::admin.calendar.work_log_customer_note'),
+            'customerNoteHelp' => trans('treatmentreservation::admin.calendar.work_log_customer_note_help'),
+            'generateSummary' => trans('treatmentreservation::admin.calendar.work_log_generate_summary'),
+            'noCompletedItems' => trans('treatmentreservation::admin.calendar.work_log_no_completed_items'),
+            'summaryPrefix' => trans('treatmentreservation::admin.calendar.work_log_summary_prefix'),
+            'presets' => trans('treatmentreservation::admin.calendar.work_log_presets'),
+        ];
+    @endphp
+
     @if (! empty($adminPortalPreview))
         @include('treatmentreservation::admin.portal.partials.admin-preview-banner', [
             'beautician' => $beautician,
@@ -40,6 +60,20 @@
         data-cal-empty-label="{{ trans('treatmentreservation::admin.calendar.no_bookings') }}"
         data-cal-preview-date="{{ trans('treatmentreservation::admin.calendar.preview_date') }}"
         data-cal-preview-time="{{ trans('treatmentreservation::admin.calendar.preview_time') }}"
+        data-cal-preview-duration="{{ trans('treatmentreservation::admin.calendar.preview_duration') }}"
+        data-cal-preview-duration-minutes="{{ trans('treatmentreservation::admin.calendar.preview_duration_value') }}"
+        data-cal-preview-duration-hour="{{ trans('treatmentreservation::admin.calendar.preview_duration_hour') }}"
+        data-cal-preview-duration-hours="{{ trans('treatmentreservation::admin.calendar.preview_duration_hours') }}"
+        data-cal-preview-duration-session="{{ trans('treatmentreservation::admin.calendar.preview_duration_session') }}"
+        data-cal-preview-duration-badge-minutes="{{ trans('treatmentreservation::admin.calendar.preview_duration_badge_minutes') }}"
+        data-cal-preview-duration-badge-hour="{{ trans('treatmentreservation::admin.calendar.preview_duration_badge_hour') }}"
+        data-cal-preview-duration-badge-hours="{{ trans('treatmentreservation::admin.calendar.preview_duration_badge_hours') }}"
+        data-cal-preview-duration-badge-hours-minutes="{{ trans('treatmentreservation::admin.calendar.preview_duration_badge_hours_minutes') }}"
+        data-cal-preview-action-profile-short="{{ trans('treatmentreservation::admin.calendar.preview_action_profile_short') }}"
+        data-cal-preview-action-customer-short="{{ trans('treatmentreservation::admin.calendar.preview_action_customer_short') }}"
+        data-cal-preview-action-consultation-short="{{ trans('treatmentreservation::admin.calendar.preview_action_consultation_short') }}"
+        data-cal-preview-action-beautician-short="{{ trans('treatmentreservation::admin.calendar.preview_action_beautician_short') }}"
+        data-cal-preview-action-reschedule-short="{{ trans('treatmentreservation::admin.calendar.preview_action_reschedule_short') }}"
         data-cal-preview-customer="{{ trans('treatmentreservation::admin.calendar.preview_customer') }}"
         data-cal-preview-treatment="{{ trans('treatmentreservation::admin.calendar.preview_treatment') }}"
         data-cal-preview-category="{{ trans('treatmentreservation::admin.calendar.preview_category') }}"
@@ -52,6 +86,7 @@
         data-cal-preview-saving-notes="{{ trans('treatmentreservation::admin.calendar.preview_saving_notes') }}"
         data-cal-preview-notes-saved="{{ trans('treatmentreservation::admin.calendar.preview_notes_saved') }}"
         data-cal-preview-notes-save-failed="{{ trans('treatmentreservation::admin.calendar.preview_notes_save_failed') }}"
+        data-cal-work-log-labels='@json($workLogLabels)'
         data-cal-preview-whatsapp-customer="{{ trans('treatmentreservation::admin.calendar.preview_whatsapp_customer') }}"
         data-cal-preview-whatsapp-sending="{{ trans('treatmentreservation::admin.calendar.preview_whatsapp_sending') }}"
         data-cal-preview-whatsapp-sent="{{ trans('treatmentreservation::admin.calendar.preview_whatsapp_sent') }}"

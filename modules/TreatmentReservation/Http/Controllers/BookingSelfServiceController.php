@@ -8,8 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
+use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Services\BookingLookupOtpService;
 use Modules\TreatmentReservation\Services\BookingSelfService;
+use Modules\User\Entities\User;
 
 class BookingSelfServiceController extends Controller
 {
@@ -22,14 +24,45 @@ class BookingSelfServiceController extends Controller
 
     public function index(): View
     {
-        $verifiedPhone = $this->otp->verifiedPhone();
-        $bookings = $verifiedPhone
-            ? $this->selfService->upcomingForPhone($verifiedPhone)
-            : collect();
+        $customer = $this->currentCustomer();
+        $verifiedPhone = $customer
+            ? (string) $customer->phone
+            : $this->otp->verifiedPhone();
+        $hasBookingAccess = $customer !== null || filled($verifiedPhone);
+        $bookings = $customer
+            ? $this->selfService->upcomingForCustomer($customer)
+            : ($verifiedPhone ? $this->selfService->upcomingForPhone($verifiedPhone) : collect());
+        $bookingGroups = $bookings
+            ->groupBy(fn ($booking) => $booking->order_id
+                ? 'order:' . $booking->order_id
+                : 'booking:' . $booking->id)
+            ->map(function ($appointments) {
+                $appointments = $appointments->values();
+                $firstAppointment = $appointments->first();
+                $order = $firstAppointment?->order;
+
+                return [
+                    'order' => $order,
+                    'appointments' => $appointments,
+                    'appointment_count' => $appointments->count(),
+                    'scheduled_count' => $appointments
+                        ->reject(fn ($appointment) => $appointment->isTbaSchedule())
+                        ->count(),
+                    'created_at' => $order?->created_at ?? $firstAppointment?->created_at,
+                    'payment_status' => $order?->payment_status
+                        ?? $firstAppointment?->resolvedPaymentStatus(),
+                    'payment_label' => $order?->paymentStatusLabel()
+                        ?? $firstAppointment?->paymentStatusLabel(),
+                ];
+            })
+            ->values();
 
         return view('treatmentreservation::public.booking.index', [
             'verifiedPhone' => $verifiedPhone,
+            'hasBookingAccess' => $hasBookingAccess,
+            'usingAccountAccess' => $customer !== null,
             'bookings' => $bookings,
+            'bookingGroups' => $bookingGroups,
         ]);
     }
 
@@ -45,7 +78,11 @@ class BookingSelfServiceController extends Controller
 
             return response()->json(['message' => trans('treatmentreservation::public.otp_sent')]);
         } catch (\Throwable $exception) {
-            return response()->json(['message' => $exception->getMessage()], 422);
+            report($exception);
+
+            return response()->json([
+                'message' => trans('treatmentreservation::public.otp_send_failed'),
+            ], 422);
         }
     }
 
@@ -63,7 +100,11 @@ class BookingSelfServiceController extends Controller
 
             return response()->json(['message' => trans('treatmentreservation::public.verified')]);
         } catch (\Throwable $exception) {
-            return response()->json(['message' => $exception->getMessage()], 422);
+            report($exception);
+
+            return response()->json([
+                'message' => trans('treatmentreservation::public.otp_verification_failed'),
+            ], 422);
         }
     }
 
@@ -84,19 +125,21 @@ class BookingSelfServiceController extends Controller
 
     public function cancel(Request $request, int $id): JsonResponse
     {
-        $verifiedPhone = $this->otp->verifiedPhone();
-
-        if (! $verifiedPhone) {
+        if (! $this->hasBookingAccess()) {
             return response()->json(['message' => trans('treatmentreservation::public.session_expired')], 401);
         }
 
-        $booking = $this->selfService->findOwnedBooking($verifiedPhone, $id);
+        $booking = $this->findAccessibleBooking($id);
 
         if (! $booking) {
             return response()->json(['message' => trans('treatmentreservation::public.booking_not_found')], 404);
         }
 
-        $this->selfService->cancel($booking);
+        try {
+            $this->selfService->cancel($booking);
+        } catch (\InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
 
         return response()->json(['message' => trans('treatmentreservation::public.canceled')]);
     }
@@ -104,9 +147,7 @@ class BookingSelfServiceController extends Controller
 
     public function reschedule(Request $request, int $id): JsonResponse
     {
-        $verifiedPhone = $this->otp->verifiedPhone();
-
-        if (! $verifiedPhone) {
+        if (! $this->hasBookingAccess()) {
             return response()->json(['message' => trans('treatmentreservation::public.session_expired')], 401);
         }
 
@@ -115,7 +156,7 @@ class BookingSelfServiceController extends Controller
             'appointment_time' => ['required', 'string', 'max:20'],
         ]);
 
-        $booking = $this->selfService->findOwnedBooking($verifiedPhone, $id);
+        $booking = $this->findAccessibleBooking($id);
 
         if (! $booking) {
             return response()->json(['message' => trans('treatmentreservation::public.booking_not_found')], 404);
@@ -137,9 +178,7 @@ class BookingSelfServiceController extends Controller
 
     public function availableSlots(Request $request, int $id): JsonResponse
     {
-        $verifiedPhone = $this->otp->verifiedPhone();
-
-        if (! $verifiedPhone) {
+        if (! $this->hasBookingAccess()) {
             return response()->json(['message' => trans('treatmentreservation::public.session_expired')], 401);
         }
 
@@ -147,7 +186,7 @@ class BookingSelfServiceController extends Controller
             'date' => ['required', 'date', 'after_or_equal:today'],
         ]);
 
-        $booking = $this->selfService->findOwnedBooking($verifiedPhone, $id);
+        $booking = $this->findAccessibleBooking($id);
 
         if (! $booking || ! $booking->beautician_id) {
             return response()->json(['message' => trans('treatmentreservation::public.booking_not_found')], 404);
@@ -164,9 +203,7 @@ class BookingSelfServiceController extends Controller
 
     public function availableDates(Request $request, int $id): JsonResponse
     {
-        $verifiedPhone = $this->otp->verifiedPhone();
-
-        if (! $verifiedPhone) {
+        if (! $this->hasBookingAccess()) {
             return response()->json(['message' => trans('treatmentreservation::public.session_expired')], 401);
         }
 
@@ -175,7 +212,7 @@ class BookingSelfServiceController extends Controller
             'to' => ['nullable', 'date', 'after_or_equal:from'],
         ]);
 
-        $booking = $this->selfService->findOwnedBooking($verifiedPhone, $id);
+        $booking = $this->findAccessibleBooking($id);
 
         if (! $booking || ! $booking->beautician_id) {
             return response()->json(['message' => trans('treatmentreservation::public.booking_not_found')], 404);
@@ -187,5 +224,35 @@ class BookingSelfServiceController extends Controller
         return response()->json([
             'dates' => $this->selfService->availableDatesForBooking($booking, $from, $to),
         ]);
+    }
+
+
+    private function currentCustomer(): ?User
+    {
+        $user = auth()->user();
+
+        return $user instanceof User ? $user : null;
+    }
+
+
+    private function hasBookingAccess(): bool
+    {
+        return $this->currentCustomer() !== null || filled($this->otp->verifiedPhone());
+    }
+
+
+    private function findAccessibleBooking(int $bookingId): ?TreatmentBooking
+    {
+        $customer = $this->currentCustomer();
+
+        if ($customer) {
+            return $this->selfService->findOwnedBookingForCustomer($customer, $bookingId);
+        }
+
+        $verifiedPhone = $this->otp->verifiedPhone();
+
+        return $verifiedPhone
+            ? $this->selfService->findOwnedBooking($verifiedPhone, $bookingId)
+            : null;
     }
 }

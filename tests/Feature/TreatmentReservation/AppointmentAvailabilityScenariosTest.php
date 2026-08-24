@@ -21,6 +21,7 @@ use Modules\TreatmentReservation\Http\Controllers\AvailabilitySlotsController;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityAdminService;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityService;
 use Modules\TreatmentReservation\Services\BookingSelfService;
+use Modules\TreatmentReservation\Services\BeauticianIcalFeedService;
 use Modules\TreatmentReservation\Services\RescheduleTreatmentBookingService;
 use Modules\User\Entities\User;
 use Modules\User\Entities\OneSenderOutboundMessage;
@@ -528,6 +529,72 @@ class AppointmentAvailabilityScenariosTest extends TestCase
 
         $this->assertSame(200, $response->status());
         $this->assertSame([$friday], $response->getData(true)['dates']);
+    }
+
+    #[Test]
+    public function beautician_can_save_structured_treatment_work_log_and_customer_note(): void
+    {
+        $friday = Carbon::parse('next friday')->toDateString();
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        $beautician = Beautician::query()->findOrFail($beauticianId);
+        $booking = $this->makeBooking($this->productId, (int) $this->hq->id, $friday, '12:00', $beauticianId);
+        $request = Request::create('/admin/my/job-sheet/' . $booking->id . '/notes', 'PATCH', [
+            'beautician_notes' => 'Treatment completed successfully.',
+            'beautician_notes_date' => $friday,
+            'beautician_notes_time' => '12:00',
+            'beautician_checklist' => [
+                ['label' => 'Consultation completed', 'completed' => true],
+                ['label' => 'Aftercare explained', 'completed' => false],
+            ],
+        ]);
+        $request->attributes->set('portal_beautician', $beautician);
+
+        $response = app(PortalController::class)->updateBeauticianNotes($request, $booking->id);
+        $booking->refresh();
+
+        $this->assertSame(200, $response->status());
+        $this->assertSame('Treatment completed successfully.', $booking->beautician_notes);
+        $this->assertSame("{$friday} 12:00", $booking->beautician_notes_at?->format('Y-m-d H:i'));
+        $this->assertCount(2, $booking->beautician_checklist);
+        $this->assertTrue($booking->beautician_checklist[0]['completed']);
+        $this->assertNotEmpty($booking->beautician_checklist[0]['completed_at']);
+        $this->assertFalse($booking->beautician_checklist[1]['completed']);
+        $this->assertNull($booking->beautician_checklist[1]['completed_at']);
+        $this->assertSame('1/2', $booking->workLogProgressLabel());
+
+        $calendar = app(BeauticianIcalFeedService::class)->generate($beautician);
+        $this->assertStringContainsString('Work log: 1/2 complete', $calendar);
+        $this->assertStringContainsString('Customer note: Treatment completed successfully.', $calendar);
+        $this->assertStringNotContainsString('Consultation completed', $calendar);
+        $this->assertStringNotContainsString('Aftercare explained', $calendar);
+
+        $payload = $response->getData(true)['booking'];
+        $this->assertSame($friday, $payload['beautician_notes_date']);
+        $this->assertSame('12:00', $payload['beautician_notes_time']);
+        $this->assertCount(2, $payload['beautician_checklist']);
+    }
+
+    #[Test]
+    public function admin_can_save_treatment_work_log_without_beautician_portal_context(): void
+    {
+        $friday = Carbon::parse('next friday')->toDateString();
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        $booking = $this->makeBooking($this->productId, (int) $this->hq->id, $friday, '12:00', $beauticianId);
+        $request = Request::create('/admin/treatment-reservations/' . $booking->id . '/notes', 'PATCH', [
+            'beautician_notes' => 'Admin updated customer note.',
+            'beautician_notes_date' => $friday,
+            'beautician_notes_time' => '12:00',
+            'beautician_checklist' => [
+                ['label' => 'Treatment performed', 'completed' => true],
+            ],
+        ]);
+
+        $response = app(PortalController::class)->updateBeauticianNotes($request, $booking->id);
+        $booking->refresh();
+
+        $this->assertSame(200, $response->status());
+        $this->assertSame('Admin updated customer note.', $booking->beautician_notes);
+        $this->assertSame('1/1', $booking->workLogProgressLabel());
     }
 
     #[Test]

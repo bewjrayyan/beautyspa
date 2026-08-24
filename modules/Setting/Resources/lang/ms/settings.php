@@ -516,7 +516,7 @@ return [
         'google_sheets_columns_include' => 'Sertakan',
         'google_sheets_columns_move_up' => 'Alih ke atas',
         'google_sheets_columns_move_down' => 'Alih ke bawah',
-        'google_sheets_columns_help' => 'Perubahan dikenakan pada tab baharu dan tab kosong. Selepas ubah kolum, jalankan Sync semua pesanan untuk segar semula baris sedia ada. Tab sedia ada dengan header berbeza tidak diubah.',
+        'google_sheets_columns_help' => 'Perubahan dikenakan pada tab baharu dan tab sedia ada yang serasi. Selepas ubah kolum, jalankan Sync semua pesanan untuk segar semula baris sedia ada. Tab dengan header tersuai atau tidak serasi tidak diubah.',
         'google_sheets_columns' => [
             'order_id' => 'ID Pesanan',
             'order_date' => 'Tarikh Pesanan',
@@ -541,6 +541,9 @@ return [
             'order_note' => 'Nota Pesanan',
             'synced_at' => 'Masa Sync',
             'spa_branch' => 'Cawangan Spa',
+            'treatment_work_log_at' => 'Masa Log Kerja Rawatan',
+            'treatment_checklist_progress' => 'Kemajuan Checklist Rawatan',
+            'beautician_notes' => 'Nota Beautician untuk Pelanggan',
         ],
         'google_sheets_setup_title' => 'Cara dapatkan kunci JSON Service Account',
         'google_sheets_setup_intro' => 'Tampal kandungan penuh fail JSON key yang dimuat turun ke ruangan di bawah. Mesti ada type, client_email, dan private_key.',

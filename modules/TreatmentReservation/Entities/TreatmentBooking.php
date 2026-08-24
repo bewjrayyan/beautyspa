@@ -71,6 +71,9 @@ class TreatmentBooking extends Model
         'payment_receipt_file_id',
         'notes',
         'beautician_notes',
+        'beautician_notes_at',
+        'beautician_checklist',
+        'google_calendar_event_id',
     ];
 
     protected $casts = [
@@ -84,6 +87,8 @@ class TreatmentBooking extends Model
         'customer_reminder_sent_at' => 'datetime',
         'completed_notification_sent_at' => 'datetime',
         'followup_sent_at' => 'datetime',
+        'beautician_notes_at' => 'datetime',
+        'beautician_checklist' => 'array',
     ];
 
 
@@ -120,6 +125,30 @@ class TreatmentBooking extends Model
             self::STATUS_CANCELED => TrLang::trans('admin.crm.status_canceled'),
             default => (string) $this->status,
         };
+    }
+
+
+    /**
+     * @return array{completed: int, total: int}
+     */
+    public function workLogProgress(): array
+    {
+        $items = collect($this->beautician_checklist ?? []);
+
+        return [
+            'completed' => $items->where('completed', true)->count(),
+            'total' => $items->count(),
+        ];
+    }
+
+
+    public function workLogProgressLabel(): ?string
+    {
+        $progress = $this->workLogProgress();
+
+        return $progress['total'] > 0
+            ? "{$progress['completed']}/{$progress['total']}"
+            : null;
     }
 
 
@@ -495,8 +524,8 @@ class TreatmentBooking extends Model
     /**
      * Flag ownership for portal viewers and soft-protect PII on others' bookings.
      *
-     * Detail drawer stays openable for clinic schedule awareness. Phone/email remain
-     * in the payload for a blurred UI preview, but contact actions stay disabled.
+     * Detail drawer stays openable for clinic schedule awareness. Customer contact,
+     * notes, activity details, and mutation controls are removed for non-owners.
      *
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
@@ -513,9 +542,15 @@ class TreatmentBooking extends Model
         }
 
         return array_merge($payload, [
+            'customer_phone' => null,
+            'customer_email' => null,
             'can_whatsapp_customer' => false,
             'notes' => null,
             'beautician_notes' => null,
+            'beautician_notes_at' => null,
+            'beautician_notes_date' => null,
+            'beautician_notes_time' => null,
+            'beautician_checklist' => [],
             'order_url' => null,
             'payment_receipt_url' => null,
             'can_edit_manual' => false,
@@ -524,6 +559,7 @@ class TreatmentBooking extends Model
             'can_reschedule_manual' => false,
             'can_reschedule' => false,
             'next_status' => null,
+            'recent_activities' => [],
         ]);
     }
 
@@ -614,6 +650,7 @@ class TreatmentBooking extends Model
             'beautician_avatar' => $this->beautician?->displayAvatarUrl(),
             'beautician_initial' => $this->beautician?->initials ?? '?',
             'beautician_phone_available' => filled(trim((string) ($this->beautician?->phone ?? ''))),
+            'beautician_branches' => $this->beauticianBranchPayload(),
             'category_name' => $this->category?->name,
             'category_color' => $this->category?->color ?? '#6366f1',
             'status_accent' => self::statusAccentColor($this->status),
@@ -623,6 +660,10 @@ class TreatmentBooking extends Model
             'payment_status_label' => $this->paymentStatusLabel(),
             'notes' => $this->notes,
             'beautician_notes' => $this->beautician_notes,
+            'beautician_notes_at' => $this->beautician_notes_at?->format('Y-m-d H:i:s'),
+            'beautician_notes_date' => $this->beautician_notes_at?->format('Y-m-d'),
+            'beautician_notes_time' => $this->beautician_notes_at?->format('H:i'),
+            'beautician_checklist' => collect($this->beautician_checklist ?? [])->values()->all(),
             'order_id' => $this->order_id,
             'order_url' => $this->order_id
                 ? route('admin.orders.show', $this->order_id)
@@ -729,6 +770,27 @@ class TreatmentBooking extends Model
         }
 
         return $names->implode(', ');
+    }
+
+
+    private function beauticianBranchPayload(): array
+    {
+        if (! is_module_enabled('SpaBranch')) {
+            return [];
+        }
+
+        $this->loadMissing('beautician.spaBranches');
+        $currentBranchId = (int) ($this->spa_branch_id ?? $this->order?->spa_branch_id ?? 0);
+
+        return $this->beautician?->spaBranches
+            ->filter(fn ($branch) => filled(trim((string) $branch->name)))
+            ->map(fn ($branch) => [
+                'id' => (int) $branch->id,
+                'name' => trim((string) $branch->name),
+                'is_current' => $currentBranchId > 0 && (int) $branch->id === $currentBranchId,
+            ])
+            ->values()
+            ->all() ?? [];
     }
 
 

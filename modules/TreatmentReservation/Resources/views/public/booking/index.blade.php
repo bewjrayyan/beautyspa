@@ -8,53 +8,53 @@
 
 @section('panel')
     <div class="panel account-appointments-panel">
-        <div class="panel-header d-none d-lg-flex">
-            <h4>{{ trans('treatmentreservation::public.title') }}</h4>
+        <div class="panel-header account-appointments-header">
+            <div class="account-appointments-header__title">
+                <span class="account-appointments-header__icon" aria-hidden="true">
+                    <i class="las la-calendar-check"></i>
+                </span>
+                <div>
+                    <h1>{{ trans('treatmentreservation::public.title') }}</h1>
+                    <p>{{ trans('treatmentreservation::public.page_lead') }}</p>
+                </div>
+            </div>
 
-            @if ($verifiedPhone)
+            @if ($hasBookingAccess)
                 <div class="account-appointments-toolbar">
-                    <span class="account-appointments-toolbar__phone">
-                        <i class="lab la-whatsapp" aria-hidden="true"></i>
-                        {{ trans('treatmentreservation::public.verified_as') }}
-                        <strong>{{ $verifiedPhone }}</strong>
-                    </span>
+                    @if ($usingAccountAccess)
+                        <span class="account-appointments-toolbar__phone">
+                            <i class="las la-lock" aria-hidden="true"></i>
+                            {{ trans('treatmentreservation::public.account_access') }}
+                        </span>
+                    @else
+                        <span class="account-appointments-toolbar__phone">
+                            <i class="lab la-whatsapp" aria-hidden="true"></i>
+                            {{ trans('treatmentreservation::public.verified_as') }}
+                            <strong>{{ $verifiedPhone }}</strong>
+                        </span>
 
-                    <form method="POST" action="{{ route('treatment_reservations.booking.logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-default btn-sm">
-                            <i class="las la-sign-out-alt"></i>
-                            {{ trans('treatmentreservation::public.logout') }}
-                        </button>
-                    </form>
+                        <form method="POST" action="{{ route('treatment_reservations.booking.logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-default btn-sm">
+                                <i class="las la-sign-out-alt" aria-hidden="true"></i>
+                                {{ trans('treatmentreservation::public.logout') }}
+                            </button>
+                        </form>
+                    @endif
                 </div>
             @endif
         </div>
 
-        @if ($verifiedPhone)
-            <div class="account-appointments-toolbar account-appointments-toolbar--mobile d-lg-none">
-                <span class="account-appointments-toolbar__phone">
-                    <i class="lab la-whatsapp" aria-hidden="true"></i>
-                    {{ trans('treatmentreservation::public.verified_as') }}
-                    <strong>{{ $verifiedPhone }}</strong>
-                </span>
-
-                <form method="POST" action="{{ route('treatment_reservations.booking.logout') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-default btn-sm">
-                        <i class="las la-sign-out-alt"></i>
-                        {{ trans('treatmentreservation::public.logout') }}
-                    </button>
-                </form>
-            </div>
-        @endif
-
         <div class="panel-body">
             <p class="alert alert-danger account-appointments-alert" id="booking-page-error" style="display:none;" role="alert"></p>
 
-            @unless ($verifiedPhone)
+            @unless ($hasBookingAccess)
                 @include('treatmentreservation::public.booking.partials.otp_panel')
             @elseif ($bookings->isEmpty())
                 <div class="empty-message">
+                    <span class="empty-message__icon" aria-hidden="true">
+                        <i class="las la-calendar-times"></i>
+                    </span>
                     <h3>{{ trans('treatmentreservation::public.empty_title') }}</h3>
                     <p>{{ trans('treatmentreservation::public.empty_text') }}</p>
                     <a href="{{ route('products.index') }}" class="btn btn-primary btn-sm">
@@ -62,8 +62,11 @@
                     </a>
                 </div>
             @else
-                @include('treatmentreservation::public.booking.partials.appointments_cards', ['bookings' => $bookings])
-                @include('treatmentreservation::public.booking.partials.appointments_table', ['bookings' => $bookings])
+                @include('treatmentreservation::public.booking.partials.appointments_cards', [
+                    'bookingGroups' => $bookingGroups,
+                    'bookingOrderCount' => $bookingGroups->count(),
+                    'appointmentCount' => $bookings->count(),
+                ])
             @endif
         </div>
     </div>
@@ -290,9 +293,11 @@
                     if (card) {
                         const form = card.querySelector('.js-reschedule-form');
                         form?.classList.toggle('hide');
+                        const isOpen = form && !form.classList.contains('hide');
+                        button.setAttribute('aria-expanded', String(Boolean(isOpen)));
 
-                        if (form && !form.classList.contains('hide')) {
-                            loadOpenDates(form).then(() => loadSlots(form));
+                        if (isOpen) {
+                            loadOpenDates(form, true);
                         }
 
                         return;
@@ -304,9 +309,11 @@
                     const form = expandRow?.querySelector('.js-reschedule-form');
 
                     expandRow?.classList.toggle('hide');
+                    const isOpen = expandRow && !expandRow.classList.contains('hide');
+                    button.setAttribute('aria-expanded', String(Boolean(isOpen)));
 
-                    if (form && expandRow && !expandRow.classList.contains('hide')) {
-                        loadOpenDates(form).then(() => loadSlots(form));
+                    if (form && isOpen) {
+                        loadOpenDates(form, true);
                     }
                 });
             });
@@ -321,14 +328,65 @@
                 });
             });
 
-            async function loadOpenDates(form) {
+            const setDatePickerDisabled = (dateInput, disabled) => {
+                const picker = dateInput?._flatpickr;
+
+                if (!dateInput) {
+                    return;
+                }
+
+                dateInput.disabled = disabled;
+
+                if (picker) {
+                    picker.input.disabled = disabled;
+                    picker._input.disabled = disabled;
+                    picker._input.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+
+                    if (picker.altInput) {
+                        picker.altInput.disabled = disabled;
+                    }
+
+                    if (disabled) {
+                        picker.close();
+                    }
+                }
+            };
+
+            async function loadOpenDates(form, openCalendar = false) {
                 const datesUrl = form.dataset.datesUrl;
-                const list = form.querySelector('.js-reschedule-dates-list');
                 const hint = form.querySelector('.js-reschedule-dates-hint');
                 const dateInput = form.querySelector('.js-reschedule-date');
+                const timeSelect = form.querySelector('.js-slot-select');
 
-                if (!datesUrl || !list || !dateInput) {
+                if (!datesUrl || !dateInput) {
                     return;
+                }
+
+                const existingDates = (form.dataset.availableDates || '')
+                    .split(',')
+                    .filter(Boolean);
+
+                if (form.dataset.datesLoaded === 'true') {
+                    setDatePickerDisabled(dateInput, existingDates.length === 0);
+
+                    if (openCalendar && existingDates.length && !form.classList.contains('hide')) {
+                        dateInput._flatpickr?.open();
+                    }
+
+                    return;
+                }
+
+                setDatePickerDisabled(dateInput, true);
+                form.classList.add('is-loading-dates');
+
+                if (hint) {
+                    hint.textContent = hint.dataset.loadingText || '';
+                    hint.classList.remove('is-empty');
+                }
+
+                if (timeSelect) {
+                    timeSelect.disabled = true;
+                    timeSelect.innerHTML = `<option value="">${@json(trans('treatmentreservation::public.select_date_first'))}</option>`;
                 }
 
                 try {
@@ -342,20 +400,43 @@
                     }
 
                     const dates = data.dates || [];
-                    list.innerHTML = dates.map((d) => `<option value="${d}"></option>`).join('');
+                    const picker = dateInput._flatpickr;
+
+                    form.dataset.datesLoaded = 'true';
+                    form.dataset.availableDates = dates.join(',');
+                    dateInput.dataset.enableDates = dates.join(',');
 
                     if (hint) {
-                        hint.classList.toggle('hide', dates.length === 0);
+                        hint.textContent = dates.length
+                            ? (hint.dataset.defaultText || '')
+                            : (hint.dataset.emptyText || '');
+                        hint.classList.toggle('is-empty', dates.length === 0);
                     }
 
-                    if (dates.length && (!dateInput.value || !dates.includes(dateInput.value))) {
-                        dateInput.value = dates[0];
+                    if (picker) {
+                        picker.set('enable', dates.length ? dates : [() => false]);
+
+                        if (dateInput.value && !dates.includes(dateInput.value)) {
+                            picker.clear(false);
+                        }
+                    }
+
+                    setDatePickerDisabled(dateInput, dates.length === 0);
+
+                    if (openCalendar && dates.length && !form.classList.contains('hide')) {
+                        picker?.open();
                     }
                 } catch (error) {
-                    // Keep free date picker; slots API still enforces capacity.
+                    form.dataset.datesLoaded = 'false';
+                    showPageError(error.message);
+                    setDatePickerDisabled(dateInput, true);
+
                     if (hint) {
-                        hint.classList.add('hide');
+                        hint.textContent = @json(trans('treatmentreservation::public.action_failed'));
+                        hint.classList.add('is-empty');
                     }
+                } finally {
+                    form.classList.remove('is-loading-dates');
                 }
             }
 

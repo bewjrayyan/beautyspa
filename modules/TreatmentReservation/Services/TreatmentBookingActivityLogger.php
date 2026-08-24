@@ -39,6 +39,17 @@ class TreatmentBookingActivityLogger
     }
 
 
+    public function logTreatmentWorkLog(TreatmentBooking $booking, int $completed, int $total): void
+    {
+        TreatmentBookingActivity::create([
+            'treatment_booking_id' => $booking->id,
+            'user_id' => auth()->id(),
+            'action' => TreatmentBookingActivity::ACTION_TREATMENT_WORK_LOG_UPDATED,
+            'to_value' => "{$completed}/{$total}",
+        ]);
+    }
+
+
     public function logWhatsAppSent(TreatmentBooking $booking): void
     {
         TreatmentBookingActivity::create([

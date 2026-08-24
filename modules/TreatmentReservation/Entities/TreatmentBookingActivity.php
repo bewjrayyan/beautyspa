@@ -11,6 +11,8 @@ class TreatmentBookingActivity extends Model
 
     public const ACTION_BEAUTICIAN_NOTES_UPDATED = 'beautician_notes_updated';
 
+    public const ACTION_TREATMENT_WORK_LOG_UPDATED = 'treatment_work_log_updated';
+
     public const ACTION_WHATSAPP_SENT = 'whatsapp_sent';
 
     public const ACTION_REMINDER_SENT = 'reminder_sent';
@@ -66,6 +68,7 @@ class TreatmentBookingActivity extends Model
         return match ($this->action) {
             self::ACTION_STATUS_CHANGED => trans('treatmentreservation::admin.activity.status_changed'),
             self::ACTION_BEAUTICIAN_NOTES_UPDATED => trans('treatmentreservation::admin.activity.notes_updated'),
+            self::ACTION_TREATMENT_WORK_LOG_UPDATED => trans('treatmentreservation::admin.activity.work_log_updated'),
             self::ACTION_WHATSAPP_SENT => trans('treatmentreservation::admin.activity.whatsapp_sent'),
             self::ACTION_REMINDER_SENT => trans('treatmentreservation::admin.activity.reminder_sent'),
             self::ACTION_BEAUTICIAN_REMINDER_SENT => trans('treatmentreservation::admin.activity.beautician_reminder_sent'),
@@ -84,6 +87,9 @@ class TreatmentBookingActivity extends Model
                 'to' => $this->statusLabel($this->to_value),
             ]),
             self::ACTION_BEAUTICIAN_NOTES_UPDATED => trans('treatmentreservation::admin.activity.notes_summary'),
+            self::ACTION_TREATMENT_WORK_LOG_UPDATED => trans('treatmentreservation::admin.activity.work_log_summary', [
+                'summary' => $this->to_value ?: '—',
+            ]),
             self::ACTION_WHATSAPP_SENT => trans('treatmentreservation::admin.activity.whatsapp_summary'),
             self::ACTION_REMINDER_SENT => trans('treatmentreservation::admin.activity.reminder_summary'),
             self::ACTION_BEAUTICIAN_REMINDER_SENT => trans('treatmentreservation::admin.activity.beautician_reminder_summary'),

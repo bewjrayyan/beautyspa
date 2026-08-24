@@ -2,14 +2,18 @@
 
 namespace Modules\TreatmentReservation\Services;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\User\Entities\User;
 
 class BookingSelfService
 {
+    public const MAX_AVAILABILITY_RANGE_DAYS = 93;
+
     public function __construct(
         private TreatmentBookingActivityLogger $activityLogger,
         private AppointmentAvailabilityService $appointmentAvailability,
@@ -23,29 +27,24 @@ class BookingSelfService
      */
     public function upcomingForPhone(string $normalizedPhone): Collection
     {
-        return TreatmentBooking::query()
-            ->withTreatmentProduct()
-            ->with(['beautician', 'product', 'category', 'order'])
+        return $this->upcomingQuery()
             ->matchingCustomerPhone($normalizedPhone)
-            ->whereIn('status', [
-                TreatmentBooking::STATUS_PENDING,
-                TreatmentBooking::STATUS_IN_PROGRESS,
-            ])
-            ->where(function ($q) {
-                $q->where(function ($scheduled) {
-                    $scheduled->whereNotNull('appointment_date')
-                        ->where('appointment_date', '>=', today()->toDateString());
-                })->orWhere(function ($tba) {
-                    $tba->where('schedule_status', TreatmentBooking::SCHEDULE_STATUS_TBA)
-                        ->orWhere(function ($legacy) {
-                            $legacy->whereNull('schedule_status')
-                                ->whereNull('appointment_time');
-                        });
-                });
+            ->get();
+    }
+
+
+    /**
+     * Authenticated customers are scoped by order ownership, not by a phone
+     * number that may have been reused or changed.
+     *
+     * @return Collection<int, TreatmentBooking>
+     */
+    public function upcomingForCustomer(User $customer): Collection
+    {
+        return $this->upcomingQuery()
+            ->whereHas('order', function (Builder $order) use ($customer): void {
+                $order->where('customer_id', $customer->getKey());
             })
-            ->orderByRaw("CASE WHEN schedule_status = 'tba' OR appointment_date IS NULL THEN 1 ELSE 0 END")
-            ->orderBy('appointment_date')
-            ->orderBy('appointment_time')
             ->get();
     }
 
@@ -53,6 +52,13 @@ class BookingSelfService
     public function findOwnedBooking(string $normalizedPhone, int $bookingId): ?TreatmentBooking
     {
         return $this->upcomingForPhone($normalizedPhone)
+            ->firstWhere('id', $bookingId);
+    }
+
+
+    public function findOwnedBookingForCustomer(User $customer, int $bookingId): ?TreatmentBooking
+    {
+        return $this->upcomingForCustomer($customer)
             ->firstWhere('id', $bookingId);
     }
 
@@ -69,6 +75,8 @@ class BookingSelfService
             if ($previousStatus === TreatmentBooking::STATUS_CANCELED) {
                 return;
             }
+
+            $this->assertSelfServiceMutable($lockedBooking);
 
             $lockedBooking->update(['status' => TreatmentBooking::STATUS_CANCELED]);
             $this->activityLogger->logStatusChange(
@@ -138,13 +146,16 @@ class BookingSelfService
         $beauticianId = (int) ($booking->beautician_id ?? 0);
         $productId = (int) ($booking->product_id ?? 0);
         $spaBranchId = (int) ($booking->spa_branch_id ?? $booking->order?->spa_branch_id ?? 0);
+        $start = Carbon::parse($from)->startOfDay();
+        $end = Carbon::parse($to)->startOfDay()
+            ->min($start->copy()->addDays(self::MAX_AVAILABILITY_RANGE_DAYS));
 
         if ($productId && $spaBranchId && app('modules')->isEnabled('SpaBranch')) {
             return $this->appointmentAvailability->availableDates(
                 $productId,
                 $spaBranchId,
-                $from,
-                $to,
+                $start->toDateString(),
+                $end->toDateString(),
                 $beauticianId ?: null,
                 (int) $booking->id,
             );
@@ -155,8 +166,7 @@ class BookingSelfService
         }
 
         $dates = [];
-        $cursor = Carbon::parse($from)->startOfDay();
-        $end = Carbon::parse($to)->startOfDay();
+        $cursor = $start;
 
         for (; $cursor->lte($end); $cursor->addDay()) {
             $date = $cursor->toDateString();
@@ -178,6 +188,8 @@ class BookingSelfService
                 ->whereKey($booking->id)
                 ->lockForUpdate()
                 ->firstOrFail();
+
+            $this->assertSelfServiceMutable($lockedBooking);
 
             if (! $lockedBooking->beautician_id) {
                 throw new \InvalidArgumentException(trans('treatmentreservation::public.slot_unavailable'));
@@ -226,5 +238,52 @@ class BookingSelfService
                 }
             }
         });
+    }
+
+
+    private function upcomingQuery(): Builder
+    {
+        return TreatmentBooking::query()
+            ->withTreatmentProduct()
+            ->with([
+                'beautician.spaBranches',
+                'product',
+                'category',
+                'order',
+                'orderProduct.options.values',
+                'orderProduct.variations.values',
+            ])
+            ->whereIn('status', [
+                TreatmentBooking::STATUS_PENDING,
+                TreatmentBooking::STATUS_IN_PROGRESS,
+            ])
+            ->where(function (Builder $query): void {
+                $query->where(function (Builder $scheduled): void {
+                    $scheduled->whereNotNull('appointment_date')
+                        ->where('appointment_date', '>=', today()->toDateString());
+                })->orWhere(function (Builder $tba): void {
+                    $tba->where('schedule_status', TreatmentBooking::SCHEDULE_STATUS_TBA)
+                        ->orWhere(function (Builder $legacy): void {
+                            $legacy->whereNull('schedule_status')
+                                ->whereNull('appointment_time');
+                        });
+                });
+            })
+            ->orderByRaw("CASE WHEN schedule_status = 'tba' OR appointment_date IS NULL THEN 1 ELSE 0 END")
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time');
+    }
+
+
+    private function assertSelfServiceMutable(TreatmentBooking $booking): void
+    {
+        if (! in_array($booking->status, [
+            TreatmentBooking::STATUS_PENDING,
+            TreatmentBooking::STATUS_IN_PROGRESS,
+        ], true)) {
+            throw new \InvalidArgumentException(
+                trans('treatmentreservation::public.booking_action_not_allowed')
+            );
+        }
     }
 }

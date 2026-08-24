@@ -6,10 +6,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Product\Entities\Product;
+use Modules\Order\Events\OrderUpdated;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Entities\TreatmentCategory;
 use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
@@ -268,6 +270,14 @@ class PortalController extends Controller
 
         $freshBooking = $booking->fresh();
 
+        if ($freshBooking->order_id) {
+            $order = $freshBooking->order()->first();
+
+            if ($order) {
+                event(new OrderUpdated($order));
+            }
+        }
+
         return response()->json([
             'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
         ]);
@@ -276,20 +286,66 @@ class PortalController extends Controller
 
     public function updateBeauticianNotes(Request $request, int $id): JsonResponse
     {
-        /** @var Beautician $beautician */
+        /** @var Beautician|null $beautician */
         $beautician = $request->attributes->get('portal_beautician');
 
         $request->validate([
             'beautician_notes' => ['nullable', 'string', 'max:5000'],
+            'beautician_notes_date' => ['nullable', 'required_with:beautician_notes_time', 'date_format:Y-m-d'],
+            'beautician_notes_time' => ['nullable', 'required_with:beautician_notes_date', 'date_format:H:i'],
+            'beautician_checklist' => ['sometimes', 'array', 'max:20'],
+            'beautician_checklist.*.id' => ['nullable', 'string', 'max:64'],
+            'beautician_checklist.*.label' => ['required', 'string', 'max:160'],
+            'beautician_checklist.*.completed' => ['required', 'boolean'],
         ]);
 
-        $booking = TreatmentBooking::query()
-            ->where('beautician_id', $beautician->id)
-            ->findOrFail($this->bookingIdFromRoute($request, $id));
+        $bookingQuery = TreatmentBooking::query();
+
+        if ($beautician) {
+            $bookingQuery->where('beautician_id', $beautician->id);
+        }
+
+        $booking = $bookingQuery->findOrFail($this->bookingIdFromRoute($request, $id));
 
         $previousNotes = $booking->beautician_notes;
+        $previousNotesAt = $booking->beautician_notes_at?->format('Y-m-d H:i:s');
+        $previousChecklist = collect($booking->beautician_checklist ?? [])->values()->all();
+        $existingChecklist = collect($previousChecklist)->keyBy('id');
+        $checklist = $request->has('beautician_checklist')
+            ? collect($request->input('beautician_checklist', []))
+                ->map(function (array $item) use ($existingChecklist) {
+                    $id = filled($item['id'] ?? null)
+                        ? (string) $item['id']
+                        : (string) Str::uuid();
+                    $completed = (bool) $item['completed'];
+                    $existing = $existingChecklist->get($id);
+
+                    return [
+                        'id' => $id,
+                        'label' => trim((string) $item['label']),
+                        'completed' => $completed,
+                        'completed_at' => $completed
+                            ? ($existing['completed_at'] ?? now()->toIso8601String())
+                            : null,
+                    ];
+                })
+                ->filter(fn (array $item) => $item['label'] !== '')
+                ->values()
+                ->all()
+            : $previousChecklist;
+        $notesAt = filled($request->input('beautician_notes_date'))
+            ? Carbon::createFromFormat(
+                'Y-m-d H:i',
+                $request->input('beautician_notes_date') . ' ' . $request->input('beautician_notes_time')
+            )
+            : null;
+        $workLogChanged = $previousNotesAt !== $notesAt?->format('Y-m-d H:i:s')
+            || $previousChecklist !== $checklist;
+
         $booking->update([
             'beautician_notes' => $request->input('beautician_notes'),
+            'beautician_notes_at' => $notesAt,
+            'beautician_checklist' => $checklist,
         ]);
 
         app(TreatmentBookingActivityLogger::class)->logBeauticianNotes(
@@ -298,7 +354,23 @@ class PortalController extends Controller
             $request->input('beautician_notes')
         );
 
+        if ($workLogChanged) {
+            app(TreatmentBookingActivityLogger::class)->logTreatmentWorkLog(
+                $booking,
+                collect($checklist)->where('completed', true)->count(),
+                count($checklist)
+            );
+        }
+
         $freshBooking = $booking->fresh();
+
+        if ($freshBooking->order_id) {
+            $order = $freshBooking->order()->first();
+
+            if ($order) {
+                event(new OrderUpdated($order));
+            }
+        }
 
         return response()->json([
             'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
@@ -736,6 +808,7 @@ class PortalController extends Controller
                 'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
                 'calendarFullView' => route('admin.beauticians.portal.calendar_page', ['id' => $beautician->id, 'focus' => 1]),
                 'updateStatus' => route('admin.beauticians.portal.update_status', ['id' => $beautician->id, 'booking' => '__ID__']),
+                'updateNotes' => route('admin.beauticians.portal.update_notes', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'reschedule' => route('admin.beauticians.portal.reschedule', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'rescheduleSlots' => route('admin.beauticians.portal.reschedule_slots', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'rescheduleDates' => route('admin.beauticians.portal.reschedule_dates', ['id' => $beautician->id, 'booking' => '__ID__']),
@@ -767,6 +840,7 @@ class PortalController extends Controller
             'calendar' => route('admin.treatment_reservations.portal.calendar'),
             'calendarFullView' => route('admin.treatment_reservations.portal.calendar_page', ['focus' => 1]),
             'updateStatus' => route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']),
+            'updateNotes' => route('admin.treatment_reservations.portal.update_notes', ['id' => '__ID__']),
             'reschedule' => route('admin.treatment_reservations.portal.reschedule', ['id' => '__ID__']),
             'rescheduleSlots' => route('admin.treatment_reservations.portal.reschedule_slots', ['id' => '__ID__']),
             'rescheduleDates' => route('admin.treatment_reservations.portal.reschedule_dates', ['id' => '__ID__']),

@@ -1,13 +1,11 @@
 @include('storefront::public.account.partials.orders_cards', ['orders' => $orders])
 
-<div class="table-responsive d-none d-lg-block">
+<div class="table-responsive d-none d-xl-block">
     <table class="table table-borderless my-orders-table">
         <thead>
         <tr>
             <th>{{ trans('storefront::account.orders.order') }}</th>
             <th class="my-orders-table__col-treatments">{{ trans('storefront::account.orders.treatments') }}</th>
-            <th>{{ trans('storefront::account.orders.appointment') }}</th>
-            <th>{{ trans('storefront::account.orders.order_status') }}</th>
             <th>{{ trans('storefront::account.orders.payment_status') }}</th>
             @if (is_module_enabled('TreatmentReservation'))
                 <th>{{ trans('storefront::account.orders.treatment_status') }}</th>
@@ -32,7 +30,42 @@
                     @if ($order->products->isNotEmpty())
                         <div class="my-orders-table__product-list">
                             @foreach ($order->products->take(2) as $product)
-                                <div class="my-orders-table__product-name">{{ $product->name }}</div>
+                                <div class="my-orders-table__product">
+                                    <div class="my-orders-table__product-name">{{ $product->name }}</div>
+
+                                    @if ($product->hasAnyVariation() || $product->hasAnyOption())
+                                        <ul class="my-orders-table__selections">
+                                            @foreach ($product->variations as $variation)
+                                                @php
+                                                    $variationValue = $variation->values->pluck('label')->filter()->implode(', ')
+                                                        ?: $variation->value;
+                                                @endphp
+
+                                                @if (filled($variationValue))
+                                                    <li>
+                                                        <span>{{ $variation->name }}:</span>
+                                                        <strong>{{ $variationValue }}</strong>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+
+                                            @foreach ($product->options as $option)
+                                                @php
+                                                    $optionValue = $option->isFieldType()
+                                                        ? $option->value
+                                                        : $option->values->pluck('label')->filter()->implode(', ');
+                                                @endphp
+
+                                                @if (filled($optionValue))
+                                                    <li>
+                                                        <span>{{ $option->name }}:</span>
+                                                        <strong>{{ $optionValue }}</strong>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
                             @endforeach
                         </div>
                         @if ($order->products->count() > 2)
@@ -43,42 +76,6 @@
                     @else
                         <span class="my-orders-table__muted">—</span>
                     @endif
-                </td>
-                <td class="my-orders-table__appointment">
-                    @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
-                        <div class="my-orders-table__appointment-inner">
-                            @if ($order->spaBranch)
-                                <span class="my-orders-table__branch">
-                                    <i class="las la-store" aria-hidden="true"></i>
-                                    {{ $order->spaBranch->name }}
-                                </span>
-                            @endif
-                            @if ($order->beautician)
-                                <span class="my-orders-table__beautician">
-                                    <i class="las la-user-circle" aria-hidden="true"></i>
-                                    {{ $order->beautician->name }}
-                                </span>
-                            @endif
-                            @if ($order->appointment_date || $order->appointment_time)
-                                <span class="my-orders-table__appt-time">
-                                    <i class="las la-calendar" aria-hidden="true"></i>
-                                    @if ($order->appointment_date)
-                                        {{ $order->appointment_date->format('d M Y') }}
-                                    @endif
-                                    @if ($order->appointment_time)
-                                        {{ $order->appointment_date ? ' · ' : '' }}{{ $order->displayAppointmentTime() }}
-                                    @endif
-                                </span>
-                            @endif
-                        </div>
-                    @else
-                        <span class="my-orders-table__muted">{{ trans('storefront::account.orders.no_appointment') }}</span>
-                    @endif
-                </td>
-                <td>
-                    <span class="badge {{ order_status_badge_class($order->status) }}">
-                        {{ $order->status() }}
-                    </span>
                 </td>
                 <td>
                     <span class="badge {{ payment_status_badge_class($order->payment_status) }}">
@@ -95,6 +92,7 @@
                 </td>
                 <td>
                     <a href="{{ route('account.orders.show', $order) }}"
+                       aria-label="{{ trans('storefront::account.orders.view_order_number', ['id' => $order->id]) }}"
                        title="{{ trans('storefront::account.orders.view_order') }}" class="btn btn-view">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                             <path

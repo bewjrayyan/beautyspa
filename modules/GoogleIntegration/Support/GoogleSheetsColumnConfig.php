@@ -40,6 +40,12 @@ class GoogleSheetsColumnConfig
             $columns['spa_branch'] = true;
         }
 
+        if (is_module_enabled('TreatmentReservation')) {
+            $columns['treatment_work_log_at'] = true;
+            $columns['treatment_checklist_progress'] = true;
+            $columns['beautician_notes'] = true;
+        }
+
         return $columns;
     }
 
@@ -175,6 +181,51 @@ class GoogleSheetsColumnConfig
         if (setting('google_sheets_sync_alert_whatsapp_enabled') === null) {
             setting(['google_sheets_sync_alert_whatsapp_enabled' => false]);
         }
+
+        self::appendNewDefaultColumns();
+    }
+
+
+    private static function appendNewDefaultColumns(): void
+    {
+        if (
+            ! is_module_enabled('TreatmentReservation')
+            || (bool) setting('google_sheets_work_log_columns_initialized', false)
+        ) {
+            return;
+        }
+
+        $stored = setting('google_sheets_columns');
+        $decoded = is_string($stored) ? json_decode($stored, true) : $stored;
+
+        if (! is_array($decoded)) {
+            return;
+        }
+
+        $newColumns = [
+            'treatment_work_log_at',
+            'treatment_checklist_progress',
+            'beautician_notes',
+        ];
+        $storedKeys = array_values(array_filter($decoded, 'is_string'));
+        $updates = [
+            'google_sheets_columns' => json_encode(array_values(array_unique(array_merge($storedKeys, $newColumns)))),
+            'google_sheets_work_log_columns_initialized' => true,
+        ];
+
+        foreach (self::statusSettingKeys() as $statusKey) {
+            $statusStored = setting($statusKey);
+            $statusKeys = is_string($statusStored) ? json_decode($statusStored, true) : $statusStored;
+
+            if (is_array($statusKeys) && $statusKeys !== []) {
+                $updates[$statusKey] = json_encode(array_values(array_unique(array_merge(
+                    array_values(array_filter($statusKeys, 'is_string')),
+                    $newColumns,
+                ))));
+            }
+        }
+
+        setting($updates);
     }
 
 

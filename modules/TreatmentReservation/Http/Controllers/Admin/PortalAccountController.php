@@ -11,6 +11,7 @@ use Modules\TreatmentReservation\Http\Requests\UpdatePortalPasswordRequest;
 use Modules\TreatmentReservation\Http\Requests\UpdatePortalProfileRequest;
 use Modules\TreatmentReservation\Services\BeauticianIcalFeedService;
 use Modules\TreatmentReservation\Services\PortalProfileUpdateService;
+use Modules\User\Entities\User;
 
 class PortalAccountController extends Controller
 {
@@ -26,11 +27,12 @@ class PortalAccountController extends Controller
 
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
+        $user = $this->portalUser($beautician);
         $ical = app(BeauticianIcalFeedService::class);
 
         return view('treatmentreservation::admin.portal.account', [
             'beautician' => $beautician,
-            'user' => auth()->user(),
+            'user' => $user,
             'icalUrl' => $ical->feedUrl($beautician),
             'icalWebcalUrl' => $ical->webcalUrl($beautician),
             'icalGoogleUrl' => $ical->googleCalendarSubscribeUrl($beautician),
@@ -42,7 +44,10 @@ class PortalAccountController extends Controller
 
     public function updatePassword(UpdatePortalPasswordRequest $request): RedirectResponse
     {
-        auth()->user()->update([
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+
+        $this->portalUser($beautician)->update([
             'password' => bcrypt($request->input('password')),
         ]);
 
@@ -56,7 +61,7 @@ class PortalAccountController extends Controller
         $beautician = $request->attributes->get('portal_beautician');
 
         app(PortalProfileUpdateService::class)->update(
-            auth()->user(),
+            $this->portalUser($beautician),
             $beautician,
             $request->validated()
         );
@@ -99,5 +104,15 @@ class PortalAccountController extends Controller
             'passwordUpdate' => route('admin.treatment_reservations.portal.account.password'),
             'calendarRotate' => route('admin.treatment_reservations.portal.account.calendar_rotate'),
         ];
+    }
+
+
+    private function portalUser(Beautician $beautician): User
+    {
+        $beautician->loadMissing('user');
+
+        abort_unless($beautician->user instanceof User, 422);
+
+        return $beautician->user;
     }
 }

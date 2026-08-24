@@ -13,6 +13,23 @@
             'today' => now()->toDateString(),
             default => '',
         };
+    $workLogLabels = [
+        'title' => trans('treatmentreservation::admin.calendar.work_log_title'),
+        'help' => trans('treatmentreservation::admin.calendar.work_log_help'),
+        'date' => trans('treatmentreservation::admin.calendar.work_log_date'),
+        'time' => trans('treatmentreservation::admin.calendar.work_log_time'),
+        'checklist' => trans('treatmentreservation::admin.calendar.work_log_checklist'),
+        'quickAdd' => trans('treatmentreservation::admin.calendar.work_log_quick_add'),
+        'customItem' => trans('treatmentreservation::admin.calendar.work_log_custom_item'),
+        'itemPlaceholder' => trans('treatmentreservation::admin.calendar.work_log_item_placeholder'),
+        'removeItem' => trans('treatmentreservation::admin.calendar.work_log_remove_item'),
+        'customerNote' => trans('treatmentreservation::admin.calendar.work_log_customer_note'),
+        'customerNoteHelp' => trans('treatmentreservation::admin.calendar.work_log_customer_note_help'),
+        'generateSummary' => trans('treatmentreservation::admin.calendar.work_log_generate_summary'),
+        'noCompletedItems' => trans('treatmentreservation::admin.calendar.work_log_no_completed_items'),
+        'summaryPrefix' => trans('treatmentreservation::admin.calendar.work_log_summary_prefix'),
+        'presets' => trans('treatmentreservation::admin.calendar.work_log_presets'),
+    ];
 @endphp
 
 @extends('admin::layout')
@@ -48,6 +65,9 @@
         data-cal-preview-email="{{ TrLang::trans('admin.calendar.preview_email') }}"
         data-cal-preview-order-notes="{{ TrLang::trans('admin.calendar.preview_order_notes') }}"
         data-cal-preview-beautician-notes="{{ TrLang::trans('admin.calendar.preview_beautician_notes') }}"
+        data-cal-preview-activity-title="{{ TrLang::trans('admin.activity.title') }}"
+        data-cal-preview-activity-show="{{ TrLang::trans('admin.activity.show') }}"
+        data-cal-preview-activity-hide="{{ TrLang::trans('admin.activity.hide') }}"
         data-cal-status-pending="{{ TrLang::trans('admin.kanban.pending') }}"
         data-cal-status-in-progress="{{ TrLang::trans('admin.kanban.in_progress') }}"
         data-cal-status-completed="{{ TrLang::trans('admin.kanban.completed') }}"
@@ -55,6 +75,7 @@
         data-calendar-url="{{ $crmRoutes['calendar'] ?? '' }}"
         data-holidays-range-url="{{ route('admin.treatment_reservations.holidays_range') }}"
         data-status-url="{{ $crmRoutes['updateStatus'] ?? '' }}"
+        data-notes-url="{{ $crmRoutes['updateNotes'] ?? '' }}"
         data-whatsapp-url="{{ $crmRoutes['whatsapp'] ?? '' }}"
         data-consultation-url="{{ $crmRoutes['consultation'] ?? '' }}"
         data-reschedule-url="{{ $crmRoutes['reschedule'] ?? '' }}"
@@ -78,6 +99,11 @@
         data-cal-preview-whatsapp-failed="{{ TrLang::trans('admin.calendar.preview_whatsapp_failed') }}"
         data-cal-preview-whatsapp-not-configured="{{ TrLang::trans('admin.calendar.whatsapp_not_configured') }}"
         data-cal-preview-whatsapp-customer="{{ TrLang::trans('admin.calendar.preview_whatsapp_customer') }}"
+        data-cal-preview-save-notes="{{ TrLang::trans('admin.calendar.preview_save_notes') }}"
+        data-cal-preview-saving-notes="{{ TrLang::trans('admin.calendar.preview_saving_notes') }}"
+        data-cal-preview-notes-saved="{{ TrLang::trans('admin.calendar.preview_notes_saved') }}"
+        data-cal-preview-notes-save-failed="{{ TrLang::trans('admin.calendar.preview_notes_save_failed') }}"
+        data-cal-work-log-labels='@json($workLogLabels)'
         data-cal-preview-view-profile="{{ TrLang::trans('admin.crm.action_view_profile') }}"
         data-cal-preview-send-reminder="{{ TrLang::trans('admin.crm.action_send_reminder') }}"
         data-cal-preview-resend-reminder="{{ TrLang::trans('admin.crm.action_resend_reminder') }}"
@@ -102,6 +128,18 @@
         data-cal-preview-branch="{{ TrLang::trans('admin.calendar.preview_branch') }}"
         data-cal-preview-booking-id="{{ TrLang::trans('admin.calendar.preview_booking_id') }}"
         data-cal-preview-duration-minutes="{{ TrLang::trans('admin.calendar.preview_duration_value') }}"
+        data-cal-preview-duration-hour="{{ TrLang::trans('admin.calendar.preview_duration_hour') }}"
+        data-cal-preview-duration-hours="{{ TrLang::trans('admin.calendar.preview_duration_hours') }}"
+        data-cal-preview-duration-session="{{ TrLang::trans('admin.calendar.preview_duration_session') }}"
+        data-cal-preview-duration-badge-minutes="{{ TrLang::trans('admin.calendar.preview_duration_badge_minutes') }}"
+        data-cal-preview-duration-badge-hour="{{ TrLang::trans('admin.calendar.preview_duration_badge_hour') }}"
+        data-cal-preview-duration-badge-hours="{{ TrLang::trans('admin.calendar.preview_duration_badge_hours') }}"
+        data-cal-preview-duration-badge-hours-minutes="{{ TrLang::trans('admin.calendar.preview_duration_badge_hours_minutes') }}"
+        data-cal-preview-action-profile-short="{{ TrLang::trans('admin.calendar.preview_action_profile_short') }}"
+        data-cal-preview-action-customer-short="{{ TrLang::trans('admin.calendar.preview_action_customer_short') }}"
+        data-cal-preview-action-consultation-short="{{ TrLang::trans('admin.calendar.preview_action_consultation_short') }}"
+        data-cal-preview-action-beautician-short="{{ TrLang::trans('admin.calendar.preview_action_beautician_short') }}"
+        data-cal-preview-action-reschedule-short="{{ TrLang::trans('admin.calendar.preview_action_reschedule_short') }}"
         data-cal-preview-status-update-failed="{{ TrLang::trans('admin.crm.agenda_status_update_failed') }}"
         data-initial-month="{{ $filters['month'] ?? now()->format('Y-m') }}"
         data-initial-beautician=""

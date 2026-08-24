@@ -2,9 +2,12 @@
 
 namespace Modules\GoogleIntegration\Services;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
 use Modules\Order\Entities\Order;
 use Modules\Order\Entities\OrderProduct;
+use Modules\TreatmentReservation\Entities\TreatmentBooking;
 
 class CompletedOrderRowBuilder
 {
@@ -44,11 +47,15 @@ class CompletedOrderRowBuilder
     {
         $order->loadMissing(['products', 'coupon', 'beautician', 'spaBranch']);
 
-        $treatmentBooking = is_module_enabled('TreatmentReservation')
-            ? \Modules\TreatmentReservation\Entities\TreatmentBooking::query()
+        $treatmentBookings = is_module_enabled('TreatmentReservation')
+            ? TreatmentBooking::query()
                 ->where('order_id', $order->id)
-                ->first()
-            : null;
+                ->with(['product', 'beautician'])
+                ->orderBy('appointment_date')
+                ->orderBy('appointment_time')
+                ->orderBy('id')
+                ->get()
+            : collect();
 
         $customerName = trim($order->customer_first_name . ' ' . $order->customer_last_name);
         $treatments = $order->products
@@ -60,7 +67,10 @@ class CompletedOrderRowBuilder
             'order_date' => $order->created_at->format('Y-m-d H:i:s'),
             'status' => $order->status(),
             'payment_status' => $order->paymentStatusLabel(),
-            'treatment_status' => $treatmentBooking?->treatmentStatusLabel() ?? '',
+            'treatment_status' => $this->bookingValues(
+                $treatmentBookings,
+                fn (TreatmentBooking $booking) => $booking->treatmentStatusLabel()
+            ),
             'customer_name' => $customerName,
             'customer_email' => $order->customer_email,
             'customer_phone' => $order->customer_phone,
@@ -79,7 +89,37 @@ class CompletedOrderRowBuilder
             'order_note' => $order->note ?? '',
             'synced_at' => now()->format('Y-m-d H:i:s'),
             'spa_branch' => $order->spaBranch?->name ?? '',
+            'treatment_work_log_at' => $this->bookingValues(
+                $treatmentBookings,
+                fn (TreatmentBooking $booking) => $booking->beautician_notes_at?->format('Y-m-d H:i')
+            ),
+            'treatment_checklist_progress' => $this->bookingValues(
+                $treatmentBookings,
+                fn (TreatmentBooking $booking) => $booking->workLogProgressLabel()
+            ),
+            'beautician_notes' => Str::limit($this->bookingValues(
+                $treatmentBookings,
+                fn (TreatmentBooking $booking) => filled($booking->beautician_notes)
+                    ? trim((string) $booking->beautician_notes)
+                    : null
+            ), 10000, '…'),
         ];
+    }
+
+
+    /**
+     * @param Collection<int, TreatmentBooking> $bookings
+     */
+    private function bookingValues(Collection $bookings, callable $value): string
+    {
+        return $bookings
+            ->map(function (TreatmentBooking $booking) use ($value) {
+                $resolved = $value($booking);
+
+                return filled($resolved) ? "#{$booking->id}: {$resolved}" : null;
+            })
+            ->filter()
+            ->implode("\n");
     }
 
 

@@ -159,6 +159,15 @@ class BeauticianIcalFeedService
         $description = collect([
             $booking->category?->name,
             $booking->status,
+            $booking->workLogProgressLabel()
+                ? 'Work log: ' . $booking->workLogProgressLabel() . ' complete'
+                : null,
+            $booking->beautician_notes_at
+                ? 'Work log recorded: ' . $booking->beautician_notes_at->format('Y-m-d H:i')
+                : null,
+            filled($booking->beautician_notes)
+                ? 'Customer note: ' . Str::limit(trim((string) $booking->beautician_notes), 1000, '…')
+                : null,
         ])->filter()->implode("\n");
 
         return [

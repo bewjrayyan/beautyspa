@@ -15,6 +15,7 @@ use Modules\TreatmentReservation\Console\SyncTreatmentBookingsCommand;
 use Modules\TreatmentReservation\Console\SyncTreatmentProductDurationsCommand;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalAccessMiddleware;
+use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalPermissionMiddleware;
 use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalMiddleware;
 use Modules\TreatmentReservation\Http\Middleware\PortalBeauticianFromRouteMiddleware;
 use Modules\TreatmentReservation\Http\Middleware\RestrictBeauticianPortalMiddleware;
@@ -40,6 +41,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
 
         $this->app['router']->aliasMiddleware('beautician.portal', BeauticianPortalMiddleware::class);
         $this->app['router']->aliasMiddleware('beautician.portal.access', BeauticianPortalAccessMiddleware::class);
+        $this->app['router']->aliasMiddleware('beautician.portal.permission', BeauticianPortalPermissionMiddleware::class);
         $this->app['router']->aliasMiddleware('beautician.portal.from_route', PortalBeauticianFromRouteMiddleware::class);
         $this->app['router']->aliasMiddleware('beautician.portal.restrict', RestrictBeauticianPortalMiddleware::class);
 

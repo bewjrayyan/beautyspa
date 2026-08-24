@@ -20,6 +20,12 @@
     }
 }
 
+@media screen and (min-width: 992px) {
+    .header-wrap:has(.header-search-wrap-overlay.active) {
+        z-index: 220;
+    }
+}
+
 .header-search-wrap {
     z-index: 202;
     position: relative;

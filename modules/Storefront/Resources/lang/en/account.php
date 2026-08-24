@@ -45,7 +45,13 @@ return [
         'open_link' => 'Open Link',
         'view' => 'View',
         'view_order' => 'View Order',
+        'view_order_number' => 'View order #:id',
+        'view_details' => 'View details',
+        'page_description' => 'Track your treatments, appointments, payments and order progress.',
+        'orders_count' => '{0} No orders|{1} :count order|[2,*] :count orders',
         'no_orders' => 'You haven\'t placed any order yet.',
+        'no_orders_description' => 'Once you make a booking or purchase, you can track every update here.',
+        'browse_treatments' => 'Browse treatments',
     ],
     'view_order' => [
         'view_order' => 'View Order',

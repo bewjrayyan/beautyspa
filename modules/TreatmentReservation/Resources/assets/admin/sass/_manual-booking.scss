@@ -564,7 +564,8 @@
     }
 }
 
-.tr-manual-booking-datepicker-calendar.flatpickr-calendar {
+.tr-manual-booking-datepicker-calendar.flatpickr-calendar,
+.tr-calendar-event-preview__picker-calendar.flatpickr-calendar {
     margin-top: 8px;
     border-radius: 18px;
     border: 1px solid #e2e8f0;

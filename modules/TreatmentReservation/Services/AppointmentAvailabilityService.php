@@ -30,6 +30,8 @@ class AppointmentAvailabilityService
 
     public const DEFAULT_CAPACITY = 1;
 
+    public const MAX_DATE_RANGE_DAYS = 93;
+
     public function __construct(
         private BeauticianAvailabilityService $beauticianAvailability,
     ) {}
@@ -295,7 +297,8 @@ class AppointmentAvailabilityService
         ?int $excludeOrderId = null,
     ): array {
         $start = Carbon::parse($from)->startOfDay()->max(today()->startOfDay());
-        $end = Carbon::parse($to)->startOfDay();
+        $end = Carbon::parse($to)->startOfDay()
+            ->min($start->copy()->addDays(self::MAX_DATE_RANGE_DAYS));
         $dates = [];
 
         for ($cursor = $start->copy(); $cursor->lte($end); $cursor->addDay()) {
@@ -332,7 +335,8 @@ class AppointmentAvailabilityService
         ?int $excludeOrderId = null,
     ): array {
         $start = Carbon::parse($from)->startOfDay()->max(today()->startOfDay());
-        $end = Carbon::parse($to)->startOfDay();
+        $end = Carbon::parse($to)->startOfDay()
+            ->min($start->copy()->addDays(self::MAX_DATE_RANGE_DAYS));
         $options = [];
 
         for ($cursor = $start->copy(); $cursor->lte($end); $cursor->addDay()) {

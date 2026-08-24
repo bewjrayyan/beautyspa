@@ -17,17 +17,18 @@ class BeauticianPortalAccessMiddleware
             abort(403);
         }
 
-        if ($user->hasAccess('admin.beauticians.edit')) {
+        // Admin users are authorized by the operation-specific permission
+        // middleware attached to every preview route. This guard only keeps a
+        // beautician account scoped to its own portal.
+        if (! $user->isBeauticianOnly()) {
             return $next($request);
         }
 
-        if ($user->isBeauticianOnly()) {
-            $beautician = Beautician::findForUser($user->id);
-            $routeBeauticianId = (int) ($request->route('id') ?? $request->route('beautician')?->id ?? 0);
+        $beautician = Beautician::findForUser($user->id);
+        $routeBeauticianId = (int) ($request->route('id') ?? $request->route('beautician')?->id ?? 0);
 
-            if ($beautician && (int) $beautician->id === $routeBeauticianId) {
-                return $next($request);
-            }
+        if ($beautician && (int) $beautician->id === $routeBeauticianId) {
+            return $next($request);
         }
 
         abort(403);
