@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.15' => [
+        'date' => '2026-08-24',
+        'en' => [
+            'summary' => 'Larger, more readable SweetAlert2 centered modals with bigger font, wider popup, and rebuilt production assets.',
+            'changes' => [
+                'Increase SweetAlert2 centered modal width to 720px with 36px title, 24px body text, larger icon, and expanded padding for better readability.',
+                'Rebuild storefront and admin production assets (Vite) to compile updated SweetNotification styles and JS.',
+                'Keep corner toast layout unchanged; only centered modal (success / confirm / error / info) is enlarged.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Modal SweetAlert2 berpusat lebih besar dan mudah dibaca dengan fon lebih besar, popup lebih lebar, dan aset production dibina semula.',
+            'changes' => [
+                'Tingkatkan lebar modal SweetAlert2 berpusat ke 720px dengan tajuk 36px, teks badan 24px, ikon lebih besar, dan padding yang lebih luas.',
+                'Bina semula aset production storefront dan admin (Vite) untuk menyusun gaya dan JS SweetNotification yang dikemas kini.',
+                'Kekalkan susun atur toast sudut; hanya modal berpusat (kejayaan / sahkan / ralat / maklumat) yang dibesarkan.',
+            ],
+        ],
+    ],
     '4.11.14' => [
         'date' => '2026-08-23 16:23',
         'en' => [
