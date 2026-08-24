@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.16' => [
+        'date' => '2026-08-24',
+        'en' => [
+            'summary' => 'Production-hardened multi-treatment appointment management across customer, admin, beautician, and Google integrations.',
+            'changes' => [
+                'Restructure customer orders and My Appointments around multiple independently scheduled treatments, selected product options, modern availability calendars, and per-treatment beautician notes.',
+                'Upgrade the admin and beautician appointment drawer with permission-aware work-log CRUD, treatment checklists, customer notes, activity history, schedule context, and responsive action layouts.',
+                'Keep appointment changes synchronized with Google Calendar and Google Sheets using stable event identifiers, configurable sheet columns, and spreadsheet-formula injection protection.',
+                'Harden booking scope, portal permissions, availability checks, migrations, and regression coverage for the complete multi-treatment workflow.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pengurusan temujanji berbilang rawatan yang diperkukuh untuk production merentasi pelanggan, admin, beautician, dan integrasi Google.',
+            'changes' => [
+                'Susun semula pesanan pelanggan dan My Appointments untuk pelbagai rawatan yang dijadualkan secara berasingan, pilihan produk pelanggan, kalendar availability moden, dan nota beautician bagi setiap rawatan.',
+                'Naik taraf drawer temujanji admin dan beautician dengan CRUD work log berasaskan permission, checklist rawatan, nota pelanggan, sejarah aktiviti, konteks jadual, dan susun atur tindakan responsif.',
+                'Selaraskan perubahan temujanji dengan Google Calendar dan Google Sheets menggunakan ID acara yang stabil, kolum sheet boleh dikonfigurasi, dan perlindungan suntikan formula spreadsheet.',
+                'Perkukuh skop tempahan, permission portal, semakan availability, migrasi, dan regression test untuk keseluruhan aliran berbilang rawatan.',
+            ],
+        ],
+    ],
     '4.11.15' => [
         'date' => '2026-08-24',
         'en' => [
