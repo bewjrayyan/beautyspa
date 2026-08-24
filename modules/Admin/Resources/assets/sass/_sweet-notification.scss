@@ -21,32 +21,32 @@
 /* Centered modal (success / confirm) — like classic SweetAlert */
 html body .swal2-popup.ac-swal-modal,
 html body .ac-swal-modal.swal2-popup {
-    --swal2-width: 720px;
-    width: 720px !important;
+    --swal2-width: 480px;
+    width: 480px !important;
     max-width: calc(100vw - 32px) !important;
-    font-size: 22px !important;
-    padding: 56px 44px 40px !important;
-    border-radius: 8px !important;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18) !important;
+    font-size: 16px !important;
+    padding: 24px 20px 18px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important;
 
     .ac-swal-modal__icon,
     .swal2-icon {
-        width: 104px !important;
-        height: 104px !important;
-        margin: 8px auto 32px !important;
-        border-width: 5px !important;
-        font-size: 22px !important;
+        width: 56px !important;
+        height: 56px !important;
+        margin: 6px auto 16px !important;
+        border-width: 3px !important;
+        font-size: 16px !important;
     }
 
     .swal2-icon .swal2-icon-content {
-        font-size: 60px !important;
+        font-size: 28px !important;
     }
 
     .ac-swal-modal__title,
     .swal2-title {
-        margin: 0 0 16px !important;
+        margin: 0 0 8px !important;
         padding: 0 !important;
-        font-size: 36px !important;
+        font-size: 22px !important;
         font-weight: 600 !important;
         line-height: 1.25 !important;
         color: #595959 !important;
@@ -55,9 +55,9 @@ html body .ac-swal-modal.swal2-popup {
 
     .ac-swal-modal__text,
     .swal2-html-container {
-        margin: 0 0 32px !important;
+        margin: 0 0 12px !important;
         padding: 0 !important;
-        font-size: 24px !important;
+        font-size: 16px !important;
         font-weight: 400 !important;
         line-height: 1.5 !important;
         color: #545454 !important;
@@ -66,8 +66,8 @@ html body .ac-swal-modal.swal2-popup {
 
     .ac-swal-modal__actions,
     .swal2-actions {
-        margin: 8px auto 0 !important;
-        gap: 16px !important;
+        margin: 4px auto 0 !important;
+        gap: 8px !important;
     }
 
     .ac-swal-modal__confirm,
@@ -77,12 +77,13 @@ html body .ac-swal-modal.swal2-popup {
         border: 0 !important;
         border-radius: 4px !important;
         font-weight: 600 !important;
-        font-size: 20px !important;
-        padding: 16px 40px !important;
-        min-width: 130px;
+        font-size: 14px !important;
+        padding: 8px 20px !important;
+        min-width: 80px;
         box-shadow: none !important;
     }
 }
+
 
 /* Override SweetAlert2 CSS variables for higher specificity */
 :root {

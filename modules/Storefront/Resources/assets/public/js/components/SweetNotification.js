@@ -43,8 +43,8 @@ async function ensureSwal() {
     target: "body",
     heightAuto: false,
     backdrop: true,
-    width: 720,
-    padding: "3.5rem 2.75rem 2.5rem",
+    width: 480,
+    padding: "1.5rem 1.25rem 1.25rem",
     customClass: {
         popup: "ac-swal-modal",
         title: "ac-swal-modal__title",

@@ -1,0 +1,1 @@
+import{toast as e}from"./SweetNotification-CPLdijN6-v4.7.72.js";function a(o,t={}){const r=t.type||"default";return e(r,o,{duration:t.duration??5e3,position:t.position==="top-right"?"top-end":t.position,...t})}export{a as t};
