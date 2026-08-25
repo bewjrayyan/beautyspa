@@ -7,6 +7,8 @@
     $analyticsCharts = $analyticsCharts ?? [];
     $kpis = $kpis ?? [];
     $completionRate = (int) round($analytics['conversionRate'] ?? $analytics['completionRate'] ?? 0);
+    $analyticsCompleted = (int) ($analytics['completed'] ?? 0);
+    $analyticsPeriodDays = (int) ($analytics['periodDays'] ?? 30);
     $noShowRate = (int) round($analytics['noShowRate'] ?? 0);
     $doneCount = (int) ($kpis['completed'] ?? 0);
     $activeCount = (int) ($kpis['inProgress'] ?? 0);
@@ -65,11 +67,21 @@
         ? TrLang::trans('admin.crm.no_show_low_risk')
         : TrLang::trans('admin.crm.no_show_watch');
     $noShowBadgeVariant = $noShowRate <= 10 ? 'success' : 'warning';
+    $completionBadge = $completionRate >= 80
+        ? TrLang::trans('admin.crm.metric_optimal')
+        : ($completionRate >= 60
+            ? TrLang::trans('admin.crm.metric_developing')
+            : TrLang::trans('admin.crm.metric_attention'));
+    $completionBadgeVariant = $completionRate >= 80 ? 'success' : ($completionRate >= 60 ? 'warning' : 'danger');
 @endphp
 
-<section class="tr-crm-panel tr-crm-panel--stats">
+<section class="tr-crm-panel tr-crm-panel--stats" aria-labelledby="tr-crm-stats-title">
     <header class="tr-crm-panel__head tr-crm-panel__head--stats">
-        <h3 class="tr-crm-panel__title">{{ TrLang::trans('admin.crm.stats_title_long') }}</h3>
+        <div>
+            <h3 class="tr-crm-panel__title" id="tr-crm-stats-title">{{ TrLang::trans('admin.crm.stats_title_long') }}</h3>
+            <p class="tr-crm-panel__lead">{{ TrLang::trans('admin.crm.stats_lead', ['days' => $analyticsPeriodDays]) }}</p>
+        </div>
+        <span class="tr-crm-panel__period">{{ TrLang::trans('admin.crm.stats_period', ['days' => $analyticsPeriodDays]) }}</span>
     </header>
 
     <div class="tr-crm-stats-grid">
@@ -77,7 +89,7 @@
             <span class="tr-crm-stat-card__label">{{ TrLang::trans('admin.crm.metric_fulfillment_pct') }}</span>
             <div class="tr-crm-stat-card__value-row">
                 <strong class="tr-crm-stat-card__value">{{ $completionRate }}%</strong>
-                <span class="tr-crm-stat-card__badge tr-crm-stat-card__badge--success">{{ TrLang::trans('admin.crm.metric_optimal') }}</span>
+                <span class="tr-crm-stat-card__badge tr-crm-stat-card__badge--{{ $completionBadgeVariant }}">{{ $completionBadge }}</span>
             </div>
             <div class="tr-crm-stat-card__bar tr-crm-stat-card__bar--success" role="presentation" aria-hidden="true">
                 <span style="width: {{ min(100, max(0, $completionRate)) }}%"></span>
@@ -98,7 +110,7 @@
         <article class="tr-crm-stat-card tr-crm-stat-card--revenue">
             <span class="tr-crm-stat-card__label">{{ TrLang::trans('admin.crm.metric_revenue_checked') }}</span>
             <strong class="tr-crm-stat-card__value tr-crm-stat-card__value--revenue">{{ $analytics['revenueFormatted'] ?? '—' }}</strong>
-            <p class="tr-crm-stat-card__hint">{{ TrLang::trans('admin.crm.revenue_checked_hint', ['count' => $doneCount]) }}</p>
+            <p class="tr-crm-stat-card__hint">{{ TrLang::trans('admin.crm.revenue_checked_hint', ['count' => $analyticsCompleted, 'days' => $analyticsPeriodDays]) }}</p>
         </article>
 
         <article class="tr-crm-stat-card tr-crm-stat-card--distribution">
@@ -163,7 +175,10 @@
             </div>
         </header>
         <div class="tr-crm-chart__canvas tr-crm-chart__canvas--trend">
-            <canvas id="tr-revenue-trend-chart" height="160"></canvas>
+            <p class="sr-only" id="tr-revenue-trend-summary">
+                {{ TrLang::trans('admin.crm.revenue_trend_summary', ['days' => count($revenueTrend['labels'] ?? []), 'peak' => $peakRevenue]) }}
+            </p>
+            <canvas id="tr-revenue-trend-chart" height="160" role="img" aria-describedby="tr-revenue-trend-summary"></canvas>
         </div>
     </div>
 </section>

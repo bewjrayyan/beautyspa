@@ -71,31 +71,32 @@
                             @if ($canOpenDetail) role="button" tabindex="0" @endif
                         >
                             <header class="tr-crm-pipeline-card__head">
-                                <div class="tr-crm-pipeline-card__head-row">
-                                    <div class="tr-crm-pipeline-card__schedule">
-                                        <span class="tr-crm-pipeline-card__date">
-                                            <i class="fa fa-calendar-o" aria-hidden="true"></i>
-                                            <span>{{ $booking['appointment_date'] ?? TrLang::trans('admin.crm.ledger_unscheduled') }}</span>
-                                        </span>
-                                        <span class="tr-crm-pipeline-card__time">
-                                            <i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>{{ $booking['appointment_time_range'] ?? $booking['appointment_time'] ?? TrLang::trans('admin.crm.ledger_time_tbc') }}</span>
-                                        </span>
-                                    </div>
+                                <div class="tr-crm-pipeline-card__schedule">
+                                    <span class="tr-crm-pipeline-card__date">
+                                        <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                                        <span>{{ $booking['appointment_date'] ?? TrLang::trans('admin.crm.ledger_unscheduled') }}</span>
+                                    </span>
+                                    <span class="tr-crm-pipeline-card__time">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        <span>{{ $booking['appointment_time_range'] ?? $booking['appointment_time'] ?? TrLang::trans('admin.crm.ledger_time_tbc') }}</span>
+                                    </span>
+                                </div>
+                                <div class="tr-crm-pipeline-card__head-meta">
+                                    @if (! empty($booking['customer_history_label']) || ! empty($booking['loyalty_tier_name']))
+                                        <p class="tr-crm-pipeline-card__insight">
+                                            @if (! empty($booking['customer_history_label']))
+                                                {{ $booking['customer_history_label'] }}
+                                            @endif
+                                            @if (! empty($booking['loyalty_tier_name']))
+                                                @if (! empty($booking['customer_history_label']))
+                                                    ·
+                                                @endif
+                                                <i class="fa fa-star" aria-hidden="true"></i> {{ $booking['loyalty_tier_name'] }}
+                                            @endif
+                                        </p>
+                                    @endif
                                     <span class="tr-crm-pipeline-card__status-dot" aria-hidden="true"></span>
                                 </div>
-                                @if (! empty($booking['customer_history_label']) || ! empty($booking['loyalty_tier_name']))
-                                    <div class="tr-crm-pipeline-card__insight">
-                                        @if (! empty($booking['customer_history_label']))
-                                            <span class="tr-crm-pipeline-card__insight-chip">{{ $booking['customer_history_label'] }}</span>
-                                        @endif
-                                        @if (! empty($booking['loyalty_tier_name']))
-                                            <span class="tr-crm-pipeline-card__insight-chip tr-crm-pipeline-card__insight-chip--loyalty">
-                                                <i class="fa fa-star" aria-hidden="true"></i> {{ $booking['loyalty_tier_name'] }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                @endif
                             </header>
 
                             <div class="tr-crm-pipeline-card__body">
@@ -123,6 +124,7 @@
                                         </div>
                                     @endif
                                 </div>
+
 
                                 @if (! empty($booking['inline_alerts']))
                                     <div class="tr-crm-pipeline-card__alerts">
@@ -152,19 +154,35 @@
                                     </div>
                                 @endif
 
-                                @if (! empty($booking['source_label']) || ! empty($booking['spa_branch_name']))
+                                @if (! empty($booking['source_label']) || ! empty($booking['spa_branch_name']) || ! empty($booking['order_url']))
                                     <div class="tr-crm-pipeline-card__meta">
                                         @if (! empty($booking['source_label']))
-                                            <span class="tr-crm-pipeline-card__chip tr-crm-pipeline-card__chip--source">{{ $booking['source_label'] }}</span>
+                                            <span class="tr-crm-pipeline-card__chip">{{ $booking['source_label'] }}</span>
                                         @endif
                                         @if (! empty($booking['spa_branch_name']))
                                             <span class="tr-crm-pipeline-card__chip tr-crm-pipeline-card__chip--branch">{{ $booking['spa_branch_name'] }}</span>
                                         @endif
+                                        @if (! empty($booking['order_url']))
+                                            <a
+                                                href="{{ $booking['order_url'] }}"
+                                                class="tr-crm-pipeline-card__chip tr-crm-pipeline-card__chip--order"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onclick="event.stopPropagation()"
+                                            >
+                                                <i class="fa fa-external-link" aria-hidden="true"></i>
+                                                {{ TrLang::trans('admin.crm.action_view_order') }}
+                                            </a>
+                                        @endif
                                     </div>
                                 @endif
 
-                                @if (! empty($booking['total_formatted']) || (! empty($booking['payment_is_outstanding']) && ! empty($booking['payment_status_label'])))
+                                @if ($status === 'completed')
                                     <div class="tr-crm-pipeline-card__finished">
+                                        <span class="tr-crm-pipeline-card__done">
+                                            <i class="fa fa-check-circle" aria-hidden="true"></i>
+                                            {{ TrLang::trans('admin.crm.pipeline_done') }}
+                                        </span>
                                         @if (! empty($booking['total_formatted']))
                                             <strong class="tr-crm-pipeline-card__price">{{ $booking['total_formatted'] }}</strong>
                                         @endif
@@ -172,76 +190,50 @@
                                             <span class="tr-crm-pipeline-card__payment tr-crm-pipeline-card__payment--{{ $booking['payment_status'] ?? 'pending' }}">
                                                 {{ TrLang::trans('admin.crm.payment_chip', ['status' => $booking['payment_status_label']]) }}
                                             </span>
-                                        @elseif ($status === 'completed' && ! empty($booking['total_formatted']))
-                                            <span class="tr-crm-pipeline-card__done">
-                                                <i class="fa fa-check-circle" aria-hidden="true"></i>
-                                                {{ TrLang::trans('admin.crm.pipeline_done') }}
-                                            </span>
                                         @endif
                                     </div>
                                 @endif
                             </div>
 
-                            @php
-                                $showStartCta = $canOpenDetail && $column['action'] === 'start' && ! empty($booking['next_status']);
-                                $showCompleteCta = $canOpenDetail && $column['action'] === 'complete' && ! empty($booking['next_status']);
-                                $showOrderLink = ! empty($booking['order_url']);
-                                $showReschedule = ! empty($booking['can_reschedule_manual']);
-                                $showFooterActions = $showStartCta || $showCompleteCta || $showOrderLink || $showReschedule;
-                            @endphp
-
-                            @if ($showFooterActions)
+                            @if ($canOpenDetail && $column['action'] === 'start' && ! empty($booking['next_status']))
                                 <footer class="tr-crm-pipeline-card__footer">
-                                    <div class="tr-crm-pipeline-card__actions">
-                                        @if ($showStartCta)
-                                            <button
-                                                type="button"
-                                                class="tr-crm-pipeline-card__cta"
-                                                data-pipeline-action="start"
-                                                data-booking-id="{{ $booking['id'] }}"
-                                                data-next-status="{{ $booking['next_status'] }}"
-                                            >
-                                                <i class="fa fa-play" aria-hidden="true"></i>
-                                                {{ TrLang::trans('admin.crm.action_start_treatment') }}
-                                            </button>
-                                        @elseif ($showCompleteCta)
-                                            <button
-                                                type="button"
-                                                class="tr-crm-pipeline-card__cta tr-crm-pipeline-card__cta--finish"
-                                                data-pipeline-action="complete"
-                                                data-booking-id="{{ $booking['id'] }}"
-                                                data-next-status="{{ $booking['next_status'] }}"
-                                            >
-                                                <i class="fa fa-check" aria-hidden="true"></i>
-                                                {{ TrLang::trans('admin.crm.action_complete_checkout') }}
-                                            </button>
-                                        @endif
-
-                                        @if ($showOrderLink)
-                                            <button
-                                                type="button"
-                                                class="tr-crm-pipeline-card__cta tr-crm-pipeline-card__cta--secondary"
-                                                data-pipeline-view-order
-                                                data-order-url="{{ $booking['order_url'] }}"
-                                            >
-                                                <i class="fa fa-external-link" aria-hidden="true"></i>
-                                                {{ TrLang::trans('admin.crm.action_view_order') }}
-                                            </button>
-                                        @endif
-
-                                        @if ($showReschedule)
-                                            <button
-                                                type="button"
-                                                class="tr-crm-pipeline-card__cta tr-crm-pipeline-card__cta--ghost"
-                                                data-pipeline-reschedule
-                                                data-booking-id="{{ $booking['id'] }}"
-                                            >
-                                                <i class="fa fa-calendar" aria-hidden="true"></i>
-                                                {{ TrLang::trans('admin.crm.action_reschedule') }}
-                                            </button>
-                                        @endif
-                                    </div>
+                                    <button
+                                        type="button"
+                                        class="tr-crm-pipeline-card__cta"
+                                        data-pipeline-action="start"
+                                        data-booking-id="{{ $booking['id'] }}"
+                                        data-next-status="{{ $booking['next_status'] }}"
+                                    >
+                                        <i class="fa fa-play" aria-hidden="true"></i>
+                                        {{ TrLang::trans('admin.crm.action_start_treatment') }}
+                                    </button>
                                 </footer>
+                            @elseif ($canOpenDetail && $column['action'] === 'complete' && ! empty($booking['next_status']))
+                                <footer class="tr-crm-pipeline-card__footer">
+                                    <button
+                                        type="button"
+                                        class="tr-crm-pipeline-card__cta tr-crm-pipeline-card__cta--finish"
+                                        data-pipeline-action="complete"
+                                        data-booking-id="{{ $booking['id'] }}"
+                                        data-next-status="{{ $booking['next_status'] }}"
+                                    >
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                        {{ TrLang::trans('admin.crm.action_complete_checkout') }}
+                                    </button>
+                                </footer>
+                            @endif
+
+                            @if (! empty($booking['can_reschedule_manual']))
+                                <div class="tr-crm-pipeline-card__links">
+                                    <button
+                                        type="button"
+                                        class="tr-crm-pipeline-card__link"
+                                        data-pipeline-reschedule
+                                        data-booking-id="{{ $booking['id'] }}"
+                                    >
+                                        {{ TrLang::trans('admin.crm.action_reschedule') }}
+                                    </button>
+                                </div>
                             @endif
                         </li>
                     @empty

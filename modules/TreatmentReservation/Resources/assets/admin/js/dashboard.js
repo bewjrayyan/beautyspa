@@ -160,6 +160,7 @@ function initDashboardSearch(app = null) {
         "[data-crm-list] .tr-crm-specialist",
         "[data-crm-list] .tr-crm-pipeline-card",
         "[data-crm-list] .tr-crm-ledger__row",
+        "[data-crm-list] .tr-crm-needs__item",
         "[data-crm-list] .tr-crm-agenda-card",
         "[data-crm-list] .tr-crm-tba-item",
         ".tr-crm-tba-item",
@@ -185,7 +186,13 @@ function initDashboardSearch(app = null) {
         searchNotice.id = "tr-crm-search-empty";
         searchNotice.className = "tr-crm-search-empty";
         searchNotice.hidden = true;
-        searchWrap?.insertAdjacentElement("afterend", searchNotice);
+        searchNotice.setAttribute("role", "status");
+        searchNotice.setAttribute("aria-live", "polite");
+    }
+
+    // Keep the empty tip anchored under the search field (not as a flex sibling in the header).
+    if (searchWrap && searchNotice.parentElement !== searchWrap) {
+        searchWrap.appendChild(searchNotice);
     }
 
     const clearCalendarSearchMarks = () => {
@@ -334,8 +341,10 @@ function initDashboardSearch(app = null) {
             app?.refreshAgendaPanel?.();
         }
 
+        const showEmpty = query !== "" && visibleCount === 0;
         searchNotice.textContent = noResultsMessage;
-        searchNotice.hidden = query === "" || visibleCount > 0;
+        searchNotice.hidden = !showEmpty;
+        searchWrap?.classList.toggle("tr-crm-toolbar__search--empty", showEmpty);
     };
 
     input.addEventListener("input", () => applySearch());
@@ -1986,6 +1995,25 @@ export function initCalendarBookingDrop(app) {
     });
 }
 
+
+function seedLedgerBookingsIntoPreviewMap() {
+    document.querySelectorAll(".tr-crm-ledger__row[data-booking-id], .tr-crm-needs__item[data-booking-id]").forEach((row) => {
+        const id = row.dataset.bookingId;
+        if (!id) {
+            return;
+        }
+
+        upsertBooking({
+            id,
+            details_loaded: false,
+            can_open_detail: row.dataset.ownBooking !== "0",
+            customer_name: row.querySelector(".tr-crm-ledger__customer-link, .tr-crm-ledger__customer-name, .tr-crm-needs__item-customer")?.textContent?.trim() || null,
+            treatment_name: row.querySelector(".tr-crm-ledger__treatment-name, .tr-crm-needs__item-treatment")?.textContent?.trim() || null,
+            status: row.querySelector(".tr-crm-ledger__status-pill")?.className?.match(/tr-crm-ledger__status-pill--([\w-]+)/)?.[1] || null,
+        });
+    });
+}
+
 export function initCrmDashboard(app) {
     const root = document.getElementById("tr-crm-dashboard");
 
@@ -2006,6 +2034,8 @@ export function initCrmDashboard(app) {
     } catch (error) {
         // ignore invalid seed payload
     }
+
+    seedLedgerBookingsIntoPreviewMap();
 
     initDashboardSearch(app);
     initDateFilterPills();

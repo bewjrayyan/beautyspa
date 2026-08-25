@@ -92,6 +92,13 @@ class OrderService
             ->releaseHoldsForOrder((int) $order->id);
         $this->refundLoyaltyRedemption($order);
 
+        // Soft-delete linked treatment bookings before the order goes away so a later
+        // hard-delete (ON DELETE SET NULL) cannot leave orphan checkout rows in the ledger.
+        if (app('modules')->isEnabled('TreatmentReservation') && $order->id) {
+            app(\Modules\TreatmentReservation\Services\BookingSyncService::class)
+                ->trashBookingsForOrder($order);
+        }
+
         $order->delete();
 
         Cart::restoreStock();

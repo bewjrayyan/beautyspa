@@ -7,6 +7,7 @@
     $filterDateValue = $filterDateValue ?? today()->toDateString();
     $filterDateLabel = $filterDateLabel ?? TrLang::trans('admin.crm.date_today');
     $dateFilter = $dateFilter ?? 'today';
+    $crmSelfScoped = ! empty($crmSelfScoped);
     $sessionsLabel = $dateFilter === 'today'
         ? 'admin.crm.specialist_sessions'
         : 'admin.crm.specialist_sessions_date';
@@ -18,13 +19,15 @@
     ];
 @endphp
 
-<section class="tr-crm-panel tr-crm-panel--specialists">
+<section class="tr-crm-panel tr-crm-panel--specialists" aria-labelledby="tr-crm-specialists-title">
     <header class="tr-crm-panel__head">
         <div>
-            <h3 class="tr-crm-panel__title">{{ TrLang::trans('admin.crm.specialists_title') }}</h3>
-            <p class="tr-crm-panel__lead">{{ TrLang::trans('admin.crm.specialists_lead') }}</p>
+            <h3 class="tr-crm-panel__title" id="tr-crm-specialists-title">{{ TrLang::trans('admin.crm.specialists_title') }}</h3>
+            <p class="tr-crm-panel__lead">{{ TrLang::trans($crmSelfScoped ? 'admin.crm.specialists_lead_self' : 'admin.crm.specialists_lead') }}</p>
         </div>
-        <span class="tr-crm-specialists__count">{{ TrLang::trans('admin.crm.specialists_count', ['count' => count($beauticians)]) }}</span>
+        <span class="tr-crm-specialists__count">
+            {{ $crmSelfScoped ? TrLang::trans('admin.crm.specialists_self_badge') : TrLang::trans('admin.crm.specialists_count', ['count' => count($beauticians)]) }}
+        </span>
     </header>
 
     <ul class="tr-crm-specialists" data-crm-list>

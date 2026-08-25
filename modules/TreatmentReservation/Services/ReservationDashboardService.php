@@ -72,11 +72,12 @@ class ReservationDashboardService
             'ledgerCount' => count($ledger),
             'beauticians' => $this->beauticianRoster($beauticianId, $categoryId, $spaBranchId, $filterDate),
             'alerts' => $this->formatAlerts($urgency),
-            'recentActivity' => $this->recentActivity($beauticianId, $categoryId),
+            // Kept for BC with older blades/API consumers; not rendered on CRM dashboard.
+            'recentActivity' => [],
             'todayAppointments' => $pipeline['all'] ?? [],
-            'needsAttention' => collect($urgency['items'] ?? [])->take(6)->values()->all(),
-            'beauticianWorkload' => $this->beauticianWorkload($beauticianId, $categoryId, $spaBranchId, $filterDate),
-            'upcomingBookings' => $this->upcomingBookings($beauticianId, $categoryId, $spaBranchId),
+            'needsAttention' => app(CrmNeedsAttentionService::class)->forDashboard($beauticianId, $categoryId, $spaBranchId),
+            'beauticianWorkload' => [],
+            'upcomingBookings' => [],
             'tbaBookings' => $tbaBookings,
             'tbaCount' => $this->tbaCount($beauticianId, $categoryId, $spaBranchId),
         ];
@@ -205,7 +206,14 @@ class ReservationDashboardService
         int $limit = 100,
     ): array {
         return $this->ledgerBase($beauticianId, $categoryId, $spaBranchId)
-            ->with(['beautician.files', 'beautician.user', 'beautician.spaBranches', 'product', 'category', 'order.products.product'])
+            ->with([
+                'beautician',
+                'product',
+                'category',
+                'order.products.product',
+                'order.products.options.values',
+                'order.products.variations.values',
+            ])
             ->orderByDesc('appointment_date')
             ->orderBy('appointment_time')
             ->limit($limit)
@@ -530,9 +538,10 @@ class ReservationDashboardService
      */
     private function serializeLedgerRow(TreatmentBooking $booking): array
     {
-        $booking->loadMissing(['beautician.files', 'beautician.user', 'beautician.spaBranches', 'product', 'category', 'order.products.product']);
-        $payload = $booking->toKanbanPayload();
         $treatmentLine = $booking->treatmentLineMeta();
+        $customerName = trim((string) $booking->customer_full_name);
+        $beauticianName = trim((string) ($booking->beautician?->name ?? ''));
+        $beauticianAssigned = $booking->beautician_id !== null && $beauticianName !== '';
 
         $initial = strtoupper(mb_substr(trim($booking->customer_first_name ?? ''), 0, 1)
             . mb_substr(trim($booking->customer_last_name ?? ''), 0, 1));
@@ -548,20 +557,22 @@ class ReservationDashboardService
             ?? $booking->category?->name
             ?? null;
 
-        $beauticianAssigned = $booking->beautician_id !== null && filled($payload['beautician_name'] ?? null) && $payload['beautician_name'] !== '—';
+        $timeLabel = $booking->formattedAppointmentTime();
 
-        return app(BookingCrmInsightService::class)->enrichPayload($booking, [
+        // Lightweight list row — avoid sharedDetailPayload (avatar/WhatsApp/settings N+1).
+        // Appointment preview loads the full enriched payload on demand.
+        return [
             'id' => $booking->id,
             'beautician_id' => $booking->beautician_id,
             'status' => $booking->status,
             'status_label' => $this->ledgerStatusLabel($booking->status),
             'status_accent' => TreatmentBooking::statusAccentColor($booking->status),
-            'customer_name' => filled($payload['customer_name'] ?? null)
-                ? $payload['customer_name']
+            'customer_name' => $customerName !== ''
+                ? $customerName
                 : TrLang::trans('admin.crm.ledger_unknown_client'),
-            'customer_phone' => $payload['customer_phone'] ?? null,
+            'customer_phone' => $booking->customer_phone,
             'customer_initial' => $initial !== '' ? $initial : '?',
-            'customer_color' => $this->customerAccentColor($payload['customer_name'] ?? ''),
+            'customer_color' => $this->customerAccentColor($customerName),
             'treatment_name' => $treatmentName,
             'treatment_subtitle' => $treatmentSubtitle,
             'category_name' => $booking->category?->name,
@@ -571,27 +582,24 @@ class ReservationDashboardService
             'appointment_date_short' => $booking->appointment_date
                 ? $booking->appointment_date->format('j M')
                 : null,
-            'appointment_time' => filled($booking->formattedAppointmentTime())
-                ? $booking->formattedAppointmentTime()
+            'appointment_time' => $timeLabel !== ''
+                ? $timeLabel
                 : TrLang::trans('admin.crm.ledger_time_tbc'),
-            'appointment_time_range' => $payload['appointment_time_range'] ?? null,
-            'beautician_job_title' => $payload['beautician_job_title'] ?? null,
-            'source_label' => $payload['source_label'] ?? null,
-            'spa_branch_name' => $payload['spa_branch_name'] ?? null,
-            'payment_status_label' => $payload['payment_status_label'] ?? null,
             'beautician_name' => $beauticianAssigned
-                ? $payload['beautician_name']
+                ? $beauticianName
                 : TrLang::trans('admin.crm.ledger_unassigned'),
             'beautician_assigned' => $beauticianAssigned,
-            'beautician_color' => $payload['beautician_color'] ?? '#6d2847',
-            'beautician_avatar' => $payload['beautician_avatar'] ?? null,
-            'beautician_initial' => $beauticianAssigned ? ($payload['beautician_initial'] ?? '?') : '?',
+            'beautician_color' => $booking->beautician?->profile_color ?: '#6d2847',
+            'beautician_initial' => $beauticianAssigned ? ($booking->beautician?->initials ?? '?') : '?',
             'total_formatted' => $booking->ledgerLineTotal()->format(),
-            'notes' => $payload['notes'] ?? null,
-            'order_url' => $payload['order_url'] ?? null,
-            'can_edit_manual' => $payload['can_edit_manual'] ?? false,
-            'can_reschedule_manual' => $payload['can_reschedule_manual'] ?? false,
-        ]);
+            'order_url' => $booking->order_id
+                ? route('admin.orders.show', $booking->order_id)
+                : null,
+            'can_edit_manual' => $booking->isManualEditable(),
+            'can_reschedule_manual' => $booking->canRescheduleManual(),
+            'can_reschedule' => $booking->canRescheduleAppointment(),
+            'details_loaded' => false,
+        ];
     }
 
 
@@ -620,6 +628,7 @@ class ReservationDashboardService
     private function ledgerBase(?int $beauticianId = null, ?int $categoryId = null, ?int $spaBranchId = null): Builder
     {
         return TreatmentBooking::query()
+            ->withActiveOrder()
             ->when($beauticianId, fn (Builder $query) => $query->where('beautician_id', $beauticianId))
             ->when($categoryId, fn (Builder $query) => $query->where('treatment_category_id', $categoryId))
             ->when(
@@ -669,6 +678,7 @@ class ReservationDashboardService
     private function filteredBase(?int $beauticianId = null, ?int $categoryId = null, ?int $spaBranchId = null): Builder
     {
         return TreatmentBooking::query()
+            ->withActiveOrder()
             ->withTreatmentProduct()
             ->whereNot('status', TreatmentBooking::STATUS_CANCELED)
             ->when($beauticianId, fn (Builder $query) => $query->where('beautician_id', $beauticianId))

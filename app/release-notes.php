@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.18' => [
+        'date' => '2026-08-25',
+        'en' => [
+            'summary' => 'CRM Needs attention queues, orphan booking cleanup, portal ownership hardening, and faster dashboard loads.',
+            'changes' => [
+                'Replace booking-statistics charts on the CRM dashboard with actionable Needs attention buckets (overdue, unassigned, TBA, reminders, unpaid).',
+                'Hide orphan checkout bookings after order deletion and soft-delete linked treatment rows when an order is removed.',
+                'Scope beautician portal CRM, calendar, kanban, and customer profile lookups to the signed-in specialist.',
+                'Cut CRM dashboard query load by skipping unused analytics/upcoming payloads and lightening ledger serialization.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Giliran Perlu perhatian CRM, pembersihan tempahan orphan, pengukuhan skop portal, dan dashboard lebih pantas.',
+            'changes' => [
+                'Ganti carta statistik tempahan pada dashboard CRM dengan bucket tindakan Perlu perhatian (tertinggal, tiada pakar, TBA, peringatan, belum bayar).',
+                'Sembunyikan tempahan checkout orphan selepas padam order dan soft-delete baris rawatan berkaitan apabila order dipadam.',
+                'Hadkan CRM/kalendar/kanban/profil pelanggan portal beautician kepada pakar yang log masuk.',
+                'Kurangkan query dashboard CRM dengan menyingkir payload analytics/upcoming yang tidak digunakan dan meringankan serialisasi ledger.',
+            ],
+        ],
+    ],
+
     '4.11.17' => [
         'date' => '2026-08-25',
         'en' => [

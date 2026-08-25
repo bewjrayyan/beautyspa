@@ -27,7 +27,6 @@ use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
 use Modules\TreatmentReservation\Services\BookingSelfService;
 use Modules\TreatmentReservation\Services\ManualBookingProductCatalogService;
 use Modules\TreatmentReservation\Services\TreatmentBookingsReportService;
-use Modules\TreatmentReservation\Services\TreatmentReservationAnalyticsService;
 use Modules\TreatmentReservation\Services\UpcomingJobUrgencyService;
 use Modules\TreatmentReservation\Services\MalaysiaHolidayImportService;
 use Modules\TreatmentReservation\Entities\TreatmentPublicHoliday;
@@ -38,7 +37,6 @@ class ReservationController extends Controller
     public function __construct(
         private ReservationDashboardService $dashboard,
         private TreatmentBookingsReportService $report,
-        private TreatmentReservationAnalyticsService $analytics,
         private UpcomingJobUrgencyService $urgency,
     ) {}
 
@@ -72,7 +70,6 @@ class ReservationController extends Controller
         $source = in_array($request->input('source'), ['manual', 'checkout'], true)
             ? $request->input('source')
             : null;
-        $analyticsDays = TreatmentReservationAnalyticsService::DEFAULT_DAYS;
         $urgencyPayload = $this->urgency->forAdminTeam();
 
         return view('treatmentreservation::admin.reservations.index', [
@@ -83,12 +80,9 @@ class ReservationController extends Controller
                 ? $this->dashboard->crmPayload($beauticianId, $categoryId, $spaBranchId, $dateFilter, $urgencyPayload, $customFilterDate)
                 : null,
             'urgency' => in_array($view, ['dashboard', 'kanban'], true) ? $urgencyPayload : null,
-            'analytics' => $view === 'dashboard'
-                ? $this->analytics->overview($analyticsDays)
-                : null,
-            'analyticsCharts' => $view === 'dashboard'
-                ? $this->analytics->chartPayload($analyticsDays)
-                : null,
+            // Analytics charts live on the reports/analytics surfaces — CRM uses Needs attention instead.
+            'analytics' => null,
+            'analyticsCharts' => null,
             'reportSummary' => $view === 'reports'
                 ? $this->report->summary($reportFrom, $reportTo, $beauticianId, $categoryId, $source)
                 : null,

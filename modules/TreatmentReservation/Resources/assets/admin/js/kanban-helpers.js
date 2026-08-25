@@ -1119,10 +1119,13 @@ function getBookingIdFromElement(element) {
 }
 
 async function resolvePreviewBooking(bookingId) {
-    const booking = previewResolveBooking?.(bookingId);
+    const cached = previewResolveBooking?.(bookingId) || null;
+    // Ledger / older appointments often are not seeded into calendar/kanban maps.
+    // Fetch details whenever the booking is missing or marked incomplete.
+    const needsFetch = !cached || cached.details_loaded === false;
 
-    if (!booking || booking.details_loaded !== false || !previewOptions.detailsUrlTemplate || !window.axios) {
-        return booking;
+    if (!needsFetch || !previewOptions.detailsUrlTemplate || !window.axios) {
+        return cached;
     }
 
     const key = String(bookingId);
@@ -1137,7 +1140,7 @@ async function resolvePreviewBooking(bookingId) {
                     upsertBooking(detailedBooking);
                 }
 
-                return detailedBooking || booking;
+                return detailedBooking || cached;
             })
             .finally(() => previewDetailRequests.delete(key));
 
@@ -1148,7 +1151,7 @@ async function resolvePreviewBooking(bookingId) {
 }
 
 export async function openBookingPreviewById(bookingId) {
-    if (!bookingId || !previewResolveBooking) {
+    if (!bookingId || (!previewResolveBooking && !previewOptions.detailsUrlTemplate)) {
         return;
     }
 

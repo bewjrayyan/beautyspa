@@ -331,6 +331,7 @@
                 'crmReminderUrlTemplate' => $crmRoutes['reminder'] ?? '',
                 'crmSpecialistProfileUrl' => $crmSpecialistProfileUrl ?? null,
                 'calendarFullViewUrl' => $crmRoutes['calendarFullView'] ?? null,
+                'crmSelfScoped' => $crmSelfScoped ?? true,
             ])
         </div>
     </div>

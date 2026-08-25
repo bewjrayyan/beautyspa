@@ -171,7 +171,7 @@ class FinalAuditRegressionTest extends TestCase
         $this->assertStringContainsString('Promise.all([', $calendar);
         $this->assertStringContainsString('datesCache: new Map()', $dashboard);
         $this->assertStringContainsString('prefetchRescheduleMonths(state)', $dashboard);
-        $this->assertStringContainsString('booking.details_loaded !== false', $preview);
+        $this->assertStringContainsString('cached.details_loaded === false', $preview);
         $this->assertStringContainsString('detailsUrlTemplate.replace("__ID__", key)', $preview);
         $this->assertStringContainsString('toCalendarSummaryPayload()', $controller);
         $this->assertStringContainsString('withCalendarDetails()', $controller);
@@ -199,6 +199,40 @@ class FinalAuditRegressionTest extends TestCase
     }
 
     #[Test]
+    public function beautician_operational_views_and_customer_lookup_are_scoped_to_ownership(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $portal = file_get_contents($root . '/modules/TreatmentReservation/Http/Controllers/Admin/PortalController.php');
+        $admin = file_get_contents($root . '/modules/TreatmentReservation/Http/Controllers/Admin/ReservationController.php');
+        $analytics = file_get_contents($root . '/modules/TreatmentReservation/Services/TreatmentReservationAnalyticsService.php');
+
+        $this->assertStringContainsString("'stats' => \$this->dashboard->stats(\$beauticianId, \$categoryId, \$spaBranchId)", $portal);
+        $this->assertStringContainsString("->forCalendar(\$request->input('month'), \$viewerBeauticianId)", $portal);
+        $this->assertStringContainsString("->forKanban(\$viewerBeauticianId, \$request->integer('treatment_category_id') ?: null)", $portal);
+        $this->assertStringContainsString("'booking_id' => ['required', 'integer']", $portal);
+
+        $calendarEventMethod = substr(
+            $portal,
+            strpos($portal, 'public function calendarEvent(Request'),
+            strpos($portal, 'public function kanbanBoard') - strpos($portal, 'public function calendarEvent(Request'),
+        );
+        $this->assertStringContainsString("->where('beautician_id', \$beautician->id)", $calendarEventMethod);
+
+        $customerProfileMethod = substr(
+            $portal,
+            strpos($portal, 'public function customerProfile'),
+            strpos($portal, 'public function sendCustomerReminder') - strpos($portal, 'public function customerProfile'),
+        );
+        $this->assertStringContainsString("->where('beautician_id', \$beautician->id)", $customerProfileMethod);
+        $this->assertStringNotContainsString('forPhone(', $customerProfileMethod);
+
+        $this->assertStringContainsString("'analytics' => null", $admin);
+        $this->assertStringContainsString("'analyticsCharts' => null", $admin);
+        $this->assertStringContainsString("'revenueByBeautician' => \$this->revenueByBeautician(\$days, 5, \$beauticianId)", $analytics);
+        $this->assertStringContainsString("->whereDate('appointment_date', '>=', \$from)", $analytics);
+    }
+
+    #[Test]
     public function race_and_otp_error_guards_remain_in_the_controller_and_locked_service_paths(): void
     {
         $root = dirname(__DIR__, 3);
@@ -215,6 +249,95 @@ class FinalAuditRegressionTest extends TestCase
         $this->assertStringContainsString('beautician.portal.permission:admin.beauticians.edit', $routes);
         $this->assertStringNotContainsString("hasAccess('admin.beauticians.edit')", $portalAccess);
         $this->assertStringContainsString('if (! $user->isBeauticianOnly())', $portalAccess);
+    }
+
+
+
+    #[Test]
+    public function crm_dashboard_payload_skips_unused_heavy_sections_and_ledger_avoids_kanban_enrich(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $service = file_get_contents($root . '/modules/TreatmentReservation/Services/ReservationDashboardService.php');
+        $en = file_get_contents($root . '/modules/TreatmentReservation/Resources/lang/en/admin.php');
+        $ms = file_get_contents($root . '/modules/TreatmentReservation/Resources/lang/ms/admin.php');
+
+        $this->assertStringContainsString("'upcomingBookings' => []", $service);
+        $this->assertStringContainsString("'beauticianWorkload' => []", $service);
+        $this->assertStringContainsString("'recentActivity' => []", $service);
+        $this->assertStringContainsString('Lightweight list row', $service);
+        $this->assertStringNotContainsString("toKanbanPayload()", substr(
+            $service,
+            strpos($service, 'private function serializeLedgerRow'),
+            strpos($service, 'private function ledgerStatusLabel') - strpos($service, 'private function serializeLedgerRow')
+        ));
+        $this->assertStringContainsString('Overdue appointments, missing specialists', $en);
+        $this->assertStringNotContainsString("'needs_attention_lead' => 'Overdue, starting soon, or still pending'", $en);
+        $this->assertStringContainsString('Temujanji tertunggak, tiada pakar', $ms);
+        $this->assertStringNotContainsString("'needs_attention_lead' => 'Lewat, akan bermula, atau masih pending'", $ms);
+    }
+
+    #[Test]
+    public function needs_attention_payment_uses_order_status_and_total_is_unique(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $needs = file_get_contents($root . '/modules/TreatmentReservation/Services/CrmNeedsAttentionService.php');
+
+        $this->assertStringContainsString("whereHas('order'", $needs);
+        $this->assertStringContainsString('Order::PAYMENT_PAID', $needs);
+        $this->assertStringContainsString("where('spa_branch_id', \$spaBranchId)", $needs);
+        $this->assertStringContainsString('REMINDER_HORIZON_DAYS', $needs);
+        $this->assertStringContainsString('REMINDER_HORIZON_DAYS - 1', $needs);
+        $this->assertStringContainsString('SCHEDULE_STATUS_TBA', $needs);
+        $this->assertStringContainsString('member_ids', $needs);
+        $this->assertStringContainsString("unset(\$bucket['member_ids'])", $needs);
+    }
+
+    #[Test]
+    public function crm_dashboard_uses_needs_attention_panel_instead_of_booking_stats(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $dashboard = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/dashboard.blade.php');
+        $service = file_get_contents($root . '/modules/TreatmentReservation/Services/ReservationDashboardService.php');
+        $panel = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/dashboard/needs-attention-panel.blade.php');
+        $needs = file_get_contents($root . '/modules/TreatmentReservation/Services/CrmNeedsAttentionService.php');
+        $en = file_get_contents($root . '/modules/TreatmentReservation/Resources/lang/en/admin.php');
+        $ms = file_get_contents($root . '/modules/TreatmentReservation/Resources/lang/ms/admin.php');
+
+        $this->assertStringContainsString('needs-attention-panel', $dashboard);
+        $this->assertStringNotContainsString('booking-stats-panel', $dashboard);
+        $this->assertStringContainsString('CrmNeedsAttentionService', $service);
+        $this->assertStringContainsString("bucket('overdue'", $needs);
+        $this->assertStringContainsString('needs_attention_bucket_', $needs);
+        $this->assertStringContainsString('tr-crm-needs__item', $panel);
+        $this->assertStringContainsString("'needs_attention_title'", $en);
+        $this->assertStringContainsString("'needs_attention_title'", $ms);
+    }
+
+    #[Test]
+    public function ledger_hides_orphan_checkout_bookings_and_checkout_delete_trashes_linked_rows(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $booking = file_get_contents($root . '/modules/TreatmentReservation/Entities/TreatmentBooking.php');
+        $sync = file_get_contents($root . '/modules/TreatmentReservation/Services/BookingSyncService.php');
+        $dashboard = file_get_contents($root . '/modules/TreatmentReservation/Services/ReservationDashboardService.php');
+        $orderService = file_get_contents($root . '/modules/Checkout/Services/OrderService.php');
+        $ledger = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/dashboard/ledger-table.blade.php');
+
+        $scope = substr(
+            $booking,
+            strpos($booking, 'public function scopeWithActiveOrder'),
+            strpos($booking, 'public function scopeWithTreatmentProduct') - strpos($booking, 'public function scopeWithActiveOrder'),
+        );
+        $this->assertStringContainsString("whereNotNull('order_id')->whereHas('order')", $scope);
+        $this->assertStringContainsString('SOURCE_ADMIN_MANUAL', $scope);
+        $this->assertStringContainsString('SOURCE_PORTAL_MANUAL', $scope);
+        $this->assertStringNotContainsString("\$inner->whereNull('order_id')\n                ->orWhereHas('order')", $scope);
+
+        $this->assertStringContainsString("->where('source', TreatmentBooking::SOURCE_CHECKOUT)", $sync);
+        $this->assertStringContainsString('->trashBookingsForOrder($order)', $orderService);
+        $this->assertGreaterThanOrEqual(2, substr_count($dashboard, '->withActiveOrder()'));
+        $this->assertStringContainsString('tr-crm-ledger__treatment-sub', $ledger);
+        $this->assertStringContainsString("\$row['treatment_subtitle']", $ledger);
     }
 
     private function scheduledBooking(int $id, string $date, string $time): TreatmentBooking

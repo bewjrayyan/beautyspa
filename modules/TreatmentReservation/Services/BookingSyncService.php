@@ -441,8 +441,16 @@ class BookingSyncService
         $count = 0;
 
         TreatmentBooking::query()
-            ->whereNotNull('order_id')
-            ->whereDoesntHave('order')
+            ->where(function ($query) {
+                $query->where(function ($linked) {
+                    // Soft-deleted (or missing) orders still referenced by booking.order_id.
+                    $linked->whereNotNull('order_id')->whereDoesntHave('order');
+                })->orWhere(function ($orphan) {
+                    // Hard-deleted orders leave checkout rows with order_id SET NULL.
+                    $orphan->whereNull('order_id')
+                        ->where('source', TreatmentBooking::SOURCE_CHECKOUT);
+                });
+            })
             ->each(function (TreatmentBooking $booking) use (&$count) {
                 if (! $booking->trashed()) {
                     $booking->delete();

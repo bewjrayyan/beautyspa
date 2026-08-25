@@ -42,6 +42,7 @@ class TreatmentReservationAnalyticsService
     $pastBase = TreatmentBooking::query()
       ->withTreatmentProduct()
       ->when($beauticianId, fn ($query) => $query->where('beautician_id', $beauticianId))
+      ->whereDate('appointment_date', '>=', $from)
       ->whereDate('appointment_date', '<', today())
       ->whereNot('status', TreatmentBooking::STATUS_CANCELED);
 
@@ -161,7 +162,11 @@ class TreatmentReservationAnalyticsService
    *     currency: string
    * }
    */
-  public function revenueByBeautician(int $days = self::DEFAULT_DAYS, int $limit = 5): array
+  public function revenueByBeautician(
+    int $days = self::DEFAULT_DAYS,
+    int $limit = 5,
+    ?int $beauticianId = null,
+  ): array
   {
     $from = Carbon::now()->subDays($days - 1)->startOfDay()->toDateString();
     $to = Carbon::now()->endOfDay()->toDateString();
@@ -173,6 +178,7 @@ class TreatmentReservationAnalyticsService
       ->whereDate('appointment_date', '<=', $to)
       ->whereNot('status', TreatmentBooking::STATUS_CANCELED)
       ->whereNotNull('beautician_id')
+      ->when($beauticianId, fn ($query) => $query->where('beautician_id', $beauticianId))
       ->groupBy('beautician_id')
       ->get()
       ->keyBy('beautician_id');
@@ -184,6 +190,7 @@ class TreatmentReservationAnalyticsService
       ->whereDate('appointment_date', '>=', $from)
       ->whereDate('appointment_date', '<=', $to)
       ->whereNotNull('beautician_id')
+      ->when($beauticianId, fn ($query) => $query->where('beautician_id', $beauticianId))
       ->groupBy('beautician_id')
       ->get()
       ->keyBy('beautician_id');
@@ -271,7 +278,7 @@ class TreatmentReservationAnalyticsService
       'overview' => $this->overview($days, $beauticianId),
       'revenueTrend' => $this->revenueTrend(self::REVENUE_TREND_DAYS, $beauticianId),
       'statusBreakdown' => $this->statusBreakdown($days, $beauticianId),
-      'revenueByBeautician' => $this->revenueByBeautician($days),
+      'revenueByBeautician' => $this->revenueByBeautician($days, 5, $beauticianId),
     ];
   }
 

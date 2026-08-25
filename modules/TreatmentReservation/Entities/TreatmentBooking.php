@@ -438,13 +438,23 @@ class TreatmentBooking extends Model
 
 
     /**
-     * Job sheet / calendar: hide bookings whose order was deleted (soft or hard).
+     * CRM / job sheet / calendar: keep manual bookings and checkout rows linked to a live order.
+     *
+     * Checkout orphans (`source=checkout`, `order_id` null) appear after a hard-deleted order
+     * fires `ON DELETE SET NULL` — those must stay hidden so the ledger does not repeat treatments.
      */
     public function scopeWithActiveOrder(Builder $query): Builder
     {
         return $query->where(function (Builder $inner) {
-            $inner->whereNull('order_id')
-                ->orWhereHas('order');
+            $inner->where(function (Builder $linked) {
+                $linked->whereNotNull('order_id')->whereHas('order');
+            })->orWhere(function (Builder $manual) {
+                $manual->whereNull('order_id')
+                    ->whereIn('source', [
+                        self::SOURCE_ADMIN_MANUAL,
+                        self::SOURCE_PORTAL_MANUAL,
+                    ]);
+            });
         });
     }
 

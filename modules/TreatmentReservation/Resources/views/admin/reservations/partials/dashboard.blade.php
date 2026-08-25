@@ -8,6 +8,7 @@
     $ledgerCount = $dashboardData['ledgerCount'] ?? 0;
     $beauticians = $dashboardData['beauticians'] ?? [];
     $alerts = $dashboardData['alerts'] ?? [];
+    $needsAttention = $dashboardData['needsAttention'] ?? ['total' => 0, 'buckets' => [], 'items' => []];
     $recentActivity = $dashboardData['recentActivity'] ?? [];
     $filterDateLabel = $dashboardData['filterDateLabel'] ?? '';
     $filterDateValue = $dashboardData['filterDateValue'] ?? today()->toDateString();
@@ -184,10 +185,8 @@
 
     <div class="tr-crm-dashboard__workspace">
         <div class="tr-crm-dashboard__main">
-            @include('treatmentreservation::admin.reservations.partials.dashboard.booking-stats-panel', [
-                'analytics' => $analytics,
-                'analyticsCharts' => $analyticsCharts,
-                'kpis' => $kpis,
+            @include('treatmentreservation::admin.reservations.partials.dashboard.needs-attention-panel', [
+                'needsAttention' => $needsAttention,
             ])
             @include('treatmentreservation::admin.reservations.partials.dashboard.ledger-table', [
                 'ledger' => $ledger,
@@ -199,6 +198,7 @@
         <aside class="tr-crm-dashboard__aside" aria-label="{{ TrLang::trans('admin.crm.aside_aria') }}">
             @include('treatmentreservation::admin.reservations.partials.dashboard.specialists-panel', [
                 'beauticians' => $beauticians,
+                'crmSelfScoped' => $crmSelfScoped ?? false,
                 'filterDateValue' => $filterDateValue,
                 'filterDateLabel' => $filterDateLabel,
                 'dateFilter' => $dateFilter,
