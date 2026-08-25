@@ -47,6 +47,7 @@ return [
     'payment_proof_too_large' => 'File is too large. Maximum size is 10 MB.',
     'payment_proof_help' => 'JPG, PNG, PDF, or WEBP — max 10 MB.',
     'payment_proof_required' => 'Please upload your bank transfer payment proof.',
+    'payment_method_required' => 'Please select a payment method.',
     'payment_proof_selected' => 'Selected file:',
     'order_summary' => 'Order Summary',
     'subtotal' => 'Subtotal',

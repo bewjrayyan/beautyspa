@@ -48,6 +48,7 @@ return [
     'payment_proof_too_large' => 'Fail terlalu besar. Saiz maksimum ialah 10 MB.',
     'payment_proof_help' => 'JPG, PNG, PDF, atau WEBP — maks 10 MB.',
     'payment_proof_required' => 'Sila muat naik bukti bayaran pemindahan bank anda.',
+    'payment_method_required' => 'Sila pilih kaedah bayaran.',
     'payment_proof_selected' => 'Fail dipilih:',
     'order_summary' => 'Ringkasan Pesanan',
     'subtotal' => 'Subjumlah',

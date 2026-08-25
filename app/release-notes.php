@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.35' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Fix checkout payment method resetting to FPX when cart totals update.',
+            'changes' => [
+                'Stop Alpine cart effects from overwriting the customer\'s selected payment gateway.',
+                'Default payment only when empty or when the selected method is no longer available.',
+                'Snapshot payment_method at place-order so bank transfer and other gateways stay faithful through submit.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki kaedah bayaran checkout yang reset ke FPX bila jumlah cart dikemas kini.',
+            'changes' => [
+                'Hentikan Alpine cart effect daripada menimpa gateway bayaran yang dipilih pelanggan.',
+                'Default kaedah bayaran hanya bila kosong atau kaedah dipilih tiada lagi.',
+                'Snapshot payment_method semasa place-order supaya bank transfer dan gateway lain kekal tepat hingga submit.',
+            ],
+        ],
+    ],
+
     '4.11.34' => [
         'date' => '2026-08-26',
         'en' => [

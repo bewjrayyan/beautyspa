@@ -189,9 +189,11 @@ Alpine.data(
         },
 
         get paymentInstructions() {
-            if (this.shouldShowPaymentInstructions) {
-                return this.gateways[this.form.payment_method].instructions;
+            if (!this.shouldShowPaymentInstructions) {
+                return "";
             }
+
+            return this.gateways[this.form.payment_method]?.instructions ?? "";
         },
 
         get hasShippingMethod() {
@@ -572,17 +574,20 @@ Alpine.data(
         },
 
         init() {
+            // Cart store updates (tax, shipping, coupon, loyalty) re-run this effect.
+            // Never clobber the customer's payment choice with firstPaymentMethod (often FPX).
             Alpine.effect(() => {
-                if (this.cartFetched) {
-                    this.hideSkeleton();
-                    this.changePaymentMethod(this.firstPaymentMethod);
+                if (!this.cartFetched) {
+                    return;
+                }
 
-                    if (this.cart.shippingMethodName) {
-                        this.changeShippingMethod(this.cart.shippingMethodName);
-                    } else {
-                        this.updateShippingMethod(this.firstShippingMethod);
-                    }
+                this.hideSkeleton();
+                this.ensurePaymentMethodSelected();
 
+                if (this.cart.shippingMethodName) {
+                    this.changeShippingMethod(this.cart.shippingMethodName);
+                } else {
+                    this.updateShippingMethod(this.firstShippingMethod);
                 }
             });
 
@@ -2276,6 +2281,29 @@ Alpine.data(
             this.form.payment_method = paymentMethod;
         },
 
+        /**
+         * Default payment once when empty, or recover if the current method
+         * disappeared from gateways. Do not reset a still-valid user selection.
+         */
+        ensurePaymentMethodSelected() {
+            if (this.placingOrder) {
+                return;
+            }
+
+            const availableIds = this.gatewayOptions.map((gateway) => gateway.id);
+            const selected = this.form.payment_method;
+
+            if (selected && availableIds.includes(selected)) {
+                return;
+            }
+
+            const fallback = this.firstPaymentMethod;
+
+            if (fallback) {
+                this.changePaymentMethod(fallback);
+            }
+        },
+
         changeShippingMethod(shippingMethodName) {
             this.form.shipping_method = shippingMethodName;
         },
@@ -2501,8 +2529,17 @@ Alpine.data(
                 return;
             }
 
+            // Snapshot before any cart effect can run — prevents bank_transfer → chip_fpx races.
+            const selectedPaymentMethod = this.form.payment_method;
+
+            if (!selectedPaymentMethod) {
+                notify(trans("storefront::checkout.payment_method_required"));
+
+                return;
+            }
+
             if (
-                this.form.payment_method === "bank_transfer" &&
+                selectedPaymentMethod === "bank_transfer" &&
                 !this.paymentProofFile
             ) {
                 notify(trans("storefront::checkout.payment_proof_required"));
@@ -2511,8 +2548,11 @@ Alpine.data(
             }
 
             this.placingOrder = true;
+            this.form.payment_method = selectedPaymentMethod;
 
             const checkoutPayload = this.buildCheckoutRequestBody();
+            const offlineMethods = ["bank_transfer", "cod"];
+
             axios
                 .post(
                     AestheticCart.url("/checkout"),
@@ -2525,11 +2565,11 @@ Alpine.data(
                         return;
                     }
 
-                    if (this.isOfflinePaymentMethod) {
+                    if (offlineMethods.includes(selectedPaymentMethod)) {
                         if (data?.orderId) {
                             this.confirmOrder(
                                 data.orderId,
-                                this.form.payment_method
+                                selectedPaymentMethod
                             );
                         } else {
                             this.placingOrder = false;
@@ -2544,10 +2584,7 @@ Alpine.data(
                         return;
                     }
 
-                    this.confirmOrder(
-                        data.orderId,
-                        this.form.payment_method
-                    );
+                    this.confirmOrder(data.orderId, selectedPaymentMethod);
                 })
                 .catch(({ response }) => {
                     this.placingOrder = false;
