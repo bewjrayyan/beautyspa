@@ -72,7 +72,14 @@ class CoreServiceProvider extends ServiceProvider
         }
 
         if (class_exists(CacheHealth::class)) {
-            CacheHealth::apply();
+            try {
+                CacheHealth::apply();
+            } catch (\Throwable) {
+                config([
+                    'app.cache' => false,
+                    'cache.default' => 'array',
+                ]);
+            }
         }
 
         $this->prepareWritableStorage();

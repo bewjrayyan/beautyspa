@@ -24,8 +24,12 @@ class GoogleIntegrationServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'googleintegration');
 
-        GoogleSheetsStatusConfig::applyMissingOnly();
-        GoogleSheetsColumnConfig::applyMissingOnly();
+        try {
+            GoogleSheetsStatusConfig::applyMissingOnly();
+            GoogleSheetsColumnConfig::applyMissingOnly();
+        } catch (\Throwable) {
+            // Settings seeding is best-effort; never block app/artisan boot.
+        }
 
         View::composer('admin::dashboard.index', function ($view) {
             if (! GoogleSheetsService::isEnabled()) {

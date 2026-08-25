@@ -5,6 +5,23 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.24' => [
+        'date' => '2026-08-25',
+        'en' => [
+            'summary' => 'Hardened boot so artisan and the app survive MySQL or file-cache outages.',
+            'changes' => [
+                'Skip Google Sheets settings seeding when the database is unreachable instead of crashing provider boot.',
+                'Make CacheHealth tag probes fail soft: suppress corrupt filesystem-tag warnings, purge bad tag files, and fall back to array cache.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kukuhkan boot supaya artisan dan aplikasi tahan bila MySQL atau file cache bermasalah.',
+            'changes' => [
+                'Langkau seed settings Google Sheets apabila pangkalan data tidak boleh dihubungi supaya boot provider tidak meletup.',
+                'Jadikan probe tag CacheHealth fail-soft: sekatan amaran tag filesystem rosak, padam fail tag buruk, dan fallback ke cache array.',
+            ],
+        ],
+    ],
     '4.11.23' => [
         'date' => '2026-08-25',
         'en' => [

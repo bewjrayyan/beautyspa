@@ -162,27 +162,35 @@ class GoogleSheetsColumnConfig
     }
 
 
+    /**
+     * Seed missing Google Sheets column settings.
+     * Safe during boot: never throws when MySQL is unavailable.
+     */
     public static function applyMissingOnly(): void
     {
-        if (setting('google_sheets_columns') === null || setting('google_sheets_columns') === '') {
-            setting([
-                'google_sheets_columns' => json_encode(self::defaultEnabledKeys()),
-            ]);
-        }
+        try {
+            if (setting('google_sheets_columns') === null || setting('google_sheets_columns') === '') {
+                setting([
+                    'google_sheets_columns' => json_encode(self::defaultEnabledKeys()),
+                ]);
+            }
 
-        if (setting('google_sheets_per_status_columns_enabled') === null) {
-            setting(['google_sheets_per_status_columns_enabled' => false]);
-        }
+            if (setting('google_sheets_per_status_columns_enabled') === null) {
+                setting(['google_sheets_per_status_columns_enabled' => false]);
+            }
 
-        if (setting('google_sheets_sync_alert_enabled') === null) {
-            setting(['google_sheets_sync_alert_enabled' => false]);
-        }
+            if (setting('google_sheets_sync_alert_enabled') === null) {
+                setting(['google_sheets_sync_alert_enabled' => false]);
+            }
 
-        if (setting('google_sheets_sync_alert_whatsapp_enabled') === null) {
-            setting(['google_sheets_sync_alert_whatsapp_enabled' => false]);
-        }
+            if (setting('google_sheets_sync_alert_whatsapp_enabled') === null) {
+                setting(['google_sheets_sync_alert_whatsapp_enabled' => false]);
+            }
 
-        self::appendNewDefaultColumns();
+            self::appendNewDefaultColumns();
+        } catch (\Throwable) {
+            // Ignore — provider boot must not fail when DB is down.
+        }
     }
 
 

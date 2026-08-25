@@ -128,6 +128,9 @@ class GoogleSheetsStatusConfig
 
 
     /**
+     * Seed missing Google Sheets status settings.
+     * Safe during boot: never throws when MySQL is unavailable.
+     *
      * @return array<int, string>
      */
     public static function applyMissingOnly(): array
@@ -137,7 +140,8 @@ class GoogleSheetsStatusConfig
         try {
             $existing = setting()->all();
         } catch (\Throwable) {
-            $existing = [];
+            // Cannot read settings (e.g. DB down) — do not attempt writes.
+            return [];
         }
 
         foreach (self::defaults() as $status => $config) {
@@ -146,8 +150,12 @@ class GoogleSheetsStatusConfig
                     continue;
                 }
 
-                setting([$key => $value]);
-                $applied[] = $key;
+                try {
+                    setting([$key => $value]);
+                    $applied[] = $key;
+                } catch (\Throwable) {
+                    return $applied;
+                }
             }
         }
 
