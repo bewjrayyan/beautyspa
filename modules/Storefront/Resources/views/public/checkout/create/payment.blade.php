@@ -26,11 +26,15 @@
                     x-model="form.payment_method"
                 >
 
-                <span class="payment-option-radio"></span>
+                <span class="payment-option-radio" aria-hidden="true"><i class="las la-check"></i></span>
 
                 <span class="payment-option-body">
                     <span class="payment-option-label" x-text="gateway.label"></span>
-                    <span class="payment-option-desc" x-text="gateway.description"></span>
+                    <span
+                        class="payment-option-desc"
+                        x-show="gateway.description && !(form.payment_method === gateway.id && shouldShowPaymentInstructions)"
+                        x-text="gateway.description"
+                    ></span>
                 </span>
 
                 <span class="payment-option-logos" x-show="gateway.id === 'chip'">
@@ -116,34 +120,53 @@
 </div>
 
 <template x-if="shouldShowPaymentInstructions">
-    <div class="payment-instructions payment-instructions--modern">
-        <h4 class="checkout-card-title">{{ trans('storefront::checkout.payment_instructions') }}</h4>
+    <div class="payment-instructions payment-instructions--modern" role="region" aria-label="{{ trans('storefront::checkout.payment_instructions') }}">
+        <div class="payment-instructions__header">
+            <span class="payment-instructions__icon" aria-hidden="true"><i class="las la-university"></i></span>
+            <div>
+                <h4 class="payment-instructions__title">{{ trans('storefront::checkout.payment_instructions') }}</h4>
+                <p class="payment-instructions__lead">{{ trans('storefront::checkout.payment_instructions_lead') }}</p>
+            </div>
+        </div>
 
-        <p x-html="paymentInstructions"></p>
+        <div class="payment-instructions__body" x-html="paymentInstructions"></div>
 
         <template x-if="form.payment_method === 'bank_transfer'">
             <div class="payment-proof-upload">
-                <label class="payment-proof-upload__label" for="payment-proof-input">
+                <p class="payment-proof-upload__label">
                     {{ trans('storefront::checkout.payment_proof') }}
                     <span class="required" aria-hidden="true">*</span>
-                </label>
+                </p>
 
-                <input
-                    type="file"
-                    id="payment-proof-input"
-                    class="payment-proof-upload__input"
-                    accept=".jpg,.jpeg,.png,.pdf,.webp,image/jpeg,image/png,image/webp,application/pdf"
-                    @change="onPaymentProofChange($event)"
+                <label
+                    class="payment-proof-dropzone"
+                    for="payment-proof-input"
+                    :class="{ 'has-file': Boolean(paymentProofFileName) }"
                 >
+                    <input
+                        type="file"
+                        id="payment-proof-input"
+                        class="payment-proof-dropzone__input"
+                        accept=".jpg,.jpeg,.png,.pdf,.webp,image/jpeg,image/png,image/webp,application/pdf"
+                        @change="onPaymentProofChange($event)"
+                    >
 
-                <p class="payment-proof-upload__help">
-                    {{ trans('storefront::checkout.payment_proof_help') }}
-                </p>
+                    <span class="payment-proof-dropzone__icon" aria-hidden="true">
+                        <i class="las" :class="paymentProofFileName ? 'la-check-circle' : 'la-cloud-upload-alt'"></i>
+                    </span>
 
-                <p class="payment-proof-upload__filename" x-show="paymentProofFileName" x-cloak>
-                    {{ trans('storefront::checkout.payment_proof_selected') }}
-                    <span x-text="paymentProofFileName"></span>
-                </p>
+                    <span class="payment-proof-dropzone__copy">
+                        <span class="payment-proof-dropzone__title" x-show="!paymentProofFileName">
+                            {{ trans('storefront::checkout.payment_proof_choose') }}
+                        </span>
+                        <span class="payment-proof-dropzone__title payment-proof-dropzone__title--file" x-show="paymentProofFileName" x-cloak>
+                            <span x-text="paymentProofFileName"></span>
+                        </span>
+                        <span class="payment-proof-dropzone__hint">
+                            {{ trans('storefront::checkout.payment_proof_help') }}
+                        </span>
+                    </span>
+                </label>
             </div>
         </template>
     </div>

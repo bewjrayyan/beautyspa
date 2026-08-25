@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.33' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Polish bank transfer checkout: checkmark selection, clearer instructions, modern proof upload.',
+            'changes' => [
+                'Payment method radios use the same pink checkmark control as schedule and terms.',
+                'Hide duplicate bank-transfer description once instructions expand; show a soft instructions card.',
+                'Replace the native file input with a branded upload dropzone and file-selected feedback.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perhalusi bank transfer checkout: pilihan checkmark, arahan lebih jelas, muat naik bukti moden.',
+            'changes' => [
+                'Radio kaedah bayaran guna kawalan checkmark pink sama seperti schedule dan terms.',
+                'Sembunyikan deskripsi bank transfer berganda bila arahan dibuka; papar kad arahan lembut.',
+                'Ganti input fail native dengan dropzone muat naik berjenama dan maklum balas fail dipilih.',
+            ],
+        ],
+    ],
+
     '4.11.32' => [
         'date' => '2026-08-26',
         'en' => [
