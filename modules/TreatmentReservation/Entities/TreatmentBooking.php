@@ -408,10 +408,11 @@ class TreatmentBooking extends Model
      */
     public function appendAdminPayload(array $payload): array
     {
-        $payload['recent_activities'] = $this->activities()
-            ->with('user')
-            ->limit(10)
-            ->get()
+        $activities = $this->relationLoaded('activities')
+            ? $this->activities->sortByDesc('created_at')->take(10)
+            : $this->activities()->with('user')->latest()->limit(10)->get();
+
+        $payload['recent_activities'] = $activities
             ->map->toPayload()
             ->values()
             ->all();
@@ -473,13 +474,7 @@ class TreatmentBooking extends Model
             ->withTreatmentProduct()
             ->with([
                 'beautician.files',
-                'beautician.user',
-                'beautician.spaBranches',
-                'category',
-                'paymentReceipt',
-                'product.files',
-                'product.attributes.attribute',
-                'product.attributes.values.attributeValue',
+                'product',
             ])
             ->whereNotNull('appointment_date')
             ->whereBetween('appointment_date', [$start->toDateString(), $end->toDateString()])
@@ -488,6 +483,25 @@ class TreatmentBooking extends Model
             ->when($categoryId, fn (Builder $q) => $q->where('treatment_category_id', $categoryId))
             ->orderBy('appointment_date')
             ->orderBy('appointment_time');
+    }
+
+
+    public function scopeWithCalendarDetails(Builder $query): Builder
+    {
+        return $query->with([
+            'activities.user',
+            'beautician.files',
+            'beautician.user',
+            'beautician.spaBranches',
+            'category',
+            'order.products.product',
+            'orderProduct.options.values',
+            'orderProduct.variations.values',
+            'paymentReceipt',
+            'product.files',
+            'product.attributes.attribute',
+            'product.attributes.values.attributeValue',
+        ]);
     }
 
 
@@ -588,6 +602,64 @@ class TreatmentBooking extends Model
             'date' => $this->appointment_date?->format('Y-m-d'),
             'time' => $this->appointment_time,
         ]);
+    }
+
+
+    /**
+     * Lightweight payload used to render calendar grids and agenda lists.
+     * Drawer-only CRM, payment, notes, and activity data are loaded on demand.
+     *
+     * @return array<string, mixed>
+     */
+    public function toCalendarSummaryPayload(?int $viewerBeauticianId = null): array
+    {
+        $beautician = $this->beautician;
+        $durationMinutes = (int) ($this->duration_minutes_snapshot ?? 0) > 0
+            ? (int) $this->duration_minutes_snapshot
+            : BeauticianAvailabilityService::SLOT_MINUTES;
+        $startsAt = AppointmentTimeFormatter::parse($this->appointment_time);
+        $payload = [
+            'id' => $this->id,
+            'status' => $this->status,
+            'date' => $this->appointment_date?->format('Y-m-d'),
+            'time' => $this->displayAppointmentTime(),
+            'appointment_date_value' => $this->appointment_date?->format('Y-m-d'),
+            'appointment_time_value' => AppointmentTimeFormatter::to24Hour($this->appointment_time),
+            'appointment_end_time' => $startsAt?->copy()->addMinutes($durationMinutes)->format('g:i A'),
+            'slot_duration_minutes' => $durationMinutes,
+            'customer_name' => $this->customer_full_name,
+            'customer_phone' => $this->customer_phone,
+            'treatment_name' => $this->product?->name ?? '—',
+            'product_id' => $this->product_id,
+            'order_id' => $this->order_id,
+            'spa_branch_id' => $this->spa_branch_id,
+            'beautician_id' => $this->beautician_id,
+            'beautician_name' => $beautician?->name ?? '—',
+            'beautician_color' => $beautician?->profile_color ?: '#6366f1',
+            'beautician_avatar' => $beautician?->profile_image?->exists
+                ? $beautician->profile_image->path
+                : null,
+            'beautician_initial' => $beautician?->initials ?? '?',
+            'schedule_status' => $this->schedule_status,
+            'is_tba' => $this->isTbaSchedule(),
+            'can_schedule_tba' => $this->canScheduleTba(),
+            'can_reschedule' => $this->canRescheduleAppointment(),
+            'can_open_detail' => true,
+            'details_loaded' => false,
+        ];
+
+        if ($viewerBeauticianId === null) {
+            return $payload;
+        }
+
+        $payload['is_own_booking'] = (int) $this->beautician_id === $viewerBeauticianId;
+        $payload['blur_customer_contact'] = ! $payload['is_own_booking'];
+
+        if (! $payload['is_own_booking']) {
+            $payload['customer_phone'] = null;
+        }
+
+        return $payload;
     }
 
 

@@ -21,6 +21,7 @@
     data-profile-no-visits="{{ TrLang::trans('admin.crm.profile_no_visits') }}"
     data-profile-no-upcoming="{{ TrLang::trans('admin.crm.profile_no_upcoming') }}"
     data-profile-view-user="{{ TrLang::trans('admin.crm.profile_view_user') }}"
+    data-profile-open-booking="{{ TrLang::trans('admin.crm.profile_open_booking') }}"
     data-profile-send-reminder="{{ TrLang::trans('admin.crm.action_send_reminder') }}"
     data-profile-resend-reminder="{{ TrLang::trans('admin.crm.action_resend_reminder') }}"
     data-profile-reminder-sent="{{ TrLang::trans('admin.crm.reminder_sent_label') }}"

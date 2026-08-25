@@ -28,7 +28,7 @@
             ])
         </div>
 
-        <aside class="tr-crm-calendar-agenda__agenda" id="tr-crm-agenda-panel" aria-live="polite">
+        <aside class="tr-crm-calendar-agenda__agenda" id="tr-crm-agenda-panel" tabindex="-1" aria-live="polite">
             <header class="tr-crm-agenda__head">
                 <p class="tr-crm-agenda__eyebrow">{{ TrLang::trans('admin.crm.agenda_title') }}</p>
                 <h4 class="tr-crm-agenda__title" id="tr-crm-agenda-title">—</h4>

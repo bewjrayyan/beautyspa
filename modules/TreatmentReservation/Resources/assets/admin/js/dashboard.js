@@ -721,6 +721,40 @@ function initAgendaPanel(app) {
         });
     };
 
+    const focusAgendaSection = () => {
+        if (!panel) {
+            return;
+        }
+
+        // Bring the day agenda into view (critical when calendar/agenda stack on narrow screens).
+        panel.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+
+        if (list) {
+            list.scrollTop = 0;
+        }
+
+        panel.classList.remove("tr-crm-calendar-agenda__agenda--flash");
+        // Retrigger CSS flash highlight.
+        void panel.offsetWidth;
+        panel.classList.add("tr-crm-calendar-agenda__agenda--flash");
+
+        window.clearTimeout(focusAgendaSection._flashTimer);
+        focusAgendaSection._flashTimer = window.setTimeout(() => {
+            panel.classList.remove("tr-crm-calendar-agenda__agenda--flash");
+        }, 900);
+
+        const focusTarget = list?.querySelector(".tr-crm-agenda-card[tabindex], [data-agenda-open]")
+            || panel;
+
+        if (focusTarget instanceof HTMLElement) {
+            try {
+                focusTarget.focus({ preventScroll: true });
+            } catch {
+                focusTarget.focus();
+            }
+        }
+    };
+
     const openAgendaForDay = (day) => {
         if (!day || day.classList.contains("tr-cal-day--muted")) {
             return;
@@ -737,10 +771,12 @@ function initAgendaPanel(app) {
                 node.setAttribute("aria-selected", node.dataset.date === dateStr ? "true" : "false");
             });
             app.applyCrmSearch({ focusDate: dateStr });
+            requestAnimationFrame(focusAgendaSection);
             return;
         }
 
         updateAgenda(dateStr);
+        requestAnimationFrame(focusAgendaSection);
     };
 
     const calendarInteractionRoot = app.gridViewport || app.grid;
@@ -982,6 +1018,21 @@ function initPipelineActions(app) {
     const labels = getCrmDashboardLabels();
 
     root.addEventListener("click", async (event) => {
+        const viewOrderButton = event.target.closest("[data-pipeline-view-order]");
+
+        if (viewOrderButton) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const orderUrl = viewOrderButton.dataset.orderUrl || "";
+
+            if (orderUrl) {
+                window.open(orderUrl, "_blank", "noopener,noreferrer");
+            }
+
+            return;
+        }
+
         const rescheduleButton = event.target.closest("[data-pipeline-reschedule]");
 
         if (rescheduleButton) {
@@ -1367,6 +1418,42 @@ function changeRescheduleCalendarMonth(offset) {
     loadRescheduleDates();
 }
 
+function fetchRescheduleDates(state, from, to) {
+    const key = `${state.booking.id}:${from}:${to}`;
+
+    if (!state.datesCache.has(key)) {
+        const url = state.datesUrl.replace("__ID__", String(state.booking.id));
+        const request = axios
+            .get(url, { params: { from, to } })
+            .then(({ data }) => data.dates || [])
+            .catch((error) => {
+                state.datesCache.delete(key);
+                throw error;
+            });
+
+        state.datesCache.set(key, request);
+    }
+
+    return state.datesCache.get(key);
+}
+
+function prefetchRescheduleMonths(state) {
+    [-1, 1].forEach((offset) => {
+        const first = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth() + offset, 1);
+        const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (last < today) {
+            return;
+        }
+
+        const from = localDateKey(first < today ? today : first);
+        const to = localDateKey(last);
+        fetchRescheduleDates(state, from, to).catch(() => {});
+    });
+}
+
 async function loadRescheduleDates() {
     const state = rescheduleWorkspaceState;
     if (!state?.booking || !state.calendarMonth) {
@@ -1416,16 +1503,13 @@ async function loadRescheduleDates() {
     }
 
     try {
-        const url = state.datesUrl.replace("__ID__", String(state.booking.id));
-        const { data } = await axios.get(url, {
-            params: { from, to, _: Date.now() },
-        });
+        const dates = await fetchRescheduleDates(state, from, to);
 
         if (rescheduleWorkspaceState?.datesRequestToken !== requestToken) {
             return;
         }
 
-        state.availableDates = new Set(data.dates || []);
+        state.availableDates = new Set(dates);
         calendar.setAttribute("aria-busy", "false");
         status.textContent = state.availableDates.size
             ? state.labels.availableDatesHint
@@ -1446,6 +1530,8 @@ async function loadRescheduleDates() {
             workspace.querySelector("[data-reschedule-slot-status]").textContent = state.labels.chooseDate;
             updateRescheduleSaveState();
         }
+
+        prefetchRescheduleMonths(state);
     } catch (error) {
         if (rescheduleWorkspaceState?.datesRequestToken !== requestToken) {
             return;
@@ -1623,6 +1709,7 @@ function openAppointmentSchedulingWorkspace({
         selectedSlot: "",
         calendarMonth: new Date(preferredDate.getFullYear(), preferredDate.getMonth(), 1),
         availableDates: new Set(),
+        datesCache: new Map(),
         reschedule,
         labels,
         trigger,

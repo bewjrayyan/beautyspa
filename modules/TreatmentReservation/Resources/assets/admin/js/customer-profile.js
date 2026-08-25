@@ -1,5 +1,10 @@
 import axios from "axios";
-import { escapeHtml, upsertBooking } from "./kanban-helpers.js";
+import {
+    closeCalendarEventPreview,
+    escapeHtml,
+    openBookingPreviewById,
+    upsertBooking,
+} from "./kanban-helpers.js";
 
 let lastProfileQuery = {};
 
@@ -20,6 +25,7 @@ function getProfileLabels() {
         noVisits: root?.dataset.profileNoVisits || "No completed visits yet",
         noUpcoming: root?.dataset.profileNoUpcoming || "No upcoming appointments",
         viewUser: root?.dataset.profileViewUser || "View customer account",
+        openBooking: root?.dataset.profileOpenBooking || "Open appointment",
         sendReminder: root?.dataset.profileSendReminder || "Send reminder",
         resendReminder: root?.dataset.profileResendReminder || "Resend reminder",
         reminderSent: root?.dataset.profileReminderSent || "Reminder sent",
@@ -30,46 +36,121 @@ function getProfileLabels() {
     };
 }
 
-function renderBookingList(items, emptyLabel) {
+function customerInitials(name) {
+    const parts = String(name || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (!parts.length) {
+        return "?";
+    }
+
+    if (parts.length === 1) {
+        return parts[0].slice(0, 2).toUpperCase();
+    }
+
+    return `${parts[0][0] || ""}${parts[parts.length - 1][0] || ""}`.toUpperCase();
+}
+
+function statusClass(status) {
+    const key = String(status || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "_");
+
+    if (["pending", "in_progress", "completed", "canceled", "cancelled"].includes(key)) {
+        return key === "cancelled" ? "canceled" : key;
+    }
+
+    return "pending";
+}
+
+function sectionHeading(label, count, { icon = "fa-calendar", modifier = "" } = {}) {
+    const countValue = Number.isFinite(count) ? Math.max(0, count) : 0;
+    const modifierClass = modifier
+        ? ` tr-crm-customer-profile__section-head--${escapeHtml(modifier)}`
+        : "";
+
+    return `
+        <h5 class="tr-crm-customer-profile__section-head${modifierClass}">
+            <span class="tr-crm-customer-profile__section-label">
+                <i class="fa ${escapeHtml(icon)}" aria-hidden="true"></i>
+                <span>${escapeHtml(label)}</span>
+            </span>
+            <span class="tr-crm-customer-profile__section-count" aria-label="${escapeHtml(String(countValue))}">${escapeHtml(String(countValue))}</span>
+        </h5>`;
+}
+
+function renderBookingList(items, emptyLabel, { showReminders = false } = {}) {
     if (!Array.isArray(items) || items.length === 0) {
         return `<p class="tr-crm-customer-profile__empty">${escapeHtml(emptyLabel)}</p>`;
     }
 
+    const labels = getProfileLabels();
+
     return `
         <ul class="tr-crm-customer-profile__bookings">
-            ${items.map((item) => `
-                <li class="tr-crm-customer-profile__booking">
-                    <div class="tr-crm-customer-profile__booking-main">
-                        <strong>${escapeHtml(item.treatment_name || "—")}</strong>
-                        <span>${escapeHtml(item.appointment_date || "—")} · ${escapeHtml(item.appointment_time || "—")}</span>
-                        ${item.beautician_name ? `<span>${escapeHtml(item.beautician_name)}</span>` : ""}
-                    </div>
-                    <div class="tr-crm-customer-profile__booking-meta">
-                        ${item.total_formatted ? `<span>${escapeHtml(item.total_formatted)}</span>` : ""}
-                        ${item.status_label ? `<span class="tr-crm-customer-profile__status">${escapeHtml(item.status_label)}</span>` : ""}
-                        ${item.reminder_sent
-                            ? `<span class="tr-crm-customer-profile__reminder-badge tr-crm-customer-profile__reminder-badge--sent">${escapeHtml(getProfileLabels().reminderSent)}</span>`
-                            : (item.reminder_due
-                                ? `<span class="tr-crm-customer-profile__reminder-badge tr-crm-customer-profile__reminder-badge--due">${escapeHtml(getProfileLabels().reminderDue)}</span>`
-                                : "")}
-                        ${item.can_send_reminder
-                            ? `<button
-                                type="button"
-                                class="tr-crm-customer-profile__reminder-btn"
-                                data-send-reminder
-                                data-booking-id="${escapeHtml(String(item.id))}"
-                                data-resend="${item.reminder_sent ? "1" : "0"}"
-                            >${escapeHtml(item.reminder_sent ? getProfileLabels().resendReminder : getProfileLabels().sendReminder)}</button>`
+            ${items.map((item) => {
+                const status = statusClass(item.status);
+                const reminderBadge = item.reminder_sent
+                    ? `<span class="tr-crm-customer-profile__reminder-badge tr-crm-customer-profile__reminder-badge--sent">${escapeHtml(labels.reminderSent)}</span>`
+                    : (item.reminder_due
+                        ? `<span class="tr-crm-customer-profile__reminder-badge tr-crm-customer-profile__reminder-badge--due">${escapeHtml(labels.reminderDue)}</span>`
+                        : "");
+                const reminderBtn = showReminders && item.can_send_reminder
+                    ? `<button
+                        type="button"
+                        class="tr-crm-customer-profile__reminder-btn"
+                        data-send-reminder
+                        data-booking-id="${escapeHtml(String(item.id))}"
+                        data-resend="${item.reminder_sent ? "1" : "0"}"
+                    >${escapeHtml(item.reminder_sent ? labels.resendReminder : labels.sendReminder)}</button>`
+                    : "";
+
+                return `
+                <li
+                    class="tr-crm-customer-profile__booking"
+                    data-open-booking
+                    data-booking-id="${escapeHtml(String(item.id))}"
+                    title="${escapeHtml(labels.openBooking)}"
+                >
+                    <div class="tr-crm-customer-profile__booking-top">
+                        <strong class="tr-crm-customer-profile__booking-title">${escapeHtml(item.treatment_name || "—")}</strong>
+                        ${item.status_label
+                            ? `<span class="tr-crm-customer-profile__status tr-crm-customer-profile__status--${escapeHtml(status)}">${escapeHtml(item.status_label)}</span>`
                             : ""}
                     </div>
-                </li>
-            `).join("")}
+                    <div class="tr-crm-customer-profile__booking-schedule">
+                        <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                        <span>${escapeHtml(item.appointment_date || "—")} · ${escapeHtml(item.appointment_time || "—")}</span>
+                    </div>
+                    <div class="tr-crm-customer-profile__booking-foot">
+                        <div class="tr-crm-customer-profile__booking-meta-left">
+                            ${item.beautician_name
+                                ? `<span class="tr-crm-customer-profile__booking-staff"><i class="fa fa-user" aria-hidden="true"></i> ${escapeHtml(item.beautician_name)}</span>`
+                                : ""}
+                            ${reminderBadge}
+                        </div>
+                        <div class="tr-crm-customer-profile__booking-meta-right">
+                            ${item.total_formatted
+                                ? `<span class="tr-crm-customer-profile__booking-price">${escapeHtml(item.total_formatted)}</span>`
+                                : ""}
+                            ${reminderBtn}
+                        </div>
+                    </div>
+                </li>`;
+            }).join("")}
         </ul>
     `;
 }
 
 function renderProfile(profile, labels) {
     const insights = [];
+    const name = profile.customer_name || "—";
+    const phoneHref = profile.customer_phone
+        ? String(profile.customer_phone).replace(/[^\d+]/g, "")
+        : "";
 
     if (profile.customer_history_label) {
         insights.push(`<span class="tr-crm-customer-profile__insight">${escapeHtml(profile.customer_history_label)}</span>`);
@@ -79,34 +160,72 @@ function renderProfile(profile, labels) {
         insights.push(`<span class="tr-crm-customer-profile__insight tr-crm-customer-profile__insight--loyalty"><i class="fa fa-star" aria-hidden="true"></i> ${escapeHtml(profile.loyalty_tier_name)}</span>`);
     }
 
+    const upcoming = Array.isArray(profile.upcoming_bookings) ? profile.upcoming_bookings : [];
+    const reminders = Array.isArray(profile.reminder_bookings) ? profile.reminder_bookings : [];
+    const visits = Array.isArray(profile.visit_history) ? profile.visit_history : [];
+
     return `
         <div class="tr-crm-customer-profile__hero">
-            <h4>${escapeHtml(profile.customer_name || "—")}</h4>
-            ${insights.length ? `<div class="tr-crm-customer-profile__insights">${insights.join("")}</div>` : ""}
-            <div class="tr-crm-customer-profile__contact">
-                ${profile.customer_phone ? `<a href="tel:${escapeHtml(String(profile.customer_phone).replace(/[^\d+]/g, ""))}">${escapeHtml(profile.customer_phone)}</a>` : ""}
-                ${profile.customer_email ? `<span>${escapeHtml(profile.customer_email)}</span>` : ""}
+            <div class="tr-crm-customer-profile__hero-row">
+                ${profile.customer_avatar_url
+                    ? `<div class="tr-crm-customer-profile__avatar tr-crm-customer-profile__avatar--photo" aria-hidden="true"><img src="${escapeHtml(profile.customer_avatar_url)}" alt="" loading="lazy" decoding="async"></div>`
+                    : `<div class="tr-crm-customer-profile__avatar" aria-hidden="true">${escapeHtml(customerInitials(name))}</div>`
+                }
+                <div class="tr-crm-customer-profile__hero-copy">
+                    ${insights.length ? `<div class="tr-crm-customer-profile__insights">${insights.join("")}</div>` : ""}
+                    <div class="tr-crm-customer-profile__contact">
+                        ${profile.customer_phone
+                            ? `<a class="tr-crm-customer-profile__contact-row" href="tel:${escapeHtml(phoneHref)}"><i class="fa fa-phone" aria-hidden="true"></i><span>${escapeHtml(profile.customer_phone)}</span></a>`
+                            : ""}
+                        ${profile.customer_email
+                            ? `<a class="tr-crm-customer-profile__contact-row" href="mailto:${escapeHtml(profile.customer_email)}"><i class="fa fa-envelope-o" aria-hidden="true"></i><span>${escapeHtml(profile.customer_email)}</span></a>`
+                            : ""}
+                    </div>
+                    ${profile.user_admin_url
+                        ? `<a href="${escapeHtml(profile.user_admin_url)}" class="tr-crm-customer-profile__user-link" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i> ${escapeHtml(labels.viewUser)}</a>`
+                        : ""}
+                </div>
             </div>
-            ${profile.user_admin_url
-                ? `<a href="${escapeHtml(profile.user_admin_url)}" class="tr-crm-customer-profile__user-link" target="_blank" rel="noopener noreferrer">${escapeHtml(labels.viewUser)}</a>`
-                : ""}
         </div>
 
-        <section class="tr-crm-customer-profile__section">
-            <h5>${escapeHtml(labels.upcoming)}</h5>
-            ${renderBookingList(profile.upcoming_bookings, labels.noUpcoming)}
+        <section class="tr-crm-customer-profile__section tr-crm-customer-profile__section--upcoming">
+            ${sectionHeading(labels.upcoming, upcoming.length, { icon: "fa-calendar", modifier: "upcoming" })}
+            ${renderBookingList(upcoming, labels.noUpcoming)}
         </section>
 
-        <section class="tr-crm-customer-profile__section">
-            <h5>${escapeHtml(labels.reminders)}</h5>
-            ${renderBookingList(profile.reminder_bookings, labels.noUpcoming)}
+        <section class="tr-crm-customer-profile__section tr-crm-customer-profile__section--reminders">
+            ${sectionHeading(labels.reminders, reminders.length, { icon: "fa-bell", modifier: "reminders" })}
+            ${renderBookingList(reminders, labels.noUpcoming, { showReminders: true })}
         </section>
 
-        <section class="tr-crm-customer-profile__section">
-            <h5>${escapeHtml(labels.visits)}</h5>
-            ${renderBookingList(profile.visit_history, labels.noVisits)}
+        <section class="tr-crm-customer-profile__section tr-crm-customer-profile__section--visits">
+            ${sectionHeading(labels.visits, visits.length, { icon: "fa-history", modifier: "visits" })}
+            ${renderBookingList(visits, labels.noVisits)}
         </section>
     `;
+}
+
+function setProfileLoading(isLoading) {
+    const root = getProfileRoot();
+    const loading = document.getElementById("tr-crm-customer-profile-loading");
+    const content = document.getElementById("tr-crm-customer-profile-content");
+    const body = document.getElementById("tr-crm-customer-profile-body");
+
+    if (loading) {
+        loading.hidden = !isLoading;
+        loading.setAttribute("aria-hidden", isLoading ? "false" : "true");
+    }
+
+    if (content) {
+        content.hidden = isLoading;
+        content.setAttribute("aria-hidden", isLoading ? "true" : "false");
+    }
+
+    if (body) {
+        body.setAttribute("aria-busy", isLoading ? "true" : "false");
+    }
+
+    root?.classList.toggle("tr-crm-customer-profile--loading", isLoading);
 }
 
 function openCustomerProfileDrawer() {
@@ -115,6 +234,10 @@ function openCustomerProfileDrawer() {
     if (!root) {
         return;
     }
+
+    // Profile is opened from appointment details — dismiss that overlay so
+    // CRM does not stack underneath (preview z-index is higher).
+    closeCalendarEventPreview();
 
     root.hidden = false;
     root.setAttribute("aria-hidden", "false");
@@ -131,12 +254,26 @@ function closeCustomerProfileDrawer() {
     root.hidden = true;
     root.setAttribute("aria-hidden", "true");
     document.body.classList.remove("tr-crm-customer-profile-open");
+    root.classList.remove("tr-crm-customer-profile--loading");
+
+    const title = document.getElementById("tr-crm-customer-profile-title");
+    const content = document.getElementById("tr-crm-customer-profile-content");
+
+    if (title) {
+        title.textContent = getProfileLabels().title;
+    }
+
+    if (content) {
+        content.innerHTML = "";
+        content.hidden = false;
+    }
+
+    setProfileLoading(false);
 }
 
 async function loadCustomerProfile({ bookingId = null, phone = null } = {}) {
     const root = getProfileRoot();
     const labels = getProfileLabels();
-    const loading = document.getElementById("tr-crm-customer-profile-loading");
     const content = document.getElementById("tr-crm-customer-profile-content");
     const title = document.getElementById("tr-crm-customer-profile-title");
 
@@ -151,11 +288,12 @@ async function loadCustomerProfile({ bookingId = null, phone = null } = {}) {
         phone: phone || null,
     };
 
-    if (loading) {
-        loading.hidden = false;
+    if (title) {
+        title.textContent = labels.title;
     }
 
     content.innerHTML = "";
+    setProfileLoading(true);
 
     try {
         const params = new URLSearchParams();
@@ -181,9 +319,7 @@ async function loadCustomerProfile({ bookingId = null, phone = null } = {}) {
     } catch (error) {
         content.innerHTML = `<p class="tr-crm-customer-profile__error">${escapeHtml(error.response?.data?.message || labels.failed)}</p>`;
     } finally {
-        if (loading) {
-            loading.hidden = true;
-        }
+        setProfileLoading(false);
     }
 }
 
@@ -265,6 +401,16 @@ export function initCustomerProfileDrawer() {
             event.preventDefault();
             event.stopPropagation();
             sendReminderFromProfile(reminderButton);
+
+            return;
+        }
+
+        const bookingRow = event.target.closest("[data-open-booking]");
+
+        if (bookingRow?.dataset.bookingId && root.contains(bookingRow)) {
+            event.preventDefault();
+            event.stopPropagation();
+            openBookingPreviewById(bookingRow.dataset.bookingId);
         }
     });
 
@@ -272,6 +418,10 @@ export function initCustomerProfileDrawer() {
         if (event.key === "Escape" && !root.hidden) {
             closeCustomerProfileDrawer();
         }
+    });
+
+    document.addEventListener("tr-crm-close-customer-profile", () => {
+        closeCustomerProfileDrawer();
     });
 }
 

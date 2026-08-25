@@ -3,6 +3,7 @@ const calendarBookingsById = new Map();
 const kanbanBookingsById = new Map();
 let previewOptions = {};
 let previewLabels = {};
+const previewDetailRequests = new Map();
 
 import { openManualBookingEditor } from "./manual-booking.js";
 import flatpickr from "flatpickr";
@@ -1037,6 +1038,9 @@ export function openCalendarEventPreview(booking, labels, options = {}) {
         : options;
     previewOptions = previewOptionsForBooking(booking, baseOptions);
 
+    // Avoid stacking under CRM customer profile when reopening a booking.
+    document.dispatchEvent(new CustomEvent("tr-crm-close-customer-profile"));
+
     const overlay = getCalendarEventPreviewOverlay();
     calendarEventPreviewLastFocus = document.activeElement instanceof HTMLElement
         ? document.activeElement
@@ -1114,24 +1118,68 @@ function getBookingIdFromElement(element) {
     return element?.dataset?.bookingId || element?.dataset?.id || null;
 }
 
-function openBookingPreviewFromElement(element) {
-    const bookingId = getBookingIdFromElement(element);
+async function resolvePreviewBooking(bookingId) {
+    const booking = previewResolveBooking?.(bookingId);
 
+    if (!booking || booking.details_loaded !== false || !previewOptions.detailsUrlTemplate || !window.axios) {
+        return booking;
+    }
+
+    const key = String(bookingId);
+
+    if (!previewDetailRequests.has(key)) {
+        const request = window.axios
+            .get(previewOptions.detailsUrlTemplate.replace("__ID__", key))
+            .then((response) => {
+                const detailedBooking = response.data?.booking;
+
+                if (detailedBooking) {
+                    upsertBooking(detailedBooking);
+                }
+
+                return detailedBooking || booking;
+            })
+            .finally(() => previewDetailRequests.delete(key));
+
+        previewDetailRequests.set(key, request);
+    }
+
+    return previewDetailRequests.get(key);
+}
+
+export async function openBookingPreviewById(bookingId) {
     if (!bookingId || !previewResolveBooking) {
         return;
     }
 
-    const booking = previewResolveBooking(bookingId);
+    try {
+        const booking = await resolvePreviewBooking(bookingId);
 
-    if (!booking) {
+        if (!booking || !bookingAllowsDetail(booking, previewOptions.portalBeauticianId || null)) {
+            return;
+        }
+
+        openCalendarEventPreview(booking, previewLabels, previewOptions);
+    } catch (error) {
+        const message = previewLabels.detailsLoadFailed || "Failed to load appointment details";
+        window.notify?.error?.(message) || alert(message);
+    }
+}
+
+async function openBookingPreviewFromElement(element) {
+    const bookingId = getBookingIdFromElement(element);
+
+    if (!bookingId) {
         return;
     }
 
-    if (!bookingAllowsDetail(booking, previewOptions.portalBeauticianId || null)) {
-        return;
-    }
+    element.classList.add("tr-booking-preview--loading");
 
-    openCalendarEventPreview(booking, previewLabels, previewOptions);
+    try {
+        await openBookingPreviewById(bookingId);
+    } finally {
+        element.classList.remove("tr-booking-preview--loading");
+    }
 }
 
 export async function sendBookingWhatsApp(bookingId, { whatsappUrlTemplate = "", labels = {} } = {}) {

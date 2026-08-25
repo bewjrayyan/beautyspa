@@ -6,6 +6,7 @@ import {
     collectBeauticiansFromBookings,
     initBeauticianAvatarLightbox,
     initCalendarEventPreview,
+    openBookingPreviewById,
     openCalendarEventPreview,
     renderKanbanBeautician,
     resolveBooking,
@@ -63,6 +64,9 @@ class TreatmentReservationsApp {
         this.holidaysRangeUrl = root.dataset.holidaysRangeUrl || "";
         this.holidaysByDate = {};
         this.holidaysRangeKey = "";
+        this.calendarDataCache = new Map();
+        this.holidayDataCache = new Map();
+        this.calendarLoadSequence = 0;
 
         if (this.root.querySelector("[data-schedule-panel]")) {
             this.initScheduleTabs();
@@ -187,6 +191,10 @@ class TreatmentReservationsApp {
             this.weekStart = this.getWeekStart(this.selectedDate);
             this.syncMonthInput();
             this.loadCalendar();
+        });
+
+        document.addEventListener("tr-crm-booking-updated", () => {
+            this.calendarDataCache.clear();
         });
 
         this.loadCalendar();
@@ -347,7 +355,7 @@ class TreatmentReservationsApp {
 
         document.body.appendChild(modal);
 
-        modal.addEventListener("click", (event) => {
+        modal.addEventListener("click", async (event) => {
             if (event.target.closest("[data-day-modal-dismiss]")) {
                 this.closeDayEventsModal();
                 return;
@@ -371,11 +379,7 @@ class TreatmentReservationsApp {
             }
 
             this.closeDayEventsModal();
-            openCalendarEventPreview(
-                booking,
-                buildCalendarPreviewLabels(this.root),
-                buildCalendarPreviewOptions(this.root)
-            );
+            await openBookingPreviewById(bookingId);
         });
 
         document.addEventListener("keydown", (event) => {
@@ -726,11 +730,10 @@ class TreatmentReservationsApp {
     }
 
     async loadCalendar() {
+        const loadSequence = ++this.calendarLoadSequence;
+        const requestedMonth = this.month;
         const direction = this.pendingSlideDirection || 0;
         this.pendingSlideDirection = 0;
-
-        const params = this.getFilterParams();
-        params.set("month", this.month);
 
         const canSlide =
             direction !== 0
@@ -750,7 +753,16 @@ class TreatmentReservationsApp {
         }
 
         try {
-            const response = await axios.get(`${this.calendarUrl}?${params.toString()}`);
+            const holidayFromTo = this.calendarRangeForMonth(requestedMonth);
+            const [response, holidays] = await Promise.all([
+                this.fetchCalendarMonth(requestedMonth),
+                this.fetchHolidaysForRange(holidayFromTo.from, holidayFromTo.to),
+            ]);
+
+            if (loadSequence !== this.calendarLoadSequence || requestedMonth !== this.month) {
+                return;
+            }
+
             let bookings = response.data.bookings || [];
 
             // Week view can span adjacent months (e.g. Jul 27 - Aug 2).
@@ -763,9 +775,7 @@ class TreatmentReservationsApp {
                 if (visibleMonths.size > 0) {
                     const extraResponses = await Promise.all(
                         Array.from(visibleMonths).map(async (month) => {
-                            const extraParams = this.getFilterParams();
-                            extraParams.set("month", month);
-                            const extraResponse = await axios.get(`${this.calendarUrl}?${extraParams.toString()}`);
+                            const extraResponse = await this.fetchCalendarMonth(month);
                             return extraResponse.data.bookings || [];
                         })
                     );
@@ -784,19 +794,8 @@ class TreatmentReservationsApp {
                 }
             }
 
-            const holidayFromTo = (() => {
-                if (this.currentCalView === "day" && this.weekStart) {
-                    return { from: this.weekStart, to: this.addDays(this.weekStart, 6) };
-                }
-
-                const [year, month] = this.month.split("-").map(Number);
-                const lastDay = new Date(year, month, 0).getDate();
-                const to = `${this.month}-${String(lastDay).padStart(2, "0")}`;
-
-                return { from: `${this.month}-01`, to };
-            })();
-
-            await this.ensureHolidaysForRange(holidayFromTo.from, holidayFromTo.to);
+            this.holidaysByDate = holidays;
+            this.holidaysRangeKey = `${holidayFromTo.from}_${holidayFromTo.to}`;
 
             this.lastCalendarBookings = bookings;
             setCalendarBookings(bookings);
@@ -833,9 +832,70 @@ class TreatmentReservationsApp {
                     window.setTimeout(() => focused.click(), 0);
                 }
             }
+
+            this.prefetchAdjacentMonths(requestedMonth);
         } finally {
-            this.gridViewport?.classList.remove("tr-calendar-grid-viewport--loading");
-            this.grid?.classList.remove("tr-calendar-grid--loading");
+            if (loadSequence === this.calendarLoadSequence) {
+                this.gridViewport?.classList.remove("tr-calendar-grid-viewport--loading");
+                this.grid?.classList.remove("tr-calendar-grid--loading");
+            }
+        }
+    }
+
+    calendarCacheKey(month) {
+        return `${month}?${this.getFilterParams().toString()}`;
+    }
+
+    fetchCalendarMonth(month) {
+        const key = this.calendarCacheKey(month);
+
+        if (!this.calendarDataCache.has(key)) {
+            const params = this.getFilterParams();
+            params.set("month", month);
+            const request = axios
+                .get(`${this.calendarUrl}?${params.toString()}`)
+                .catch((error) => {
+                    this.calendarDataCache.delete(key);
+                    throw error;
+                });
+
+            this.calendarDataCache.set(key, request);
+        }
+
+        return this.calendarDataCache.get(key);
+    }
+
+    calendarRangeForMonth(monthValue) {
+        if (this.currentCalView === "day" && this.weekStart) {
+            return { from: this.weekStart, to: this.addDays(this.weekStart, 6) };
+        }
+
+        const [year, month] = monthValue.split("-").map(Number);
+        const lastDay = new Date(year, month, 0).getDate();
+
+        return {
+            from: `${monthValue}-01`,
+            to: `${monthValue}-${String(lastDay).padStart(2, "0")}`,
+        };
+    }
+
+    prefetchAdjacentMonths(monthValue) {
+        const run = () => {
+            [-1, 1].forEach((offset) => {
+                const [year, month] = monthValue.split("-").map(Number);
+                const date = new Date(year, month - 1 + offset, 1);
+                const adjacentMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+                const range = this.calendarRangeForMonth(adjacentMonth);
+
+                this.fetchCalendarMonth(adjacentMonth).catch(() => {});
+                this.fetchHolidaysForRange(range.from, range.to).catch(() => {});
+            });
+        };
+
+        if ("requestIdleCallback" in window) {
+            window.requestIdleCallback(run, { timeout: 1200 });
+        } else {
+            window.setTimeout(run, 0);
         }
     }
 
@@ -918,7 +978,7 @@ class TreatmentReservationsApp {
             const finish = () => resolve();
 
             element.addEventListener("transitionend", finish, { once: true });
-            window.setTimeout(finish, 380);
+            window.setTimeout(finish, 220);
         });
     }
 
@@ -1103,27 +1163,36 @@ class TreatmentReservationsApp {
     }
 
     async ensureHolidaysForRange(from, to) {
-        if (!this.holidaysRangeUrl) {
+        const key = `${from}_${to}`;
+
+        if (this.holidaysRangeKey === key) {
             return;
+        }
+
+        this.holidaysByDate = await this.fetchHolidaysForRange(from, to);
+        this.holidaysRangeKey = key;
+    }
+
+    fetchHolidaysForRange(from, to) {
+        if (!this.holidaysRangeUrl) {
+            return Promise.resolve({});
         }
 
         const key = `${from}_${to}`;
 
-        // If we already loaded something for this range, reuse it.
-        if (this.holidaysRangeKey === key && this.holidaysByDate && Object.keys(this.holidaysByDate).length > 0) {
-            return;
+        if (this.holidayDataCache.has(key)) {
+            return this.holidayDataCache.get(key);
         }
 
-        try {
-            const url = `${this.holidaysRangeUrl}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
-            const response = await axios.get(url);
-            this.holidaysByDate = response.data?.holidays || {};
-            this.holidaysRangeKey = key;
-        } catch (error) {
-            // If holiday API fails, keep calendar working without holiday decorations.
-            this.holidaysByDate = {};
-            this.holidaysRangeKey = key;
-        }
+        const url = `${this.holidaysRangeUrl}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+        const request = axios
+            .get(url)
+            .then((response) => response.data?.holidays || {})
+            .catch(() => ({}));
+
+        this.holidayDataCache.set(key, request);
+
+        return request;
     }
 
     initKanban() {
@@ -1344,6 +1413,7 @@ function buildCalendarPreviewLabels(root) {
 
     return {
         previewTitle: root.dataset.calPreviewTitle || "Appointment details",
+        detailsLoadFailed: root.dataset.calPreviewDetailsLoadFailed || "Failed to load appointment details",
         orderEyebrow: scheduling.order_eyebrow || "Order #:order",
         date: root.dataset.calPreviewDate || "Date",
         time: root.dataset.calPreviewTime || "Time",
@@ -1452,6 +1522,7 @@ function buildCalendarPreviewOptions(root) {
             rescheduleUrlTemplate: root.dataset.rescheduleUrl || "",
             reminderUrlTemplate: root.dataset.reminderUrl || "",
             beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
+            detailsUrlTemplate: root.dataset.calendarDetailsUrl || "",
             ...manualBookingOptions,
         };
     }
@@ -1471,6 +1542,7 @@ function buildCalendarPreviewOptions(root) {
             reminderUrlTemplate: root.dataset.reminderUrl || "",
             beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
             statusUrlTemplate: root.dataset.statusUrl || "",
+            detailsUrlTemplate: root.dataset.calendarDetailsUrl || "",
             crmCanEdit: canEdit,
             allowBeauticianNotes: canEdit && Boolean(root.dataset.notesUrl),
             notesUrlTemplate: root.dataset.notesUrl || "",

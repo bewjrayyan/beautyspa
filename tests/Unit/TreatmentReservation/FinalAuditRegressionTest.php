@@ -130,6 +130,54 @@ class FinalAuditRegressionTest extends TestCase
     }
 
     #[Test]
+    public function calendar_summary_excludes_expensive_drawer_only_fields(): void
+    {
+        $booking = new TreatmentBooking();
+        $booking->setRawAttributes([
+            'id' => 498,
+            'status' => TreatmentBooking::STATUS_PENDING,
+            'customer_first_name' => 'Calendar',
+            'customer_last_name' => 'Customer',
+            'appointment_date' => '2026-08-29',
+            'appointment_time' => '16:00',
+            'duration_minutes_snapshot' => 180,
+            'beautician_notes' => 'Drawer only',
+        ], true);
+        $booking->setRelation('product', null);
+        $booking->setRelation('beautician', null);
+
+        $payload = $booking->toCalendarSummaryPayload();
+
+        $this->assertFalse($payload['details_loaded']);
+        $this->assertSame('2026-08-29', $payload['date']);
+        $this->assertSame(180, $payload['slot_duration_minutes']);
+        $this->assertSame('7:00 PM', $payload['appointment_end_time']);
+        $this->assertArrayNotHasKey('beautician_notes', $payload);
+        $this->assertArrayNotHasKey('recent_activities', $payload);
+        $this->assertArrayNotHasKey('payment_status_label', $payload);
+    }
+
+    #[Test]
+    public function calendar_navigation_keeps_month_data_cached_and_loads_drawer_details_on_demand(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $calendar = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/main.js');
+        $dashboard = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/dashboard.js');
+        $preview = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/kanban-helpers.js');
+        $controller = file_get_contents($root . '/modules/TreatmentReservation/Http/Controllers/Admin/ReservationController.php');
+
+        $this->assertStringContainsString('this.calendarDataCache = new Map()', $calendar);
+        $this->assertStringContainsString('this.prefetchAdjacentMonths(requestedMonth)', $calendar);
+        $this->assertStringContainsString('Promise.all([', $calendar);
+        $this->assertStringContainsString('datesCache: new Map()', $dashboard);
+        $this->assertStringContainsString('prefetchRescheduleMonths(state)', $dashboard);
+        $this->assertStringContainsString('booking.details_loaded !== false', $preview);
+        $this->assertStringContainsString('detailsUrlTemplate.replace("__ID__", key)', $preview);
+        $this->assertStringContainsString('toCalendarSummaryPayload()', $controller);
+        $this->assertStringContainsString('withCalendarDetails()', $controller);
+    }
+
+    #[Test]
     public function beautician_self_access_bypasses_admin_permission_but_other_profiles_require_it(): void
     {
         $middleware = new BeauticianPortalPermissionMiddleware();

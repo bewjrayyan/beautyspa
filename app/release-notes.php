@@ -5,6 +5,27 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.17' => [
+        'date' => '2026-08-25',
+        'en' => [
+            'summary' => 'CRM appointment drawer and operational pipeline UX polish for clearer customer context and faster day-to-day clinic actions.',
+            'changes' => [
+                'Fix stacked CRM drawers so Profile closes Appointment details and opens the customer profile on top.',
+                'Polish the CRM customer profile drawer with clearer section headers, blue count badges, larger avatar/photo support, and appointment cards that open details.',
+                'Improve calendar date selection by autofocusing the agenda panel for the selected day.',
+                'Clarify booking source labels (Web checkout / Admin booked / Portal booked) and unify pipeline cards with aligned footers, side-by-side action buttons, and consistent visit/membership chips.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penambahbaikan UX drawer CRM dan pipeline operasi untuk konteks pelanggan lebih jelas serta tindakan klinik harian yang lebih pantas.',
+            'changes' => [
+                'Betulkan drawer CRM bertindih supaya Profile menutup Appointment details dan membuka profil pelanggan di atas.',
+                'Perkemas drawer profil pelanggan CRM dengan tajuk bahagian lebih jelas, lencana kiraan biru, avatar/foto lebih besar, dan kad temujanji yang membuka butiran.',
+                'Tingkatkan pemilihan tarikh kalendar dengan autofokus ke panel agenda untuk hari yang dipilih.',
+                'Jelaskan label sumber tempahan (Checkout website / Tempahan admin / Tempahan portal) dan seragamkan kad pipeline dengan footer sejajar, butang tindakan sebelah-menyebelah, serta chip lawatan/keahlian yang konsisten.',
+            ],
+        ],
+    ],
     '4.11.16' => [
         'date' => '2026-08-24',
         'en' => [

@@ -135,6 +135,12 @@ Route::middleware(['beautician.portal.access', 'beautician.portal.from_route'])-
         'middleware' => 'beautician.portal.permission:admin.treatment_reservations.index',
     ]);
 
+    Route::get('beauticians/{id}/portal/calendar/events/{booking}', [
+        'as' => 'admin.beauticians.portal.calendar.event',
+        'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@calendarEvent',
+        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.index',
+    ]);
+
     Route::patch('beauticians/{id}/portal/{booking}/status', [
         'as' => 'admin.beauticians.portal.update_status',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@updateStatus',

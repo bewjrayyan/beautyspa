@@ -129,9 +129,24 @@ class ReservationController extends Controller
                 $request->integer('treatment_category_id') ?: null
             )
             ->get()
-            ->map(fn (TreatmentBooking $booking) => $booking->appendAdminPayload($booking->toCalendarPayload()));
+            ->map(fn (TreatmentBooking $booking) => $booking->toCalendarSummaryPayload());
 
         return response()->json(['bookings' => $bookings]);
+    }
+
+
+    public function calendarEvent(int $booking): JsonResponse
+    {
+        $booking = TreatmentBooking::query()
+            ->withActiveOrder()
+            ->withTreatmentProduct()
+            ->withCalendarDetails()
+            ->findOrFail($booking);
+
+        $payload = $booking->appendAdminPayload($booking->toCalendarPayload());
+        $payload['details_loaded'] = true;
+
+        return response()->json(['booking' => $payload]);
     }
 
     public function holidaysRange(Request $request): JsonResponse

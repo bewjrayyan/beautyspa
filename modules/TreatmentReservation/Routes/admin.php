@@ -44,6 +44,12 @@ Route::get('treatment-reservations/calendar/events', [
     'middleware' => 'can:admin.treatment_reservations.index',
 ]);
 
+Route::get('treatment-reservations/calendar/events/{booking}', [
+    'as' => 'admin.treatment_reservations.calendar.event',
+    'uses' => 'ReservationController@calendarEvent',
+    'middleware' => 'can:admin.treatment_reservations.index',
+]);
+
 Route::patch('treatment-reservations/{id}/notes', [
     'as' => 'admin.treatment_reservations.update_notes',
     'uses' => 'PortalController@updateBeauticianNotes',
@@ -281,6 +287,11 @@ Route::middleware(['beautician.portal'])->group(function () {
     Route::get('my/job-sheet/calendar/events', [
         'as' => 'admin.treatment_reservations.portal.calendar',
         'uses' => 'PortalController@calendarEvents',
+    ]);
+
+    Route::get('my/job-sheet/calendar/events/{booking}', [
+        'as' => 'admin.treatment_reservations.portal.calendar.event',
+        'uses' => 'PortalController@calendarEvent',
     ]);
 
     Route::patch('my/job-sheet/{id}/status', [

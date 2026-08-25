@@ -154,6 +154,7 @@ class PortalController extends Controller
                 'adminPortalPreview' => false,
                 'portalApiRoutes' => [
                     'calendar' => route('admin.treatment_reservations.portal.calendar'),
+                    'calendar_details' => route('admin.treatment_reservations.portal.calendar.event', ['booking' => '__ID__']),
                     'kanban' => route('admin.treatment_reservations.portal.kanban'),
                     'update_status' => route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']),
                     'update_notes' => route('admin.treatment_reservations.portal.update_notes', ['id' => '__ID__']),
@@ -174,6 +175,7 @@ class PortalController extends Controller
             'adminPortalPreview' => $this->isAdminBeauticianPreview($request, $beautician),
             'portalApiRoutes' => [
                 'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
+                'calendar_details' => route('admin.beauticians.portal.calendar.event', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'kanban' => route('admin.beauticians.portal.kanban', $routeParams),
                 'update_status' => route('admin.beauticians.portal.update_status', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'update_notes' => route('admin.beauticians.portal.update_notes', ['id' => $beautician->id, 'booking' => '__ID__']),
@@ -212,9 +214,31 @@ class PortalController extends Controller
         $bookings = TreatmentBooking::query()
             ->forCalendar($request->input('month'), null)
             ->get()
-            ->map(fn (TreatmentBooking $booking) => $booking->toPortalCalendarPayload($viewerBeauticianId));
+            ->map(fn (TreatmentBooking $booking) => $booking->toCalendarSummaryPayload($viewerBeauticianId));
 
         return response()->json(['bookings' => $bookings]);
+    }
+
+
+    public function calendarEvent(Request $request, int $booking): JsonResponse
+    {
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+        $booking = TreatmentBooking::query()
+            ->withActiveOrder()
+            ->withTreatmentProduct()
+            ->withCalendarDetails()
+            ->findOrFail($booking);
+
+        if ($this->isAdminBeauticianPreview($request, $beautician)) {
+            $payload = $booking->appendAdminPayload($booking->toCalendarPayload());
+        } else {
+            $payload = $booking->toPortalCalendarPayload((int) $beautician->id);
+        }
+
+        $payload['details_loaded'] = true;
+
+        return response()->json(['booking' => $payload]);
     }
 
 
@@ -806,6 +830,7 @@ class PortalController extends Controller
             return [
                 'formAction' => route('admin.beauticians.portal.dashboard', $routeParams),
                 'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
+                'bookingDetails' => route('admin.beauticians.portal.calendar.event', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'calendarFullView' => route('admin.beauticians.portal.calendar_page', ['id' => $beautician->id, 'focus' => 1]),
                 'updateStatus' => route('admin.beauticians.portal.update_status', ['id' => $beautician->id, 'booking' => '__ID__']),
                 'updateNotes' => route('admin.beauticians.portal.update_notes', ['id' => $beautician->id, 'booking' => '__ID__']),
@@ -838,6 +863,7 @@ class PortalController extends Controller
         return [
             'formAction' => route('admin.treatment_reservations.portal'),
             'calendar' => route('admin.treatment_reservations.portal.calendar'),
+            'bookingDetails' => route('admin.treatment_reservations.portal.calendar.event', ['booking' => '__ID__']),
             'calendarFullView' => route('admin.treatment_reservations.portal.calendar_page', ['focus' => 1]),
             'updateStatus' => route('admin.treatment_reservations.portal.update_status', ['id' => '__ID__']),
             'updateNotes' => route('admin.treatment_reservations.portal.update_notes', ['id' => '__ID__']),
