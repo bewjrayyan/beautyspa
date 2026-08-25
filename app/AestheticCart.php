@@ -9,5 +9,5 @@ class AestheticCart
      *
      * @var string
      */
-    const VERSION = '4.11.22';
+    const VERSION = '4.11.23';
 }

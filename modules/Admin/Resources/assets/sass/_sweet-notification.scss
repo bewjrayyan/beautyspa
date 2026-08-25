@@ -29,17 +29,17 @@ html body .ac-swal-modal.swal2-popup {
     border-radius: 6px !important;
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important;
 
+    /*
+     * Do NOT override width/height/border/line-height in px.
+     * SweetAlert2 success/error marks are positioned in em units;
+     * fixed px sizes break the checkmark (thin X / leftover ring).
+     * Scale with --swal2-icon-zoom only.
+     */
     .ac-swal-modal__icon,
     .swal2-icon {
-        width: 56px !important;
-        height: 56px !important;
-        margin: 6px auto 16px !important;
-        border-width: 3px !important;
-        font-size: 16px !important;
-    }
-
-    .swal2-icon .swal2-icon-content {
-        font-size: 28px !important;
+        --swal2-icon-zoom: 0.85;
+        margin: 0.35em auto 0.85em !important;
+        box-sizing: content-box !important;
     }
 
     .ac-swal-modal__title,

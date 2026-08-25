@@ -973,7 +973,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/main.scss": {
-    "file": "assets/main-CejmdcNc-v4.7.72.css",
+    "file": "assets/main-tC70erGV-v4.7.72.css",
     "src": "modules/Admin/Resources/assets/sass/main.scss"
   },
   "modules/Attribute/Resources/assets/admin/js/main.js": {
@@ -1729,7 +1729,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/sass/app.scss": {
-    "file": "assets/app-DkHJiVFQ-v4.7.72.css",
+    "file": "assets/app-C_IkHNXO-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/app.scss",
     "isEntry": true,
     "name": "app",

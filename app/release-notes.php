@@ -5,6 +5,23 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.23' => [
+        'date' => '2026-08-25',
+        'en' => [
+            'summary' => 'Fixed SweetAlert2 success and status icons that rendered as broken checkmarks.',
+            'changes' => [
+                'Stop forcing fixed-pixel SweetAlert icon sizes that break em-based success/error mark geometry.',
+                'Scale icons with SweetAlert2 --swal2-icon-zoom and rebuild admin/storefront assets.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Betulkan ikon SweetAlert2 success dan status yang papar sebagai checkmark rosak.',
+            'changes' => [
+                'Hentikan override saiz ikon SweetAlert dalam piksel tetap yang merosakkan geometri tanda success/error berasaskan em.',
+                'Skalakan ikon dengan --swal2-icon-zoom SweetAlert2 dan bina semula aset admin/storefront.',
+            ],
+        ],
+    ],
     '4.11.22' => [
         'date' => '2026-08-25',
         'en' => [
