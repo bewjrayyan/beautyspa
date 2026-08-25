@@ -5,6 +5,23 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.22' => [
+        'date' => '2026-08-25',
+        'en' => [
+            'summary' => 'Modern Operations health console with clearer capacity and security-aware presentation.',
+            'changes' => [
+                'Refresh admin Operations visuals: sticky glass jump nav, live health banner, KPI capacity meters, and denser tables.',
+                'Add secure-note copy and tighter form labels while keeping CSRF, escaped output, and permission-gated actions.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Konsol Operations yang lebih moden dengan kapasiti jelas dan pembentangan mesra keselamatan.',
+            'changes' => [
+                'Kemaskini visual Operations admin: jump nav glass melekat, banner kesihatan langsung, meter kapasiti KPI, dan jadual lebih padat.',
+                'Tambah nota keselamatan dan label borang yang lebih kemas sambil mengekalkan CSRF, output escaped, dan tindakan berasaskan permission.',
+            ],
+        ],
+    ],
     '4.11.21' => [
         'date' => '2026-08-25',
         'en' => [

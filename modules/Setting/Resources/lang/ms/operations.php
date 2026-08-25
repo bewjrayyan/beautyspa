@@ -90,6 +90,13 @@ return [
     'issue_failed' => 'Ada failed job yang perlu disemak.',
     'issue_stuck_onesender' => 'Mesej OneSender tersekat semasa diproses.',
     'all_clear' => 'Tiada amaran operasi buat masa ini.',
+    'alert_count' => ':count amaran',
+    'alert_count_one' => '1 amaran',
+    'capacity' => 'Kapasiti',
+    'limit_label' => 'Had :limit',
+    'of_limit' => ':value daripada :limit',
+    'live_snapshot' => 'Snapshot langsung',
+    'secure_note' => 'Payload job sensitif disembunyikan. Tindakan merosakkan memerlukan pengesahan dan diaudit.',
     'processing' => 'Sedang diproses',
     'open_section' => 'Buka bahagian',
 ];

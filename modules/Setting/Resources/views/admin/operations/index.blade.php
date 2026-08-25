@@ -28,15 +28,27 @@
 @section('content')
     @php
         $issues = $snapshot['issues'] ?? [];
+        $issueCount = count($issues);
         $issueAnchors = [
             'scheduler' => '#ops-metrics',
             'pending' => '#ops-queue',
             'failed' => '#ops-failed',
             'stuck_onesender' => '#ops-metrics',
         ];
+        $pendingLimit = max(1, (int) ($snapshot['queue']['limits']['pending'] ?? 1));
+        $failedLimit = max(1, (int) ($snapshot['queue']['limits']['failed'] ?? 0) + 1);
+        $pendingPct = min(100, (int) round(($snapshot['queue']['pending'] / $pendingLimit) * 100));
+        $failedPct = min(100, (int) round(($snapshot['queue']['failed'] / $failedLimit) * 100));
+        $ageLimit = max(1, (int) ($snapshot['queue']['limits']['oldest_minutes'] ?? 1));
+        $agePct = min(100, (int) round(($snapshot['queue']['oldest_minutes'] / $ageLimit) * 100));
     @endphp
 
     <div class="operations-dashboard">
+        <p class="operations-secure-note" role="note">
+            <i class="fa fa-shield" aria-hidden="true"></i>
+            <span>{{ trans('setting::operations.secure_note') }}</span>
+        </p>
+
         <nav class="operations-jump" aria-label="{{ trans('setting::operations.jump_to') }}">
             <span class="operations-jump__label">{{ trans('setting::operations.jump_to') }}</span>
             <div class="operations-jump__links">
@@ -54,9 +66,12 @@
                 <i class="fa {{ $snapshot['healthy'] ? 'fa-check' : 'fa-exclamation-triangle' }}"></i>
             </span>
             <div class="operations-health-banner__copy">
-                <span class="operations-eyebrow">{{ trans('setting::operations.overall') }}</span>
+                <span class="operations-eyebrow">
+                    {{ trans('setting::operations.overall') }}
+                    <span class="operations-live-tag">{{ trans('setting::operations.live_snapshot') }}</span>
+                </span>
                 <strong>{{ trans($snapshot['healthy'] ? 'setting::operations.healthy' : 'setting::operations.degraded') }}</strong>
-                @if(count($issues) > 0)
+                @if($issueCount > 0)
                     <p class="operations-issues-heading">{{ trans('setting::operations.issues_heading') }}</p>
                     <ul class="operations-issue-list">
                         @foreach($issues as $issue)
@@ -71,47 +86,90 @@
                     <p>{{ trans('setting::operations.all_clear') }}</p>
                 @endif
             </div>
-            <span class="operations-status-pill operations-status-pill--{{ $snapshot['healthy'] ? 'healthy' : 'warning' }}">
-                <span></span>{{ trans($snapshot['healthy'] ? 'setting::operations.healthy' : 'setting::operations.degraded') }}
-            </span>
+            <div class="operations-health-banner__meta">
+                <span class="operations-status-pill operations-status-pill--{{ $snapshot['healthy'] ? 'healthy' : 'warning' }}">
+                    <span></span>{{ trans($snapshot['healthy'] ? 'setting::operations.healthy' : 'setting::operations.degraded') }}
+                </span>
+                @if($issueCount > 0)
+                    <span class="operations-status-pill operations-status-pill--count">
+                        {{ $issueCount === 1 ? trans('setting::operations.alert_count_one') : trans('setting::operations.alert_count', ['count' => $issueCount]) }}
+                    </span>
+                @endif
+            </div>
         </section>
 
         <div id="ops-metrics" class="operations-metrics">
             <article class="operations-metric operations-metric--{{ $snapshot['scheduler']['healthy'] ? 'success' : 'warning' }}">
-                <span class="operations-metric__icon"><i class="fa fa-clock-o"></i></span>
-                <div class="operations-metric__body">
-                    <span class="operations-metric__label">{{ trans('setting::operations.scheduler') }}</span>
-                    <strong class="operations-metric__value">
-                        {{ trans($snapshot['scheduler']['healthy'] ? 'setting::operations.scheduler_ok' : 'setting::operations.scheduler_down') }}
-                    </strong>
-                    <small>{{ $snapshot['scheduler']['last_seen_at'] ? trans('setting::operations.last_seen', ['time' => $snapshot['scheduler']['last_seen_at']]) : trans('setting::operations.never_seen') }}</small>
+                <div class="operations-metric__top">
+                    <span class="operations-metric__icon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+                    <div class="operations-metric__body">
+                        <span class="operations-metric__label">{{ trans('setting::operations.scheduler') }}</span>
+                        <strong class="operations-metric__value">
+                            {{ trans($snapshot['scheduler']['healthy'] ? 'setting::operations.scheduler_ok' : 'setting::operations.scheduler_down') }}
+                        </strong>
+                        <small>{{ $snapshot['scheduler']['last_seen_at'] ? trans('setting::operations.last_seen', ['time' => $snapshot['scheduler']['last_seen_at']]) : trans('setting::operations.never_seen') }}</small>
+                    </div>
+                </div>
+                <div class="operations-meter" aria-hidden="true">
+                    <div class="operations-meter__track">
+                        <span class="operations-meter__fill" style="width: {{ $snapshot['scheduler']['healthy'] ? 100 : 18 }}%"></span>
+                    </div>
                 </div>
             </article>
 
             <a class="operations-metric operations-metric--link operations-metric--{{ $snapshot['queue']['pending'] > $snapshot['queue']['limits']['pending'] || $snapshot['queue']['oldest_minutes'] > $snapshot['queue']['limits']['oldest_minutes'] ? 'warning' : 'primary' }}" href="#ops-queue">
-                <span class="operations-metric__icon"><i class="fa fa-hourglass-half"></i></span>
-                <div class="operations-metric__body">
-                    <span class="operations-metric__label">{{ trans('setting::operations.pending') }}</span>
-                    <strong class="operations-metric__value">{{ number_format($snapshot['queue']['pending']) }}</strong>
-                    <small>{{ trans('setting::operations.oldest_minutes') }}: {{ $snapshot['queue']['oldest_minutes'] }} / {{ $snapshot['queue']['limits']['oldest_minutes'] }}</small>
+                <div class="operations-metric__top">
+                    <span class="operations-metric__icon"><i class="fa fa-hourglass-half" aria-hidden="true"></i></span>
+                    <div class="operations-metric__body">
+                        <span class="operations-metric__label">{{ trans('setting::operations.pending') }}</span>
+                        <strong class="operations-metric__value">{{ number_format($snapshot['queue']['pending']) }}</strong>
+                        <small>{{ trans('setting::operations.oldest_minutes') }}: {{ $snapshot['queue']['oldest_minutes'] }} / {{ $snapshot['queue']['limits']['oldest_minutes'] }}</small>
+                    </div>
+                </div>
+                <div class="operations-meter">
+                    <div class="operations-meter__track">
+                        <span class="operations-meter__fill" style="width: {{ max($pendingPct, $agePct) }}%"></span>
+                    </div>
+                    <div class="operations-meter__label">
+                        <span>{{ trans('setting::operations.capacity') }}</span>
+                        <span>{{ trans('setting::operations.of_limit', ['value' => number_format($snapshot['queue']['pending']), 'limit' => number_format($snapshot['queue']['limits']['pending'])]) }}</span>
+                    </div>
                 </div>
             </a>
 
             <a class="operations-metric operations-metric--link operations-metric--{{ $snapshot['queue']['failed'] > $snapshot['queue']['limits']['failed'] ? 'danger' : 'success' }}" href="#ops-failed">
-                <span class="operations-metric__icon"><i class="fa fa-times-circle-o"></i></span>
-                <div class="operations-metric__body">
-                    <span class="operations-metric__label">{{ trans('setting::operations.failed') }}</span>
-                    <strong class="operations-metric__value">{{ number_format($snapshot['queue']['failed']) }}</strong>
-                    <small>{{ trans('setting::operations.queue') }} · {{ trans('setting::operations.open_section') }}</small>
+                <div class="operations-metric__top">
+                    <span class="operations-metric__icon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>
+                    <div class="operations-metric__body">
+                        <span class="operations-metric__label">{{ trans('setting::operations.failed') }}</span>
+                        <strong class="operations-metric__value">{{ number_format($snapshot['queue']['failed']) }}</strong>
+                        <small>{{ trans('setting::operations.open_section') }}</small>
+                    </div>
+                </div>
+                <div class="operations-meter">
+                    <div class="operations-meter__track">
+                        <span class="operations-meter__fill" style="width: {{ $failedPct }}%"></span>
+                    </div>
+                    <div class="operations-meter__label">
+                        <span>{{ trans('setting::operations.capacity') }}</span>
+                        <span>{{ trans('setting::operations.limit_label', ['limit' => number_format($snapshot['queue']['limits']['failed'])]) }}</span>
+                    </div>
                 </div>
             </a>
 
             <article class="operations-metric operations-metric--{{ $snapshot['queue']['stuck_onesender'] > 0 ? 'danger' : 'success' }}">
-                <span class="operations-metric__icon"><i class="fa fa-whatsapp"></i></span>
-                <div class="operations-metric__body">
-                    <span class="operations-metric__label">{{ trans('setting::operations.stuck_onesender') }}</span>
-                    <strong class="operations-metric__value">{{ number_format($snapshot['queue']['stuck_onesender']) }}</strong>
-                    <small>OneSender</small>
+                <div class="operations-metric__top">
+                    <span class="operations-metric__icon"><i class="fa fa-whatsapp" aria-hidden="true"></i></span>
+                    <div class="operations-metric__body">
+                        <span class="operations-metric__label">{{ trans('setting::operations.stuck_onesender') }}</span>
+                        <strong class="operations-metric__value">{{ number_format($snapshot['queue']['stuck_onesender']) }}</strong>
+                        <small>OneSender</small>
+                    </div>
+                </div>
+                <div class="operations-meter" aria-hidden="true">
+                    <div class="operations-meter__track">
+                        <span class="operations-meter__fill" style="width: {{ $snapshot['queue']['stuck_onesender'] > 0 ? min(100, $snapshot['queue']['stuck_onesender'] * 20) : 8 }}%"></span>
+                    </div>
                 </div>
             </article>
         </div>
@@ -247,8 +305,14 @@
                         <form method="POST" action="{{ route('admin.operations.legal_hold.place', ['submission' => '__ID__']) }}" data-legal-hold-form onsubmit="this.action=this.action.replace('__ID__', this.elements.submission_id.value); return confirm(@js(trans('setting::operations.place_hold_confirm')));">
                             @csrf
                             <div class="operations-form-row">
-                                <div class="form-group"><label>{{ trans('setting::operations.submission_id') }}</label><input class="form-control" type="number" min="1" name="submission_id" required></div>
-                                <div class="form-group operations-form-row__reason"><label>{{ trans('setting::operations.reason') }}</label><textarea class="form-control" name="reason" maxlength="500" rows="2" required></textarea></div>
+                                <div class="form-group">
+                                    <label for="operations-submission-id">{{ trans('setting::operations.submission_id') }}</label>
+                                    <input id="operations-submission-id" class="form-control" type="number" min="1" name="submission_id" required autocomplete="off" inputmode="numeric">
+                                </div>
+                                <div class="form-group operations-form-row__reason">
+                                    <label for="operations-hold-reason">{{ trans('setting::operations.reason') }}</label>
+                                    <textarea id="operations-hold-reason" class="form-control" name="reason" maxlength="500" rows="2" required autocomplete="off"></textarea>
+                                </div>
                             </div>
                             <button class="btn operations-btn operations-btn--warning" type="submit"><i class="fa fa-lock"></i>{{ trans('setting::operations.place_hold') }}</button>
                         </form>

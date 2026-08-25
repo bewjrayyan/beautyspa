@@ -90,6 +90,13 @@ return [
     'issue_failed' => 'Failed jobs are waiting for review.',
     'issue_stuck_onesender' => 'OneSender messages are stuck in processing.',
     'all_clear' => 'No operational alerts right now.',
+    'alert_count' => ':count alerts',
+    'alert_count_one' => '1 alert',
+    'capacity' => 'Capacity',
+    'limit_label' => 'Limit :limit',
+    'of_limit' => ':value of :limit',
+    'live_snapshot' => 'Live snapshot',
+    'secure_note' => 'Sensitive job payloads are hidden. Destructive actions require confirmation and are audited.',
     'processing' => 'Processing',
     'open_section' => 'Open section',
 ];
