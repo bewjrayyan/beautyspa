@@ -1069,56 +1069,117 @@ $checkout-text-muted: #4b5563;
 }
 
 .order-summary--modern .checkout-terms-and-conditions {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     text-align: left;
 
-    .form-check {
-        display: block;
-        text-align: left;
+    &.is-invalid .checkout-terms-consent {
+        border-color: #f87171;
+        background: #fef2f2;
+    }
+}
+
+.checkout-terms-consent {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    min-height: 48px;
+    margin: 0;
+    padding: 12px 14px;
+    cursor: pointer;
+    background: #fff7fb;
+    border: 1.5px solid #f3d0e0;
+    border-radius: 12px;
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+    &:hover {
+        border-color: #f274ac;
+        background: #fff4f8;
     }
 
-    .form-check label,
-    .form-check-label,
-    .checkout-terms-label {
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 1.5;
-        color: var(--color-black, #000);
-        cursor: pointer;
+    .is-checked & {
+        border-color: $checkout-pink;
+        background: #fff4f8;
+        box-shadow: 0 0 0 1px rgba(242, 116, 172, 0.25);
+    }
+}
+
+.checkout-terms-consent__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    opacity: 0;
+}
+
+.checkout-terms-consent__tick {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    color: transparent;
+    background: #fff;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+
+    i {
+        font-size: 13px;
+        line-height: 1;
+        font-weight: 700;
     }
 
-    .form-check input[type="checkbox"] {
-        &:checked + label:before,
-        &:not(:checked) + label:before {
-            width: 18px;
-            height: 18px;
-            border: 1px solid var(--color-black, #000);
-            border-radius: 4px;
-        }
-
-        &:checked + label:before {
-            border-color: $checkout-pink;
-            background: $checkout-pink;
-        }
-
-        // White tick on pink fill (primary-colored tick was invisible on pink bg).
-        &:checked + label:after {
-            border-color: #fff;
-        }
-
-        &:focus + label:before {
-            box-shadow: 0 0 0 3px $checkout-pink-soft;
-        }
+    .is-checked & {
+        color: #fff;
+        background: $checkout-pink;
+        border-color: $checkout-pink;
+        transform: scale(1.02);
     }
+}
+
+.checkout-terms-consent__input:focus-visible + .checkout-terms-consent__tick {
+    outline: 2px solid $checkout-pink;
+    outline-offset: 2px;
+}
+
+.checkout-terms-consent__text {
+    flex: 1;
+    padding-top: 1px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: #374151;
 }
 
 .checkout-terms-link {
     color: $checkout-pink;
-    font-weight: 600;
+    font-weight: 700;
     text-decoration: none;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
         text-decoration: underline;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .checkout-terms-consent,
+    .checkout-terms-consent__tick {
+        transition: none;
     }
 }
 

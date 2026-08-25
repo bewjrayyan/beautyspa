@@ -209,27 +209,40 @@
         </div>
 
         <div class="order-summary-bottom">
-            <div class="form-group checkout-terms-and-conditions checkout-terms--modern">
-                <div class="form-check">
+            <div
+                class="form-group checkout-terms-and-conditions checkout-terms--modern"
+                :class="{
+                    'is-checked': form.terms_and_conditions,
+                    'is-invalid': errors.has('terms_and_conditions'),
+                }"
+            >
+                <label class="checkout-terms-consent" for="terms-and-conditions">
                     <input
                         type="checkbox"
-                        class="form-check-input checkout-terms-checkbox"
+                        class="checkout-terms-consent__input"
                         x-model="form.terms_and_conditions"
                         id="terms-and-conditions"
                     >
-
-                    <label for="terms-and-conditions" class="form-check-label checkout-terms-label">
+                    <span class="checkout-terms-consent__tick" aria-hidden="true">
+                        <i class="las la-check"></i>
+                    </span>
+                    <span class="checkout-terms-consent__text">
                         {{ trans('storefront::checkout.i_agree_to_the') }}
-
-                        <a href="{{ $termsPageURL }}">
+                        <a
+                            href="{{ $termsPageURL }}"
+                            class="checkout-terms-link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            @click.stop
+                        >
                             {{ trans('storefront::checkout.terms_&_conditions') }}
                         </a>
-                    </label>
+                    </span>
+                </label>
 
-                    <template x-if="errors.has('terms_and_conditions')">
-                        <span class="error-message" x-text="errors.get('terms_and_conditions')"></span>
-                    </template>
-                </div>
+                <template x-if="errors.has('terms_and_conditions')">
+                    <span class="error-message" x-text="errors.get('terms_and_conditions')"></span>
+                </template>
             </div>
 
             <button

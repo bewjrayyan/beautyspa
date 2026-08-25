@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.32' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Polish checkout terms consent with a visible checkmark card and clearer BM copy.',
+            'changes' => [
+                'Replace the invisible pink terms checkbox with a soft consent card and white la-check tick.',
+                'Enlarge the terms touch target, add focus-visible and reduced-motion support.',
+                'Fix Bahasa Malaysia strings for agree-to-terms and Place Order Now.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perhalusi persetujuan terms checkout dengan kad checkmark yang nampak dan salinan BM lebih jelas.',
+            'changes' => [
+                'Ganti checkbox terms pink yang tak nampak dengan kad consent lembut dan tick la-check putih.',
+                'Besarkan sasaran sentuh terms, tambah focus-visible dan sokongan reduced-motion.',
+                'Betulkan rentetan BM untuk bersetuju terms dan Buat Pesanan Sekarang.',
+            ],
+        ],
+    ],
+
     '4.11.31' => [
         'date' => '2026-08-26',
         'en' => [
