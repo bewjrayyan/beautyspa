@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.28' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Stop queue workers from seeding Google Sheets settings when MySQL is down.',
+            'changes' => [
+                'Skip Google Sheets applyMissingOnly during console/queue boots to avoid Connection refused spam.',
+                'Probe DB reachability before writing missing Google Sheets status settings.',
+                'Return an empty settings collection when cache and MySQL both fail so boot can continue.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hentikan queue worker seed setting Google Sheets bila MySQL down.',
+            'changes' => [
+                'Langkau Google Sheets applyMissingOnly pada boot console/queue bagi elak spam Connection refused.',
+                'Periksa DB reachable sebelum tulis setting status Google Sheets yang hilang.',
+                'Pulangkan koleksi settings kosong bila cache dan MySQL gagal supaya boot boleh terus.',
+            ],
+        ],
+    ],
+
     '4.11.27' => [
         'date' => '2026-08-26',
         'en' => [

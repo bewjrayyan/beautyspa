@@ -71,7 +71,12 @@ class Setting extends Model
         try {
             return Cache::rememberForever(md5('settings.public.v2:' . locale()), $loader);
         } catch (\Throwable) {
-            return $loader();
+            try {
+                return $loader();
+            } catch (\Throwable) {
+                // MySQL/cache unavailable — return empty so boot/queue can continue.
+                return new Collection();
+            }
         }
     }
 

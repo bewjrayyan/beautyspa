@@ -151,6 +151,11 @@ class GoogleSheetsStatusConfig
                 }
 
                 try {
+                    // updateOrCreate issues SELECT WHERE key=… — skip entirely if DB is down.
+                    if (! self::databaseReachable()) {
+                        return $applied;
+                    }
+
                     setting([$key => $value]);
                     $applied[] = $key;
                 } catch (\Throwable) {
@@ -160,5 +165,17 @@ class GoogleSheetsStatusConfig
         }
 
         return $applied;
+    }
+
+
+    private static function databaseReachable(): bool
+    {
+        try {
+            \Illuminate\Support\Facades\DB::connection()->getPdo();
+
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }
