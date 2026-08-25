@@ -410,6 +410,15 @@ $checkout-text-muted: #4b5563;
         margin-bottom: 0;
         color: #422006;
     }
+
+    // Badge is in the heading row, not on a positioned card — keep it in-flow
+    // or absolute top/right floats over the header Account link.
+    .address-card-badge {
+        position: static;
+        flex-shrink: 0;
+        top: auto;
+        right: auto;
+    }
 }
 
 .checkout-recent-address {
@@ -1090,6 +1099,11 @@ $checkout-text-muted: #4b5563;
         &:checked + label:before {
             border-color: $checkout-pink;
             background: $checkout-pink;
+        }
+
+        // White tick on pink fill (primary-colored tick was invisible on pink bg).
+        &:checked + label:after {
+            border-color: #fff;
         }
 
         &:focus + label:before {

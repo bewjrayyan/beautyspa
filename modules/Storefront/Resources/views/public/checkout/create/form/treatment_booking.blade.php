@@ -1,8 +1,11 @@
 <style>
 .checkout-schedule-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.checkout-schedule-option { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 12px 14px; border: 1.5px solid #d9c7cf; border-radius: 12px; background: #fff; cursor: pointer; font-size: 13px; line-height: 1.35; color: #413648; }
+.checkout-schedule-option { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 12px 14px; border: 1.5px solid #d9c7cf; border-radius: 12px; background: #fff; cursor: pointer; font-size: 13px; line-height: 1.35; color: #413648; }
 .checkout-schedule-option:has(input:checked) { border-color: #f274ac; background: #fff4f8; color: #6f2948; font-weight: 600; }
-.checkout-schedule-option input { margin-top: 2px; accent-color: #f274ac; }
+.checkout-schedule-option input { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; pointer-events: none; }
+.checkout-schedule-option__tick { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 20px; height: 20px; margin-top: 1px; color: transparent; background: #fff; border: 2px solid #d1d5db; border-radius: 5px; transition: all 0.15s ease; }
+.checkout-schedule-option__tick i { font-size: 12px; line-height: 1; }
+.checkout-schedule-option:has(input:checked) .checkout-schedule-option__tick { color: #fff; background: #f274ac; border-color: #f274ac; }
 .checkout-treatment-card { border: 1px solid #eadfe4; border-radius: 14px; padding: 16px; margin-bottom: 14px; background: #fffafc; }
 .checkout-treatment-card__title { font-size: 15px; font-weight: 600; color: #6f2948; margin: 0 0 12px; }
 .checkout-treatment-card .is-disabled-field { opacity: 0.55; pointer-events: none; }
@@ -84,10 +87,12 @@
                     <div class="checkout-schedule-toggle" role="group" aria-label="{{ trans('storefront::checkout.schedule_mode') }}">
                         <label class="checkout-schedule-option" x-show="canScheduleLaterForLine(line)" x-cloak>
                             <input type="radio" :name="`schedule_later_${lineIndex}`" value="1" x-model="line.schedule_later" @change="onLineScheduleModeChange(lineIndex)">
+                            <span class="checkout-schedule-option__tick" aria-hidden="true"><i class="las la-check"></i></span>
                             <span>{{ trans('storefront::checkout.schedule_later_tba') }}</span>
                         </label>
                         <label class="checkout-schedule-option">
                             <input type="radio" :name="`schedule_later_${lineIndex}`" value="0" x-model="line.schedule_later" @change="onLineScheduleModeChange(lineIndex)">
+                            <span class="checkout-schedule-option__tick" aria-hidden="true"><i class="las la-check"></i></span>
                             <span>{{ trans('storefront::checkout.schedule_now') }}</span>
                         </label>
                     </div>

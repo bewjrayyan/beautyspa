@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.31' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Checkout schedule and terms selections use checkmarks; fix Recommended badge overlap.',
+            'changes' => [
+                'Replace schedule TBA/now radio dots with pink checkmark boxes.',
+                'Show a white tick on the Terms checkbox when checked (was invisible on pink fill).',
+                'Keep the Recommended address badge in-flow so it no longer floats over the Account link.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pilihan schedule dan terms checkout guna checkmark; baiki overlap badge Recommended.',
+            'changes' => [
+                'Ganti titik radio TBA/sekarang dengan kotak checkmark pink.',
+                'Paparkan tick putih pada checkbox Terms bila dipilih (dahulu tak nampak atas fill pink).',
+                'Kekalkan badge Recommended alamat dalam aliran supaya tidak terapung atas pautan Account.',
+            ],
+        ],
+    ],
+
     '4.11.30' => [
         'date' => '2026-08-26',
         'en' => [
