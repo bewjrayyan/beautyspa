@@ -341,6 +341,34 @@ class FinalAuditRegressionTest extends TestCase
     }
 
     #[Test]
+    public function calendar_includes_completed_bookings_even_when_order_is_gone(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $booking = file_get_contents($root . '/modules/TreatmentReservation/Entities/TreatmentBooking.php');
+        $scope = substr(
+            $booking,
+            strpos($booking, 'public function scopeForCalendar'),
+            strpos($booking, 'public function scopeWithCalendarDetails') - strpos($booking, 'public function scopeForCalendar'),
+        );
+
+        $this->assertStringContainsString('function scopeVisibleOnCalendar', $booking);
+        $this->assertStringContainsString('->visibleOnCalendar()', $scope);
+        $this->assertStringNotContainsString('->withActiveOrder()', $scope);
+        $this->assertStringContainsString("->withTrashed()", $booking);
+        $this->assertStringContainsString("orWhere('status', self::STATUS_COMPLETED)", $booking);
+        $this->assertStringContainsString('SOURCE_ADMIN_MANUAL', $booking);
+        $this->assertStringContainsString('withTreatmentProduct()', $scope);
+
+        $admin = file_get_contents($root . '/modules/TreatmentReservation/Http/Controllers/Admin/ReservationController.php');
+        $portal = file_get_contents($root . '/modules/TreatmentReservation/Http/Controllers/Admin/PortalController.php');
+        $profile = file_get_contents($root . '/modules/TreatmentReservation/Services/CustomerCrmProfileService.php');
+        $this->assertStringContainsString('->visibleOnCalendar()', $admin);
+        $this->assertStringContainsString('->visibleOnCalendar()', $portal);
+        $this->assertStringContainsString('forBooking($booking, (int) $beautician->id)', $portal);
+        $this->assertStringContainsString('?int $viewerBeauticianId = null', $profile);
+    }
+
+    #[Test]
     public function ledger_hides_orphan_checkout_bookings_and_checkout_delete_trashes_linked_rows(): void
     {
         $root = dirname(__DIR__, 3);
