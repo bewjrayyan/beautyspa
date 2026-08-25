@@ -29,6 +29,11 @@ class CspReportController extends Controller
             return response('', 204);
         }
 
+        // Reporting API / bots often POST empty shells — ignore noise.
+        if ($this->isEmptyReport($report)) {
+            return response('', 204);
+        }
+
         Log::channel('security')->warning('CSP violation reported.', [
             'document_uri' => $this->safeUrl($report['document-uri'] ?? $report['documentURL'] ?? null),
             'blocked_uri' => $this->safeUrl($report['blocked-uri'] ?? $report['blockedURL'] ?? null),
@@ -40,6 +45,25 @@ class CspReportController extends Controller
         ]);
 
         return response('', 204);
+    }
+
+
+    /**
+     * @param  array<string, mixed>  $report
+     */
+    private function isEmptyReport(array $report): bool
+    {
+        $documentUri = $this->safeUrl($report['document-uri'] ?? $report['documentURL'] ?? null);
+        $blockedUri = $this->safeUrl($report['blocked-uri'] ?? $report['blockedURL'] ?? null);
+        $directive = trim((string) ($report['effective-directive'] ?? $report['effectiveDirective'] ?? ''));
+        $violated = trim((string) ($report['violated-directive'] ?? $report['violatedDirective'] ?? ''));
+        $sourceFile = $this->safeUrl($report['source-file'] ?? $report['sourceFile'] ?? null);
+
+        return $documentUri === null
+            && $blockedUri === null
+            && $directive === ''
+            && $violated === ''
+            && $sourceFile === null;
     }
 
     private function safeUrl(mixed $value): ?string

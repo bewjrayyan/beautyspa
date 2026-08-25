@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.29' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Ignore empty CSP violation reports that were spamming the security log.',
+            'changes' => [
+                'Skip logging CSP report payloads with no document URI, blocked URI, directive, or source file.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Abaikan laporan CSP kosong yang spam log keselamatan.',
+            'changes' => [
+                'Langkau log payload laporan CSP tanpa document URI, blocked URI, directive, atau source file.',
+            ],
+        ],
+    ],
+
     '4.11.28' => [
         'date' => '2026-08-26',
         'en' => [
