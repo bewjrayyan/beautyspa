@@ -74,4 +74,27 @@ class OperationalSecurityContractTest extends TestCase
         $this->assertSame('ProcessChipWebhookPurchase', $name);
         $this->assertStringNotContainsString('secret', $name);
     }
+
+    #[Test]
+    public function order_notification_listeners_are_queued_after_commit(): void
+    {
+        $listeners = [
+            \Modules\Order\Listeners\SendOrderStatusChangedEmail::class,
+            \Modules\Order\Listeners\SendOrderStatusChangedSms::class,
+            \Modules\Order\Listeners\SendCompletedOrderGroupWhatsApp::class,
+            \Modules\Order\Listeners\SendCompletedOrderBeauticianWhatsApp::class,
+            \Modules\Order\Listeners\SendBankTransferPaymentProofWhatsApp::class,
+            \Modules\Checkout\Listeners\SendNewOrderSms::class,
+            \Modules\Loyalty\Listeners\ProcessLoyaltyOnOrderStatusChanged::class,
+            \Modules\Loyalty\Listeners\AwardStampsOnOrderPlaced::class,
+            \Modules\TreatmentReservation\Listeners\SyncTreatmentBookingFromOrder::class,
+        ];
+
+        foreach ($listeners as $listener) {
+            $this->assertTrue(
+                is_subclass_of($listener, \Illuminate\Contracts\Queue\ShouldQueueAfterCommit::class),
+                $listener.' must implement ShouldQueueAfterCommit'
+            );
+        }
+    }
 }

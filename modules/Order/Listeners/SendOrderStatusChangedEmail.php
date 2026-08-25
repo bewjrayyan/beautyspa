@@ -2,22 +2,24 @@
 
 namespace Modules\Order\Listeners;
 
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Mail;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\Order\Mail\OrderStatusChanged as OrderStatusChangedEmail;
 
-class SendOrderStatusChangedEmail
+class SendOrderStatusChangedEmail implements ShouldQueueAfterCommit
 {
-    /**
-     * Handle the event.
-     *
-     * @param OrderStatusChanged $event
-     *
-     * @return void
-     */
-    public function handle(OrderStatusChanged $event)
+    use InteractsWithQueue;
+
+    public int $tries = 3;
+
+    /** @var list<int> */
+    public array $backoff = [15, 60, 180];
+
+    public function handle(OrderStatusChanged $event): void
     {
-        if (!in_array($event->order->status, setting('email_order_statuses', []))) {
+        if (! in_array($event->order->status, setting('email_order_statuses', []), true)) {
             return;
         }
 

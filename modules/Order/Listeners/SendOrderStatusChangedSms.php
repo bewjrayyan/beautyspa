@@ -2,23 +2,26 @@
 
 namespace Modules\Order\Listeners;
 
-use Modules\Setting\Support\WhatsAppMessageTemplate;
-use Modules\Sms\Sms;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
+use Illuminate\Queue\InteractsWithQueue;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
+use Modules\Setting\Support\WhatsAppMessageTemplate;
+use Modules\Sms\Exceptions\SmsException;
+use Modules\Sms\Sms;
 
-class SendOrderStatusChangedSms
+class SendOrderStatusChangedSms implements ShouldQueueAfterCommit
 {
-    /**
-     * Handle the event.
-     *
-     * @param OrderStatusChanged $event
-     *
-     * @return void
-     */
-    public function handle(OrderStatusChanged $event)
+    use InteractsWithQueue;
+
+    public int $tries = 3;
+
+    /** @var list<int> */
+    public array $backoff = [15, 60, 180];
+
+    public function handle(OrderStatusChanged $event): void
     {
-        if (! in_array($event->order->status, setting('sms_order_statuses', []))) {
+        if (! in_array($event->order->status, setting('sms_order_statuses', []), true)) {
             return;
         }
 
@@ -31,13 +34,12 @@ class SendOrderStatusChangedSms
                 $event->order->customer_phone,
                 $this->message($event->order)
             );
-        } catch (\Modules\Sms\Exceptions\SmsException $e) {
-            //
+        } catch (SmsException $e) {
+            report($e);
         }
     }
 
-
-    private function message(Order $order)
+    private function message(Order $order): string
     {
         return WhatsAppMessageTemplate::render('whatsapp_order_status_message', [
             'first_name' => $order->customer_first_name,

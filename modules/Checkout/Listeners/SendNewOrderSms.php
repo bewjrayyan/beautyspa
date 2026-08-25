@@ -2,35 +2,35 @@
 
 namespace Modules\Checkout\Listeners;
 
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
+use Illuminate\Queue\InteractsWithQueue;
+use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Entities\Order;
 use Modules\Order\Services\OrderWhatsAppMessageBuilder;
-use Modules\Checkout\Events\OrderPlaced;
 use Modules\User\Services\OneSenderWhatsAppService;
 
-class SendNewOrderSms
+class SendNewOrderSms implements ShouldQueueAfterCommit
 {
+    use InteractsWithQueue;
+
+    public int $tries = 3;
+
+    /** @var list<int> */
+    public array $backoff = [15, 60, 180];
+
     public function __construct(
         private readonly OrderWhatsAppMessageBuilder $messageBuilder,
         private readonly OneSenderWhatsAppService $oneSender,
     ) {
     }
 
-
-    /**
-     * Handle the event.
-     *
-     * @param OrderPlaced $event
-     *
-     * @return void
-     */
-    public function handle(OrderPlaced $event)
+    public function handle(OrderPlaced $event): void
     {
         $this->sendAdminWhatsApp($event->order);
         $this->sendCustomerWhatsApp($event->order);
     }
 
-
-    private function sendAdminWhatsApp(Order $order)
+    private function sendAdminWhatsApp(Order $order): void
     {
         if (! setting('new_order_admin_sms')) {
             return;
@@ -42,14 +42,12 @@ class SendNewOrderSms
         ]);
     }
 
-
-    private function adminMessage(Order $order)
+    private function adminMessage(Order $order): string
     {
         return $this->messageBuilder->render($order, 'whatsapp_new_order_admin_message');
     }
 
-
-    private function sendCustomerWhatsApp(Order $order)
+    private function sendCustomerWhatsApp(Order $order): void
     {
         if (! setting('new_order_sms') || ! $order->customer_phone) {
             return;
@@ -65,8 +63,7 @@ class SendNewOrderSms
         );
     }
 
-
-    private function customerMessage(Order $order)
+    private function customerMessage(Order $order): string
     {
         return $this->messageBuilder->render($order, 'whatsapp_new_order_customer_message');
     }

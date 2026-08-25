@@ -3,19 +3,27 @@
 namespace Modules\Order\Listeners;
 
 use Exception;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
+use Illuminate\Queue\InteractsWithQueue;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\Order\Services\CompletedOrderGroupWhatsAppMessage;
 use Modules\User\Services\OneSenderWhatsAppService;
 
-class SendCompletedOrderGroupWhatsApp
+class SendCompletedOrderGroupWhatsApp implements ShouldQueueAfterCommit
 {
+    use InteractsWithQueue;
+
+    public int $tries = 3;
+
+    /** @var list<int> */
+    public array $backoff = [15, 60, 180];
+
     public function __construct(
         private readonly CompletedOrderGroupWhatsAppMessage $messageBuilder,
         private readonly OneSenderWhatsAppService $oneSender,
     ) {
     }
-
 
     public function handle(OrderStatusChanged $event): void
     {
@@ -39,12 +47,14 @@ class SendCompletedOrderGroupWhatsApp
                 $this->messageBuilder->build($event->order),
                 [
                     'source' => 'order.completed.group',
-                    'dedupe_key' => 'order:' . $event->order->id . ':group',
+                    'dedupe_key' => 'order:'.$event->order->id.':group',
                     'immediate' => true,
                 ]
             );
         } catch (Exception $exception) {
             report($exception);
+
+            throw $exception;
         }
     }
 }

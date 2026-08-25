@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.25' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Queue order notification, loyalty, and booking sync listeners so checkout/status updates stay responsive.',
+            'changes' => [
+                'Move WhatsApp, email, and SMS order listeners to ShouldQueueAfterCommit with retries.',
+                'Queue loyalty earn/stamp and treatment booking sync after commit; keep cart loyalty redemption synchronous.',
+                'Fix booking status mapping so cancel/refund still applies when the listener runs from the queue.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Queue listener notifikasi order, loyalty, dan sync booking supaya checkout/kemaskini status kekal responsif.',
+            'changes' => [
+                'Pindahkan listener WhatsApp, e-mel, dan SMS order ke ShouldQueueAfterCommit dengan retry.',
+                'Queue earn/stamp loyalty dan sync treatment booking selepas commit; kekalkan redemption loyalty dari cart secara sync.',
+                'Betulkan pemetaan status booking supaya cancel/refund masih diguna bila listener berjalan dari queue.',
+            ],
+        ],
+    ],
     '4.11.24' => [
         'date' => '2026-08-25',
         'en' => [
