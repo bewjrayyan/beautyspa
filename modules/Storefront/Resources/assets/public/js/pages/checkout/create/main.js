@@ -9,6 +9,15 @@ import Errors from "../../../components/Errors";
 import { resolveRecaptchaToken } from "../../../functions";
 import "../../../components/CartItem";
 
+/** Local calendar Y-m-d — never use toISOString() (UTC can be yesterday in MY morning). */
+function localDateYmd(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+
+    return `${y}-${m}-${d}`;
+}
+
 Alpine.data(
     "Checkout",
     ({
@@ -213,7 +222,7 @@ Alpine.data(
         },
 
         get minAppointmentDate() {
-            return new Date().toISOString().split("T")[0];
+            return localDateYmd();
         },
 
         get hasSpaBranchSelected() {
@@ -462,7 +471,7 @@ Alpine.data(
                 const from = this.minAppointmentDate;
                 const toDate = new Date();
                 toDate.setDate(toDate.getDate() + 60);
-                const to = toDate.toISOString().split("T")[0];
+                const to = localDateYmd(toDate);
 
                 const response = await axios.get(this.availabilityDatesUrl, {
                     params: {
@@ -1105,7 +1114,7 @@ Alpine.data(
                 const from = this.minAppointmentDate;
                 const toDate = new Date(`${from}T12:00:00`);
                 toDate.setDate(toDate.getDate() + 60);
-                const to = toDate.toISOString().slice(0, 10);
+                const to = localDateYmd(toDate);
                 const { data } = await axios.get(this.availabilityDatesUrl, {
                     params: {
                         product_id: line.product_id,

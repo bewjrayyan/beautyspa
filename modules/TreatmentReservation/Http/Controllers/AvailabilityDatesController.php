@@ -26,7 +26,7 @@ class AvailabilityDatesController extends Controller
             'spa_branch_id' => ['required', 'integer'],
             'product_id' => ['nullable', 'integer'],
             'beautician_id' => ['nullable', 'integer'],
-            'from' => ['nullable', 'date', 'after_or_equal:today'],
+            'from' => ['nullable', 'date'],
             'to' => ['nullable', 'date', 'after_or_equal:from'],
         ]);
 
@@ -44,8 +44,15 @@ class AvailabilityDatesController extends Controller
 
         $this->validateScope($branchId, $productId, isset($data['beautician_id']) ? (int) $data['beautician_id'] : null);
 
+        // Clamp past "from" to today — browsers using toISOString() can send yesterday in UTC+ timezones.
         $from = $data['from'] ?? today()->toDateString();
+        if (Carbon::parse($from)->lt(today())) {
+            $from = today()->toDateString();
+        }
         $to = $data['to'] ?? Carbon::parse($from)->addDays(60)->toDateString();
+        if (Carbon::parse($to)->lt(Carbon::parse($from))) {
+            $to = Carbon::parse($from)->addDays(60)->toDateString();
+        }
 
         if (Carbon::parse($from)->diffInDays(Carbon::parse($to)) > 90) {
             throw ValidationException::withMessages(['to' => trans('validation.max.numeric', [

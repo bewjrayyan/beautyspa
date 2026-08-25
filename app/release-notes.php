@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.30' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Fix checkout availability dates 422 caused by UTC date off-by-one.',
+            'changes' => [
+                'Format appointment from/to dates with local calendar day instead of toISOString().',
+                'Clamp past from dates to today on the availability/dates API instead of rejecting with 422.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki 422 tarikh availability checkout akibat off-by-one UTC.',
+            'changes' => [
+                'Format tarikh from/to temujanji dengan hari kalendar tempatan, bukan toISOString().',
+                'Clamp tarikh from yang lalu kepada hari ini pada API availability/dates dan bukan tolak dengan 422.',
+            ],
+        ],
+    ],
+
     '4.11.29' => [
         'date' => '2026-08-26',
         'en' => [
