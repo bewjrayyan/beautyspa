@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.27' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Stop OneSender from using seeded placeholder beautician phones; fix Operations console in-page anchors.',
+            'changes' => [
+                'Remove hardcoded 60100000001/02 seeder phones; WhatsApp recipients must be set from Admin.',
+                'Migration clears existing placeholder beautician phones so notifications skip until a real number is saved.',
+                'Operations jump/issue links use the admin operations route so #fragments work with the layout base href.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hentikan OneSender guna nombor placeholder dari seeder; baiki pautan anchor konsol Operations.',
+            'changes' => [
+                'Buang nombor hardcoded 60100000001/02 dari seeder; penerima WhatsApp mesti diset dari Admin.',
+                'Migration kosongkan telefon placeholder beautician sedia ada supaya notifikasi dilangkau sehingga nombor sebenar disimpan.',
+                'Pautan jump/isu Operations guna route admin supaya #fragment berfungsi dengan base href layout.',
+            ],
+        ],
+    ],
+
     '4.11.26' => [
         'date' => '2026-08-26',
         'en' => [

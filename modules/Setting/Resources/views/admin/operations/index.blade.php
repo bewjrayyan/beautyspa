@@ -29,11 +29,13 @@
     @php
         $issues = $snapshot['issues'] ?? [];
         $issueCount = count($issues);
+        // Admin layout sets <base href="{{ app.url }}">, so bare #fragments resolve off-page.
+        $opsPage = route('admin.operations.index');
         $issueAnchors = [
-            'scheduler' => '#ops-metrics',
-            'pending' => '#ops-queue',
-            'failed' => '#ops-failed',
-            'stuck_onesender' => '#ops-metrics',
+            'scheduler' => $opsPage.'#ops-metrics',
+            'pending' => $opsPage.'#ops-queue',
+            'failed' => $opsPage.'#ops-failed',
+            'stuck_onesender' => $opsPage.'#ops-metrics',
         ];
         $pendingLimit = max(1, (int) ($snapshot['queue']['limits']['pending'] ?? 1));
         $failedLimit = max(1, (int) ($snapshot['queue']['limits']['failed'] ?? 0) + 1);
@@ -52,12 +54,12 @@
         <nav class="operations-jump" aria-label="{{ trans('setting::operations.jump_to') }}">
             <span class="operations-jump__label">{{ trans('setting::operations.jump_to') }}</span>
             <div class="operations-jump__links">
-                <a href="#ops-queue">{{ trans('setting::operations.section_queue') }}</a>
-                <a href="#ops-failed">{{ trans('setting::operations.section_failed') }}</a>
-                <a href="#ops-retention">{{ trans('setting::operations.section_retention') }}</a>
-                <a href="#ops-holds">{{ trans('setting::operations.section_holds') }}</a>
-                <a href="#ops-observability">{{ trans('setting::operations.section_observability') }}</a>
-                <a href="#ops-history">{{ trans('setting::operations.section_history') }}</a>
+                <a href="{{ $opsPage }}#ops-queue">{{ trans('setting::operations.section_queue') }}</a>
+                <a href="{{ $opsPage }}#ops-failed">{{ trans('setting::operations.section_failed') }}</a>
+                <a href="{{ $opsPage }}#ops-retention">{{ trans('setting::operations.section_retention') }}</a>
+                <a href="{{ $opsPage }}#ops-holds">{{ trans('setting::operations.section_holds') }}</a>
+                <a href="{{ $opsPage }}#ops-observability">{{ trans('setting::operations.section_observability') }}</a>
+                <a href="{{ $opsPage }}#ops-history">{{ trans('setting::operations.section_history') }}</a>
             </div>
         </nav>
 
@@ -76,7 +78,7 @@
                     <ul class="operations-issue-list">
                         @foreach($issues as $issue)
                             <li>
-                                <a href="{{ $issueAnchors[$issue] ?? '#ops-metrics' }}">
+                                <a href="{{ $issueAnchors[$issue] ?? ($opsPage.'#ops-metrics') }}">
                                     {{ trans('setting::operations.issue_'.$issue) }}
                                 </a>
                             </li>
@@ -117,7 +119,7 @@
                 </div>
             </article>
 
-            <a class="operations-metric operations-metric--link operations-metric--{{ $snapshot['queue']['pending'] > $snapshot['queue']['limits']['pending'] || $snapshot['queue']['oldest_minutes'] > $snapshot['queue']['limits']['oldest_minutes'] ? 'warning' : 'primary' }}" href="#ops-queue">
+            <a class="operations-metric operations-metric--link operations-metric--{{ $snapshot['queue']['pending'] > $snapshot['queue']['limits']['pending'] || $snapshot['queue']['oldest_minutes'] > $snapshot['queue']['limits']['oldest_minutes'] ? 'warning' : 'primary' }}" href="{{ $opsPage }}#ops-queue">
                 <div class="operations-metric__top">
                     <span class="operations-metric__icon"><i class="fa fa-hourglass-half" aria-hidden="true"></i></span>
                     <div class="operations-metric__body">
@@ -137,7 +139,7 @@
                 </div>
             </a>
 
-            <a class="operations-metric operations-metric--link operations-metric--{{ $snapshot['queue']['failed'] > $snapshot['queue']['limits']['failed'] ? 'danger' : 'success' }}" href="#ops-failed">
+            <a class="operations-metric operations-metric--link operations-metric--{{ $snapshot['queue']['failed'] > $snapshot['queue']['limits']['failed'] ? 'danger' : 'success' }}" href="{{ $opsPage }}#ops-failed">
                 <div class="operations-metric__top">
                     <span class="operations-metric__icon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>
                     <div class="operations-metric__body">
