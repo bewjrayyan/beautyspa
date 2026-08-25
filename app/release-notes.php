@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.26' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Stop CacheHealth ALERT spam on artisan cron and soft-fail schedule commands during MySQL outages.',
+            'changes' => [
+                'Skip filesystem cache put/forget probes on CLI boots to avoid concurrent cli-data race ALERTs.',
+                'Swallow Flysystem warnings instead of converting them into ErrorException/CachePoolException.',
+                'Soft-fail operations:heartbeat and onesender:process-outbound-queue when MySQL is unreachable.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hentikan spam ALERT CacheHealth pada cron artisan dan soft-fail arahan schedule semasa MySQL down.',
+            'changes' => [
+                'Langkau probe put/forget cache fail pada boot CLI bagi elak race cli-data yang cetus ALERT.',
+                'Telan amaran Flysystem tanpa tukar kepada ErrorException/CachePoolException.',
+                'Soft-fail operations:heartbeat dan onesender:process-outbound-queue bila MySQL tidak boleh dihubungi.',
+            ],
+        ],
+    ],
+
     '4.11.25' => [
         'date' => '2026-08-26',
         'en' => [

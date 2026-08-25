@@ -5,6 +5,7 @@ namespace Modules\Setting\Console;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Throwable;
 
 class OperationsHeartbeatCommand extends Command
 {
@@ -14,14 +15,19 @@ class OperationsHeartbeatCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('operation_heartbeats')) {
-            return self::SUCCESS;
-        }
+        try {
+            if (! Schema::hasTable('operation_heartbeats')) {
+                return self::SUCCESS;
+            }
 
-        DB::table('operation_heartbeats')->updateOrInsert(
-            ['name' => 'scheduler'],
-            ['last_seen_at' => now(), 'created_at' => now(), 'updated_at' => now()]
-        );
+            DB::table('operation_heartbeats')->updateOrInsert(
+                ['name' => 'scheduler'],
+                ['last_seen_at' => now(), 'created_at' => now(), 'updated_at' => now()]
+            );
+        } catch (Throwable $e) {
+            // Transient MySQL outages should not spam schedule failure noise every minute.
+            $this->warn('operations:heartbeat skipped: '.$e->getMessage());
+        }
 
         return self::SUCCESS;
     }

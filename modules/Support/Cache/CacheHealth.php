@@ -19,6 +19,12 @@ class CacheHealth
             return;
         }
 
+        // Concurrent artisan/cron boots race on cli-data filesystem keys and spam ALERTs.
+        // Redis reachability is still checked above; file/tag probes are web-request only.
+        if (app()->runningInConsole() && ! self::usesRedis()) {
+            return;
+        }
+
         if (! self::usesRedis()) {
             if (! self::probePlainStore()) {
                 self::disableCache();
@@ -37,8 +43,20 @@ class CacheHealth
     private static function probePlainStore(): bool
     {
         return self::withSuppressedWarnings(function () {
-            Cache::store()->put('_aestheticcart_cache_probe', 1, 10);
-            Cache::store()->forget('_aestheticcart_cache_probe');
+            $key = '_aestheticcart_cache_probe';
+
+            Cache::store()->put($key, 1, 10);
+
+            if (Cache::store()->get($key) !== 1) {
+                return false;
+            }
+
+            // Missing file on forget is a race, not a failed probe.
+            try {
+                Cache::store()->forget($key);
+            } catch (Throwable) {
+                // ignore
+            }
 
             return true;
         });
@@ -48,24 +66,29 @@ class CacheHealth
     {
         return self::withSuppressedWarnings(function () {
             Cache::tags('_aestheticcart_probe')->put('_tag_probe', 1, 10);
-            Cache::tags('_aestheticcart_probe')->forget('_tag_probe');
+
+            if (Cache::tags('_aestheticcart_probe')->get('_tag_probe') !== 1) {
+                return false;
+            }
+
+            try {
+                Cache::tags('_aestheticcart_probe')->forget('_tag_probe');
+            } catch (Throwable) {
+                // ignore
+            }
 
             return true;
         });
     }
 
     /**
-     * Run a cache probe without letting vendor warnings become ALERT logs.
-     * FilesystemCachePool can emit foreach() warnings on corrupt tag lists.
+     * Swallow Flysystem/cache-adapter warnings without converting them to exceptions.
+     * Throwing ErrorException caused CachePoolException ALERT spam on missing probe files.
      */
     private static function withSuppressedWarnings(callable $callback): bool
     {
-        set_error_handler(static function (int $severity, string $message): bool {
-            if ($severity === E_WARNING || $severity === E_USER_WARNING || $severity === E_NOTICE) {
-                throw new \ErrorException($message, 0, $severity);
-            }
-
-            return false;
+        set_error_handler(static function (int $severity): bool {
+            return in_array($severity, [E_WARNING, E_USER_WARNING, E_NOTICE, E_USER_NOTICE], true);
         });
 
         try {
@@ -87,31 +110,33 @@ class CacheHealth
 
     private static function purgeCorruptTagFiles(string $tag): void
     {
-        $cachePath = (string) config('cache.stores.file.path', storage_path('framework/cache/data'));
-
-        if (! is_dir($cachePath)) {
-            return;
-        }
+        $paths = array_unique(array_filter([
+            (string) config('cache.stores.file.path', storage_path('framework/cache/data')),
+            storage_path('framework/cache/data'),
+            storage_path('framework/cache/cli-data'),
+            storage_path('framework/cache/cli-data/cache'),
+        ]));
 
         $needles = [
             'tag!'.$tag,
             'tag!_'.$tag,
         ];
 
-        foreach (scandir($cachePath) ?: [] as $entry) {
-            if ($entry === '.' || $entry === '..') {
+        foreach ($paths as $cachePath) {
+            if (! is_dir($cachePath)) {
                 continue;
             }
 
-            // Only touch filesystem tag-index files, never regular cache payloads.
-            if (! str_contains($entry, 'tag!')) {
-                continue;
-            }
+            foreach (scandir($cachePath) ?: [] as $entry) {
+                if ($entry === '.' || $entry === '..' || ! str_contains($entry, 'tag!')) {
+                    continue;
+                }
 
-            foreach ($needles as $needle) {
-                if (str_contains($entry, $needle)) {
-                    @unlink($cachePath.DIRECTORY_SEPARATOR.$entry);
-                    break;
+                foreach ($needles as $needle) {
+                    if (str_contains($entry, $needle)) {
+                        @unlink($cachePath.DIRECTORY_SEPARATOR.$entry);
+                        break;
+                    }
                 }
             }
         }
