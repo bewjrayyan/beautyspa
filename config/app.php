@@ -51,6 +51,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Detailed error pages (Ignition / stack traces)
+    |--------------------------------------------------------------------------
+    |
+    | Browser visitors always get branded friendly error pages by default.
+    | Set SHOW_DETAILED_ERRORS=true (with APP_DEBUG=true) only when you
+    | intentionally want Ignition stack traces in the browser.
+    |
+    */
+    'show_detailed_errors' => filter_var(env('SHOW_DETAILED_ERRORS', false), FILTER_VALIDATE_BOOLEAN),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

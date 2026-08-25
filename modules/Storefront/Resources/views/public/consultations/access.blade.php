@@ -11,7 +11,7 @@
             <h1>{{ trans('account::consultation.access.title') }}</h1>
             <p>{{ trans('account::consultation.access.lead') }}</p>
             @include('storefront::public.auth.partials.notification')
-            <form method="POST" action="{{ route('consultations.lookup', ['token' => $submission->public_token]) }}">
+            <form method="POST" action="{{ route('consultations.lookup', ['token' => $token]) }}">
                 @csrf
                 <label for="consultation-identifier">{{ trans('account::consultation.access.identifier') }}</label>
                 <input id="consultation-identifier" class="form-control" name="identifier" value="{{ old('identifier') }}" placeholder="{{ trans('account::consultation.access.placeholder') }}" required autofocus>

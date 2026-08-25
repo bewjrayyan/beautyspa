@@ -8,6 +8,14 @@
             <h3>{{ trans('setting::operations.title') }}</h3>
             <p>{{ trans('setting::operations.intro') }}</p>
         </div>
+        <div class="operations-page-header__actions">
+            <span class="operations-refreshed">
+                {{ trans('setting::operations.refreshed_at', ['time' => $snapshot['generated_at'] ?? now()->format('Y-m-d H:i:s')]) }}
+            </span>
+            <a class="btn operations-btn operations-btn--secondary" href="{{ route('admin.operations.index') }}">
+                <i class="fa fa-refresh"></i>{{ trans('setting::operations.refresh') }}
+            </a>
+        </div>
     </div>
 
     <ol class="breadcrumb">
@@ -18,7 +26,29 @@
 @endsection
 
 @section('content')
+    @php
+        $issues = $snapshot['issues'] ?? [];
+        $issueAnchors = [
+            'scheduler' => '#ops-metrics',
+            'pending' => '#ops-queue',
+            'failed' => '#ops-failed',
+            'stuck_onesender' => '#ops-metrics',
+        ];
+    @endphp
+
     <div class="operations-dashboard">
+        <nav class="operations-jump" aria-label="{{ trans('setting::operations.jump_to') }}">
+            <span class="operations-jump__label">{{ trans('setting::operations.jump_to') }}</span>
+            <div class="operations-jump__links">
+                <a href="#ops-queue">{{ trans('setting::operations.section_queue') }}</a>
+                <a href="#ops-failed">{{ trans('setting::operations.section_failed') }}</a>
+                <a href="#ops-retention">{{ trans('setting::operations.section_retention') }}</a>
+                <a href="#ops-holds">{{ trans('setting::operations.section_holds') }}</a>
+                <a href="#ops-observability">{{ trans('setting::operations.section_observability') }}</a>
+                <a href="#ops-history">{{ trans('setting::operations.section_history') }}</a>
+            </div>
+        </nav>
+
         <section class="operations-health-banner operations-health-banner--{{ $snapshot['healthy'] ? 'healthy' : 'warning' }}" aria-live="polite">
             <span class="operations-health-banner__icon" aria-hidden="true">
                 <i class="fa {{ $snapshot['healthy'] ? 'fa-check' : 'fa-exclamation-triangle' }}"></i>
@@ -26,40 +56,55 @@
             <div class="operations-health-banner__copy">
                 <span class="operations-eyebrow">{{ trans('setting::operations.overall') }}</span>
                 <strong>{{ trans($snapshot['healthy'] ? 'setting::operations.healthy' : 'setting::operations.degraded') }}</strong>
-                <p>{{ trans('setting::operations.intro') }}</p>
+                @if(count($issues) > 0)
+                    <p class="operations-issues-heading">{{ trans('setting::operations.issues_heading') }}</p>
+                    <ul class="operations-issue-list">
+                        @foreach($issues as $issue)
+                            <li>
+                                <a href="{{ $issueAnchors[$issue] ?? '#ops-metrics' }}">
+                                    {{ trans('setting::operations.issue_'.$issue) }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p>{{ trans('setting::operations.all_clear') }}</p>
+                @endif
             </div>
             <span class="operations-status-pill operations-status-pill--{{ $snapshot['healthy'] ? 'healthy' : 'warning' }}">
                 <span></span>{{ trans($snapshot['healthy'] ? 'setting::operations.healthy' : 'setting::operations.degraded') }}
             </span>
         </section>
 
-        <div class="operations-metrics">
+        <div id="ops-metrics" class="operations-metrics">
             <article class="operations-metric operations-metric--{{ $snapshot['scheduler']['healthy'] ? 'success' : 'warning' }}">
                 <span class="operations-metric__icon"><i class="fa fa-clock-o"></i></span>
                 <div class="operations-metric__body">
                     <span class="operations-metric__label">{{ trans('setting::operations.scheduler') }}</span>
-                    <strong class="operations-metric__value">{{ $snapshot['scheduler']['healthy'] ? 'OK' : '—' }}</strong>
+                    <strong class="operations-metric__value">
+                        {{ trans($snapshot['scheduler']['healthy'] ? 'setting::operations.scheduler_ok' : 'setting::operations.scheduler_down') }}
+                    </strong>
                     <small>{{ $snapshot['scheduler']['last_seen_at'] ? trans('setting::operations.last_seen', ['time' => $snapshot['scheduler']['last_seen_at']]) : trans('setting::operations.never_seen') }}</small>
                 </div>
             </article>
 
-            <article class="operations-metric operations-metric--{{ $snapshot['queue']['pending'] > $snapshot['queue']['limits']['pending'] ? 'warning' : 'primary' }}">
+            <a class="operations-metric operations-metric--link operations-metric--{{ $snapshot['queue']['pending'] > $snapshot['queue']['limits']['pending'] || $snapshot['queue']['oldest_minutes'] > $snapshot['queue']['limits']['oldest_minutes'] ? 'warning' : 'primary' }}" href="#ops-queue">
                 <span class="operations-metric__icon"><i class="fa fa-hourglass-half"></i></span>
                 <div class="operations-metric__body">
                     <span class="operations-metric__label">{{ trans('setting::operations.pending') }}</span>
                     <strong class="operations-metric__value">{{ number_format($snapshot['queue']['pending']) }}</strong>
-                    <small>{{ trans('setting::operations.oldest_minutes') }}: {{ $snapshot['queue']['oldest_minutes'] }}</small>
+                    <small>{{ trans('setting::operations.oldest_minutes') }}: {{ $snapshot['queue']['oldest_minutes'] }} / {{ $snapshot['queue']['limits']['oldest_minutes'] }}</small>
                 </div>
-            </article>
+            </a>
 
-            <article class="operations-metric operations-metric--{{ $snapshot['queue']['failed'] > 0 ? 'danger' : 'success' }}">
+            <a class="operations-metric operations-metric--link operations-metric--{{ $snapshot['queue']['failed'] > $snapshot['queue']['limits']['failed'] ? 'danger' : 'success' }}" href="#ops-failed">
                 <span class="operations-metric__icon"><i class="fa fa-times-circle-o"></i></span>
                 <div class="operations-metric__body">
                     <span class="operations-metric__label">{{ trans('setting::operations.failed') }}</span>
                     <strong class="operations-metric__value">{{ number_format($snapshot['queue']['failed']) }}</strong>
-                    <small>{{ trans('setting::operations.queue') }}</small>
+                    <small>{{ trans('setting::operations.queue') }} · {{ trans('setting::operations.open_section') }}</small>
                 </div>
-            </article>
+            </a>
 
             <article class="operations-metric operations-metric--{{ $snapshot['queue']['stuck_onesender'] > 0 ? 'danger' : 'success' }}">
                 <span class="operations-metric__icon"><i class="fa fa-whatsapp"></i></span>
@@ -71,21 +116,29 @@
             </article>
         </div>
 
-        <section class="operations-panel">
+        <section id="ops-queue" class="operations-panel">
             <header class="operations-panel__header">
                 <span class="operations-panel__icon operations-panel__icon--primary"><i class="fa fa-list-ul"></i></span>
                 <div>
                     <h4>{{ trans('setting::operations.queue') }}</h4>
-                    <p>{{ number_format($snapshot['queue']['pending']) }} {{ strtolower(trans('setting::operations.pending')) }}</p>
+                    <p>{{ number_format($snapshot['queue']['pending']) }} {{ strtolower(trans('setting::operations.pending')) }} · limit {{ number_format($snapshot['queue']['limits']['pending']) }}</p>
                 </div>
             </header>
             <div class="operations-panel__body operations-panel__body--flush operations-table-wrap">
                 <table class="table operations-table">
-                    <thead><tr><th>{{ trans('setting::operations.job') }}</th><th>{{ trans('setting::operations.queue_name') }}</th><th>{{ trans('setting::operations.attempts') }}</th><th>{{ trans('setting::operations.queued_at') }}</th><th class="text-right">{{ trans('setting::operations.actions') }}</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>{{ trans('setting::operations.job') }}</th>
+                            <th>{{ trans('setting::operations.queue_name') }}</th>
+                            <th>{{ trans('setting::operations.attempts') }}</th>
+                            <th>{{ trans('setting::operations.queued_at') }}</th>
+                            <th class="text-right">{{ trans('setting::operations.actions') }}</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         @forelse($pendingJobs?->items() ?? [] as $job)
                             <tr>
-                                <td><code class="operations-code">{{ $job->display_name }}</code></td>
+                                <td><code class="operations-code" title="{{ $job->display_name }}">{{ $job->display_name }}</code></td>
                                 <td><span class="operations-tag">{{ $job->queue }}</span></td>
                                 <td>{{ $job->attempts }}</td>
                                 <td>{{ date('Y-m-d H:i:s', $job->created_at) }}</td>
@@ -95,6 +148,8 @@
                                             @csrf @method('DELETE')
                                             <button class="btn operations-btn operations-btn--warning operations-btn--sm" type="submit"><i class="fa fa-ban"></i>{{ trans('setting::operations.cancel') }}</button>
                                         </form>
+                                    @elseif($job->reserved_at !== null)
+                                        <span class="operations-tag operations-tag--busy">{{ trans('setting::operations.processing') }}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -109,7 +164,7 @@
             </div>
         </section>
 
-        <section class="operations-panel">
+        <section id="ops-failed" class="operations-panel">
             <header class="operations-panel__header">
                 <span class="operations-panel__icon operations-panel__icon--danger"><i class="fa fa-exclamation-circle"></i></span>
                 <div>
@@ -119,11 +174,18 @@
             </header>
             <div class="operations-panel__body operations-panel__body--flush operations-table-wrap">
                 <table class="table operations-table">
-                    <thead><tr><th>{{ trans('setting::operations.job') }}</th><th>{{ trans('setting::operations.queue_name') }}</th><th>{{ trans('setting::operations.failed_at') }}</th><th class="text-right">{{ trans('setting::operations.actions') }}</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>{{ trans('setting::operations.job') }}</th>
+                            <th>{{ trans('setting::operations.queue_name') }}</th>
+                            <th>{{ trans('setting::operations.failed_at') }}</th>
+                            <th class="text-right">{{ trans('setting::operations.actions') }}</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         @forelse($failedJobs?->items() ?? [] as $job)
                             <tr>
-                                <td><code class="operations-code">{{ $job->display_name }}</code></td>
+                                <td><code class="operations-code" title="{{ $job->display_name }}">{{ $job->display_name }}</code></td>
                                 <td><span class="operations-tag">{{ $job->queue }}</span></td>
                                 <td>{{ $job->failed_at }}</td>
                                 <td class="text-right">
@@ -146,12 +208,17 @@
             </div>
         </section>
 
-        <div class="operations-grid operations-grid--retention">
+        <div id="ops-retention" class="operations-grid operations-grid--retention">
             <section class="operations-panel">
                 <header class="operations-panel__header">
                     <span class="operations-panel__icon operations-panel__icon--violet"><i class="fa fa-shield"></i></span>
-                    <div><h4>{{ trans('setting::operations.retention') }}</h4><p>{{ trans($snapshot['retention']['enabled'] ? 'setting::operations.retention_enabled' : 'setting::operations.retention_disabled') }}</p></div>
-                    <span class="operations-status-pill operations-status-pill--{{ $snapshot['retention']['enabled'] ? 'healthy' : 'neutral' }}"><span></span>{{ trans($snapshot['retention']['enabled'] ? 'setting::operations.healthy' : 'setting::operations.status') }}</span>
+                    <div>
+                        <h4>{{ trans('setting::operations.retention') }}</h4>
+                        <p>{{ trans($snapshot['retention']['enabled'] ? 'setting::operations.retention_enabled' : 'setting::operations.retention_disabled') }}</p>
+                    </div>
+                    <span class="operations-status-pill operations-status-pill--{{ $snapshot['retention']['enabled'] ? 'healthy' : 'neutral' }}">
+                        <span></span>{{ trans($snapshot['retention']['enabled'] ? 'setting::operations.healthy' : 'setting::operations.status') }}
+                    </span>
                 </header>
                 <div class="operations-panel__body">
                     <p class="operations-supporting-copy">{{ $snapshot['retention']['completed_days'] ? trans('setting::operations.completed_days', ['days' => $snapshot['retention']['completed_days']]) : trans('setting::operations.completed_disabled') }}</p>
@@ -170,7 +237,10 @@
             <section class="operations-panel operations-panel--action">
                 <header class="operations-panel__header">
                     <span class="operations-panel__icon operations-panel__icon--warning"><i class="fa fa-lock"></i></span>
-                    <div><h4>{{ trans('setting::operations.legal_hold') }}</h4><p>{{ trans('setting::operations.reason_protected') }}</p></div>
+                    <div>
+                        <h4>{{ trans('setting::operations.legal_hold') }}</h4>
+                        <p>{{ trans('setting::operations.reason_protected') }}</p>
+                    </div>
                 </header>
                 <div class="operations-panel__body">
                     @if($canManageRetention)
@@ -189,17 +259,41 @@
             </section>
         </div>
 
-        <section class="operations-panel">
+        <section id="ops-holds" class="operations-panel">
             <header class="operations-panel__header">
                 <span class="operations-panel__icon operations-panel__icon--warning"><i class="fa fa-gavel"></i></span>
-                <div><h4>{{ trans('setting::operations.active_holds') }}</h4><p>{{ count($legalHolds) }} {{ strtolower(trans('setting::operations.active_holds')) }}</p></div>
+                <div>
+                    <h4>{{ trans('setting::operations.active_holds') }}</h4>
+                    <p>{{ count($legalHolds) }} {{ strtolower(trans('setting::operations.active_holds')) }}</p>
+                </div>
             </header>
             <div class="operations-panel__body operations-panel__body--flush operations-table-wrap">
                 <table class="table operations-table">
-                    <thead><tr><th>{{ trans('setting::operations.submission_id') }}</th><th>{{ trans('setting::operations.held_at') }}</th><th>{{ trans('setting::operations.held_by') }}</th><th>{{ trans('setting::operations.reason') }}</th><th></th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>{{ trans('setting::operations.submission_id') }}</th>
+                            <th>{{ trans('setting::operations.held_at') }}</th>
+                            <th>{{ trans('setting::operations.held_by') }}</th>
+                            <th>{{ trans('setting::operations.reason') }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
                     <tbody>
                         @forelse($legalHolds as $hold)
-                            <tr><td><strong>#{{ $hold->id }}</strong></td><td>{{ $hold->legal_hold_at }}</td><td>{{ $hold->legal_hold_by ?: '—' }}</td><td>{{ $canManageRetention ? $hold->legal_hold_reason : trans('setting::operations.reason_protected') }}</td><td class="text-right">@if($canManageRetention)<form class="operations-inline-form" method="POST" action="{{ route('admin.operations.legal_hold.release', $hold->id) }}" onsubmit="return confirm(@js(trans('setting::operations.release_hold_confirm')));">@csrf @method('DELETE')<button class="btn operations-btn operations-btn--secondary operations-btn--sm" type="submit"><i class="fa fa-unlock"></i>{{ trans('setting::operations.release_hold') }}</button></form>@endif</td></tr>
+                            <tr>
+                                <td><strong>#{{ $hold->id }}</strong></td>
+                                <td>{{ $hold->legal_hold_at }}</td>
+                                <td>{{ $hold->legal_hold_by ?: '—' }}</td>
+                                <td>{{ $canManageRetention ? $hold->legal_hold_reason : trans('setting::operations.reason_protected') }}</td>
+                                <td class="text-right">
+                                    @if($canManageRetention)
+                                        <form class="operations-inline-form" method="POST" action="{{ route('admin.operations.legal_hold.release', $hold->id) }}" onsubmit="return confirm(@js(trans('setting::operations.release_hold_confirm')));">
+                                            @csrf @method('DELETE')
+                                            <button class="btn operations-btn operations-btn--secondary operations-btn--sm" type="submit"><i class="fa fa-unlock"></i>{{ trans('setting::operations.release_hold') }}</button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
                         @empty
                             <tr><td colspan="5"><div class="operations-empty"><i class="fa fa-shield"></i><span>{{ trans('setting::operations.no_holds') }}</span></div></td></tr>
                         @endforelse
@@ -208,10 +302,13 @@
             </div>
         </section>
 
-        <section class="operations-panel">
+        <section id="ops-observability" class="operations-panel">
             <header class="operations-panel__header">
                 <span class="operations-panel__icon operations-panel__icon--indigo"><i class="fa fa-line-chart"></i></span>
-                <div><h4>{{ trans('setting::operations.observability') }}</h4><p>{{ trans('setting::operations.csp_reports') }} &amp; {{ trans('setting::operations.slow_queries') }}</p></div>
+                <div>
+                    <h4>{{ trans('setting::operations.observability') }}</h4>
+                    <p>{{ trans('setting::operations.csp_reports') }} &amp; {{ trans('setting::operations.slow_queries') }}</p>
+                </div>
             </header>
             <div class="operations-panel__body">
                 <div class="operations-log-grid">
@@ -237,14 +334,66 @@
             </div>
         </section>
 
-        <div class="operations-grid operations-grid--history">
+        <div id="ops-history" class="operations-grid operations-grid--history">
             <section class="operations-panel">
-                <header class="operations-panel__header"><span class="operations-panel__icon operations-panel__icon--violet"><i class="fa fa-history"></i></span><div><h4>{{ trans('setting::operations.retention_runs') }}</h4></div></header>
-                <div class="operations-panel__body operations-panel__body--flush operations-table-wrap"><table class="table operations-table operations-table--compact"><thead><tr><th>{{ trans('setting::operations.mode') }}</th><th>{{ trans('setting::operations.status') }}</th><th>{{ trans('setting::operations.started_at') }}</th><th>{{ trans('setting::operations.counts') }}</th></tr></thead><tbody>@forelse($retentionRuns as $run)<tr><td><span class="operations-tag">{{ $run->mode }}</span></td><td>{{ $run->status }}</td><td>{{ $run->started_at }}</td><td><small>{{ $run->counts ?: '—' }}</small></td></tr>@empty<tr><td colspan="4"><div class="operations-empty"><i class="fa fa-clock-o"></i><span>{{ trans('setting::operations.no_retention_runs') }}</span></div></td></tr>@endforelse</tbody></table></div>
+                <header class="operations-panel__header">
+                    <span class="operations-panel__icon operations-panel__icon--violet"><i class="fa fa-history"></i></span>
+                    <div><h4>{{ trans('setting::operations.retention_runs') }}</h4></div>
+                </header>
+                <div class="operations-panel__body operations-panel__body--flush operations-table-wrap">
+                    <table class="table operations-table operations-table--compact">
+                        <thead>
+                            <tr>
+                                <th>{{ trans('setting::operations.mode') }}</th>
+                                <th>{{ trans('setting::operations.status') }}</th>
+                                <th>{{ trans('setting::operations.started_at') }}</th>
+                                <th>{{ trans('setting::operations.counts') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($retentionRuns as $run)
+                                <tr>
+                                    <td><span class="operations-tag">{{ $run->mode }}</span></td>
+                                    <td>{{ $run->status }}</td>
+                                    <td>{{ $run->started_at }}</td>
+                                    <td><small>{{ $run->counts ?: '—' }}</small></td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="4"><div class="operations-empty"><i class="fa fa-clock-o"></i><span>{{ trans('setting::operations.no_retention_runs') }}</span></div></td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </section>
             <section class="operations-panel">
-                <header class="operations-panel__header"><span class="operations-panel__icon operations-panel__icon--primary"><i class="fa fa-user-secret"></i></span><div><h4>{{ trans('setting::operations.audit') }}</h4></div></header>
-                <div class="operations-panel__body operations-panel__body--flush operations-table-wrap"><table class="table operations-table operations-table--compact"><thead><tr><th>{{ trans('setting::operations.actor') }}</th><th>{{ trans('setting::operations.action') }}</th><th>{{ trans('setting::operations.target') }}</th><th>{{ trans('setting::operations.time') }}</th></tr></thead><tbody>@forelse($audits as $audit)<tr><td>{{ $audit->user_id ?: '—' }}</td><td><code class="operations-code">{{ $audit->action }}</code></td><td>{{ $audit->target_type }} #{{ $audit->target_id }}</td><td>{{ $audit->created_at }}</td></tr>@empty<tr><td colspan="4"><div class="operations-empty"><i class="fa fa-clipboard"></i><span>{{ trans('setting::operations.no_audits') }}</span></div></td></tr>@endforelse</tbody></table></div>
+                <header class="operations-panel__header">
+                    <span class="operations-panel__icon operations-panel__icon--primary"><i class="fa fa-user-secret"></i></span>
+                    <div><h4>{{ trans('setting::operations.audit') }}</h4></div>
+                </header>
+                <div class="operations-panel__body operations-panel__body--flush operations-table-wrap">
+                    <table class="table operations-table operations-table--compact">
+                        <thead>
+                            <tr>
+                                <th>{{ trans('setting::operations.actor') }}</th>
+                                <th>{{ trans('setting::operations.action') }}</th>
+                                <th>{{ trans('setting::operations.target') }}</th>
+                                <th>{{ trans('setting::operations.time') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($audits as $audit)
+                                <tr>
+                                    <td>{{ $audit->user_id ?: '—' }}</td>
+                                    <td><code class="operations-code">{{ $audit->action }}</code></td>
+                                    <td>{{ $audit->target_type }} #{{ $audit->target_id }}</td>
+                                    <td>{{ $audit->created_at }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="4"><div class="operations-empty"><i class="fa fa-clipboard"></i><span>{{ trans('setting::operations.no_audits') }}</span></div></td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </div>
     </div>

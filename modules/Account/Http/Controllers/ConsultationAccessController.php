@@ -32,7 +32,11 @@ class ConsultationAccessController extends Controller
         }
 
         return response()
-            ->view('storefront::public.consultations.access', compact('submission'))
+            ->view('storefront::public.consultations.access', [
+                'submission' => $submission,
+                // Plain token lives only in the URL after hash migration; DB public_token is null.
+                'token' => $token,
+            ])
             ->withHeaders([
                 'Cache-Control' => 'private, no-store, max-age=0',
                 'Pragma' => 'no-cache',

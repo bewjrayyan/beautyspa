@@ -1,4 +1,10 @@
 .operations-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+
     h3 {
         margin: 0 0 5px;
         color: $settings-text;
@@ -14,23 +20,85 @@
         font-size: 13px;
         line-height: 1.5;
     }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+}
+
+.operations-refreshed {
+    color: $settings-muted;
+    font-size: 12px;
 }
 
 .operations-dashboard {
-    --ops-primary: #2563eb;
+    --ops-primary: #{$settings-primary};
     --ops-success: #059669;
     --ops-warning: #d97706;
     --ops-danger: #dc2626;
-    --ops-violet: #7c3aed;
-    --ops-indigo: #4f46e5;
-    --ops-text: #0f172a;
-    --ops-muted: #64748b;
+    --ops-violet: #6d28d9;
+    --ops-indigo: #4338ca;
+    --ops-text: #{$settings-text};
+    --ops-muted: #{$settings-muted};
     --ops-border: #e2e8f0;
     --ops-surface: #fff;
     --ops-bg: #f8fafc;
     padding-bottom: 28px;
     color: var(--ops-text);
-    font-family: "Inter", sans-serif;
+    scroll-behavior: smooth;
+}
+
+.operations-jump {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border: 1px solid var(--ops-border);
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    &__label {
+        flex: 0 0 auto;
+        color: var(--ops-muted);
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    &__links {
+        display: flex;
+        gap: 8px;
+        min-width: 0;
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            background: #fff;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+
+            &:hover,
+            &:focus {
+                border-color: color-mix(in srgb, var(--ops-primary) 35%, #e2e8f0);
+                background: color-mix(in srgb, var(--ops-primary) 8%, #fff);
+                color: var(--ops-primary);
+                text-decoration: none;
+            }
+        }
+    }
 }
 
 .operations-health-banner {
@@ -94,14 +162,58 @@
     }
 }
 
+.operations-issues-heading {
+    margin: 8px 0 4px !important;
+    color: var(--ops-text) !important;
+    font-size: 11px !important;
+    font-weight: 700;
+}
+
+.operations-issue-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li + li {
+        margin-top: 4px;
+    }
+
+    a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #92400e;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+
+        &::before {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            content: "";
+            opacity: 0.7;
+        }
+
+        &:hover,
+        &:focus {
+            text-decoration: underline;
+        }
+    }
+}
+
+.operations-health-banner--healthy .operations-issue-list a {
+    color: #047857;
+}
+
 .operations-eyebrow {
     display: block;
     color: var(--ops-muted);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.02em;
     line-height: 1.3;
-    text-transform: uppercase;
 }
 
 .operations-status-pill {
@@ -168,6 +280,18 @@
     &--success { color: var(--ops-success); }
     &--warning { color: var(--ops-warning); }
     &--danger { color: var(--ops-danger); }
+
+    &--link {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover,
+        &:focus {
+            color: inherit;
+            text-decoration: none;
+        }
+    }
 
     &__icon {
         display: inline-flex;
@@ -353,6 +477,11 @@ code.operations-code {
     color: #475569;
     font-size: 10px;
     font-weight: 600;
+
+    &--busy {
+        background: #fff7ed;
+        color: #c2410c;
+    }
 }
 
 .operations-empty {
@@ -512,6 +641,16 @@ code.operations-code {
 }
 
 @media (max-width: 767px) {
+    .operations-page-header__actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .operations-jump {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
     .operations-health-banner {
         align-items: flex-start;
         padding: 15px;

@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.21' => [
+        'date' => '2026-08-25',
+        'en' => [
+            'summary' => 'Clearer Operations health console, friendlier storefront errors, and fixed consultation access lookup.',
+            'changes' => [
+                'Improve admin Operations with section jump links, actionable health issues, refresh timestamp, and clearer queue metrics.',
+                'Show branded friendly error pages to browsers unless detailed errors are explicitly enabled for debugging.',
+                'Fix consultation access lookup when only a hashed public token is stored.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Konsol Operations lebih jelas, halaman ralat mesra, dan pembetulan lookup akses konsultasi.',
+            'changes' => [
+                'Perbaiki Operations admin dengan pautan bahagian, isu kesihatan yang boleh diambil tindakan, masa muat semula, dan metrik queue yang lebih jelas.',
+                'Paparkan halaman ralat berjenama kepada pelayar kecuali ralat terperinci diaktifkan untuk debugging.',
+                'Betulkan lookup akses konsultasi apabila hanya token awam yang di-hash disimpan.',
+            ],
+        ],
+    ],
     '4.11.20' => [
         'date' => '2026-08-25',
         'en' => [

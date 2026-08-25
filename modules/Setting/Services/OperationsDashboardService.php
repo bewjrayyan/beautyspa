@@ -32,6 +32,22 @@ class OperationsDashboardService
             $retentionPreview = null;
         }
 
+        $healthy = $queue['healthy'] && $scheduler['healthy'];
+        $issues = [];
+
+        if (! $scheduler['healthy']) {
+            $issues[] = 'scheduler';
+        }
+        if ($queue['pending'] > $queue['limits']['pending'] || $queue['oldest_minutes'] > $queue['limits']['oldest_minutes']) {
+            $issues[] = 'pending';
+        }
+        if ($queue['failed'] > $queue['limits']['failed']) {
+            $issues[] = 'failed';
+        }
+        if ($queue['stuck_onesender'] > 0) {
+            $issues[] = 'stuck_onesender';
+        }
+
         return [
             'queue' => $queue,
             'scheduler' => $scheduler,
@@ -41,8 +57,10 @@ class OperationsDashboardService
                 'completed_days' => config('operations.privacy.completed_consultation_days'),
                 'preview' => $retentionPreview,
             ],
-            'healthy' => $queue['healthy'] && $scheduler['healthy'],
-            'alert_count' => ($queue['healthy'] ? 0 : 1) + ($scheduler['healthy'] ? 0 : 1),
+            'healthy' => $healthy,
+            'issues' => $issues,
+            'generated_at' => now()->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
+            'alert_count' => count($issues),
         ];
     }
 

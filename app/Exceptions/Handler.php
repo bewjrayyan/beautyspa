@@ -4,18 +4,23 @@ namespace AestheticCart\Exceptions;
 
 use Throwable;
 use Cartalyst\Sentinel\Checkpoints\ThrottlingException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Swift_TransportException;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Modules\Sms\Exceptions\SmsException;
 use Modules\TreatmentReservation\Support\TreatmentSlotConflict;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\NamespaceNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
@@ -120,7 +125,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        return match (true) {
+        $special = match (true) {
             $e instanceof ThrottlingException => $this->handleThrottlingException($request),
             TreatmentSlotConflict::causedBy($e) => response()->json([
                 'message' => trans('treatmentreservation::public.slot_unavailable'),
@@ -134,13 +139,110 @@ class Handler extends ExceptionHandler
             $e instanceof \Modules\Checkout\Exceptions\CheckoutException => response()->json([
                 'message' => $e->getMessage(),
             ], Response::HTTP_FORBIDDEN),
-            $this->shouldShowNotFoundPage($e) => response()->view(
-                'storefront::errors.404',
-                [],
-                Response::HTTP_NOT_FOUND
-            ),
-            default => parent::render($request, $e),
+            default => null,
         };
+
+        if ($special !== null) {
+            return $special;
+        }
+
+        // Keep Laravel form/auth redirect behaviour for browser flows.
+        if (
+            $e instanceof ValidationException
+            || $e instanceof AuthenticationException
+        ) {
+            return parent::render($request, $e);
+        }
+
+        if ($this->shouldRenderFriendlyHtmlError($request)) {
+            return $this->renderFriendlyHtmlError($e);
+        }
+
+        return parent::render($request, $e);
+    }
+
+
+    /**
+     * Browser visitors always get branded friendly pages unless Ignition is
+     * explicitly opted in via SHOW_DETAILED_ERRORS=true with APP_DEBUG=true.
+     */
+    private function shouldRenderFriendlyHtmlError(Request $request): bool
+    {
+        if ($request->expectsJson() || $request->ajax() || $request->is('api/*')) {
+            return false;
+        }
+
+        if (config('app.debug') && config('app.show_detailed_errors')) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private function renderFriendlyHtmlError(Throwable $e): Response
+    {
+        $status = $this->friendlyStatusCode($e);
+        $view = $this->friendlyViewForStatus($status);
+
+        return response()->view($view, [
+            'exception' => $e,
+        ], $status);
+    }
+
+
+    private function friendlyStatusCode(Throwable $e): int
+    {
+        if ($e instanceof HttpExceptionInterface) {
+            return max(400, min(599, $e->getStatusCode()));
+        }
+
+        if ($e instanceof ModelNotFoundException || $e instanceof NotFoundHttpException) {
+            return Response::HTTP_NOT_FOUND;
+        }
+
+        if ($e instanceof AuthorizationException) {
+            return Response::HTTP_FORBIDDEN;
+        }
+
+        if ($e instanceof TokenMismatchException) {
+            return 419;
+        }
+
+        if ($e instanceof UrlGenerationException) {
+            // Broken internal links / missing route params — do not expose Ignition.
+            return Response::HTTP_NOT_FOUND;
+        }
+
+        return Response::HTTP_INTERNAL_SERVER_ERROR;
+    }
+
+
+    private function friendlyViewForStatus(int $status): string
+    {
+        if (
+            $status === Response::HTTP_NOT_FOUND
+            && ! $this->inAdminPanel()
+            && view()->exists('storefront::errors.404')
+        ) {
+            return 'storefront::errors.404';
+        }
+
+        $named = "errors.{$status}";
+
+        if (view()->exists($named)) {
+            return $named;
+        }
+
+        if ($status >= 500 && view()->exists('errors.5xx')) {
+            return 'errors.5xx';
+        }
+
+        if ($status >= 400 && view()->exists('errors.4xx')) {
+            return 'errors.4xx';
+        }
+
+        return view()->exists('errors.500') ? 'errors.500' : 'errors.4xx';
     }
 
 
@@ -176,7 +278,7 @@ class Handler extends ExceptionHandler
      */
     private function handleSwiftException(Request $request, Swift_TransportException $e)
     {
-        if (config('app.debug')) {
+        if (config('app.debug') && config('app.show_detailed_errors')) {
             throw $e;
         }
 
@@ -201,7 +303,7 @@ class Handler extends ExceptionHandler
      */
     private function handleSmsException(Request $request, SmsException $e)
     {
-        if (config('app.debug')) {
+        if (config('app.debug') && config('app.show_detailed_errors')) {
             throw $e;
         }
 
@@ -221,22 +323,5 @@ class Handler extends ExceptionHandler
     private function inAdminPanel(): bool
     {
         return $this->container->has('inAdminPanel') && $this->container['inAdminPanel'];
-    }
-
-
-    /**
-     * Determine if the response should show not found page.
-     *
-     * @param Throwable $e
-     *
-     * @return bool
-     */
-    private function shouldShowNotFoundPage(Throwable $e): bool
-    {
-        if ($this->inAdminPanel()) {
-            return false;
-        }
-
-        return $e instanceof NotFoundHttpException || $e instanceof ModelNotFoundException;
     }
 }
