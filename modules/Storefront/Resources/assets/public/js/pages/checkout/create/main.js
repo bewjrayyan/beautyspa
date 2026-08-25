@@ -119,6 +119,11 @@ Alpine.data(
         emailCheckTimeout: null,
         paymentProofFile: null,
         paymentProofFileName: "",
+        paymentProofPreviewUrl: "",
+        paymentProofIsImage: false,
+        paymentProofFileSize: "",
+        paymentProofDragging: false,
+        paymentProofError: "",
 
         get cartFetched() {
             return this.$store.cart.fetched;
@@ -583,14 +588,7 @@ Alpine.data(
 
             this.$watch("form.payment_method", (method) => {
                 if (method !== "bank_transfer") {
-                    this.paymentProofFile = null;
-                    this.paymentProofFileName = "";
-
-                    const input = document.getElementById("payment-proof-input");
-
-                    if (input) {
-                        input.value = "";
-                    }
+                    this.clearPaymentProof();
                 }
             });
 
@@ -1775,10 +1773,136 @@ Alpine.data(
             return formData;
         },
 
+        formatPaymentProofSize(bytes) {
+            const n = Number(bytes) || 0;
+
+            if (n < 1024) {
+                return `${n} B`;
+            }
+
+            if (n < 1024 * 1024) {
+                return `${(n / 1024).toFixed(1)} KB`;
+            }
+
+            return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+        },
+
+        revokePaymentProofPreview() {
+            if (this.paymentProofPreviewUrl) {
+                URL.revokeObjectURL(this.paymentProofPreviewUrl);
+            }
+
+            this.paymentProofPreviewUrl = "";
+            this.paymentProofIsImage = false;
+        },
+
+        clearPaymentProof() {
+            this.revokePaymentProofPreview();
+            this.paymentProofFile = null;
+            this.paymentProofFileName = "";
+            this.paymentProofFileSize = "";
+            this.paymentProofError = "";
+            this.paymentProofDragging = false;
+
+            const input = document.getElementById("payment-proof-input");
+
+            if (input) {
+                input.value = "";
+            }
+        },
+
+        setPaymentProofFile(file) {
+            this.paymentProofError = "";
+
+            if (!file) {
+                this.clearPaymentProof();
+
+                return;
+            }
+
+            const allowed = [
+                "image/jpeg",
+                "image/png",
+                "image/webp",
+                "application/pdf",
+            ];
+            const maxBytes = 10 * 1024 * 1024;
+            const name = String(file.name || "").toLowerCase();
+            const byExt = /\.(jpe?g|png|webp|pdf)$/.test(name);
+
+            if (!allowed.includes(file.type) && !byExt) {
+                this.paymentProofError = trans("storefront::checkout.payment_proof_invalid_type");
+                this.clearPaymentProof();
+
+                return;
+            }
+
+            if (file.size > maxBytes) {
+                this.paymentProofError = trans("storefront::checkout.payment_proof_too_large");
+                this.clearPaymentProof();
+
+                return;
+            }
+
+            this.revokePaymentProofPreview();
+            this.paymentProofFile = file;
+            this.paymentProofFileName = file.name || "";
+            this.paymentProofFileSize = this.formatPaymentProofSize(file.size);
+            this.paymentProofIsImage = String(file.type || "").startsWith("image/")
+                || /\.(jpe?g|png|webp)$/.test(name);
+
+            if (this.paymentProofIsImage) {
+                this.paymentProofPreviewUrl = URL.createObjectURL(file);
+            }
+        },
+
         onPaymentProofChange(event) {
             const file = event.target.files?.[0] || null;
-            this.paymentProofFile = file;
-            this.paymentProofFileName = file?.name || "";
+            this.setPaymentProofFile(file);
+        },
+
+        onPaymentProofDragEnter(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.paymentProofDragging = true;
+        },
+
+        onPaymentProofDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.paymentProofDragging = true;
+        },
+
+        onPaymentProofDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (event.currentTarget.contains(event.relatedTarget)) {
+                return;
+            }
+
+            this.paymentProofDragging = false;
+        },
+
+        onPaymentProofDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.paymentProofDragging = false;
+
+            const file = event.dataTransfer?.files?.[0] || null;
+            this.setPaymentProofFile(file);
+
+            const input = document.getElementById("payment-proof-input");
+
+            if (input && file) {
+                try {
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                } catch (_) {
+                    // Some browsers block programmatic FileList assignment.
+                }
+            }
         },
 
         recordValidationErrors(response) {

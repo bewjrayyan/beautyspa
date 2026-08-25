@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.34' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Bank transfer proof upload is now a SaaS-style drag-and-drop dropzone with live preview.',
+            'changes' => [
+                'Support drag and drop, browse, replace, and remove for payment proof files.',
+                'Show image thumbnails instantly and PDF file cards with size metadata.',
+                'Validate type and 10 MB size client-side with clear error feedback.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Muat naik bukti bank transfer kini dropzone seret-lepas gaya SaaS dengan pratonton langsung.',
+            'changes' => [
+                'Sokong seret & lepas, browse, ganti, dan buang untuk fail bukti bayaran.',
+                'Paparkan thumbnail imej serta-merta dan kad fail PDF dengan saiz.',
+                'Sahkan jenis dan saiz 10 MB di sisi klien dengan maklum balas ralat yang jelas.',
+            ],
+        ],
+    ],
+
     '4.11.33' => [
         'date' => '2026-08-26',
         'en' => [

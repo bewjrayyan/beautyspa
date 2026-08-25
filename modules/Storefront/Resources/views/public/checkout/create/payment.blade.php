@@ -138,10 +138,17 @@
                     <span class="required" aria-hidden="true">*</span>
                 </p>
 
-                <label
+                <div
                     class="payment-proof-dropzone"
-                    for="payment-proof-input"
-                    :class="{ 'has-file': Boolean(paymentProofFileName) }"
+                    :class="{
+                        'has-file': Boolean(paymentProofFileName),
+                        'is-dragging': paymentProofDragging,
+                        'has-error': Boolean(paymentProofError),
+                    }"
+                    @dragenter="onPaymentProofDragEnter($event)"
+                    @dragover="onPaymentProofDragOver($event)"
+                    @dragleave="onPaymentProofDragLeave($event)"
+                    @drop="onPaymentProofDrop($event)"
                 >
                     <input
                         type="file"
@@ -151,22 +158,64 @@
                         @change="onPaymentProofChange($event)"
                     >
 
-                    <span class="payment-proof-dropzone__icon" aria-hidden="true">
-                        <i class="las" :class="paymentProofFileName ? 'la-check-circle' : 'la-cloud-upload-alt'"></i>
-                    </span>
+                    <template x-if="!paymentProofFileName">
+                        <label class="payment-proof-dropzone__empty" for="payment-proof-input">
+                            <span class="payment-proof-dropzone__icon" aria-hidden="true">
+                                <i class="las la-cloud-upload-alt"></i>
+                            </span>
+                            <span class="payment-proof-dropzone__copy">
+                                <span class="payment-proof-dropzone__title">
+                                    {{ trans('storefront::checkout.payment_proof_drop_title') }}
+                                </span>
+                                <span class="payment-proof-dropzone__hint">
+                                    {{ trans('storefront::checkout.payment_proof_drop_hint') }}
+                                </span>
+                                <span class="payment-proof-dropzone__browse">
+                                    {{ trans('storefront::checkout.payment_proof_browse') }}
+                                </span>
+                            </span>
+                        </label>
+                    </template>
 
-                    <span class="payment-proof-dropzone__copy">
-                        <span class="payment-proof-dropzone__title" x-show="!paymentProofFileName">
-                            {{ trans('storefront::checkout.payment_proof_choose') }}
-                        </span>
-                        <span class="payment-proof-dropzone__title payment-proof-dropzone__title--file" x-show="paymentProofFileName" x-cloak>
-                            <span x-text="paymentProofFileName"></span>
-                        </span>
-                        <span class="payment-proof-dropzone__hint">
-                            {{ trans('storefront::checkout.payment_proof_help') }}
-                        </span>
-                    </span>
-                </label>
+                    <template x-if="paymentProofFileName">
+                        <div class="payment-proof-dropzone__preview" x-cloak>
+                            <div class="payment-proof-dropzone__preview-media">
+                                <img
+                                    x-show="paymentProofIsImage && paymentProofPreviewUrl"
+                                    :src="paymentProofPreviewUrl"
+                                    :alt="paymentProofFileName"
+                                    class="payment-proof-dropzone__preview-image"
+                                >
+                                <span
+                                    x-show="!paymentProofIsImage"
+                                    class="payment-proof-dropzone__preview-file"
+                                    aria-hidden="true"
+                                >
+                                    <i class="las la-file-pdf"></i>
+                                </span>
+                            </div>
+
+                            <div class="payment-proof-dropzone__preview-meta">
+                                <strong class="payment-proof-dropzone__preview-name" x-text="paymentProofFileName"></strong>
+                                <span class="payment-proof-dropzone__preview-size" x-text="paymentProofFileSize"></span>
+                                <div class="payment-proof-dropzone__actions">
+                                    <label class="payment-proof-dropzone__action" for="payment-proof-input">
+                                        {{ trans('storefront::checkout.payment_proof_replace') }}
+                                    </label>
+                                    <button
+                                        type="button"
+                                        class="payment-proof-dropzone__action payment-proof-dropzone__action--danger"
+                                        @click.prevent="clearPaymentProof()"
+                                    >
+                                        {{ trans('storefront::checkout.payment_proof_remove') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <p class="payment-proof-upload__error" x-show="paymentProofError" x-text="paymentProofError" x-cloak></p>
             </div>
         </template>
     </div>
