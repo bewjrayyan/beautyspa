@@ -12,6 +12,7 @@ return [
     'appointment_date' => 'Date',
     'appointment_time' => 'Time',
     'payment_method' => 'Payment',
+    'bank_transfer_pending_hint' => 'We received your payment proof and will verify it shortly. You will be notified once payment is confirmed.',
     'order_total' => 'Total paid',
     'customer' => 'Customer',
     'treatments' => 'Treatments',

@@ -2,7 +2,6 @@
 
 namespace Modules\Loyalty\Services;
 
-use Modules\Loyalty\Entities\LoyaltyStampProgram;
 use Modules\Order\Entities\Order;
 use Modules\User\Entities\User;
 
@@ -30,10 +29,10 @@ class LoyaltyOrderCompleteRewardsService
         $wallet = $this->wallets->getOrCreateForUser($user);
         $pointsBalance = (int) $wallet->balance;
         $pointsWorthRm = $this->config->pointsToRm($pointsBalance);
-        $stampCards = $this->stamps->forAccount($user);
-        $hasStampPrograms = LoyaltyStampProgram::query()->active()->exists();
+        // Celebration / order views: only active progress or redeemable cards — never expired.
+        $stampCards = $this->stamps->forOrderComplete($user);
 
-        if ($pointsBalance <= 0 && $stampCards === [] && ! $hasStampPrograms) {
+        if ($pointsBalance <= 0 && $stampCards === []) {
             return null;
         }
 

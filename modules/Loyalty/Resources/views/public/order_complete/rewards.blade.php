@@ -8,7 +8,7 @@
 <div class="order-complete-section order-complete-rewards" id="order-rewards">
     <h2 class="order-complete-section-title">
         <i class="las la-gift"></i>
-        {{ trans('loyalty::order_rewards.title') }} 🎉
+        {{ trans('loyalty::order_rewards.title') }}
     </h2>
 
     @if ($stampCards !== [])

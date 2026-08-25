@@ -1,5 +1,7 @@
 @php
     $formatMoney = fn ($amount) => $amount->convert($order->currency, $order->currency_rate)->format($order->currency);
+    $isBankTransferPending = $order->getRawOriginal('payment_method') === 'bank_transfer'
+        && $order->payment_status === \Modules\Order\Entities\Order::PAYMENT_PENDING;
 @endphp
 
 <div class="order-complete-totals">
@@ -24,6 +26,13 @@
                 {{ $order->paymentStatusLabel() }}
             </span>
         </div>
+
+        @if ($isBankTransferPending)
+            <p class="order-complete-payment-hint" role="status">
+                <i class="las la-info-circle" aria-hidden="true"></i>
+                {{ trans('storefront::order_complete.bank_transfer_pending_hint') }}
+            </p>
+        @endif
 
         @if ($order->transaction?->transaction_id)
             <div class="order-complete-total-row order-complete-total-row--transaction">

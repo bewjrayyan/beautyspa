@@ -13,6 +13,7 @@ return [
     'appointment_date' => 'Tarikh',
     'appointment_time' => 'Masa',
     'payment_method' => 'Bayaran',
+    'bank_transfer_pending_hint' => 'Kami telah menerima bukti bayaran anda dan akan menyemaknya tidak lama lagi. Anda akan dimaklumkan setelah bayaran disahkan.',
     'order_total' => 'Jumlah dibayar',
     'customer' => 'Pelanggan',
     'treatments' => 'Rawatan',

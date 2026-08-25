@@ -29,7 +29,8 @@ class LoyaltyStampProgressService
     {
         return array_values(array_filter(
             $this->buildCards($user, includeNotStarted: false),
-            fn (array $card) => $card['stamps_earned'] > 0 || $card['can_redeem']
+            fn (array $card) => ! ($card['is_expired'] ?? false)
+                && (($card['stamps_earned'] > 0) || ($card['can_redeem'] ?? false))
         ));
     }
 

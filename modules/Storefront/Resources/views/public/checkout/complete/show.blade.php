@@ -143,66 +143,70 @@
                 @endif
 
                 <div class="order-complete-actions">
-                    <a
-                        href="{{ route('checkout.complete.invoice') }}"
-                        class="btn btn-primary order-complete-btn"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        <i class="las la-file-invoice"></i>
-                        {{ trans('storefront::order_complete.view_invoice') }}
-                    </a>
-
-                    @auth
+                    <div class="order-complete-actions__primary">
                         <a
-                            href="{{ route('account.orders.show', $order->id) }}"
-                            class="btn btn-default order-complete-btn"
-                        >
-                            <i class="las la-list-alt"></i>
-                            {{ trans('storefront::order_complete.view_order_details') }}
-                        </a>
-                    @else
-                        <a href="#order-details" class="btn btn-default order-complete-btn">
-                            <i class="las la-list-alt"></i>
-                            {{ trans('storefront::order_complete.view_order_details') }}
-                        </a>
-                    @endauth
-
-                    @if ($hasTreatmentBooking && app('modules')->isEnabled('TreatmentReservation'))
-                        <a
-                            href="{{ route('treatment_reservations.booking.lookup') }}"
-                            class="btn btn-default order-complete-btn"
-                        >
-                            <i class="las la-calendar-check"></i>
-                            {{ trans('storefront::order_complete.manage_my_appointment') }}
-                        </a>
-                    @endif
-
-                    @if ($canNotifyBeautician)
-                        <form
-                            action="{{ route('checkout.complete.notify_beautician') }}"
-                            method="POST"
-                            class="order-complete-action-form"
-                        >
-                            @csrf
-                            <button type="submit" class="btn btn-default order-complete-btn">
-                                <i class="lab la-whatsapp"></i>
-                                {{ trans('storefront::order_complete.notify_beautician') }}
-                            </button>
-                        </form>
-                    @endif
-
-                    @if ($googleCalendarUrl)
-                        <a
-                            href="{{ $googleCalendarUrl }}"
-                            class="btn btn-default order-complete-btn"
+                            href="{{ route('checkout.complete.invoice') }}"
+                            class="btn btn-primary order-complete-btn"
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener"
                         >
-                            <i class="lab la-google"></i>
-                            {{ trans('storefront::order_complete.add_to_google_calendar') }}
+                            <i class="las la-file-invoice"></i>
+                            {{ trans('storefront::order_complete.view_invoice') }}
                         </a>
-                    @endif
+                    </div>
+
+                    <div class="order-complete-actions__secondary">
+                        @auth
+                            <a
+                                href="{{ route('account.orders.show', $order->id) }}"
+                                class="btn btn-default order-complete-btn"
+                            >
+                                <i class="las la-list-alt"></i>
+                                {{ trans('storefront::order_complete.view_order_details') }}
+                            </a>
+                        @else
+                            <a href="#order-details" class="btn btn-default order-complete-btn">
+                                <i class="las la-list-alt"></i>
+                                {{ trans('storefront::order_complete.view_order_details') }}
+                            </a>
+                        @endauth
+
+                        @if ($hasTreatmentBooking && app('modules')->isEnabled('TreatmentReservation'))
+                            <a
+                                href="{{ route('treatment_reservations.booking.lookup') }}"
+                                class="btn btn-default order-complete-btn"
+                            >
+                                <i class="las la-calendar-check"></i>
+                                {{ trans('storefront::order_complete.manage_my_appointment') }}
+                            </a>
+                        @endif
+
+                        @if ($canNotifyBeautician)
+                            <form
+                                action="{{ route('checkout.complete.notify_beautician') }}"
+                                method="POST"
+                                class="order-complete-action-form"
+                            >
+                                @csrf
+                                <button type="submit" class="btn btn-default order-complete-btn">
+                                    <i class="lab la-whatsapp"></i>
+                                    {{ trans('storefront::order_complete.notify_beautician') }}
+                                </button>
+                            </form>
+                        @endif
+
+                        @if ($googleCalendarUrl)
+                            <a
+                                href="{{ $googleCalendarUrl }}"
+                                class="btn btn-default order-complete-btn"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <i class="lab la-google"></i>
+                                {{ trans('storefront::order_complete.add_to_google_calendar') }}
+                            </a>
+                        @endif
+                    </div>
 
                     <a href="{{ route('home') }}" class="btn btn-default order-complete-btn order-complete-btn--ghost">
                         <i class="las la-shopping-bag"></i>

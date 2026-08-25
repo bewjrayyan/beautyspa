@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.36' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Polish checkout complete: hide expired stamp cards, clearer bank-transfer pending, stronger CTAs.',
+            'changes' => [
+                'Order complete rewards use forOrderComplete and exclude expired stamp wallets.',
+                'Add bank-transfer pending helper copy after proof upload.',
+                'Improve action hierarchy, expired stamp styling, and remove emoji from Rewards heading.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perhalusi checkout complete: sembunyi kad setem luput, pending bank transfer lebih jelas, CTA lebih kuat.',
+            'changes' => [
+                'Ganjaran order complete guna forOrderComplete dan kecualikan wallet setem luput.',
+                'Tambah teks bantuan pending bank transfer selepas muat naik bukti.',
+                'Perbaiki hierarki tindakan, gaya setem luput, dan buang emoji dari tajuk Rewards.',
+            ],
+        ],
+    ],
+
     '4.11.35' => [
         'date' => '2026-08-26',
         'en' => [
