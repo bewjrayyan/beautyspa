@@ -134,7 +134,7 @@ class ReservationController extends Controller
     public function calendarEvent(int $booking): JsonResponse
     {
         $booking = TreatmentBooking::query()
-            ->withActiveOrder()
+            ->visibleOnCalendar()
             ->withTreatmentProduct()
             ->withCalendarDetails()
             ->findOrFail($booking);

@@ -16,6 +16,7 @@ import {
 } from "./kanban-helpers.js";
 import { initTreatmentAnalytics } from "./analytics.js";
 import { initCrmDashboard, initTbaScheduleActions, initCalendarBookingDrop } from "./dashboard.js";
+import { initCustomerProfileDrawer } from "./customer-profile.js";
 import "./portal-account.js";
 import "./portal-availability.js";
 import "./manual-booking.js";
@@ -1430,6 +1431,7 @@ if (root) {
     const reservationsApp = new TreatmentReservationsApp(root);
     window.TRResolveBooking = resolveBooking;
     initCrmDashboard(reservationsApp);
+    initCustomerProfileDrawer();
     initTbaScheduleActions();
     initCalendarBookingDrop(reservationsApp);
 }
@@ -1452,6 +1454,8 @@ if (portalRoot?.dataset.initialBookings) {
 
 if (portalRoot) {
     const portalApp = new TreatmentReservationsApp(portalRoot);
+    initCrmDashboard(portalApp);
+    initCustomerProfileDrawer();
     initCalendarBookingDrop(portalApp);
     initTbaScheduleActions();
 }

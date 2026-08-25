@@ -259,6 +259,11 @@
             ])
         @endHasAccess
     @endif
+
+    @include('treatmentreservation::admin.reservations.partials.dashboard.customer-profile-drawer', [
+        'crmCustomerProfileUrl' => $portalApiRoutes['customer_profile'] ?? null,
+        'crmReminderUrlTemplate' => $portalApiRoutes['reminder'] ?? null,
+    ])
 @endsection
 
 @push('globals')

@@ -474,6 +474,34 @@ class TreatmentBooking extends Model
     }
 
 
+    /**
+     * Rows that belong on month/week calendars and their detail drawers.
+     * Broader than withActiveOrder(): keep completed history when the order was
+     * soft-deleted or hard-removed, while still hiding pending checkout orphans.
+     */
+    public function scopeVisibleOnCalendar(Builder $query): Builder
+    {
+        return $query->where(function (Builder $visibility): void {
+            $visibility
+                ->where(function (Builder $linked): void {
+                    $linked->whereNotNull('order_id')
+                        ->whereHas(
+                            'order',
+                            fn (Builder $order) => $order->withTrashed()
+                        );
+                })
+                ->orWhere(function (Builder $manual): void {
+                    $manual->whereNull('order_id')
+                        ->whereIn('source', [
+                            self::SOURCE_ADMIN_MANUAL,
+                            self::SOURCE_PORTAL_MANUAL,
+                        ]);
+                })
+                ->orWhere('status', self::STATUS_COMPLETED);
+        });
+    }
+
+
     public function scopeForCalendar(
         Builder $query,
         string $month,
@@ -485,7 +513,7 @@ class TreatmentBooking extends Model
         $end = $start->copy()->endOfMonth();
 
         return $query
-            ->withActiveOrder()
+            ->visibleOnCalendar()
             ->withTreatmentProduct()
             ->with([
                 'beautician.files',

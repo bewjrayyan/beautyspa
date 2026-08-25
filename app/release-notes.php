@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.20' => [
+        'date' => '2026-08-25',
+        'en' => [
+            'summary' => 'Calendar history visibility, working Profile drawer on every calendar surface, and portal CRM profile privacy hardening.',
+            'changes' => [
+                'Show completed appointments on month/week calendars even when the linked order was soft-deleted or removed, and allow their detail drawers to open.',
+                'Wire the CRM customer profile drawer on admin Calendar and beautician job sheet so Profile always works.',
+                'Scope portal customer profiles to the signed-in beautician and hide admin-only account links from portal responses.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Paparan sejarah kalendar, drawer Profile pada semua kalendar, dan pengukuhan privasi profil CRM portal.',
+            'changes' => [
+                'Paparkan temujanji completed pada kalendar bulan/minggu walaupun order berkaitan soft-delete atau dipadam, dan benarkan drawer butiran dibuka.',
+                'Sambungkan drawer profil pelanggan CRM pada Calendar admin dan job sheet beautician supaya Profile sentiasa berfungsi.',
+                'Hadkan profil pelanggan portal kepada beautician yang log masuk dan sembunyikan pautan akaun admin daripada respons portal.',
+            ],
+        ],
+    ],
+
     '4.11.19' => [
         'date' => '2026-08-25',
         'en' => [

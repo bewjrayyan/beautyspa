@@ -20,7 +20,7 @@ class CustomerCrmProfileService
     /**
      * @return array<string, mixed>
      */
-    public function forBooking(TreatmentBooking $booking): array
+    public function forBooking(TreatmentBooking $booking, ?int $viewerBeauticianId = null): array
     {
         $booking->loadMissing(['product', 'beautician', 'category']);
 
@@ -30,7 +30,7 @@ class CustomerCrmProfileService
             return $this->profileFromBookingOnly($booking);
         }
 
-        return $this->buildProfile($phone, $booking);
+        return $this->buildProfile($phone, $booking, $viewerBeauticianId);
     }
 
 
@@ -58,14 +58,18 @@ class CustomerCrmProfileService
     /**
      * @return array<string, mixed>
      */
-    private function buildProfile(string $normalizedPhone, ?TreatmentBooking $contextBooking): array
-    {
+    private function buildProfile(
+        string $normalizedPhone,
+        ?TreatmentBooking $contextBooking,
+        ?int $viewerBeauticianId = null,
+    ): array {
         $user = $this->userForPhone($normalizedPhone);
-        $stats = $this->visitStats($normalizedPhone);
-        $loyaltyTier = $this->loyaltyTierForUser($user);
+        $stats = $this->visitStats($normalizedPhone, $viewerBeauticianId);
+        $loyaltyTier = $viewerBeauticianId ? null : $this->loyaltyTierForUser($user);
 
         $displayBooking = $contextBooking ?? TreatmentBooking::query()
             ->matchingCustomerPhone($normalizedPhone)
+            ->when($viewerBeauticianId, fn ($q) => $q->where('beautician_id', $viewerBeauticianId))
             ->orderByDesc('appointment_date')
             ->orderByDesc('appointment_time')
             ->first();
@@ -79,7 +83,7 @@ class CustomerCrmProfileService
             'customer_name' => $customerName,
             'customer_phone' => $displayBooking?->customer_phone ?: $normalizedPhone,
             'customer_email' => $customerEmail,
-            'customer_avatar_url' => $user?->avatarUrl(),
+            'customer_avatar_url' => $viewerBeauticianId ? null : $user?->avatarUrl(),
             'visit_count' => $stats['visit_count'],
             'last_treatment' => $stats['last_treatment'],
             'last_visit_date' => $stats['last_visit_date'],
@@ -87,14 +91,14 @@ class CustomerCrmProfileService
                 ? CustomerVisitLabel::forBooking($contextBooking, $stats['visit_count'])
                 : CustomerVisitLabel::format(max(1, $stats['visit_count'])),
             'loyalty_tier_name' => $loyaltyTier,
-            'user_id' => $user?->id,
-            'user_admin_url' => $user
-                ? route('admin.users.edit', $user)
-                : null,
+            'user_id' => $viewerBeauticianId ? null : $user?->id,
+            'user_admin_url' => ($viewerBeauticianId || ! $user)
+                ? null
+                : route('admin.users.edit', $user),
             'current_booking_id' => $contextBooking?->id,
-            'visit_history' => $this->visitHistory($normalizedPhone),
-            'upcoming_bookings' => $this->upcomingBookings($normalizedPhone),
-            'reminder_bookings' => $this->reminderBookings($normalizedPhone),
+            'visit_history' => $this->visitHistory($normalizedPhone, 10, $viewerBeauticianId),
+            'upcoming_bookings' => $this->upcomingBookings($normalizedPhone, 6, $viewerBeauticianId),
+            'reminder_bookings' => $this->reminderBookings($normalizedPhone, 5, $viewerBeauticianId),
         ];
     }
 
@@ -129,10 +133,11 @@ class CustomerCrmProfileService
     /**
      * @return array{visit_count: int, last_treatment: ?string, last_visit_date: ?string}
      */
-    private function visitStats(string $normalizedPhone): array
+    private function visitStats(string $normalizedPhone, ?int $viewerBeauticianId = null): array
     {
         $base = TreatmentBooking::query()
             ->matchingCustomerPhone($normalizedPhone)
+            ->when($viewerBeauticianId, fn ($q) => $q->where('beautician_id', $viewerBeauticianId))
             ->where('status', TreatmentBooking::STATUS_COMPLETED)
             ->with('product');
 
@@ -154,10 +159,11 @@ class CustomerCrmProfileService
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function visitHistory(string $normalizedPhone, int $limit = 10): array
+    private function visitHistory(string $normalizedPhone, int $limit = 10, ?int $viewerBeauticianId = null): array
     {
         return TreatmentBooking::query()
             ->matchingCustomerPhone($normalizedPhone)
+            ->when($viewerBeauticianId, fn ($q) => $q->where('beautician_id', $viewerBeauticianId))
             ->where('status', TreatmentBooking::STATUS_COMPLETED)
             ->with(['product', 'beautician'])
             ->orderByDesc('appointment_date')
@@ -173,10 +179,11 @@ class CustomerCrmProfileService
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function upcomingBookings(string $normalizedPhone, int $limit = 6): array
+    private function upcomingBookings(string $normalizedPhone, int $limit = 6, ?int $viewerBeauticianId = null): array
     {
         return TreatmentBooking::query()
             ->matchingCustomerPhone($normalizedPhone)
+            ->when($viewerBeauticianId, fn ($q) => $q->where('beautician_id', $viewerBeauticianId))
             ->whereIn('status', [
                 TreatmentBooking::STATUS_PENDING,
                 TreatmentBooking::STATUS_IN_PROGRESS,
@@ -199,10 +206,11 @@ class CustomerCrmProfileService
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function reminderBookings(string $normalizedPhone, int $limit = 5): array
+    private function reminderBookings(string $normalizedPhone, int $limit = 5, ?int $viewerBeauticianId = null): array
     {
         return TreatmentBooking::query()
             ->matchingCustomerPhone($normalizedPhone)
+            ->when($viewerBeauticianId, fn ($q) => $q->where('beautician_id', $viewerBeauticianId))
             ->whereIn('status', [
                 TreatmentBooking::STATUS_PENDING,
                 TreatmentBooking::STATUS_IN_PROGRESS,

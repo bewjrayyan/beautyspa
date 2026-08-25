@@ -9,7 +9,6 @@ import {
     setCalendarBookings,
     upsertBooking,
 } from "./kanban-helpers.js";
-import { initCustomerProfileDrawer } from "./customer-profile.js";
 import { openManualBookingEditor } from "./manual-booking.js";
 
 function escapeHtml(value = "") {
@@ -2045,7 +2044,6 @@ export function initCrmDashboard(app) {
     initPipelineSortable(app);
     initPipelineActions(app);
     initSpecialistToggles();
-    initCustomerProfileDrawer();
     initTbaScheduleActions();
 
     document.addEventListener("tr-crm-booking-updated", () => {

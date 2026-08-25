@@ -396,6 +396,7 @@
 
             @if ($activeView === 'calendar')
                 @include('treatmentreservation::admin.reservations.partials.calendar')
+                @include('treatmentreservation::admin.reservations.partials.dashboard.customer-profile-drawer')
             @endif
 
             @if ($activeView === 'kanban')

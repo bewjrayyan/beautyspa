@@ -1077,8 +1077,9 @@ export function openCalendarEventPreview(booking, labels, options = {}) {
     overlay.querySelector(".tr-calendar-event-preview__close")?.focus();
 }
 
-export function closeCalendarEventPreview() {
+export function closeCalendarEventPreview(options = {}) {
     const overlay = document.getElementById("tr-calendar-event-preview");
+    const restoreFocus = options.restoreFocus !== false;
 
     if (!overlay) {
         return;
@@ -1089,7 +1090,7 @@ export function closeCalendarEventPreview() {
     overlay.setAttribute("aria-hidden", "true");
     document.body.classList.remove("tr-calendar-event-preview-open");
 
-    if (calendarEventPreviewLastFocus?.isConnected) {
+    if (restoreFocus && calendarEventPreviewLastFocus?.isConnected) {
         calendarEventPreviewLastFocus.focus();
     }
 

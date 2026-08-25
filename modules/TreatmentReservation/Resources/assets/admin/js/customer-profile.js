@@ -235,13 +235,23 @@ function openCustomerProfileDrawer() {
         return;
     }
 
+    // Blur any focused control inside appointment details before hiding it.
+    // Otherwise aria-hidden on a still-focused Profile button can block the handoff.
+    const preview = document.getElementById("tr-calendar-event-preview");
+    const active = document.activeElement;
+
+    if (active instanceof HTMLElement && preview?.contains(active)) {
+        active.blur();
+    }
+
     // Profile is opened from appointment details — dismiss that overlay so
     // CRM does not stack underneath (preview z-index is higher).
-    closeCalendarEventPreview();
+    closeCalendarEventPreview({ restoreFocus: false });
 
     root.hidden = false;
     root.setAttribute("aria-hidden", "false");
     document.body.classList.add("tr-crm-customer-profile-open");
+    root.querySelector(".tr-crm-customer-profile__close")?.focus();
 }
 
 function closeCustomerProfileDrawer() {
@@ -364,12 +374,16 @@ async function sendReminderFromProfile(button) {
     }
 }
 
+let customerProfileDrawerReady = false;
+
 export function initCustomerProfileDrawer() {
     const root = getProfileRoot();
 
-    if (!root) {
+    if (!root || customerProfileDrawerReady) {
         return;
     }
+
+    customerProfileDrawerReady = true;
 
     document.addEventListener("click", (event) => {
         const openTrigger = event.target.closest("[data-customer-profile]");

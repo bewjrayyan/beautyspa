@@ -164,6 +164,8 @@ class PortalController extends Controller
                     'slots' => route('admin.treatment_reservations.portal.reschedule_slots', ['id' => '__ID__']),
                     'dates' => route('admin.treatment_reservations.portal.reschedule_dates', ['id' => '__ID__']),
                     'tba_slots' => route('admin.treatment_reservations.portal.manual_bookings.slots'),
+                    'customer_profile' => route('admin.treatment_reservations.portal.customer_profile'),
+                    'reminder' => route('admin.treatment_reservations.portal.send_reminder', ['id' => '__ID__']),
                 ],
                 'backUrl' => null,
             ];
@@ -193,6 +195,8 @@ class PortalController extends Controller
                 'tba_slots' => $this->isAdminBeauticianPreview($request, $beautician)
                     ? route('admin.treatment_reservations.manual_bookings.slots')
                     : route('admin.treatment_reservations.portal.manual_bookings.slots'),
+                'customer_profile' => route('admin.beauticians.portal.customer_profile', $routeParams),
+                'reminder' => route('admin.beauticians.portal.send_reminder', ['id' => $beautician->id, 'booking' => '__ID__']),
             ],
             'backUrl' => $this->isAdminBeauticianPreview($request, $beautician)
                 ? route('admin.beauticians.edit', $beautician)
@@ -225,7 +229,7 @@ class PortalController extends Controller
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
         $booking = TreatmentBooking::query()
-            ->withActiveOrder()
+            ->visibleOnCalendar()
             ->withTreatmentProduct()
             ->withCalendarDetails()
             ->where('beautician_id', $beautician->id)
@@ -625,7 +629,7 @@ class PortalController extends Controller
                 ->findOrFail($request->integer('booking_id'));
 
             return response()->json([
-                'profile' => $profiles->forBooking($booking),
+                'profile' => $profiles->forBooking($booking, (int) $beautician->id),
             ]);
         } catch (\InvalidArgumentException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
