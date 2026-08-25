@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.19' => [
+        'date' => '2026-08-25',
+        'en' => [
+            'summary' => 'Unified month and week calendars with correct local dates across admin, CRM agenda, and beautician portal.',
+            'changes' => [
+                'Fix calendar date shifting caused by UTC toISOString so appointments land on the correct day in Malaysia time.',
+                'Enable Month and Week views on every calendar surface (admin calendar, CRM agenda, beautician portal) with shared controls.',
+                'Respect spa branch filters in calendar events and place the Month/Week toggle beside Today on the right.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kalendar bulan dan minggu seragam dengan tarikh tempatan yang betul merentas admin, agenda CRM, dan portal beautician.',
+            'changes' => [
+                'Betulkan anjakan tarikh kalendar akibat UTC toISOString supaya temujanji masuk pada hari yang betul mengikut masa Malaysia.',
+                'Dayakan paparan Bulan dan Minggu pada semua kalendar (admin, agenda CRM, portal beautician) dengan kawalan yang sama.',
+                'Hormati penapis cawangan spa dalam event kalendar dan letakkan toggle Bulan/Minggu di kanan sebelah Hari ini.',
+            ],
+        ],
+    ],
+
     '4.11.18' => [
         'date' => '2026-08-25',
         'en' => [

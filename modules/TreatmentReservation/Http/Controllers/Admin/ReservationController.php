@@ -114,13 +114,15 @@ class ReservationController extends Controller
             'month' => ['required', 'date_format:Y-m'],
             'beautician_id' => ['nullable', 'integer'],
             'treatment_category_id' => ['nullable', 'integer'],
+            'spa_branch_id' => ['nullable', 'integer'],
         ]);
 
         $bookings = TreatmentBooking::query()
             ->forCalendar(
                 $request->input('month'),
                 $request->integer('beautician_id') ?: null,
-                $request->integer('treatment_category_id') ?: null
+                $request->integer('treatment_category_id') ?: null,
+                $request->integer('spa_branch_id') ?: null,
             )
             ->get()
             ->map(fn (TreatmentBooking $booking) => $booking->toCalendarSummaryPayload());

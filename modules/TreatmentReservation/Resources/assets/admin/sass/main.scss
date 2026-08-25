@@ -1584,6 +1584,14 @@ $tr-text: #1a202c;
     justify-content: flex-end;
 }
 
+.tr-calendar-month-nav__trailing {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+}
+
 .tr-calendar-month-nav__group {
     display: inline-flex;
     align-items: center;
@@ -4334,7 +4342,7 @@ body.tr-calendar-event-preview-open {
     border: 1px solid #cbd5e1;
     border-radius: 999px;
     gap: 2px;
-    margin-left: 8px;
+    margin-left: 0;
 
     &__btn {
         border: 0;
@@ -5045,6 +5053,12 @@ body.tr-calendar-event-preview-open {
             font-size: 14px;
         }
 
+        .tr-calendar-month-nav__trailing {
+            width: 100%;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
         .tr-calendar-month-nav__btn,
         .tr-calendar-month-nav__today { min-height: 40px; }
 
@@ -5055,7 +5069,7 @@ body.tr-calendar-event-preview-open {
 
         .tr-calendar-view-toggle {
             margin-left: 0;
-            width: 100%;
+            flex: 1;
 
             &__btn {
                 flex: 1;
@@ -6839,5 +6853,30 @@ body.tr-reschedule-workspace-open {
             padding: 9px 10px;
             font-size: 12px;
         }
+    }
+}
+
+
+.tr-calendar--embedded {
+    .tr-calendar-view-toggle {
+        flex-shrink: 0;
+    }
+
+    &.tr-calendar--week-view {
+        .tr-calendar-day-view {
+            display: block;
+            padding: 0 0 12px;
+            min-height: 420px;
+        }
+
+        .tr-cal-week-grid {
+            min-height: 380px;
+        }
+    }
+}
+
+.tr-crm-calendar-agenda:has(.tr-calendar--week-view) {
+    .tr-crm-calendar-agenda__agenda {
+        max-height: min(70vh, 640px);
     }
 }

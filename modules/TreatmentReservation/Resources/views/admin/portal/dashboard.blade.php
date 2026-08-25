@@ -144,6 +144,7 @@
         data-cal-preview-action-reschedule-short="{{ TrLang::trans('admin.calendar.preview_action_reschedule_short') }}"
         data-cal-preview-status-update-failed="{{ TrLang::trans('admin.crm.agenda_status_update_failed') }}"
         data-initial-month="{{ $filters['month'] ?? now()->format('Y-m') }}"
+        data-initial-spa-branch="{{ $filters['spa_branch_id'] ?? '' }}"
         data-initial-beautician=""
         data-portal-beautician-id="{{ $beautician->id }}"
         data-initial-category="{{ $filters['treatment_category_id'] ?? '' }}"

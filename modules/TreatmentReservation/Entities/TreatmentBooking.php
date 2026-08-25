@@ -474,8 +474,13 @@ class TreatmentBooking extends Model
     }
 
 
-    public function scopeForCalendar(Builder $query, string $month, ?int $beauticianId = null, ?int $categoryId = null): Builder
-    {
+    public function scopeForCalendar(
+        Builder $query,
+        string $month,
+        ?int $beauticianId = null,
+        ?int $categoryId = null,
+        ?int $spaBranchId = null,
+    ): Builder {
         $start = \Illuminate\Support\Carbon::parse($month)->startOfMonth();
         $end = $start->copy()->endOfMonth();
 
@@ -491,6 +496,18 @@ class TreatmentBooking extends Model
             ->whereNot('status', self::STATUS_CANCELED)
             ->when($beauticianId, fn (Builder $q) => $q->where('beautician_id', $beauticianId))
             ->when($categoryId, fn (Builder $q) => $q->where('treatment_category_id', $categoryId))
+            ->when(
+                $spaBranchId && is_module_enabled('SpaBranch'),
+                function (Builder $q) use ($spaBranchId): void {
+                    $q->where(function (Builder $inner) use ($spaBranchId): void {
+                        $inner->where('spa_branch_id', $spaBranchId)
+                            ->orWhereHas(
+                                'beautician.spaBranches',
+                                fn (Builder $branchQuery) => $branchQuery->where('spa_branches.id', $spaBranchId)
+                            );
+                    });
+                }
+            )
             ->orderBy('appointment_date')
             ->orderBy('appointment_time');
     }

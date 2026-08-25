@@ -157,6 +157,33 @@ class FinalAuditRegressionTest extends TestCase
         $this->assertArrayNotHasKey('payment_status_label', $payload);
     }
 
+
+    #[Test]
+    public function calendar_uses_local_dates_and_uniform_month_week_views(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $js = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/main.js');
+        $blade = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/calendar.blade.php');
+        $entity = file_get_contents($root . '/modules/TreatmentReservation/Entities/TreatmentBooking.php');
+        $controller = file_get_contents($root . '/modules/TreatmentReservation/Http/Controllers/Admin/ReservationController.php');
+        $en = file_get_contents($root . '/modules/TreatmentReservation/Resources/lang/en/admin.php');
+        $ms = file_get_contents($root . '/modules/TreatmentReservation/Resources/lang/ms/admin.php');
+
+        $this->assertStringContainsString('static localDateKey', $js);
+        $this->assertStringContainsString('static parseLocalDate', $js);
+        $this->assertStringContainsString('isWeekCalView()', $js);
+        $this->assertStringNotContainsString('toISOString().slice(0, 10)', $js);
+        $this->assertStringContainsString('spa_branch_id', $js);
+        $this->assertStringContainsString('appointment_time_value', $js);
+        $this->assertStringContainsString('data-cal-view="week"', $blade);
+        $this->assertStringContainsString('id="tr-cal-day-view"', $blade);
+        $this->assertStringContainsString('tr-calendar-view-toggle', $blade);
+        $this->assertStringContainsString('?int $spaBranchId = null', $entity);
+        $this->assertStringContainsString("'spa_branch_id' => ['nullable', 'integer']", $controller);
+        $this->assertStringContainsString("'view_week'", $en);
+        $this->assertStringContainsString("'view_week'", $ms);
+    }
+
     #[Test]
     public function calendar_navigation_keeps_month_data_cached_and_loads_drawer_details_on_demand(): void
     {

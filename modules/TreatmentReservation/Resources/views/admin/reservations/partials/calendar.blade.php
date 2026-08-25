@@ -40,20 +40,20 @@
                 </button>
             </div>
 
-            <button type="button" class="tr-calendar-month-nav__today" id="tr-cal-today">
-                {{ trans('treatmentreservation::admin.calendar.today') }}
-            </button>
+            <div class="tr-calendar-month-nav__trailing">
+                <button type="button" class="tr-calendar-month-nav__today" id="tr-cal-today">
+                    {{ trans('treatmentreservation::admin.calendar.today') }}
+                </button>
 
-            @unless ($embedded)
-                <div class="tr-calendar-view-toggle" id="tr-cal-view-toggle">
+                <div class="tr-calendar-view-toggle" id="tr-cal-view-toggle" role="group" aria-label="{{ trans('treatmentreservation::admin.calendar.view_toggle_aria') }}">
                     <button type="button" class="tr-calendar-view-toggle__btn is-active" data-cal-view="month">
                         {{ trans('treatmentreservation::admin.calendar.view_month') }}
                     </button>
-                    <button type="button" class="tr-calendar-view-toggle__btn" data-cal-view="day">
-                        {{ trans('treatmentreservation::admin.calendar.view_day') }}
+                    <button type="button" class="tr-calendar-view-toggle__btn" data-cal-view="week">
+                        {{ trans('treatmentreservation::admin.calendar.view_week') }}
                     </button>
                 </div>
-            @endunless
+            </div>
         </div>
     </div>
 
@@ -102,18 +102,16 @@
         </div>
     </div>
 
-    @unless ($embedded)
-        <div class="tr-calendar-day-view" id="tr-cal-day-view" style="display: none;">
-            <header class="tr-calendar-day-view__header">
-                <button type="button" class="tr-calendar-day-view__nav" id="tr-cal-day-prev">
-                    <i class="fa fa-chevron-left"></i>
-                </button>
-                <h3 class="tr-calendar-day-view__title" id="tr-cal-day-title"></h3>
-                <button type="button" class="tr-calendar-day-view__nav" id="tr-cal-day-next">
-                    <i class="fa fa-chevron-right"></i>
-                </button>
-            </header>
-            <div class="tr-cal-week-grid" id="tr-cal-week-grid"></div>
-        </div>
-    @endunless
+    <div class="tr-calendar-day-view" id="tr-cal-day-view" hidden>
+        <header class="tr-calendar-day-view__header">
+            <button type="button" class="tr-calendar-day-view__nav" id="tr-cal-day-prev" aria-label="{{ trans('treatmentreservation::admin.calendar.prev_week') }}">
+                <i class="fa fa-chevron-left"></i>
+            </button>
+            <h3 class="tr-calendar-day-view__title" id="tr-cal-day-title"></h3>
+            <button type="button" class="tr-calendar-day-view__nav" id="tr-cal-day-next" aria-label="{{ trans('treatmentreservation::admin.calendar.next_week') }}">
+                <i class="fa fa-chevron-right"></i>
+            </button>
+        </header>
+        <div class="tr-cal-week-grid" id="tr-cal-week-grid"></div>
+    </div>
 </div>

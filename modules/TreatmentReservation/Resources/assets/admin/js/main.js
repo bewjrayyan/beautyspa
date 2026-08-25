@@ -46,14 +46,34 @@ class TreatmentReservationsApp {
         return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(raw) ? raw : "";
     }
 
+
+    static localDateKey(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    static parseLocalDate(value) {
+        const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+        if (!match) {
+            return null;
+        }
+
+        return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+    }
+
     constructor(root) {
         this.root = root;
         this.activeView = root.dataset.activeView;
         this.calendarUrl = root.dataset.calendarUrl;
         this.kanbanUrl = root.dataset.kanbanUrl;
         this.statusUrlTemplate = root.dataset.statusUrl;
-        this.month = root.dataset.initialMonth || new Date().toISOString().slice(0, 7);
+        this.month = root.dataset.initialMonth || TreatmentReservationsApp.localDateKey().slice(0, 7);
         this.beauticianId = root.dataset.initialBeautician || "";
+        this.spaBranchId = root.dataset.initialSpaBranch || "";
         this.portalBeauticianId = root.dataset.portalBeauticianId || "";
         this.calendarFocusBookingId = root.dataset.calendarFocusBookingId || "";
         this.calendarFocusHandled = false;
@@ -146,6 +166,10 @@ class TreatmentReservationsApp {
             params.set("treatment_category_id", this.categoryId);
         }
 
+        if (this.spaBranchId) {
+            params.set("spa_branch_id", this.spaBranchId);
+        }
+
         return params;
     }
 
@@ -180,14 +204,15 @@ class TreatmentReservationsApp {
         document.getElementById("tr-cal-prev")?.addEventListener("click", () => this.shiftMonth(-1));
         document.getElementById("tr-cal-next")?.addEventListener("click", () => this.shiftMonth(1));
         document.getElementById("tr-cal-today")?.addEventListener("click", () => {
-            const todayMonth = new Date().toISOString().slice(0, 7);
+            const todayKey = TreatmentReservationsApp.localDateKey();
+            const todayMonth = todayKey.slice(0, 7);
 
             if (todayMonth !== this.month) {
                 this.pendingSlideDirection = todayMonth > this.month ? 1 : -1;
             }
 
             this.month = todayMonth;
-            this.selectedDate = new Date().toISOString().slice(0, 10);
+            this.selectedDate = todayKey;
             this.weekStart = this.getWeekStart(this.selectedDate);
             this.syncMonthInput();
             this.loadCalendar();
@@ -237,33 +262,38 @@ class TreatmentReservationsApp {
                 const dayEl = e.target.closest(".tr-cal-day[data-date]");
                 if (!dayEl) return;
                 this.selectedDate = dayEl.dataset.date;
-                document.querySelector('[data-cal-view="day"]')?.click();
+                (this.calendarRoot?.querySelector('[data-cal-view="week"]')
+                    || this.calendarRoot?.querySelector('[data-cal-view="day"]')
+                    || document.querySelector('[data-cal-view="week"]')
+                    || document.querySelector('[data-cal-view="day"]'))?.click();
             });
         }
 
-        // Day/Month view toggle
-        this.calendarBoard = document.querySelector(".tr-calendar--page .tr-calendar-board");
-        this.calendarMeta = document.querySelector(".tr-calendar--page .tr-calendar-meta");
-        this.dayView = document.getElementById("tr-cal-day-view");
-        this.dayTitle = document.getElementById("tr-cal-day-title");
-        this.weekGrid = document.getElementById("tr-cal-week-grid");
+        // Month / week view toggle (admin calendar, CRM agenda, portal — same controls).
+        this.calendarRoot = this.grid?.closest(".tr-calendar") || document.querySelector(".tr-calendar");
+        this.calendarBoard = this.calendarRoot?.querySelector(".tr-calendar-board") || null;
+        this.calendarMeta = this.calendarRoot?.querySelector(".tr-calendar-meta") || null;
+        this.dayView = this.calendarRoot?.querySelector("#tr-cal-day-view") || document.getElementById("tr-cal-day-view");
+        this.dayTitle = this.calendarRoot?.querySelector("#tr-cal-day-title") || document.getElementById("tr-cal-day-title");
+        this.weekGrid = this.calendarRoot?.querySelector("#tr-cal-week-grid") || document.getElementById("tr-cal-week-grid");
         this.currentCalView = "month";
-        this.selectedDate = new Date().toISOString().slice(0, 10);
+        this.selectedDate = TreatmentReservationsApp.localDateKey();
         this.weekStart = this.getWeekStart(this.selectedDate);
 
         document.getElementById("tr-cal-day-prev")?.addEventListener("click", () => this.shiftWeek(-1));
         document.getElementById("tr-cal-day-next")?.addEventListener("click", () => this.shiftWeek(1));
 
-        document.querySelectorAll("[data-cal-view]").forEach((btn) => {
+        this.calendarRoot?.querySelectorAll("[data-cal-view]").forEach((btn) => {
             btn.addEventListener("click", () => {
-                const view = btn.dataset.calView;
+                const rawView = btn.dataset.calView;
+                const view = rawView === "day" ? "week" : rawView;
                 if (view === this.currentCalView) return;
 
-                document.querySelectorAll("[data-cal-view]").forEach((b) => b.classList.remove("is-active"));
+                this.calendarRoot.querySelectorAll("[data-cal-view]").forEach((b) => b.classList.remove("is-active"));
                 btn.classList.add("is-active");
                 this.currentCalView = view;
 
-                if (view === "day") {
+                if (view === "week") {
                     this.showDayView();
                 } else {
                     this.showMonthView();
@@ -273,18 +303,30 @@ class TreatmentReservationsApp {
     }
 
     showDayView() {
-        if (this.calendarBoard) this.calendarBoard.style.display = "none";
-        if (this.calendarMeta) this.calendarMeta.style.display = "none";
-        if (this.dayView) this.dayView.style.display = "block";
+        if (this.calendarBoard) this.calendarBoard.hidden = true;
+        if (this.calendarMeta) this.calendarMeta.hidden = true;
+        if (this.dayView) {
+            this.dayView.hidden = false;
+            this.dayView.style.display = "";
+        }
+        this.calendarRoot?.classList.add("tr-calendar--week-view");
         this.weekStart = this.getWeekStart(this.selectedDate);
         // Ensure bookings are loaded for the currently visible week range.
         this.loadCalendar();
     }
 
     showMonthView() {
-        if (this.calendarBoard) this.calendarBoard.style.display = "";
-        if (this.calendarMeta) this.calendarMeta.style.display = "";
-        if (this.dayView) this.dayView.style.display = "none";
+        if (this.calendarBoard) this.calendarBoard.hidden = false;
+        if (this.calendarMeta) this.calendarMeta.hidden = false;
+        if (this.dayView) {
+            this.dayView.hidden = true;
+            this.dayView.style.display = "none";
+        }
+        this.calendarRoot?.classList.remove("tr-calendar--week-view");
+    }
+
+    isWeekCalView() {
+        return this.currentCalView === "week" || this.currentCalView === "day";
     }
 
     isMobileCalendarView() {
@@ -304,7 +346,7 @@ class TreatmentReservationsApp {
             node.setAttribute("aria-selected", selected ? "true" : "false");
         });
 
-        if (this.currentCalView === "day") {
+        if (this.isWeekCalView()) {
             this.renderDayView();
         }
 
@@ -487,27 +529,30 @@ class TreatmentReservationsApp {
     }
 
     getWeekStart(dateStr) {
-        const d = new Date(dateStr + "T12:00:00");
+        const d = TreatmentReservationsApp.parseLocalDate(dateStr) || new Date();
         const day = d.getDay();
         const diff = day === 0 ? 6 : day - 1;
         d.setDate(d.getDate() - diff);
-        return d.toISOString().slice(0, 10);
+
+        return TreatmentReservationsApp.localDateKey(d);
     }
 
     getWeekDays(startStr) {
         const days = [];
+        const start = TreatmentReservationsApp.parseLocalDate(startStr) || new Date();
+
         for (let i = 0; i < 7; i++) {
-            const d = new Date(startStr + "T12:00:00");
-            d.setDate(d.getDate() + i);
-            days.push(d.toISOString().slice(0, 10));
+            const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i, 12, 0, 0);
+            days.push(TreatmentReservationsApp.localDateKey(d));
         }
+
         return days;
     }
 
     shiftWeek(delta) {
-        const d = new Date(this.weekStart + "T12:00:00");
+        const d = TreatmentReservationsApp.parseLocalDate(this.weekStart) || new Date();
         d.setDate(d.getDate() + delta * 7);
-        this.weekStart = d.toISOString().slice(0, 10);
+        this.weekStart = TreatmentReservationsApp.localDateKey(d);
         this.selectedDate = this.weekStart;
 
         const newMonth = this.weekStart.slice(0, 7);
@@ -529,11 +574,11 @@ class TreatmentReservationsApp {
 
         const days = this.getWeekDays(this.weekStart);
         const locale = this.calendarLocale();
-        const today = new Date().toISOString().slice(0, 10);
+        const today = TreatmentReservationsApp.localDateKey();
         const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-        const startDate = new Date(days[0] + "T00:00:00");
-        const endDate = new Date(days[6] + "T00:00:00");
+        const startDate = TreatmentReservationsApp.parseLocalDate(days[0]) || new Date(days[0] + "T12:00:00");
+        const endDate = TreatmentReservationsApp.parseLocalDate(days[6]) || new Date(days[6] + "T12:00:00");
         this.dayTitle.textContent =
             startDate.toLocaleDateString(locale, { day: "numeric", month: "short" })
             + " — "
@@ -546,25 +591,12 @@ class TreatmentReservationsApp {
             byDate[b.date].push(b);
         });
 
-        const parseHour = (timeStr) => {
-            if (!timeStr) return -1;
-            const m = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
-            if (!m) return -1;
-            let h = parseInt(m[1], 10);
-            if (m[3]) {
-                const ampm = m[3].toUpperCase();
-                if (ampm === "PM" && h !== 12) h += 12;
-                if (ampm === "AM" && h === 12) h = 0;
-            }
-            return h;
-        };
-
         const malaysiaPublicHolidays = this.holidaysByDate || {};
 
         // Header row
         let headerHtml = '<div class="tr-week-header"><div class="tr-week-header__time"></div>';
         days.forEach((ds) => {
-            const d = new Date(ds + "T00:00:00");
+            const d = TreatmentReservationsApp.parseLocalDate(ds) || new Date(ds + "T12:00:00");
             const dayNum = d.getDate();
             const dow = weekdays[d.getDay()];
             const isToday = ds === today;
@@ -586,13 +618,23 @@ class TreatmentReservationsApp {
         headerHtml += '</div>';
 
         const ROW_HEIGHT = 100;
-        const START_HOUR = 7;
-        const END_HOUR = 21;
-        const totalRows = END_HOUR - START_HOUR + 1;
+        const DEFAULT_START_HOUR = 7;
+        const DEFAULT_END_HOUR = 21;
 
-        const parseTime = (timeStr) => {
-            if (!timeStr) return null;
-            const m = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+        const parseTime = (booking) => {
+            const value = booking?.appointment_time_value || booking?.time || "";
+            if (!value) return null;
+
+            const twentyFour = String(value).match(/^(\d{1,2}):(\d{2})$/);
+            if (twentyFour && !/am|pm/i.test(value)) {
+                const h = parseInt(twentyFour[1], 10);
+                const min = parseInt(twentyFour[2], 10);
+                if (h >= 0 && h <= 23 && min >= 0 && min <= 59) {
+                    return { h, min };
+                }
+            }
+
+            const m = String(value).match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
             if (!m) return null;
             let h = parseInt(m[1], 10);
             const min = parseInt(m[2], 10);
@@ -601,13 +643,30 @@ class TreatmentReservationsApp {
                 if (ampm === "PM" && h !== 12) h += 12;
                 if (ampm === "AM" && h === 12) h = 0;
             }
+            if (h < 0 || h > 23 || min < 0 || min > 59) return null;
             return { h, min };
         };
+
+        // Expand the hour window so early/late appointments never fall outside the grid.
+        let START_HOUR = DEFAULT_START_HOUR;
+        let END_HOUR = DEFAULT_END_HOUR;
+        days.forEach((ds) => {
+            (byDate[ds] || []).forEach((booking) => {
+                const start = parseTime(booking);
+                if (!start) return;
+                const durationMin = Number(booking.slot_duration_minutes) || 60;
+                const endMinutes = start.h * 60 + start.min + durationMin;
+                START_HOUR = Math.min(START_HOUR, start.h);
+                END_HOUR = Math.max(END_HOUR, Math.ceil(endMinutes / 60));
+            });
+        });
+        START_HOUR = Math.max(0, START_HOUR);
+        END_HOUR = Math.min(23, Math.max(START_HOUR, END_HOUR));
 
         // Time rows (empty grid lines)
         let rowsHtml = '';
         for (let hour = START_HOUR; hour <= END_HOUR; hour++) {
-            const timeLabel = (hour < 12 ? hour : (hour === 12 ? 12 : hour - 12))
+            const timeLabel = (hour < 12 ? (hour === 0 ? 12 : hour) : (hour === 12 ? 12 : hour - 12))
                 + ":00 " + (hour < 12 ? "AM" : "PM");
 
             rowsHtml += '<div class="tr-week-row">';
@@ -643,17 +702,18 @@ class TreatmentReservationsApp {
             }
 
             dayB.forEach((b) => {
-                const start = parseTime(b.time);
+                const start = parseTime(b);
                 if (!start) return;
 
-                const durationMin = b.slot_duration_minutes || 60;
+                const durationMin = Number(b.slot_duration_minutes) || 60;
                 const topMin = (start.h - START_HOUR) * 60 + start.min;
-                const topPx = (topMin / 60) * ROW_HEIGHT;
+                const topPx = Math.max(0, (topMin / 60) * ROW_HEIGHT);
                 const heightPx = Math.max((durationMin / 60) * ROW_HEIGHT, 28);
 
                 const endTime = b.appointment_end_time || "";
-                const timeRange = b.time + (endTime ? " – " + endTime : "");
-                const statusClass = (b.status || "pending").replace("_", "-");
+                const timeLabel = b.time || b.appointment_time_value || "";
+                const timeRange = timeLabel + (endTime ? " – " + endTime : "");
+                const statusClass = String(b.status || "pending").replace("_", "-");
 
                 const canOpen = bookingAllowsDetail(b, this.portalBeauticianId || null);
                 const isOwn = bookingIsOwnForPortal(b, this.portalBeauticianId || null);
@@ -663,15 +723,15 @@ class TreatmentReservationsApp {
                 ].filter(Boolean).join(" ");
                 const clickAttrs = canOpen ? ' role="button" tabindex="0"' : '';
 
-                colHtml += '<div class="tr-week-card tr-week-card--' + statusClass
+                colHtml += '<div class="tr-week-card tr-week-card--' + TreatmentReservationsApp.escapeHtml(statusClass)
                     + (clickClass ? ' ' + clickClass : '') + '"'
-                    + ' data-booking-id="' + (b.id ?? '') + '"'
+                    + ' data-booking-id="' + TreatmentReservationsApp.escapeHtml(String(b.id ?? '')) + '"'
                     + clickAttrs
                     + ' style="top:' + topPx + 'px;height:' + heightPx + 'px">'
-                    + '<strong>' + (b.customer_name || "—") + '</strong>'
-                    + '<span class="tr-week-card__treatment">' + (b.treatment_name || "") + '</span>'
-                    + '<span class="tr-week-card__time">' + timeRange + '</span>'
-                    + (b.beautician_name ? '<span class="tr-week-card__beautician">' + b.beautician_name + '</span>' : '')
+                    + '<strong>' + TreatmentReservationsApp.escapeHtml(b.customer_name || "—") + '</strong>'
+                    + '<span class="tr-week-card__treatment">' + TreatmentReservationsApp.escapeHtml(b.treatment_name || "") + '</span>'
+                    + '<span class="tr-week-card__time">' + TreatmentReservationsApp.escapeHtml(timeRange) + '</span>'
+                    + (b.beautician_name ? '<span class="tr-week-card__beautician">' + TreatmentReservationsApp.escapeHtml(b.beautician_name) + '</span>' : '')
                     + '</div>';
             });
 
@@ -768,7 +828,7 @@ class TreatmentReservationsApp {
             // Week view can span adjacent months (e.g. Jul 27 - Aug 2).
             // Fetch those months too so bookings appear immediately without
             // requiring extra arrow navigation.
-            if (this.currentCalView === "day" && this.weekStart) {
+            if (this.isWeekCalView() && this.weekStart) {
                 const visibleMonths = new Set(this.getWeekDays(this.weekStart).map((date) => date.slice(0, 7)));
                 visibleMonths.delete(this.month);
 
@@ -817,7 +877,7 @@ class TreatmentReservationsApp {
             this.renderCalendarLegend(bookings);
             this.refreshAgendaPanel?.();
             this.applyCrmSearch?.();
-            if (this.currentCalView === "day") {
+            if (this.isWeekCalView()) {
                 this.renderDayView();
             }
 
@@ -866,7 +926,7 @@ class TreatmentReservationsApp {
     }
 
     calendarRangeForMonth(monthValue) {
-        if (this.currentCalView === "day" && this.weekStart) {
+        if (this.isWeekCalView() && this.weekStart) {
             return { from: this.weekStart, to: this.addDays(this.weekStart, 6) };
         }
 
@@ -1064,7 +1124,7 @@ class TreatmentReservationsApp {
         }, {});
 
         const cells = [];
-        const todayStr = new Date().toISOString().slice(0, 10);
+        const todayStr = TreatmentReservationsApp.localDateKey();
 
                 const malaysiaPublicHolidays = this.holidaysByDate || {};
 
@@ -1157,9 +1217,10 @@ class TreatmentReservationsApp {
     }
 
     addDays(dateStr, days) {
-        const d = new Date(dateStr + "T00:00:00");
+        const d = TreatmentReservationsApp.parseLocalDate(dateStr) || new Date();
         d.setDate(d.getDate() + days);
-        return d.toISOString().slice(0, 10);
+
+        return TreatmentReservationsApp.localDateKey(d);
     }
 
     async ensureHolidaysForRange(from, to) {
