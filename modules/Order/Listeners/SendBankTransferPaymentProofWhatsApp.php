@@ -33,9 +33,9 @@ class SendBankTransferPaymentProofWhatsApp implements ShouldQueueAfterCommit
         try {
             $this->notifier->send($order);
         } catch (Exception $exception) {
+            // Never rethrow: a WhatsApp failure must not abort other OrderPlaced
+            // listeners (stamp awards, emails, session, etc.).
             report($exception);
-
-            throw $exception;
         }
     }
 }

@@ -23,10 +23,25 @@ class BankTransferPaymentProofWhatsAppMessage
                 $order->customer_full_name,
                 (string) $order->customer_email,
                 (string) $order->customer_phone,
-                Money::inDefaultCurrency($order->total)->format(),
+                $this->formatOrderTotal($order),
                 route('admin.orders.show', $order->id),
             ],
             $template
         );
+    }
+
+
+    private function formatOrderTotal(Order $order): string
+    {
+        $total = $order->total;
+
+        // Order::$total accessor already returns Money — never wrap again.
+        if (! $total instanceof Money) {
+            $total = Money::inDefaultCurrency($total);
+        }
+
+        return $total
+            ->convert($order->currency, $order->currency_rate)
+            ->format($order->currency);
     }
 }

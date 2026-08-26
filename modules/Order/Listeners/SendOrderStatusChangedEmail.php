@@ -19,6 +19,13 @@ class SendOrderStatusChangedEmail implements ShouldQueueAfterCommit
 
     public function handle(OrderStatusChanged $event): void
     {
+        $changeType = $event->changeType ?: 'order';
+
+        // Payment/treatment-only updates must not re-send the order-status email.
+        if (! in_array($changeType, ['order', 'order_and_payment'], true)) {
+            return;
+        }
+
         if (! in_array($event->order->status, setting('email_order_statuses', []), true)) {
             return;
         }

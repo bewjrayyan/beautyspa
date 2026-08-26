@@ -9,7 +9,17 @@ class SaveStampProgramRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        $permission = $this->isMethod('POST')
+            ? 'admin.loyalty.stamp_programs.create'
+            : 'admin.loyalty.stamp_programs.edit';
+
+        return $user->hasAccess($permission);
     }
 
 

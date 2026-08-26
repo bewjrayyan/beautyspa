@@ -22,6 +22,12 @@ class SyncTreatmentBookingFromOrder implements ShouldQueueAfterCommit
 
     public function handleOrderStatusChanged(OrderStatusChanged $event): void
     {
+        // Treatment status was updated on the booking directly — do not re-sync
+        // from order (avoids redundant jobs and accidental status overwrite).
+        if (($event->changeType ?: 'order') === 'treatment') {
+            return;
+        }
+
         $order = $event->order->fresh() ?? $event->order;
 
         if (

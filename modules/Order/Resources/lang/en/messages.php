@@ -3,6 +3,9 @@
 return [
     'status_updated' => 'Order status has been updated',
     'payment_status_updated' => 'Payment status has been updated',
+    'invalid_order_status' => 'Invalid order status.',
+    'invalid_payment_status' => 'Invalid payment status.',
+    'invalid_treatment_status' => 'Invalid treatment status.',
     'treatment_status_updated' => 'Treatment status has been updated',
     'deleted' => 'Order has been deleted',
     'force_deleted' => 'Order has been permanently deleted',

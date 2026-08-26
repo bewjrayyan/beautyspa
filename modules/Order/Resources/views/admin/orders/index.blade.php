@@ -63,8 +63,11 @@
                         @if (is_module_enabled('SpaBranch'))
                             <th>{{ trans('order::orders.table.spa_branch') }}</th>
                         @endif
-                        <th>{{ trans('admin::admin.table.status') }}</th>
-                        <th>{{ trans('order::orders.table.payment_status') }}</th>
+                        <th title="{{ trans('order::orders.order_status_help') }}">{{ trans('order::orders.table.order_status') }}</th>
+                        <th title="{{ trans('order::orders.payment_status_help') }}">{{ trans('order::orders.table.payment_status') }}</th>
+                        @if (is_module_enabled('TreatmentReservation'))
+                            <th title="{{ trans('order::orders.treatment_status_help') }}">{{ trans('order::orders.table.treatment_status') }}</th>
+                        @endif
                         <th>{{ trans('order::orders.table.total') }}</th>
                         <th data-sort>{{ trans('admin::admin.table.created') }}</th>
                         <th class="text-center">{{ trans('order::orders.table.actions') }}</th>
@@ -85,15 +88,34 @@
             const config = {
                 viewLabel: @json(trans('order::orders.table.view')),
                 printLabel: @json(trans('order::orders.table.print')),
-                changeStatusLabel: @json(trans('order::orders.table.change_status')),
+                receiptLabel: @json(trans('order::orders.table.print_receipt')),
+                changeOrderStatusLabel: @json(trans('order::orders.table.change_order_status')),
+                changePaymentStatusLabel: @json(trans('order::orders.table.change_payment_status')),
+                changeTreatmentStatusLabel: @json(trans('order::orders.table.change_treatment_status')),
+                manageTreatmentsLabel: @json(trans('order::orders.table.manage_treatments')),
                 deleteLabel: @json(trans('order::orders.table.delete')),
                 forceDeleteLabel: @json(trans('order::orders.table.force_delete')),
                 forceDeleteConfirmMessage: @json(trans('order::orders.force_delete_confirm')),
                 statusUpdatedMessage: @json(trans('order::messages.status_updated')),
+                paymentStatusUpdatedMessage: @json(trans('order::messages.payment_status_updated')),
+                treatmentStatusUpdatedMessage: @json(trans('order::messages.treatment_status_updated')),
                 deletedMessage: @json(trans('order::messages.deleted')),
                 forceDeletedMessage: @json(trans('order::messages.force_deleted')),
                 errorMessage: @json(trans('core::messages.something_went_wrong')),
                 statuses: @json(trans('order::statuses')),
+                paymentStatuses: @json(trans('order::payment_statuses')),
+                treatmentStatuses: @json(
+                    is_module_enabled('TreatmentReservation')
+                        ? collect(\Modules\TreatmentReservation\Entities\TreatmentBooking::statuses())
+                            ->mapWithKeys(fn ($status) => [
+                                $status => $status === \Modules\TreatmentReservation\Entities\TreatmentBooking::STATUS_CANCELED
+                                    ? trans('treatmentreservation::admin.crm.status_canceled')
+                                    : trans('treatmentreservation::admin.kanban.' . $status),
+                            ])
+                            ->all()
+                        : []
+                ),
+                hasTreatmentModule: @json(is_module_enabled('TreatmentReservation')),
                 showArchivedLabel: @json(trans('order::orders.show_archived')),
                 showArchivedCountLabel: @json(trans('order::orders.show_archived_count', ['count' => '__COUNT__'])),
                 showActiveOrdersLabel: @json(trans('order::orders.show_active_orders')),
@@ -350,26 +372,67 @@
                     return $toggle.attr('data-' + name) || '';
                 }
 
-                function buildStatusItems($toggle) {
-                    const statusUrl = toggleAttr($toggle, 'status-url');
-
-                    if (!statusUrl) {
+                function buildStatusGroup(headerLabel, url, currentValue, statuses, linkClass, dataAttr) {
+                    if (!url || !statuses) {
                         return '';
                     }
 
-                    const currentStatus = toggleAttr($toggle, 'current-status');
                     let html = '<li class="divider"></li>'
-                        + '<li class="dropdown-header">' + config.changeStatusLabel + '</li>';
+                        + '<li class="dropdown-header">' + headerLabel + '</li>';
 
-                    Object.keys(config.statuses).forEach(function (statusKey) {
-                        const isActive = statusKey === currentStatus;
-                        const label = config.statuses[statusKey];
+                    Object.keys(statuses).forEach(function (statusKey) {
+                        const isActive = statusKey === currentValue;
+                        const label = statuses[statusKey];
 
                         html += '<li' + (isActive ? ' class="active"' : '') + '>'
-                            + '<a href="#" class="set-order-status" data-url="' + statusUrl + '" data-status="' + statusKey + '">'
+                            + '<a href="#" class="' + linkClass + '" data-url="' + url + '" ' + dataAttr + '="' + statusKey + '">'
                             + label
                             + '</a></li>';
                     });
+
+                    return html;
+                }
+
+                function buildStatusItems($toggle) {
+                    let html = '';
+
+                    html += buildStatusGroup(
+                        config.changeOrderStatusLabel,
+                        toggleAttr($toggle, 'status-url'),
+                        toggleAttr($toggle, 'current-status'),
+                        config.statuses,
+                        'set-order-status',
+                        'data-status'
+                    );
+
+                    html += buildStatusGroup(
+                        config.changePaymentStatusLabel,
+                        toggleAttr($toggle, 'payment-status-url'),
+                        toggleAttr($toggle, 'current-payment-status'),
+                        config.paymentStatuses,
+                        'set-payment-status',
+                        'data-payment-status'
+                    );
+
+                    if (config.hasTreatmentModule) {
+                        const treatmentUrl = toggleAttr($toggle, 'treatment-status-url');
+                        const manageUrl = toggleAttr($toggle, 'treatment-manage-url');
+
+                        if (treatmentUrl) {
+                            html += buildStatusGroup(
+                                config.changeTreatmentStatusLabel,
+                                treatmentUrl,
+                                toggleAttr($toggle, 'current-treatment-status'),
+                                config.treatmentStatuses,
+                                'set-treatment-status',
+                                'data-treatment-status'
+                            );
+                        } else if (manageUrl) {
+                            html += '<li class="divider"></li>'
+                                + '<li class="dropdown-header">' + config.changeTreatmentStatusLabel + '</li>'
+                                + '<li><a href="' + manageUrl + '">' + config.manageTreatmentsLabel + '</a></li>';
+                        }
+                    }
 
                     return html;
                 }
@@ -445,6 +508,13 @@
                             menuHtml += '<li><a href="' + printUrl + '" target="_blank" rel="noopener noreferrer">'
                                 + config.printLabel + '</a></li>';
                         }
+
+                        const receiptUrl = toggleAttr($toggle, 'receipt-url');
+
+                        if (receiptUrl) {
+                            menuHtml += '<li><a href="' + receiptUrl + '" target="_blank" rel="noopener noreferrer">'
+                                + config.receiptLabel + '</a></li>';
+                        }
                     }
 
                     menuHtml += buildStatusItems($toggle);
@@ -504,6 +574,9 @@
                     @endif
                     { data: 'status' },
                     { data: 'payment_status', orderable: false, searchable: false },
+                    @if (is_module_enabled('TreatmentReservation'))
+                    { data: 'treatment_status', orderable: false, searchable: false },
+                    @endif
                     { data: 'total' },
                     { data: 'created', name: 'created_at' },
                     {
@@ -584,26 +657,19 @@
                     }
                 });
 
-                $(document).on('click', '.order-table-actions-portal .set-order-status', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    const $link = $(this);
-
+                function putOrderStatusUpdate($link, payload, fallbackMessage) {
                     if ($link.parent().hasClass('active')) {
                         closeOrderActionsMenu();
-
                         return;
                     }
 
                     const url = $link.data('url');
-                    const status = $link.data('status');
 
                     closeOrderActionsMenu();
                     $link.addClass('disabled');
 
                     axios
-                        .put(url, { status: status })
+                        .put(url, payload)
                         .then(function (response) {
                             window.DataTable.reload('#orders-table .table');
 
@@ -611,7 +677,7 @@
                                 window.success(
                                     typeof response.data === 'string'
                                         ? response.data
-                                        : config.statusUpdatedMessage
+                                        : fallbackMessage
                                 );
                             }
                         })
@@ -627,6 +693,32 @@
                         .finally(function () {
                             $link.removeClass('disabled');
                         });
+                }
+
+                $(document).on('click', '.order-table-actions-portal .set-order-status', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    putOrderStatusUpdate($(this), { status: $(this).attr('data-status') }, config.statusUpdatedMessage);
+                });
+
+                $(document).on('click', '.order-table-actions-portal .set-payment-status', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    putOrderStatusUpdate(
+                        $(this),
+                        { payment_status: $(this).attr('data-payment-status') },
+                        config.paymentStatusUpdatedMessage
+                    );
+                });
+
+                $(document).on('click', '.order-table-actions-portal .set-treatment-status', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    putOrderStatusUpdate(
+                        $(this),
+                        { treatment_status: $(this).attr('data-treatment-status') },
+                        config.treatmentStatusUpdatedMessage
+                    );
                 });
 
                 $(document).on('click', '.order-table-actions-portal .delete-order-row', function (e) {

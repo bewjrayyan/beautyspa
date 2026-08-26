@@ -27,6 +27,13 @@ class SendCompletedOrderGroupWhatsApp implements ShouldQueueAfterCommit
 
     public function handle(OrderStatusChanged $event): void
     {
+        $changeType = $event->changeType ?: 'order';
+
+        // Skip payment/treatment-only events on already-completed orders.
+        if (! in_array($changeType, ['order', 'order_and_payment'], true)) {
+            return;
+        }
+
         if ($event->order->status !== Order::COMPLETED) {
             return;
         }

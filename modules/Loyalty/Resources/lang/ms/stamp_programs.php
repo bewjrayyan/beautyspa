@@ -23,7 +23,7 @@ return [
         'validity_days_help' => 'Bilangan hari dari setem pertama sehingga kad tamat tempoh.',
         'eligibility' => 'Kelayakan',
         'virtual_treatments_only' => 'Hanya kira tempahan rawatan maya dalam pesanan',
-        'virtual_treatments_only_lead' => 'Apabila diaktifkan, setem diperoleh daripada tempahan rawatan, bukan produk fizikal.',
+        'virtual_treatments_only_lead' => 'Digunakan hanya jika tiada kategori/produk dipilih di bawah. Jika anda memilih kategori atau produk, peraturan itu diutamakan dan kotak semak ini diabaikan.',
         'product_ids' => 'ID produk tertentu (pilihan)',
         'product_ids_help' => 'ID produk dipisahkan koma. Apabila ditetapkan, hanya produk ini memperoleh setem (mengatasi peraturan rawatan sahaja).',
         'products' => [
@@ -43,7 +43,7 @@ return [
             'remove' => 'Buang',
             'field_product' => 'Produk',
             'empty_title' => 'Tiada produk dipilih',
-            'empty_text' => 'Biarkan kosong untuk guna peraturan rawatan sahaja di atas, atau tambah kategori/produk untuk hadkan kelayakan.',
+            'empty_text' => 'Biarkan kosong untuk guna kotak semak rawatan maya di atas. Menambah kategori/produk menggantikan peraturan kotak semak itu.',
             'item_heading' => 'Pilih produk',
             'choose_option' => 'Mana-mana',
             'any_variant' => 'Mana-mana',
@@ -82,6 +82,11 @@ return [
         'tips_title' => 'Petua',
         'tip_reward' => 'Pastikan penerangan ganjaran ringkas — ia muncul di bawah nama program pada resit.',
         'tip_validity' => 'Tetapkan tempoh sah mencukupi untuk kekerapan lawatan biasa (cth. 30–90 hari).',
-        'tip_eligibility' => 'Pilih kategori penuh dan/atau banyak produk — semua varian dan opsyen layak secara automatik.',
+        'tip_eligibility' => 'Peraturan kategori/produk mengatasi kotak semak rawatan maya. Biarkan kedua-duanya kosong untuk guna kotak semak sahaja.',
+    ],
+
+    'messages' => [
+        'destroy_confirm' => 'Padam program kad setem ini? Tindakan ini tidak boleh dibuat asal.',
+        'destroy_has_wallets' => 'Tidak boleh padam program yang masih ada kad pelanggan: :programs. Nyahaktifkan sahaja.',
     ],
 ];

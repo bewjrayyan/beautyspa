@@ -3,6 +3,7 @@
 namespace Modules\Order\Http\Controllers\Admin;
 
 use Modules\Order\Entities\Order;
+use Modules\Order\Events\OrderStatusChanged;
 use Modules\Order\Events\OrderUpdated;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
@@ -14,7 +15,7 @@ class OrderTreatmentStatusController
         $status = (string) request('treatment_status');
 
         if (! in_array($status, TreatmentBooking::statuses(), true)) {
-            abort(422, 'Invalid treatment status.');
+            abort(422, trans('order::messages.invalid_treatment_status'));
         }
 
         $booking = TreatmentBooking::query()
@@ -35,7 +36,10 @@ class OrderTreatmentStatusController
             $status
         );
 
-        event(new OrderUpdated($order->fresh()));
+        $freshOrder = $order->fresh(['treatmentBookings', 'beautician']);
+
+        event(new OrderUpdated($freshOrder));
+        event(new OrderStatusChanged($freshOrder, 'treatment', $previousStatus, $status));
 
         return trans('order::messages.treatment_status_updated');
     }

@@ -18,8 +18,10 @@ class OrderTable extends AdminTable
         'id',
         'status',
         'payment_status',
+        'treatment_status',
         'action',
     ];
+
 
     /**
      * Make table response for the resource.
@@ -64,31 +66,47 @@ class OrderTable extends AdminTable
                 return $order->total->format();
             })
             ->editColumn('status', function ($order) {
-                if (is_module_enabled('TreatmentReservation')) {
-                    $bookings = $order->relationLoaded('treatmentBookings') ? $order->treatmentBookings : collect();
-                    if ($bookings->isEmpty() && !empty($order->treatmentBooking)) {
-                        $bookings = collect([$order->treatmentBooking]);
-                    }
-                    if ($bookings->isEmpty()) {
-                        return '';
-                    }
-                    if ($bookings->count() > 1) {
-                        return '<span class="badge badge-info">' . e(trans('order::orders.appointments_count', ['count' => $bookings->count()])) . '</span>';
-                    }
-                    $treatmentBooking = $bookings->first();
-
-                    return '<span class="badge ' . treatment_status_badge_class($treatmentBooking->status) . '">'
-                        . e($treatmentBooking->treatmentStatusLabel())
-                        . '</span>';
-                }
-
-                return '<span class="badge ' . order_status_badge_class($order->status) . '">' . e($order->status()) . '</span>';
+                return '<span class="badge ' . order_status_badge_class($order->status) . '" title="'
+                    . e(trans('order::orders.order_status_help')) . '">'
+                    . e($order->status())
+                    . '</span>';
             })
             ->editColumn('payment_status', function ($order) {
-                return '<span class="badge ' . payment_status_badge_class($order->payment_status) . '">'
+                return '<span class="badge ' . payment_status_badge_class($order->payment_status) . '" title="'
+                    . e(trans('order::orders.payment_status_help')) . '">'
                     . e($order->paymentStatusLabel())
                     . '</span>';
             });
+
+        if (is_module_enabled('TreatmentReservation')) {
+            $table->addColumn('treatment_status', function ($order) {
+                $bookings = $order->relationLoaded('treatmentBookings')
+                    ? $order->treatmentBookings
+                    : collect();
+
+                if ($bookings->isEmpty() && ! empty($order->treatmentBooking)) {
+                    $bookings = collect([$order->treatmentBooking]);
+                }
+
+                if ($bookings->isEmpty()) {
+                    return '<span class="text-muted">—</span>';
+                }
+
+                if ($bookings->count() > 1) {
+                    return '<span class="badge badge-info" title="'
+                        . e(trans('order::orders.treatment_status_help')) . '">'
+                        . e(trans('order::orders.appointments_count', ['count' => $bookings->count()]))
+                        . '</span>';
+                }
+
+                $treatmentBooking = $bookings->first();
+
+                return '<span class="badge ' . treatment_status_badge_class($treatmentBooking->status) . '" title="'
+                    . e(trans('order::orders.treatment_status_help')) . '">'
+                    . e($treatmentBooking->treatmentStatusLabel())
+                    . '</span>';
+            });
+        }
 
         if (is_module_enabled('SpaBranch')) {
             $table->addColumn('spa_branch', function ($order) {

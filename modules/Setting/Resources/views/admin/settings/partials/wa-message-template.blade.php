@@ -5,6 +5,7 @@
     $placeholder = is_string($defaultTemplate)
         ? \Illuminate\Support\Str::limit(str_replace(["\r\n", "\n", "\r"], ' ', $defaultTemplate), 140)
         : '';
+    $showDefaultPreview = $showDefaultPreview ?? true;
 @endphp
 
 <div class="st-wa-template">
@@ -14,4 +15,10 @@
         'placeholder' => $placeholder,
     ]) }}
     <p class="help-block text-muted st-wa-template__hint">{{ $hint ?? trans('setting::settings.sms.template_hint') }}</p>
+    @if ($showDefaultPreview && is_string($defaultTemplate) && trim($defaultTemplate) !== '')
+        <details class="st-wa-template__default">
+            <summary>{{ trans('setting::settings.sms.default_template_preview') }}</summary>
+            <pre class="st-wa-template__default-body">{{ $defaultTemplate }}</pre>
+        </details>
+    @endif
 </div>

@@ -30,7 +30,7 @@ class UpdateOrderStatus
             ]);
 
             if ($previousStatus !== Order::COMPLETED) {
-                event(new OrderStatusChanged($order));
+                event(new OrderStatusChanged($order, 'order', $previousStatus, Order::COMPLETED));
             }
 
             return;

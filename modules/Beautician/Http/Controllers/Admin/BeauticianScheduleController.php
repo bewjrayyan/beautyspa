@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
+use Modules\Order\Events\OrderUpdated;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 
 class BeauticianScheduleController
@@ -61,25 +62,54 @@ class BeauticianScheduleController
             ->where('beautician_id', $id)
             ->findOrFail($bookingId);
 
-        $booking->update(['status' => $request->input('status')]);
+        $previousBookingStatus = $booking->status;
+        $newBookingStatus = (string) $request->input('status');
+
+        if ($previousBookingStatus === $newBookingStatus) {
+            return response()->json([
+                'booking' => $booking->fresh()->toKanbanPayload(),
+            ]);
+        }
+
+        $booking->update(['status' => $newBookingStatus]);
 
         if ($booking->order_id) {
             $order = $booking->order;
             $updates = [];
 
-            if ($request->input('status') === TreatmentBooking::STATUS_COMPLETED) {
+            if ($newBookingStatus === TreatmentBooking::STATUS_COMPLETED) {
                 $updates['status'] = Order::COMPLETED;
-            } elseif ($request->input('status') === TreatmentBooking::STATUS_IN_PROGRESS) {
+            } elseif ($newBookingStatus === TreatmentBooking::STATUS_IN_PROGRESS) {
                 $updates['status'] = Order::PROCESSING;
             }
 
+            $orderStatusChanged = false;
+
             if ($updates !== []) {
-                $previousStatus = $order->status;
+                $previousOrderStatus = $order->status;
                 $order->update($updates);
 
-                if ($previousStatus !== $order->status) {
-                    event(new OrderStatusChanged($order->fresh()));
+                if ($previousOrderStatus !== $order->status) {
+                    event(new OrderStatusChanged(
+                        $order->fresh(['treatmentBookings', 'beautician']),
+                        'order',
+                        $previousOrderStatus,
+                        $order->status
+                    ));
+                    $orderStatusChanged = true;
                 }
+            }
+
+            // Treatment-only updates (order status unchanged) still notify via WhatsApp.
+            if (! $orderStatusChanged) {
+                $freshOrder = $order->fresh(['treatmentBookings', 'beautician']);
+                event(new OrderUpdated($freshOrder));
+                event(new OrderStatusChanged(
+                    $freshOrder,
+                    'treatment',
+                    $previousBookingStatus,
+                    $newBookingStatus
+                ));
             }
         }
 

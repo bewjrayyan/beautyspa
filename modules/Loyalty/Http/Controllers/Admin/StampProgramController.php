@@ -27,9 +27,11 @@ class StampProgramController
     public function index(Request $request)
     {
         if ($request->has('query')) {
+            $limit = min(50, max(1, (int) $request->get('limit', 10)));
+
             return $this->getModel()
                 ->where('name', 'like', '%' . $request->get('query') . '%')
-                ->limit($request->get('limit', 10))
+                ->limit($limit)
                 ->get();
         }
 
@@ -88,5 +90,52 @@ class StampProgramController
             'categories' => $eligible->categoryOptions(),
             'eligibleSelection' => $eligible->serializeForAdmin($program),
         ]);
+    }
+
+
+    public function destroy(string $ids)
+    {
+        $idList = array_values(array_filter(array_map('intval', explode(',', $ids))));
+
+        if ($idList === []) {
+            return back();
+        }
+
+        $blocked = LoyaltyStampProgram::query()
+            ->whereIn('id', $idList)
+            ->withCount('wallets')
+            ->get()
+            ->filter(fn (LoyaltyStampProgram $program) => (int) $program->wallets_count > 0);
+
+        if ($blocked->isNotEmpty()) {
+            $names = $blocked->pluck('name')->implode(', ');
+            $message = trans('loyalty::stamp_programs.messages.destroy_has_wallets', [
+                'programs' => $names,
+            ]);
+
+            if (request()->wantsJson()) {
+                return response()->json(['message' => $message], 422);
+            }
+
+            return redirect()
+                ->route("{$this->routePrefix}.index")
+                ->withError($message);
+        }
+
+        $this->getModel()
+            ->withoutGlobalScope('active')
+            ->whereIn('id', $idList)
+            ->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => trans('admin::messages.resource_deleted', ['resource' => $this->getLabel()]),
+            ]);
+        }
+
+        return redirect()
+            ->route("{$this->routePrefix}.index")
+            ->withSuccess(trans('admin::messages.resource_deleted', ['resource' => $this->getLabel()]));
     }
 }

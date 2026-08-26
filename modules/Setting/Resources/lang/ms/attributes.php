@@ -79,7 +79,10 @@ return [
     'whatsapp_new_order_admin_message' => 'Templat mesej pesanan baharu (admin)',
     'new_order_sms' => 'WhatsApp pesanan baharu (pelanggan)',
     'whatsapp_new_order_customer_message' => 'Templat mesej pesanan baharu (pelanggan)',
-    'whatsapp_order_status_message' => 'Templat mesej kemas kini status pesanan',
+    'whatsapp_order_status_message' => 'Templat mesej kemas kini status (pelanggan)',
+    'whatsapp_status_beautician_message' => 'Templat mesej kemas kini status (beautician)',
+    'whatsapp_status_notify_customer_enabled' => 'Maklum pelanggan bila status berubah (WhatsApp)',
+    'whatsapp_status_notify_beautician_enabled' => 'Maklum beautician bila status berubah (WhatsApp)',
     'sms_order_statuses' => 'Kemas kini status pesanan (WhatsApp)',
 
     'mail_from_address' => 'Alamat e-mel pengirim',

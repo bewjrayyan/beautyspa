@@ -79,7 +79,10 @@ return [
     'whatsapp_new_order_admin_message' => 'New Order Admin Message Template',
     'new_order_sms' => 'New Order Customer WhatsApp',
     'whatsapp_new_order_customer_message' => 'New Order Customer Message Template',
-    'whatsapp_order_status_message' => 'Order Status Update Message Template',
+    'whatsapp_order_status_message' => 'Order Status Update Message Template (Customer)',
+    'whatsapp_status_beautician_message' => 'Status Update Message Template (Beautician)',
+    'whatsapp_status_notify_customer_enabled' => 'Notify customer on status change (WhatsApp)',
+    'whatsapp_status_notify_beautician_enabled' => 'Notify beautician on status change (WhatsApp)',
     'sms_order_statuses' => 'WhatsApp Order Status Updates',
 
     'mail_from_address' => 'Mail From Address',

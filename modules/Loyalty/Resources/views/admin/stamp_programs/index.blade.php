@@ -90,9 +90,36 @@
                                 </td>
                                 <td class="text-right">
                                     @hasAccess('admin.loyalty.stamp_programs.edit')
-                                        <a href="{{ route('admin.loyalty.stamp_programs.edit', $program) }}" class="btn btn-default btn-sm">
-                                            <i class="fa fa-pencil"></i>
+                                        <a
+                                            href="{{ route('admin.loyalty.stamp_programs.edit', $program) }}"
+                                            class="btn btn-default btn-sm"
+                                            aria-label="{{ trans('admin::resource.edit', ['resource' => $program->name]) }}"
+                                            title="{{ trans('admin::resource.edit', ['resource' => $program->name]) }}"
+                                        >
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
                                         </a>
+                                    @endHasAccess
+                                    @hasAccess('admin.loyalty.stamp_programs.destroy')
+                                        @if ((int) $program->wallets_count === 0)
+                                            <form
+                                                method="POST"
+                                                action="{{ route('admin.loyalty.stamp_programs.destroy', $program->id) }}"
+                                                class="inline-block"
+                                                style="display:inline"
+                                                onsubmit="return confirm(@js(trans('loyalty::stamp_programs.messages.destroy_confirm')));"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-danger btn-sm"
+                                                    aria-label="{{ trans('admin::resource.delete', ['resource' => $program->name]) }}"
+                                                    title="{{ trans('admin::resource.delete', ['resource' => $program->name]) }}"
+                                                >
+                                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     @endHasAccess
                                 </td>
                             </tr>

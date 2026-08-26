@@ -23,7 +23,7 @@ return [
         'validity_days_help' => 'Number of days from the first stamp until the card expires.',
         'eligibility' => 'Eligibility',
         'virtual_treatments_only' => 'Only count virtual treatment bookings in the order',
-        'virtual_treatments_only_lead' => 'When enabled, stamps are earned from treatment bookings rather than physical products.',
+        'virtual_treatments_only_lead' => 'Used only when no categories/products are selected below. If you pick categories or products, those rules take priority and this checkbox is ignored.',
         'product_ids' => 'Specific product IDs (optional)',
         'product_ids_help' => 'Comma-separated product IDs. When set, only these products earn a stamp (overrides treatment-only rule).',
         'products' => [
@@ -43,7 +43,7 @@ return [
             'remove' => 'Remove',
             'field_product' => 'Product',
             'empty_title' => 'No products selected',
-            'empty_text' => 'Leave empty to use the treatment-only rule above, or add categories/products to restrict eligibility.',
+            'empty_text' => 'Leave empty to use the virtual-treatment checkbox above. Adding categories/products replaces that checkbox rule.',
             'item_heading' => 'Select product',
             'choose_option' => 'Any',
             'any_variant' => 'Any',
@@ -82,6 +82,11 @@ return [
         'tips_title' => 'Tips',
         'tip_reward' => 'Keep the reward description short — it appears under the program name on receipts.',
         'tip_validity' => 'Set validity long enough for typical visit frequency (e.g. 30–90 days).',
-        'tip_eligibility' => 'Pick whole categories and/or multiple products — every variant and option qualifies automatically.',
+        'tip_eligibility' => 'Category/product rules override the virtual-treatment checkbox. Leave both empty to use the checkbox only.',
+    ],
+
+    'messages' => [
+        'destroy_confirm' => 'Delete this stamp program? This cannot be undone.',
+        'destroy_has_wallets' => 'Cannot delete program(s) with customer cards: :programs. Deactivate instead.',
     ],
 ];

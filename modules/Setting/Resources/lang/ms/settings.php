@@ -138,6 +138,7 @@ return [
     'sms' => [
         'lead' => 'Konfigurasi kredential API OneSender WhatsApp, kawalan penghantaran, dan mesej automatik untuk pelanggan, pesanan, dan beautician.',
         'placeholders_hint' => 'Templat mesej menyokong placeholder: :store, :customer, :treatment, :date (jika berkenaan).',
+        'default_template_preview' => 'Templat lalai (siap guna)',
         'template_hint' => 'Biarkan kosong untuk guna templat lalai. Placeholder akan diganti semasa mesej dihantar.',
         'template_hints' => [
             'welcome' => 'Placeholder: :first_name, :store',
@@ -146,7 +147,8 @@ return [
             'customer_followup' => 'Placeholder: :store, :customer, :treatment, :date',
             'new_order_admin' => 'Placeholder: :store, :order_id, :customer, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary',
             'new_order_customer' => 'Placeholder: :first_name, :store, :order_id, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
-            'order_status' => 'Placeholder: :first_name, :order_id, :status, :store',
+            'order_status' => 'Placeholder: :first_name, :order_id, :status_type, :status, :previous_status, :order_status, :payment_status, :treatment_line, :store',
+            'status_beautician' => 'Placeholder: :staff, :customer, :order_id, :phone, :status_type, :status, :previous_status, :order_status, :payment_status, :treatment_line, :store',
             'completed_group' => 'Placeholder: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
             'completed_beautician' => 'Placeholder: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
             'beautician_new_booking' => 'Placeholder: :store, :customer, :treatment, :date, :time, :portal_url',
@@ -366,6 +368,10 @@ return [
         'whatsapp_otp_uses_onesender_help' => 'Menggunakan API OneSender yang dikonfigurasi di Tetapan → Tetapan Umum → Notifikasi WhatsApp.',
         'send_completed_order_to_whatsapp_group' => 'Hantar mesej tempahan terperinci ke kumpulan WhatsApp apabila status pesanan Selesai',
         'send_completed_order_to_beautician' => 'Hantar mesej tempahan yang sama ke nombor WhatsApp beautician yang dipilih apabila status pesanan Selesai',
+            'whatsapp_status_notify_customer' => 'Maklum pelanggan bila status pesanan / bayaran / rawatan berubah',
+            'whatsapp_status_notify_customer_help' => 'Guna templat status pesanan. Status pesanan ditapis oleh pilihan berbilang di bawah; kemas kini bayaran dan rawatan sentiasa dihantar jika diaktifkan.',
+            'whatsapp_status_notify_beautician' => 'Maklum beautician ditugaskan bila status berubah',
+            'whatsapp_status_notify_beautician_help' => 'Hantar kemas kini status ringkas. Amaran pesanan selesai masih guna templat “beautician selesai” yang berasingan.',
         'whatsapp_group_note_format_help' => 'Pilihan dalam Nota Pesanan: Beautician: NAMA, Appt.Date: 22/May/2026, Appt.Time: 06:00 PM',
         'order_notification_settings' => 'Tetapan Notifikasi Pesanan',
         'beautician_portal_notification_settings' => 'Notifikasi Portal Beautician',

@@ -60,7 +60,7 @@ class CheckoutPaymentFinalizer
                         event(new OrderPlaced($lockedOrder));
 
                         if ($isPaid && $previousStatus !== Order::COMPLETED) {
-                            event(new OrderStatusChanged($lockedOrder));
+                            event(new OrderStatusChanged($lockedOrder, $isPaid ? 'order_and_payment' : 'order', null, $lockedOrder->status));
                         }
                     } catch (\Throwable $exception) {
                         report($exception);

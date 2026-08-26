@@ -21,6 +21,11 @@ class LoyaltyStampAwardService
             return;
         }
 
+        // Align with points: only award after the order is completed / paid.
+        if ($order->status !== Order::COMPLETED && ! $order->isPaymentPaid()) {
+            return;
+        }
+
         $order->loadMissing(['products.product']);
 
         $programs = LoyaltyStampProgram::query()
@@ -48,14 +53,59 @@ class LoyaltyStampAwardService
     }
 
 
+    /**
+     * Remove stamps previously awarded for an order (cancel / refund).
+     * Skips wallets that are already redeemed or fulfilled at the counter.
+     */
+    public function clawbackForOrder(Order $order): void
+    {
+        $entries = LoyaltyStampEntry::query()
+            ->where('order_id', $order->id)
+            ->get();
+
+        if ($entries->isEmpty()) {
+            return;
+        }
+
+        foreach ($entries as $entry) {
+            DB::transaction(function () use ($entry) {
+                $wallet = LoyaltyStampWallet::query()
+                    ->whereKey($entry->wallet_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $wallet || $wallet->redeemed_at || $wallet->fulfilled_at) {
+                    return;
+                }
+
+                $stampsAdded = max(1, (int) $entry->stamps_added);
+                $entry->delete();
+
+                $wallet->decrement('stamps_count', $stampsAdded);
+                $wallet->refresh();
+
+                $wallet->loadMissing('program');
+                $required = (int) ($wallet->program?->stamps_required ?? 0);
+
+                if ($wallet->completed_at && ($required <= 0 || $wallet->stamps_count < $required)) {
+                    $wallet->update(['completed_at' => null]);
+                }
+            });
+        }
+    }
+
+
     private function awardStamp(User $user, LoyaltyStampProgram $program, Order $order): void
     {
         DB::transaction(function () use ($user, $program, $order) {
             $wallet = $this->resolveActiveWallet($user, $program);
 
+            // One stamp per order per program — even if the prior wallet expired.
             $existing = LoyaltyStampEntry::query()
-                ->where('wallet_id', $wallet->id)
                 ->where('order_id', $order->id)
+                ->whereHas('wallet', function ($query) use ($program) {
+                    $query->where('program_id', $program->id);
+                })
                 ->first();
 
             if ($existing) {

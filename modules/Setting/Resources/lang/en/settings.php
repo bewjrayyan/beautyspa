@@ -136,6 +136,7 @@ return [
     'sms' => [
         'lead' => 'Configure OneSender WhatsApp API credentials, delivery controls, and automated messages for customers, orders, and beauticians.',
         'placeholders_hint' => 'Message templates support placeholders: :store, :customer, :treatment, :date (where applicable).',
+        'default_template_preview' => 'Default template (ready to use)',
         'template_hint' => 'Leave blank to use the default template. Placeholders are replaced when the message is sent.',
         'template_hints' => [
             'welcome' => 'Placeholders: :first_name, :store',
@@ -144,7 +145,8 @@ return [
             'customer_followup' => 'Placeholders: :store, :customer, :treatment, :date',
             'new_order_admin' => 'Placeholders: :store, :order_id, :customer, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary',
             'new_order_customer' => 'Placeholders: :first_name, :store, :order_id, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
-            'order_status' => 'Placeholders: :first_name, :order_id, :status, :store',
+            'order_status' => 'Placeholders: :first_name, :order_id, :status_type, :status, :previous_status, :order_status, :payment_status, :treatment_line, :store',
+            'status_beautician' => 'Placeholders: :staff, :customer, :order_id, :phone, :status_type, :status, :previous_status, :order_status, :payment_status, :treatment_line, :store',
             'completed_group' => 'Placeholders: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
             'completed_beautician' => 'Placeholders: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
             'beautician_new_booking' => 'Placeholders: :store, :customer, :treatment, :date, :time, :portal_url',
@@ -357,6 +359,10 @@ return [
         'whatsapp_otp_uses_onesender_help' => 'Uses OneSender API configured under Settings → General Settings → WhatsApp Notifications.',
         'send_completed_order_to_whatsapp_group' => 'Send detailed booking message to WhatsApp group when order status is Completed',
         'send_completed_order_to_beautician' => 'Send the same booking message to the assigned beautician WhatsApp number when order status is Completed',
+            'whatsapp_status_notify_customer' => 'Notify customer when order / payment / treatment status changes',
+            'whatsapp_status_notify_customer_help' => 'Uses the order-status template. Order statuses are filtered by the multi-select below; payment and treatment updates always notify when enabled.',
+            'whatsapp_status_notify_beautician' => 'Notify assigned beautician when status changes',
+            'whatsapp_status_notify_beautician_help' => 'Sends a short status update. Completed-order booking alerts still use the separate “completed beautician” template.',
         'whatsapp_group_note_format_help' => 'Optional in Order Note: Beautician: NAME, Appt.Date: 22/May/2026, Appt.Time: 06:00 PM',
         'order_notification_settings' => 'Order Notification Settings',
         'beautician_portal_notification_settings' => 'Beautician Portal Notifications',

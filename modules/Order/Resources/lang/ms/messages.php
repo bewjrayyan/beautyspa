@@ -3,6 +3,9 @@
 return [
     'status_updated' => 'Status pesanan telah dikemas kini',
     'payment_status_updated' => 'Status bayaran telah dikemas kini',
+    'invalid_order_status' => 'Status pesanan tidak sah.',
+    'invalid_payment_status' => 'Status bayaran tidak sah.',
+    'invalid_treatment_status' => 'Status rawatan tidak sah.',
     'treatment_status_updated' => 'Status rawatan telah dikemas kini',
     'deleted' => 'Pesanan telah dipadam',
     'force_deleted' => 'Pesanan telah dipadam kekal',

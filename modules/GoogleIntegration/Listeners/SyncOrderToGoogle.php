@@ -13,6 +13,14 @@ class SyncOrderToGoogle
 {
     public function handle(OrderStatusChanged|OrderCreated|OrderUpdated $event): void
     {
+        if (
+            $event instanceof OrderStatusChanged
+            && ($event->changeType ?: 'order') === 'treatment'
+        ) {
+            // Treatment controllers already fire OrderUpdated for sheet/calendar sync.
+            return;
+        }
+
         if (! GoogleServiceAccountClient::isConfigured()) {
             return;
         }

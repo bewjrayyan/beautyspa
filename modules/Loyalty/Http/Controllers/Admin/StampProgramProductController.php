@@ -18,7 +18,7 @@ class StampProgramProductController
     public function search(Request $request): JsonResponse
     {
         $term = trim((string) $request->get('query', ''));
-        $limit = (int) $request->get('limit', 25);
+        $limit = min(50, max(1, (int) $request->get('limit', 25)));
         $categoryId = $request->filled('category_id') ? (int) $request->get('category_id') : null;
 
         if ($term === '' && ! $categoryId) {

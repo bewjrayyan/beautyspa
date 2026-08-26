@@ -10,7 +10,6 @@ use Modules\Order\Entities\Order;
 use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\User\Events\CustomerRegistered;
-use Modules\Loyalty\Listeners\AwardStampsOnOrderPlaced;
 use Modules\Loyalty\Listeners\CaptureLoyaltyRedemptionOnOrderPlaced;
 use Modules\Loyalty\Console\EnrollMembersCommand;
 use Modules\Loyalty\Console\ExpireLoyaltyPointsCommand;
@@ -21,6 +20,7 @@ use Modules\Loyalty\Console\RecalculateLifetimeSpendCommand;
 use Modules\Loyalty\Console\SyncReferralCodesCommand;
 use Modules\Loyalty\Console\SyncLoyaltyTranslationsCommand;
 use Modules\Loyalty\Console\RepairLoyaltyRedemptionsCommand;
+use Modules\Loyalty\Console\RepairStampAwardsCommand;
 use Modules\Loyalty\Listeners\CreateWalletOnCustomerRegistered;
 use Modules\Loyalty\Listeners\ProcessReferralOnCustomerRegistered;
 use Modules\Loyalty\Listeners\ProcessLoyaltyOnOrderStatusChanged;
@@ -60,10 +60,7 @@ class LoyaltyServiceProvider extends ServiceProvider
             CaptureLoyaltyRedemptionOnOrderPlaced::class
         );
 
-        $this->app['events']->listen(
-            OrderPlaced::class,
-            AwardStampsOnOrderPlaced::class
-        );
+        // Stamp awards moved to ProcessLoyaltyOnOrderStatusChanged (COMPLETED).
 
         $this->app['events']->listen(
             CustomerRegistered::class,
@@ -86,6 +83,7 @@ class LoyaltyServiceProvider extends ServiceProvider
                 RecalculateLifetimeSpendCommand::class,
                 SyncLoyaltyTranslationsCommand::class,
                 RepairLoyaltyRedemptionsCommand::class,
+                RepairStampAwardsCommand::class,
             ]);
         }
     }

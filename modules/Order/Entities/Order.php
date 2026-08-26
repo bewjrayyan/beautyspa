@@ -149,6 +149,23 @@ class Order extends Model
     }
 
 
+    /**
+     * @return list<string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            self::PENDING,
+            self::PENDING_PAYMENT,
+            self::PROCESSING,
+            self::ON_HOLD,
+            self::COMPLETED,
+            self::CANCELED,
+            self::REFUNDED,
+        ];
+    }
+
+
     public static function paymentStatuses(): array
     {
         return [

@@ -41,6 +41,7 @@ class WhatsAppNotificationDefaults
             'whatsapp_new_order_admin_message',
             'whatsapp_new_order_customer_message',
             'whatsapp_order_status_message',
+            'whatsapp_status_beautician_message',
             'whatsapp_completed_group_message',
             'whatsapp_completed_beautician_message',
             'whatsapp_beautician_new_booking_message',
@@ -57,6 +58,8 @@ class WhatsAppNotificationDefaults
         return [
             'whatsapp_new_order_admin_message',
             'whatsapp_new_order_customer_message',
+            'whatsapp_order_status_message',
+            'whatsapp_status_beautician_message',
             'whatsapp_completed_group_message',
             'whatsapp_completed_beautician_message',
         ];
@@ -108,6 +111,8 @@ class WhatsAppNotificationDefaults
             'new_order_sms',
             'whatsapp_completed_group_enabled',
             'whatsapp_completed_beautician_enabled',
+            'whatsapp_status_notify_customer_enabled',
+            'whatsapp_status_notify_beautician_enabled',
             'whatsapp_beautician_new_booking_enabled',
             'whatsapp_beautician_reminder_enabled',
         ];

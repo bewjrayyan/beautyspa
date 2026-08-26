@@ -12,21 +12,28 @@ class OrderStatusController
     /**
      * Update the specified resource in storage.
      *
-     * @param Order $request
-     *
-     * @return Response
+     * @return Response|string
      */
     public function update(Order $order)
     {
+        $previous = $order->status;
+        $status = (string) request('status');
+
+        if (! in_array($status, Order::statuses(), true)) {
+            abort(422, trans('order::messages.invalid_order_status'));
+        }
+
+        if ($previous === $status) {
+            return trans('order::messages.status_updated');
+        }
+
         $this->adjustStock($order);
 
-        $order->update(['status' => request('status')]);
+        $order->update(['status' => $status]);
 
-        $message = trans('order::messages.status_updated');
+        event(new OrderStatusChanged($order->fresh(), 'order', $previous, $status));
 
-        event(new OrderStatusChanged($order));
-
-        return $message;
+        return trans('order::messages.status_updated');
     }
 
 

@@ -193,19 +193,33 @@
                 ])
             @endcomponent
 
-            <div class="st-wa-item st-wa-item--plain">
-                <div class="st-wa-item__fields st-wa-item__fields--plain">
-                    {{ Form::select('sms_order_statuses', trans('setting::attributes.sms_order_statuses'), $errors, $orderStatuses, $settings, [
-                        'class' => 'selectize prevent-creation',
-                        'multiple' => true,
-                    ]) }}
-                    <p class="help-block text-muted st-wa-item__inline-help">{{ trans('setting::settings.sms.sections.order.statuses_help') }}</p>
-                    @include('setting::admin.settings.partials.wa-message-template', [
-                        'messageName' => 'whatsapp_order_status_message',
-                        'hint' => trans('setting::settings.sms.template_hints.order_status'),
-                    ])
-                </div>
-            </div>
+            @component('setting::admin.settings.partials.wa-notification-item', [
+                'enabledName' => 'whatsapp_status_notify_customer_enabled',
+                'enabledLabel' => trans('setting::settings.form.whatsapp_status_notify_customer'),
+                'hint' => trans('setting::settings.form.whatsapp_status_notify_customer_help'),
+            ])
+                {{ Form::select('sms_order_statuses', trans('setting::attributes.sms_order_statuses'), $errors, $orderStatuses, $settings, [
+                    'class' => 'selectize prevent-creation',
+                    'multiple' => true,
+                ]) }}
+                <p class="help-block text-muted st-wa-item__inline-help">{{ trans('setting::settings.sms.sections.order.statuses_help') }}</p>
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_order_status_message',
+                    'hint' => trans('setting::settings.sms.template_hints.order_status'),
+                ])
+            @endcomponent
+
+            @component('setting::admin.settings.partials.wa-notification-item', [
+                'enabledName' => 'whatsapp_status_notify_beautician_enabled',
+                'enabledLabel' => trans('setting::settings.form.whatsapp_status_notify_beautician'),
+                'hint' => trans('setting::settings.form.whatsapp_status_notify_beautician_help'),
+            ])
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_status_beautician_message',
+                    'rows' => 10,
+                    'hint' => trans('setting::settings.sms.template_hints.status_beautician'),
+                ])
+            @endcomponent
 
             @component('setting::admin.settings.partials.wa-notification-item', [
                 'enabledName' => 'whatsapp_completed_group_enabled',
