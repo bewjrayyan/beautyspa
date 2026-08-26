@@ -48,6 +48,8 @@
     id="tr-crm-dashboard"
     data-crm-dashboard="1"
     data-initial-bookings='@json($pipeline['all'] ?? [])'
+    data-tba-bookings='@json($tbaBookings)'
+    data-calendar-details-url="{{ route('admin.treatment_reservations.calendar.event', ['booking' => '__ID__']) }}"
     data-agenda-status-pending="{{ TrLang::trans('admin.kanban.pending') }}"
     data-agenda-status-in-progress="{{ TrLang::trans('admin.kanban.in_progress') }}"
     data-agenda-status-completed="{{ TrLang::trans('admin.kanban.completed') }}"

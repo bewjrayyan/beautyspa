@@ -4,6 +4,7 @@ const kanbanBookingsById = new Map();
 let previewOptions = {};
 let previewLabels = {};
 const previewDetailRequests = new Map();
+const schedulingDetailRequests = new Map();
 
 import { openManualBookingEditor } from "./manual-booking.js";
 import flatpickr from "flatpickr";
@@ -1119,6 +1120,63 @@ function getBookingIdFromElement(element) {
     return element?.dataset?.bookingId || element?.dataset?.id || null;
 }
 
+export function schedulingBookingNeedsDetails(booking) {
+    if (!booking?.id) {
+        return true;
+    }
+
+    if (booking.details_loaded === true) {
+        return false;
+    }
+
+    const hasIdentity = Boolean(
+        (booking.customer_name && booking.customer_name !== "—")
+        || booking.treatment_name
+        || booking.product_name
+    );
+
+    if (!hasIdentity) {
+        return true;
+    }
+
+    if (booking.order_id) {
+        return !booking.order_total_formatted && !booking.payment_status_label;
+    }
+
+    return false;
+}
+
+async function fetchBookingDetails(bookingId, detailsUrlTemplate, cached = null) {
+    if (!detailsUrlTemplate || !window.axios) {
+        return cached;
+    }
+
+    const key = String(bookingId);
+
+    if (!previewDetailRequests.has(key) && !schedulingDetailRequests.has(key)) {
+        const request = window.axios
+            .get(detailsUrlTemplate.replace("__ID__", key))
+            .then((response) => {
+                const detailedBooking = response.data?.booking;
+
+                if (detailedBooking) {
+                    upsertBooking(detailedBooking);
+                }
+
+                return detailedBooking || cached;
+            })
+            .finally(() => {
+                previewDetailRequests.delete(key);
+                schedulingDetailRequests.delete(key);
+            });
+
+        previewDetailRequests.set(key, request);
+        schedulingDetailRequests.set(key, request);
+    }
+
+    return previewDetailRequests.get(key) || schedulingDetailRequests.get(key);
+}
+
 async function resolvePreviewBooking(bookingId) {
     const cached = previewResolveBooking?.(bookingId) || null;
     // Ledger / older appointments often are not seeded into calendar/kanban maps.
@@ -1129,26 +1187,22 @@ async function resolvePreviewBooking(bookingId) {
         return cached;
     }
 
-    const key = String(bookingId);
+    return fetchBookingDetails(bookingId, previewOptions.detailsUrlTemplate, cached);
+}
 
-    if (!previewDetailRequests.has(key)) {
-        const request = window.axios
-            .get(previewOptions.detailsUrlTemplate.replace("__ID__", key))
-            .then((response) => {
-                const detailedBooking = response.data?.booking;
+export async function resolveSchedulingBooking(bookingId, fallback = null, detailsUrlTemplate = "") {
+    let booking = resolveBooking(bookingId) || fallback;
 
-                if (detailedBooking) {
-                    upsertBooking(detailedBooking);
-                }
-
-                return detailedBooking || cached;
-            })
-            .finally(() => previewDetailRequests.delete(key));
-
-        previewDetailRequests.set(key, request);
+    if (!schedulingBookingNeedsDetails(booking)) {
+        return booking;
     }
 
-    return previewDetailRequests.get(key);
+    const url = detailsUrlTemplate
+        || previewOptionsBase.detailsUrlTemplate
+        || document.querySelector("[data-calendar-details-url]")?.dataset?.calendarDetailsUrl
+        || "";
+
+    return fetchBookingDetails(bookingId, url, booking);
 }
 
 export async function openBookingPreviewById(bookingId) {

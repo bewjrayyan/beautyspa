@@ -8,6 +8,7 @@ import {
     getCalendarBookingsForOrder,
     setCalendarBookings,
     upsertBooking,
+    resolveSchedulingBooking,
 } from "./kanban-helpers.js";
 import { openManualBookingEditor } from "./manual-booking.js";
 
@@ -1679,7 +1680,7 @@ async function saveRescheduledAppointment() {
     }
 }
 
-function openAppointmentSchedulingWorkspace({
+async function openAppointmentSchedulingWorkspace({
     bookingId,
     beauticianId,
     productId,
@@ -1691,23 +1692,27 @@ function openAppointmentSchedulingWorkspace({
     reschedule = false,
     labels = {},
     trigger = null,
+    detailsUrl = "",
 }) {
-    const current = getCalendarBooking(bookingId) || {
+    const fallback = {
         id: bookingId,
         beautician_id: beauticianId,
         product_id: productId,
         spa_branch_id: spaBranchId,
         can_reschedule: true,
     };
-    const siblings = current.order_id ? getCalendarBookingsForOrder(current.order_id) : [];
-    const bookings = siblings.some((item) => String(item.id) === String(current.id)) ? siblings : [current, ...siblings];
+    const current = await resolveSchedulingBooking(bookingId, fallback, detailsUrl);
+    const siblings = current?.order_id ? getCalendarBookingsForOrder(current.order_id) : [];
+    const bookings = siblings.some((item) => String(item.id) === String(current?.id))
+        ? siblings
+        : [current, ...siblings].filter(Boolean);
     const workspace = getRescheduleWorkspace();
-    const preferredDateValue = appointmentDate || current.appointment_date_value || current.date || "";
+    const preferredDateValue = appointmentDate || current?.appointment_date_value || current?.date || "";
     const preferredDate = currentOrFutureDate(preferredDateValue);
 
     closeCalendarEventPreview();
     rescheduleWorkspaceState = {
-        booking: current,
+        booking: current || fallback,
         bookings,
         urlTemplate,
         slotsUrl,
@@ -1724,7 +1729,7 @@ function openAppointmentSchedulingWorkspace({
         saving: false,
     };
 
-    workspace.querySelector("[data-reschedule-eyebrow]").textContent = current.order_id
+    workspace.querySelector("[data-reschedule-eyebrow]").textContent = current?.order_id
         ? labels.orderEyebrow.replace(":order", current.order_id)
         : labels.scheduleEyebrow;
     workspace.querySelector("[data-reschedule-title]").textContent = reschedule ? labels.title : labels.scheduleTitle;
@@ -1745,9 +1750,9 @@ function openAppointmentSchedulingWorkspace({
     workspace.querySelector("[data-reschedule-date]").value = "";
     workspace.querySelector("[data-reschedule-order-summary]").innerHTML = rescheduleOrderSummaryHtml(bookings, labels);
     workspace.querySelector("[data-reschedule-treatment-list]").innerHTML = bookings
-        .map((booking, index) => rescheduleTreatmentCard(booking, index, bookings.length, current.id, labels))
+        .map((booking, index) => rescheduleTreatmentCard(booking, index, bookings.length, current?.id || bookingId, labels))
         .join("");
-    workspace.querySelector("[data-reschedule-selection]").innerHTML = selectedTreatmentHtml(current, labels);
+    workspace.querySelector("[data-reschedule-selection]").innerHTML = selectedTreatmentHtml(current || fallback, labels);
     workspace.querySelector("[data-reschedule-beautician-option]").hidden = !reschedule;
     workspace.querySelector("[data-reschedule-slot-grid]").innerHTML = "";
     workspace.querySelector("[data-reschedule-slot-status]").textContent = labels.chooseDate;
@@ -1833,6 +1838,7 @@ export function initTbaScheduleActions() {
     const slotsUrl = root.dataset?.tbaSlotsUrl || "";
     const rescheduleSlotsUrl = routeRoot.dataset?.rescheduleSlotsUrl || slotsUrl;
     const rescheduleDatesUrl = routeRoot.dataset?.rescheduleDatesUrl || "";
+    const detailsUrl = root.dataset?.calendarDetailsUrl || routeRoot.dataset?.calendarDetailsUrl || "";
 
     if ((!scheduleUrlTemplate && !rescheduleUrlTemplate)
         || (!slotsUrl && !rescheduleSlotsUrl)
@@ -1853,7 +1859,7 @@ export function initTbaScheduleActions() {
 
         const isReschedule = button.hasAttribute("data-reschedule-booking");
 
-        openAppointmentSchedulingWorkspace({
+        void openAppointmentSchedulingWorkspace({
             bookingId: button.dataset.bookingId,
             beauticianId: button.dataset.beauticianId,
             productId: button.dataset.productId,
@@ -1864,6 +1870,7 @@ export function initTbaScheduleActions() {
             reschedule: isReschedule,
             labels: schedulingLabels(routeRoot),
             trigger: button,
+            detailsUrl,
         });
     });
 }
@@ -1960,7 +1967,7 @@ export function initCalendarBookingDrop(app) {
                 window.notify?.error?.("Schedule URL missing") || alert("Schedule URL missing");
                 return;
             }
-            openAppointmentSchedulingWorkspace({
+            void openAppointmentSchedulingWorkspace({
                 bookingId: payload.bookingId,
                 beauticianId: payload.beauticianId,
                 productId: payload.productId,
@@ -1969,6 +1976,7 @@ export function initCalendarBookingDrop(app) {
                 slotsUrl,
                 appointmentDate: date,
                 labels: schedulingLabels(root),
+                detailsUrl: root.dataset?.calendarDetailsUrl || "",
             });
             return;
         }
@@ -1979,7 +1987,7 @@ export function initCalendarBookingDrop(app) {
             return;
         }
 
-        openAppointmentSchedulingWorkspace({
+        void openAppointmentSchedulingWorkspace({
             bookingId: payload.bookingId,
             beauticianId: payload.beauticianId,
             productId: payload.productId,
@@ -1990,6 +1998,7 @@ export function initCalendarBookingDrop(app) {
             appointmentDate: date,
             reschedule: true,
             labels: schedulingLabels(routeRoot),
+            detailsUrl: root?.dataset?.calendarDetailsUrl || routeRoot.dataset?.calendarDetailsUrl || "",
         });
     });
 }
@@ -2032,6 +2041,17 @@ export function initCrmDashboard(app) {
         }
     } catch (error) {
         // ignore invalid seed payload
+    }
+
+
+    try {
+        const tbaSeed = JSON.parse(root.dataset.tbaBookings || "[]");
+
+        if (Array.isArray(tbaSeed)) {
+            tbaSeed.forEach((booking) => upsertBooking(booking));
+        }
+    } catch (error) {
+        // ignore invalid TBA seed payload
     }
 
     seedLedgerBookingsIntoPreviewMap();
