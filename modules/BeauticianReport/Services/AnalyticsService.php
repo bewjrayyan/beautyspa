@@ -15,7 +15,7 @@ class AnalyticsService
     {
         $treatmentQuery = Order::query()
             ->whereNotNull('beautician_id')
-            ->withoutCanceledOrders();
+            ->paid();
 
         $today = today()->toDateString();
 
@@ -32,7 +32,7 @@ class AnalyticsService
                 ->whereNotNull('appointment_date')
                 ->withoutCanceledOrders()
                 ->whereDate('appointment_date', '>=', $today)
-                ->whereNotIn('status', [Order::CANCELED, Order::REFUNDED, Order::COMPLETED])
+                ->whereNotIn('status', [Order::CANCELED, Order::COMPLETED])
                 ->count(),
             'activeBeauticians' => Beautician::where('is_active', true)->count(),
             'topBeauticians' => $this->topBeauticians(5),
@@ -50,7 +50,7 @@ class AnalyticsService
 
         $rows = Order::query()
             ->whereNotNull('beautician_id')
-            ->withoutCanceledOrders()
+            ->paid()
             ->where('created_at', '>=', $start)
             ->selectRaw('DATE(created_at) as sale_date')
             ->selectRaw('SUM(total) as total')
@@ -80,7 +80,7 @@ class AnalyticsService
         $rows = Order::query()
             ->join('beauticians', 'orders.beautician_id', '=', 'beauticians.id')
             ->whereNotNull('orders.beautician_id')
-            ->withoutCanceledOrders()
+            ->paid()
             ->selectRaw(Beautician::sqlFullName() . ' as label')
             ->selectRaw('SUM(orders.total) as total')
             ->groupBy('beauticians.id', 'beauticians.first_name', 'beauticians.last_name')
@@ -109,7 +109,7 @@ class AnalyticsService
         return Order::query()
             ->join('beauticians', 'orders.beautician_id', '=', 'beauticians.id')
             ->whereNotNull('orders.beautician_id')
-            ->withoutCanceledOrders()
+            ->paid()
             ->selectRaw('beauticians.id')
             ->selectRaw(Beautician::sqlFullName() . ' as name')
             ->selectRaw('beauticians.job_title')

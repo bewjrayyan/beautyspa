@@ -40,19 +40,19 @@
                 'label' => trans('admin::dashboard.total_sales'),
                 'value' => str_replace(currency(), currency_symbol_fallback(currency()), $totalSales->format()),
                 'valueTitle' => str_replace(currency(), currency_symbol_fallback(currency()), $totalSales->format()),
-                'hint' => null,
+                'hint' => trans('admin::dashboard.hints.total_sales'),
                 'trend' => $trends['sales'] ?? null,
                 'sparkline' => null,
             ])
 
             @include('admin::partials.fc_saas_stat', [
                 'variant' => 'hero',
-                'icon' => 'fa-calendar',
-                'label' => trans('admin::dashboard.this_month_sales'),
-                'value' => str_replace(currency(), currency_symbol_fallback(currency()), $thisMonthSales->format()),
-                'valueTitle' => str_replace(currency(), currency_symbol_fallback(currency()), $thisMonthSales->format()),
-                'hint' => null,
-                'trend' => $trends['orders'] ?? null,
+                'icon' => 'fa-balance-scale',
+                'label' => trans('admin::dashboard.net_sales'),
+                'value' => str_replace(currency(), currency_symbol_fallback(currency()), $netSales->format()),
+                'valueTitle' => str_replace(currency(), currency_symbol_fallback(currency()), $netSales->format()),
+                'hint' => trans('admin::dashboard.hints.net_sales'),
+                'trend' => null,
                 'sparkline' => null,
             ])
 
@@ -84,4 +84,43 @@
             ])
         </div>
     </div>
+
+    @if (! empty($salesByBranch))
+        <section class="dashboard-branch-sales" aria-labelledby="dashboard-branch-sales-title">
+            <div class="dashboard-branch-sales__head">
+                <div>
+                    <h3 id="dashboard-branch-sales-title" class="dashboard-branch-sales__title">
+                        {{ trans('admin::dashboard.sales_by_branch') }}
+                    </h3>
+                    <p class="dashboard-branch-sales__help">{{ trans('admin::dashboard.sales_by_branch_help') }}</p>
+                </div>
+                <div class="dashboard-branch-sales__master">
+                    <span class="dashboard-branch-sales__master-label">{{ trans('admin::dashboard.total_sales') }}</span>
+                    <strong class="dashboard-branch-sales__master-value">
+                        {{ str_replace(currency(), currency_symbol_fallback(currency()), $totalSales->format()) }}
+                    </strong>
+                </div>
+            </div>
+            <div class="dashboard-branch-sales__grid">
+                @foreach ($salesByBranch as $branch)
+                    <article class="dashboard-branch-sales__card">
+                        <h4 class="dashboard-branch-sales__branch">{{ $branch['name'] }}</h4>
+                        <p class="dashboard-branch-sales__amount" title="{{ $branch['total']->format() }}">
+                            {{ str_replace(currency(), currency_symbol_fallback(currency()), $branch['total']->format()) }}
+                        </p>
+                        <dl class="dashboard-branch-sales__meta">
+                            <div>
+                                <dt>{{ trans('admin::dashboard.branch_refunded') }}</dt>
+                                <dd>{{ str_replace(currency(), currency_symbol_fallback(currency()), $branch['refunded']->format()) }}</dd>
+                            </div>
+                            <div>
+                                <dt>{{ trans('admin::dashboard.branch_net') }}</dt>
+                                <dd>{{ str_replace(currency(), currency_symbol_fallback(currency()), $branch['net']->format()) }}</dd>
+                            </div>
+                        </dl>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+    @endif
 @endHasAccess

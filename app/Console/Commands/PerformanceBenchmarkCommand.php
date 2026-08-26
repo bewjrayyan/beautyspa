@@ -170,7 +170,7 @@ class PerformanceBenchmarkCommand extends Command
                     WHERE beautician_id = ?
                       AND appointment_date = ?
                       AND appointment_time = ?
-                      AND status IN ('pending_payment','pending','processing','on_hold','completed')
+                      AND status IN ('pending','processing','completed')
                       AND deleted_at IS NULL
                     LIMIT 1
                 SQL,

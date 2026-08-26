@@ -24,7 +24,7 @@
                 </div>
                 <div class="order-show__dl-row">
                     <dt>{{ trans('order::orders.transaction_id') }}</dt>
-                    <dd>
+                    <dd id="order-transaction-id-display">
                         @if ($order->transaction?->transaction_id)
                             <code class="order-show__mono">{{ $order->transaction->transaction_id }}</code>
                         @else
@@ -32,6 +32,17 @@
                         @endif
                     </dd>
                 </div>
+                @if (filled($order->transaction?->admin_note))
+                    <div class="order-show__dl-row" id="order-payment-admin-note-row">
+                        <dt>{{ trans('order::orders.admin_note') }}</dt>
+                        <dd id="order-payment-admin-note-display">{{ $order->transaction->admin_note }}</dd>
+                    </div>
+                @else
+                    <div class="order-show__dl-row" id="order-payment-admin-note-row" hidden>
+                        <dt>{{ trans('order::orders.admin_note') }}</dt>
+                        <dd id="order-payment-admin-note-display"></dd>
+                    </div>
+                @endif
                 @if ($order->hasCoupon())
                     <div class="order-show__dl-row">
                         <dt>{{ trans('order::orders.coupon') }}</dt>

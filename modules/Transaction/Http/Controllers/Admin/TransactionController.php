@@ -4,6 +4,8 @@ namespace Modules\Transaction\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use Modules\Admin\Traits\HasCrudActions;
+use Modules\Checkout\Services\CheckoutCompletionGuard;
+use Modules\Order\Entities\Order;
 use Modules\Transaction\Entities\Transaction;
 
 class TransactionController
@@ -49,14 +51,28 @@ class TransactionController
 
 
     /**
-     * @return array{total: int, today: int, week: int}
+     * @return array{offline: int, online: int, today: int, week: int, total: int}
      */
     private function transactionStats(): array
     {
+        $offlineMethods = CheckoutCompletionGuard::offlineMethods();
+
+        $offline = Order::query()->whereIn('payment_method', $offlineMethods)->count();
+        $online = Order::query()
+            ->where(function ($builder) use ($offlineMethods): void {
+                $builder
+                    ->whereNotIn('payment_method', $offlineMethods)
+                    ->orWhereNull('payment_method')
+                    ->orWhere('payment_method', '');
+            })
+            ->count();
+
         return [
-            'total' => Transaction::count(),
-            'today' => Transaction::whereDate('created_at', now()->toDateString())->count(),
-            'week' => Transaction::where('created_at', '>=', now()->subDays(7))->count(),
+            'offline' => $offline,
+            'online' => $online,
+            'total' => $offline + $online,
+            'today' => Order::query()->whereDate('created_at', now()->toDateString())->count(),
+            'week' => Order::query()->where('created_at', '>=', now()->subDays(7))->count(),
         ];
     }
 }

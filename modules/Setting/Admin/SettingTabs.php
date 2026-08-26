@@ -3,6 +3,7 @@
 namespace Modules\Setting\Admin;
 
 use Modules\Admin\Ui\Tabs;
+use Modules\Order\Entities\Order;
 use Modules\Setting\Admin\SettingTab;
 use Modules\Setting\Services\AppVersionService;
 use Modules\Setting\Services\ArtisanCommandService;
@@ -372,7 +373,7 @@ class SettingTabs extends Tabs
             ]);
 
             $tab->view('setting::admin.settings.tabs.sms', [
-                'orderStatuses' => trans('order::statuses'),
+                'orderStatuses' => collect(Order::statuses())->mapWithKeys(fn ($status) => [$status => trans('order::statuses.' . $status)])->all(),
             ]);
         });
     }
@@ -447,7 +448,7 @@ class SettingTabs extends Tabs
 
             $tab->view('setting::admin.settings.tabs.mail', [
                 'encryptionProtocols' => $this->getMailEncryptionProtocols(),
-                'orderStatuses' => trans('order::statuses'),
+                'orderStatuses' => collect(Order::statuses())->mapWithKeys(fn ($status) => [$status => trans('order::statuses.' . $status)])->all(),
             ]);
         });
     }

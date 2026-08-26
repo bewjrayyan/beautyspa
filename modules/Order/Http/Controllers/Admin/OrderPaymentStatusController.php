@@ -2,12 +2,15 @@
 
 namespace Modules\Order\Http\Controllers\Admin;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
+use Modules\Order\Services\OrderPaymentReferenceService;
 
 class OrderPaymentStatusController
 {
-    public function update(Order $order): string
+    public function update(Order $order, OrderPaymentReferenceService $paymentReferences): JsonResponse|string
     {
         $paymentStatus = request('payment_status');
 
@@ -18,36 +21,78 @@ class OrderPaymentStatusController
         $previousPayment = $order->payment_status;
         $previousOrder = $order->status;
 
+        $order->loadMissing('transaction');
+
+        try {
+            $paymentReferences->syncForPaymentStatus(
+                $order,
+                $paymentStatus,
+                request()->input('transaction_id'),
+                request()->input('admin_note'),
+            );
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => collect($exception->errors())->flatten()->first()
+                    ?: trans('order::messages.payment_reference_required'),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
         if ($previousPayment === $paymentStatus) {
-            return trans('order::messages.payment_status_updated');
+            $order = $order->fresh(['transaction']);
+
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'message' => trans('order::messages.payment_reference_saved'),
+                    'transaction_id' => $order->transaction?->transaction_id,
+                    'admin_note' => $order->transaction?->admin_note,
+                ]);
+            }
+
+            return trans('order::messages.payment_reference_saved');
         }
 
         $updates = ['payment_status' => $paymentStatus];
         $changeType = 'payment';
 
-        if ($paymentStatus === Order::PAYMENT_PAID && $order->status === Order::PENDING_PAYMENT) {
+        if ($paymentStatus === Order::PAYMENT_PAID && $order->status === Order::PENDING) {
             $updates['status'] = Order::COMPLETED;
             $changeType = 'order_and_payment';
         }
 
-        if ($paymentStatus === Order::PAYMENT_CANCELED && ! in_array($order->status, [Order::CANCELED, Order::REFUNDED], true)) {
+        if (
+            in_array($paymentStatus, [Order::PAYMENT_CANCELED, Order::PAYMENT_REFUNDED], true)
+            && $order->status !== Order::CANCELED
+        ) {
             $updates['status'] = Order::CANCELED;
             $changeType = 'order_and_payment';
         }
 
         $order->update($updates);
-        $order = $order->fresh();
+        $order = $order->fresh(['transaction']);
 
         $newValue = $changeType === 'order_and_payment'
-            ? ($order->status . '/' . $order->payment_status)
+            ? ($order->status.'/'.$order->payment_status)
             : $order->payment_status;
 
         $previousValue = $changeType === 'order_and_payment'
-            ? ($previousOrder . '/' . $previousPayment)
+            ? ($previousOrder.'/'.$previousPayment)
             : $previousPayment;
 
         event(new OrderStatusChanged($order, $changeType, $previousValue, $newValue));
 
-        return trans('order::messages.payment_status_updated');
+        $message = trans('order::messages.payment_status_updated');
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'message' => $message,
+                'payment_status' => $order->payment_status,
+                'status' => $order->status,
+                'transaction_id' => $order->transaction?->transaction_id,
+                'admin_note' => $order->transaction?->admin_note,
+            ]);
+        }
+
+        return $message;
     }
 }

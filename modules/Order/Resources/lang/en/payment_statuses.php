@@ -5,4 +5,5 @@ return [
     'processing' => 'Processing',
     'paid' => 'Paid',
     'canceled' => 'Canceled',
+    'refunded' => 'Refunded',
 ];

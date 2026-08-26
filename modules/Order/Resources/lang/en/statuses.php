@@ -1,11 +1,12 @@
 <?php
 
 return [
-    'canceled' => 'Canceled',
-    'completed' => 'Completed',
-    'on_hold' => 'On Hold',
     'pending' => 'Pending',
-    'pending_payment' => 'Pending Payment',
     'processing' => 'Processing',
-    'refunded' => 'Refunded',
+    'completed' => 'Completed',
+    'canceled' => 'Canceled',
+    // Legacy labels (migrated away; kept for historical notes / settings)
+    'pending_payment' => 'Pending',
+    'on_hold' => 'Pending',
+    'refunded' => 'Canceled',
 ];

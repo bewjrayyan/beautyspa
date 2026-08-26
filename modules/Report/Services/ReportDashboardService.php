@@ -16,16 +16,27 @@ class ReportDashboardService
     public function overview(): array
     {
         $orderQuery = Order::query()->withoutCanceledOrders();
+        $salesSnapshot = Order::salesSnapshot();
 
         $data = [
-            'totalSales' => Order::totalSales(),
+            'totalSales' => Money::inDefaultCurrency($salesSnapshot['total']),
+            'netSales' => Money::inDefaultCurrency($salesSnapshot['net']),
+            'salesByBranch' => collect($salesSnapshot['by_branch'])->map(function (array $row) {
+                return [
+                    'branch_id' => $row['branch_id'],
+                    'name' => $row['name'],
+                    'total' => Money::inDefaultCurrency($row['total']),
+                    'refunded' => Money::inDefaultCurrency($row['refunded']),
+                    'net' => Money::inDefaultCurrency($row['net']),
+                ];
+            })->all(),
             'totalOrders' => (clone $orderQuery)->count(),
             'completedOrders' => (clone $orderQuery)->where('status', Order::COMPLETED)->count(),
             'pendingOrders' => (clone $orderQuery)->whereIn('payment_status', [
                 Order::PAYMENT_PENDING,
                 Order::PAYMENT_PROCESSING,
             ])->count(),
-            'paidOrders' => (clone $orderQuery)->where('payment_status', Order::PAYMENT_PAID)->count(),
+            'paidOrders' => Order::query()->paid()->count(),
             'hasBeautician' => $this->hasBeauticianSupport(),
             'treatmentSales' => Money::inDefaultCurrency(0),
             'treatmentOrders' => 0,
@@ -38,7 +49,7 @@ class ReportDashboardService
         if ($data['hasBeautician']) {
             $treatmentQuery = Order::query()
                 ->whereNotNull('beautician_id')
-                ->withoutCanceledOrders();
+                ->paid();
 
             $today = today()->toDateString();
 
@@ -53,7 +64,7 @@ class ReportDashboardService
                 ->whereNotNull('appointment_date')
                 ->withoutCanceledOrders()
                 ->whereDate('appointment_date', '>=', $today)
-                ->whereNotIn('status', [Order::CANCELED, Order::REFUNDED, Order::COMPLETED])
+                ->whereNotIn('status', [Order::CANCELED, Order::COMPLETED])
                 ->count();
             $data['salesByBeautician'] = $this->salesByBeautician();
             $data['treatmentSalesTrend'] = $this->treatmentSalesTrend(14);
@@ -79,7 +90,7 @@ class ReportDashboardService
         $row = Order::query()
             ->whereNotNull('beautician_id')
             ->whereNotNull('appointment_date')
-            ->withoutCanceledOrders()
+            ->paid()
             ->selectRaw('COUNT(*) as total_bookings')
             ->selectRaw('COALESCE(SUM(total), 0) as total_sales')
             ->selectRaw(
@@ -88,7 +99,7 @@ class ReportDashboardService
             )
             ->selectRaw(
                 'SUM(CASE WHEN appointment_date >= ? AND status NOT IN (?, ?, ?) THEN 1 ELSE 0 END) as upcoming_count',
-                [$today, Order::CANCELED, Order::REFUNDED, Order::COMPLETED]
+                [$today, Order::CANCELED, Order::COMPLETED]
             )
             ->selectRaw(
                 'SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as completed_count',
@@ -117,7 +128,7 @@ class ReportDashboardService
             ->whereNotNull('appointment_date')
             ->withoutCanceledOrders()
             ->whereDate('appointment_date', '>=', today())
-            ->whereNotIn('status', [Order::CANCELED, Order::REFUNDED, Order::COMPLETED])
+            ->whereNotIn('status', [Order::CANCELED, Order::COMPLETED])
             ->orderBy('appointment_date')
             ->orderBy('appointment_time')
             ->take($limit)
@@ -154,7 +165,7 @@ class ReportDashboardService
     private function treatmentSalesTrend(int $days): array
     {
         return $this->buildTrend(
-            Order::query()->whereNotNull('beautician_id')->withoutCanceledOrders(),
+            Order::query()->whereNotNull('beautician_id')->paid(),
             'created_at',
             $days
         );
@@ -192,7 +203,7 @@ class ReportDashboardService
         $rows = Order::query()
             ->join('beauticians', 'orders.beautician_id', '=', 'beauticians.id')
             ->whereNotNull('orders.beautician_id')
-            ->withoutCanceledOrders()
+            ->paid()
             ->selectRaw(Beautician::sqlFullName() . ' as label')
             ->selectRaw('SUM(orders.total) as total')
             ->groupBy('beauticians.id', 'beauticians.first_name', 'beauticians.last_name')

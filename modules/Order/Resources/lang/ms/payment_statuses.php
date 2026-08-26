@@ -1,9 +1,9 @@
 <?php
 
 return [
-
-    'pending' => 'Menunggu bayaran',
-    'processing' => 'Sedang diproses',
+    'pending' => 'Menunggu',
+    'processing' => 'Diproses',
     'paid' => 'Dibayar',
     'canceled' => 'Dibatalkan',
+    'refunded' => 'Dipulangkan',
 ];

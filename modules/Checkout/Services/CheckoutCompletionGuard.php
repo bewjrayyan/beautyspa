@@ -38,7 +38,7 @@ class CheckoutCompletionGuard
             throw new Exception(trans('payment::messages.order_already_paid'));
         }
 
-        if (! in_array($order->status, [Order::PENDING, Order::PENDING_PAYMENT], true)) {
+        if ($order->status !== Order::PENDING) {
             throw new Exception(trans('payment::messages.order_not_payable'));
         }
 
@@ -81,7 +81,7 @@ class CheckoutCompletionGuard
             throw new Exception(trans('payment::messages.order_already_paid'));
         }
 
-        if (! in_array($order->status, [Order::PENDING, Order::PENDING_PAYMENT], true)) {
+        if ($order->status !== Order::PENDING) {
             throw new Exception(trans('payment::messages.order_not_payable'));
         }
     }

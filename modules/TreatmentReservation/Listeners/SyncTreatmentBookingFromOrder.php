@@ -53,7 +53,7 @@ class SyncTreatmentBookingFromOrder implements ShouldQueueAfterCommit
     private function applyJobSheetStatusFromOrder(TreatmentBooking $booking, Order $order): void
     {
         $jobSheetStatus = match ($order->status) {
-            Order::CANCELED, Order::REFUNDED => TreatmentBooking::STATUS_CANCELED,
+            Order::CANCELED => TreatmentBooking::STATUS_CANCELED,
             default => null,
         };
 

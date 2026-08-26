@@ -35,20 +35,33 @@ class OrderTreatmentBookingObserver
             return;
         }
 
-        if ($order->wasChanged([
+        $scheduleOrCustomerFields = [
             'beautician_id',
             'appointment_date',
             'appointment_time',
             'schedule_status',
-            'status',
-            'payment_status',
             'customer_first_name',
             'customer_last_name',
             'customer_phone',
             'customer_email',
             'total',
             'note',
-        ])) {
+        ];
+
+        // Status-only updates are handled by queued SyncTreatmentBookingFromOrder
+        // (cancel mapping) — avoid a second synchronous syncFromOrder on every click.
+        if ($order->wasChanged($scheduleOrCustomerFields)) {
+            $this->sync->syncFromOrder($order);
+
+            return;
+        }
+
+        if (
+            $order->wasChanged('payment_status')
+            && $order->isPaymentPaid()
+            && BookingSyncService::shouldDeferUntilPayment($order)
+            && ! $order->treatmentBookings()->exists()
+        ) {
             $this->sync->syncFromOrder($order);
         }
     }

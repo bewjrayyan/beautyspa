@@ -90,20 +90,17 @@
                 printLabel: @json(trans('order::orders.table.print')),
                 receiptLabel: @json(trans('order::orders.table.print_receipt')),
                 changeOrderStatusLabel: @json(trans('order::orders.table.change_order_status')),
-                changePaymentStatusLabel: @json(trans('order::orders.table.change_payment_status')),
                 changeTreatmentStatusLabel: @json(trans('order::orders.table.change_treatment_status')),
                 manageTreatmentsLabel: @json(trans('order::orders.table.manage_treatments')),
                 deleteLabel: @json(trans('order::orders.table.delete')),
                 forceDeleteLabel: @json(trans('order::orders.table.force_delete')),
                 forceDeleteConfirmMessage: @json(trans('order::orders.force_delete_confirm')),
                 statusUpdatedMessage: @json(trans('order::messages.status_updated')),
-                paymentStatusUpdatedMessage: @json(trans('order::messages.payment_status_updated')),
                 treatmentStatusUpdatedMessage: @json(trans('order::messages.treatment_status_updated')),
                 deletedMessage: @json(trans('order::messages.deleted')),
                 forceDeletedMessage: @json(trans('order::messages.force_deleted')),
                 errorMessage: @json(trans('core::messages.something_went_wrong')),
-                statuses: @json(trans('order::statuses')),
-                paymentStatuses: @json(trans('order::payment_statuses')),
+                statuses: @json(collect(\Modules\Order\Entities\Order::statuses())->mapWithKeys(fn ($s) => [$s => trans('order::statuses.' . $s)])->all()),
                 treatmentStatuses: @json(
                     is_module_enabled('TreatmentReservation')
                         ? collect(\Modules\TreatmentReservation\Entities\TreatmentBooking::statuses())
@@ -132,8 +129,18 @@
             let showArchived = urlParams.get('archived') === '1';
             let showSheetsFailed = urlParams.get('google_sheets_failed') === '1';
             let activePaymentStatus = urlParams.get('payment_status') || '';
+            let activePaymentChannel = ['offline', 'online'].includes(urlParams.get('payment_channel') || '')
+                ? (urlParams.get('payment_channel') || '')
+                : '';
             let beauticianId = urlParams.get('beautician_id') || '';
             let dateFilter = urlParams.get('date') || '';
+            let activeMonth = /^\d{4}-(0[1-9]|1[0-2])$/.test(urlParams.get('month') || '')
+                ? (urlParams.get('month') || '')
+                : '';
+            let activeDateFrom = urlParams.get('date_from') || '';
+            let activeDateTo = urlParams.get('date_to') || '';
+            let activeSearch = urlParams.get('search') || '';
+            let searchDebounceTimer = null;
             window.ordersIndexShowArchived = showArchived;
 
             function initOrdersIndex() {
@@ -184,10 +191,22 @@
                 }
 
                 function syncPaymentStatusUi() {
-                    $('#orders-payment-filters .orders-index__payment-filter').each(function () {
+                    $('#orders-payment-filters .orders-index__chip').each(function () {
                         const $button = $(this);
-                        const status = String($button.data('payment-status') ?? '');
+                        const status = String($button.attr('data-payment-status') ?? '');
                         const isActive = status === activePaymentStatus;
+
+                        $button
+                            .toggleClass('is-active', isActive)
+                            .attr('aria-pressed', isActive ? 'true' : 'false');
+                    });
+                }
+
+                function syncPaymentChannelUi() {
+                    $('#orders-payment-channel-filters .orders-index__chip').each(function () {
+                        const $button = $(this);
+                        const channel = String($button.attr('data-payment-channel') ?? '');
+                        const isActive = channel === activePaymentChannel;
 
                         $button
                             .toggleClass('is-active', isActive)
@@ -197,21 +216,44 @@
 
                 function bindPaymentStatusFilters() {
                     const $filters = $('#orders-payment-filters');
-
-                    if (!$filters.length) {
-                        return;
-                    }
+                    const $channelFilters = $('#orders-payment-channel-filters');
 
                     syncPaymentStatusUi();
+                    syncPaymentChannelUi();
 
-                    $filters.off('click.paymentStatus').on('click.paymentStatus', '.orders-index__payment-filter', function () {
-                        const nextStatus = String($(this).data('payment-status') ?? '');
-                        activePaymentStatus = activePaymentStatus === nextStatus ? '' : nextStatus;
-                        syncPaymentStatusUi();
-                        updateOrdersFilterUrl();
-                        closeOrderActionsMenu();
-                        window.DataTable.reload('#orders-table .table', null, true);
-                    });
+                    if ($filters.length) {
+                        $filters.off('click.paymentStatus').on('click.paymentStatus', '.orders-index__chip', function () {
+                            const nextStatus = String($(this).attr('data-payment-status') ?? '');
+
+                            if (nextStatus === '' || nextStatus === activePaymentStatus) {
+                                activePaymentStatus = '';
+                            } else {
+                                activePaymentStatus = nextStatus;
+                            }
+
+                            syncPaymentStatusUi();
+                            updateOrdersFilterUrl();
+                            closeOrderActionsMenu();
+                            window.DataTable.reload('#orders-table .table', null, true);
+                        });
+                    }
+
+                    if ($channelFilters.length) {
+                        $channelFilters.off('click.paymentChannel').on('click.paymentChannel', '.orders-index__chip', function () {
+                            const nextChannel = String($(this).attr('data-payment-channel') ?? '');
+
+                            if (nextChannel === '' || nextChannel === activePaymentChannel) {
+                                activePaymentChannel = '';
+                            } else {
+                                activePaymentChannel = nextChannel;
+                            }
+
+                            syncPaymentChannelUi();
+                            updateOrdersFilterUrl();
+                            closeOrderActionsMenu();
+                            window.DataTable.reload('#orders-table .table', null, true);
+                        });
+                    }
                 }
 
                 function updateOrdersFilterUrl() {
@@ -235,6 +277,36 @@
                         url.searchParams.delete('payment_status');
                     }
 
+                    if (activePaymentChannel) {
+                        url.searchParams.set('payment_channel', activePaymentChannel);
+                    } else {
+                        url.searchParams.delete('payment_channel');
+                    }
+
+                    if (activeMonth) {
+                        url.searchParams.set('month', activeMonth);
+                    } else {
+                        url.searchParams.delete('month');
+                    }
+
+                    if (activeDateFrom) {
+                        url.searchParams.set('date_from', activeDateFrom);
+                    } else {
+                        url.searchParams.delete('date_from');
+                    }
+
+                    if (activeDateTo) {
+                        url.searchParams.set('date_to', activeDateTo);
+                    } else {
+                        url.searchParams.delete('date_to');
+                    }
+
+                    if (activeSearch) {
+                        url.searchParams.set('search', activeSearch);
+                    } else {
+                        url.searchParams.delete('search');
+                    }
+
                     window.history.replaceState({}, '', url);
                 }
 
@@ -256,7 +328,217 @@
 
                 syncArchivedUi();
                 syncSheetsFailedUi();
+
+                function monthBounds(monthValue) {
+                    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(monthValue || '')) {
+                        return null;
+                    }
+
+                    const [year, month] = monthValue.split('-').map(Number);
+                    const lastDay = new Date(year, month, 0).getDate();
+                    const pad = (n) => String(n).padStart(2, '0');
+
+                    return {
+                        from: year + '-' + pad(month) + '-01',
+                        to: year + '-' + pad(month) + '-' + pad(lastDay),
+                    };
+                }
+
+                function toYmd(date) {
+                    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+                        return '';
+                    }
+
+                    const pad = (n) => String(n).padStart(2, '0');
+
+                    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+                }
+
+                function getDateRangePicker() {
+                    const el = document.getElementById('orders-filter-date-range');
+
+                    if (!el) {
+                        return null;
+                    }
+
+                    if (!el._flatpickr && window.admin && typeof window.admin.dateTimePicker === 'function') {
+                        window.admin.dateTimePicker(el);
+                    }
+
+                    return el._flatpickr || null;
+                }
+
+                function readDateRangeFromPicker() {
+                    const picker = getDateRangePicker();
+
+                    if (picker && picker.selectedDates.length) {
+                        activeDateFrom = toYmd(picker.selectedDates[0]);
+                        activeDateTo = picker.selectedDates.length > 1
+                            ? toYmd(picker.selectedDates[1])
+                            : activeDateFrom;
+
+                        return;
+                    }
+
+                    const raw = String($('#orders-filter-date-range').val() || '').trim();
+
+                    if (!raw) {
+                        activeDateFrom = '';
+                        activeDateTo = '';
+
+                        return;
+                    }
+
+                    const parts = raw.split(/\s+to\s+/i).map((part) => part.trim()).filter(Boolean);
+
+                    activeDateFrom = parts[0] || '';
+                    activeDateTo = parts[1] || parts[0] || '';
+                }
+
+                function setDateRangePicker(from, to) {
+                    const picker = getDateRangePicker();
+
+                    if (!picker) {
+                        const $range = $('#orders-filter-date-range');
+
+                        if (!$range.length) {
+                            return;
+                        }
+
+                        if (from && to) {
+                            $range.val(from + ' to ' + to);
+                        } else if (from) {
+                            $range.val(from);
+                        } else {
+                            $range.val('');
+                        }
+
+                        return;
+                    }
+
+                    if (from && to) {
+                        picker.setDate([from, to], false);
+                    } else if (from) {
+                        picker.setDate([from], false);
+                    } else {
+                        picker.clear();
+                    }
+                }
+
+                function readPeriodInputs() {
+                    const $month = $('#orders-filter-month');
+                    const $search = $('#orders-filter-search');
+
+                    activeMonth = String($month.val() || '');
+                    readDateRangeFromPicker();
+                    activeSearch = String($search.val() || '').trim();
+
+                    // Custom range supersedes legacy "today" deep-link.
+                    if (activeMonth || activeDateFrom || activeDateTo) {
+                        dateFilter = '';
+                    }
+                }
+
+                function syncPeriodInputs() {
+                    const $month = $('#orders-filter-month');
+                    const $search = $('#orders-filter-search');
+
+                    if ($month.length) {
+                        $month.val(activeMonth);
+                    }
+
+                    setDateRangePicker(activeDateFrom, activeDateTo);
+
+                    if ($search.length) {
+                        $search.val(activeSearch);
+                    }
+                }
+
+                function applyPeriodFilters(reload) {
+                    readPeriodInputs();
+                    updateOrdersFilterUrl();
+                    closeOrderActionsMenu();
+
+                    if (reload !== false) {
+                        window.DataTable.reload('#orders-table .table', null, true);
+                    }
+                }
+
+                function clearPeriodFilters() {
+                    activeMonth = '';
+                    activeDateFrom = '';
+                    activeDateTo = '';
+                    activeSearch = '';
+                    dateFilter = '';
+                    syncPeriodInputs();
+                    updateOrdersFilterUrl();
+                    closeOrderActionsMenu();
+                    window.DataTable.reload('#orders-table .table', null, true);
+                }
+
+                function bindPeriodFilters() {
+                    const $month = $('#orders-filter-month');
+                    const $range = $('#orders-filter-date-range');
+                    const $search = $('#orders-filter-search');
+                    const $apply = $('#orders-filter-apply');
+                    const $clear = $('#orders-filter-clear');
+
+                    if (!$month.length && !$search.length && !$range.length) {
+                        return;
+                    }
+
+                    getDateRangePicker();
+                    syncPeriodInputs();
+
+                    $month.off('change.ordersPeriod').on('change.ordersPeriod', function () {
+                        const bounds = monthBounds(String($(this).val() || ''));
+
+                        if (bounds) {
+                            activeMonth = String($(this).val() || '');
+                            activeDateFrom = bounds.from;
+                            activeDateTo = bounds.to;
+                            setDateRangePicker(activeDateFrom, activeDateTo);
+                        } else {
+                            activeMonth = '';
+                            activeDateFrom = '';
+                            activeDateTo = '';
+                            setDateRangePicker('', '');
+                        }
+
+                        applyPeriodFilters(true);
+                    });
+
+                    $range.off('change.ordersPeriod').on('change.ordersPeriod', function () {
+                        // Manual calendar range clears month preset.
+                        activeMonth = '';
+                        $month.val('');
+                        applyPeriodFilters(true);
+                    });
+
+                    $apply.off('click.ordersPeriod').on('click.ordersPeriod', function () {
+                        applyPeriodFilters(true);
+                    });
+
+                    $clear.off('click.ordersPeriod').on('click.ordersPeriod', function () {
+                        clearPeriodFilters();
+                    });
+
+                    $search.off('keydown.ordersPeriod input.ordersPeriod').on('keydown.ordersPeriod', function (event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            applyPeriodFilters(true);
+                        }
+                    }).on('input.ordersPeriod', function () {
+                        window.clearTimeout(searchDebounceTimer);
+                        searchDebounceTimer = window.setTimeout(function () {
+                            applyPeriodFilters(true);
+                        }, 400);
+                    });
+                }
+
+
                 bindPaymentStatusFilters();
+                bindPeriodFilters();
 
                 function sheetsFailedToggleLabel() {
                     if (config.sheetsFailedCount > 0) {
@@ -405,14 +687,6 @@
                         'data-status'
                     );
 
-                    html += buildStatusGroup(
-                        config.changePaymentStatusLabel,
-                        toggleAttr($toggle, 'payment-status-url'),
-                        toggleAttr($toggle, 'current-payment-status'),
-                        config.paymentStatuses,
-                        'set-payment-status',
-                        'data-payment-status'
-                    );
 
                     if (config.hasTreatmentModule) {
                         const treatmentUrl = toggleAttr($toggle, 'treatment-status-url');
@@ -600,12 +874,32 @@
                                 data.payment_status = activePaymentStatus;
                             }
 
+                            if (activePaymentChannel) {
+                                data.payment_channel = activePaymentChannel;
+                            }
+
                             if (beauticianId) {
                                 data.beautician_id = beauticianId;
                             }
 
                             if (dateFilter) {
                                 data.date = dateFilter;
+                            }
+
+                            if (activeMonth) {
+                                data.month = activeMonth;
+                            }
+
+                            if (activeDateFrom) {
+                                data.date_from = activeDateFrom;
+                            }
+
+                            if (activeDateTo) {
+                                data.date_to = activeDateTo;
+                            }
+
+                            if (activeSearch) {
+                                data.search = activeSearch;
                             }
                         },
                     },
@@ -657,6 +951,83 @@
                     }
                 });
 
+                function orderStatusBadgeClass(status) {
+                    const map = {
+                        pending: 'badge-info',
+                        processing: 'badge-primary',
+                        completed: 'badge-success',
+                        canceled: 'badge-danger',
+                    };
+
+                    return map[status] || 'badge-info';
+                }
+
+                function paymentStatusBadgeClass(status) {
+                    const map = {
+                        pending: 'badge-warning',
+                        processing: 'badge-info',
+                        paid: 'badge-success',
+                        canceled: 'badge-danger',
+                        refunded: 'badge-danger',
+                    };
+
+                    return map[status] || 'badge-secondary';
+                }
+
+                function treatmentStatusBadgeClass(status) {
+                    const map = {
+                        pending: 'badge-warning',
+                        in_progress: 'badge-info',
+                        completed: 'badge-success',
+                        canceled: 'badge-danger',
+                    };
+
+                    return map[status] || 'badge-secondary';
+                }
+
+                function patchOrderRowStatus($toggle, payload, label) {
+                    if (!$toggle || !$toggle.length) {
+                        window.DataTable.reload('#orders-table .table');
+                        return;
+                    }
+
+                    const $row = $toggle.closest('tr');
+
+                    if (!$row.length) {
+                        window.DataTable.reload('#orders-table .table');
+                        return;
+                    }
+
+                    if (payload.status) {
+                        $toggle.attr('data-current-status', payload.status);
+                        const $badge = $row.find('[data-order-status-badge]');
+
+                        if ($badge.length) {
+                            $badge
+                                .attr('class', 'badge ' + orderStatusBadgeClass(payload.status))
+                                .attr('data-status', payload.status)
+                                .text(label || (config.statuses[payload.status] || payload.status));
+                        } else {
+                            window.DataTable.reload('#orders-table .table');
+                        }
+                    }
+
+                    if (payload.treatment_status) {
+                        $toggle.attr('data-current-treatment-status', payload.treatment_status);
+                        const $badge = $row.find('[data-treatment-status-badge]');
+
+                        if ($badge.length) {
+                            $badge
+                                .attr('class', 'badge ' + treatmentStatusBadgeClass(payload.treatment_status))
+                                .attr('data-status', payload.treatment_status)
+                                .text(label || (config.treatmentStatuses[payload.treatment_status] || payload.treatment_status));
+                        } else {
+                            // Multi-appointment rows have no single badge — soft reload.
+                            window.DataTable.reload('#orders-table .table');
+                        }
+                    }
+                }
+
                 function putOrderStatusUpdate($link, payload, fallbackMessage) {
                     if ($link.parent().hasClass('active')) {
                         closeOrderActionsMenu();
@@ -664,6 +1035,9 @@
                     }
 
                     const url = $link.data('url');
+                    const $toggle = $activeActionsToggle;
+                    const statusKey = payload.status || payload.treatment_status || payload.payment_status || '';
+                    const label = $link.text().trim();
 
                     closeOrderActionsMenu();
                     $link.addClass('disabled');
@@ -671,7 +1045,7 @@
                     axios
                         .put(url, payload)
                         .then(function (response) {
-                            window.DataTable.reload('#orders-table .table');
+                            patchOrderRowStatus($toggle, payload, label);
 
                             if (typeof window.success === 'function') {
                                 window.success(
@@ -699,16 +1073,6 @@
                     e.preventDefault();
                     e.stopPropagation();
                     putOrderStatusUpdate($(this), { status: $(this).attr('data-status') }, config.statusUpdatedMessage);
-                });
-
-                $(document).on('click', '.order-table-actions-portal .set-payment-status', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    putOrderStatusUpdate(
-                        $(this),
-                        { payment_status: $(this).attr('data-payment-status') },
-                        config.paymentStatusUpdatedMessage
-                    );
                 });
 
                 $(document).on('click', '.order-table-actions-portal .set-treatment-status', function (e) {

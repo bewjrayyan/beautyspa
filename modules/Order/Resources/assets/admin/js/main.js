@@ -60,11 +60,11 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
 
         let nextStatus = null;
 
-        if (value === "paid" && $orderStatus.val() === "pending_payment") {
+        if (value === "paid" && $orderStatus.val() === "pending") {
             nextStatus = "completed";
         } else if (
-            value === "canceled" &&
-            !["canceled", "refunded"].includes($orderStatus.val())
+            ["canceled", "refunded"].includes(value) &&
+            $orderStatus.val() !== "canceled"
         ) {
             nextStatus = "canceled";
         }
@@ -84,6 +84,77 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
         );
     }
 
+    function paymentReferencePayload() {
+        const $panel = $("#order-payment-reference");
+
+        if (!$panel.length) {
+            return {};
+        }
+
+        return {
+            transaction_id: $("#order-payment-transaction-id").val() || "",
+            admin_note: $("#order-payment-admin-note").val() || "",
+        };
+    }
+
+    function paymentReferenceRequiredFor(status) {
+        const $panel = $("#order-payment-reference");
+
+        if (!$panel.length) {
+            return false;
+        }
+
+        let required = ["paid", "processing"];
+
+        try {
+            const parsed = JSON.parse(
+                $panel.attr("data-requires-reference-for") || "[]"
+            );
+
+            if (Array.isArray(parsed) && parsed.length) {
+                required = parsed;
+            }
+        } catch (error) {
+            // keep defaults
+        }
+
+        return required.includes(status);
+    }
+
+    function syncPaymentReferenceDisplay(data = {}) {
+        const txId = (data.transaction_id || "").trim();
+        const note = (data.admin_note || "").trim();
+        const $txDisplay = $("#order-transaction-id-display");
+        const $noteRow = $("#order-payment-admin-note-row");
+        const $noteDisplay = $("#order-payment-admin-note-display");
+
+        if ($txDisplay.length) {
+            $txDisplay.html(
+                txId
+                    ? `<code class="order-show__mono">${$("<div>").text(txId).html()}</code>`
+                    : "—"
+            );
+        }
+
+        if ($noteRow.length && $noteDisplay.length) {
+            if (note) {
+                $noteDisplay.text(note);
+                $noteRow.prop("hidden", false);
+            } else {
+                $noteDisplay.text("");
+                $noteRow.prop("hidden", true);
+            }
+        }
+
+        if ($("#order-payment-transaction-id").length && txId) {
+            $("#order-payment-transaction-id").val(txId);
+        }
+
+        if ($("#order-payment-admin-note").length && Object.prototype.hasOwnProperty.call(data, "admin_note")) {
+            $("#order-payment-admin-note").val(note);
+        }
+    }
+
     function bindStatusSelect(selector, suffix, $badge, bodyKey) {
         const $select = $(selector);
 
@@ -93,19 +164,47 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
 
         $select.on("change", (e) => {
             const orderId = e.currentTarget.dataset.id;
+            const previousValue = $select.data("previous-value") || $select.find("option").filter(function () {
+                return this.defaultSelected;
+            }).val() || $select.val();
             const value = e.currentTarget.value;
             const label = $(e.currentTarget).find("option:selected").text();
-            const payload = { [bodyKey]: value };
+            let payload = { [bodyKey]: value };
+
+            if (bodyKey === "payment_status") {
+                payload = { ...payload, ...paymentReferencePayload() };
+
+                if (
+                    paymentReferenceRequiredFor(value)
+                    && !(payload.transaction_id || "").trim()
+                ) {
+                    $select.val(previousValue);
+
+                    if (typeof window.error === "function") {
+                        window.error(
+                            $("#order-payment-reference").data("requiredMessage")
+                                || "Enter a Transaction ID / bank reference before setting Paid or Processing."
+                        );
+                    }
+
+                    return;
+                }
+            }
 
             $select.prop("disabled", true);
 
             http
                 .put(adminOrderUrl(orderId, suffix), payload)
                 .then((response) => {
+                    $select.data("previous-value", value);
                     updateBadge($badge, label, value);
 
                     if (bodyKey === "payment_status") {
                         syncOrderStatusAfterPayment(value);
+
+                        if (response?.data && typeof response.data === "object") {
+                            syncPaymentReferenceDisplay(response.data);
+                        }
                     }
 
                     if (typeof window.success === "function") {
@@ -117,6 +216,8 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
                     }
                 })
                 .catch(({ response }) => {
+                    $select.val($select.data("previous-value") || previousValue);
+
                     if (typeof window.error === "function") {
                         window.error(
                             response?.data?.message ?? "Failed to update."
@@ -125,6 +226,53 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
                 })
                 .finally(() => {
                     $select.prop("disabled", false);
+                });
+        });
+
+        $select.data("previous-value", $select.val());
+    }
+
+    function bindPaymentReferenceSave() {
+        const $button = $("#order-payment-reference-save");
+        const $select = $("#order-payment-status");
+
+        if (!$button.length || !$select.length) {
+            return;
+        }
+
+        $button.on("click", () => {
+            const orderId = $select.data("id");
+            const payload = {
+                payment_status: $select.val(),
+                ...paymentReferencePayload(),
+            };
+
+            $button.prop("disabled", true);
+
+            http
+                .put(adminOrderUrl(orderId, "payment-status"), payload)
+                .then((response) => {
+                    if (response?.data && typeof response.data === "object") {
+                        syncPaymentReferenceDisplay(response.data);
+                    }
+
+                    if (typeof window.success === "function") {
+                        window.success(
+                            typeof response.data === "string"
+                                ? response.data
+                                : response.data.message || "Saved."
+                        );
+                    }
+                })
+                .catch(({ response }) => {
+                    if (typeof window.error === "function") {
+                        window.error(
+                            response?.data?.message ?? "Failed to save."
+                        );
+                    }
+                })
+                .finally(() => {
+                    $button.prop("disabled", false);
                 });
         });
     }
@@ -239,6 +387,7 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
             "treatment_status"
         );
 
+        bindPaymentReferenceSave();
         bindOrderActionsDropdown();
         bindOrderWhatsAppSend();
         bindGoogleSheetsSync();

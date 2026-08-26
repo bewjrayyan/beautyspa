@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Modules\Checkout\Services\CheckoutCompletionGuard;
 use Modules\Order\Entities\Order;
 use Modules\Admin\Traits\HasCrudActions;
 use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
@@ -65,12 +66,25 @@ class OrderController
                 ->get();
         }
 
+        $offlineMethods = CheckoutCompletionGuard::offlineMethods();
+        $offlineOrdersCount = Order::query()->whereIn('payment_method', $offlineMethods)->count();
+        $onlineOrdersCount = Order::query()
+            ->where(function ($query) use ($offlineMethods): void {
+                $query
+                    ->whereNotIn('payment_method', $offlineMethods)
+                    ->orWhereNull('payment_method')
+                    ->orWhere('payment_method', '');
+            })
+            ->count();
+
         return view("{$this->viewPath}.index", [
             'archivedCount' => Order::onlyTrashed()->count(),
             'sheetsFailedCount' => is_module_enabled('GoogleIntegration') && setting('google_sheets_enabled')
                 ? Order::query()->whereNotNull('google_sheets_sync_error')->count()
                 : 0,
             'totalOrdersCount' => Order::count(),
+            'offlineOrdersCount' => $offlineOrdersCount,
+            'onlineOrdersCount' => $onlineOrdersCount,
             'paymentStatusCounts' => Order::query()
                 ->selectRaw('payment_status, COUNT(*) as aggregate')
                 ->groupBy('payment_status')

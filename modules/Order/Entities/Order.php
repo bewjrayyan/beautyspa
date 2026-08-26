@@ -2,6 +2,9 @@
 
 namespace Modules\Order\Entities;
 
+use Modules\Checkout\Services\CheckoutCompletionGuard;
+use Modules\Order\Services\OrderIndexQueryFilter;
+
 use Modules\Cart\CartTax;
 use Modules\Cart\CartItem;
 use Modules\Support\Money;
@@ -10,6 +13,7 @@ use Modules\Support\State;
 use Modules\Support\Country;
 use Modules\Media\Entities\File;
 use Modules\Tax\Entities\TaxRate;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -42,16 +46,23 @@ class Order extends Model
 
     const CANCELED = 'canceled';
     const COMPLETED = 'completed';
-    const ON_HOLD = 'on_hold';
     const PENDING = 'pending';
-    const PENDING_PAYMENT = 'pending_payment';
     const PROCESSING = 'processing';
+
+    /** @deprecated Legacy WooCommerce-style status; migrated to PENDING. */
+    const ON_HOLD = 'on_hold';
+
+    /** @deprecated Legacy status; migrated to PENDING. Payment lives in payment_status. */
+    const PENDING_PAYMENT = 'pending_payment';
+
+    /** @deprecated Legacy status; migrated to CANCELED + PAYMENT_REFUNDED. */
     const REFUNDED = 'refunded';
 
     const PAYMENT_PENDING = 'pending';
     const PAYMENT_PROCESSING = 'processing';
     const PAYMENT_PAID = 'paid';
     const PAYMENT_CANCELED = 'canceled';
+    const PAYMENT_REFUNDED = 'refunded';
 
     /**
      * @var array<int, string>
@@ -121,9 +132,136 @@ class Order extends Model
     ];
 
 
-    public static function totalSales()
+    public function scopePaid(Builder $query): Builder
     {
-        return Money::inDefaultCurrency(self::withoutCanceledOrders()->sum('total'));
+        return $query->where($query->getModel()->getTable() . '.payment_status', self::PAYMENT_PAID);
+    }
+
+
+    public function scopeRefundedPayment(Builder $query): Builder
+    {
+        return $query->where($query->getModel()->getTable() . '.payment_status', self::PAYMENT_REFUNDED);
+    }
+
+
+    /**
+     * Booked sales: all non-canceled orders (includes unpaid pending/processing).
+     */
+    public static function totalSales(): Money
+    {
+        return Money::inDefaultCurrency((float) self::query()->withoutCanceledOrders()->sum('total'));
+    }
+
+
+    /**
+     * Collected sales: paid payment status only.
+     */
+    public static function netSales(): Money
+    {
+        return Money::inDefaultCurrency((float) self::query()->paid()->sum('total'));
+    }
+
+
+    /**
+     * Sales snapshot.
+     * - total = booked (non-canceled)
+     * - net = paid only
+     * - refunded = refunded payments (informational)
+     * Master total/net equal sum of by_branch total/net.
+     *
+     * @return array{
+     *     total: float,
+     *     refunded: float,
+     *     net: float,
+     *     by_branch: list<array{branch_id: int|null, name: string, total: float, refunded: float, net: float}>
+     * }
+     */
+    public static function salesSnapshot($from = null, $to = null): array
+    {
+        $applyRange = static function (Builder $query) use ($from, $to): Builder {
+            if ($from !== null) {
+                $query->where('created_at', '>=', $from);
+            }
+
+            if ($to !== null) {
+                $query->where('created_at', '<=', $to);
+            }
+
+            return $query;
+        };
+
+        $bookedByBranch = $applyRange(self::query()->withoutCanceledOrders())
+            ->selectRaw('spa_branch_id')
+            ->selectRaw('COALESCE(SUM(total), 0) as amount')
+            ->groupBy('spa_branch_id')
+            ->get()
+            ->mapWithKeys(fn ($row) => [
+                $row->spa_branch_id === null ? 'none' : (string) $row->spa_branch_id => (float) $row->amount,
+            ]);
+
+        $paidByBranch = $applyRange(self::query()->paid())
+            ->selectRaw('spa_branch_id')
+            ->selectRaw('COALESCE(SUM(total), 0) as amount')
+            ->groupBy('spa_branch_id')
+            ->get()
+            ->mapWithKeys(fn ($row) => [
+                $row->spa_branch_id === null ? 'none' : (string) $row->spa_branch_id => (float) $row->amount,
+            ]);
+
+        $refundedByBranch = $applyRange(self::query()->refundedPayment())
+            ->selectRaw('spa_branch_id')
+            ->selectRaw('COALESCE(SUM(total), 0) as amount')
+            ->groupBy('spa_branch_id')
+            ->get()
+            ->mapWithKeys(fn ($row) => [
+                $row->spa_branch_id === null ? 'none' : (string) $row->spa_branch_id => (float) $row->amount,
+            ]);
+
+        $keys = $bookedByBranch->keys()
+            ->merge($paidByBranch->keys())
+            ->merge($refundedByBranch->keys())
+            ->unique()
+            ->values();
+
+        $namedIds = $keys->filter(fn ($key) => $key !== 'none')->map(fn ($key) => (int) $key)->values();
+        $branchNames = $namedIds->isEmpty()
+            ? collect()
+            : SpaBranch::query()->whereIn('id', $namedIds)->pluck('name', 'id');
+
+        $byBranch = [];
+        $total = 0.0;
+        $net = 0.0;
+        $refunded = 0.0;
+
+        foreach ($keys as $key) {
+            $branchTotal = (float) ($bookedByBranch[$key] ?? 0);
+            $branchNet = (float) ($paidByBranch[$key] ?? 0);
+            $branchRefunded = (float) ($refundedByBranch[$key] ?? 0);
+            $total += $branchTotal;
+            $net += $branchNet;
+            $refunded += $branchRefunded;
+
+            $name = $key === 'none'
+                ? trans('admin::dashboard.sales_analytics.no_branch')
+                : (string) ($branchNames[(int) $key] ?? ('#' . $key));
+
+            $byBranch[] = [
+                'branch_id' => $key === 'none' ? null : (int) $key,
+                'name' => $name,
+                'total' => $branchTotal,
+                'refunded' => $branchRefunded,
+                'net' => $branchNet,
+            ];
+        }
+
+        usort($byBranch, static fn ($a, $b) => $b['total'] <=> $a['total']);
+
+        return [
+            'total' => $total,
+            'refunded' => $refunded,
+            'net' => $net,
+            'by_branch' => array_values($byBranch),
+        ];
     }
 
 
@@ -156,12 +294,9 @@ class Order extends Model
     {
         return [
             self::PENDING,
-            self::PENDING_PAYMENT,
             self::PROCESSING,
-            self::ON_HOLD,
             self::COMPLETED,
             self::CANCELED,
-            self::REFUNDED,
         ];
     }
 
@@ -173,6 +308,7 @@ class Order extends Model
             self::PAYMENT_PROCESSING,
             self::PAYMENT_PAID,
             self::PAYMENT_CANCELED,
+            self::PAYMENT_REFUNDED,
         ];
     }
 
@@ -567,7 +703,7 @@ class Order extends Model
 
     public function scopeWithoutCanceledOrders($query)
     {
-        return $query->whereNotIn('status', [self::CANCELED, self::REFUNDED]);
+        return $query->where('status', '!=', self::CANCELED);
     }
 
 
@@ -661,12 +797,17 @@ class Order extends Model
             'total',
             'status',
             'payment_status',
+            'payment_method',
             'beautician_id',
             'spa_branch_id',
             'google_sheets_sync_error',
             'created_at',
             'deleted_at',
-        ])->with(['spaBranch:id,name', 'beautician:id,first_name,last_name']);
+        ])->with([
+            'spaBranch:id,name',
+            'beautician:id,first_name,last_name',
+            'transaction:id,order_id,transaction_id,admin_note',
+        ]);
 
         if (is_module_enabled('TreatmentReservation')) {
             $query->with(['treatmentBookings:id,order_id,status,product_id,schedule_status']);
@@ -690,13 +831,25 @@ class Order extends Model
             $query->where('payment_status', $paymentStatus);
         }
 
+        $paymentChannel = $request->input('payment_channel');
+        $offlineMethods = CheckoutCompletionGuard::offlineMethods();
+
+        if ($paymentChannel === 'offline') {
+            $query->whereIn('payment_method', $offlineMethods);
+        } elseif ($paymentChannel === 'online') {
+            $query->where(function ($builder) use ($offlineMethods): void {
+                $builder
+                    ->whereNotIn('payment_method', $offlineMethods)
+                    ->orWhereNull('payment_method')
+                    ->orWhere('payment_method', '');
+            });
+        }
+
         if ($request->filled('beautician_id')) {
             $query->where('beautician_id', $request->input('beautician_id'));
         }
 
-        if ($request->input('date') === 'today') {
-            $query->whereDate('created_at', today());
-        }
+        app(OrderIndexQueryFilter::class)->apply($query, $request);
 
         return new OrderTable($query);
     }

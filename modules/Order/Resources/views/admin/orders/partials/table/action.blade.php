@@ -23,12 +23,10 @@
         title="{{ trans('order::orders.table.actions') }}"
         data-order-id="{{ $order->id }}"
         data-current-status="{{ $order->status }}"
-        data-current-payment-status="{{ $order->payment_status }}"
         data-show-url="{{ route('admin.orders.show', $order) }}"
         data-print-url="{{ route('admin.orders.print.show', $order) }}"
         data-receipt-url="{{ route('admin.orders.receipt.show', $order) }}"
         data-status-url="{{ route('admin.orders.status.update', $order) }}"
-        data-payment-status-url="{{ route('admin.orders.payment_status.update', $order) }}"
         @if ($singleBooking)
             data-treatment-status-url="{{ route('admin.orders.treatment_status.update', $order) }}"
             data-current-treatment-status="{{ $singleBooking->status }}"

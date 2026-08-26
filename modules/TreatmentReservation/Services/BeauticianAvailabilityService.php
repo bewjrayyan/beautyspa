@@ -325,7 +325,6 @@ class BeauticianAvailabilityService
         return [
             Order::PENDING,
             Order::PROCESSING,
-            Order::ON_HOLD,
             Order::COMPLETED,
         ];
     }

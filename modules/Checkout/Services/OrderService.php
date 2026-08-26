@@ -258,7 +258,7 @@ class OrderService
                 'currency' => currency(),
                 'currency_rate' => CurrencyRate::for(currency()),
                 'locale' => locale(),
-                'status' => Order::PENDING_PAYMENT,
+                'status' => Order::PENDING,
                 'payment_status' => Order::PAYMENT_PENDING,
                 'note' => $this->buildOrderNote($request, $snapshot, $lines),
                 'beautician_id' => $snapshot['beautician_id'],

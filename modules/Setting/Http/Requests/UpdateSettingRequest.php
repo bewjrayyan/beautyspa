@@ -2,6 +2,8 @@
 
 namespace Modules\Setting\Http\Requests;
 
+use Modules\Order\Entities\Order;
+
 use Illuminate\Validation\Rule;
 use Modules\Support\Locale;
 use Modules\Support\Country;
@@ -513,7 +515,7 @@ class UpdateSettingRequest extends Request
      */
     private function orderStatuses()
     {
-        return array_keys(trans('order::statuses'));
+        return Order::statuses();
     }
 
 

@@ -293,11 +293,13 @@ if (!function_exists('order_status_badge_class')) {
     function order_status_badge_class($status)
     {
         $classes = [
-            'canceled' => 'badge-danger',
+            'pending' => 'badge-info',
+            'processing' => 'badge-primary',
             'completed' => 'badge-success',
-            'on_hold' => 'badge-warning',
-            'pending_payment' => 'badge-warning',
-            'processing' => 'badge-success',
+            'canceled' => 'badge-danger',
+            // legacy migrated values
+            'on_hold' => 'badge-info',
+            'pending_payment' => 'badge-info',
             'refunded' => 'badge-danger',
         ];
 
@@ -313,6 +315,7 @@ if (!function_exists('payment_status_badge_class')) {
             'processing' => 'badge-info',
             'paid' => 'badge-success',
             'canceled' => 'badge-danger',
+            'refunded' => 'badge-danger',
         ];
 
         return $classes[$paymentStatus] ?? 'badge-default';

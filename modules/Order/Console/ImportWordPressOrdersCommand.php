@@ -273,7 +273,7 @@ class ImportWordPressOrdersCommand extends Command
             $subTotal = $this->resolveSubTotal($items, $total, $discount, $shippingCost);
             $createdAt = $this->parseDateTime($orderRow['date_created_gmt'] ?? null) ?? now();
             $status = $this->mapOrderStatus((string) ($orderRow['status'] ?? ''));
-            $paymentStatus = $this->mapPaymentStatus($status, $ops);
+            $paymentStatus = $this->mapPaymentStatus((string) ($orderRow['status'] ?? ''), $status, $ops);
             $appointmentDate = $this->parseAppointmentDate($orderMeta['date_appointment'] ?? null);
             $appointmentTime = $this->parseAppointmentTime($orderMeta['time_appointment'] ?? null);
 
@@ -684,9 +684,8 @@ class ImportWordPressOrdersCommand extends Command
         return match ($status) {
             'wc-completed' => Order::COMPLETED,
             'wc-processing' => Order::PROCESSING,
-            'wc-on-hold' => Order::ON_HOLD,
-            'wc-pending' => Order::PENDING_PAYMENT,
-            'wc-refunded' => Order::REFUNDED,
+            'wc-on-hold', 'wc-pending' => Order::PENDING,
+            'wc-refunded' => Order::CANCELED,
             'wc-cancelled', 'wc-canceled', 'wc-failed' => Order::CANCELED,
             default => Order::PENDING,
         };
@@ -695,10 +694,10 @@ class ImportWordPressOrdersCommand extends Command
     /**
      * @param array<string, mixed> $ops
      */
-    private function mapPaymentStatus(string $orderStatus, array $ops): string
+    private function mapPaymentStatus(string $wcStatus, string $orderStatus, array $ops): string
     {
-        if ($orderStatus === Order::REFUNDED) {
-            return Order::PAYMENT_CANCELED;
+        if ($wcStatus === 'wc-refunded') {
+            return Order::PAYMENT_REFUNDED;
         }
 
         if (in_array($orderStatus, [Order::COMPLETED, Order::PROCESSING], true)) {

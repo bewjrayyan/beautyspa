@@ -268,12 +268,14 @@ class TreatmentBooking extends Model
 
     public static function statusFromOrder(string $orderStatus, ?string $paymentStatus = null): string
     {
-        if (in_array($orderStatus, [Order::CANCELED, Order::REFUNDED], true)
-            || $paymentStatus === Order::PAYMENT_CANCELED) {
+        if (
+            $orderStatus === Order::CANCELED
+            || in_array($paymentStatus, [Order::PAYMENT_CANCELED, Order::PAYMENT_REFUNDED], true)
+        ) {
             return self::STATUS_CANCELED;
         }
 
-        if (in_array($orderStatus, [Order::PROCESSING, Order::ON_HOLD], true)) {
+        if ($orderStatus === Order::PROCESSING) {
             return self::STATUS_IN_PROGRESS;
         }
 

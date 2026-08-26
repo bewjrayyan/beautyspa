@@ -2,11 +2,13 @@
 
 namespace Modules\Transaction\Entities;
 
+use Illuminate\Http\Request;
+use Modules\Checkout\Services\CheckoutCompletionGuard;
 use Modules\Order\Entities\Order;
-use Modules\Support\Eloquent\Model;
 use Modules\Payment\Facades\Gateway;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Support\Eloquent\Model;
 use Modules\Transaction\Admin\TransactionTable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Transaction extends Model
 {
@@ -26,9 +28,8 @@ class Transaction extends Model
      */
     protected $casts = [
         'data' => 'array',
-        'deleted_at' => 'datetime'
+        'deleted_at' => 'datetime',
     ];
-
 
 
     public function order()
@@ -43,8 +44,42 @@ class Transaction extends Model
     }
 
 
-    public function table()
+    public function table(Request $request)
     {
-        return new TransactionTable($this->newQuery()->with('order'));
+        $channel = $request->get('channel') === 'offline' ? 'offline' : 'online';
+        $offlineMethods = CheckoutCompletionGuard::offlineMethods();
+
+        $query = Order::query()
+            ->select([
+                'id',
+                'customer_first_name',
+                'customer_last_name',
+                'payment_method',
+                'payment_status',
+                'beautician_id',
+                'spa_branch_id',
+                'currency',
+                'total',
+                'created_at',
+            ])
+            ->with([
+                'transaction' => static fn ($relation) => $relation->withTrashed(),
+                'beautician:id,first_name,last_name',
+                'spaBranch:id,name',
+            ]);
+
+        if ($channel === 'offline') {
+            $query->whereIn('payment_method', $offlineMethods);
+        } else {
+            // Catch-all so non-offline methods (and blank legacy rows) are never dropped.
+            $query->where(function ($builder) use ($offlineMethods): void {
+                $builder
+                    ->whereNotIn('payment_method', $offlineMethods)
+                    ->orWhereNull('payment_method')
+                    ->orWhere('payment_method', '');
+            });
+        }
+
+        return new TransactionTable($query);
     }
 }

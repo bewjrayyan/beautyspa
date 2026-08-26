@@ -43,7 +43,7 @@ class ProcessLoyaltyOnOrderStatusChanged implements ShouldQueueAfterCommit
             return;
         }
 
-        if (in_array($order->status, [Order::CANCELED, Order::REFUNDED], true)) {
+        if ($order->status === Order::CANCELED || $order->payment_status === Order::PAYMENT_REFUNDED) {
             $this->earn->clawbackFromOrder($order);
             $this->orders->refundRedemption($order);
             $this->stamps->clawbackForOrder($order);

@@ -3,6 +3,8 @@
 return [
     'status_updated' => 'Order status has been updated',
     'payment_status_updated' => 'Payment status has been updated',
+    'payment_reference_saved' => 'Payment reference has been saved',
+    'payment_reference_required' => 'Enter a Transaction ID / bank reference before setting payment to Paid or Processing.',
     'invalid_order_status' => 'Invalid order status.',
     'invalid_payment_status' => 'Invalid payment status.',
     'invalid_treatment_status' => 'Invalid treatment status.',

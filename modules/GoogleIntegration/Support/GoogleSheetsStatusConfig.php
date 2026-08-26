@@ -12,13 +12,10 @@ class GoogleSheetsStatusConfig
     public static function statuses(): array
     {
         return [
-            Order::PENDING_PAYMENT => trans('order::statuses.pending_payment'),
             Order::PENDING => trans('order::statuses.pending'),
             Order::PROCESSING => trans('order::statuses.processing'),
-            Order::ON_HOLD => trans('order::statuses.on_hold'),
             Order::COMPLETED => trans('order::statuses.completed'),
             Order::CANCELED => trans('order::statuses.canceled'),
-            Order::REFUNDED => trans('order::statuses.refunded'),
         ];
     }
 
@@ -29,13 +26,10 @@ class GoogleSheetsStatusConfig
     public static function defaults(): array
     {
         return [
-            Order::PENDING_PAYMENT => ['enabled' => true, 'tab' => 'Pending Payment Orders'],
-            Order::PENDING => ['enabled' => false, 'tab' => 'Pending Orders'],
+            Order::PENDING => ['enabled' => true, 'tab' => 'Pending Orders'],
             Order::PROCESSING => ['enabled' => true, 'tab' => 'Processing Orders'],
-            Order::ON_HOLD => ['enabled' => false, 'tab' => 'On Hold Orders'],
             Order::COMPLETED => ['enabled' => true, 'tab' => 'Completed Bookings'],
             Order::CANCELED => ['enabled' => false, 'tab' => 'Canceled Orders'],
-            Order::REFUNDED => ['enabled' => false, 'tab' => 'Refunded Orders'],
         ];
     }
 

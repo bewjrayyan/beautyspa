@@ -14,7 +14,7 @@ class ExpireStalePendingCheckoutOrdersCommand extends Command
                             {--hours=24 : Cancel unpaid online checkout orders older than this many hours}
                             {--dry-run : List matching orders without deleting them}';
 
-    protected $description = 'Cancel abandoned online checkout orders (pending_payment) and purge expired slot holds';
+    protected $description = 'Cancel abandoned online checkout orders (pending + unpaid) and purge expired slot holds';
 
     public function handle(OrderService $orderService, CheckoutSlotHoldService $holdService): int
     {
@@ -27,7 +27,7 @@ class ExpireStalePendingCheckoutOrdersCommand extends Command
 
         $orders = Order::query()
             ->with('transaction')
-            ->where('status', Order::PENDING_PAYMENT)
+            ->where('status', Order::PENDING)
             ->where('payment_status', Order::PAYMENT_PENDING)
             ->where('created_at', '<', $cutoff)
             ->whereNotIn('payment_method', CheckoutCompletionGuard::offlineMethods())

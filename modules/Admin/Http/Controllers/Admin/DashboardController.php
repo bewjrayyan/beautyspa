@@ -33,6 +33,8 @@ class DashboardController
 
         return view('admin::dashboard.index', [
             'totalSales' => $topStats['totalSales'],
+            'netSales' => $topStats['netSales'],
+            'salesByBranch' => $topStats['salesByBranch'],
             'thisMonthSales' => $topStats['thisMonthSales'],
             'pendingPaymentCount' => $topStats['pendingPaymentCount'],
             'todayOrdersCount' => $topStats['todayOrdersCount'],
@@ -80,10 +82,12 @@ class DashboardController
      */
     private function cachedTopStats(bool $loyaltyEnabled): array
     {
-        $cacheKey = 'admin.dashboard.top_stats.'.($loyaltyEnabled ? 'loyalty' : 'no-loyalty');
+        $cacheKey = 'admin.dashboard.top_stats.v3-booked-net.'.($loyaltyEnabled ? 'loyalty' : 'no-loyalty');
 
         return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($loyaltyEnabled) {
-            $orderQuery = Order::query()->withoutCanceledOrders();
+            $bookedQuery = Order::query()->withoutCanceledOrders();
+            $orderQuery = $bookedQuery;
+            $salesSnapshot = Order::salesSnapshot();
 
             $loyaltyCounts = $loyaltyEnabled
                 ? LoyaltyWallet::query()
@@ -96,11 +100,11 @@ class DashboardController
             $lastWeekStart = now()->subWeek()->startOfWeek();
             $lastWeekEnd = now()->subWeek()->endOfWeek();
 
-            $thisWeekSales = (clone $orderQuery)->where('created_at', '>=', $thisWeekStart)->sum('total');
-            $lastWeekSales = (clone $orderQuery)->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('total');
+            $thisWeekSales = (clone $bookedQuery)->where('created_at', '>=', $thisWeekStart)->sum('total');
+            $lastWeekSales = (clone $bookedQuery)->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('total');
 
-            $thisWeekOrders = (clone $orderQuery)->where('created_at', '>=', $thisWeekStart)->count();
-            $lastWeekOrders = (clone $orderQuery)->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
+            $thisWeekOrders = (clone $bookedQuery)->where('created_at', '>=', $thisWeekStart)->count();
+            $lastWeekOrders = (clone $bookedQuery)->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
 
             $thisWeekCustomers = User::where('created_at', '>=', $thisWeekStart)->count();
             $lastWeekCustomers = User::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
@@ -124,10 +128,22 @@ class DashboardController
                 $sparkline[] = (float) ($dailySales[$day] ?? 0);
             }
 
+            $salesByBranch = collect($salesSnapshot['by_branch'])->map(function (array $row) {
+                return [
+                    'branch_id' => $row['branch_id'],
+                    'name' => $row['name'],
+                    'total' => Money::inDefaultCurrency($row['total']),
+                    'refunded' => Money::inDefaultCurrency($row['refunded']),
+                    'net' => Money::inDefaultCurrency($row['net']),
+                ];
+            })->all();
+
             return [
-                'totalSales' => Order::totalSales(),
+                'totalSales' => Money::inDefaultCurrency($salesSnapshot['total']),
+                'netSales' => Money::inDefaultCurrency($salesSnapshot['net']),
+                'salesByBranch' => $salesByBranch,
                 'thisMonthSales' => Money::inDefaultCurrency(
-                    (clone $orderQuery)
+                    (clone $bookedQuery)
                         ->whereBetween('created_at', [now()->subMonths(3)->startOfMonth(), now()->endOfMonth()])
                         ->sum('total')
                 ),
@@ -204,7 +220,7 @@ class DashboardController
             ->whereNotNull('appointment_date')
             ->withoutCanceledOrders()
             ->where('appointment_date', '>', today()->toDateString())
-            ->whereNotIn('status', [Order::CANCELED, Order::REFUNDED, Order::COMPLETED])
+            ->whereNotIn('status', [Order::CANCELED, Order::COMPLETED])
             ->orderBy('appointment_date')
             ->take(5)
             ->get();
@@ -301,7 +317,7 @@ class DashboardController
             ->leftJoin('orders', function ($join) use ($startOfMonth, $endOfMonth) {
                 $join->on('orders.beautician_id', '=', 'beauticians.id')
                     ->whereBetween('orders.created_at', [$startOfMonth, $endOfMonth])
-                    ->whereNotIn('orders.status', [Order::CANCELED, Order::REFUNDED]);
+                    ->whereNotIn('orders.status', [Order::CANCELED]);
             })
             ->where('beauticians.is_active', true)
             ->groupBy('beauticians.id', 'beauticians.first_name', 'beauticians.last_name', 'beauticians.profile_color', 'beauticians.job_title')

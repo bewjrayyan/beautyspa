@@ -66,13 +66,15 @@ class OrderTable extends AdminTable
                 return $order->total->format();
             })
             ->editColumn('status', function ($order) {
-                return '<span class="badge ' . order_status_badge_class($order->status) . '" title="'
+                return '<span class="badge ' . order_status_badge_class($order->status)
+                    . '" data-order-status-badge="1" data-status="' . e($order->status) . '" title="'
                     . e(trans('order::orders.order_status_help')) . '">'
                     . e($order->status())
                     . '</span>';
             })
             ->editColumn('payment_status', function ($order) {
-                return '<span class="badge ' . payment_status_badge_class($order->payment_status) . '" title="'
+                return '<span class="badge ' . payment_status_badge_class($order->payment_status)
+                    . '" data-payment-status-badge="1" data-status="' . e((string) $order->payment_status) . '" title="'
                     . e(trans('order::orders.payment_status_help')) . '">'
                     . e($order->paymentStatusLabel())
                     . '</span>';
@@ -101,7 +103,8 @@ class OrderTable extends AdminTable
 
                 $treatmentBooking = $bookings->first();
 
-                return '<span class="badge ' . treatment_status_badge_class($treatmentBooking->status) . '" title="'
+                return '<span class="badge ' . treatment_status_badge_class($treatmentBooking->status)
+                    . '" data-treatment-status-badge="1" data-status="' . e($treatmentBooking->status) . '" title="'
                     . e(trans('order::orders.treatment_status_help')) . '">'
                     . e($treatmentBooking->treatmentStatusLabel())
                     . '</span>';

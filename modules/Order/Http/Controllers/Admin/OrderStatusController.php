@@ -51,7 +51,7 @@ class OrderStatusController
 
     private function canceledOrRefunded($status)
     {
-        return in_array($status, [Order::CANCELED, Order::REFUNDED]);
+        return $status === Order::CANCELED;
     }
 
 

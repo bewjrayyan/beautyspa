@@ -964,7 +964,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/dashboard.scss": {
-    "file": "assets/dashboard-BOIJEOiC-v4.7.72.css",
+    "file": "assets/dashboard-Cl8Cq0_T-v4.7.72.css",
     "src": "modules/Admin/Resources/assets/sass/dashboard.scss",
     "isEntry": true,
     "name": "dashboard",
@@ -1155,7 +1155,7 @@
     "src": "modules/Option/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-B79ULXmG-v4.7.72.js",
+    "file": "assets/main-BM6bdg1--v4.7.72.js",
     "name": "main",
     "src": "modules/Order/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1164,7 +1164,7 @@
     ]
   },
   "modules/Order/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BI9F31OB-v4.7.72.css",
+    "file": "assets/main-BTkb-AtV-v4.7.72.css",
     "src": "modules/Order/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/sass/print.scss": {
@@ -1759,7 +1759,12 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-Be7LCrQv-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
+    "isEntry": true,
+    "name": "main",
+    "names": [
+      "main.css"
+    ]
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
     "file": "assets/main-DAoR6zom-v4.7.72.css",
@@ -1767,12 +1772,7 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-CvmX_-RN-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss",
-    "isEntry": true,
-    "name": "main",
-    "names": [
-      "main.css"
-    ]
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/profile/main.scss": {
     "file": "assets/main-BV207gSw-v4.7.72.css",
@@ -1902,7 +1902,7 @@
     "src": "modules/Tax/Resources/assets/admin/sass/main.scss"
   },
   "modules/Transaction/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BBUan7uG-v4.7.72.css",
+    "file": "assets/main-LNkAT9f7-v4.7.72.css",
     "src": "modules/Transaction/Resources/assets/admin/sass/main.scss"
   },
   "modules/Translation/Resources/assets/admin/languages/js/main.js": {

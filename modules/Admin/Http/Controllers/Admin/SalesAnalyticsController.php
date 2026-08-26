@@ -11,7 +11,7 @@ class SalesAnalyticsController
 {
     public function index(Order $order)
     {
-        $payload = Cache::remember('admin.dashboard.sales_analytics', now()->addMinutes(5), function () {
+        $payload = Cache::remember('admin.dashboard.sales_analytics.v3-booked', now()->addMinutes(5), function () {
             $hasBranches = is_module_enabled('SpaBranch');
 
             $labels = [];

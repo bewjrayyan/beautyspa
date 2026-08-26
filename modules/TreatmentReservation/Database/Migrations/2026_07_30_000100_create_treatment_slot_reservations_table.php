@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    private const ACTIVE_ORDER_STATUSES = "'pending_payment','pending','processing','on_hold','completed'";
+    private const ACTIVE_ORDER_STATUSES = "'pending','processing','completed'";
 
     private const ACTIVE_BOOKING_STATUSES = "'pending','in_progress'";
 

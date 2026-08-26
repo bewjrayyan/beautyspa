@@ -113,19 +113,61 @@
             <div class="order-show__status-field order-show__status-field--order">
                 <label for="order-status" title="{{ trans('order::orders.order_status_help') }}">{{ trans('order::orders.order_status') }}</label>
                 <select id="order-status" class="form-control custom-select-black order-show__status-select" data-id="{{ $order->id }}">
-                    @foreach (trans('order::statuses') as $name => $label)
-                        <option value="{{ $name }}" {{ $order->status === $name ? 'selected' : '' }}>{{ $label }}</option>
+                    @foreach (\Modules\Order\Entities\Order::statuses() as $name)
+                        <option value="{{ $name }}" {{ $order->status === $name ? 'selected' : '' }}>{{ trans('order::statuses.' . $name) }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="order-show__status-field order-show__status-field--payment">
                 <label for="order-payment-status" title="{{ trans('order::orders.payment_status_help') }}">{{ trans('order::orders.payment_status') }}</label>
                 <select id="order-payment-status" class="form-control custom-select-black order-show__status-select" data-id="{{ $order->id }}">
-                    @foreach (trans('order::payment_statuses') as $name => $label)
-                        <option value="{{ $name }}" {{ $order->payment_status === $name ? 'selected' : '' }}>{{ $label }}</option>
+                    @foreach (\Modules\Order\Entities\Order::paymentStatuses() as $name)
+                        <option value="{{ $name }}" {{ $order->payment_status === $name ? 'selected' : '' }}>{{ trans('order::payment_statuses.' . $name) }}</option>
                     @endforeach
                 </select>
             </div>
+
+            @if ($order->getRawOriginal('payment_method') === 'bank_transfer')
+                <div
+                    class="order-show__payment-reference"
+                    id="order-payment-reference"
+                    data-payment-method="bank_transfer"
+                    data-requires-reference-for='@json(\Modules\Order\Services\OrderPaymentReferenceService::statusesRequiringReference())'
+                    data-required-message="{{ e(trans('order::messages.payment_reference_required')) }}"
+                >
+                    <p class="order-show__payment-reference-title">
+                        <i class="fa fa-university" aria-hidden="true"></i>
+                        {{ trans('order::orders.payment_reference_title') }}
+                    </p>
+                    <p class="order-show__payment-reference-help">{{ trans('order::orders.payment_reference_help') }}</p>
+                    <div class="form-group">
+                        <label for="order-payment-transaction-id">{{ trans('order::orders.payment_reference_id') }}</label>
+                        <input
+                            type="text"
+                            id="order-payment-transaction-id"
+                            class="form-control"
+                            maxlength="191"
+                            value="{{ e($order->transaction?->transaction_id) }}"
+                            placeholder="{{ trans('order::orders.payment_reference_id_placeholder') }}"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="order-payment-admin-note">{{ trans('order::orders.payment_reference_note') }}</label>
+                        <textarea
+                            id="order-payment-admin-note"
+                            class="form-control"
+                            rows="2"
+                            maxlength="2000"
+                            placeholder="{{ trans('order::orders.payment_reference_note_placeholder') }}"
+                        >{{ e($order->transaction?->admin_note) }}</textarea>
+                    </div>
+                    <button type="button" class="btn btn-default btn-sm" id="order-payment-reference-save">
+                        <i class="fa fa-save" aria-hidden="true"></i>
+                        {{ trans('order::orders.payment_reference_save') }}
+                    </button>
+                </div>
+            @endif
             @if (!empty($treatmentBooking))
                 <div class="order-show__status-field order-show__status-field--treatment">
                     <label for="order-treatment-status" title="{{ trans('order::orders.treatment_status_help') }}">{{ trans('order::orders.treatment_status') }}</label>

@@ -5,6 +5,30 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.45' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Align order vs payment statuses, improve Orders filters, and POS-style Total/Net sales by branch.',
+            'changes' => [
+                'Order status slimmed to Pending/Processing/Completed/Canceled; Refunded moved to payment status.',
+                'Orders index: Offline/Online channel filters, Flatpickr date range, month and search filters.',
+                'Bank-transfer payment verification (transaction ID) and Transactions Offline/Online tabs.',
+                'Dashboard Total Sales = booked (non-canceled); Net Sales = Paid only; sales by spa branch.',
+                'Faster status updates via database queue driver and lighter booking observer on status-only changes.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Seragamkan status pesanan vs bayaran, penapis Orders lebih baik, dan jualan Total/Net gaya POS mengikut cawangan.',
+            'changes' => [
+                'Status pesanan diperkecil kepada Menunggu/Diproses/Selesai/Dibatalkan; Dipulangkan dipindah ke status bayaran.',
+                'Indeks Orders: penapis saluran Luar/Dalam talian, julat tarikh Flatpickr, bulan dan carian.',
+                'Pengesahan bayaran bank transfer (ID transaksi) dan tab Offline/Online pada Transactions.',
+                'Dashboard Jumlah Jualan = ditempah (tidak dibatalkan); Jualan Bersih = Dibayar sahaja; pecahan mengikut cawangan spa.',
+                'Kemas kini status lebih pantas dengan queue database dan observer booking lebih ringan.',
+            ],
+        ],
+    ],
+
     '4.11.38' => [
         'date' => '2026-08-26',
         'en' => [

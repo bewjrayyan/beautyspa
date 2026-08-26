@@ -1,5 +1,5 @@
 <a
-    href="{{ route('admin.orders.show', $transaction->order_id) }}"
+    href="{{ route('admin.orders.show', $order->id) }}"
     class="btn btn-default btn-sm transactions-table__view-btn"
     title="{{ trans('transaction::transactions.view_order') }}"
 >

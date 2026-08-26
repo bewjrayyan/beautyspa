@@ -3,6 +3,8 @@
 return [
     'status_updated' => 'Status pesanan telah dikemas kini',
     'payment_status_updated' => 'Status bayaran telah dikemas kini',
+    'payment_reference_saved' => 'Rujukan bayaran telah disimpan',
+    'payment_reference_required' => 'Masukkan ID Transaksi / rujukan bank sebelum tetapkan bayaran kepada Dibayar atau Diproses.',
     'invalid_order_status' => 'Status pesanan tidak sah.',
     'invalid_payment_status' => 'Status bayaran tidak sah.',
     'invalid_treatment_status' => 'Status rawatan tidak sah.',

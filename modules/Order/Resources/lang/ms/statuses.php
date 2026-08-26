@@ -1,12 +1,12 @@
 <?php
 
 return [
-
-    'canceled' => 'Dibatalkan',
-    'completed' => 'Selesai',
-    'on_hold' => 'Ditahan',
     'pending' => 'Menunggu',
-    'pending_payment' => 'Menunggu bayaran',
-    'processing' => 'Sedang diproses',
-    'refunded' => 'Dibayar balik',
+    'processing' => 'Diproses',
+    'completed' => 'Selesai',
+    'canceled' => 'Dibatalkan',
+    // Legacy labels (migrated away; kept for historical notes / settings)
+    'pending_payment' => 'Menunggu',
+    'on_hold' => 'Menunggu',
+    'refunded' => 'Dibatalkan',
 ];

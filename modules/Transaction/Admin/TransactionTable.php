@@ -4,7 +4,7 @@ namespace Modules\Transaction\Admin;
 
 use Illuminate\Http\JsonResponse;
 use Modules\Admin\Ui\AdminTable;
-use Modules\Transaction\Entities\Transaction;
+use Modules\Order\Entities\Order;
 
 class TransactionTable extends AdminTable
 {
@@ -16,11 +16,21 @@ class TransactionTable extends AdminTable
     protected array $rawColumns = [
         'order_id',
         'customer',
+        'beautician_name',
+        'spa_branch',
         'transaction_id',
         'payment_method',
+        'payment_status',
         'order_total',
         'action',
     ];
+
+    /**
+     * Orders have no is_active flag.
+     *
+     * @var bool
+     */
+    protected bool $editDefaultStatusColumn = false;
 
 
     /**
@@ -29,24 +39,53 @@ class TransactionTable extends AdminTable
     public function make()
     {
         return $this->newTable()
-            ->addColumn('order_id', function (Transaction $transaction) {
-                $orderUrl = route('admin.orders.show', $transaction->order_id);
+            ->addColumn('order_id', function (Order $order) {
+                $orderUrl = route('admin.orders.show', $order->id);
 
                 return '<a href="'.e($orderUrl).'" class="transactions-table__order-link">'
-                    .'<span class="transactions-table__order-num">#'.e((string) $transaction->order_id).'</span>'
+                    .'<span class="transactions-table__order-num">#'.e((string) $order->id).'</span>'
                     .'</a>';
             })
-            ->addColumn('customer', function (Transaction $transaction) {
-                $name = $transaction->order?->customer_full_name;
+            ->addColumn('customer', function (Order $order) {
+                $name = trim((string) $order->customer_full_name);
 
-                if (! $name) {
+                if ($name === '') {
                     return '<span class="transactions-table__muted">—</span>';
                 }
 
                 return '<span class="transactions-table__customer">'.e($name).'</span>';
             })
-            ->editColumn('transaction_id', function (Transaction $transaction) {
-                $id = (string) $transaction->transaction_id;
+            ->addColumn('beautician_name', function (Order $order) {
+                if (! $order->beautician) {
+                    return '<span class="transactions-table__muted">—</span>';
+                }
+
+                $name = trim($order->beautician->first_name.' '.$order->beautician->last_name);
+
+                if ($name === '') {
+                    return '<span class="transactions-table__muted">—</span>';
+                }
+
+                return '<span class="transactions-table__meta">'.e($name).'</span>';
+            })
+            ->addColumn('spa_branch', function (Order $order) {
+                $name = trim((string) ($order->spaBranch?->name ?? ''));
+
+                if ($name === '') {
+                    return '<span class="transactions-table__muted">—</span>';
+                }
+
+                return '<span class="transactions-table__meta">'.e($name).'</span>';
+            })
+            ->addColumn('transaction_id', function (Order $order) {
+                $id = trim((string) ($order->transaction?->getRawOriginal('transaction_id')
+                    ?? $order->transaction?->transaction_id
+                    ?? ''));
+
+                if ($id === '') {
+                    return '<span class="transactions-table__muted">—</span>';
+                }
+
                 $display = $this->shortTransactionId($id);
 
                 return '<div class="transactions-table__tx-id-wrap">'
@@ -56,20 +95,29 @@ class TransactionTable extends AdminTable
                     .'</button>'
                     .'</div>';
             })
-            ->editColumn('payment_method', function (Transaction $transaction) {
-                $label = e((string) $transaction->payment_method);
+            ->editColumn('payment_method', function (Order $order) {
+                $label = e((string) $order->payment_method);
 
-                return '<span class="transactions-table__payment-badge">'.$label.'</span>';
-            })
-            ->addColumn('order_total', function (Transaction $transaction) {
-                if (! $transaction->order) {
+                if ($label === '') {
                     return '<span class="transactions-table__muted">—</span>';
                 }
 
-                return '<span class="transactions-table__total">'.$transaction->order->total->format().'</span>';
+                return '<span class="transactions-table__payment-badge">'.$label.'</span>';
             })
-            ->addColumn('action', function (Transaction $transaction) {
-                return view('transaction::admin.transactions.partials.table.action', compact('transaction'));
+            ->addColumn('payment_status', function (Order $order) {
+                return '<span class="badge '.e(payment_status_badge_class($order->payment_status)).'">'
+                    .e($order->paymentStatusLabel())
+                    .'</span>';
+            })
+            ->addColumn('order_total', function (Order $order) {
+                if (! $order->total) {
+                    return '<span class="transactions-table__muted">—</span>';
+                }
+
+                return '<span class="transactions-table__total">'.$order->total->format().'</span>';
+            })
+            ->addColumn('action', function (Order $order) {
+                return view('transaction::admin.transactions.partials.table.action', compact('order'));
             });
     }
 
