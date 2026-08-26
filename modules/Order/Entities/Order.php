@@ -101,7 +101,7 @@ class Order extends Model
         'end_date',
         'tracking_number',
         'loyalty_points_redeemed',
-        'loyalty_discount',
+        'loyalty_discount_amount',
     ];
 
     /**

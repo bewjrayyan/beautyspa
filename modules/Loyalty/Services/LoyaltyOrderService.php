@@ -11,61 +11,83 @@ class LoyaltyOrderService
 {
     public function __construct(
         private LoyaltyWalletService $wallets,
-        private LoyaltyCartService $cartService
+        private LoyaltyCartService $cartService,
+        private LoyaltyConfig $config
     ) {}
 
 
+    /**
+     * Debit wallet for points redeemed on the order.
+     *
+     * Prefer order columns (already snapshotted at persist). Cart is only a
+     * fallback — OrderPlaced also clears the cart, so relying on Cart alone
+     * raced ClearCart and left balances unchanged.
+     */
     public function captureRedemptionFromCart(Order $order): void
     {
-        if (!Cart::hasLoyalty() || !$order->customer_id) {
+        if (! $order->customer_id) {
             return;
         }
 
-        $points = Cart::loyalty()->points();
-        $discount = Cart::loyalty()->value()->amount();
+        $points = (int) $order->loyalty_points_redeemed;
+        $discount = (float) ($order->getAttributes()['loyalty_discount_amount'] ?? 0);
+
+        if ($points <= 0 && Cart::hasLoyalty()) {
+            $points = Cart::loyalty()->points();
+            $discount = (float) Cart::loyalty()->value()->amount();
+        }
 
         if ($points <= 0) {
+            if (Cart::hasLoyalty()) {
+                $this->cartService->remove();
+            }
+
             return;
+        }
+
+        if ($discount <= 0) {
+            $discount = $this->config->pointsToRm($points);
         }
 
         $user = User::find($order->customer_id);
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
         $wallet = $this->wallets->getOrCreateForUser($user);
+        $redeemRef = $order->id . ':redeem';
 
         $this->wallets->debit(
             $wallet,
             $points,
             TransactionType::REDEEM,
             'order',
-            $order->id . ':redeem',
+            $redeemRef,
             trans('loyalty::messages.redeem_for_order', ['id' => $order->id]),
             ['order_id' => $order->id]
         );
 
-        if ($order->loyalty_points_redeemed <= 0) {
-            $order->update([
-                'loyalty_points_redeemed' => $points,
-                'loyalty_discount_amount' => $discount,
-            ]);
-        }
+        $order->forceFill([
+            'loyalty_points_redeemed' => $points,
+            'loyalty_discount_amount' => $discount,
+        ])->saveQuietly();
 
-        $this->cartService->remove();
+        if (Cart::hasLoyalty()) {
+            $this->cartService->remove();
+        }
     }
 
 
     public function refundRedemption(Order $order): void
     {
-        if (!$order->customer_id || $order->loyalty_points_redeemed <= 0) {
+        if (! $order->customer_id || $order->loyalty_points_redeemed <= 0) {
             return;
         }
 
         $user = User::find($order->customer_id);
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -73,7 +95,7 @@ class LoyaltyOrderService
         $redeemRef = $order->id . ':redeem';
         $refundRef = $order->id . ':redeem_refund';
 
-        if (!$this->wallets->findExistingTransaction($wallet, TransactionType::REDEEM, 'order', $redeemRef)) {
+        if (! $this->wallets->findExistingTransaction($wallet, TransactionType::REDEEM, 'order', $redeemRef)) {
             return;
         }
 

@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.38' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Fix loyalty points not deducting from wallet after checkout redemption.',
+            'changes' => [
+                'Persist loyalty_discount_amount correctly (fillable typo).',
+                'Debit reward points from the order snapshot so ClearCart cannot skip redemption.',
+                'Add loyalty:repair-redemptions to backfill missing ledger debits for past orders.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki mata loyalty yang tidak ditolak dari wallet selepas tebus di checkout.',
+            'changes' => [
+                'Simpan loyalty_discount_amount dengan betul (typo fillable).',
+                'Debit mata ganjaran dari snapshot pesanan supaya ClearCart tidak langkau penebusan.',
+                'Tambah loyalty:repair-redemptions untuk backfill debit ledger yang hilang.',
+            ],
+        ],
+    ],
+
     '4.11.37' => [
         'date' => '2026-08-26',
         'en' => [

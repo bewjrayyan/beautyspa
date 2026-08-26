@@ -47,6 +47,8 @@ class OrderService
             $this->incrementCouponUsage($order);
             $this->attachTaxes($order);
             $this->reduceStock();
+            // Debit loyalty while cart still has the redemption condition (before OrderPlaced → ClearCart).
+            $this->captureLoyaltyRedemption($order);
 
             $order = $order->fresh(['products.product', 'products.variations', 'products.options.values', 'taxes']);
 

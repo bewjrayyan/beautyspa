@@ -20,6 +20,7 @@ use Modules\Loyalty\Console\NotifyExpiringLoyaltyPointsCommand;
 use Modules\Loyalty\Console\RecalculateLifetimeSpendCommand;
 use Modules\Loyalty\Console\SyncReferralCodesCommand;
 use Modules\Loyalty\Console\SyncLoyaltyTranslationsCommand;
+use Modules\Loyalty\Console\RepairLoyaltyRedemptionsCommand;
 use Modules\Loyalty\Listeners\CreateWalletOnCustomerRegistered;
 use Modules\Loyalty\Listeners\ProcessReferralOnCustomerRegistered;
 use Modules\Loyalty\Listeners\ProcessLoyaltyOnOrderStatusChanged;
@@ -84,6 +85,7 @@ class LoyaltyServiceProvider extends ServiceProvider
                 SyncReferralCodesCommand::class,
                 RecalculateLifetimeSpendCommand::class,
                 SyncLoyaltyTranslationsCommand::class,
+                RepairLoyaltyRedemptionsCommand::class,
             ]);
         }
     }
