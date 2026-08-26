@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.37' => [
+        'date' => '2026-08-26',
+        'en' => [
+            'summary' => 'Bank-transfer checkout complete shows Pending hero, 2-column booking details, and Print invoice.',
+            'changes' => [
+                'Pending clock hero and copy when bank transfer payment is awaiting verification.',
+                'Treatment booking details use a two-column layout including appointment date and time.',
+                'Add Print invoice action that opens the printable invoice with auto-print.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Checkout complete bank transfer papar hero Pending, butiran tempahan 2 kolum, dan Cetak invois.',
+            'changes' => [
+                'Hero jam Pending dan teks bila bayaran bank transfer menunggu pengesahan.',
+                'Butiran tempahan rawatan dalam layout dua kolum termasuk tarikh dan masa.',
+                'Tambah tindakan Cetak invois yang buka invois boleh cetak dengan auto-print.',
+            ],
+        ],
+    ],
+
     '4.11.36' => [
         'date' => '2026-08-26',
         'en' => [

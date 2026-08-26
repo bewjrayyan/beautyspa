@@ -3,7 +3,9 @@
 return [
 
     'order_placed' => 'Tempahan Disahkan!',
+    'booking_pending' => 'Tempahan Menunggu!',
     'booking_confirmed_subtitle' => 'Terima kasih — tempahan rawatan anda telah diterima.',
+    'booking_pending_subtitle' => 'Tempahan anda diterima. Bayaran menunggu pengesahan bukti pemindahan bank anda.',
     'your_order_has_been_placed' => 'Rujukan pesanan <strong>#:id</strong>',
     'order_summary' => 'Ringkasan pesanan',
     'appointments' => 'Temujanji',
@@ -19,6 +21,7 @@ return [
     'treatments' => 'Rawatan',
     'qty' => 'Kuantiti',
     'view_invoice' => 'Lihat invois',
+    'print_invoice' => 'Cetak invois',
     'view_order_details' => 'Lihat butiran pesanan',
     'notify_beautician' => 'Maklumkan beautician',
     'add_to_google_calendar' => 'Simpan ke Google Calendar',

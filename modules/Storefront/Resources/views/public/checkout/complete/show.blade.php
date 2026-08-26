@@ -1,6 +1,11 @@
 @extends('storefront::public.layout')
 
 @section('content')
+    @php
+        $isBankTransferPending = $order->getRawOriginal('payment_method') === 'bank_transfer'
+            && $order->payment_status === \Modules\Order\Entities\Order::PAYMENT_PENDING;
+    @endphp
+
     <section class="order-complete-wrap">
         <div class="container">
             @if (session('error'))
@@ -10,16 +15,33 @@
             @endif
 
             <div class="order-complete-card">
-                <div class="order-complete-hero">
+                <div @class([
+                    'order-complete-hero',
+                    'order-complete-hero--pending' => $isBankTransferPending,
+                ])>
                     <div class="order-complete-icon-wrap">
-                        <svg class="checkmark checkmark--success" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" aria-hidden="true">
-                            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-                            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                        </svg>
+                        @if ($isBankTransferPending)
+                            <span class="order-complete-pending-icon" aria-hidden="true">
+                                <i class="las la-clock"></i>
+                            </span>
+                        @else
+                            <svg class="checkmark checkmark--success" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" aria-hidden="true">
+                                <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                                <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                            </svg>
+                        @endif
                     </div>
 
-                    <h1 class="order-complete-title">{{ trans('storefront::order_complete.order_placed') }}</h1>
-                    <p class="order-complete-subtitle">{{ trans('storefront::order_complete.booking_confirmed_subtitle') }}</p>
+                    <h1 class="order-complete-title">
+                        {{ $isBankTransferPending
+                            ? trans('storefront::order_complete.booking_pending')
+                            : trans('storefront::order_complete.order_placed') }}
+                    </h1>
+                    <p class="order-complete-subtitle">
+                        {{ $isBankTransferPending
+                            ? trans('storefront::order_complete.booking_pending_subtitle')
+                            : trans('storefront::order_complete.booking_confirmed_subtitle') }}
+                    </p>
                     <p class="order-complete-order-id">{!! trans('storefront::order_complete.your_order_has_been_placed', ['id' => $order->id]) !!}</p>
                 </div>
 
@@ -29,6 +51,7 @@
                             ? $order->treatmentBookings
                             : collect($order->treatmentBooking ? [$order->treatmentBooking] : []);
                         $multipleAppointments = $treatmentBookings->count() > 1;
+                        $primaryBooking = $treatmentBookings->first();
                     @endphp
 
                     <div class="order-complete-section" id="booking-details">
@@ -41,10 +64,10 @@
 
                         @if ($multipleAppointments)
                             @foreach ($treatmentBookings as $booking)
-                                <div class="order-complete-booking" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,.08);">
+                                <div class="order-complete-booking">
                                     <h3 class="order-complete-booking-title">{{ $booking->product?->name ?? trans('storefront::order_complete.treatment_line') }}</h3>
 
-                                    <div class="order-complete-details-grid">
+                                    <div class="order-complete-details-grid order-complete-details-grid--two">
                                         @if ($booking->beautician)
                                             <div class="order-complete-detail">
                                                 <span class="order-complete-detail-label">{{ trans('storefront::order_complete.beautician') }}</span>
@@ -52,8 +75,16 @@
                                             </div>
                                         @endif
 
+                                        <div class="order-complete-detail">
+                                            <span class="order-complete-detail-label">{{ trans('storefront::order_complete.customer') }}</span>
+                                            <span class="order-complete-detail-value">
+                                                {{ $order->customer_full_name }}<br>
+                                                <small>{{ $order->customer_email }} · {{ $order->customer_phone }}</small>
+                                            </span>
+                                        </div>
+
                                         @if ($booking->isTbaSchedule())
-                                            <div class="order-complete-detail">
+                                            <div class="order-complete-detail order-complete-detail--span">
                                                 <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_date') }}</span>
                                                 <span class="order-complete-detail-value">{{ trans('treatmentreservation::admin.tba.badge') }}</span>
                                             </div>
@@ -75,56 +106,71 @@
                                 </div>
                             @endforeach
                         @else
-                            <div class="order-complete-details-grid">
-                                @if ($order->beautician)
+                            @php
+                                $beautician = $primaryBooking?->beautician ?? $order->beautician;
+                                $isTba = $primaryBooking
+                                    ? $primaryBooking->isTbaSchedule()
+                                    : (! $order->appointment_date && ! $order->appointment_time);
+                                $appointmentDate = $primaryBooking?->appointment_date ?? $order->appointment_date;
+                                $appointmentTime = $primaryBooking
+                                    ? ($primaryBooking->appointment_time ? $primaryBooking->displayAppointmentTime() : null)
+                                    : ($order->appointment_time ? $order->displayAppointmentTime() : null);
+                            @endphp
+
+                            <div class="order-complete-details-grid order-complete-details-grid--two">
+                                @if ($beautician)
                                     <div class="order-complete-detail">
                                         <span class="order-complete-detail-label">{{ trans('storefront::order_complete.beautician') }}</span>
                                         <span class="order-complete-detail-value">
-                                            @if ($order->beautician->profile_image->exists)
+                                            @if ($beautician->profile_image->exists)
                                                 <img
-                                                    src="{{ $order->beautician->profile_image->path }}"
+                                                    src="{{ $beautician->profile_image->path }}"
                                                     alt=""
                                                     class="order-complete-beautician-avatar"
                                                 >
                                             @else
                                                 <span
                                                     class="order-complete-beautician-initial"
-                                                    style="background-color: {{ $order->beautician->profile_color ?? '#22c55e' }}"
-                                                >{{ strtoupper(mb_substr($order->beautician->name, 0, 1)) }}</span>
+                                                    style="background-color: {{ $beautician->profile_color ?? '#22c55e' }}"
+                                                >{{ strtoupper(mb_substr($beautician->name, 0, 1)) }}</span>
                                             @endif
-                                            {{ $order->beautician->name }}
-                                            @if ($order->beautician->job_title)
-                                                <small>{{ $order->beautician->job_title }}</small>
+                                            {{ $beautician->name }}
+                                            @if ($beautician->job_title)
+                                                <small>{{ $beautician->job_title }}</small>
                                             @endif
                                         </span>
                                     </div>
                                 @endif
 
-                                @if ($order->appointment_date)
-                                    <div class="order-complete-detail">
-                                        <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_date') }}</span>
-                                        <span class="order-complete-detail-value">{{ $order->appointment_date->format('l, d M Y') }}</span>
-                                    </div>
-                                @endif
+                                <div class="order-complete-detail">
+                                    <span class="order-complete-detail-label">{{ trans('storefront::order_complete.customer') }}</span>
+                                    <span class="order-complete-detail-value">
+                                        {{ $order->customer_full_name }}<br>
+                                        <small>{{ $order->customer_email }} · {{ $order->customer_phone }}</small>
+                                    </span>
+                                </div>
 
-                                @if ($order->appointment_time)
-                                    <div class="order-complete-detail">
-                                        <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_time') }}</span>
-                                        <span class="order-complete-detail-value">{{ $order->displayAppointmentTime() }}</span>
+                                @if ($isTba)
+                                    <div class="order-complete-detail order-complete-detail--span">
+                                        <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_date') }}</span>
+                                        <span class="order-complete-detail-value">{{ trans('treatmentreservation::admin.tba.badge') }}</span>
                                     </div>
+                                @else
+                                    @if ($appointmentDate)
+                                        <div class="order-complete-detail">
+                                            <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_date') }}</span>
+                                            <span class="order-complete-detail-value">{{ $appointmentDate->format('l, d M Y') }}</span>
+                                        </div>
+                                    @endif
+                                    @if ($appointmentTime)
+                                        <div class="order-complete-detail">
+                                            <span class="order-complete-detail-label">{{ trans('storefront::order_complete.appointment_time') }}</span>
+                                            <span class="order-complete-detail-value">{{ $appointmentTime }}</span>
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
                         @endif
-
-                        <div class="order-complete-details-grid" style="margin-top: 16px;">
-                            <div class="order-complete-detail">
-                                <span class="order-complete-detail-label">{{ trans('storefront::order_complete.customer') }}</span>
-                                <span class="order-complete-detail-value">
-                                    {{ $order->customer_full_name }}<br>
-                                    <small>{{ $order->customer_email }} · {{ $order->customer_phone }}</small>
-                                </span>
-                            </div>
-                        </div>
                     </div>
                 @endif
 
@@ -152,6 +198,15 @@
                         >
                             <i class="las la-file-invoice"></i>
                             {{ trans('storefront::order_complete.view_invoice') }}
+                        </a>
+                        <a
+                            href="{{ route('checkout.complete.invoice', ['print' => 1]) }}"
+                            class="btn btn-default order-complete-btn order-complete-btn--print"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            <i class="las la-print"></i>
+                            {{ trans('storefront::order_complete.print_invoice') }}
                         </a>
                     </div>
 

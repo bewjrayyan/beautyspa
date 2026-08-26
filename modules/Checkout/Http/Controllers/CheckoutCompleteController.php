@@ -164,7 +164,7 @@ class CheckoutCompleteController
 
         return view('order::admin.orders.print.show', [
             'order' => $order,
-            'autoPrint' => false,
+            'autoPrint' => request()->boolean('print'),
         ]);
     }
 

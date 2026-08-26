@@ -2,7 +2,9 @@
 
 return [
     'order_placed' => 'Booking Confirmed!',
+    'booking_pending' => 'Booking Pending!',
     'booking_confirmed_subtitle' => 'Thank you — your treatment booking has been received.',
+    'booking_pending_subtitle' => 'Your booking is received. Payment is pending verification of your bank transfer proof.',
     'your_order_has_been_placed' => 'Order reference <strong>#:id</strong>',
     'order_summary' => 'Order summary',
     'appointments' => 'Appointments',
@@ -18,6 +20,7 @@ return [
     'treatments' => 'Treatments',
     'qty' => 'Qty',
     'view_invoice' => 'View invoice',
+    'print_invoice' => 'Print invoice',
     'view_order_details' => 'View order details',
     'notify_beautician' => 'Notify beautician',
     'add_to_google_calendar' => 'Add to Google Calendar',

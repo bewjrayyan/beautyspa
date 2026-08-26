@@ -41,6 +41,42 @@
     text-align: center;
     background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+    &--pending {
+        background: linear-gradient(180deg, #fffbeb 0%, #fff 100%);
+    }
+}
+
+.order-complete-pending-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    color: #d97706;
+    background: rgba(245, 158, 11, 0.12);
+    border: 2px solid #f59e0b;
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.08);
+    animation: pending-pulse 2s ease-in-out infinite;
+
+    i {
+        font-size: 42px;
+        line-height: 1;
+    }
+}
+
+@keyframes pending-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.08);
+    }
+
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 0 0 14px rgba(245, 158, 11, 0.04);
+    }
 }
 
 .order-complete-icon-wrap {
@@ -150,6 +186,37 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 16px;
+
+    &--two {
+        @media (min-width: 576px) {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+}
+
+.order-complete-detail--span {
+    @media (min-width: 576px) {
+        grid-column: 1 / -1;
+    }
+}
+
+.order-complete-booking {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+    &:first-of-type {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+}
+
+.order-complete-booking-title {
+    margin: 0 0 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
 }
 
 .order-complete-detail {
@@ -451,6 +518,16 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
+    &--print {
+        border: 1px solid #e5e7eb;
+        color: #374151;
+        background: #fff;
+
+        i {
+            color: #6b7280;
+        }
+    }
+
     &--ghost {
         align-self: flex-start;
         background: transparent;
@@ -669,7 +746,7 @@
 }
 
 @media (min-width: 576px) {
-    .order-complete-details-grid {
+    .order-complete-details-grid:not(.order-complete-details-grid--two) {
         grid-template-columns: 1fr 1fr;
     }
 }
