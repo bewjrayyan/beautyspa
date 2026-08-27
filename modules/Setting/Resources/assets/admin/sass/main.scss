@@ -1370,6 +1370,99 @@ $settings-block-max: none;
 
 // WhatsApp notifications tab (sms)
 .st-tab--whatsapp {
+    .wa-settings__hero {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+        padding: 20px 22px;
+        border: 1px solid #cfe8df;
+        border-radius: 16px;
+        background: linear-gradient(120deg, #f0fdf8 0%, #fff 62%, #f5f9ff 100%);
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+    }
+
+    .wa-settings__hero-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        flex: 0 0 52px;
+        border-radius: 15px;
+        color: #fff;
+        background: linear-gradient(145deg, #16a085, #0b806f);
+        font-size: 25px;
+        box-shadow: 0 8px 16px rgba(18, 140, 126, 0.22);
+    }
+
+    .wa-settings__hero-copy {
+        min-width: 0;
+        flex: 1;
+
+        h3 {
+            margin: 3px 0 4px;
+            color: $settings-text;
+            font-size: 20px;
+            font-weight: 750;
+            letter-spacing: -0.025em;
+        }
+
+        p {
+            max-width: 660px;
+            margin: 0;
+            color: $settings-muted;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+    }
+
+    .wa-settings__eyebrow {
+        color: #0f8b78;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .wa-settings__hero-meta {
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .wa-settings__status,
+    .wa-settings__live {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .wa-settings__status {
+        padding: 5px 9px;
+        border-radius: 999px;
+
+        &--on {
+            color: #087f5b;
+            background: #dcfce7;
+        }
+
+        &--off {
+            color: #a16207;
+            background: #fef3c7;
+        }
+    }
+
+    .wa-settings__live {
+        color: $settings-muted;
+        font-weight: 600;
+    }
+
     .wa-settings {
         display: flex;
         flex-direction: column;
@@ -1400,15 +1493,150 @@ $settings-block-max: none;
             max-width: 100%;
             margin-bottom: 12px;
         }
+
+        > .st-wa-template {
+            grid-column: 1 / -1;
+        }
     }
 
     .wa-settings__full-width {
         grid-column: 1 / -1;
     }
 
+    .wa-settings__subsection {
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid $settings-border;
+
+        &--payment {
+            padding: 16px;
+            border: 1px solid #d9e9e4;
+            border-radius: 12px;
+            background: #f7fcfa;
+        }
+    }
+
+    .wa-settings__subsection-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+
+        h6 {
+            margin: 1px 0 3px;
+            color: $settings-text;
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        p {
+            margin: 0;
+            color: $settings-muted;
+            font-size: 11px;
+            line-height: 1.45;
+        }
+    }
+
+    .wa-settings__subsection-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        flex: 0 0 28px;
+        border-radius: 8px;
+        color: #0f8b78;
+        background: #e5f7f1;
+        font-size: 12px;
+    }
+
+    .wa-settings__subsection .st-wa-template {
+        margin-top: 12px;
+    }
+
+    .wa-section--birthday {
+        .st-wa-item__fields > .help-block:first-child {
+            margin-top: 0;
+        }
+    }
+
+    .wa-settings__birthday-reward-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px 20px;
+        padding-top: 14px;
+        border-top: 1px solid $settings-border;
+
+        .form-group {
+            min-width: 0;
+            margin-bottom: 8px;
+        }
+
+        .wa-settings__birthday-percent,
+        .wa-settings__birthday-help {
+            grid-column: 1 / -1;
+        }
+
+        .wa-settings__birthday-percent {
+            padding: 2px 0 4px;
+
+            .form-group {
+                margin-bottom: 0;
+            }
+        }
+
+        .wa-settings__birthday-help {
+            margin: 0;
+        }
+    }
+
+    .wa-settings__controls-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+
+        .st-wa-item {
+            margin-bottom: 0;
+            grid-template-columns: 1fr;
+
+            &__fields {
+                margin-top: 12px;
+                padding: 12px 0 0;
+                border-top: 1px dashed color-mix(in srgb, $settings-border 80%, transparent);
+                border-left: none;
+            }
+        }
+    }
+
+    .wa-settings__notifications-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+
+        .st-wa-item {
+            margin-bottom: 0;
+            grid-template-columns: 1fr;
+
+            &__meta {
+                padding: 0;
+            }
+
+            &__fields {
+                margin-top: 12px;
+                padding: 12px 0 0;
+                border-top: 1px dashed color-mix(in srgb, $settings-border 80%, transparent);
+                border-left: none;
+            }
+        }
+    }
+
     .st-wa-item {
         margin-bottom: 12px;
         padding: 12px 14px;
+        display: grid;
+        grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
         border-radius: 10px;
         border: 1px solid $settings-border;
         background: $settings-bg;
@@ -1420,6 +1648,10 @@ $settings-block-max: none;
         &--plain {
             padding: 14px 16px;
             background: #fff;
+        }
+
+        &:not(.st-wa-item--with-fields) {
+            grid-template-columns: 1fr;
         }
 
         &__toggle {
@@ -1440,6 +1672,11 @@ $settings-block-max: none;
             }
         }
 
+        &__meta {
+            min-width: 0;
+            padding: 3px 0;
+        }
+
         &__hint {
             margin: 8px 0 0;
             padding-right: 2px;
@@ -1458,14 +1695,17 @@ $settings-block-max: none;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed color-mix(in srgb, $settings-border 80%, transparent);
+            min-width: 0;
+            margin-top: 0;
+            padding: 0 0 0 18px;
+            border-top: none;
+            border-left: 1px dashed color-mix(in srgb, $settings-border 80%, transparent);
 
             &--plain {
                 margin-top: 0;
                 padding-top: 0;
                 border-top: none;
+                border-left: none;
             }
 
             .form-group {
@@ -1488,13 +1728,22 @@ $settings-block-max: none;
     }
 
     .st-wa-template {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.55fr);
         align-items: stretch;
         gap: 16px;
 
         &__editor {
             min-width: 0;
             flex: 1 1 58%;
+
+            > .ac-media-field {
+                margin: 0 0 12px;
+            }
+
+            &-hint {
+                margin: -4px 0 10px;
+            }
         }
 
         .form-group {
@@ -1525,10 +1774,10 @@ $settings-block-max: none;
 
         &__preview {
             display: flex;
-            flex: 0 1 300px;
             flex-direction: column;
-            align-self: flex-start;
-            min-width: 220px;
+            align-self: stretch;
+            min-width: 0;
+            width: 100%;
             overflow: hidden;
             border: 1px solid #cfe8d8;
             border-radius: 12px;
@@ -1575,6 +1824,90 @@ $settings-block-max: none;
             margin-left: auto;
             font-size: 11px;
             opacity: 0.9;
+        }
+
+        &__preview-media {
+            margin: 10px 10px 0;
+            overflow: hidden;
+            border-radius: 9px;
+            background: #d8e6d0;
+
+            img {
+                display: block;
+                width: 100%;
+                height: 128px;
+                object-fit: cover;
+            }
+
+            &--empty {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 7px;
+                height: 76px;
+                padding: 12px;
+                color: #6b7b73;
+                font-size: 10px;
+                text-align: center;
+
+                .fa {
+                    color: #128c7e;
+                    font-size: 17px;
+                }
+            }
+        }
+
+        &__preview-document {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 10px 10px 0;
+            padding: 9px 10px;
+            border-radius: 9px;
+            background: #fff;
+            box-shadow: 0 1px 1px rgba(15, 23, 42, 0.08);
+        }
+
+        &__preview-document-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 31px;
+            height: 31px;
+            flex: 0 0 31px;
+            border-radius: 7px;
+            color: #dc2626;
+            background: #fee2e2;
+            font-size: 14px;
+        }
+
+        &__preview-document-copy {
+            min-width: 0;
+
+            strong,
+            small {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            strong {
+                color: #334155;
+                font-size: 11px;
+            }
+
+            small {
+                margin-top: 2px;
+                color: #64748b;
+                font-size: 10px;
+            }
+        }
+
+        &__preview-document-download {
+            margin-left: auto;
+            color: #94a3b8;
+            font-size: 11px;
         }
 
         &__preview-body {
@@ -1629,17 +1962,85 @@ $settings-block-max: none;
             border: 1px solid $settings-border;
         }
     }
+
+    .wa-section--api {
+        border-color: #cfe8df;
+        background: linear-gradient(180deg, #fff 0%, #fbfefd 100%);
+    }
+
+    .wa-section--delivery .st-section__title .fa {
+        background: #f1f5f9;
+        color: #475569;
+    }
 }
 
 @media (max-width: 991px) {
+    .st-tab--whatsapp .wa-settings__controls-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .st-tab--whatsapp .st-wa-item {
+        grid-template-columns: 1fr;
+
+        &__fields {
+            padding: 12px 0 0;
+            border-top: 1px dashed color-mix(in srgb, $settings-border 80%, transparent);
+            border-left: none;
+        }
+    }
+
+    .st-tab--whatsapp .wa-settings__birthday-reward-grid {
+        grid-template-columns: 1fr;
+
+        .wa-settings__birthday-percent,
+        .wa-settings__birthday-help {
+            grid-column: auto;
+        }
+    }
+
     .st-tab--whatsapp .st-wa-template {
-        flex-direction: column;
+        grid-template-columns: 1fr;
 
         &__preview {
             width: 100%;
             min-width: 0;
             flex-basis: auto;
         }
+    }
+
+    .st-tab--whatsapp .wa-settings__hero {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .st-tab--whatsapp .wa-settings__hero-meta {
+        width: 100%;
+        align-items: flex-start;
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin-left: 68px;
+    }
+}
+
+@media (max-width: 575px) {
+    .st-tab--whatsapp .wa-settings__hero {
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .st-tab--whatsapp .wa-settings__hero-icon {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+        font-size: 21px;
+    }
+
+    .st-tab--whatsapp .wa-settings__hero-copy h3 {
+        font-size: 17px;
+    }
+
+    .st-tab--whatsapp .wa-settings__hero-meta {
+        margin-left: 56px;
     }
 }
 

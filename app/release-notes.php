@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.47' => [
+        'date' => '2026-08-27',
+        'en' => [
+            'summary' => 'Professional WhatsApp settings with type-aware previews and cleaner SaaS media controls.',
+            'changes' => [
+                'Refresh WhatsApp notification sections with consistent two-column layouts, spacing, and sending controls.',
+                'Add type-aware WhatsApp previews: text messages show text only, while image and PDF templates show their matching media.',
+                'Move Birthday greeting image upload above the message template and refine the modern SaaS dropzone.',
+                'Send the customer receipt PDF with new-order WhatsApp notifications.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tetapan WhatsApp profesional dengan pratonton mengikut jenis dan kawalan media gaya SaaS yang lebih kemas.',
+            'changes' => [
+                'Perbaharui section notifikasi WhatsApp dengan layout dua kolum, jarak, dan kawalan penghantaran yang seragam.',
+                'Tambah pratonton mengikut jenis: mesej teks hanya papar teks, manakala templat imej dan PDF papar media yang sepadan.',
+                'Pindahkan muat naik imej ucapan Birthday ke atas templat mesej dan perkemas dropzone gaya SaaS.',
+                'Hantar PDF resit pelanggan bersama notifikasi WhatsApp pesanan baharu.',
+            ],
+        ],
+    ],
+
     '4.11.46' => [
         'date' => '2026-08-27',
         'en' => [

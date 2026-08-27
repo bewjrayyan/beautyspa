@@ -6,6 +6,11 @@
         ? \Illuminate\Support\Str::limit(str_replace(["\r\n", "\n", "\r"], ' ', $defaultTemplate), 140)
         : '';
     $showDefaultPreview = $showDefaultPreview ?? true;
+    $editorPrefix = $editorPrefix ?? null;
+    $editorHint = $editorHint ?? null;
+    $previewType = $previewType ?? 'text';
+    $previewImageUrl = $previewImageUrl ?? null;
+    $previewDocument = $previewDocument ?? null;
     $currentTemplate = $settings[$messageName] ?? null;
     $previewTemplate = is_string($currentTemplate) && trim($currentTemplate) !== ''
         ? $currentTemplate
@@ -14,6 +19,12 @@
 
 <div class="st-wa-template">
     <div class="st-wa-template__editor">
+        @if (! empty($editorPrefix))
+            {!! $editorPrefix !!}
+        @endif
+        @if (! empty($editorHint))
+            <p class="help-block text-muted st-wa-template__editor-hint">{{ $editorHint }}</p>
+        @endif
         {{ Form::textarea($messageName, trans('setting::attributes.' . $messageName), $errors, $settings, [
             'rows' => $rows,
             'class' => 'form-control st-wa-template__textarea',
@@ -39,6 +50,27 @@
             </span>
             <span class="st-wa-template__preview-status"><i class="fa fa-check" aria-hidden="true"></i></span>
         </div>
+        @if ($previewType === 'image')
+            @if ($previewImageUrl)
+                <div class="st-wa-template__preview-media">
+                    <img src="{{ $previewImageUrl }}" alt="{{ trans('setting::settings.sms.preview_media_alt') }}">
+                </div>
+            @else
+                <div class="st-wa-template__preview-media st-wa-template__preview-media--empty">
+                    <i class="fa fa-picture-o" aria-hidden="true"></i>
+                    <span>{{ trans('setting::settings.sms.preview_media_missing') }}</span>
+                </div>
+            @endif
+        @elseif ($previewType === 'document' && is_array($previewDocument))
+            <div class="st-wa-template__preview-document">
+                <span class="st-wa-template__preview-document-icon"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></span>
+                <span class="st-wa-template__preview-document-copy">
+                    <strong>{{ trans('setting::settings.sms.preview_document_title') }}</strong>
+                    <small>{{ $previewDocument['filename'] ?? 'receipt.pdf' }}</small>
+                </span>
+                <i class="fa fa-download st-wa-template__preview-document-download" aria-hidden="true"></i>
+            </div>
+        @endif
         <div class="st-wa-template__preview-body" data-wa-preview-output>{{ $previewTemplate }}</div>
         <div class="st-wa-template__preview-time">{{ trans('setting::settings.sms.preview_now') }} <span>✓✓</span></div>
     </aside>

@@ -135,12 +135,19 @@ return [
 
     'sms' => [
         'lead' => 'Configure OneSender WhatsApp API credentials, delivery controls, and automated messages for customers, orders, and beauticians.',
+        'hero_eyebrow' => 'Messaging workspace',
+        'hero_status_on' => 'OneSender active',
+        'hero_status_off' => 'Setup required',
+        'hero_live_preview' => 'Live preview enabled',
         'placeholders_hint' => 'Message templates support placeholders: :store, :customer, :treatment, :date (where applicable).',
         'default_template_preview' => 'Default template (ready to use)',
         'template_hint' => 'Leave blank to use the default template. Placeholders are replaced when the message is sent.',
         'preview_title' => 'WhatsApp preview',
         'preview_recipient' => 'Sample recipient',
         'preview_now' => 'Now',
+        'preview_media_alt' => 'Uploaded media preview',
+        'preview_media_missing' => 'Upload an image to preview this media message',
+        'preview_document_title' => 'PDF receipt',
         'template_hints' => [
             'welcome' => 'Placeholders: :first_name, :store',
             'customer_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :beautician, :tracking_url, :extra_lines (legacy: :beautician_line, :tracking_line)',
@@ -168,6 +175,18 @@ return [
                 'description' => 'API URL, key, admin phones, WhatsApp group, and shared links used across all automated messages.',
                 'docs_link' => 'OneSender API documentation',
                 'tracking_help' => 'Base URL for order tracking links in customer reminders (e.g. https://yoursite.com/orders/track).',
+            ],
+            'routing' => [
+                'title' => 'Message routing',
+                'description' => 'Choose the admin numbers and WhatsApp group that receive operational notifications.',
+            ],
+            'payment_proof' => [
+                'title' => 'Payment proof notifications',
+                'description' => 'Send bank transfer proof to a dedicated group with a message template.',
+            ],
+            'links' => [
+                'title' => 'Shared links and fallback',
+                'description' => 'Set the links and fallback name used when a message needs additional context.',
             ],
             'delivery' => [
                 'title' => 'Sending controls',

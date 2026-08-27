@@ -137,12 +137,19 @@ return [
 
     'sms' => [
         'lead' => 'Konfigurasi kredential API OneSender WhatsApp, kawalan penghantaran, dan mesej automatik untuk pelanggan, pesanan, dan beautician.',
+        'hero_eyebrow' => 'Ruang kerja mesej',
+        'hero_status_on' => 'OneSender aktif',
+        'hero_status_off' => 'Perlu disediakan',
+        'hero_live_preview' => 'Pratonton live aktif',
         'placeholders_hint' => 'Templat mesej menyokong placeholder: :store, :customer, :treatment, :date (jika berkenaan).',
         'default_template_preview' => 'Templat lalai (siap guna)',
         'template_hint' => 'Biarkan kosong untuk guna templat lalai. Placeholder akan diganti semasa mesej dihantar.',
         'preview_title' => 'Pratonton WhatsApp',
         'preview_recipient' => 'Penerima contoh',
         'preview_now' => 'Sekarang',
+        'preview_media_alt' => 'Pratonton media yang dimuat naik',
+        'preview_media_missing' => 'Muat naik gambar untuk pratonton mesej media ini',
+        'preview_document_title' => 'Resit PDF',
         'template_hints' => [
             'welcome' => 'Placeholder: :first_name, :store',
             'customer_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :beautician, :tracking_url, :extra_lines (lama: :beautician_line, :tracking_line)',
@@ -170,6 +177,18 @@ return [
                 'description' => 'URL API, kunci, telefon admin, kumpulan WhatsApp, dan pautan kongsi untuk semua mesej automatik.',
                 'docs_link' => 'Dokumentasi API OneSender',
                 'tracking_help' => 'URL asas untuk pautan jejak pesanan dalam peringatan pelanggan (cth. https://lamananda.com/orders/track).',
+            ],
+            'routing' => [
+                'title' => 'Penghalaan mesej',
+                'description' => 'Pilih nombor admin dan kumpulan WhatsApp untuk menerima notifikasi operasi.',
+            ],
+            'payment_proof' => [
+                'title' => 'Notifikasi bukti bayaran',
+                'description' => 'Hantar bukti pindahan bank ke kumpulan khusus dengan templat mesej.',
+            ],
+            'links' => [
+                'title' => 'Pautan kongsi dan sandaran',
+                'description' => 'Tetapkan pautan dan nama sandaran apabila mesej memerlukan konteks tambahan.',
             ],
             'delivery' => [
                 'title' => 'Kawalan penghantaran',

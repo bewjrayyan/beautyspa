@@ -7,6 +7,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Entities\Order;
 use Modules\Order\Services\OrderWhatsAppMessageBuilder;
+use Modules\Order\Services\OrderWhatsAppPdfService;
 use Modules\User\Services\OneSenderWhatsAppService;
 
 class SendNewOrderSms implements ShouldQueueAfterCommit
@@ -20,6 +21,7 @@ class SendNewOrderSms implements ShouldQueueAfterCommit
 
     public function __construct(
         private readonly OrderWhatsAppMessageBuilder $messageBuilder,
+        private readonly OrderWhatsAppPdfService $pdf,
         private readonly OneSenderWhatsAppService $oneSender,
     ) {
     }
@@ -53,8 +55,10 @@ class SendNewOrderSms implements ShouldQueueAfterCommit
             return;
         }
 
-        $this->oneSender->sendNotification(
+        $this->oneSender->sendDocument(
             $order->customer_phone,
+            $this->pdf->receiptPublicUrl($order),
+            sprintf('receipt-%d.pdf', $order->id),
             $this->customerMessage($order),
             [
                 'source' => 'checkout.order_placed.customer',
