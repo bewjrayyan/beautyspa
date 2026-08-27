@@ -2629,9 +2629,35 @@ Alpine.data(
                 .catch((error) => {
                     this.placingOrder = false;
 
+                    const redirectUrl = error.response?.data?.redirectUrl;
+
+                    // Payment may already be finalized (webhook race) — never cancel/delete.
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
+
+                        return;
+                    }
+
+                    const status = error.response?.status;
+                    const message = error.response?.data?.message || "";
+
+                    if (
+                        status === 403 &&
+                        /already.?paid|sudah.?dibayar/i.test(message)
+                    ) {
+                        window.location.href =
+                            AestheticCart.url("/checkout/complete");
+
+                        return;
+                    }
+
+                    // Only cancel unpaid pending checkout attempts.
                     this.deleteOrder(orderId);
 
-                    notify(error.response.data.message);
+                    notify(
+                        message ||
+                            trans("storefront::storefront.something_went_wrong")
+                    );
                 });
         },
 

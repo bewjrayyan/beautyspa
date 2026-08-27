@@ -2,6 +2,7 @@
 
 namespace Modules\Order\Services;
 
+use AestheticCart\Http\FixSubdirectoryRequest;
 use Dompdf\Dompdf;
 use Exception;
 use Illuminate\Support\Facades\Storage;
@@ -49,11 +50,17 @@ class OrderWhatsAppPdfService
             $disk->put($relativePath, $this->renderPdf($order, $view));
         }
 
-        return URL::temporarySignedRoute(
+        // Relative signatures survive FixSubdirectoryRequest (strips install base from REQUEST_URI).
+        $relative = URL::temporarySignedRoute(
             'order.documents.temporary',
             now()->addMinutes(90),
-            ['order' => $order->id, 'type' => $type, 'fingerprint' => $fingerprint]
+            ['order' => $order->id, 'type' => $type, 'fingerprint' => $fingerprint],
+            absolute: false
         );
+
+        $root = rtrim((string) (FixSubdirectoryRequest::resolvedAppUrl() ?: config('app.url')), '/');
+
+        return $root.$relative;
     }
 
 

@@ -186,25 +186,25 @@ Route::middleware(['beautician.portal.access', 'beautician.portal.from_route'])-
     Route::get('beauticians/{id}/portal/availability', [
         'as' => 'admin.beauticians.portal.availability',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@edit',
-        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.availability',
+        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.availability,admin.beauticians.edit',
     ]);
 
     Route::put('beauticians/{id}/portal/availability/hours', [
         'as' => 'admin.beauticians.portal.availability.hours',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@updateHours',
-        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.availability',
+        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.availability,admin.beauticians.edit',
     ]);
 
     Route::post('beauticians/{id}/portal/availability/blocks', [
         'as' => 'admin.beauticians.portal.availability.blocks',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@storeBlock',
-        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.availability',
+        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.availability,admin.beauticians.edit',
     ]);
 
     Route::delete('beauticians/{id}/portal/availability/blocks/{blockId}', [
         'as' => 'admin.beauticians.portal.availability.blocks.destroy',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalAvailabilityController@destroyBlock',
-        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.availability',
+        'middleware' => 'beautician.portal.permission:admin.treatment_reservations.availability,admin.beauticians.edit',
     ]);
 
     Route::get('beauticians/{id}/portal/account', [

@@ -881,8 +881,13 @@ return [
         'open' => 'OPEN',
         'closed' => 'CLOSED',
         'add_time' => 'Add time',
+        // Labels for Quick times + time validation focus (appointment availability weekly rules).
+        // User: masukkan semula Quick times … focuskan time yang bermasalah
         'select_time' => 'Select a start time',
         'time_picker_title' => 'Choose start time',
+        'quick_times' => 'Quick times',
+        'invalid_time' => 'Enter a valid time (for example 9:00 AM).',
+        'duplicate_time' => 'That start time is already added for this day.',
         'remove' => 'Remove',
         'duration' => 'Duration (minutes)',
         'capacity' => 'Capacity per slot',

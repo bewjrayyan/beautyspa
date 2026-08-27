@@ -234,6 +234,11 @@ return [
         'hero_hidden_at_checkout' => 'Hidden from checkout',
         'hero_profile_created' => 'Profile created',
         'hero_not_saved_yet' => 'Not saved yet',
+        'availability' => [
+            'title' => 'Availability settings',
+            'help' => 'Set weekly working hours and block dates when this beautician is unavailable for booking.',
+            'open_full' => 'Open full page',
+        ],
         'schedule' => [
             'title' => 'Job orders & appointments',
             'help' => 'Customer bookings assigned to this beautician. Use the job sheet to track status, or switch to calendar view for the monthly schedule.',

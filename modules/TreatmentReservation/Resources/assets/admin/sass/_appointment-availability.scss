@@ -474,7 +474,41 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
         font-size: 14px;
         font-weight: 600;
         color: $tr-avail-text;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 
+        &--focus {
+            border-color: #ef8e8e;
+            background: #fff1f1;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+        }
+
+        &--editing {
+            border-color: var(--admin-sidebar-bg, #b50863);
+            background: color-mix(in srgb, var(--admin-sidebar-bg, #b50863) 10%, #ffffff);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-sidebar-bg, #b50863) 18%, transparent);
+        }
+
+        .tr-avail-day__chip-time {
+            border: 0;
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
+            text-align: left;
+
+            &:disabled {
+                cursor: default;
+            }
+
+            &:not(:disabled):hover,
+            &:not(:disabled):focus-visible {
+                color: $tr-avail-accent;
+                text-decoration: underline;
+            }
+        }
+
+        .tr-avail-day__chip-remove,
         button {
             border: 0;
             background: transparent;
@@ -1690,6 +1724,11 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
         box-shadow: inset 3px 0 0 var(--tr-open);
     }
     &--closed { background: #f8fafc; }
+    &--needs-attention {
+        border-color: #ef8e8e !important;
+        background: #fff7f7 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16), inset 3px 0 0 #dc2626 !important;
+    }
     &__switch.is-open .tr-avail-day__open-label { background: var(--tr-open); }
     &__chip { font-variant-numeric: tabular-nums; }
     &__chip button { min-width: 24px; min-height: 24px; }
@@ -1721,6 +1760,16 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
         pointer-events: none;
     }
 
+    &.is-invalid {
+        > i { color: #dc2626; }
+
+        .tr-day-time-input {
+            border-color: #ef8e8e;
+            background: #fff7f7;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16);
+        }
+    }
+
     .tr-day-time-input {
         width: 100%;
         height: 44px;
@@ -1739,6 +1788,11 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
             border-color: var(--admin-sidebar-bg, #b50863);
             outline: 0;
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-sidebar-bg, #b50863) 22%, transparent);
+        }
+
+        &.is-invalid {
+            border-color: #ef8e8e;
+            background: #fff7f7;
         }
     }
 }
@@ -1796,6 +1850,48 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
 
         .numInputWrapper span.arrowUp::after { border-bottom-color: var(--admin-sidebar-bg, #b50863); }
         .numInputWrapper span.arrowDown::after { border-top-color: var(--admin-sidebar-bg, #b50863); }
+    }
+
+    .tr-avail-timepicker__quick {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        padding: 12px 14px 14px;
+        border-top: 1px solid #edf1f5;
+
+        > span {
+            grid-column: 1 / -1;
+            color: #5d6b7e;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        button {
+            min-width: 0;
+            min-height: 44px;
+            padding: 0 5px;
+            border: 1px solid color-mix(in srgb, var(--admin-sidebar-bg, #b50863) 24%, #dfe5ec);
+            border-radius: 9px;
+            background: color-mix(in srgb, var(--admin-sidebar-bg, #b50863) 6%, #ffffff);
+            color: var(--admin-sidebar-bg, #b50863);
+            font-size: 13px;
+            font-weight: 750;
+            cursor: pointer;
+
+            &:hover,
+            &:focus-visible {
+                border-color: var(--admin-sidebar-bg, #b50863);
+                background: var(--admin-sidebar-bg, #b50863);
+                color: #fff;
+            }
+
+            &:focus-visible {
+                outline: 3px solid color-mix(in srgb, var(--admin-sidebar-bg, #b50863) 24%, transparent);
+                outline-offset: 1px;
+            }
+        }
     }
 }
 

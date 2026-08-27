@@ -2,6 +2,7 @@
 
 namespace Modules\Order\Providers;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Modules\Loyalty\Entities\LoyaltyWallet;
@@ -19,6 +20,13 @@ class OrderServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if (config('app.installed')) {
+            // Locale-free signed URLs — must not sit under /{locale} or localization_redirect invalidates signatures.
+            Route::middleware('web')
+                ->namespace('Modules\Order\Http\Controllers')
+                ->group(module_path('Order', 'Routes/secure.php'));
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ImportWordPressOrdersCommand::class,

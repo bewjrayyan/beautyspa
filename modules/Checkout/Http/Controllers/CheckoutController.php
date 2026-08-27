@@ -131,9 +131,12 @@ class CheckoutController extends Controller
         OrderService $orderService,
     ): JsonResponse
     {
+        // Explicit thank-you session after offline finalize (bank_transfer/cod).
+        // User: order+appointment saved but thank-you page missing.
         try {
             $completionResponse = $gateway->complete($order);
             $paymentFinalizer->finalize($order, $paymentMethod, $completionResponse);
+            CheckoutCompletionGuard::rememberPlacedOrder($order->fresh() ?? $order);
         } catch (\Throwable $e) {
             report($e);
 

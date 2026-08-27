@@ -3,7 +3,12 @@
 namespace Modules\Checkout\Listeners;
 
 use Modules\Checkout\Events\OrderPlaced;
+use Modules\Checkout\Services\CheckoutCompletionGuard;
 
+/**
+ * OrderPlaced listener — sets thank-you session.
+ * User: checkout completes but thank-you page not shown.
+ */
 class AddPlacedOrderToSession
 {
     /**
@@ -15,6 +20,6 @@ class AddPlacedOrderToSession
      */
     public function handle($event)
     {
-        session()->flash('placed_order', $event->order);
+        CheckoutCompletionGuard::rememberPlacedOrder($event->order);
     }
 }

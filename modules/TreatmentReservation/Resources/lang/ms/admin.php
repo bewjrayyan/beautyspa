@@ -898,8 +898,13 @@ return [
         'open' => 'BUKA',
         'closed' => 'TUTUP',
         'add_time' => 'Tambah masa',
+        // Label masa pantas + fokus masa bermasalah (jadual mingguan).
+        // User: masukkan semula Quick times … focuskan time yang bermasalah
         'select_time' => 'Pilih masa mula',
         'time_picker_title' => 'Pilih masa mula',
+        'quick_times' => 'Masa pantas',
+        'invalid_time' => 'Masukkan masa yang sah (contoh 9:00 AM).',
+        'duplicate_time' => 'Masa mula ini sudah ditambah untuk hari tersebut.',
         'remove' => 'Buang',
         'duration' => 'Tempoh (minit)',
         'capacity' => 'Kapasiti setiap slot',

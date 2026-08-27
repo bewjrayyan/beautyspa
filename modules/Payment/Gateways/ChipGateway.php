@@ -169,13 +169,13 @@ class ChipGateway implements GatewayInterface
             $params['id'] = $purchaseId;
         }
 
-        return route('checkout.complete.store', $params);
+        return storefront_route('checkout.complete.store', $params);
     }
 
 
     private function failureRedirectUrl(Order $order): string
     {
-        return route('checkout.payment_canceled.store', [
+        return storefront_route('checkout.payment_canceled.store', [
             'orderId' => $order->id,
             'paymentMethod' => $this->gatewayKey,
         ]);

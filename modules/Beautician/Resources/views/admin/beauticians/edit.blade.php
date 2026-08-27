@@ -16,6 +16,15 @@
 
         @hasAccess('admin.beauticians.edit')
             <div class="pull-right" style="margin-top: 4px;">
+                @if (is_module_enabled('TreatmentReservation'))
+                    <a
+                        href="#beautician-availability"
+                        class="btn btn-default"
+                    >
+                        <i class="fa fa-clock-o"></i>
+                        {{ trans('beautician::beauticians.form.availability.title') }}
+                    </a>
+                @endif
                 <a
                     href="{{ route('admin.beauticians.portal.dashboard', $beautician) }}"
                     class="btn btn-primary"
@@ -65,6 +74,13 @@
             'selectedSpaBranchIds' => $selectedSpaBranchIds ?? [],
         ]) !!}
     </form>
+
+    @include('beautician::admin.beauticians.partials.availability', [
+        'beautician' => $beautician,
+        'workingHours' => $workingHours ?? null,
+        'blockedTimes' => $blockedTimes ?? null,
+        'availabilityDays' => $availabilityDays ?? null,
+    ])
 
     <form
         id="beautician-reset-portal-form"

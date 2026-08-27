@@ -17,11 +17,12 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        // User: checkout order saved but thank-you not shown — session listener first.
         OrderPlaced::class => [
+            AddPlacedOrderToSession::class,
             UpdateOrderStatus::class,
             SendNewOrderEmails::class,
             SendNewOrderSms::class,
-            AddPlacedOrderToSession::class,
             \Modules\Order\Listeners\SendBankTransferPaymentProofWhatsApp::class,
         ],
     ];

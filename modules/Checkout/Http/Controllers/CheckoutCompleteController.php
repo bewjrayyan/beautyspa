@@ -9,13 +9,16 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Modules\Order\Entities\Order;
-use Modules\Payment\Facades\Gateway;
 use Modules\Checkout\Services\OrderGoogleCalendarUrl;
 use Modules\Checkout\Services\CheckoutPaymentFinalizer;
 use Modules\Order\Services\SendOrderBeauticianNotification;
 use Modules\Checkout\Services\CheckoutCompletionGuard;
 use Modules\Payment\Services\PaymentGatewayResolver;
 
+/**
+ * Checkout thank-you + payment return handler.
+ * User: payment/order saved but completed page not shown (session/auth lookalike).
+ */
 class CheckoutCompleteController
 {
     /**
@@ -48,6 +51,11 @@ class CheckoutCompleteController
         try {
             CheckoutCompletionGuard::assertCanComplete($order, $paymentMethod);
         } catch (Exception $e) {
+            // Chip webhook may finalize before the browser return URL hits this action.
+            if (CheckoutCompletionGuard::isAlreadyPaidReturn($order, $paymentMethod)) {
+                return $this->thankYouResponse($order);
+            }
+
             Log::warning('Checkout completion guard failed', [
                 'order_id' => $orderId,
                 'payment_method' => $paymentMethod,
@@ -102,13 +110,7 @@ class CheckoutCompleteController
 
         $paymentFinalizer->finalize($order, $paymentMethod, $response);
 
-        if (! request()->ajax()) {
-            return redirect()->route('checkout.complete.show');
-        }
-
-        return response()->json([
-            'redirectUrl' => storefront_route('checkout.complete.show'),
-        ]);
+        return $this->thankYouResponse($order->fresh() ?? $order);
     }
 
 
@@ -125,7 +127,7 @@ class CheckoutCompleteController
             return redirect()->route('home');
         }
 
-        session()->reflash('placed_order');
+        CheckoutCompletionGuard::keepPlacedOrder();
 
         $googleCalendarUrl = $calendarUrl->forOrder($order);
         $hasTreatmentBooking = $this->hasTreatmentBooking($order);
@@ -158,7 +160,7 @@ class CheckoutCompleteController
             return redirect()->route('home');
         }
 
-        session()->reflash('placed_order');
+        CheckoutCompletionGuard::keepPlacedOrder();
 
         $order->load(['products', 'coupon', 'taxes', 'beautician']);
 
@@ -177,29 +179,43 @@ class CheckoutCompleteController
             return redirect()->route('home');
         }
 
+        CheckoutCompletionGuard::keepPlacedOrder();
+
         try {
             $notification->send($order);
 
             return redirect()
-                ->route('checkout.complete.show')
+                ->to(storefront_route('checkout.complete.show'))
                 ->with('success', trans('storefront::order_complete.beautician_notify_sent'));
         } catch (Exception $e) {
             return redirect()
-                ->route('checkout.complete.show')
+                ->to(storefront_route('checkout.complete.show'))
                 ->with('error', $e->getMessage());
         }
     }
 
 
-    private function resolvePlacedOrder(): ?Order
+    private function thankYouResponse(Order $order): RedirectResponse|\Illuminate\Http\JsonResponse
     {
-        $placed = session('placed_order');
+        CheckoutCompletionGuard::rememberPlacedOrder($order);
 
-        if (! $placed) {
-            return null;
+        if (! request()->ajax()) {
+            return redirect()->to(storefront_route('checkout.complete.show'));
         }
 
-        $orderId = $placed instanceof Order ? $placed->id : (int) $placed;
+        return response()->json([
+            'redirectUrl' => storefront_route('checkout.complete.show'),
+        ]);
+    }
+
+
+    private function resolvePlacedOrder(): ?Order
+    {
+        $orderId = CheckoutCompletionGuard::placedOrderId();
+
+        if (! $orderId) {
+            return null;
+        }
 
         return Order::query()
             ->with([
@@ -222,6 +238,10 @@ class CheckoutCompleteController
     private function hasTreatmentBooking(Order $order): bool
     {
         if ($order->beautician_id || $order->appointment_date) {
+            return true;
+        }
+
+        if ($order->relationLoaded('treatmentBookings') && $order->treatmentBookings->isNotEmpty()) {
             return true;
         }
 

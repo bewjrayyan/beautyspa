@@ -3294,3 +3294,38 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
 .order-show__payment-reference #order-payment-reference-save {
     margin-top: 2px;
 }
+
+.order-show__payment-reference-proof {
+    margin: 0 0 12px;
+    padding: 10px;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.order-show__payment-reference-proof-label {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #9a3412;
+}
+
+.order-show__payment-reference-proof {
+    .order-show__hint--payment-proof,
+    .order-show__hint--payment-proof-missing {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .order-show__payment-proof-preview--inline img {
+        max-height: 180px;
+    }
+
+    .order-show__payment-proof-link {
+        margin-top: 8px;
+    }
+}

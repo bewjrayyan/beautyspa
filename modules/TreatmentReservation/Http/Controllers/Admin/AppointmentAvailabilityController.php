@@ -96,8 +96,14 @@ class AppointmentAvailabilityController extends Controller
     }
 
 
+    // Callers: admin appointment-availability JS POST /branch and /treatment.
+    // User: POST .../appointment-availability/branch 422 Unprocessable Content
     public function syncBranch(Request $request): JsonResponse
     {
+        $request->merge([
+            'days' => $this->normalizeWeeklyDaysInput($request->input('days')),
+        ]);
+
         $data = $request->validate([
             'spa_branch_id' => ['required', 'integer', Rule::exists('spa_branches', 'id')->where('is_active', true)],
             'days' => ['required', 'array', 'size:7'],
@@ -122,6 +128,10 @@ class AppointmentAvailabilityController extends Controller
 
     public function syncTreatment(Request $request): JsonResponse
     {
+        $request->merge([
+            'days' => $this->normalizeWeeklyDaysInput($request->input('days')),
+        ]);
+
         $data = $request->validate([
             'product_id' => ['required', 'integer', Rule::exists('products', 'id')->where(fn ($query) => $query->where('is_virtual', true)->where('is_active', true))],
             'spa_branch_id' => ['required', 'integer', Rule::exists('spa_branches', 'id')->where('is_active', true)],
@@ -376,6 +386,50 @@ class AppointmentAvailabilityController extends Controller
         }
 
         return null;
+    }
+
+
+    /**
+     * Normalize weekly editor payloads so H:i / H:i:s / 12-hour values all validate as H:i.
+     *
+     * @param  mixed  $days
+     * @return list<array{day_of_week: int, is_open: bool, times: list<string>}>
+     */
+    private function normalizeWeeklyDaysInput(mixed $days): array
+    {
+        if (! is_array($days)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($days as $day) {
+            if (! is_array($day)) {
+                continue;
+            }
+
+            $times = [];
+
+            foreach (($day['times'] ?? []) as $time) {
+                $value = app(\Modules\TreatmentReservation\Services\BeauticianAvailabilityService::class)
+                    ->normalizeTime(is_string($time) || is_numeric($time) ? (string) $time : null);
+
+                if ($value !== null) {
+                    $times[] = $value;
+                }
+            }
+
+            $times = array_values(array_unique($times));
+            sort($times);
+
+            $normalized[] = [
+                'day_of_week' => (int) ($day['day_of_week'] ?? 0),
+                'is_open' => filter_var($day['is_open'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'times' => $times,
+            ];
+        }
+
+        return $normalized;
     }
 
 

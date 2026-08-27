@@ -140,6 +140,12 @@
                         {{ trans('order::orders.payment_reference_title') }}
                     </p>
                     <p class="order-show__payment-reference-help">{{ trans('order::orders.payment_reference_help') }}</p>
+
+                    <div class="order-show__payment-reference-proof">
+                        <p class="order-show__payment-reference-proof-label">{{ trans('order::orders.payment_proof') }}</p>
+                        @include('order::admin.orders.partials.order_payment_proof_inline')
+                    </div>
+
                     <div class="form-group">
                         <label for="order-payment-transaction-id">{{ trans('order::orders.payment_reference_id') }}</label>
                         <input

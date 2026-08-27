@@ -5,6 +5,30 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.51' => [
+        'date' => '2026-08-27',
+        'en' => [
+            'summary' => 'Reliable checkout thank-you pages, working payment-proof links, and safer availability editing.',
+            'changes' => [
+                'Fix checkout completion so the thank-you page still opens after bank transfer and Chip webhook races.',
+                'Fix private payment-proof URLs under /fleetcart and locale redirects so signed links open instead of 403.',
+                'Show customer payment proof in the admin order bank-transfer sidebar.',
+                'Add beautician availability settings on the admin beautician edit page (shared with portal).',
+                'Restore Quick times on appointment availability, focus invalid times for correction, and harden branch schedule save validation.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Halaman thank-you checkout yang boleh dipercayai, pautan bukti bayaran yang berfungsi, dan suntingan ketersediaan yang lebih selamat.',
+            'changes' => [
+                'Betulkan penamat checkout supaya halaman thank-you masih dibuka selepas bank transfer dan perlumbaan webhook Chip.',
+                'Betulkan URL bukti bayaran peribadi di bawah /fleetcart dan redirect locale supaya pautan bertandatangan dibuka, bukan 403.',
+                'Paparkan bukti bayaran pelanggan dalam sidebar bank transfer pesanan admin.',
+                'Tambah tetapan ketersediaan beautician pada halaman edit admin beautician (dikongsi dengan portal).',
+                'Pulihkan Quick times pada appointment availability, fokuskan masa tidak sah untuk dibetulkan, dan perkukuh validasi simpan jadual cawangan.',
+            ],
+        ],
+    ],
+
     '4.11.50' => [
         'date' => '2026-08-27',
         'en' => [

@@ -95,7 +95,7 @@ class BeauticianController
 
     protected function editFormData($id): array
     {
-        return array_merge(
+        $data = array_merge(
             [
                 'adminUsers' => $this->adminUsersForSelect($id),
                 'scheduleStats' => is_module_enabled('TreatmentReservation')
@@ -104,6 +104,24 @@ class BeauticianController
             ],
             $this->spaBranchFormData($this->getEntity($id))
         );
+
+        if (is_module_enabled('TreatmentReservation')) {
+            $availability = app(\Modules\TreatmentReservation\Services\BeauticianAvailabilityService::class);
+
+            $data['workingHours'] = $availability->workingHoursFor((int) $id);
+            $data['blockedTimes'] = $availability->upcomingBlocksFor((int) $id);
+            $data['availabilityDays'] = [
+                0 => trans('treatmentreservation::admin.availability.days.sun'),
+                1 => trans('treatmentreservation::admin.availability.days.mon'),
+                2 => trans('treatmentreservation::admin.availability.days.tue'),
+                3 => trans('treatmentreservation::admin.availability.days.wed'),
+                4 => trans('treatmentreservation::admin.availability.days.thu'),
+                5 => trans('treatmentreservation::admin.availability.days.fri'),
+                6 => trans('treatmentreservation::admin.availability.days.sat'),
+            ];
+        }
+
+        return $data;
     }
 
 

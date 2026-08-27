@@ -1,12 +1,14 @@
 @php
     $proof = $order->paymentProof;
-    $isImage = $proof && (
+    $paymentProofUrl = $paymentProofUrl
+        ?? ($proof ? app(\Modules\Order\Services\OrderPaymentProofPublicUrlService::class)->whatsAppMediaUrl($proof, $order) : null);
+    $isImage = $proof && $paymentProofUrl && (
         str_starts_with((string) $proof->mime, 'image/')
         || in_array(strtolower((string) $proof->extension), ['jpg', 'jpeg', 'png', 'webp'], true)
     );
 @endphp
 
-@if ($proof)
+@if ($proof && $paymentProofUrl)
     <div class="order-show__hint order-show__hint--payment-proof">
         @if ($isImage)
             <a

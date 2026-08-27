@@ -240,6 +240,11 @@ return [
         'hero_hidden_at_checkout' => 'Disembunyikan dari checkout',
         'hero_profile_created' => 'Profil dicipta',
         'hero_not_saved_yet' => 'Belum disimpan',
+        'availability' => [
+            'title' => 'Tetapan ketersediaan',
+            'help' => 'Tetapkan waktu kerja mingguan dan sekat tarikh apabila beautician ini tidak tersedia untuk ditempah.',
+            'open_full' => 'Buka halaman penuh',
+        ],
         'schedule' => [
 
             'title' => 'Pesanan kerja & temujanji',

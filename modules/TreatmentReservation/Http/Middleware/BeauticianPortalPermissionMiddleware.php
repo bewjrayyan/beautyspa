@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class BeauticianPortalPermissionMiddleware
 {
-    public function handle(Request $request, Closure $next, string $permission): Response
+    public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
         $user = $request->user();
         $beautician = $request->attributes->get('portal_beautician');
@@ -22,8 +22,12 @@ class BeauticianPortalPermissionMiddleware
             return $next($request);
         }
 
-        abort_unless($user->hasAccess($permission), 403);
+        foreach ($permissions as $permission) {
+            if ($permission !== '' && $user->hasAccess($permission)) {
+                return $next($request);
+            }
+        }
 
-        return $next($request);
+        abort(403);
     }
 }

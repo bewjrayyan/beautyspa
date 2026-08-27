@@ -909,3 +909,45 @@
         }
     }
 }
+
+
+/* Modern Flatpickr time fields on beautician availability settings */
+.bp-availability-admin,
+.tr-portal-profile-page {
+    .tr-avail-time-field {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+
+        > i {
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            color: var(--admin-sidebar-bg, #b50863);
+            pointer-events: none;
+        }
+
+        .flatpickr-wrapper {
+            display: block;
+            width: 100%;
+        }
+
+        input.tr-day-time-input,
+        input.bp-availability-day__time,
+        .flatpickr-input {
+            width: 100%;
+            min-height: 44px;
+            padding-left: 37px;
+            cursor: pointer;
+        }
+    }
+
+    .bp-availability-day__times {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+}

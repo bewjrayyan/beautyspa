@@ -201,12 +201,34 @@ import flatpickr from "flatpickr";
             chip.className = "tr-avail-day__chip";
             chip.dataset.time = time;
             chip.innerHTML =
-                `<span>${escapeHtml(formatAppointmentTimeDisplay(time))}</span>` +
+                `<button type="button" class="tr-avail-day__chip-time" ${disabled ? "disabled" : ""}>` +
+                `${escapeHtml(formatAppointmentTimeDisplay(time))}</button>` +
                 (disabled
                     ? ""
-                    : `<button type="button" aria-label="${escapeAttr(root.dataset.labelRemove || "Remove")}">&times;</button>`);
+                    : `<button type="button" class="tr-avail-day__chip-remove" aria-label="${escapeAttr(root.dataset.labelRemove || "Remove")}">&times;</button>`);
+
             if (!disabled) {
-                chip.querySelector("button")?.addEventListener("click", () => chip.remove());
+                chip.querySelector(".tr-avail-day__chip-remove")?.addEventListener("click", () => {
+                    if (wrap.dataset.editingTime === time) {
+                        delete wrap.dataset.editingTime;
+                    }
+                    chip.remove();
+                });
+                chip.querySelector(".tr-avail-day__chip-time")?.addEventListener("click", () => {
+                    const row = wrap.closest(".tr-avail-day");
+                    const input = row?.querySelector(".tr-day-time-input");
+                    if (!input) return;
+
+                    // Keep the chip until Add confirms a replacement — removing early caused 422 on save.
+                    wrap.querySelectorAll(".tr-avail-day__chip--editing").forEach((el) => {
+                        el.classList.remove("tr-avail-day__chip--editing");
+                    });
+                    chip.classList.add("tr-avail-day__chip--editing");
+                    wrap.dataset.editingTime = time;
+                    input._flatpickr?.setDate(time, true, "H:i");
+                    clearTimeFieldError(input);
+                    focusProblemTimeInput(input, { openPicker: true });
+                });
             }
             wrap.appendChild(chip);
         });
@@ -236,8 +258,87 @@ import flatpickr from "flatpickr";
                     '<i class="fa fa-clock-o" aria-hidden="true"></i>' +
                     `<strong>${escapeHtml(root.dataset.labelTimePickerTitle || "Choose start time")}</strong>`;
                 calendar.insertBefore(header, calendar.firstChild);
+
+                const quick = document.createElement("div");
+                quick.className = "tr-avail-timepicker__quick";
+                quick.innerHTML = `<span>${escapeHtml(root.dataset.labelQuickTimes || "Quick times")}</span>`;
+                [
+                    ["09:00", "9:00 AM"],
+                    ["12:00", "12:00 PM"],
+                    ["15:00", "3:00 PM"],
+                    ["18:00", "6:00 PM"],
+                ].forEach(([time, label]) => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.textContent = label;
+                    button.setAttribute(
+                        "aria-label",
+                        `${root.dataset.labelSelectTime || "Select time"} ${label}`
+                    );
+                    button.addEventListener("click", () => {
+                        instance.setDate(time, true, "H:i");
+                        instance.close();
+                        input.focus();
+                        clearTimeFieldError(input);
+                    });
+                    quick.appendChild(button);
+                });
+                calendar.appendChild(quick);
+            },
+            onChange() {
+                clearTimeFieldError(input);
             },
         });
+    }
+
+    function clearTimeFieldError(input) {
+        const field = input?.closest(".tr-avail-time-field");
+        field?.classList.remove("is-invalid");
+        input?.classList.remove("is-invalid");
+        input?.removeAttribute("aria-invalid");
+    }
+
+    function markTimeFieldError(input) {
+        const field = input?.closest(".tr-avail-time-field");
+        field?.classList.add("is-invalid");
+        input?.classList.add("is-invalid");
+        input?.setAttribute("aria-invalid", "true");
+    }
+
+    function focusProblemTimeInput(input, { openPicker = true } = {}) {
+        if (!input) return;
+
+        const row = input.closest(".tr-avail-day");
+        row?.classList.add("tr-avail-day--needs-attention");
+        row?.scrollIntoView({ behavior: "smooth", block: "center" });
+        markTimeFieldError(input);
+        input.focus({ preventScroll: true });
+
+        if (openPicker) {
+            input._flatpickr?.open();
+        }
+
+        window.setTimeout(() => row?.classList.remove("tr-avail-day--needs-attention"), 2400);
+    }
+
+    function highlightChip(chip) {
+        if (!chip) return;
+        chip.classList.add("tr-avail-day__chip--focus");
+        chip.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        window.setTimeout(() => chip.classList.remove("tr-avail-day__chip--focus"), 2200);
+    }
+
+    function focusOpenDayMissingTimes(container) {
+        const row = Array.from(container?.querySelectorAll(".tr-avail-day") || []).find((dayRow) => {
+            const open = dayRow.querySelector(".tr-day-open")?.checked;
+            return open && getDayTimes(dayRow).length === 0;
+        });
+
+        if (!row) return false;
+
+        const input = row.querySelector(".tr-day-time-input");
+        focusProblemTimeInput(input);
+        return true;
     }
 
     function renderDays(container, days) {
@@ -298,14 +399,53 @@ import flatpickr from "flatpickr";
             openInput.addEventListener("change", syncOpenState);
 
             addBtn.addEventListener("click", () => {
-                const time = normalizeTimeInput(timeInput.value);
-                if (!time) return;
-                const current = getDayTimes(row);
-                if (!current.includes(time)) {
-                    current.push(time);
-                    current.sort();
-                    renderTimeChips(timesWrap, current, false);
+                const rawValue = String(timeInput.value || "").trim();
+                const time = normalizeTimeInput(rawValue);
+
+                if (!rawValue) {
+                    focusProblemTimeInput(timeInput);
+                    window.notify?.error?.(
+                        root.dataset.labelSelectTime || "Select a start time"
+                    );
+                    return;
                 }
+
+                if (!time) {
+                    focusProblemTimeInput(timeInput);
+                    window.notify?.error?.(
+                        root.dataset.msgInvalidTime || "Enter a valid time (e.g. 9:00 AM)."
+                    );
+                    return;
+                }
+
+                const editingTime = timesWrap.dataset.editingTime || "";
+                const current = getDayTimes(row).filter((entry) => entry !== editingTime);
+
+                if (current.includes(time)) {
+                    // Keep edit mode so the original chip stays until a valid replacement is added.
+                    if (editingTime) {
+                        timesWrap.dataset.editingTime = editingTime;
+                        Array.from(timesWrap.querySelectorAll(".tr-avail-day__chip"))
+                            .find((chip) => chip.dataset.time === editingTime)
+                            ?.classList.add("tr-avail-day__chip--editing");
+                    }
+
+                    const existing = Array.from(timesWrap.querySelectorAll(".tr-avail-day__chip")).find(
+                        (chip) => chip.dataset.time === time
+                    );
+                    highlightChip(existing);
+                    focusProblemTimeInput(timeInput, { openPicker: false });
+                    window.notify?.error?.(
+                        root.dataset.msgDuplicateTime || "That start time is already added."
+                    );
+                    return;
+                }
+
+                current.push(time);
+                current.sort();
+                delete timesWrap.dataset.editingTime;
+                renderTimeChips(timesWrap, current, false);
+                clearTimeFieldError(timeInput);
                 timeInput._flatpickr?.clear();
                 timeInput.value = "";
             });
@@ -335,20 +475,31 @@ import flatpickr from "flatpickr";
     function collectDays(container) {
         return Array.from(container.querySelectorAll(".tr-avail-day")).map((row) => {
             const open = row.querySelector(".tr-day-open")?.checked;
+            const times = open
+                ? Array.from(
+                    new Set(
+                        getDayTimes(row)
+                            .map((time) => normalizeTimeInput(time))
+                            .filter(Boolean)
+                    )
+                  ).sort()
+                : [];
+
             return {
                 day_of_week: Number(row.dataset.dayOfWeek || 0),
                 is_open: Boolean(open),
-                times: open ? getDayTimes(row) : [],
+                times,
             };
         });
     }
 
 
-    function assertOpenDaysHaveTimes(days) {
+    function assertOpenDaysHaveTimes(days, container) {
         const bad = (days || []).find((day) => day.is_open && (!day.times || day.times.length === 0));
         if (!bad) return true;
         const msg = root.dataset.msgOpenDayNeedsTimes || root.dataset.msgError || "Open days need times";
         window.notify?.error?.(msg) || alert(msg);
+        focusOpenDayMissingTimes(container);
         return false;
     }
 
@@ -373,7 +524,10 @@ import flatpickr from "flatpickr";
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-            throw new Error(data.message || root.dataset.msgError || "Error");
+            const firstError = data.errors
+                ? Object.values(data.errors).flat().find(Boolean)
+                : null;
+            throw new Error(firstError || data.message || root.dataset.msgError || "Error");
         }
         return data;
     }
@@ -388,7 +542,7 @@ import flatpickr from "flatpickr";
     document.getElementById("tr-save-branch")?.addEventListener("click", async (event) => {
         const btn = event.currentTarget;
         const days = collectDays(branchEl);
-        if (!assertOpenDaysHaveTimes(days)) return;
+        if (!assertOpenDaysHaveTimes(days, branchEl)) return;
         if (!confirmAllClosedSave(days)) return;
         setButtonBusy(btn, true);
         try {
@@ -415,7 +569,7 @@ import flatpickr from "flatpickr";
         if (!treatmentEl || !boot.productId) return;
         const btn = event.currentTarget;
         const days = collectDays(treatmentEl);
-        if (!assertOpenDaysHaveTimes(days)) return;
+        if (!assertOpenDaysHaveTimes(days, treatmentEl)) return;
         if (!confirmAllClosedSave(days)) return;
         setButtonBusy(btn, true);
         try {

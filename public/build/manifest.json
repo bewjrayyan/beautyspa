@@ -1174,7 +1174,7 @@
     ]
   },
   "modules/Order/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BTkb-AtV-v4.7.72.css",
+    "file": "assets/main-Dg0Al9tQ-v4.7.72.css",
     "src": "modules/Order/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/sass/print.scss": {
@@ -1632,7 +1632,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js": {
-    "file": "assets/main-CD95xSI7-v4.7.72.js",
+    "file": "assets/main-BjMEYE3B-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js",
     "isEntry": true,
@@ -2087,7 +2087,7 @@
     "src": "modules/Translation/Resources/assets/admin/translations/sass/main.scss"
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js": {
-    "file": "assets/appointment-availability-Bqu6HSjI-v4.7.72.js",
+    "file": "assets/appointment-availability-BQRTpWX1-v4.7.72.js",
     "name": "appointment-availability",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js",
     "isEntry": true,
@@ -2097,7 +2097,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-COHE_AZW-v4.7.72.js",
+    "file": "assets/main-DqS571ar-v4.7.72.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -2112,7 +2112,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-w6gIHRux-v4.7.72.css",
+    "file": "assets/main-D9hetLjv-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {
