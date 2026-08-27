@@ -2087,7 +2087,7 @@
     "src": "modules/Translation/Resources/assets/admin/translations/sass/main.scss"
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js": {
-    "file": "assets/appointment-availability-BQRTpWX1-v4.7.72.js",
+    "file": "assets/appointment-availability-D2_wHZDm-v4.7.72.js",
     "name": "appointment-availability",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js",
     "isEntry": true,
@@ -2112,7 +2112,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-D9hetLjv-v4.7.72.css",
+    "file": "assets/main-D9OAllpk-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {

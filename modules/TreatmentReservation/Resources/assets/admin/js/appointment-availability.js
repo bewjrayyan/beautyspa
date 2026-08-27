@@ -71,70 +71,266 @@ import flatpickr from "flatpickr";
 
     initializeWorkspaceTabs();
 
+    function buildTreatmentTreeOptions(products) {
+        const optgroups = [];
+        const options = [];
+        let order = 1;
+
+        (Array.isArray(products) ? products : []).forEach((product) => {
+            const productId = String(product?.id ?? "");
+            const productName = String(product?.name ?? "").trim() || `#${productId}`;
+            const variants = Array.isArray(product?.variants) ? product.variants : [];
+
+            if (!productId) return;
+
+            if (variants.length > 0) {
+                optgroups.push({
+                    value: productId,
+                    label: productName,
+                    variantCount: variants.length,
+                    $order: order++,
+                });
+
+                variants.forEach((variant) => {
+                    const variantId = String(variant?.id ?? "");
+                    if (!variantId) return;
+
+                    options.push({
+                        value: `${productId}v${variantId}`,
+                        text: String(variant?.name ?? "").trim() || `#${variantId}`,
+                        parent: productName,
+                        kind: "variant",
+                        optgroup: productId,
+                        $order: order++,
+                    });
+                });
+
+                return;
+            }
+
+            options.push({
+                value: productId,
+                text: productName,
+                kind: "product",
+                $order: order++,
+            });
+        });
+
+        return { optgroups, options };
+    }
+
     function initializeScopeSelects() {
         if (!window.jQuery?.fn?.selectize) return;
 
+        const boot = window.trAppointmentAvailabilityBoot || {};
+
         [
-            { id: "tr-branch-select", placeholder: root.dataset.labelSearchBranch || "Search branches…" },
-            { id: "tr-treatment-select", placeholder: root.dataset.labelSearchTreatment || "Search treatments…" },
-        ].forEach(({ id, placeholder }) => {
+            { id: "tr-branch-select", placeholder: root.dataset.labelSearchBranch || "Search branches…", tree: false },
+            { id: "tr-treatment-select", placeholder: root.dataset.labelSearchTreatment || "Search treatments…", tree: true },
+        ].forEach(({ id, placeholder, tree }) => {
             const select = document.getElementById(id);
             if (!select || select.selectize) return;
 
             const label = root.querySelector(`label[for="${id}"]`)?.textContent.trim() || placeholder;
             const dropdownId = `${id}-results`;
+            let suppressSubmit = true;
+
+            const treeRender = {
+                item(item, escape) {
+                    const text = String(item.text ?? "").trim();
+                    const parent = String(item.parent ?? "").trim();
+                    const labelHtml = parent
+                        ? `<small>${escape(parent)}</small><span>${escape(text)}</span>`
+                        : `<span>${escape(text)}</span>`;
+
+                    return `<div class="tr-avail-search-select__item">${labelHtml}</div>`;
+                },
+                option(item, escape) {
+                    const text = String(item.text ?? "").trim();
+                    const kind = String(item.kind ?? (item.parent ? "variant" : "product"));
+
+                    if (kind === "empty" || item.value === "") {
+                        return (
+                            `<div class="tr-avail-search-select__option tr-avail-search-select__option--empty">` +
+                            `<span class="tr-avail-search-select__label">${escape(text)}</span>` +
+                            `</div>`
+                        );
+                    }
+
+                    const isVariant = kind === "variant";
+                    const rowClass = isVariant
+                        ? "tr-avail-search-select__option tr-avail-search-select__option--child"
+                        : "tr-avail-search-select__option tr-avail-search-select__option--leaf";
+                    const icon = isVariant
+                        ? `<span class="tr-avail-tree-rail" aria-hidden="true"><span class="tr-avail-tree-rail__elbow"></span></span>`
+                        : `<span class="tr-avail-tree-leaf-icon" aria-hidden="true"><i class="fa fa-cube"></i></span>`;
+
+                    return (
+                        `<div class="${rowClass}">` +
+                        icon +
+                        `<span class="tr-avail-search-select__label">${escape(text)}</span>` +
+                        `<i class="fa fa-check" aria-hidden="true"></i>` +
+                        `</div>`
+                    );
+                },
+                optgroup_header(data, escape) {
+                    const labelText = String(data.label ?? "").trim();
+                    const count = Number(data.variantCount || 0);
+                    const countHtml = count > 0
+                        ? `<em class="tr-avail-search-select__group-count">${count}</em>`
+                        : "";
+
+                    return (
+                        `<div class="tr-avail-search-select__group">` +
+                        `<span class="tr-avail-search-select__group-icon" aria-hidden="true"><i class="fa fa-folder-open-o"></i></span>` +
+                        `<span class="tr-avail-search-select__group-label">${escape(labelText)}</span>` +
+                        countHtml +
+                        `</div>`
+                    );
+                },
+            };
+
+            const plainRender = {
+                item(item, escape) {
+                    const text = String(item.text ?? "").trim();
+
+                    return `<div class="tr-avail-search-select__item"><span>${escape(text)}</span></div>`;
+                },
+                option(item, escape) {
+                    const text = String(item.text ?? "").trim();
+
+                    return (
+                        `<div class="tr-avail-search-select__option">` +
+                        `<span>${escape(text)}</span>` +
+                        `<i class="fa fa-check" aria-hidden="true"></i>` +
+                        `</div>`
+                    );
+                },
+            };
+
+            const config = {
+                allowEmptyOption: id === "tr-treatment-select",
+                closeAfterSelect: true,
+                create: false,
+                hideSelected: false,
+                lockOptgroupOrder: true,
+                openOnFocus: true,
+                persist: true,
+                placeholder,
+                selectOnTab: true,
+                maxOptions: null,
+                searchField: tree ? ["text", "parent"] : ["text"],
+                render: tree ? treeRender : plainRender,
+                onInitialize() {
+                    this.$wrapper.addClass("tr-avail-search-select");
+                    if (tree) this.$wrapper.addClass("tr-avail-search-select--tree");
+                    this.$dropdown.attr("id", dropdownId);
+                    this.$control.attr("aria-label", label);
+                    this.$control_input.attr({
+                        "aria-autocomplete": "list",
+                        "aria-controls": dropdownId,
+                        "aria-expanded": "false",
+                        "aria-label": placeholder,
+                        autocomplete: "off",
+                        inputmode: "search",
+                        role: "combobox",
+                    });
+                    this.$control_input.prop("readonly", false);
+
+                    const selectize = this;
+                    const originalKeyDown = this.onKeyDown.bind(this);
+                    this.onKeyDown = function (event) {
+                        if (selectize.isOpen) {
+                            selectize.isInputHidden = false;
+                            selectize.settings.maxItems = null;
+                        }
+
+                        return originalKeyDown(event);
+                    };
+
+                    window.setTimeout(() => {
+                        suppressSubmit = false;
+                        this._trReady = true;
+                    }, 0);
+                },
+                onDropdownOpen() {
+                    this._trMaxItems = this.settings.maxItems;
+                    this.settings.maxItems = null;
+                    this.$control_input.attr("aria-expanded", "true");
+                    this.showInput();
+                    this.setTextboxValue("");
+                    this.$control_input.prop("readonly", false).css({
+                        position: "static",
+                        left: "auto",
+                        opacity: "1",
+                        width: "100%",
+                        minWidth: "8ch",
+                    });
+                    // Force full unfiltered tree (all products + all variants).
+                    this.refreshOptions(false);
+                    window.setTimeout(() => {
+                        this.$control_input.trigger("focus");
+                    }, 0);
+                },
+                onDropdownClose() {
+                    this.$control_input.attr("aria-expanded", "false");
+
+                    if (this._trMaxItems !== undefined) {
+                        this.settings.maxItems = this._trMaxItems;
+                    }
+
+                    if (suppressSubmit || !this._trReady) return;
+
+                    const next = String(this.getValue() ?? "");
+                    if (next === initialValue) return;
+
+                    this.$input[0]?.form?.submit();
+                },
+            };
+
+            let initialValue = String(select.value ?? "");
+
+            if (tree) {
+                const emptyLabel =
+                    select.querySelector('option[value=""]')?.textContent?.trim()
+                    || root.dataset.labelSelectTreatment
+                    || "Select a treatment…";
+                const preferred =
+                    String(boot.productScopeValue ?? "").trim()
+                    || initialValue;
+                const { optgroups, options } = buildTreatmentTreeOptions(boot.products);
+
+                // Prefer exact scope value; else first variant of productId; else product id.
+                let resolved = preferred;
+                if (resolved && !options.some((option) => option.value === resolved)) {
+                    const productId = String(boot.productId || "");
+                    const firstVariant = options.find(
+                        (option) => option.kind === "variant" && option.optgroup === productId
+                    );
+                    resolved = firstVariant?.value || (productId && options.some((o) => o.value === productId) ? productId : "");
+                }
+
+                select.innerHTML = "";
+                const emptyOption = document.createElement("option");
+                emptyOption.value = "";
+                emptyOption.textContent = emptyLabel;
+                select.appendChild(emptyOption);
+
+                config.options = [
+                    { value: "", text: emptyLabel, kind: "empty", $order: 0 },
+                    ...options,
+                ];
+                config.optgroups = optgroups;
+                config.optgroupField = "optgroup";
+                config.optgroupLabelField = "label";
+                config.optgroupValueField = "value";
+                config.items = resolved ? [resolved] : [];
+                initialValue = resolved;
+            }
+
             const instance = window.jQuery(select)
                 .removeClass("form-control")
-                .selectize({
-                    allowEmptyOption: id === "tr-treatment-select",
-                    closeAfterSelect: true,
-                    create: false,
-                    hideSelected: false,
-                    persist: false,
-                    placeholder,
-                    selectOnTab: true,
-                    render: {
-                        item(item, escape) {
-                            const text = String(item.text ?? "").trim();
-
-                            return `<div class="tr-avail-search-select__item"><span>${escape(text)}</span></div>`;
-                        },
-                        option(item, escape) {
-                            const text = String(item.text ?? "").trim();
-
-                            return (
-                                `<div class="tr-avail-search-select__option">` +
-                                `<span>${escape(text)}</span>` +
-                                `<i class="fa fa-check" aria-hidden="true"></i>` +
-                                `</div>`
-                            );
-                        },
-                    },
-                    onInitialize() {
-                        this.$wrapper.addClass("tr-avail-search-select");
-                        this.$dropdown.attr("id", dropdownId);
-                        this.$control.attr("aria-label", label);
-                        this.$control_input.attr({
-                            "aria-autocomplete": "list",
-                            "aria-controls": dropdownId,
-                            "aria-expanded": "false",
-                            "aria-label": placeholder,
-                            autocomplete: "off",
-                            role: "combobox",
-                        });
-                        this._trReady = true;
-                    },
-                    onDropdownOpen() {
-                        this.$control_input.attr("aria-expanded", "true");
-                    },
-                    onDropdownClose() {
-                        this.$control_input.attr("aria-expanded", "false");
-                    },
-                    onChange() {
-                        if (!this._trReady) return;
-                        this.$input[0]?.form?.submit();
-                    },
-                })[0]?.selectize;
+                .selectize(config)[0]?.selectize;
 
             instance?.$control_input.attr("placeholder", placeholder);
         });

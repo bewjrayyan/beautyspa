@@ -5,7 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.52' => [
+        'date' => '2026-08-27',
+        'en' => [
+            'summary' => 'Appointment availability product-variant tree and reliable branch schedule saves.',
+            'changes' => [
+                'Show every treatment variant under its parent product in the availability Treatment dropdown (searchable product tree).',
+                'Fix Selectize search typing when a treatment is already selected.',
+                'Fix branch/treatment schedule save 422 caused by Laravel distinct validating the same start times across different weekdays.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pokok produk–varian dalam appointment availability dan simpan jadual cawangan yang boleh dipercayai.',
+            'changes' => [
+                'Paparkan setiap varian rawatan di bawah produk induk dalam dropdown Treatment (pokok produk boleh dicari).',
+                'Betulkan taip carian Selectize apabila rawatan sudah dipilih.',
+                'Betulkan 422 simpan jadual cawangan/rawatan kerana distinct Laravel menyemak masa mula yang sama merentas hari berbeza.',
+            ],
+        ],
+    ],
+
     '4.11.51' => [
+
         'date' => '2026-08-27',
         'en' => [
             'summary' => 'Reliable checkout thank-you pages, working payment-proof links, and safer availability editing.',

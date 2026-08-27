@@ -31,7 +31,22 @@
     $branchOpenDays = $branchDaysCollection->filter(fn ($day) => (bool) data_get($day, 'is_open'))->count();
     $branchSlotCount = $branchDaysCollection->sum(fn ($day) => count((array) data_get($day, 'times', [])));
     $selectedBranch = collect($branches)->first(fn ($branch) => (int) $branch->id === (int) $branchId);
+    $variantId = $variantId ?? null;
+    $productScopeValue = (string) ($productScopeValue ?? '');
     $selectedProduct = collect($products)->first(fn ($product) => (int) data_get($product, 'id') === (int) $productId);
+    $selectedVariant = null;
+    if ($selectedProduct && $variantId) {
+        $selectedVariant = collect(data_get($selectedProduct, 'variants', []))
+            ->first(fn ($variant) => (int) data_get($variant, 'id') === (int) $variantId);
+    }
+    // Legacy ?product_id=12 (no variant): prefer first variant label when the product has variants.
+    if ($selectedProduct && ! $selectedVariant && $variantId === null) {
+        $selectedVariant = collect(data_get($selectedProduct, 'variants', []))->first();
+    }
+    $selectedTreatmentLabel = data_get($selectedVariant, 'name')
+        ?: data_get($selectedProduct, 'name')
+        ?: '—';
+    $selectedTreatmentParent = $selectedVariant ? data_get($selectedProduct, 'name') : null;
 @endphp
 
 @extends('admin::layout')
@@ -162,15 +177,20 @@
                     <div class="tr-avail-select-wrap">
                         <i class="fa fa-heartbeat" aria-hidden="true"></i>
                         <select id="tr-treatment-select" name="product_id" class="form-control">
-                        <option value="">{{ TrLang::trans('admin.appointment_availability.select_treatment') }}</option>
-                        @foreach ($products as $product)
-                            <option value="{{ $product['id'] }}" @selected($productId == $product['id'])>
-                                {{ $product['name'] }}
-                            </option>
-                        @endforeach
+                            <option value="">{{ TrLang::trans('admin.appointment_availability.select_treatment') }}</option>
+                            @if ($productScopeValue !== '')
+                                <option value="{{ $productScopeValue }}" selected>
+                                    {{ $selectedTreatmentLabel }}
+                                </option>
+                            @elseif ((int) $productId > 0)
+                                <option value="{{ (int) $productId }}" selected>
+                                    {{ $selectedTreatmentLabel }}
+                                </option>
+                            @endif
                         </select>
                     </div>
                     <small>{{ TrLang::trans('admin.appointment_availability.treatment_optional_hint') }}</small>
+                    <small>{{ TrLang::trans('admin.appointment_availability.treatment_variant_hint') }}</small>
                 </div>
                 </div>
             </div>
@@ -266,7 +286,10 @@
                             <span class="tr-avail-selected-treatment__icon" aria-hidden="true"><i class="fa fa-check"></i></span>
                             <div>
                                 <span>{{ TrLang::trans('admin.appointment_availability.selected_treatment') }}</span>
-                                <strong>{{ data_get($selectedProduct, 'name', '—') }}</strong>
+                                <strong>{{ $selectedTreatmentLabel }}</strong>
+                                @if ($selectedTreatmentParent)
+                                    <small>{{ $selectedTreatmentParent }}</small>
+                                @endif
                             </div>
                         </div>
                         <div class="tr-avail-meta">
@@ -531,6 +554,9 @@
         window.trAppointmentAvailabilityBoot = {
             spaBranchId: {{ (int) $branchId }},
             productId: {{ (int) $productId }},
+            variantId: @json($variantId),
+            productScopeValue: @json($productScopeValue),
+            products: @json($products),
             calendarMonth: @json(now()->format('Y-m')),
         };
     </script>

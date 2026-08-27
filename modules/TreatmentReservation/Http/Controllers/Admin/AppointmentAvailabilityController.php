@@ -34,19 +34,37 @@ class AppointmentAvailabilityController extends Controller
             ->get(['id', 'name', 'code']);
 
         $branchId = (int) ($request->integer('spa_branch_id') ?: ($branches->first()?->id ?? 0));
-        $productId = (int) $request->integer('product_id');
+        // Values may be "12" or "12v34" (product + variant) from the treatment dropdown.
+        $productScopeValue = trim((string) $request->input('product_id', ''));
+        [$productId, $variantId] = $this->parseProductScopeValue($productScopeValue);
 
         $products = Product::withoutGlobalScope('active')
             ->where('is_virtual', true)
-            ->with('translations')
+            ->with([
+                'translations',
+                // All non-deleted variants under each treatment product (tree children).
+                'variants' => fn ($query) => $query
+                    ->withoutGlobalScope('active')
+                    ->orderBy('position')
+                    ->orderBy('id'),
+            ])
             ->orderBy('id')
-            ->limit(500)
             ->get()
             ->map(fn (Product $product) => [
-                'id' => $product->id,
+                'id' => (int) $product->id,
                 'name' => $product->name,
                 'slug' => $product->slug,
+                'variants' => $product->variants
+                    ->map(fn ($variant) => [
+                        'id' => (int) $variant->id,
+                        'name' => trim((string) ($variant->name ?: '')) ?: ('#'.$variant->id),
+                        'is_active' => (bool) $variant->is_active,
+                    ])
+                    ->values()
+                    ->all(),
             ])
+            // Product names live in translations — sort in memory for the tree UI.
+            ->sortBy(fn (array $product) => mb_strtolower((string) ($product['name'] ?? '')), SORT_NATURAL)
             ->values();
 
         $treatment = $productId > 0 && $branchId > 0
@@ -86,6 +104,8 @@ class AppointmentAvailabilityController extends Controller
             'branches' => $branches,
             'branchId' => $branchId,
             'productId' => $productId,
+            'variantId' => $variantId,
+            'productScopeValue' => $productScopeValue,
             'products' => $products,
             'branchDays' => $branchDays,
             'treatment' => $treatment,
@@ -93,6 +113,31 @@ class AppointmentAvailabilityController extends Controller
             'overrides' => $overrides,
             'weekdayLabels' => $this->weekdayLabels(),
         ]);
+    }
+
+    /**
+     * Parse treatment scope from the GET dropdown.
+     * Plain product: "12". Product variant row: "12v34".
+     *
+     * @return array{0: int, 1: int|null}
+     */
+    private function parseProductScopeValue(string $raw): array
+    {
+        $raw = trim($raw);
+
+        if ($raw === '') {
+            return [0, null];
+        }
+
+        if (preg_match('/^(\d+)v(\d+)$/', $raw, $matches) === 1) {
+            return [(int) $matches[1], (int) $matches[2]];
+        }
+
+        if (ctype_digit($raw)) {
+            return [(int) $raw, null];
+        }
+
+        return [0, null];
     }
 
 
@@ -110,7 +155,7 @@ class AppointmentAvailabilityController extends Controller
             'days.*.day_of_week' => ['required', 'integer', 'between:0,6', 'distinct'],
             'days.*.is_open' => ['required', 'boolean'],
             'days.*.times' => ['nullable', 'array', 'max:48'],
-            'days.*.times.*' => ['required', 'date_format:H:i', 'distinct'],
+            'days.*.times.*' => ['required', 'date_format:H:i'],
         ]);
 
         if ($error = $this->validateOpenDaysHaveTimes($data['days'])) {
@@ -143,7 +188,7 @@ class AppointmentAvailabilityController extends Controller
             'days.*.day_of_week' => ['required', 'integer', 'between:0,6', 'distinct'],
             'days.*.is_open' => ['required', 'boolean'],
             'days.*.times' => ['nullable', 'array', 'max:48'],
-            'days.*.times.*' => ['required', 'date_format:H:i', 'distinct'],
+            'days.*.times.*' => ['required', 'date_format:H:i'],
         ]);
 
         if ($error = $this->validateOpenDaysHaveTimes($data['days'])) {
@@ -318,6 +363,9 @@ class AppointmentAvailabilityController extends Controller
                 }
             }
 
+            $times = array_values(array_unique($times));
+            sort($times);
+
             $out[] = [
                 'day_of_week' => $dow,
                 'label' => $label,
@@ -352,6 +400,9 @@ class AppointmentAvailabilityController extends Controller
                     }
                 }
             }
+
+            $times = array_values(array_unique($times));
+            sort($times);
 
             $out[] = [
                 'day_of_week' => $dow,
