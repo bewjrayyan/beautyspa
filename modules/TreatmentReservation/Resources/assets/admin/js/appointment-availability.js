@@ -219,7 +219,7 @@ import flatpickr from "flatpickr";
         flatpickr(input, {
             allowInput: true,
             clickOpens: true,
-            dateFormat: "g:i K",
+            dateFormat: "h:i K",
             disableMobile: true,
             enableTime: true,
             minuteIncrement: 15,
@@ -236,23 +236,6 @@ import flatpickr from "flatpickr";
                     '<i class="fa fa-clock-o" aria-hidden="true"></i>' +
                     `<strong>${escapeHtml(root.dataset.labelTimePickerTitle || "Choose start time")}</strong>`;
                 calendar.insertBefore(header, calendar.firstChild);
-
-                const quick = document.createElement("div");
-                quick.className = "tr-avail-timepicker__quick";
-                quick.innerHTML = `<span>${escapeHtml(root.dataset.labelQuickTimes || "Quick times")}</span>`;
-                [["09:00", "9:00 AM"], ["12:00", "12:00 PM"], ["15:00", "3:00 PM"], ["18:00", "6:00 PM"]].forEach(([time, label]) => {
-                    const button = document.createElement("button");
-                    button.type = "button";
-                    button.textContent = label;
-                    button.setAttribute("aria-label", `${root.dataset.labelSelectTime || "Select time"} ${time}`);
-                    button.addEventListener("click", () => {
-                        instance.setDate(time, true, "H:i");
-                        instance.close();
-                        input.focus();
-                    });
-                    quick.appendChild(button);
-                });
-                calendar.appendChild(quick);
             },
         });
     }

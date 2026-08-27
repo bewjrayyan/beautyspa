@@ -52,7 +52,7 @@ class LoyaltyStampProgressService
      */
     public function cardFromWallet(LoyaltyStampWallet $wallet): ?array
     {
-        $wallet->loadMissing('program');
+        $wallet->loadMissing(['program', 'entries']);
 
         if (! $wallet->program) {
             return null;
@@ -80,7 +80,7 @@ class LoyaltyStampProgressService
             ->where('user_id', $user->id)
             ->whereIn('program_id', $programs->pluck('id'))
             ->whereNull('redeemed_at')
-            ->with('program')
+            ->with(['program', 'entries'])
             ->latest('id')
             ->get()
             ->groupBy('program_id');
@@ -107,12 +107,8 @@ class LoyaltyStampProgressService
     {
         $stampsRequired = (int) $program->stamps_required;
         $stampsEarned = $wallet
-            ? min((int) $wallet->stamps_count, $stampsRequired)
+            ? $this->stampsEarnedFromWallet($wallet, $stampsRequired)
             : 0;
-
-        if ($wallet?->redeemed_at || $wallet?->fulfilled_at) {
-            $stampsEarned = $stampsRequired;
-        }
 
         $isExpired = $wallet && $this->isExpired($wallet);
         $isComplete = $wallet
@@ -133,6 +129,22 @@ class LoyaltyStampProgressService
             'not_started' => ! $wallet,
             'is_expired' => $isExpired,
         ];
+    }
+
+
+    /**
+     * Prefer loyalty_stamp_entries over denormalized stamps_count so UI ticks
+     * never appear without real award records.
+     */
+    private function stampsEarnedFromWallet(LoyaltyStampWallet $wallet, int $stampsRequired): int
+    {
+        $fromEntries = $wallet->earnedStampsCount();
+
+        if ((int) $wallet->stamps_count !== $fromEntries) {
+            $wallet->forceFill(['stamps_count' => $fromEntries])->saveQuietly();
+        }
+
+        return min(max(0, $fromEntries), $stampsRequired);
     }
 
 

@@ -1977,7 +1977,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/home/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/products/index/main.scss": {
-    "file": "assets/main-CGva4GmF-v4.7.72.css",
+    "file": "assets/main-DRqvHSrT-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/products/index/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/products/show/main.scss": {
@@ -2087,7 +2087,7 @@
     "src": "modules/Translation/Resources/assets/admin/translations/sass/main.scss"
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js": {
-    "file": "assets/appointment-availability-Dkg42a3Y-v4.7.72.js",
+    "file": "assets/appointment-availability-Bqu6HSjI-v4.7.72.js",
     "name": "appointment-availability",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js",
     "isEntry": true,
@@ -2112,7 +2112,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BxukL8LB-v4.7.72.css",
+    "file": "assets/main-w6gIHRux-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {

@@ -506,6 +506,78 @@ if (!function_exists('font_url')) {
 }
 
 
+if (!function_exists('category_showcase_theme')) {
+    /**
+     * Visual theme key for category product listing hero banners.
+     */
+    function category_showcase_theme(string $slug, string $name = ''): string
+    {
+        $haystack = mb_strtolower($slug . ' ' . $name);
+
+        return match (true) {
+            str_contains($haystack, 'spa') => 'spa',
+            str_contains($haystack, 'aesthetic') || str_contains($haystack, 'estetik') => 'aesthetic',
+            str_contains($haystack, 'cosmetik') || str_contains($haystack, 'cosmetic') => 'cosmetik',
+            default => 'default',
+        };
+    }
+}
+
+if (!function_exists('category_showcase_icon')) {
+    /**
+     * Icon class for category product listing hero banners.
+     */
+    function category_showcase_icon(string $slug, string $name = ''): string
+    {
+        $haystack = mb_strtolower($slug . ' ' . $name);
+
+        return match (true) {
+            str_contains($haystack, 'spa') => 'las la-spa',
+            str_contains($haystack, 'aesthetic') || str_contains($haystack, 'estetik') => 'las la-syringe',
+            str_contains($haystack, 'cosmetik') || str_contains($haystack, 'cosmetic') => 'las la-palette',
+            default => 'las la-layer-group',
+        };
+    }
+}
+
+if (!function_exists('category_showcase_copy')) {
+    /**
+     * Bilingual hero copy for a category products page.
+     * Uses slug-specific strings when present; otherwise generic :name templates.
+     *
+     * @return array{eyebrow: string, title: string, description: string, shop_by_category: string, coming_soon: string, icon: string, theme: string}
+     */
+    function category_showcase_copy(\Modules\Category\Entities\Category $category): array
+    {
+        $name = $category->name;
+        $slug = $category->slug;
+        $prefix = "storefront::products.category_showcase.{$slug}";
+        $hasSpecific = trans("{$prefix}.title") !== "{$prefix}.title";
+
+        $replace = ['name' => $name];
+
+        if ($hasSpecific) {
+            $eyebrow = trans("{$prefix}.eyebrow");
+            $title = trans("{$prefix}.title");
+            $description = trans("{$prefix}.description");
+        } else {
+            $eyebrow = trans('storefront::products.category_showcase.generic.eyebrow', $replace);
+            $title = trans('storefront::products.category_showcase.generic.title', $replace);
+            $description = trans('storefront::products.category_showcase.generic.description', $replace);
+        }
+
+        return [
+            'eyebrow' => $eyebrow,
+            'title' => $title,
+            'description' => $description,
+            'shop_by_category' => trans('storefront::products.category_showcase.shop_by_category', $replace),
+            'coming_soon' => trans('storefront::products.category_showcase.coming_soon'),
+            'icon' => category_showcase_icon($slug, $name),
+            'theme' => category_showcase_theme($slug, $name),
+        ];
+    }
+}
+
 if (!function_exists('category_menu_item_icon')) {
     /**
      * Icon for storefront category mega menu items (SPA, aesthetic, cosmetik, …).

@@ -51,6 +51,19 @@ class LoyaltyStampWallet extends Model
     }
 
 
+    /**
+     * Stamp total from entry rows (source of truth for UI ticks).
+     */
+    public function earnedStampsCount(): int
+    {
+        if ($this->relationLoaded('entries')) {
+            return (int) $this->entries->sum('stamps_added');
+        }
+
+        return (int) $this->entries()->sum('stamps_added');
+    }
+
+
     public function isActive(): bool
     {
         if ($this->completed_at || $this->redeemed_at) {

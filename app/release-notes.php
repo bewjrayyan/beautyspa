@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.50' => [
+        'date' => '2026-08-27',
+        'en' => [
+            'summary' => 'Category product heroes, accurate loyalty stamps, and clearer treatment portal tools.',
+            'changes' => [
+                'Show a Kosmetik-style category showcase hero on spa, aesthetic, and all future category product pages (en/ms).',
+                'Loyalty stamp ticks now follow real stamp entry records instead of a denormalized counter.',
+                'Always show My Availability in treatment portal Quick links (including admin preview).',
+                'Fix appointment availability time picker format (g:00 AM) and remove confusing Quick times shortcuts.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hero kategori produk, setem loyalty yang tepat, dan alat portal rawatan yang lebih jelas.',
+            'changes' => [
+                'Paparkan hero showcase gaya Kosmetik pada halaman produk spa, aesthetic, dan semua kategori baharu (en/ms).',
+                'Tick setem loyalty kini mengikut rekod entry sebenar, bukan counter yang dinormalisasi.',
+                'Sentiasa paparkan My Availability dalam Quick links portal rawatan (termasuk pratonton admin).',
+                'Betulkan format pemilih masa ketersediaan (g:00 AM) dan buang pintasan Quick times yang mengelirukan.',
+            ],
+        ],
+    ],
+
     '4.11.49' => [
         'date' => '2026-08-27',
         'en' => [

@@ -900,7 +900,6 @@ return [
         'add_time' => 'Tambah masa',
         'select_time' => 'Pilih masa mula',
         'time_picker_title' => 'Pilih masa mula',
-        'quick_times' => 'Masa pantas',
         'remove' => 'Buang',
         'duration' => 'Tempoh (minit)',
         'capacity' => 'Kapasiti setiap slot',

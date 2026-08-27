@@ -118,7 +118,7 @@ class LoyaltyStampAdminService
     {
         $wallets = LoyaltyStampWallet::query()
             ->where('user_id', $user->id)
-            ->with('program')
+            ->with(['program', 'entries'])
             ->latest('id')
             ->get();
 

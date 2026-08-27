@@ -53,17 +53,18 @@
 
 
                 <div class="product-search-right">
-                    @if (($category->slug ?? null) === 'cosmetik')
-                        @include('storefront::public.products.index.cosmetik_showcase')
-                    @endif
+                    @isset($category)
+                        @include('storefront::public.products.index.category_showcase')
+                    @endisset
 
                     <template x-if="brandBanner">
                         <div class="d-none d-lg-block categories-banner">
                             <img :src="brandBanner" alt="Brand banner">
                         </div>
                     </template>
-                    
-                    <template x-if="!brandBanner && categoryBanner">
+
+                    {{-- Image banner only when no category hero showcase is shown --}}
+                    <template x-if="!brandBanner && categoryBanner && !@json(isset($category))">
                         <div class="d-none d-lg-block categories-banner">
                             <img :src="categoryBanner" alt="Category banner">
                         </div>

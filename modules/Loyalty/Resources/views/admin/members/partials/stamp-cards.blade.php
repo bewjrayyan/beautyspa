@@ -24,7 +24,7 @@
                                 <strong>{{ $card->program?->name }}</strong>
                                 <span class="label label-info">
                                     {{ trans('loyalty::members.stamps.progress', [
-                                        'earned' => min($card->stamps_count, $card->program?->stamps_required ?? $card->stamps_count),
+                                        'earned' => min($card->earnedStampsCount(), $card->program?->stamps_required ?? $card->earnedStampsCount()),
                                         'required' => $card->program?->stamps_required ?? '—',
                                     ]) }}
                                 </span>

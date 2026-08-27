@@ -47,26 +47,28 @@
             <i class="fa fa-chevron-right tr-portal-quick-actions__arrow" aria-hidden="true"></i>
         </a>
 
+        @php
+            $portalAvailabilityUrl = request()->routeIs('admin.beauticians.portal*') && isset($beautician)
+                ? route('admin.beauticians.portal.availability', $beautician->id)
+                : route('admin.treatment_reservations.portal.availability');
+        @endphp
+        <a href="{{ $portalAvailabilityUrl }}" class="tr-portal-quick-actions__item">
+            <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--availability">
+                <i class="fa fa-clock-o" aria-hidden="true"></i>
+            </span>
+            <span class="tr-portal-quick-actions__body">
+                <strong>{{ trans('treatmentreservation::admin.availability.title') }}</strong>
+                <span>{{ trans('treatmentreservation::admin.portal.dashboard_availability_hint') }}</span>
+            </span>
+            <i class="fa fa-chevron-right tr-portal-quick-actions__arrow" aria-hidden="true"></i>
+        </a>
+
         @if (empty($adminPortalPreview))
             @php
-                $portalAccountUrl = request()->routeIs('admin.beauticians.portal*')
+                $portalAccountUrl = request()->routeIs('admin.beauticians.portal*') && isset($beautician)
                     ? route('admin.beauticians.portal.account', $beautician->id)
                     : route('admin.treatment_reservations.portal.account');
-                $portalAvailabilityUrl = request()->routeIs('admin.beauticians.portal*')
-                    ? route('admin.beauticians.portal.availability', $beautician->id)
-                    : route('admin.treatment_reservations.portal.availability');
             @endphp
-            <a href="{{ $portalAvailabilityUrl }}" class="tr-portal-quick-actions__item">
-                <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--availability">
-                    <i class="fa fa-clock-o" aria-hidden="true"></i>
-                </span>
-                <span class="tr-portal-quick-actions__body">
-                    <strong>{{ trans('treatmentreservation::admin.availability.title') }}</strong>
-                    <span>{{ trans('treatmentreservation::admin.portal.dashboard_availability_hint') }}</span>
-                </span>
-                <i class="fa fa-chevron-right tr-portal-quick-actions__arrow" aria-hidden="true"></i>
-            </a>
-
             <a href="{{ $portalAccountUrl }}" class="tr-portal-quick-actions__item">
                 <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--account">
                     <i class="fa fa-user" aria-hidden="true"></i>

@@ -34,4 +34,28 @@ return [
         'shop_by_category' => 'Shop Kosmetik by category',
         'coming_soon' => 'Coming soon',
     ],
+    'category_showcase' => [
+        'coming_soon' => 'Coming soon',
+        'shop_by_category' => 'Shop :name by category',
+        'generic' => [
+            'eyebrow' => ':name collection',
+            'title' => 'Explore :name.',
+            'description' => 'Browse treatments and products in :name, selected to match what you need.',
+        ],
+        'cosmetik' => [
+            'eyebrow' => 'Kosmetik collection',
+            'title' => 'Everyday beauty, made simple.',
+            'description' => 'Explore skincare, body care, makeup, and personal-care essentials selected for your daily routine.',
+        ],
+        'spa' => [
+            'eyebrow' => 'Spa collection',
+            'title' => 'Relax, restore, and feel renewed.',
+            'description' => 'Discover facial, massage, laser, and wellness treatments crafted for calm and lasting results.',
+        ],
+        'aesthetic-estetik' => [
+            'eyebrow' => 'Aesthetic / Estetik collection',
+            'title' => 'Clinical beauty, thoughtfully curated.',
+            'description' => 'Explore aesthetic treatments from injectables to skin boosters, planned around your goals.',
+        ],
+    ],
 ];

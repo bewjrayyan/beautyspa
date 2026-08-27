@@ -34,4 +34,28 @@ return [
         'shop_by_category' => 'Beli Kosmetik mengikut kategori',
         'coming_soon' => 'Akan datang',
     ],
+    'category_showcase' => [
+        'coming_soon' => 'Akan datang',
+        'shop_by_category' => 'Beli :name mengikut kategori',
+        'generic' => [
+            'eyebrow' => 'Koleksi :name',
+            'title' => 'Terokai :name.',
+            'description' => 'Layari rawatan dan produk dalam :name yang dipilih mengikut keperluan anda.',
+        ],
+        'cosmetik' => [
+            'eyebrow' => 'Koleksi kosmetik',
+            'title' => 'Kecantikan harian yang lebih mudah.',
+            'description' => 'Terokai penjagaan kulit, penjagaan badan, solekan dan keperluan diri yang dipilih untuk rutin harian anda.',
+        ],
+        'spa' => [
+            'eyebrow' => 'Koleksi spa',
+            'title' => 'Rehat, pulih, dan rasa segar semula.',
+            'description' => 'Temui rawatan facial, urutan, laser dan kesejahteraan yang disusun untuk ketenangan serta hasil yang berkekalan.',
+        ],
+        'aesthetic-estetik' => [
+            'eyebrow' => 'Koleksi aesthetic / estetik',
+            'title' => 'Kecantikan klinikal yang disusun teliti.',
+            'description' => 'Terokai rawatan estetik daripada suntikan hingga skin booster, dirancang mengikut matlamat anda.',
+        ],
+    ],
 ];

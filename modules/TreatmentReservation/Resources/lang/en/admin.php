@@ -883,7 +883,6 @@ return [
         'add_time' => 'Add time',
         'select_time' => 'Select a start time',
         'time_picker_title' => 'Choose start time',
-        'quick_times' => 'Quick times',
         'remove' => 'Remove',
         'duration' => 'Duration (minutes)',
         'capacity' => 'Capacity per slot',
