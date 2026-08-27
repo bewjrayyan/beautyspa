@@ -2,6 +2,7 @@
 
 namespace Modules\Checkout\Services;
 
+use AestheticCart\Http\FixSubdirectoryRequest;
 use Exception;
 use Modules\Order\Entities\Order;
 
@@ -98,6 +99,43 @@ class CheckoutCompletionGuard
     public static function keepPlacedOrder(): void
     {
         session()->keep(['placed_order', 'placed_order_id']);
+    }
+
+
+    /**
+     * Thank-you URL that survives lost session cookies (Chip in-app browser, /v2 redirects).
+     * Signs the *localized* relative path (/en/checkout/complete) so LocaleSessionRedirect
+     * does not invalidate the signature. absolute:false matches FixSubdirectoryRequest.
+     */
+    public static function thankYouUrl(Order $order): string
+    {
+        self::rememberPlacedOrder($order);
+
+        $parameters = [
+            'expires' => now()->addHours(12)->getTimestamp(),
+            'placed_order' => (int) $order->id,
+        ];
+        ksort($parameters);
+
+        $root = rtrim((string) (FixSubdirectoryRequest::resolvedAppUrl() ?: config('app.url')), '/');
+        $localizedAbsolute = storefront_route('checkout.complete.show', [], true);
+        $fullPath = parse_url($localizedAbsolute, PHP_URL_PATH) ?: '/checkout/complete';
+        $rootPath = rtrim((string) (parse_url($root, PHP_URL_PATH) ?: ''), '/');
+
+        $relativePath = $fullPath;
+        if ($rootPath !== '' && str_starts_with($fullPath, $rootPath)) {
+            $relativePath = substr($fullPath, strlen($rootPath)) ?: '/';
+        }
+        if (! str_starts_with($relativePath, '/')) {
+            $relativePath = '/'.$relativePath;
+        }
+
+        $query = \Illuminate\Support\Arr::query($parameters);
+        $payload = $relativePath.'?'.$query;
+        // UrlGenerator signs with config app.key (raw string), not encrypter->getKey().
+        $signature = hash_hmac('sha256', $payload, (string) config('app.key'));
+
+        return $root.$relativePath.'?'.$query.'&signature='.$signature;
     }
 
 

@@ -1,9 +1,10 @@
 @extends('admin::layout')
 
-@section('title', trans('user::users.profile'))
+@component('admin::components.page.header')
+    @slot('title', trans('user::users.profile'))
 
-@section('content_header')
-@endsection
+    <li class="active">{{ trans('user::users.profile') }}</li>
+@endcomponent
 
 @section('content')
     <div class="admin-profile-page">

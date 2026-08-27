@@ -27,6 +27,7 @@
         'customerNoteHelp' => trans('treatmentreservation::admin.calendar.work_log_customer_note_help'),
         'generateSummary' => trans('treatmentreservation::admin.calendar.work_log_generate_summary'),
         'noCompletedItems' => trans('treatmentreservation::admin.calendar.work_log_no_completed_items'),
+            'emptyChecklistItem' => trans('treatmentreservation::admin.calendar.work_log_empty_checklist_item'),
         'summaryPrefix' => trans('treatmentreservation::admin.calendar.work_log_summary_prefix'),
         'presets' => trans('treatmentreservation::admin.calendar.work_log_presets'),
     ];
@@ -34,10 +35,21 @@
 
 @extends('admin::layout')
 
-@section('title', TrLang::trans('admin.portal.dashboard_title'))
+@component('admin::components.page.header')
+    @slot('title', TrLang::trans('admin.portal.dashboard_title'))
 
-@section('content_header')
-@endsection
+    @if (! empty($adminPortalPreview))
+        <li>
+            <a href="{{ route('admin.beauticians.index') }}">{{ trans('beautician::beauticians.beauticians') }}</a>
+        </li>
+        <li>
+            <a href="{{ route('admin.beauticians.edit', $beautician) }}">{{ $beautician->name }}</a>
+        </li>
+        <li class="active">{{ TrLang::trans('admin.portal.dashboard_title') }}</li>
+    @else
+        <li class="active">{{ TrLang::trans('admin.portal.dashboard_title') }}</li>
+    @endif
+@endcomponent
 
 @section('content')
     @if (! empty($adminPortalPreview))
@@ -77,6 +89,7 @@
         data-calendar-details-url="{{ $crmRoutes['bookingDetails'] ?? '' }}"
         data-holidays-range-url="{{ route('admin.treatment_reservations.holidays_range') }}"
         data-status-url="{{ $crmRoutes['updateStatus'] ?? '' }}"
+        data-schedule-before-start="{{ TrLang::trans('admin.crm.error_schedule_before_start') }}"
         data-notes-url="{{ $crmRoutes['updateNotes'] ?? '' }}"
         data-whatsapp-url="{{ $crmRoutes['whatsapp'] ?? '' }}"
         data-consultation-url="{{ $crmRoutes['consultation'] ?? '' }}"
@@ -129,6 +142,7 @@
         data-cal-preview-source="{{ TrLang::trans('admin.calendar.preview_source') }}"
         data-cal-preview-branch="{{ TrLang::trans('admin.calendar.preview_branch') }}"
         data-cal-preview-booking-id="{{ TrLang::trans('admin.calendar.preview_booking_id') }}"
+        data-cal-preview-booking-id-title="{{ TrLang::trans('admin.calendar.preview_booking_id_title') }}"
         data-cal-preview-duration-minutes="{{ TrLang::trans('admin.calendar.preview_duration_value') }}"
         data-cal-preview-duration-hour="{{ TrLang::trans('admin.calendar.preview_duration_hour') }}"
         data-cal-preview-duration-hours="{{ TrLang::trans('admin.calendar.preview_duration_hours') }}"
@@ -139,9 +153,13 @@
         data-cal-preview-duration-badge-hours-minutes="{{ TrLang::trans('admin.calendar.preview_duration_badge_hours_minutes') }}"
         data-cal-preview-action-profile-short="{{ TrLang::trans('admin.calendar.preview_action_profile_short') }}"
         data-cal-preview-action-customer-short="{{ TrLang::trans('admin.calendar.preview_action_customer_short') }}"
+        data-cal-preview-whatsapp-reminder-customer="{{ TrLang::trans('admin.crm.whatsapp_reminder_customer') }}"
+        data-cal-preview-whatsapp-reminder-beautician="{{ TrLang::trans('admin.crm.whatsapp_reminder_beautician') }}"
         data-cal-preview-action-consultation-short="{{ TrLang::trans('admin.calendar.preview_action_consultation_short') }}"
         data-cal-preview-action-beautician-short="{{ TrLang::trans('admin.calendar.preview_action_beautician_short') }}"
         data-cal-preview-action-reschedule-short="{{ TrLang::trans('admin.calendar.preview_action_reschedule_short') }}"
+        data-cal-preview-status="{{ TrLang::trans('admin.calendar.preview_status') }}"
+        data-cal-preview-status-title="{{ TrLang::trans('admin.calendar.preview_status_title') }}"
         data-cal-preview-status-update-failed="{{ TrLang::trans('admin.crm.agenda_status_update_failed') }}"
         data-initial-month="{{ $filters['month'] ?? now()->format('Y-m') }}"
         data-initial-spa-branch="{{ $filters['spa_branch_id'] ?? '' }}"
@@ -153,153 +171,6 @@
             <div class="tr-crm-page-header__intro">
                 <h1 class="tr-crm-page-header__title">{{ TrLang::trans('admin.portal.dashboard_title') }}</h1>
                 <p class="tr-crm-page-header__lead">{{ TrLang::trans('admin.portal.dashboard_lead') }}</p>
-
-                <div class="tr-crm-page-header__toolbar">
-                    <div class="tr-crm-toolbar">
-                        <form class="tr-crm-toolbar__filters-form" method="get" action="{{ $crmRoutes['formAction'] ?? '' }}" id="tr-crm-header-form">
-                            <input type="hidden" name="date_filter" id="tr-crm-date-filter" value="{{ $crmDateFilter }}">
-                            <input type="hidden" name="filter_date" id="tr-crm-filter-date" value="{{ $filters['filter_date'] ?? '' }}">
-                            <input type="hidden" name="treatment_category_id" id="tr-crm-hidden-category" value="{{ $filters['treatment_category_id'] ?? '' }}">
-                            <input type="hidden" name="beautician_id" value="">
-
-                            @if (! empty($portalFilterContext['locked']))
-                                <div class="tr-crm-toolbar__context tr-crm-toolbar__context--beautician">
-                                    <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                        <i class="fa fa-user"></i>
-                                    </span>
-                                    <span class="tr-crm-toolbar__context-chip">
-                                        @if (! empty($portalFilterContext['beautician_avatar']))
-                                            <img
-                                                src="{{ $portalFilterContext['beautician_avatar'] }}"
-                                                alt=""
-                                                class="tr-crm-toolbar__context-avatar"
-                                            >
-                                        @else
-                                            <span
-                                                class="tr-crm-toolbar__context-avatar tr-crm-toolbar__context-avatar--initial"
-                                                style="background-color: {{ $portalFilterContext['beautician_color'] ?? '#6366f1' }}"
-                                            >{{ $portalFilterContext['beautician_initial'] ?? '?' }}</span>
-                                        @endif
-                                        <span class="tr-crm-toolbar__context-label">{{ $portalFilterContext['beautician_name'] ?? $beautician->name }}</span>
-                                    </span>
-                                </div>
-                                <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
-                            @endif
-
-                            @if (! empty($portalFilterContext['branch_locked']) && ! empty($portalFilterContext['branch_name']))
-                                <input type="hidden" name="spa_branch_id" value="{{ $filters['spa_branch_id'] ?? '' }}">
-                                <div class="tr-crm-toolbar__context tr-crm-toolbar__context--branch">
-                                    <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                        <i class="fa fa-map-marker"></i>
-                                    </span>
-                                    <span class="tr-crm-toolbar__context-chip tr-crm-toolbar__context-chip--branch">
-                                        <span class="tr-crm-toolbar__context-label">{{ $portalFilterContext['branch_name'] }}</span>
-                                    </span>
-                                </div>
-                                <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
-                            @elseif (! empty($portalFilterContext['branch_picker']) && $spaBranches->isNotEmpty())
-                                <div class="tr-crm-toolbar__field tr-crm-toolbar__field--branch">
-                                    <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                        <i class="fa fa-map-marker"></i>
-                                    </span>
-                                    <label class="sr-only" for="tr-crm-filter-branch">{{ TrLang::trans('admin.filters.spa_branch') }}</label>
-                                    <select class="tr-crm-toolbar__select" id="tr-crm-filter-branch" name="spa_branch_id" onchange="this.form.requestSubmit()">
-                                        <option value="">{{ TrLang::trans('admin.portal.filter_my_branches') }}</option>
-                                        @foreach ($spaBranches as $branchId => $branchName)
-                                            <option value="{{ $branchId }}" @selected(($filters['spa_branch_id'] ?? null) == $branchId)>
-                                                {{ $branchName }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
-                            @elseif (empty($portalFilterContext['locked']) && $spaBranches->isNotEmpty())
-                                <div class="tr-crm-toolbar__field tr-crm-toolbar__field--branch">
-                                    <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                        <i class="fa fa-map-marker"></i>
-                                    </span>
-                                    <label class="sr-only" for="tr-crm-filter-branch">{{ TrLang::trans('admin.filters.spa_branch') }}</label>
-                                    <select class="tr-crm-toolbar__select" id="tr-crm-filter-branch" name="spa_branch_id" onchange="this.form.requestSubmit()">
-                                        <option value="">{{ TrLang::trans('admin.filters.all_branches') }}</option>
-                                        @foreach ($spaBranches as $branchId => $branchName)
-                                            <option value="{{ $branchId }}" @selected(($filters['spa_branch_id'] ?? null) == $branchId)>
-                                                {{ $branchName }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
-                            @endif
-
-                            @if ($categories->isNotEmpty())
-                                <div class="tr-crm-toolbar__field">
-                                    <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                        <i class="fa fa-tags"></i>
-                                    </span>
-                                    <label class="sr-only" for="tr-crm-filter-category">{{ TrLang::trans('admin.filters.category') }}</label>
-                                    <select class="tr-crm-toolbar__select" id="tr-crm-filter-category" name="treatment_category_id" onchange="this.form.requestSubmit()">
-                                        <option value="">{{ TrLang::trans('admin.filters.all_categories') }}</option>
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}" @selected(($filters['treatment_category_id'] ?? null) == $category->id)>
-                                                {{ $category->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
-                            @endif
-
-                            <div class="tr-crm-toolbar__field tr-crm-toolbar__field--dates">
-                                <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                    <i class="fa fa-calendar-o"></i>
-                                </span>
-                                <div class="tr-crm-toolbar__dates" role="group" aria-label="{{ TrLang::trans('admin.crm.date_filter_aria') }}">
-                                    @foreach (['all' => 'date_all', 'today' => 'date_today', 'tomorrow' => 'date_tomorrow'] as $value => $labelKey)
-                                        <button
-                                            type="button"
-                                            class="tr-crm-toolbar__date-pill{{ $crmDateFilter === $value ? ' is-active' : '' }}"
-                                            data-date-filter="{{ $value }}"
-                                        >
-                                            {{ TrLang::trans('admin.crm.' . $labelKey) }}
-                                        </button>
-                                    @endforeach
-
-                                    <label class="tr-crm-toolbar__date-picker{{ $crmDateFilter === 'custom' ? ' is-active' : '' }}">
-                                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                                        <input
-                                            type="text"
-                                            id="tr-crm-date-picker"
-                                            class="tr-crm-toolbar__date-input"
-                                            value="{{ $crmPickerDate }}"
-                                            placeholder="{{ TrLang::trans('admin.crm.date_pick_placeholder') }}"
-                                            autocomplete="off"
-                                            aria-label="{{ TrLang::trans('admin.crm.date_pick_aria') }}"
-                                            readonly
-                                        >
-                                    </label>
-                                </div>
-                            </div>
-                        </form>
-
-
-
-                        @if (! empty($crmCanCreate))
-                            <div class="tr-crm-toolbar__actions">
-                                <button
-                                    type="button"
-                                    class="tr-crm-toolbar__new tr-manual-booking-open-btn"
-                                    data-toggle="modal"
-                                    data-target="#tr-manual-booking-modal"
-                                >
-                                    <span class="tr-crm-toolbar__new-icon" aria-hidden="true">
-                                        <i class="fa fa-plus"></i>
-                                    </span>
-                                    {{ TrLang::trans('admin.crm.new_reservation') }}
-                                </button>
-                            </div>
-                        @endif
-                    </div>
-                </div>
             </div>
         </header>
 
@@ -333,6 +204,7 @@
                 'crmSpecialistProfileUrl' => $crmSpecialistProfileUrl ?? null,
                 'calendarFullViewUrl' => $crmRoutes['calendarFullView'] ?? null,
                 'crmSelfScoped' => $crmSelfScoped ?? true,
+                'crmToolbarView' => 'treatmentreservation::admin.reservations.partials.dashboard.crm-toolbar-portal',
             ])
         </div>
     </div>

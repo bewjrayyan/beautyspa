@@ -152,7 +152,7 @@ return [
         'preview_document_title' => 'Resit PDF',
         'template_hints' => [
             'welcome' => 'Placeholder: :first_name, :store',
-            'customer_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :beautician, :tracking_url, :extra_lines (lama: :beautician_line, :tracking_line)',
+            'customer_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :reference, :beautician, :tracking_url, :extra_lines (lama: :beautician_line, :tracking_line)',
             'customer_completed' => 'Placeholder: :store, :customer, :treatment',
             'customer_followup' => 'Placeholder: :store, :customer, :treatment, :date',
             'new_order_admin' => 'Placeholder: :store, :order_id, :customer, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary',
@@ -161,8 +161,8 @@ return [
             'status_beautician' => 'Placeholder: :staff, :customer, :order_id, :phone, :status_type, :status, :previous_status, :order_status, :payment_status, :treatment_line, :store',
             'completed_group' => 'Placeholder: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
             'completed_beautician' => 'Placeholder: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
-            'beautician_new_booking' => 'Placeholder: :store, :customer, :treatment, :date, :time, :portal_url',
-            'beautician_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :portal_url',
+            'beautician_new_booking' => 'Placeholder: :store, :customer, :treatment, :date, :time, :reference, :portal_url',
+            'beautician_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :reference, :portal_url',
         ],
         'badges' => [
             'auto_off' => 'Hantar automatik dimatikan dalam kod',

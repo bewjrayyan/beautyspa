@@ -3,12 +3,12 @@
 return [
     'reservations' => 'Tempahan',
     'appointments' => 'Temujanji',
-    'agenda' => 'Agenda',
+    'agenda' => 'Jobsheet',
     'my_job_sheet' => 'Dashboard saya',
     'my_job_sheet_kanban' => 'Job sheet',
-    'calendar' => 'Kalendar',
+    'calendar' => 'Tempahan',
     'appointment_availability' => 'Ketersediaan',
     'holidays' => 'Cuti',
-    'my_calendar' => 'Kalendar',
+    'my_calendar' => 'Tempahan Temujanji',
     'my_account' => 'Akaun saya',
 ];

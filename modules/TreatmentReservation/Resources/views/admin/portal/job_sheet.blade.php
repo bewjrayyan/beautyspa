@@ -1,9 +1,20 @@
 @extends('admin::layout')
 
-@section('title', trans('treatmentreservation::admin.portal.title'))
+@component('admin::components.page.header')
+    @slot('title', trans('treatmentreservation::admin.portal.title'))
 
-@section('content_header')
-@endsection
+    @if (! empty($adminPortalPreview))
+        <li>
+            <a href="{{ route('admin.beauticians.index') }}">{{ trans('beautician::beauticians.beauticians') }}</a>
+        </li>
+        <li>
+            <a href="{{ route('admin.beauticians.edit', $beautician) }}">{{ $beautician->name }}</a>
+        </li>
+        <li class="active">{{ trans('treatmentreservation::admin.portal.title') }}</li>
+    @else
+        <li class="active">{{ trans('treatmentreservation::admin.portal.title') }}</li>
+    @endif
+@endcomponent
 
 @section('content')
     @php
@@ -21,6 +32,7 @@
             'customerNoteHelp' => trans('treatmentreservation::admin.calendar.work_log_customer_note_help'),
             'generateSummary' => trans('treatmentreservation::admin.calendar.work_log_generate_summary'),
             'noCompletedItems' => trans('treatmentreservation::admin.calendar.work_log_no_completed_items'),
+            'emptyChecklistItem' => trans('treatmentreservation::admin.calendar.work_log_empty_checklist_item'),
             'summaryPrefix' => trans('treatmentreservation::admin.calendar.work_log_summary_prefix'),
             'presets' => trans('treatmentreservation::admin.calendar.work_log_presets'),
         ];
@@ -37,7 +49,7 @@
     ])
 
     <div
-        class="tr-portal tr-reservations tr-portal-dashboard tr-portal-saas{{ $calendarFocus ? ' tr-portal--calendar-focus' : '' }}"
+        class="tr-portal tr-reservations tr-portal-dashboard tr-portal-saas"
         id="tr-portal-app"
         style="--tr-portal-accent: {{ $beautician->profile_color ?? '#6366f1' }};"
         data-active-view="{{ $activeView }}"
@@ -45,9 +57,18 @@
         data-calendar-details-url="{{ $portalApiRoutes['calendar_details'] }}"
         data-kanban-url="{{ $portalApiRoutes['kanban'] }}"
         data-status-url="{{ $portalApiRoutes['update_status'] }}"
+        data-schedule-before-start="{{ TrLang::trans('admin.crm.error_schedule_before_start') }}"
         data-notes-url="{{ $portalApiRoutes['update_notes'] }}"
         data-whatsapp-url="{{ $portalApiRoutes['send_whatsapp'] }}"
         data-consultation-url="{{ $portalApiRoutes['consultation'] }}"
+        data-reminder-url="{{ $portalApiRoutes['reminder'] }}"
+        data-crm-can-edit="1"
+        data-whatsapp-configured="{{ \Modules\User\Services\OneSenderWhatsAppService::isConfigured() ? '1' : '0' }}"
+        data-cal-preview-status="{{ trans('treatmentreservation::admin.calendar.preview_status') }}"
+        data-cal-preview-status-title="{{ trans('treatmentreservation::admin.calendar.preview_status_title') }}"
+        data-cal-preview-whatsapp-reminder-customer="{{ trans('treatmentreservation::admin.crm.whatsapp_reminder_customer') }}"
+        data-cal-preview-whatsapp-reminder-beautician="{{ trans('treatmentreservation::admin.crm.whatsapp_reminder_beautician') }}"
+        data-cal-preview-status-update-failed="{{ trans('treatmentreservation::admin.crm.agenda_status_update_failed') }}"
         data-reschedule-url="{{ $portalApiRoutes['reschedule'] }}"
         data-cal-preview-consultation="{{ trans('account::consultation.request.action') }}"
         data-cal-preview-consultation-preparing="{{ trans('account::consultation.request.preparing') }}"
@@ -88,6 +109,8 @@
         data-cal-preview-saving-notes="{{ trans('treatmentreservation::admin.calendar.preview_saving_notes') }}"
         data-cal-preview-notes-saved="{{ trans('treatmentreservation::admin.calendar.preview_notes_saved') }}"
         data-cal-preview-notes-save-failed="{{ trans('treatmentreservation::admin.calendar.preview_notes_save_failed') }}"
+        data-cal-preview-booking-id="{{ trans('treatmentreservation::admin.calendar.preview_booking_id') }}"
+        data-cal-preview-booking-id-title="{{ trans('treatmentreservation::admin.calendar.preview_booking_id_title') }}"
         data-cal-work-log-labels='@json($workLogLabels)'
         data-cal-preview-whatsapp-customer="{{ trans('treatmentreservation::admin.calendar.preview_whatsapp_customer') }}"
         data-cal-preview-whatsapp-sending="{{ trans('treatmentreservation::admin.calendar.preview_whatsapp_sending') }}"
@@ -123,6 +146,7 @@
             'todayAppointments' => $todayAppointments,
             'adminPortalPreview' => $adminPortalPreview ?? false,
             'backUrl' => $backUrl ?? null,
+            'activePortalNav' => 'job_sheet',
         ])
 
         <div class="tr-portal-saas__layout">
@@ -132,66 +156,7 @@
                     'performanceStats' => $performanceStats,
                 ])
 
-                <section class="tr-portal-saas-workspace tr-portal-dashboard__schedule" id="tr-portal-schedule">
-                    <div class="tr-portal-saas-workspace__head">
-                        <div class="tr-portal-saas-workspace__copy">
-                            <h2>{{ trans('treatmentreservation::admin.portal.schedule_title') }}</h2>
-                            <p>{{ trans('treatmentreservation::admin.portal.schedule_subtitle') }}</p>
-                        </div>
-
-                        <div class="tr-portal-saas-workspace__badges" aria-hidden="true">
-                            <span class="tr-portal-saas-workspace__badge tr-portal-saas-workspace__badge--pending">
-                                {{ number_format($stats['pending']) }} {{ trans('treatmentreservation::admin.kanban.pending') }}
-                            </span>
-                            <span class="tr-portal-saas-workspace__badge tr-portal-saas-workspace__badge--progress">
-                                {{ number_format($stats['inProgress']) }} {{ trans('treatmentreservation::admin.kanban.in_progress') }}
-                            </span>
-                            <span class="tr-portal-saas-workspace__badge tr-portal-saas-workspace__badge--done">
-                                {{ number_format($stats['completed']) }} {{ trans('treatmentreservation::admin.kanban.completed') }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="tr-portal-dashboard__schedule-tabs">
-                        <ul class="nav nav-tabs tr-portal-tabs tr-portal-tabs--modern" role="tablist">
-                            <li class="{{ $activeView === 'kanban' ? 'active' : '' }}">
-                                <a href="#" data-schedule-view="kanban">
-                                    <i class="fa fa-columns"></i>
-                                    {{ trans('treatmentreservation::admin.portal.tab_kanban') }}
-                                </a>
-                            </li>
-                            <li class="{{ $activeView === 'calendar' ? 'active' : '' }}">
-                                <a href="#" data-schedule-view="calendar">
-                                    <i class="fa fa-calendar"></i>
-                                    {{ trans('treatmentreservation::admin.portal.tab_calendar') }}
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="tr-portal-panels">
-                        <div class="tr-portal-panel" data-schedule-panel="kanban" @if ($activeView !== 'kanban') hidden @endif>
-                            @include('treatmentreservation::admin.reservations.partials.kanban', ['embedded' => true])
-                        </div>
-
-                        <div class="tr-portal-panel" data-schedule-panel="calendar" @if ($activeView !== 'calendar') hidden @endif>
-                            @include('treatmentreservation::admin.reservations.partials.calendar', [
-                                'embedded' => true,
-                                'fullViewUrl' => ! empty($adminPortalPreview)
-                                    ? ($calendarFocus
-                                        ? route('admin.beauticians.portal', $beautician->id)
-                                        : route('admin.beauticians.portal.calendar_page', ['id' => $beautician->id, 'focus' => 1]))
-                                    : ($calendarFocus
-                                        ? route('admin.treatment_reservations.portal.job_sheet')
-                                        : route('admin.treatment_reservations.portal.calendar_page', ['focus' => 1])),
-                                'fullViewIcon' => $calendarFocus ? 'fa-compress' : 'fa-expand',
-                                'fullViewLabel' => $calendarFocus
-                                    ? trans('treatmentreservation::admin.portal.back_to_job_sheet')
-                                    : trans('treatmentreservation::admin.calendar.full_view'),
-                            ])
-                        </div>
-                    </div>
-                </section>
+                
             </main>
 
             <aside class="tr-portal-saas__rail">
@@ -238,6 +203,33 @@
                     'adminPortalPreview' => $adminPortalPreview ?? false,
                 ])
             </aside>
+
+            <section class="tr-portal-saas-workspace tr-portal-dashboard__schedule" id="tr-portal-schedule">
+                    <div class="tr-portal-saas-workspace__head">
+                        <div class="tr-portal-saas-workspace__copy">
+                            <h2>{{ trans('treatmentreservation::admin.portal.schedule_title') }}</h2>
+                            <p>{{ trans('treatmentreservation::admin.portal.schedule_subtitle') }}</p>
+                        </div>
+
+                        <div class="tr-portal-saas-workspace__badges" aria-hidden="true">
+                            <span class="tr-portal-saas-workspace__badge tr-portal-saas-workspace__badge--pending">
+                                {{ number_format($stats['pending']) }} {{ trans('treatmentreservation::admin.kanban.pending') }}
+                            </span>
+                            <span class="tr-portal-saas-workspace__badge tr-portal-saas-workspace__badge--progress">
+                                {{ number_format($stats['inProgress']) }} {{ trans('treatmentreservation::admin.kanban.in_progress') }}
+                            </span>
+                            <span class="tr-portal-saas-workspace__badge tr-portal-saas-workspace__badge--done">
+                                {{ number_format($stats['completed']) }} {{ trans('treatmentreservation::admin.kanban.completed') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="tr-portal-panels">
+                        <div class="tr-portal-panel" data-schedule-panel="kanban">
+                            @include('treatmentreservation::admin.reservations.partials.kanban', ['embedded' => true])
+                        </div>
+                    </div>
+                </section>
         </div>
 
     </div>

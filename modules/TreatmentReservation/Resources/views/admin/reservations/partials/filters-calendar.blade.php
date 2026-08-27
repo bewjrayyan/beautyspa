@@ -47,5 +47,20 @@
                 <i class="fa fa-filter"></i> {{ trans('treatmentreservation::admin.filters.apply') }}
             </button>
         </div>
+
+        @hasAccess('admin.treatment_reservations.create')
+            <div class="tr-filters__field tr-filters__field--new-appointment">
+                <label class="tr-filters__action-label">&nbsp;</label>
+                <button
+                    type="button"
+                    class="btn btn-primary btn-sm tr-manual-booking-open-btn tr-filters__new-appointment"
+                    data-toggle="modal"
+                    data-target="#tr-manual-booking-modal"
+                >
+                    <i class="fa fa-plus"></i>
+                    {{ trans('treatmentreservation::admin.manual_booking.open') }}
+                </button>
+            </div>
+        @endHasAccess
     </div>
 </form>

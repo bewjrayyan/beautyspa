@@ -3,6 +3,7 @@
         <thead>
         <tr>
             <th>{{ trans('treatmentreservation::public.treatment') }}</th>
+            <th>{{ trans('treatmentreservation::public.reference') }}</th>
             <th>{{ trans('treatmentreservation::public.date') }}</th>
             <th>{{ trans('treatmentreservation::public.time') }}</th>
             <th>{{ trans('treatmentreservation::public.beautician') }}</th>
@@ -20,6 +21,11 @@
             @endphp
             <tr class="my-appointments-table__row" data-booking-id="{{ $booking->id }}">
                 <td class="my-appointments-table__treatment">{{ $booking->product?->name }}</td>
+                <td>
+                    <span title="{{ trans('treatmentreservation::public.appointment_reference_hint') }}">
+                        {{ $booking->referenceCode() }}
+                    </span>
+                </td>
                 <td>{{ $booking->appointment_date?->format('d M Y') ?? '—' }}</td>
                 <td>{{ $booking->displayAppointmentTime() ?: '—' }}</td>
                 <td>{{ $booking->beautician?->name ?? '—' }}</td>
@@ -40,7 +46,7 @@
                 </td>
             </tr>
             <tr class="my-appointments-table__expand hide js-reschedule-row" data-booking-id="{{ $booking->id }}">
-                <td colspan="6">
+                <td colspan="7">
                     @include('treatmentreservation::public.booking.partials.reschedule_form', ['booking' => $booking])
                 </td>
             </tr>

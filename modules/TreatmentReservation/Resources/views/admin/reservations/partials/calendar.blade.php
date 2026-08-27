@@ -4,17 +4,23 @@
 
 <div class="tr-calendar box {{ $embedded ? 'tr-calendar--embedded' : 'tr-calendar--page' }}">
     <div class="tr-calendar-top">
-        <div class="tr-calendar-intro">
-            <h4>{{ trans('treatmentreservation::admin.calendar.title') }}</h4>
-            <p class="tr-calendar-intro__text">
-                {{ $embedded ? trans('treatmentreservation::admin.calendar.embedded_subtitle') : trans('treatmentreservation::admin.calendar.subtitle') }}
-            </p>
-            @unless ($embedded)
+        <div
+            class="tr-calendar-intro"
+            data-title-month="{{ trans('treatmentreservation::admin.calendar.title') }}"
+            data-title-week="{{ trans('treatmentreservation::admin.calendar.title_week') }}"
+            data-subtitle-month="{{ $embedded ? trans('treatmentreservation::admin.calendar.embedded_subtitle') : trans('treatmentreservation::admin.calendar.subtitle') }}"
+            data-subtitle-week="{{ $embedded ? trans('treatmentreservation::admin.calendar.embedded_subtitle_week') : trans('treatmentreservation::admin.calendar.subtitle_week') }}"
+        >
+            <h4 id="tr-calendar-intro-title">{{ trans('treatmentreservation::admin.calendar.title') }}</h4>
+            <div class="tr-calendar-intro__meta">
+                <p class="tr-calendar-intro__text" id="tr-calendar-intro-subtitle">
+                    {{ $embedded ? trans('treatmentreservation::admin.calendar.embedded_subtitle') : trans('treatmentreservation::admin.calendar.subtitle') }}
+                </p>
                 <p class="tr-calendar-intro__hint">
                     <i class="fa fa-hand-pointer-o"></i>
                     {{ trans('treatmentreservation::admin.calendar.click_hint') }}
                 </p>
-            @endunless
+            </div>
         </div>
 
         <div class="tr-calendar-month-nav">

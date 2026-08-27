@@ -140,7 +140,25 @@ class PortalController extends Controller
 
     public function calendarPage(Request $request)
     {
-        return $this->jobSheet($request->merge(['view' => 'calendar']));
+        /** @var Beautician $beautician */
+        $beautician = $request->attributes->get('portal_beautician');
+
+        $viewerBeauticianId = (int) $beautician->id;
+        $todayAppointments = $this->dashboard->todayActiveAppointments($viewerBeauticianId);
+        $portalContext = $this->portalContext($request, $beautician);
+
+        return view('treatmentreservation::admin.portal.calendar', array_merge([
+            'beautician' => $beautician,
+            'stats' => $this->dashboard->stats($viewerBeauticianId),
+            'performanceStats' => $this->dashboard->statsForBeautician($beautician->id),
+            'todayAppointments' => $todayAppointments,
+            'todayBookingsPayload' => $todayAppointments
+                ->map(fn (TreatmentBooking $booking) => $booking->toPortalKanbanPayload($viewerBeauticianId))
+                ->values(),
+            'activeView' => 'calendar',
+            'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
+            'beauticianPickerOptions' => Beautician::activeListForCheckout(),
+        ], $portalContext));
     }
 
 
@@ -224,16 +242,21 @@ class PortalController extends Controller
     }
 
 
-    public function calendarEvent(Request $request, int $booking): JsonResponse
+    public function calendarEvent(Request $request, int $id): JsonResponse
     {
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
+
+        // beauticians/{id}/portal/calendar/events/{booking} passes [Request, id, booking]
+        // by position — never bind the beautician {id} as the booking id.
+        $bookingId = $this->bookingIdFromRoute($request, $id);
+
         $booking = TreatmentBooking::query()
             ->visibleOnCalendar()
             ->withTreatmentProduct()
             ->withCalendarDetails()
             ->where('beautician_id', $beautician->id)
-            ->findOrFail($booking);
+            ->findOrFail($bookingId);
 
         if ($this->isAdminBeauticianPreview($request, $beautician)) {
             $payload = $booking->appendAdminPayload($booking->toCalendarPayload());
@@ -283,6 +306,20 @@ class PortalController extends Controller
             ->where('beautician_id', $beautician->id)
             ->findOrFail($this->bookingIdFromRoute($request, $id));
 
+        $nextStatus = $request->input('status');
+
+        if (
+            $nextStatus === TreatmentBooking::STATUS_IN_PROGRESS
+            && $booking->requiresScheduleBeforeStart()
+        ) {
+            return response()->json([
+                'message' => trans('treatmentreservation::admin.crm.error_schedule_before_start'),
+                'code' => 'schedule_required',
+                'can_schedule_tba' => $booking->canScheduleTba(),
+            ], 422);
+        }
+
+
         $previousStatus = $booking->status;
         $booking->update(['status' => $request->input('status')]);
 
@@ -318,6 +355,11 @@ class PortalController extends Controller
         /** @var Beautician|null $beautician */
         $beautician = $request->attributes->get('portal_beautician');
 
+        $time = $this->normalizeWorkLogTime($request->input('beautician_notes_time'));
+        if ($time !== null) {
+            $request->merge(['beautician_notes_time' => $time]);
+        }
+
         $request->validate([
             'beautician_notes' => ['nullable', 'string', 'max:5000'],
             'beautician_notes_date' => ['nullable', 'required_with:beautician_notes_time', 'date_format:Y-m-d'],
@@ -340,18 +382,35 @@ class PortalController extends Controller
         $previousNotesAt = $booking->beautician_notes_at?->format('Y-m-d H:i:s');
         $previousChecklist = collect($booking->beautician_checklist ?? [])->values()->all();
         $existingChecklist = collect($previousChecklist)->keyBy('id');
+        if ($request->has('beautician_checklist')) {
+            foreach (array_values($request->input('beautician_checklist', [])) as $index => $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                if (trim((string) ($item['label'] ?? '')) === '') {
+                    throw ValidationException::withMessages([
+                        "beautician_checklist.{$index}.label" => [
+                            trans('treatmentreservation::admin.calendar.work_log_empty_checklist_item'),
+                        ],
+                    ]);
+                }
+            }
+        }
+
         $checklist = $request->has('beautician_checklist')
             ? collect($request->input('beautician_checklist', []))
+                ->filter(fn ($item) => is_array($item))
                 ->map(function (array $item) use ($existingChecklist) {
                     $id = filled($item['id'] ?? null)
                         ? (string) $item['id']
                         : (string) Str::uuid();
-                    $completed = (bool) $item['completed'];
+                    $completed = filter_var($item['completed'] ?? false, FILTER_VALIDATE_BOOLEAN);
                     $existing = $existingChecklist->get($id);
 
                     return [
                         'id' => $id,
-                        'label' => trim((string) $item['label']),
+                        'label' => trim((string) ($item['label'] ?? '')),
                         'completed' => $completed,
                         'completed_at' => $completed
                             ? ($existing['completed_at'] ?? now()->toIso8601String())
@@ -362,48 +421,107 @@ class PortalController extends Controller
                 ->values()
                 ->all()
             : $previousChecklist;
-        $notesAt = filled($request->input('beautician_notes_date'))
-            ? Carbon::createFromFormat(
-                'Y-m-d H:i',
-                $request->input('beautician_notes_date') . ' ' . $request->input('beautician_notes_time')
-            )
-            : null;
-        $workLogChanged = $previousNotesAt !== $notesAt?->format('Y-m-d H:i:s')
-            || $previousChecklist !== $checklist;
 
-        $booking->update([
-            'beautician_notes' => $request->input('beautician_notes'),
-            'beautician_notes_at' => $notesAt,
-            'beautician_checklist' => $checklist,
-        ]);
-
-        app(TreatmentBookingActivityLogger::class)->logBeauticianNotes(
-            $booking,
-            $previousNotes,
-            $request->input('beautician_notes')
-        );
-
-        if ($workLogChanged) {
-            app(TreatmentBookingActivityLogger::class)->logTreatmentWorkLog(
-                $booking,
-                collect($checklist)->where('completed', true)->count(),
-                count($checklist)
-            );
-        }
-
-        $freshBooking = $booking->fresh();
-
-        if ($freshBooking->order_id) {
-            $order = $freshBooking->order()->first();
-
-            if ($order) {
-                event(new OrderUpdated($order));
+        $notesAt = null;
+        if (filled($request->input('beautician_notes_date')) && filled($request->input('beautician_notes_time'))) {
+            try {
+                $notesAt = Carbon::createFromFormat(
+                    'Y-m-d H:i',
+                    $request->input('beautician_notes_date') . ' ' . $request->input('beautician_notes_time')
+                );
+            } catch (\Throwable $e) {
+                throw ValidationException::withMessages([
+                    'beautician_notes_time' => [trans('validation.date_format', [
+                        'attribute' => 'beautician notes time',
+                        'format' => 'H:i',
+                    ])],
+                ]);
             }
         }
 
+        $workLogChanged = $previousNotesAt !== $notesAt?->format('Y-m-d H:i:s')
+            || $previousChecklist !== $checklist;
+
+        $attributes = [
+            'beautician_notes' => $request->input('beautician_notes'),
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn($booking->getTable(), 'beautician_notes_at')) {
+            $attributes['beautician_notes_at'] = $notesAt;
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn($booking->getTable(), 'beautician_checklist')) {
+            $attributes['beautician_checklist'] = $checklist;
+        }
+
+        $booking->update($attributes);
+
+        try {
+            app(TreatmentBookingActivityLogger::class)->logBeauticianNotes(
+                $booking,
+                $previousNotes,
+                $request->input('beautician_notes')
+            );
+
+            if ($workLogChanged) {
+                app(TreatmentBookingActivityLogger::class)->logTreatmentWorkLog(
+                    $booking,
+                    collect($checklist)->where('completed', true)->count(),
+                    count($checklist)
+                );
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        $freshBooking = $booking->fresh() ?? $booking;
+
+        if ($freshBooking->order_id) {
+            try {
+                $order = $freshBooking->order()->first();
+
+                if ($order) {
+                    event(new OrderUpdated($order));
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        try {
+            $payload = $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload());
+        } catch (\Throwable $e) {
+            report($e);
+            $payload = $freshBooking->toKanbanPayload();
+        }
+
         return response()->json([
-            'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
+            'booking' => $payload,
         ]);
+    }
+
+
+    private function normalizeWorkLogTime(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (preg_match('/^\d{1,2}:\d{2}$/', $value) === 1) {
+            return strlen($value) === 4 ? '0'.$value : $value;
+        }
+
+        try {
+            return Carbon::parse($value)->format('H:i');
+        } catch (\Throwable) {
+            return $value;
+        }
     }
 
 

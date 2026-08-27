@@ -10,7 +10,9 @@ use Modules\Account\Entities\ConsultationSubmission;
 use Modules\Account\Exceptions\ConsultationRequestException;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\User\Entities\User;
+use Modules\User\Services\OneSenderWhatsAppService;
 use Modules\User\Support\PhoneNumber;
+use Illuminate\Support\Facades\Log;
 
 class ConsultationRequestService
 {
@@ -73,6 +75,14 @@ class ConsultationRequestService
         return route('consultations.access', ['token' => $token]);
     }
 
+    public function whatsAppMessage(ConsultationSubmission $submission): string
+    {
+        return trans('account::consultation.request.whatsapp_message', [
+            'name' => $submission->customer_name ?: trans('account::consultation.request.customer'),
+            'url' => $this->shareUrl($submission),
+        ]);
+    }
+
     public function whatsAppUrl(ConsultationSubmission $submission): ?string
     {
         $phone = PhoneNumber::normalize((string) $submission->customer_phone);
@@ -81,12 +91,59 @@ class ConsultationRequestService
             return null;
         }
 
-        $message = trans('account::consultation.request.whatsapp_message', [
-            'name' => $submission->customer_name ?: trans('account::consultation.request.customer'),
-            'url' => $this->shareUrl($submission),
-        ]);
+        return 'https://wa.me/' . rawurlencode($phone) . '?text=' . rawurlencode($this->whatsAppMessage($submission));
+    }
 
-        return 'https://wa.me/' . rawurlencode($phone) . '?text=' . rawurlencode($message);
+    /**
+     * Send the consultation link to the customer via OneSender WhatsApp API.
+     *
+     * @throws ConsultationRequestException
+     */
+    public function sendViaOneSender(ConsultationSubmission $submission): bool
+    {
+        if (! OneSenderWhatsAppService::isConfigured()) {
+            throw new ConsultationRequestException(
+                trans('account::consultation.request.whatsapp_not_configured')
+            );
+        }
+
+        $phone = PhoneNumber::normalize((string) $submission->customer_phone);
+
+        if ($phone === '') {
+            throw new ConsultationRequestException(
+                trans('account::consultation.request.no_phone')
+            );
+        }
+
+        try {
+            $delivered = app(OneSenderWhatsAppService::class)->sendNotification(
+                $phone,
+                $this->whatsAppMessage($submission),
+                [
+                    'source' => 'consultation.request.customer',
+                    'dedupe_key' => 'consultation:' . $submission->id . ':send:' . now()->format('YmdHis'),
+                    'immediate' => true,
+                ]
+            );
+        } catch (\Throwable $exception) {
+            Log::warning('Consultation WhatsApp via OneSender failed', [
+                'consultation_id' => $submission->id,
+                'booking_id' => $submission->treatment_booking_id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            throw new ConsultationRequestException(
+                $exception->getMessage() ?: trans('account::consultation.request.send_failed')
+            );
+        }
+
+        if (! $delivered) {
+            throw new ConsultationRequestException(
+                trans('account::consultation.request.send_failed')
+            );
+        }
+
+        return true;
     }
 
     private function resolveTemplate(?ConsultationFormTemplate $template): ConsultationFormTemplate

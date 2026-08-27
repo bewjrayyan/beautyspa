@@ -53,12 +53,10 @@ class ReservationDashboardService
         $filterDate = $this->resolveFilterDate($dateFilter, $customFilterDate);
         $dateKpis = $this->dateKpis($beauticianId, $categoryId, $spaBranchId, $filterDate);
         $pipeline = $this->pipelineForDate($beauticianId, $categoryId, $spaBranchId, $filterDate);
-        $ledger = $this->ledgerAll($beauticianId, $categoryId, $spaBranchId);
         $tbaBookings = $this->tbaBookings($beauticianId, $categoryId, $spaBranchId);
 
         if ($portalViewerBeauticianId) {
             $pipeline = $this->scopePortalCrmGroup($pipeline, $portalViewerBeauticianId);
-            $ledger = $this->scopePortalCrmRows($ledger, $portalViewerBeauticianId);
             $tbaBookings = $this->scopePortalCrmRows($tbaBookings, $portalViewerBeauticianId);
         }
 
@@ -68,8 +66,9 @@ class ReservationDashboardService
             'filterDateValue' => ($filterDate ?? today())->toDateString(),
             'kpis' => $dateKpis,
             'pipeline' => $pipeline,
-            'ledger' => $ledger,
-            'ledgerCount' => count($ledger),
+            // Kept for BC; reservation ledger panel removed from CRM dashboard.
+            'ledger' => [],
+            'ledgerCount' => 0,
             'beauticians' => $this->beauticianRoster($beauticianId, $categoryId, $spaBranchId, $filterDate),
             'alerts' => $this->formatAlerts($urgency),
             // Kept for BC with older blades/API consumers; not rendered on CRM dashboard.

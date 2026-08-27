@@ -91,6 +91,10 @@
                                         <span class="account-appointment-card__label">
                                             {{ trans('treatmentreservation::public.appointment_number', ['number' => $loop->iteration]) }}
                                         </span>
+                                        <span
+                                            class="account-appointment-card__ref"
+                                            title="{{ trans('treatmentreservation::public.appointment_reference_hint') }}"
+                                        >{{ trans('treatmentreservation::public.appointment_reference', ['code' => $booking->referenceCode()]) }}</span>
                                         <h3 class="account-appointment-card__title">{{ $treatmentLine['product_name'] }}</h3>
                                         @if ($treatmentLine['treatment_selection'])
                                             <p class="account-appointment-card__selection">{{ $treatmentLine['treatment_selection'] }}</p>

@@ -448,6 +448,20 @@ class ReservationController extends Controller
         ]);
 
         $booking = TreatmentBooking::findOrFail($id);
+
+        $nextStatus = $request->input('status');
+
+        if (
+            $nextStatus === TreatmentBooking::STATUS_IN_PROGRESS
+            && $booking->requiresScheduleBeforeStart()
+        ) {
+            return response()->json([
+                'message' => trans('treatmentreservation::admin.crm.error_schedule_before_start'),
+                'code' => 'schedule_required',
+                'can_schedule_tba' => $booking->canScheduleTba(),
+            ], 422);
+        }
+
         $previousStatus = $booking->status;
         $booking->update(['status' => $request->input('status')]);
 

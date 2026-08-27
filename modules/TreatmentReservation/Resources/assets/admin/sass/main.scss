@@ -892,37 +892,48 @@ $tr-text: #1a202c;
 
     &__pipeline {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(4, minmax(112px, 1fr));
+        gap: 8px;
         align-items: stretch;
         flex: 1;
         min-width: 0;
     }
 
     &__metric {
+        --tr-metric-accent: #94a3b8;
+        --tr-metric-icon-bg: #f1f5f9;
+        --tr-metric-icon-color: #64748b;
+
         position: relative;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        gap: 10px;
+        gap: 8px;
         min-width: 0;
-        min-height: 118px;
-        padding: 12px 12px 12px 14px;
+        min-height: 88px;
+        padding: 12px 12px 12px 16px;
         background: #fff;
-        border: 1px solid $tr-border;
-        border-radius: 16px;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        border: 1px solid #e8edf3;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         overflow: hidden;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
         &::before {
             content: "";
             position: absolute;
-            top: 10px;
-            bottom: 10px;
+            top: 0;
+            bottom: 0;
             left: 0;
-            width: 4px;
-            border-radius: 0 6px 6px 0;
-            background: #94a3b8;
+            width: 3px;
+            background: var(--tr-metric-accent);
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            &:hover {
+                border-color: #d5dde8;
+                box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+            }
         }
     }
 
@@ -939,22 +950,22 @@ $tr-text: #1a202c;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 30px;
-        height: 30px;
-        border-radius: 10px;
-        background: #f1f5f9;
-        color: #64748b;
-        font-size: 14px;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: var(--tr-metric-icon-bg);
+        color: var(--tr-metric-icon-color);
+        font-size: 13px;
         flex-shrink: 0;
     }
 
     &__metric-label {
-        font-size: 11px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: #475569;
-        line-height: 1.2;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
+        color: #64748b;
+        line-height: 1.25;
         min-width: 0;
     }
 
@@ -965,78 +976,47 @@ $tr-text: #1a202c;
         flex-direction: column;
         gap: 2px;
         min-width: 0;
+        padding-left: 0;
     }
 
     &__metric-value {
-        font-size: 30px;
-        font-weight: 800;
+        font-size: 26px;
+        font-weight: 700;
         line-height: 1;
-        color: $tr-text;
+        color: #0f172a;
         font-variant-numeric: tabular-nums;
-        letter-spacing: -0.04em;
+        letter-spacing: -0.03em;
     }
 
     &__metric-hint {
-        font-size: 11px;
-        font-weight: 600;
-        line-height: 1.3;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.35;
         color: #64748b;
     }
 
     &__metric--pending {
-        background: linear-gradient(135deg, #fff7ed 0%, #ffffff 55%);
-        border-color: #fdba74;
-
-        &::before { background: #ea580c; }
-        .tr-reservations-hero__metric-icon {
-            background: #ffedd5;
-            color: #ea580c;
-        }
-        .tr-reservations-hero__metric-label { color: #9a3412; }
-        .tr-reservations-hero__metric-value { color: #c2410c; }
-        .tr-reservations-hero__metric-hint { color: #c2410c; opacity: 0.75; }
+        --tr-metric-accent: #ea580c;
+        --tr-metric-icon-bg: #fff7ed;
+        --tr-metric-icon-color: #c2410c;
     }
 
     &__metric--progress {
-        background: linear-gradient(135deg, #eef2ff 0%, #ffffff 55%);
-        border-color: #a5b4fc;
-
-        &::before { background: #6366f1; }
-        .tr-reservations-hero__metric-icon {
-            background: #e0e7ff;
-            color: #4f46e5;
-        }
-        .tr-reservations-hero__metric-label { color: #4338ca; }
-        .tr-reservations-hero__metric-value { color: #4338ca; }
-        .tr-reservations-hero__metric-hint { color: #4338ca; opacity: 0.75; }
+        --tr-metric-accent: #4f46e5;
+        --tr-metric-icon-bg: #eef2ff;
+        --tr-metric-icon-color: #4338ca;
     }
 
     &__metric--completed {
-        background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 55%);
-        border-color: #6ee7b7;
-
-        &::before { background: #10b981; }
-        .tr-reservations-hero__metric-icon {
-            background: #d1fae5;
-            color: #059669;
-        }
-        .tr-reservations-hero__metric-label { color: #065f46; }
-        .tr-reservations-hero__metric-value { color: #047857; }
-        .tr-reservations-hero__metric-hint { color: #047857; opacity: 0.75; }
+        --tr-metric-accent: #059669;
+        --tr-metric-icon-bg: #ecfdf5;
+        --tr-metric-icon-color: #047857;
     }
 
     &__metric--today {
-        background: linear-gradient(135deg, #eff8ff 0%, #ffffff 55%);
-        border-color: #93c5fd;
-
-        &::before { background: $tr-primary; }
-        .tr-reservations-hero__metric-icon {
-            background: #dbeafe;
-            color: $tr-primary;
-        }
-        .tr-reservations-hero__metric-label { color: #1d4ed8; }
-        .tr-reservations-hero__metric-value { color: $tr-primary; }
-        .tr-reservations-hero__metric-hint { color: $tr-primary; opacity: 0.75; }
+        --tr-metric-accent: #{$tr-primary};
+        --tr-metric-icon-bg: #{$tr-primary-soft};
+        --tr-metric-icon-color: #{$tr-primary};
     }
 }
 
@@ -1404,6 +1384,19 @@ $tr-text: #1a202c;
                 }
             }
         }
+
+        .tr-filters__field--new-appointment {
+            flex: 0 0 auto;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+
+            .tr-filters__new-appointment {
+                height: 38px;
+                white-space: nowrap;
+                padding: 0 16px;
+            }
+        }
     }
 
     &--reports {
@@ -1548,13 +1541,21 @@ $tr-text: #1a202c;
 }
 
 .tr-calendar-intro {
-    max-width: 520px;
+    max-width: min(720px, 100%);
+    min-width: 0;
 
     h4 {
         margin: 0 0 6px;
         font-size: 20px;
         font-weight: 700;
         color: #0f172a;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 8px 16px;
     }
 
     &__text {
@@ -1565,10 +1566,11 @@ $tr-text: #1a202c;
     }
 
     &__hint {
-        margin: 10px 0 0;
+        margin: 0;
         font-size: 12px;
         font-weight: 600;
         color: #6366f1;
+        white-space: nowrap;
 
         i {
             margin-right: 6px;
@@ -2611,6 +2613,35 @@ body.tr-calendar-event-preview-open {
     gap: 10px;
 }
 
+.tr-calendar-event-preview__status-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.tr-calendar-event-preview__status-label {
+    margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: #0f172a;
+    line-height: 1.3;
+}
+
+.tr-calendar-event-preview__status-control .tr-calendar-event-preview__status-select,
+.tr-calendar-event-preview__status-control .tr-calendar-event-preview__status {
+    flex: 0 0 auto;
+}
+
 .tr-calendar-event-preview__meta-row {
     display: flex;
     flex-wrap: wrap;
@@ -2702,9 +2733,20 @@ body.tr-calendar-event-preview-open {
         box-shadow: 0 8px 22px rgba(79, 70, 229, 0.08);
     }
 
+    .tr-calendar-event-preview__grid--3 {
+        // Date | Time (content width) | Duration
+        grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+    }
+
     .tr-calendar-event-preview__field:not(:last-child) {
         padding-right: 12px;
         border-right: 1px solid #dbe3ff;
+    }
+
+    // Time range ("2:00 PM – 3:00 PM") must not wrap/squeeze
+    .tr-calendar-event-preview__field:nth-child(2) .tr-calendar-event-preview__field-value {
+        white-space: nowrap;
+        overflow-wrap: normal;
     }
 }
 
@@ -3195,7 +3237,7 @@ body.tr-calendar-event-preview-open {
     }
 }
 
-.tr-calendar-event-preview__work-log-step-head > span {
+.tr-calendar-event-preview__work-log-step-num {
     display: inline-flex;
     flex: 0 0 auto;
     width: 28px;
@@ -3222,13 +3264,48 @@ body.tr-calendar-event-preview-open {
 
 .tr-calendar-event-preview__work-log-step-head {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
+    min-width: 0;
 
     strong {
-        color: #0f172a;
-        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        flex: 0 1 auto;
+        min-width: 0;
+        max-width: 100%;
+        margin: 0;
+        padding: 5px 10px;
+        border-radius: 999px;
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
+}
+
+.tr-calendar-event-preview__work-log-step-aside {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #64748b;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .tr-calendar-event-preview__work-log-schedule {
@@ -3337,6 +3414,24 @@ body.tr-calendar-event-preview-open {
 
 .tr-calendar-event-preview__checklist-head--quick-add {
     justify-content: flex-end;
+}
+
+.tr-calendar-event-preview__checklist-label.is-invalid {
+    border-color: #f87171 !important;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+    background: #fff1f2;
+}
+
+.tr-calendar-event-preview__work-log-error {
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
 }
 
 .tr-calendar-event-preview__checklist-presets {
@@ -4007,7 +4102,7 @@ body.tr-calendar-event-preview-open {
             gap: 10px 12px;
 
             &--3 {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
                 gap: 8px 10px;
 
                 .tr-calendar-event-preview__field-label {
@@ -4186,18 +4281,18 @@ body.tr-calendar-event-preview-open {
         &__metric {
             aspect-ratio: auto;
             min-width: 0;
-            min-height: 112px;
-            padding: 12px 12px 12px 14px;
-            border-radius: 16px;
+            min-height: 84px;
+            padding: 12px 12px 12px 16px;
+            border-radius: 12px;
         }
 
         &__metric-value {
-            font-size: 28px;
+            font-size: 24px;
         }
 
         &__metric-label {
-            font-size: 10px;
-            letter-spacing: 0.03em;
+            font-size: 12px;
+            letter-spacing: 0;
         }
     }
 
@@ -4414,11 +4509,19 @@ body.tr-calendar-event-preview-open {
     }
 }
 
-// Week grid
+// Week grid — clear date/time cell borders
+.tr-cal-week-grid {
+    border: 1px solid #94a3b8;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+
 .tr-week-header {
     display: grid;
     grid-template-columns: 80px repeat(7, minmax(0, 1fr));
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid #94a3b8;
+    background: #f8fafc;
 
     &__time {
         padding: 12px 8px;
@@ -4426,12 +4529,14 @@ body.tr-calendar-event-preview-open {
         font-weight: 600;
         color: #0f172a;
         text-align: center;
+        border-right: 1px solid #94a3b8;
+        background: #f1f5f9;
     }
 
     &__day {
         padding: 12px 8px;
         text-align: center;
-        border-left: 1px solid #e2e8f0;
+        border-left: 1px solid #94a3b8;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -4576,7 +4681,8 @@ body.tr-calendar-event-preview-open {
     &__col {
         position: relative;
         pointer-events: auto;
-        border-left: 1px solid transparent;
+        border-left: 1px solid #94a3b8;
+        box-sizing: border-box;
     }
 }
 
@@ -4584,28 +4690,35 @@ body.tr-calendar-event-preview-open {
     display: grid;
     grid-template-columns: 80px repeat(7, minmax(0, 1fr));
     height: 100px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #94a3b8;
 
-    &:hover { background: #fafbfd; }
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    &:hover { background: #f8fafc; }
 
     &__time {
-        padding: 0 8px 0 0;
+        padding: 6px 10px 0 0;
         font-size: 12px;
         font-weight: 700;
         color: #0f172a;
         text-align: right;
-        border-right: 1px solid #e2e8f0;
+        border-right: 1px solid #94a3b8;
+        background: #f8fafc;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         display: flex;
         align-items: flex-start;
         justify-content: flex-end;
         transform: translateY(0);
+        box-sizing: border-box;
     }
 
     &__cell {
-        border-left: 1px solid #e2e8f0;
+        border-left: 1px solid #94a3b8;
         height: 100px;
         overflow: hidden;
+        box-sizing: border-box;
     }
 }
 
@@ -5258,18 +5371,18 @@ body.tr-calendar-event-preview-open {
 
         &__metric {
             aspect-ratio: auto;
-            min-height: 118px;
-            padding: 12px 12px 12px 14px;
-            border-radius: 16px;
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+            min-height: 84px;
+            padding: 12px 12px 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
 
         &__metric-value {
-            font-size: 30px;
+            font-size: 24px;
         }
 
         &__metric-label {
-            font-size: 10px;
+            font-size: 12px;
         }
     }
 }
@@ -6460,7 +6573,7 @@ body.tr-reschedule-workspace-open {
         }
 
         .tr-calendar-event-preview__grid--3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
             gap: 8px;
         }
 
@@ -6486,18 +6599,19 @@ body.tr-reschedule-workspace-open {
     &__section--treatment {
         .tr-calendar-event-preview__section-card {
             padding: 16px;
-            border-color: #bfdbfe;
-            background: #eff6ff;
+            border-color: #cbd5e1;
+            background: #fff;
+            box-shadow: none;
         }
 
         .tr-calendar-event-preview__grid--treatment-facts {
             margin-top: 14px;
             padding-top: 14px;
-            border-top: 1px solid #bfdbfe;
+            border-top: 1px solid #e2e8f0;
 
             .tr-calendar-event-preview__field {
                 padding: 8px 0;
-                border-bottom: 1px solid rgba(191, 219, 254, 0.8);
+                border-bottom: 1px solid #e2e8f0;
             }
         }
     }
@@ -6871,6 +6985,49 @@ body.tr-reschedule-workspace-open {
 
         .tr-cal-week-grid {
             min-height: 380px;
+        }
+    }
+}
+
+
+/* Portal / embedded: same week grid polish + scrollable 24h range */
+#tr-portal-app .tr-calendar--week-view,
+#tr-beautician-schedule-app .tr-calendar--week-view,
+.tr-calendar--embedded.tr-calendar--week-view {
+    .tr-calendar-day-view {
+        display: block;
+        padding: 0 12px 16px;
+        max-height: min(72vh, 920px);
+        overflow: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tr-cal-week-grid {
+        min-height: 0;
+        border: 1px solid #94a3b8;
+        border-radius: 10px;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .tr-week-header {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: #f8fafc;
+    }
+
+    .tr-week-row {
+        border-bottom-color: #94a3b8;
+
+        &__time {
+            border-right-color: #94a3b8;
+            background: #f8fafc;
+        }
+
+        &__cell {
+            border-left-color: #94a3b8;
         }
     }
 }

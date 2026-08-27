@@ -90,12 +90,24 @@ class CheckoutCompleteController
 
         try {
             $response = $gateway->complete($order);
-        } catch (Exception $e) {
+            $paymentFinalizer->finalize($order, $paymentMethod, $response);
+        } catch (\Throwable $e) {
             Log::warning('Checkout payment complete failed', [
                 'order_id' => $orderId,
                 'payment_method' => request('paymentMethod'),
                 'message' => $e->getMessage(),
             ]);
+
+            $fresh = $order->fresh();
+            if (
+                $fresh
+                && (
+                    CheckoutCompletionGuard::isAlreadyPaidReturn($fresh, $paymentMethod)
+                    || $this->hasTreatmentBooking($fresh->loadMissing(['products.product', 'treatmentBookings']))
+                )
+            ) {
+                return $this->thankYouResponse($fresh);
+            }
 
             if (! request()->ajax()) {
                 return redirect()
@@ -107,8 +119,6 @@ class CheckoutCompleteController
                 'message' => $e->getMessage(),
             ], 403);
         }
-
-        $paymentFinalizer->finalize($order, $paymentMethod, $response);
 
         return $this->thankYouResponse($order->fresh() ?? $order);
     }
@@ -127,19 +137,29 @@ class CheckoutCompleteController
             return redirect()->route('home');
         }
 
-        CheckoutCompletionGuard::keepPlacedOrder();
+        CheckoutCompletionGuard::rememberPlacedOrder($order);
 
-        $googleCalendarUrl = $calendarUrl->forOrder($order);
+        $googleCalendarUrl = null;
+        $orderRewards = null;
+
+        try {
+            $googleCalendarUrl = $calendarUrl->forOrder($order);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         $hasTreatmentBooking = $this->hasTreatmentBooking($order);
         $canNotifyBeautician = $hasTreatmentBooking
             && $order->beautician_id
             && setting('whatsapp_completed_beautician_enabled', true);
 
-        $orderRewards = null;
-
         if (app('modules')->isEnabled('Loyalty')) {
-            $orderRewards = app(\Modules\Loyalty\Services\LoyaltyOrderCompleteRewardsService::class)
-                ->forOrder($order);
+            try {
+                $orderRewards = app(\Modules\Loyalty\Services\LoyaltyOrderCompleteRewardsService::class)
+                    ->forOrder($order);
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         return view('storefront::public.checkout.complete.show', compact(
@@ -185,11 +205,11 @@ class CheckoutCompleteController
             $notification->send($order);
 
             return redirect()
-                ->to(storefront_route('checkout.complete.show'))
+                ->to(CheckoutCompletionGuard::thankYouUrl($order))
                 ->with('success', trans('storefront::order_complete.beautician_notify_sent'));
         } catch (Exception $e) {
             return redirect()
-                ->to(storefront_route('checkout.complete.show'))
+                ->to(CheckoutCompletionGuard::thankYouUrl($order))
                 ->with('error', $e->getMessage());
         }
     }
@@ -197,21 +217,32 @@ class CheckoutCompleteController
 
     private function thankYouResponse(Order $order): RedirectResponse|\Illuminate\Http\JsonResponse
     {
-        CheckoutCompletionGuard::rememberPlacedOrder($order);
+        $redirectUrl = CheckoutCompletionGuard::thankYouUrl($order);
 
         if (! request()->ajax()) {
-            return redirect()->to(storefront_route('checkout.complete.show'));
+            return redirect()->to($redirectUrl);
         }
 
         return response()->json([
-            'redirectUrl' => storefront_route('checkout.complete.show'),
+            'orderId' => (int) $order->id,
+            'redirectUrl' => $redirectUrl,
         ]);
     }
 
 
     private function resolvePlacedOrder(): ?Order
     {
-        $orderId = CheckoutCompletionGuard::placedOrderId();
+        $orderId = null;
+        $request = request();
+
+        // Signed thank-you links (relative) survive /v2 + lost session cookies.
+        if ($request->filled('placed_order') && $request->hasValidSignature(absolute: false)) {
+            $orderId = (int) $request->query('placed_order');
+        }
+
+        if (! $orderId) {
+            $orderId = CheckoutCompletionGuard::placedOrderId();
+        }
 
         if (! $orderId) {
             return null;

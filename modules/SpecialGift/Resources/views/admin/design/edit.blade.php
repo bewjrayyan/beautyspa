@@ -1,16 +1,14 @@
 @extends('admin::layout')
 
-@section('title', trans('specialgift::admin.tab_design'))
+@component('admin::components.page.header')
+    @slot('title', trans('specialgift::admin.tab_design'))
 
-@section('content_header')
-    <h3>{{ trans('specialgift::admin.tab_design') }}</h3>
+    <li>
+        <a href="{{ route('admin.gift_voucher_submissions.index') }}">{{ trans('specialgift::admin.submissions') }}</a>
+    </li>
+    <li class="active">{{ trans('specialgift::admin.tab_design') }}</li>
+@endcomponent
 
-    <ol class="breadcrumb">
-        <li><a href="{{ route('admin.dashboard.index') }}">{{ trans('admin::dashboard.dashboard') }}</a></li>
-        <li><a href="{{ route('admin.gift_voucher_submissions.index') }}">{{ trans('specialgift::admin.submissions') }}</a></li>
-        <li class="active">{{ trans('specialgift::admin.tab_design') }}</li>
-    </ol>
-@endsection
 
 @section('content')
     @include('specialgift::admin.partials.hub-nav', [

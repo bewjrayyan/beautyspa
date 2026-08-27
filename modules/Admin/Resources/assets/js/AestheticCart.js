@@ -157,19 +157,21 @@ function _init() {
                 });
         }
 
-        // Ensure active parents start expanded
-        $root.find("li.treeview.active").each(function () {
-            var $li = $(this);
-            var $link = $li.children("a").first();
-            var $submenu = $li.children(".treeview-menu").first();
+        // Ensure active parents (or parents of active children) start expanded
+        $root
+            .find("li.treeview.active, li.treeview:has(> .treeview-menu li.active)")
+            .each(function () {
+                var $li = $(this);
+                var $link = $li.children("a").first();
+                var $submenu = $li.children(".treeview-menu").first();
 
-            $li.removeClass("closed").addClass("selected");
-            setExpanded($link, true);
+                $li.removeClass("closed").addClass("selected active");
+                setExpanded($link, true);
 
-            if ($submenu.length && !$("body").hasClass("sidebar-collapse")) {
-                $submenu.show();
-            }
-        });
+                if ($submenu.length && !$("body").hasClass("sidebar-collapse")) {
+                    $submenu.show();
+                }
+            });
 
         $(document)
             .off("click.aestheticSidebar", menu + " li.treeview > a")
@@ -191,6 +193,11 @@ function _init() {
 
                 var isOpen =
                     checkElement.is(":visible") && !$li.hasClass("closed");
+
+                // Keep the active section open — do not collapse while its page is current.
+                if (isOpen && $li.hasClass("active")) {
+                    return;
+                }
 
                 if (isOpen) {
                     $li.removeClass("selected").addClass("closed");

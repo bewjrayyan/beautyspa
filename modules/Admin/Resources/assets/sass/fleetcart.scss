@@ -404,7 +404,17 @@ strong {
         display: inline-block;
     }
 
-    > .breadcrumb {
+    // Legacy breadcrumbs rendered inside @yield('content_header') — global replaces them.
+    > .breadcrumb:not(.admin-breadcrumb--global) {
+        display: none !important;
+    }
+
+    &:not(:has(> h3)) > .admin-breadcrumb--global {
+        float: left;
+        padding-left: 0;
+    }
+
+    > .admin-breadcrumb--global {
         float: right;
         background: transparent;
         margin-top: 0;
@@ -2044,7 +2054,7 @@ select {
             display: block;
         }
 
-        > .breadcrumb {
+        > .admin-breadcrumb--global {
             margin-top: 8px;
             padding: 7px 0;
             float: none !important;

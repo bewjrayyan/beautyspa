@@ -34,10 +34,10 @@
     ];
 @endphp
 
-<section class="tr-crm-panel tr-crm-panel--pipeline">
+<section class="tr-crm-panel tr-crm-panel--pipeline" tabindex="-1" aria-labelledby="tr-crm-pipeline-title">
     <header class="tr-crm-panel__head">
         <div>
-            <h3 class="tr-crm-panel__title">{{ TrLang::trans('admin.crm.pipeline_title') }}</h3>
+            <h3 class="tr-crm-panel__title" id="tr-crm-pipeline-title">{{ TrLang::trans('admin.crm.pipeline_title') }}</h3>
             <p class="tr-crm-panel__lead">{{ TrLang::trans('admin.crm.pipeline_lead_long') }}</p>
         </div>
         <span class="tr-crm-pipeline__queue-badge">
@@ -67,7 +67,7 @@
                             class="tr-crm-pipeline-card tr-crm-pipeline-card--{{ $status }} tr-crm-appointment{{ $canOpenDetail ? ' tr-crm-appointment--clickable' : ' tr-crm-appointment--readonly tr-crm-pipeline-card--readonly' }}"
                             data-booking-id="{{ $booking['id'] ?? '' }}"
                             data-own-booking="{{ $canOpenDetail ? '1' : '0' }}"
-                            data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['customer_phone'] ?? '') . ' ' . ($booking['customer_email'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '') . ' ' . ($booking['beautician_job_title'] ?? '') . ' ' . ($booking['source_label'] ?? '') . ' ' . ($booking['spa_branch_name'] ?? '') . ' ' . ($booking['appointment_date'] ?? '') . ' ' . ($booking['appointment_time_range'] ?? $booking['appointment_time'] ?? '')) }}"
+                            data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['customer_phone'] ?? '') . ' ' . ($booking['customer_email'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '') . ' ' . ($booking['beautician_job_title'] ?? '') . ' ' . ($booking['source_label'] ?? '') . ' ' . ($booking['spa_branch_name'] ?? '') . ' ' . ($booking['appointment_date'] ?? '') . ' ' . ($booking['appointment_time_range'] ?? $booking['appointment_time'] ?? '') . ' ' . ($booking['reference_code'] ?? ('b' . ($booking['id'] ?? ''))) . ' ' . ($booking['id'] ?? '')) }}"
                             @if ($canOpenDetail) role="button" tabindex="0" @endif
                         >
                             <header class="tr-crm-pipeline-card__head">
@@ -154,8 +154,14 @@
                                     </div>
                                 @endif
 
-                                @if (! empty($booking['source_label']) || ! empty($booking['spa_branch_name']) || ! empty($booking['order_url']))
+                                @if (! empty($booking['reference_code']) || ! empty($booking['id']) || ! empty($booking['source_label']) || ! empty($booking['spa_branch_name']) || ! empty($booking['order_url']))
                                     <div class="tr-crm-pipeline-card__meta">
+                                        @php
+                                            $pipelineRef = $booking['reference_code'] ?? (isset($booking['id']) ? 'B'.$booking['id'] : null);
+                                        @endphp
+                                        @if ($pipelineRef)
+                                            <span class="tr-crm-pipeline-card__chip" title="{{ TrLang::trans('admin.calendar.preview_booking_id_title') }}">{{ $pipelineRef }}</span>
+                                        @endif
                                         @if (! empty($booking['source_label']))
                                             <span class="tr-crm-pipeline-card__chip">{{ $booking['source_label'] }}</span>
                                         @endif
@@ -196,17 +202,36 @@
                             </div>
 
                             @if ($canOpenDetail && $column['action'] === 'start' && ! empty($booking['next_status']))
+                                @php
+                                    $needsScheduleFirst = ! empty($booking['can_schedule_tba'])
+                                        || empty($booking['appointment_date_value']);
+                                @endphp
                                 <footer class="tr-crm-pipeline-card__footer">
-                                    <button
-                                        type="button"
-                                        class="tr-crm-pipeline-card__cta"
-                                        data-pipeline-action="start"
-                                        data-booking-id="{{ $booking['id'] }}"
-                                        data-next-status="{{ $booking['next_status'] }}"
-                                    >
-                                        <i class="fa fa-play" aria-hidden="true"></i>
-                                        {{ TrLang::trans('admin.crm.action_start_treatment') }}
-                                    </button>
+                                    @if ($needsScheduleFirst)
+                                        <button
+                                            type="button"
+                                            class="tr-crm-pipeline-card__cta tr-crm-pipeline-card__cta--schedule"
+                                            data-tba-schedule
+                                            data-booking-id="{{ $booking['id'] }}"
+                                            data-beautician-id="{{ $booking['beautician_id'] ?? '' }}"
+                                            data-product-id="{{ $booking['product_id'] ?? '' }}"
+                                            data-spa-branch-id="{{ $booking['spa_branch_id'] ?? '' }}"
+                                        >
+                                            <i class="fa fa-calendar-plus-o" aria-hidden="true"></i>
+                                            {{ TrLang::trans('admin.crm.action_schedule_date_first') }}
+                                        </button>
+                                    @else
+                                        <button
+                                            type="button"
+                                            class="tr-crm-pipeline-card__cta"
+                                            data-pipeline-action="start"
+                                            data-booking-id="{{ $booking['id'] }}"
+                                            data-next-status="{{ $booking['next_status'] }}"
+                                        >
+                                            <i class="fa fa-play" aria-hidden="true"></i>
+                                            {{ TrLang::trans('admin.crm.action_start_treatment') }}
+                                        </button>
+                                    @endif
                                 </footer>
                             @elseif ($canOpenDetail && $column['action'] === 'complete' && ! empty($booking['next_status']))
                                 <footer class="tr-crm-pipeline-card__footer">

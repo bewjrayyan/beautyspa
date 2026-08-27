@@ -13,8 +13,8 @@ class ManifestService
             'short_name' => setting('store_name') ?? config('pwa.manifest.short_name'),
             'dir' => setting('pwa_direction') ?? config('pwa.manifest.dir'),
             'start_url' => url(config('pwa.manifest.start_url')),
-            'theme_color' => setting('pwa_theme_color') ?? config('pwa.manifest.theme_color'),
-            'background_color' => setting('pwa_background_color') ?? config('pwa.manifest.background_color'),
+            'theme_color' => $this->normalizeColor(setting('pwa_theme_color') ?? config('pwa.manifest.theme_color'), '#111111'),
+            'background_color' => $this->normalizeColor(setting('pwa_background_color') ?? config('pwa.manifest.background_color'), '#ffffff'),
             'status_bar' => $this->normalizeStatusBar(setting('pwa_status_bar') ?? config('pwa.manifest.status_bar')),
             'display' => setting('pwa_display') ?? config('pwa.manifest.display'),
             'orientation' => setting('pwa_orientation') ?? config('pwa.manifest.orientation'),
@@ -91,5 +91,17 @@ class ManifestService
         }
 
         return 'black';
+    }
+
+
+    private function normalizeColor(mixed $value, string $fallback): string
+    {
+        if (! is_string($value)) {
+            return $fallback;
+        }
+
+        $value = trim($value);
+
+        return $value !== '' ? $value : $fallback;
     }
 }

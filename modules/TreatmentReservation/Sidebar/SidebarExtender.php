@@ -28,6 +28,7 @@ class SidebarExtender extends BaseSidebarExtender
                 $item->icon('fa fa-calendar-check-o');
                 $item->weight(5);
                 $item->route('admin.treatment_reservations.index', ['view' => 'dashboard']);
+                $item->isActiveWhen(route('admin.treatment_reservations.index', [], false));
                 $item->authorize(
                     $this->auth->hasAccess('admin.treatment_reservations.index')
                     || $this->auth->hasAccess('admin.treatment_reservations.availability')
@@ -36,6 +37,7 @@ class SidebarExtender extends BaseSidebarExtender
                 $item->item(trans('treatmentreservation::sidebar.agenda'), function (Item $child) {
                     $child->weight(5);
                     $child->route('admin.treatment_reservations.index', ['view' => 'dashboard']);
+                    $child->isActiveWhen(route('admin.treatment_reservations.index', ['view' => 'dashboard'], false));
                     $child->authorize(
                         $this->auth->hasAccess('admin.treatment_reservations.index')
                     );
@@ -95,6 +97,7 @@ class SidebarExtender extends BaseSidebarExtender
             $item->icon('fa fa-calendar');
             $item->weight(3);
             $item->route('admin.beauticians.portal.calendar_page', $beauticianId);
+            $item->isActiveWhen(route('admin.beauticians.portal.calendar_page', $beauticianId, false));
             $item->authorize(true);
         });
 
@@ -136,6 +139,7 @@ class SidebarExtender extends BaseSidebarExtender
             $item->icon('fa fa-calendar');
             $item->weight(3);
             $item->route('admin.beauticians.portal.calendar_page', $beauticianId);
+            $item->isActiveWhen(route('admin.beauticians.portal.calendar_page', $beauticianId, false));
             $item->authorize(true);
         });
 

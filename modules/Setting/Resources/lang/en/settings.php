@@ -150,7 +150,7 @@ return [
         'preview_document_title' => 'PDF receipt',
         'template_hints' => [
             'welcome' => 'Placeholders: :first_name, :store',
-            'customer_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :beautician, :tracking_url, :extra_lines (legacy: :beautician_line, :tracking_line)',
+            'customer_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :reference, :beautician, :tracking_url, :extra_lines (legacy: :beautician_line, :tracking_line)',
             'customer_completed' => 'Placeholders: :store, :customer, :treatment',
             'customer_followup' => 'Placeholders: :store, :customer, :treatment, :date',
             'new_order_admin' => 'Placeholders: :store, :order_id, :customer, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary',
@@ -159,8 +159,8 @@ return [
             'status_beautician' => 'Placeholders: :staff, :customer, :order_id, :phone, :status_type, :status, :previous_status, :order_status, :payment_status, :treatment_line, :store',
             'completed_group' => 'Placeholders: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
             'completed_beautician' => 'Placeholders: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
-            'beautician_new_booking' => 'Placeholders: :store, :customer, :treatment, :date, :time, :portal_url',
-            'beautician_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :portal_url',
+            'beautician_new_booking' => 'Placeholders: :store, :customer, :treatment, :date, :time, :reference, :portal_url',
+            'beautician_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :reference, :portal_url',
         ],
         'badges' => [
             'auto_off' => 'Auto-send off in code',

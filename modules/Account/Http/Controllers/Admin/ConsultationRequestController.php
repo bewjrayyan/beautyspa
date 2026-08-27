@@ -10,6 +10,7 @@ use Modules\Account\Exceptions\ConsultationRequestException;
 use Modules\Account\Services\ConsultationRequestService;
 use Modules\Beautician\Entities\Beautician;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
 
 class ConsultationRequestController extends Controller
 {
@@ -38,15 +39,19 @@ class ConsultationRequestController extends Controller
 
         try {
             $consultation = $consultations->createForBooking($booking, $request->user(), $template);
+            $consultations->sendViaOneSender($consultation);
         } catch (ConsultationRequestException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         }
 
+        app(TreatmentBookingActivityLogger::class)
+            ->logWhatsAppSent($booking);
+
         return response()->json([
-            'message' => trans('account::consultation.request.ready'),
+            'message' => trans('account::consultation.request.sent'),
+            'sent' => true,
             'consultation_id' => $consultation->id,
             'share_url' => $consultations->shareUrl($consultation),
-            'whatsapp_url' => $consultations->whatsAppUrl($consultation),
             'customer_has_account' => $consultation->user_id !== null,
         ]);
     }

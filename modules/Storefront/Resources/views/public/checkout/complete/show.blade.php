@@ -122,7 +122,7 @@
                                     <div class="order-complete-detail">
                                         <span class="order-complete-detail-label">{{ trans('storefront::order_complete.beautician') }}</span>
                                         <span class="order-complete-detail-value">
-                                            @if ($beautician->profile_image->exists)
+                                            @if ($beautician->profile_image?->exists)
                                                 <img
                                                     src="{{ $beautician->profile_image->path }}"
                                                     alt=""

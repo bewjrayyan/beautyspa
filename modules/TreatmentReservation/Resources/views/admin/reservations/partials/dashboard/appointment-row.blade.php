@@ -11,7 +11,7 @@
     data-booking-id="{{ $booking['id'] ?? '' }}"
     data-own-booking="{{ $canOpenDetail ? '1' : '0' }}"
     @if ($canOpenDetail) role="button" tabindex="0" @endif
-    data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['customer_phone'] ?? '') . ' ' . ($booking['customer_email'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '')) }}"
+    data-search="{{ strtolower(($booking['customer_name'] ?? '') . ' ' . ($booking['customer_phone'] ?? '') . ' ' . ($booking['customer_email'] ?? '') . ' ' . ($booking['treatment_name'] ?? '') . ' ' . ($booking['beautician_name'] ?? '') . ' ' . ($booking['reference_code'] ?? ('b' . ($booking['id'] ?? ''))) . ' ' . ($booking['id'] ?? '')) }}"
 >
     <span class="tr-crm-appointment__time">{{ $booking['appointment_time'] ?? '—' }}</span>
     <div class="tr-crm-appointment__main">

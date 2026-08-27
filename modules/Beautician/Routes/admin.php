@@ -165,7 +165,7 @@ Route::middleware(['beautician.portal.access', 'beautician.portal.from_route'])-
         'middleware' => 'beautician.portal.permission:admin.treatment_reservations.edit',
     ]);
 
-    Route::patch('beauticians/{id}/portal/{booking}/notes', [
+    Route::match(['patch', 'post'], 'beauticians/{id}/portal/{booking}/notes', [
         'as' => 'admin.beauticians.portal.update_notes',
         'uses' => '\Modules\TreatmentReservation\Http\Controllers\Admin\PortalController@updateBeauticianNotes',
         'middleware' => 'beautician.portal.permission:admin.treatment_reservations.edit',

@@ -40,15 +40,20 @@
 
     &__top {
         display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 18px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 16px 20px;
         margin-bottom: 18px;
+    }
+
+    &__profile {
+        flex-shrink: 0;
     }
 
     &__intro {
         min-width: 0;
-        flex: 1;
+        flex: 1 1 280px;
     }
 
     &__eyebrow {
@@ -103,8 +108,10 @@
     &__nav {
         display: inline-flex;
         flex-wrap: wrap;
+        flex-shrink: 0;
+        align-self: center;
         gap: 6px;
-        margin-bottom: 16px;
+        margin: 0 0 0 auto;
         padding: 5px;
         border-radius: 14px;
         background: rgba(255, 255, 255, 0.72);
@@ -231,6 +238,11 @@
     grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr);
     gap: 18px;
     align-items: start;
+
+    > #tr-portal-schedule,
+    > .tr-portal-dashboard__schedule {
+        grid-column: 1 / -1;
+    }
 }
 
 .tr-portal-saas-workspace {
@@ -781,12 +793,14 @@
         padding: 18px 16px 14px;
 
         &__top {
-            flex-direction: column-reverse;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         &__nav {
             display: flex;
             width: 100%;
+            margin-left: 0;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -859,4 +873,21 @@
     font-style: normal;
     color: #6b7280;
     margin-top: 2px;
+}
+
+
+.tr-portal-saas--calendar-page {
+    .tr-portal-saas-hero {
+        margin-bottom: 18px;
+    }
+}
+
+.tr-portal-saas-calendar-page {
+    .tr-calendar.box {
+        margin-bottom: 0;
+        border-radius: 20px;
+        border: 1px solid var(--tr-saas-border, #e2e8f0);
+        box-shadow: var(--tr-saas-shadow, 0 18px 48px rgba(15, 23, 42, 0.07));
+        overflow: hidden;
+    }
 }

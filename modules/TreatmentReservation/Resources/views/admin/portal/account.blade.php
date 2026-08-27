@@ -35,16 +35,17 @@
 
 @extends('admin::layout')
 
-@section('title', trans('treatmentreservation::admin.portal.account_title'))
+@component('admin::components.page.header')
+    @slot('title', $beautician->name)
+    @slot('subtitle', trans('treatmentreservation::admin.portal.account_title'))
 
-@section('content_header')
-    <h3>{{ $beautician->name }}</h3>
-
-    <ol class="breadcrumb">
-        <li><a href="{{ $accountRoutes['dashboard'] ?? route('admin.treatment_reservations.portal') }}">{{ trans('treatmentreservation::admin.portal.title') }}</a></li>
-        <li class="active">{{ trans('treatmentreservation::admin.portal.account_title') }}</li>
-    </ol>
-@endsection
+    <li>
+        <a href="{{ $accountRoutes['dashboard'] ?? route('admin.treatment_reservations.portal') }}">
+            {{ trans('treatmentreservation::admin.portal.title') }}
+        </a>
+    </li>
+    <li class="active">{{ trans('treatmentreservation::admin.portal.account_title') }}</li>
+@endcomponent
 
 @section('content')
     @include('treatmentreservation::admin.partials.urgency-alerts', [

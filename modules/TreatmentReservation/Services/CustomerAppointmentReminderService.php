@@ -215,19 +215,22 @@ class CustomerAppointmentReminderService
         $beautician = $booking->beautician?->name;
         $trackingUrl = $this->trackingUrl($booking);
 
+        $reference = $booking->referenceCode();
         $extraLines = implode("\n", array_filter([
+            "Rujukan: {$reference}",
             $beautician ? "Beautician: {$beautician}" : null,
             $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : null,
         ]));
         $beauticianLine = $beautician ? "Beautician: {$beautician}" : '';
         $trackingLine = $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : '';
 
-        return WhatsAppMessageTemplate::render('whatsapp_customer_reminder_message', [
+        $message = WhatsAppMessageTemplate::render('whatsapp_customer_reminder_message', [
             'store' => $store,
             'customer' => $customer,
             'treatment' => $treatment,
             'date' => $date,
             'time' => $time,
+            'reference' => $reference,
             'beautician' => $beautician ?: '—',
             'tracking_url' => $trackingUrl ?: '',
             'extra_lines' => $extraLines,
@@ -241,11 +244,25 @@ class CustomerAppointmentReminderService
             "Rawatan: {$treatment}",
             "Tarikh: {$date}",
             "Masa: {$time}",
+            "Rujukan: {$reference}",
             $beautician ? "Beautician: {$beautician}" : null,
             $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : null,
             '',
             'Sila hadir tepat pada masa. Terima kasih!',
         ])));
+
+        return $this->ensureReferenceLine($message, $reference);
+    }
+
+
+
+    private function ensureReferenceLine(string $message, string $reference): string
+    {
+        if (stripos($message, $reference) !== false) {
+            return $message;
+        }
+
+        return rtrim($message) . "\nRujukan: {$reference}";
     }
 
 

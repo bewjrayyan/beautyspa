@@ -51,6 +51,7 @@
 
                 <section class="content-header clearfix">
                     @yield('content_header')
+                    @include('admin::partials.admin_breadcrumb')
                 </section>
 
                 <section class="content">

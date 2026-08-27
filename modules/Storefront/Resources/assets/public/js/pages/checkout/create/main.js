@@ -2615,7 +2615,7 @@ Alpine.data(
             }
 
             axios
-                .get(`/checkout/${orderId}/complete`, {
+                .get(AestheticCart.url(`/checkout/${orderId}/complete`), {
                     params: {
                         paymentMethod,
                         ...params,
@@ -2667,7 +2667,7 @@ Alpine.data(
             }
 
             const response = await axios.get(
-                `/checkout/${orderId}/payment-canceled`
+                AestheticCart.url(`/checkout/${orderId}/payment-canceled`)
             );
 
             notify(response.data.message);

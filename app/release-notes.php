@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.53' => [
+        'date' => '2026-08-27',
+        'en' => [
+            'summary' => 'Jobsheet CRM polish, safer TBA start flow, and accurate admin sidebar breadcrumbs.',
+            'changes' => [
+                'Restyle Jobsheet page header to match Appointment Availability (eyebrow, icon, live status badge).',
+                'Block Start treatment for TBA bookings; show Schedule Date First and open the schedule drawer (API guarded).',
+                'Left-align KPI stats cards and keep CRM lead text full width.',
+                'Global admin breadcrumb follows the sidebar trail (e.g. Appointments > Jobsheet / Availability).',
+                'Fix sidebar dual-active bugs: Dashboard no longer prefixes every /admin/* route; leaf items match exact paths.',
+                'Portal calendar page, CRM toolbars, and related Jobsheet/pipeline UX polish.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penggilap CRM Jobsheet, aliran mula TBA yang lebih selamat, dan breadcrumb sidebar admin yang tepat.',
+            'changes' => [
+                'Restyle header halaman Jobsheet supaya sepadan Appointment Availability (eyebrow, ikon, badge status langsung).',
+                'Halang Start treatment untuk tempahan TBA; papar Schedule Date First dan buka drawer jadual (API digaul).',
+                'Kad statistik KPI dijajar kiri dan teks lead CRM kekal full width.',
+                'Breadcrumb admin global mengikut trail sidebar (cth. Appointments > Jobsheet / Availability).',
+                'Betulkan bug dual-active sidebar: Dashboard tidak lagi prefix setiap /admin/*; item leaf match path tepat.',
+                'Halaman kalendar portal, toolbar CRM, dan penggilap UX Jobsheet/pipeline berkaitan.',
+            ],
+        ],
+    ],
+
     '4.11.52' => [
         'date' => '2026-08-27',
         'en' => [

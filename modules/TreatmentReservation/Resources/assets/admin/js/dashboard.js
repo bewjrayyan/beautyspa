@@ -110,6 +110,7 @@ function getCrmDashboardLabels() {
         specialistUnavailable: root?.dataset.specialistUnavailable || "Day off",
         specialistAvailable: root?.dataset.specialistAvailable || "Available",
         specialistToggleFailed: root?.dataset.specialistToggleFailed || "Failed to update specialist availability",
+        scheduleBeforeStart: root?.dataset?.scheduleBeforeStart || "",
         pipelineStatusFailed: root?.dataset.pipelineStatusFailed || "Failed to update status",
     };
 }
@@ -141,6 +142,9 @@ function bookingSearchHaystack(booking = {}) {
         booking.payment_status_label,
         booking.total_formatted,
         booking.id,
+        booking.reference_code,
+        booking.id ? `B${booking.id}` : "",
+        booking.id ? `b${booking.id}` : "",
     ].filter(Boolean).join(" ");
 }
 
@@ -159,7 +163,6 @@ function initDashboardSearch(app = null) {
         "[data-crm-list] .tr-crm-audit__item",
         "[data-crm-list] .tr-crm-specialist",
         "[data-crm-list] .tr-crm-pipeline-card",
-        "[data-crm-list] .tr-crm-ledger__row",
         "[data-crm-list] .tr-crm-needs__item",
         "[data-crm-list] .tr-crm-agenda-card",
         "[data-crm-list] .tr-crm-tba-item",
@@ -168,7 +171,6 @@ function initDashboardSearch(app = null) {
 
     const emptySelectors = [
         "[data-crm-list] .tr-crm-empty",
-        "[data-crm-list] .tr-crm-ledger__empty",
     ].join(", ");
 
     const noResultsMessage = dashboard.dataset.searchNoResults || "No matches for your search";
@@ -400,6 +402,58 @@ function setCrmDatePickerValue(input, dateStr = "") {
     input.value = dateStr;
 }
 
+
+const CRM_FOCUS_PIPELINE_KEY = "tr-crm-focus-pipeline";
+
+function markCrmFocusPipeline() {
+    try {
+        sessionStorage.setItem(CRM_FOCUS_PIPELINE_KEY, "1");
+    } catch {
+        // ignore storage failures
+    }
+}
+
+function consumeCrmFocusPipeline() {
+    try {
+        if (sessionStorage.getItem(CRM_FOCUS_PIPELINE_KEY) !== "1") {
+            return false;
+        }
+
+        sessionStorage.removeItem(CRM_FOCUS_PIPELINE_KEY);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function focusPipelineSection() {
+    const panel = document.querySelector(".tr-crm-panel--pipeline");
+
+    if (!(panel instanceof HTMLElement)) {
+        return;
+    }
+
+    panel.classList.remove("tr-crm-panel--flash");
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    panel.classList.add("tr-crm-panel--flash");
+    void panel.offsetWidth;
+
+    window.clearTimeout(focusPipelineSection._flashTimer);
+    focusPipelineSection._flashTimer = window.setTimeout(() => {
+        panel.classList.remove("tr-crm-panel--flash");
+    }, 1100);
+
+    if (!panel.hasAttribute("tabindex")) {
+        panel.setAttribute("tabindex", "-1");
+    }
+
+    try {
+        panel.focus({ preventScroll: true });
+    } catch {
+        panel.focus();
+    }
+}
+
 function initCrmDatePicker() {
     const form = document.getElementById("tr-crm-header-form");
     const pickerInput = document.getElementById("tr-crm-date-picker");
@@ -437,6 +491,7 @@ function initCrmDatePicker() {
             filterDateInput.value = dateStr;
             form.querySelectorAll("[data-date-filter]").forEach((pill) => pill.classList.remove("is-active"));
             pickerWrap?.classList.add("is-active");
+            markCrmFocusPipeline();
             form.requestSubmit();
         },
     });
@@ -474,6 +529,7 @@ function initDateFilterPills() {
                 setCrmDatePickerValue(pickerInput, presetDateForFilter(filter));
             }
 
+            markCrmFocusPipeline();
             form.requestSubmit();
         });
     });
@@ -735,25 +791,36 @@ function initAgendaPanel(app) {
             return;
         }
 
-        // Bring the day agenda into view (critical when calendar/agenda stack on narrow screens).
-        panel.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+        const cards = list
+            ? Array.from(list.querySelectorAll(".tr-crm-agenda-card"))
+            : [];
+        const firstCard = cards[0] || null;
+        const focusTarget = firstCard?.querySelector("[data-agenda-open], [tabindex]")
+            || firstCard
+            || panel;
 
-        if (list) {
-            list.scrollTop = 0;
-        }
-
+        list?.querySelectorAll(".tr-crm-agenda-card--flash").forEach((card) => {
+            card.classList.remove("tr-crm-agenda-card--flash");
+        });
         panel.classList.remove("tr-crm-calendar-agenda__agenda--flash");
-        // Retrigger CSS flash highlight.
-        void panel.offsetWidth;
-        panel.classList.add("tr-crm-calendar-agenda__agenda--flash");
+
+        if (firstCard) {
+            // Prefer the appointment card, not the whole day-agenda aside.
+            firstCard.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+            cards.forEach((card) => card.classList.add("tr-crm-agenda-card--flash"));
+            void firstCard.offsetWidth;
+        } else {
+            panel.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+            panel.classList.add("tr-crm-calendar-agenda__agenda--flash");
+        }
 
         window.clearTimeout(focusAgendaSection._flashTimer);
         focusAgendaSection._flashTimer = window.setTimeout(() => {
+            list?.querySelectorAll(".tr-crm-agenda-card--flash").forEach((card) => {
+                card.classList.remove("tr-crm-agenda-card--flash");
+            });
             panel.classList.remove("tr-crm-calendar-agenda__agenda--flash");
-        }, 900);
-
-        const focusTarget = list?.querySelector(".tr-crm-agenda-card[tabindex], [data-agenda-open]")
-            || panel;
+        }, 1100);
 
         if (focusTarget instanceof HTMLElement) {
             try {
@@ -824,6 +891,50 @@ function initAgendaPanel(app) {
     if (crmRoot?.dataset.agendaInitialDate) {
         updateAgenda(selectedDate);
     }
+}
+
+
+function bookingNeedsScheduleBeforeStart(booking) {
+    if (!booking) {
+        return false;
+    }
+
+    return Boolean(booking.can_schedule_tba)
+        || Boolean(booking.is_tba)
+        || booking.schedule_status === "tba"
+        || !booking.appointment_date_value;
+}
+
+function openScheduleForBooking(booking, trigger) {
+    const root =
+        document.getElementById("tr-crm-dashboard") ||
+        document.getElementById("tr-reservations-app") ||
+        document.getElementById("tr-portal-app") ||
+        document.body;
+    const routeRoot = document.querySelector("[data-reschedule-url][data-reschedule-slots-url]") || root;
+    const scheduleUrlTemplate = root.dataset?.tbaScheduleUrl || "";
+    const slotsUrl = root.dataset?.tbaSlotsUrl || routeRoot.dataset?.rescheduleSlotsUrl || "";
+    const detailsUrl = root.dataset?.calendarDetailsUrl || routeRoot.dataset?.calendarDetailsUrl || "";
+
+    if (!scheduleUrlTemplate || !slotsUrl || !booking?.id) {
+        window.notify?.error?.(getCrmDashboardLabels().pipelineStatusFailed)
+            || alert(getCrmDashboardLabels().pipelineStatusFailed);
+        return;
+    }
+
+    void openAppointmentSchedulingWorkspace({
+        bookingId: booking.id,
+        beauticianId: booking.beautician_id,
+        productId: booking.product_id,
+        spaBranchId: booking.spa_branch_id,
+        urlTemplate: scheduleUrlTemplate,
+        slotsUrl,
+        datesUrl: "",
+        reschedule: false,
+        labels: schedulingLabels(routeRoot),
+        trigger,
+        detailsUrl,
+    });
 }
 
 function getPipelineBooking(id) {
@@ -935,6 +1046,23 @@ function initPipelineSortable(app) {
                     return;
                 }
 
+                const booking = getPipelineBooking(bookingId);
+                const labels = getCrmDashboardLabels();
+
+                if (
+                    newStatus === "in_progress"
+                    && bookingNeedsScheduleBeforeStart(booking)
+                ) {
+                    evt.from.insertBefore(card, evt.from.children[evt.oldIndex] || null);
+                    updatePipelineCounts();
+                    window.notify?.error?.(
+                        labels.scheduleBeforeStart
+                            || "Schedule an appointment date before starting treatment."
+                    ) || alert(labels.scheduleBeforeStart || "Schedule an appointment date before starting treatment.");
+                    openScheduleForBooking(booking, card);
+                    return;
+                }
+
                 const url = app.statusUrlTemplate.replace("__ID__", bookingId);
 
                 try {
@@ -949,7 +1077,18 @@ function initPipelineSortable(app) {
                 } catch (error) {
                     evt.from.insertBefore(card, evt.from.children[evt.oldIndex] || null);
                     updatePipelineCounts();
-                    window.notify?.error?.(labels.pipelineStatusFailed) || alert(labels.pipelineStatusFailed);
+                    const serverMessage = error?.response?.data?.message;
+                    if (error?.response?.data?.code === "schedule_required") {
+                        window.notify?.error?.(
+                            serverMessage
+                                || labels.scheduleBeforeStart
+                                || "Schedule an appointment date before starting treatment."
+                        ) || alert(serverMessage || labels.scheduleBeforeStart || "Schedule an appointment date before starting treatment.");
+                        openScheduleForBooking(getPipelineBooking(bookingId), card);
+                        return;
+                    }
+                    window.notify?.error?.(serverMessage || labels.pipelineStatusFailed)
+                        || alert(serverMessage || labels.pipelineStatusFailed);
                 }
             },
         });
@@ -1074,6 +1213,21 @@ function initPipelineActions(app) {
             return;
         }
 
+        const booking = getPipelineBooking(bookingId);
+
+        if (
+            button.dataset.pipelineAction === "start"
+            && nextStatus === "in_progress"
+            && bookingNeedsScheduleBeforeStart(booking)
+        ) {
+            window.notify?.error?.(
+                labels.scheduleBeforeStart
+                    || "Schedule an appointment date before starting treatment."
+            ) || alert(labels.scheduleBeforeStart || "Schedule an appointment date before starting treatment.");
+            openScheduleForBooking(booking, button);
+            return;
+        }
+
         const url = app.statusUrlTemplate.replace("__ID__", bookingId);
         const originalText = button.textContent;
 
@@ -1091,7 +1245,21 @@ function initPipelineActions(app) {
         } catch (error) {
             button.disabled = false;
             button.textContent = originalText;
-            window.notify?.error?.(labels.pipelineStatusFailed) || alert(labels.pipelineStatusFailed);
+            const serverMessage = error?.response?.data?.message;
+            const isScheduleRequired = error?.response?.data?.code === "schedule_required";
+
+            if (isScheduleRequired) {
+                window.notify?.error?.(
+                    serverMessage
+                        || labels.scheduleBeforeStart
+                        || "Schedule an appointment date before starting treatment."
+                ) || alert(serverMessage || labels.scheduleBeforeStart || "Schedule an appointment date before starting treatment.");
+                openScheduleForBooking(booking || getPipelineBooking(bookingId), button);
+                return;
+            }
+
+            window.notify?.error?.(serverMessage || labels.pipelineStatusFailed)
+                || alert(serverMessage || labels.pipelineStatusFailed);
         }
     });
 }
@@ -2005,7 +2173,7 @@ export function initCalendarBookingDrop(app) {
 
 
 function seedLedgerBookingsIntoPreviewMap() {
-    document.querySelectorAll(".tr-crm-ledger__row[data-booking-id], .tr-crm-needs__item[data-booking-id]").forEach((row) => {
+    document.querySelectorAll(".tr-crm-needs__item[data-booking-id]").forEach((row) => {
         const id = row.dataset.bookingId;
         if (!id) {
             return;
@@ -2059,6 +2227,13 @@ export function initCrmDashboard(app) {
     initDashboardSearch(app);
     initDateFilterPills();
     initCrmDatePicker();
+
+    if (consumeCrmFocusPipeline()) {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(focusPipelineSection);
+        });
+    }
+
     initAgendaPanel(app);
     initPipelineTimers();
     initPipelineSortable(app);

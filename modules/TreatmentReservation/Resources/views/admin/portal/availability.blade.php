@@ -63,23 +63,25 @@
 
 @extends('admin::layout')
 
-@section('title', trans('treatmentreservation::admin.availability.title'))
+@component('admin::components.page.header')
+    @slot('title', $beautician->name)
+    @slot('subtitle', trans('treatmentreservation::admin.availability.title'))
 
-@section('content_header')
-    <h3>{{ $beautician->name }}</h3>
-
-    <ol class="breadcrumb">
-        @if (! empty($adminPortalPreview))
-            <li><a href="{{ route('admin.dashboard.index') }}">{{ trans('admin::dashboard.dashboard') }}</a></li>
-            <li><a href="{{ route('admin.beauticians.index') }}">{{ trans('beautician::beauticians.beauticians') }}</a></li>
-            <li><a href="{{ route('admin.beauticians.edit', $beautician) }}">{{ trans('beautician::beauticians.form.edit_profile') }}</a></li>
-            <li class="active">{{ trans('treatmentreservation::admin.availability.title') }}</li>
-        @else
-            <li><a href="{{ route('admin.treatment_reservations.portal') }}">{{ trans('treatmentreservation::admin.portal.title') }}</a></li>
-            <li class="active">{{ trans('treatmentreservation::admin.availability.title') }}</li>
-        @endif
-    </ol>
-@endsection
+    @if (! empty($adminPortalPreview))
+        <li>
+            <a href="{{ route('admin.beauticians.index') }}">{{ trans('beautician::beauticians.beauticians') }}</a>
+        </li>
+        <li>
+            <a href="{{ route('admin.beauticians.edit', $beautician) }}">{{ trans('beautician::beauticians.form.edit_profile') }}</a>
+        </li>
+        <li class="active">{{ trans('treatmentreservation::admin.availability.title') }}</li>
+    @else
+        <li>
+            <a href="{{ route('admin.treatment_reservations.portal') }}">{{ trans('treatmentreservation::admin.portal.title') }}</a>
+        </li>
+        <li class="active">{{ trans('treatmentreservation::admin.availability.title') }}</li>
+    @endif
+@endcomponent
 
 @section('content')
     @if (! empty($adminPortalPreview))

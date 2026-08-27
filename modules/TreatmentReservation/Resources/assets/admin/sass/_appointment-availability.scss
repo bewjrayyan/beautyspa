@@ -1462,7 +1462,6 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
     outline: 2px dashed #3b82f6;
     background: rgba(59, 130, 246, 0.08);
 }
-.tr-crm-tba-item[draggable="true"] { cursor: grab; }
 .tr-cal-event[draggable="true"] { cursor: grab; }
 
 /* Appointment Availability workspace v2 — compact enterprise operations UI. */
@@ -1677,6 +1676,15 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
         background: var(--tr-surface);
         box-shadow: var(--tr-shadow-sm);
 
+        &--embedded {
+            margin: 0;
+            border: 0;
+            border-top: 1px solid #edf0f4;
+            border-radius: 0;
+            background: linear-gradient(180deg, #fcfdff 0%, #f7f9fc 100%);
+            box-shadow: none;
+        }
+
         &__item {
             display: flex;
             align-items: center;
@@ -1694,6 +1702,7 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
         }
 
         &__item--scope { background: linear-gradient(135deg, #fff, #fcf6f9); }
+        &--embedded &__item--scope { background: transparent; }
 
         &__icon {
             display: inline-flex;
@@ -1758,6 +1767,7 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
             grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.8fr);
             gap: 28px;
             padding: 20px 22px;
+            border-bottom: 0;
         }
 
         &__intro { align-items: center; }
@@ -1772,6 +1782,14 @@ $tr-avail-shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.09);
             box-shadow: none;
 
             &:focus { border-color: #9b5375; box-shadow: 0 0 0 3px var(--tr-ring); }
+        }
+
+        // Keep dropdowns above the embedded stats strip; clip card radius on the strip only.
+        .tr-avail-overview--embedded {
+            position: relative;
+            z-index: 0;
+            border-bottom-left-radius: var(--tr-radius-lg);
+            border-bottom-right-radius: var(--tr-radius-lg);
         }
     }
 

@@ -41,7 +41,7 @@
                     class="tr-crm-needs__item tr-crm-needs__item--{{ $item['urgency'] ?? 'info' }} tr-crm-appointment{{ $canOpen ? ' tr-crm-appointment--clickable' : '' }}"
                     data-booking-id="{{ $item['id'] ?? '' }}"
                     data-own-booking="{{ $canOpen ? '1' : '0' }}"
-                    data-search="{{ strtolower(($item['customer_name'] ?? '') . ' ' . ($item['treatment_name'] ?? '') . ' ' . ($item['reason_label'] ?? '') . ' ' . ($item['appointment_label'] ?? '') . ' ' . ($item['beautician_name'] ?? '') . ' ' . ($item['id'] ?? '')) }}"
+                    data-search="{{ strtolower(($item['customer_name'] ?? '') . ' ' . ($item['treatment_name'] ?? '') . ' ' . ($item['reason_label'] ?? '') . ' ' . ($item['appointment_label'] ?? '') . ' ' . ($item['beautician_name'] ?? '') . ' ' . ($item['reference_code'] ?? ('b' . ($item['id'] ?? ''))) . ' ' . ($item['id'] ?? '')) }}"
                     @if ($canOpen) role="button" tabindex="0" @endif
                 >
                     <span class="tr-crm-needs__item-dot" aria-hidden="true"></span>

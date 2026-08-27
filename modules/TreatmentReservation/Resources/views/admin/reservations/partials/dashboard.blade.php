@@ -4,8 +4,6 @@
     $dashboardData = $dashboardData ?? [];
     $kpis = $dashboardData['kpis'] ?? [];
     $pipeline = $dashboardData['pipeline'] ?? [];
-    $ledger = $dashboardData['ledger'] ?? [];
-    $ledgerCount = $dashboardData['ledgerCount'] ?? 0;
     $beauticians = $dashboardData['beauticians'] ?? [];
     $alerts = $dashboardData['alerts'] ?? [];
     $needsAttention = $dashboardData['needsAttention'] ?? ['total' => 0, 'buckets' => [], 'items' => []];
@@ -106,6 +104,7 @@
     data-specialist-toggle-aria="{{ TrLang::trans('admin.crm.specialist_toggle_aria') }}"
     data-specialist-toggle-failed="{{ TrLang::trans('admin.crm.specialist_toggle_failed') }}"
     data-pipeline-status-failed="{{ TrLang::trans('admin.crm.agenda_status_update_failed') }}"
+    data-schedule-before-start="{{ TrLang::trans('admin.crm.error_schedule_before_start') }}"
 >
     @unless ($pipelineOnly)
     <section class="tr-crm-dashboard__kpis" aria-label="{{ TrLang::trans('admin.crm.kpi_aria') }}">
@@ -150,34 +149,78 @@
     </div>
 
     <div class="tr-crm-dashboard__pipeline-wrap">
-        
     @if (! $pipelineOnly && ($tbaCount > 0 || ! empty($tbaBookings)))
-        <section class="tr-crm-panel tr-crm-tba-panel" aria-label="{{ TrLang::trans('admin.tba.title') }}">
+        <section class="tr-crm-panel tr-crm-tba-panel" aria-labelledby="tr-crm-tba-title">
             <header class="tr-crm-panel__head">
-                <h3 class="tr-crm-panel__title">{{ TrLang::trans('admin.tba.title') }} <span class="badge">{{ $tbaCount }}</span></h3>
+                <div>
+                    <h3 class="tr-crm-panel__title" id="tr-crm-tba-title">
+                        {{ TrLang::trans('admin.tba.title') }}
+                        <span class="tr-crm-panel__count tr-crm-tba-panel__count">{{ $tbaCount }}</span>
+                    </h3>
+                    <p class="tr-crm-panel__lead">{{ TrLang::trans('admin.tba.lead') }}</p>
+                </div>
             </header>
-            <div class="tr-crm-tba-list">
+            <div class="tr-crm-tba-list" data-crm-list>
                 @forelse ($tbaBookings as $tba)
-                    <article class="tr-crm-tba-item" draggable="{{ !empty($tba['can_schedule_tba']) && $crmCanEdit ? 'true' : 'false' }}" data-tba-booking-id="{{ $tba['id'] ?? '' }}" data-tba-beautician-id="{{ $tba['beautician_id'] ?? '' }}" data-product-id="{{ $tba['product_id'] ?? '' }}" data-spa-branch-id="{{ $tba['spa_branch_id'] ?? '' }}" data-search="{{ strtolower(($tba['customer_name'] ?? trim(($tba['customer_first_name'] ?? '').' '.($tba['customer_last_name'] ?? ''))) . ' ' . ($tba['customer_phone'] ?? '') . ' ' . ($tba['product_name'] ?? '') . ' ' . ($tba['beautician_name'] ?? '')) }}" title="{{ TrLang::trans('admin.tba.drag_to_calendar') }}">
-                        <div>
-                            <strong>{{ $tba['customer_name'] ?? trim(($tba['customer_first_name'] ?? '').' '.($tba['customer_last_name'] ?? '')) }}</strong>
-                            <span>{{ $tba['product_name'] ?? '—' }}</span>
-                            <span>{{ $tba['beautician_name'] ?? '—' }} · {{ TrLang::trans('admin.tba.badge') }}</span>
+                    @php
+                        $tbaCustomer = $tba['customer_name'] ?? trim(($tba['customer_first_name'] ?? '') . ' ' . ($tba['customer_last_name'] ?? ''));
+                        $tbaRef = $tba['reference_code'] ?? (isset($tba['id']) ? 'B' . $tba['id'] : null);
+                        $tbaCanSchedule = $crmCanEdit && ! empty($tba['can_schedule_tba']);
+                    @endphp
+                    <article
+                        class="tr-crm-tba-item{{ $tbaCanSchedule ? ' tr-crm-tba-item--schedulable' : '' }}"
+                        draggable="{{ $tbaCanSchedule ? 'true' : 'false' }}"
+                        data-tba-booking-id="{{ $tba['id'] ?? '' }}"
+                        data-tba-beautician-id="{{ $tba['beautician_id'] ?? '' }}"
+                        data-product-id="{{ $tba['product_id'] ?? '' }}"
+                        data-spa-branch-id="{{ $tba['spa_branch_id'] ?? '' }}"
+                        data-search="{{ strtolower($tbaCustomer . ' ' . ($tba['customer_phone'] ?? '') . ' ' . ($tba['product_name'] ?? '') . ' ' . ($tba['beautician_name'] ?? '') . ' ' . ($tbaRef ?? '') . ' ' . ($tba['id'] ?? '')) }}"
+                        @if ($tbaCanSchedule) title="{{ TrLang::trans('admin.tba.drag_to_calendar') }}" @endif
+                    >
+                        <div class="tr-crm-tba-item__body">
+                            <div class="tr-crm-tba-item__top">
+                                <strong class="tr-crm-tba-item__customer">{{ $tbaCustomer !== '' ? $tbaCustomer : '—' }}</strong>
+                                <span class="tr-crm-tba-item__badge">{{ TrLang::trans('admin.tba.badge') }}</span>
+                            </div>
+                            <p class="tr-crm-tba-item__treatment">{{ $tba['product_name'] ?? '—' }}</p>
+                            <p class="tr-crm-tba-item__meta">
+                                @if ($tbaRef)
+                                    <span class="tr-crm-tba-item__ref" title="{{ TrLang::trans('admin.calendar.preview_booking_id_title') }}">{{ $tbaRef }}</span>
+                                    <span class="tr-crm-tba-item__sep" aria-hidden="true">·</span>
+                                @endif
+                                <span class="tr-crm-tba-item__beautician">{{ $tba['beautician_name'] ?? '—' }}</span>
+                            </p>
                         </div>
-                        @if ($crmCanEdit && ! empty($tba['can_schedule_tba']))
-                            <button type="button" class="btn btn-primary btn-sm" data-tba-schedule data-booking-id="{{ $tba['id'] }}" data-beautician-id="{{ $tba['beautician_id'] }}" data-product-id="{{ $tba['product_id'] ?? '' }}" data-spa-branch-id="{{ $tba['spa_branch_id'] ?? '' }}">
-                                {{ TrLang::trans('admin.tba.schedule') }}
-                            </button>
+                        @if ($tbaCanSchedule)
+                            <div class="tr-crm-tba-item__actions">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm tr-crm-tba-item__cta"
+                                    data-tba-schedule
+                                    data-booking-id="{{ $tba['id'] }}"
+                                    data-beautician-id="{{ $tba['beautician_id'] }}"
+                                    data-product-id="{{ $tba['product_id'] ?? '' }}"
+                                    data-spa-branch-id="{{ $tba['spa_branch_id'] ?? '' }}"
+                                >
+                                    <i class="fa fa-calendar-plus-o" aria-hidden="true"></i>
+                                    {{ TrLang::trans('admin.tba.schedule') }}
+                                </button>
+                            </div>
                         @endif
                     </article>
                 @empty
-                    <p class="text-muted">{{ TrLang::trans('admin.tba.empty') }}</p>
+                    <p class="tr-crm-tba-empty">{{ TrLang::trans('admin.tba.empty') }}</p>
                 @endforelse
             </div>
         </section>
     @endif
 
-@include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
+@if (! empty($crmToolbarView))
+        <div class="tr-crm-dashboard__toolbar">
+            @include($crmToolbarView)
+        </div>
+    @endif
+    @include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
             'pipeline' => $pipeline,
             'filterDateLabel' => $filterDateLabel,
             'dateFilter' => $dateFilter,
@@ -189,11 +232,6 @@
         <div class="tr-crm-dashboard__main">
             @include('treatmentreservation::admin.reservations.partials.dashboard.needs-attention-panel', [
                 'needsAttention' => $needsAttention,
-            ])
-            @include('treatmentreservation::admin.reservations.partials.dashboard.ledger-table', [
-                'ledger' => $ledger,
-                'ledgerCount' => $ledgerCount,
-                'filterDateLabel' => $filterDateLabel,
             ])
         </div>
 
@@ -214,6 +252,11 @@
     </div>
 
     @else
+        @if (! empty($crmToolbarView))
+            <div class="tr-crm-dashboard__toolbar">
+                @include($crmToolbarView)
+            </div>
+        @endif
         @include('treatmentreservation::admin.reservations.partials.dashboard.pipeline-board', [
             'pipeline' => $pipeline,
             'filterDateLabel' => $filterDateLabel,

@@ -5,14 +5,24 @@
 
 @extends('admin::layout')
 
-@section('title', TrLang::trans('admin.reservations'))
+@php
+    $isCrmPipelineView = in_array($activeView, ['dashboard', 'kanban'], true);
+    $viewCrumbLabel = match ($activeView) {
+        'calendar' => TrLang::trans('admin.tabs.calendar'),
+        'reports' => TrLang::trans('admin.tabs.reports'),
+        'kanban' => TrLang::trans('admin.tabs.kanban'),
+        default => TrLang::trans('admin.tabs.dashboard'),
+    };
+@endphp
 
-@section('content_header')
+@section('title')
+    {{ $activeView === 'dashboard'
+        ? trans('treatmentreservation::sidebar.agenda')
+        : $viewCrumbLabel . ' - ' . trans('treatmentreservation::sidebar.agenda') }}
 @endsection
 
 @section('content')
     @php
-        $isCrmPipelineView = in_array($activeView, ['dashboard', 'kanban'], true);
         $workLogLabels = [
             'title' => trans('treatmentreservation::admin.calendar.work_log_title'),
             'help' => trans('treatmentreservation::admin.calendar.work_log_help'),
@@ -27,6 +37,7 @@
             'customerNoteHelp' => trans('treatmentreservation::admin.calendar.work_log_customer_note_help'),
             'generateSummary' => trans('treatmentreservation::admin.calendar.work_log_generate_summary'),
             'noCompletedItems' => trans('treatmentreservation::admin.calendar.work_log_no_completed_items'),
+            'emptyChecklistItem' => trans('treatmentreservation::admin.calendar.work_log_empty_checklist_item'),
             'summaryPrefix' => trans('treatmentreservation::admin.calendar.work_log_summary_prefix'),
             'presets' => trans('treatmentreservation::admin.calendar.work_log_presets'),
         ];
@@ -116,6 +127,7 @@
         data-cal-preview-source="{{ TrLang::trans('admin.calendar.preview_source') }}"
         data-cal-preview-branch="{{ TrLang::trans('admin.calendar.preview_branch') }}"
         data-cal-preview-booking-id="{{ TrLang::trans('admin.calendar.preview_booking_id') }}"
+        data-cal-preview-booking-id-title="{{ TrLang::trans('admin.calendar.preview_booking_id_title') }}"
         data-cal-preview-duration-minutes="{{ TrLang::trans('admin.calendar.preview_duration_value') }}"
         data-cal-preview-duration-hour="{{ TrLang::trans('admin.calendar.preview_duration_hour') }}"
         data-cal-preview-duration-hours="{{ TrLang::trans('admin.calendar.preview_duration_hours') }}"
@@ -131,6 +143,7 @@
         data-cal-preview-section-staff="{{ TrLang::trans('admin.calendar.preview_section_staff') }}"
         data-cal-preview-session="{{ TrLang::trans('admin.calendar.preview_session') }}"
         data-cal-preview-status="{{ TrLang::trans('admin.calendar.preview_status') }}"
+        data-cal-preview-status-title="{{ TrLang::trans('admin.calendar.preview_status_title') }}"
         data-cal-preview-reschedule="{{ TrLang::trans('admin.crm.action_reschedule') }}"
         data-cal-preview-action-profile-short="{{ TrLang::trans('admin.calendar.preview_action_profile_short') }}"
         data-cal-preview-action-customer-short="{{ TrLang::trans('admin.calendar.preview_action_customer_short') }}"
@@ -175,114 +188,26 @@
             @endphp
             <header class="tr-crm-page-header">
                 <div class="tr-crm-page-header__intro">
-                    <h1 class="tr-crm-page-header__title">
-                        {{ $activeView === 'kanban'
-                            ? TrLang::trans('admin.crm.pipeline_title')
-                            : TrLang::trans('admin.reservations') }}
-                    </h1>
-                    <p class="tr-crm-page-header__lead">
-                        {{ $activeView === 'kanban'
-                            ? TrLang::trans('admin.crm.pipeline_lead_long')
-                            : TrLang::trans('admin.crm.subtitle') }}
-                    </p>
-
-                    <div class="tr-crm-page-header__toolbar">
-                        <div class="tr-crm-toolbar">
-                            <form class="tr-crm-toolbar__filters-form" method="get" action="{{ route('admin.treatment_reservations.index') }}" id="tr-crm-header-form">
-                                <input type="hidden" name="view" value="{{ $activeView }}">
-                                <input type="hidden" name="date_filter" id="tr-crm-date-filter" value="{{ $crmDateFilter }}">
-                                <input type="hidden" name="filter_date" id="tr-crm-filter-date" value="{{ $filters['filter_date'] ?? '' }}">
-                                <input type="hidden" name="treatment_category_id" id="tr-crm-hidden-category" value="{{ $filters['treatment_category_id'] }}">
-
-                                @if ($activeView === 'kanban')
-                                    <div class="tr-crm-toolbar__field">
-                                        <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                            <i class="fa fa-user-md"></i>
-                                        </span>
-                                        <label class="sr-only" for="tr-crm-filter-beautician">{{ TrLang::trans('admin.filters.beautician') }}</label>
-                                        <select class="tr-crm-toolbar__select" id="tr-crm-filter-beautician" name="beautician_id" onchange="this.form.requestSubmit()">
-                                            <option value="">{{ TrLang::trans('admin.filters.all_beauticians') }}</option>
-                                            @foreach ($beauticians as $beautician)
-                                                <option value="{{ $beautician->id }}" @selected((int) ($filters['beautician_id'] ?? 0) === $beautician->id)>
-                                                    {{ $beautician->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
-                                @else
-                                    <input type="hidden" name="beautician_id" id="tr-crm-hidden-beautician" value="{{ $filters['beautician_id'] }}">
-                                @endif
-
-                                @if ($spaBranches->isNotEmpty())
-                                    <div class="tr-crm-toolbar__field tr-crm-toolbar__field--branch">
-                                        <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                            <i class="fa fa-map-marker"></i>
-                                        </span>
-                                        <label class="sr-only" for="tr-crm-filter-branch">{{ TrLang::trans('admin.filters.spa_branch') }}</label>
-                                        <select class="tr-crm-toolbar__select" id="tr-crm-filter-branch" name="spa_branch_id" onchange="this.form.requestSubmit()">
-                                            <option value="">{{ TrLang::trans('admin.filters.all_branches') }}</option>
-                                            @foreach ($spaBranches as $branchId => $branchName)
-                                                <option value="{{ $branchId }}" @selected($filters['spa_branch_id'] == $branchId)>
-                                                    {{ $branchName }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <span class="tr-crm-toolbar__divider" aria-hidden="true"></span>
-                                @endif
-
-                                <div class="tr-crm-toolbar__field tr-crm-toolbar__field--dates">
-                                    <span class="tr-crm-toolbar__field-icon" aria-hidden="true">
-                                        <i class="fa fa-calendar-o"></i>
-                                    </span>
-                                    <div class="tr-crm-toolbar__dates" role="group" aria-label="{{ TrLang::trans('admin.crm.date_filter_aria') }}">
-                                        @foreach (['all' => 'date_all', 'today' => 'date_today', 'tomorrow' => 'date_tomorrow'] as $value => $labelKey)
-                                            <button
-                                                type="button"
-                                                class="tr-crm-toolbar__date-pill{{ $crmDateFilter === $value ? ' is-active' : '' }}"
-                                                data-date-filter="{{ $value }}"
-                                            >
-                                                {{ TrLang::trans('admin.crm.' . $labelKey) }}
-                                            </button>
-                                        @endforeach
-
-                                        <label class="tr-crm-toolbar__date-picker{{ $crmDateFilter === 'custom' ? ' is-active' : '' }}">
-                                            <i class="fa fa-calendar" aria-hidden="true"></i>
-                                            <input
-                                                type="text"
-                                                id="tr-crm-date-picker"
-                                                class="tr-crm-toolbar__date-input"
-                                                value="{{ $crmPickerDate }}"
-                                                placeholder="{{ TrLang::trans('admin.crm.date_pick_placeholder') }}"
-                                                autocomplete="off"
-                                                aria-label="{{ TrLang::trans('admin.crm.date_pick_aria') }}"
-                                                readonly
-                                            >
-                                        </label>
-                                    </div>
-                                </div>
-                            </form>
-
-
-
-                            @hasAccess('admin.treatment_reservations.create')
-                                <div class="tr-crm-toolbar__actions">
-                                    <button
-                                        type="button"
-                                        class="tr-crm-toolbar__new tr-manual-booking-open-btn"
-                                        data-toggle="modal"
-                                        data-target="#tr-manual-booking-modal"
-                                    >
-                                        <span class="tr-crm-toolbar__new-icon" aria-hidden="true">
-                                            <i class="fa fa-plus"></i>
-                                        </span>
-                                        {{ TrLang::trans('admin.crm.new_reservation') }}
-                                    </button>
-                                </div>
-                            @endHasAccess
-                        </div>
+                    <div class="tr-crm-page-header__icon" aria-hidden="true">
+                        <i class="fa {{ $activeView === 'kanban' ? 'fa-columns' : 'fa-clipboard' }}"></i>
                     </div>
+                    <div>
+                        <span class="tr-crm-page-header__eyebrow">{{ TrLang::trans('admin.crm.eyebrow') }}</span>
+                        <h1 class="tr-crm-page-header__title">
+                            {{ $activeView === 'kanban'
+                                ? TrLang::trans('admin.crm.pipeline_title')
+                                : trans('treatmentreservation::sidebar.agenda') }}
+                        </h1>
+                        <p class="tr-crm-page-header__lead">
+                            {{ $activeView === 'kanban'
+                                ? TrLang::trans('admin.crm.pipeline_lead_long')
+                                : TrLang::trans('admin.crm.subtitle') }}
+                        </p>
+                    </div>
+                </div>
+                <div class="tr-crm-page-header__status">
+                    <span aria-hidden="true"></span>
+                    {{ TrLang::trans('admin.crm.live_status') }}
                 </div>
             </header>
         @else
@@ -298,20 +223,26 @@
             </div>
 
             <div class="tr-reservations-hero__actions">
-                @hasAccess('admin.treatment_reservations.create')
-                    <button
-                        type="button"
-                        class="btn btn-primary btn-sm tr-manual-booking-open-btn"
-                        data-toggle="modal"
-                        data-target="#tr-manual-booking-modal"
-                    >
-                        <i class="fa fa-plus"></i>
-                        {{ TrLang::trans('admin.manual_booking.open') }}
-                    </button>
-                @endHasAccess
+                @if ($activeView !== 'calendar')
+                    @hasAccess('admin.treatment_reservations.create')
+                        <button
+                            type="button"
+                            class="btn btn-primary btn-sm tr-manual-booking-open-btn"
+                            data-toggle="modal"
+                            data-target="#tr-manual-booking-modal"
+                        >
+                            <i class="fa fa-plus"></i>
+                            {{ TrLang::trans('admin.manual_booking.open') }}
+                        </button>
+                    @endHasAccess
+                @endif
 
-                <div class="tr-reservations-hero__pipeline" role="list">
-                    <div class="tr-reservations-hero__metric tr-reservations-hero__metric--pending" role="listitem">
+                <div class="tr-reservations-hero__pipeline" role="list" aria-label="{{ TrLang::trans('admin.hero.pipeline_aria') }}">
+                    <div
+                        class="tr-reservations-hero__metric tr-reservations-hero__metric--pending"
+                        role="listitem"
+                        aria-label="{{ TrLang::trans('admin.kanban.pending') }}: {{ number_format($stats['pending']) }}"
+                    >
                         <div class="tr-reservations-hero__metric-head">
                             <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-clock-o"></i></span>
                             <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.pending') }}</span>
@@ -321,7 +252,11 @@
                             <span class="tr-reservations-hero__metric-hint">{{ TrLang::trans('admin.hero.pending_hint') }}</span>
                         </div>
                     </div>
-                    <div class="tr-reservations-hero__metric tr-reservations-hero__metric--progress" role="listitem">
+                    <div
+                        class="tr-reservations-hero__metric tr-reservations-hero__metric--progress"
+                        role="listitem"
+                        aria-label="{{ TrLang::trans('admin.kanban.in_progress') }}: {{ number_format($stats['inProgress']) }}"
+                    >
                         <div class="tr-reservations-hero__metric-head">
                             <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-play-circle"></i></span>
                             <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.in_progress') }}</span>
@@ -331,7 +266,11 @@
                             <span class="tr-reservations-hero__metric-hint">{{ TrLang::trans('admin.hero.progress_hint') }}</span>
                         </div>
                     </div>
-                    <div class="tr-reservations-hero__metric tr-reservations-hero__metric--completed" role="listitem">
+                    <div
+                        class="tr-reservations-hero__metric tr-reservations-hero__metric--completed"
+                        role="listitem"
+                        aria-label="{{ TrLang::trans('admin.kanban.completed') }}: {{ number_format($stats['completed']) }}"
+                    >
                         <div class="tr-reservations-hero__metric-head">
                             <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-check-circle"></i></span>
                             <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.kanban.completed') }}</span>
@@ -342,9 +281,13 @@
                         </div>
                     </div>
                     @if (isset($todayBookings))
-                        <div class="tr-reservations-hero__metric tr-reservations-hero__metric--today" role="listitem">
+                        <div
+                            class="tr-reservations-hero__metric tr-reservations-hero__metric--today"
+                            role="listitem"
+                            aria-label="{{ TrLang::trans('admin.hero.today') }}: {{ number_format($todayBookings) }}"
+                        >
                             <div class="tr-reservations-hero__metric-head">
-                                <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-sun-o"></i></span>
+                                <span class="tr-reservations-hero__metric-icon" aria-hidden="true"><i class="fa fa-calendar"></i></span>
                                 <span class="tr-reservations-hero__metric-label">{{ TrLang::trans('admin.hero.today') }}</span>
                             </div>
                             <div class="tr-reservations-hero__metric-body">
@@ -370,15 +313,6 @@
             ])
         @endHasAnyAccess
 
-        @if (! $isCrmPipelineView)
-            <p class="tr-view-back">
-                <a href="{{ route('admin.treatment_reservations.index', ['view' => 'dashboard']) }}" class="tr-view-back__link">
-                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                    {{ TrLang::trans('admin.dashboard.back') }}
-                </a>
-            </p>
-        @endif
-
         @if ($activeView === 'calendar')
             @include('treatmentreservation::admin.reservations.partials.filters-calendar')
         @endif
@@ -391,6 +325,8 @@
                     'analyticsCharts' => $analyticsCharts,
                     'dashboardData' => $dashboardData,
                     'urgency' => $urgency,
+                    'crmToolbarView' => 'treatmentreservation::admin.reservations.partials.dashboard.crm-toolbar',
+                    'crmFilterBeauticians' => $beauticians,
                 ])
             @endif
 
@@ -403,6 +339,8 @@
                 @include('treatmentreservation::admin.reservations.partials.dashboard', [
                     'dashboardData' => $dashboardData,
                     'pipelineOnly' => true,
+                    'crmToolbarView' => 'treatmentreservation::admin.reservations.partials.dashboard.crm-toolbar',
+                    'crmFilterBeauticians' => $beauticians,
                 ])
             @endif
 

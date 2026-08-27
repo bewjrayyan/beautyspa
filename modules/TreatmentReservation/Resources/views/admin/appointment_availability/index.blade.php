@@ -51,10 +51,9 @@
 
 @extends('admin::layout')
 
-@section('title', TrLang::trans('admin.appointment_availability.title'))
-
-@section('content_header')
-@endsection
+@component('admin::components.page.header')
+    @slot('title', TrLang::trans('admin.appointment_availability.title'))
+@endcomponent
 
 @section('content')
     <div
@@ -119,37 +118,6 @@
             </div>
         </header>
 
-        <section class="tr-avail-overview" aria-label="{{ TrLang::trans('admin.appointment_availability.workspace_overview') }}">
-            <div class="tr-avail-overview__item tr-avail-overview__item--scope">
-                <span class="tr-avail-overview__icon" aria-hidden="true"><i class="fa fa-map-marker"></i></span>
-                <div>
-                    <small>{{ TrLang::trans('admin.appointment_availability.active_branch') }}</small>
-                    <strong>{{ $selectedBranch?->name ?? '—' }}</strong>
-                </div>
-            </div>
-            <div class="tr-avail-overview__item">
-                <span class="tr-avail-overview__value"><span id="tr-open-days-count">{{ $branchOpenDays }}</span><small>/7</small></span>
-                <div>
-                    <small>{{ TrLang::trans('admin.appointment_availability.open_days') }}</small>
-                    <strong>{{ TrLang::trans('admin.appointment_availability.weekly_coverage') }}</strong>
-                </div>
-            </div>
-            <div class="tr-avail-overview__item">
-                <span class="tr-avail-overview__value" id="tr-start-times-count">{{ $branchSlotCount }}</span>
-                <div>
-                    <small>{{ TrLang::trans('admin.appointment_availability.start_times') }}</small>
-                    <strong>{{ TrLang::trans('admin.appointment_availability.per_week') }}</strong>
-                </div>
-            </div>
-            <div class="tr-avail-overview__item">
-                <span class="tr-avail-overview__value">{{ $overrides->count() }}</span>
-                <div>
-                    <small>{{ TrLang::trans('admin.appointment_availability.upcoming_changes') }}</small>
-                    <strong>{{ TrLang::trans('admin.appointment_availability.saved_exceptions') }}</strong>
-                </div>
-            </div>
-        </section>
-
         <form method="GET" class="card tr-avail-filters" id="tr-scope">
             <div class="card-body">
                 <div class="tr-avail-filters__intro">
@@ -161,39 +129,73 @@
                     </div>
                 </div>
                 <div class="tr-avail-filters__fields">
-                <div>
-                    <label class="form-label" for="tr-branch-select">{{ TrLang::trans('admin.appointment_availability.branch') }}</label>
-                    <div class="tr-avail-select-wrap">
-                        <i class="fa fa-map-marker" aria-hidden="true"></i>
-                        <select id="tr-branch-select" name="spa_branch_id" class="form-control">
-                        @foreach ($branches as $branch)
-                            <option value="{{ $branch->id }}" @selected($branchId == $branch->id)>{{ $branch->name }}</option>
-                        @endforeach
-                        </select>
+                    <div>
+                        <label class="form-label" for="tr-branch-select">{{ TrLang::trans('admin.appointment_availability.branch') }}</label>
+                        <div class="tr-avail-select-wrap">
+                            <i class="fa fa-map-marker" aria-hidden="true"></i>
+                            <select id="tr-branch-select" name="spa_branch_id" class="form-control">
+                            @foreach ($branches as $branch)
+                                <option value="{{ $branch->id }}" @selected($branchId == $branch->id)>{{ $branch->name }}</option>
+                            @endforeach
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <label class="form-label" for="tr-treatment-select">{{ TrLang::trans('admin.appointment_availability.treatment') }}</label>
-                    <div class="tr-avail-select-wrap">
-                        <i class="fa fa-heartbeat" aria-hidden="true"></i>
-                        <select id="tr-treatment-select" name="product_id" class="form-control">
-                            <option value="">{{ TrLang::trans('admin.appointment_availability.select_treatment') }}</option>
-                            @if ($productScopeValue !== '')
-                                <option value="{{ $productScopeValue }}" selected>
-                                    {{ $selectedTreatmentLabel }}
-                                </option>
-                            @elseif ((int) $productId > 0)
-                                <option value="{{ (int) $productId }}" selected>
-                                    {{ $selectedTreatmentLabel }}
-                                </option>
-                            @endif
-                        </select>
+                    <div>
+                        <label class="form-label" for="tr-treatment-select">{{ TrLang::trans('admin.appointment_availability.treatment') }}</label>
+                        <div class="tr-avail-select-wrap">
+                            <i class="fa fa-heartbeat" aria-hidden="true"></i>
+                            <select id="tr-treatment-select" name="product_id" class="form-control">
+                                <option value="">{{ TrLang::trans('admin.appointment_availability.select_treatment') }}</option>
+                                @if ($productScopeValue !== '')
+                                    <option value="{{ $productScopeValue }}" selected>
+                                        {{ $selectedTreatmentLabel }}
+                                    </option>
+                                @elseif ((int) $productId > 0)
+                                    <option value="{{ (int) $productId }}" selected>
+                                        {{ $selectedTreatmentLabel }}
+                                    </option>
+                                @endif
+                            </select>
+                        </div>
+                        <small>{{ TrLang::trans('admin.appointment_availability.treatment_optional_hint') }}</small>
+                        <small>{{ TrLang::trans('admin.appointment_availability.treatment_variant_hint') }}</small>
                     </div>
-                    <small>{{ TrLang::trans('admin.appointment_availability.treatment_optional_hint') }}</small>
-                    <small>{{ TrLang::trans('admin.appointment_availability.treatment_variant_hint') }}</small>
-                </div>
                 </div>
             </div>
+
+            <section
+                class="tr-avail-overview tr-avail-overview--embedded"
+                aria-label="{{ TrLang::trans('admin.appointment_availability.workspace_overview') }}"
+            >
+                <div class="tr-avail-overview__item tr-avail-overview__item--scope">
+                    <span class="tr-avail-overview__icon" aria-hidden="true"><i class="fa fa-map-marker"></i></span>
+                    <div>
+                        <small>{{ TrLang::trans('admin.appointment_availability.active_branch') }}</small>
+                        <strong id="tr-active-branch-name">{{ $selectedBranch?->name ?? '—' }}</strong>
+                    </div>
+                </div>
+                <div class="tr-avail-overview__item">
+                    <span class="tr-avail-overview__value"><span id="tr-open-days-count">{{ $branchOpenDays }}</span><small>/7</small></span>
+                    <div>
+                        <small>{{ TrLang::trans('admin.appointment_availability.open_days') }}</small>
+                        <strong>{{ TrLang::trans('admin.appointment_availability.weekly_coverage') }}</strong>
+                    </div>
+                </div>
+                <div class="tr-avail-overview__item">
+                    <span class="tr-avail-overview__value" id="tr-start-times-count">{{ $branchSlotCount }}</span>
+                    <div>
+                        <small>{{ TrLang::trans('admin.appointment_availability.start_times') }}</small>
+                        <strong>{{ TrLang::trans('admin.appointment_availability.per_week') }}</strong>
+                    </div>
+                </div>
+                <div class="tr-avail-overview__item">
+                    <span class="tr-avail-overview__value">{{ $overrides->count() }}</span>
+                    <div>
+                        <small>{{ TrLang::trans('admin.appointment_availability.upcoming_changes') }}</small>
+                        <strong>{{ TrLang::trans('admin.appointment_availability.saved_exceptions') }}</strong>
+                    </div>
+                </div>
+            </section>
         </form>
 
         <div

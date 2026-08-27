@@ -4,14 +4,10 @@
 
 @extends('admin::layout')
 
-@section('title', TrLang::trans('admin.holidays_title'))
-
-@section('content_header')
-    <div class="tr-holidays-page__header">
-        <h1>{{ TrLang::trans('admin.holidays_title') }}</h1>
-        <p class="text-muted">{{ TrLang::trans('admin.holidays_subtitle') }}</p>
-    </div>
-@endsection
+@component('admin::components.page.header')
+    @slot('title', TrLang::trans('admin.holidays_title'))
+    @slot('subtitle', TrLang::trans('admin.holidays_subtitle'))
+@endcomponent
 
 @section('content')
     <div class="tr-holidays-page">

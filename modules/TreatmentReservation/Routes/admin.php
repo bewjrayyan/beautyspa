@@ -50,7 +50,7 @@ Route::get('treatment-reservations/calendar/events/{booking}', [
     'middleware' => 'can:admin.treatment_reservations.index',
 ]);
 
-Route::patch('treatment-reservations/{id}/notes', [
+Route::match(['patch', 'post'], 'treatment-reservations/{id}/notes', [
     'as' => 'admin.treatment_reservations.update_notes',
     'uses' => 'PortalController@updateBeauticianNotes',
     'middleware' => 'can:admin.treatment_reservations.edit',
@@ -299,7 +299,7 @@ Route::middleware(['beautician.portal'])->group(function () {
         'uses' => 'PortalController@updateStatus',
     ]);
 
-    Route::patch('my/job-sheet/{id}/notes', [
+    Route::match(['patch', 'post'], 'my/job-sheet/{id}/notes', [
         'as' => 'admin.treatment_reservations.portal.update_notes',
         'uses' => 'PortalController@updateBeauticianNotes',
     ]);

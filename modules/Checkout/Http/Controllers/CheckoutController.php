@@ -136,12 +136,28 @@ class CheckoutController extends Controller
         try {
             $completionResponse = $gateway->complete($order);
             $paymentFinalizer->finalize($order, $paymentMethod, $completionResponse);
-            CheckoutCompletionGuard::rememberPlacedOrder($order->fresh() ?? $order);
+            $order = $order->fresh() ?? $order;
         } catch (\Throwable $e) {
             report($e);
 
+            $fresh = $order->fresh(['treatmentBookings', 'products.product']);
+
+            if (
+                $fresh
+                && (
+                    $fresh->isPaymentPaid()
+                    || $fresh->treatmentBookings()->exists()
+                    || $fresh->products->contains(fn ($line) => (bool) ($line->product?->is_virtual))
+                )
+            ) {
+                return response()->json([
+                    'orderId' => $fresh->id,
+                    'redirectUrl' => CheckoutCompletionGuard::thankYouUrl($fresh),
+                ]);
+            }
+
             try {
-                $orderService->delete($order->fresh() ?? $order);
+                $orderService->delete($fresh ?? $order);
             } catch (\Throwable $cleanupException) {
                 report($cleanupException);
             }
@@ -153,9 +169,13 @@ class CheckoutController extends Controller
             ], 403);
         }
 
-        return response()->json(array_merge($purchaseResponse->toArray(), [
+        $payload = is_object($purchaseResponse) && method_exists($purchaseResponse, 'toArray')
+            ? $purchaseResponse->toArray()
+            : (array) $purchaseResponse;
+
+        return response()->json(array_merge($payload, [
             'orderId' => $order->id,
-            'redirectUrl' => storefront_route('checkout.complete.show'),
+            'redirectUrl' => CheckoutCompletionGuard::thankYouUrl($order),
         ]));
     }
 

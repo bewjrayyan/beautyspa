@@ -86,6 +86,7 @@ class BookingCustomerWhatsAppService
         $time = $booking->displayAppointmentTime() ?: '—';
         $beautician = $booking->beautician?->name;
 
+        $reference = $booking->referenceCode();
         $lines = [
             "Hai {$customer},",
             '',
@@ -94,6 +95,7 @@ class BookingCustomerWhatsAppService
             "Rawatan: {$treatment}",
             "Tarikh: {$date}",
             "Masa: {$time}",
+            "Rujukan: {$reference}",
         ];
 
         if ($beautician) {

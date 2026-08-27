@@ -236,6 +236,14 @@ class TreatmentBooking extends Model
     }
 
 
+    public function requiresScheduleBeforeStart(): bool
+    {
+        return $this->canScheduleTba() || ! filled($this->appointment_date);
+    }
+
+
+
+
     public function scopeTbaSchedule(Builder $query): Builder
     {
         return $query->where(function (Builder $inner) {
@@ -677,6 +685,7 @@ class TreatmentBooking extends Model
         $startsAt = AppointmentTimeFormatter::parse($this->appointment_time);
         $payload = [
             'id' => $this->id,
+            'reference_code' => $this->referenceCode(),
             'status' => $this->status,
             'date' => $this->appointment_date?->format('Y-m-d'),
             'time' => $this->displayAppointmentTime(),
@@ -743,6 +752,15 @@ class TreatmentBooking extends Model
     /**
      * @return array<string, mixed>
      */
+    /**
+     * Shared treatment reference shown to admin, beautician, and customer (e.g. B499).
+     */
+    public function referenceCode(): string
+    {
+        return 'B' . $this->id;
+    }
+
+
     public function sharedDetailPayload(): array
     {
         $treatmentLine = $this->treatmentLineMeta();
@@ -751,6 +769,7 @@ class TreatmentBooking extends Model
 
         return [
             'id' => $this->id,
+            'reference_code' => $this->referenceCode(),
             'status' => $this->status,
             'customer_name' => $this->customer_full_name,
             'customer_phone' => $this->customer_phone,

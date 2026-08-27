@@ -36,7 +36,15 @@
             <i class="fa fa-chevron-right tr-portal-quick-actions__arrow" aria-hidden="true"></i>
         </a>
 
-        <a href="#" class="tr-portal-quick-actions__item" data-schedule-view="calendar" data-scroll-schedule>
+        @php
+            $portalCalendarUrl = request()->routeIs('admin.beauticians.portal*') && isset($beautician)
+                ? route('admin.beauticians.portal.calendar_page', $beautician->id)
+                : route('admin.treatment_reservations.portal.calendar_page');
+            $portalAvailabilityUrl = request()->routeIs('admin.beauticians.portal*') && isset($beautician)
+                ? route('admin.beauticians.portal.availability', $beautician->id)
+                : route('admin.treatment_reservations.portal.availability');
+        @endphp
+        <a href="{{ $portalCalendarUrl }}" class="tr-portal-quick-actions__item">
             <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--calendar">
                 <i class="fa fa-calendar" aria-hidden="true"></i>
             </span>
@@ -47,11 +55,6 @@
             <i class="fa fa-chevron-right tr-portal-quick-actions__arrow" aria-hidden="true"></i>
         </a>
 
-        @php
-            $portalAvailabilityUrl = request()->routeIs('admin.beauticians.portal*') && isset($beautician)
-                ? route('admin.beauticians.portal.availability', $beautician->id)
-                : route('admin.treatment_reservations.portal.availability');
-        @endphp
         <a href="{{ $portalAvailabilityUrl }}" class="tr-portal-quick-actions__item">
             <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--availability">
                 <i class="fa fa-clock-o" aria-hidden="true"></i>

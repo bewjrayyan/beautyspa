@@ -110,7 +110,7 @@ function workLogEditorMarkup(booking, labels) {
 
             <section class="tr-calendar-event-preview__work-log-step" aria-labelledby="tr-work-log-step-schedule">
                 <div class="tr-calendar-event-preview__work-log-step-head">
-                    <span aria-hidden="true">1</span>
+                    <span class="tr-calendar-event-preview__work-log-step-num" aria-hidden="true">1</span>
                     <strong id="tr-work-log-step-schedule">${escapeHtml(workLog.date || "Treatment date")} · ${escapeHtml(workLog.time || "Treatment time")}</strong>
                 </div>
                 <div class="tr-calendar-event-preview__work-log-schedule">
@@ -133,11 +133,9 @@ function workLogEditorMarkup(booking, labels) {
 
             <section class="tr-calendar-event-preview__work-log-step" aria-labelledby="tr-work-log-step-checklist">
                 <div class="tr-calendar-event-preview__work-log-step-head">
-                    <span aria-hidden="true">2</span>
+                    <span class="tr-calendar-event-preview__work-log-step-num" aria-hidden="true">2</span>
                     <strong id="tr-work-log-step-checklist">${escapeHtml(workLog.checklist || "Treatment checklist")}</strong>
-                </div>
-                <div class="tr-calendar-event-preview__checklist-head tr-calendar-event-preview__checklist-head--quick-add">
-                    <span>${escapeHtml(workLog.quickAdd || "Quick add")}</span>
+                    <span class="tr-calendar-event-preview__work-log-step-aside">${escapeHtml(workLog.quickAdd || "Quick add")}</span>
                 </div>
                 <div class="tr-calendar-event-preview__checklist-presets">
                     ${presets.map((preset) => `
@@ -152,19 +150,17 @@ function workLogEditorMarkup(booking, labels) {
                 <button type="button" class="tr-calendar-event-preview__add-checklist-item">
                     <i class="fa fa-plus-circle" aria-hidden="true"></i>${escapeHtml(workLog.customItem || "Add custom item")}
                 </button>
+                <button type="button" class="tr-calendar-event-preview__generate-note">
+                    <i class="fa fa-magic" aria-hidden="true"></i>${escapeHtml(workLog.generateSummary || "Generate note from checklist")}
+                </button>
             </section>
 
             <section class="tr-calendar-event-preview__work-log-step tr-calendar-event-preview__customer-note" aria-labelledby="tr-work-log-step-note">
                 <div class="tr-calendar-event-preview__work-log-step-head">
-                    <span aria-hidden="true">3</span>
+                    <span class="tr-calendar-event-preview__work-log-step-num" aria-hidden="true">3</span>
                     <strong id="tr-work-log-step-note">${escapeHtml(workLog.customerNote || labels.beauticianNotes || "Customer note")}</strong>
                 </div>
-                <div class="tr-calendar-event-preview__customer-note-head">
-                    <label class="sr-only" for="tr-booking-beautician-notes">${escapeHtml(workLog.customerNote || labels.beauticianNotes || "Customer note")}</label>
-                    <button type="button" class="tr-calendar-event-preview__generate-note">
-                        <i class="fa fa-magic" aria-hidden="true"></i>${escapeHtml(workLog.generateSummary || "Generate note from checklist")}
-                    </button>
-                </div>
+                <label class="sr-only" for="tr-booking-beautician-notes">${escapeHtml(workLog.customerNote || labels.beauticianNotes || "Customer note")}</label>
                 <p>${escapeHtml(workLog.customerNoteHelp || "This note is visible to the customer.")}</p>
                 <textarea id="tr-booking-beautician-notes" class="form-control" rows="4" maxlength="5000" data-booking-id="${escapeHtml(booking.id)}">${escapeHtml(booking.beautician_notes || "")}</textarea>
             </section>
@@ -714,29 +710,42 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
     const notify = previewNotificationVisibility(booking, options);
     const sectionPrefix = `tr-preview-${escapeHtml(String(booking.id))}`;
 
+    const statusTitle = labels.statusTitle || labels.status || "Job sheet status";
     const statusControl = status !== "canceled" && options.crmCanEdit && options.statusUrlTemplate
         ? `
-            <select
-                id="tr-preview-status-${escapeHtml(String(booking.id))}"
-                class="tr-calendar-event-preview__status-select tr-calendar-event-preview__status-select--${escapeHtml(status)}"
-                data-preview-status
-                data-booking-id="${escapeHtml(String(booking.id))}"
-                data-current-status="${escapeHtml(status)}"
-                aria-label="${escapeHtml(labels.status || "Status")}"
-            >
-                <option value="pending"${status === "pending" ? " selected" : ""}>${escapeHtml(labels.statusPending || "Pending")}</option>
-                <option value="in_progress"${status === "in_progress" ? " selected" : ""}>${escapeHtml(labels.statusInProgress || "In Progress")}</option>
-                <option value="completed"${status === "completed" ? " selected" : ""}>${escapeHtml(labels.statusCompleted || "Completed")}</option>
-            </select>
+            <div class="tr-calendar-event-preview__status-control">
+                <label
+                    class="tr-calendar-event-preview__status-label"
+                    for="tr-preview-status-${escapeHtml(String(booking.id))}"
+                >${escapeHtml(statusTitle)}</label>
+                <select
+                    id="tr-preview-status-${escapeHtml(String(booking.id))}"
+                    class="tr-calendar-event-preview__status-select tr-calendar-event-preview__status-select--${escapeHtml(status)}"
+                    data-preview-status
+                    data-booking-id="${escapeHtml(String(booking.id))}"
+                    data-current-status="${escapeHtml(status)}"
+                    aria-label="${escapeHtml(statusTitle)}"
+                    title="${escapeHtml(statusTitle)}"
+                >
+                    <option value="pending"${status === "pending" ? " selected" : ""}>${escapeHtml(labels.statusPending || "Pending")}</option>
+                    <option value="in_progress"${status === "in_progress" ? " selected" : ""}>${escapeHtml(labels.statusInProgress || "In Progress")}</option>
+                    <option value="completed"${status === "completed" ? " selected" : ""}>${escapeHtml(labels.statusCompleted || "Completed")}</option>
+                </select>
+            </div>
         `
-        : `<span class="tr-calendar-event-preview__status tr-calendar-event-preview__status--${status}">${escapeHtml(statusText)}</span>`;
+        : `
+            <div class="tr-calendar-event-preview__status-control">
+                <span class="tr-calendar-event-preview__status-label">${escapeHtml(statusTitle)}</span>
+                <span class="tr-calendar-event-preview__status tr-calendar-event-preview__status--${status}">${escapeHtml(statusText)}</span>
+            </div>
+        `;
 
     const orderMetaChip = booking.order_url && !options.hideOrderLink
         ? `<a href="${escapeHtml(booking.order_url)}" class="tr-calendar-event-preview__meta-chip tr-calendar-event-preview__meta-chip--order" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i> ${escapeHtml(labels.viewOrder || "View order")}</a>`
         : "";
 
     const metaChips = [
-        booking.id ? `<span class="tr-calendar-event-preview__meta-chip">${escapeHtml(labels.bookingId || "Ref")} B${escapeHtml(String(booking.id))}</span>` : "",
+        booking.id ? `<span class="tr-calendar-event-preview__meta-chip" title="${escapeHtml(labels.bookingIdTitle || "Treatment reference — quote this when contacting the clinic")}">${escapeHtml(labels.bookingId || "Ref")} ${escapeHtml(booking.reference_code || `B${booking.id}`)}</span>` : "",
         booking.source_label ? `<span class="tr-calendar-event-preview__meta-chip tr-calendar-event-preview__meta-chip--source">${escapeHtml(booking.source_label)}</span>` : "",
         booking.spa_branch_name ? `<span class="tr-calendar-event-preview__meta-chip tr-calendar-event-preview__meta-chip--branch">${escapeHtml(booking.spa_branch_name)}</span>` : "",
         orderMetaChip,
@@ -1006,10 +1015,10 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 </main>
                 <aside class="tr-calendar-event-preview__column tr-calendar-event-preview__column--summary">
                     ${treatmentSection}
-                    ${orderNotesSection}
+                    ${staffSection}
                     ${scheduleSection}
                     ${customerSection}
-                    ${staffSection}
+                    ${orderNotesSection}
                     ${beauticianNotesSection}
                     ${activitySection}
                 </aside>
@@ -1396,23 +1405,21 @@ async function prepareConsultation(button) {
 
     const originalHtml = button.innerHTML;
     button.disabled = true;
-    button.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${escapeHtml(previewLabels.consultationPreparing || "Preparing…")}`;
+    button.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${escapeHtml(previewLabels.consultationPreparing || "Sending via WhatsApp…")}`;
 
     try {
         const response = await window.axios.post(urlTemplate.replace("__ID__", bookingId));
-        const whatsappUrl = response.data?.whatsapp_url;
-        const shareUrl = response.data?.share_url;
+        const message =
+            response.data?.message
+            || previewLabels.consultationReady
+            || "Consultation form sent to the customer via WhatsApp.";
 
-        if (whatsappUrl) {
-            window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-        } else if (shareUrl && navigator.clipboard) {
-            await navigator.clipboard.writeText(shareUrl);
-        }
-
-        const message = response.data?.message || previewLabels.consultationReady || "Consultation link is ready";
         window.notify?.success?.(message) || alert(message);
     } catch (error) {
-        const message = error.response?.data?.message || previewLabels.consultationFailed || "Failed to prepare consultation form";
+        const message =
+            error.response?.data?.message
+            || previewLabels.consultationFailed
+            || "Failed to send consultation form";
         window.notify?.error?.(message) || alert(message);
     } finally {
         button.disabled = false;
@@ -1487,14 +1494,90 @@ function appendChecklistItem(item = {}) {
     list.lastElementChild?.querySelector(".tr-calendar-event-preview__checklist-label")?.focus();
 }
 
+function checklistRows() {
+    return Array.from(document.querySelectorAll(".tr-calendar-event-preview__checklist-item")).map((row) => ({
+        row,
+        input: row.querySelector(".tr-calendar-event-preview__checklist-label"),
+        id: row.dataset.checklistId || "",
+        label: row.querySelector(".tr-calendar-event-preview__checklist-label")?.value.trim() || "",
+        completed: Boolean(row.querySelector('input[type="checkbox"]')?.checked),
+    }));
+}
+
 function checklistPayload() {
-    return Array.from(document.querySelectorAll(".tr-calendar-event-preview__checklist-item"))
-        .map((row) => ({
-            id: row.dataset.checklistId || "",
-            label: row.querySelector(".tr-calendar-event-preview__checklist-label")?.value.trim() || "",
-            completed: Boolean(row.querySelector('input[type="checkbox"]')?.checked),
-        }))
+    return checklistRows()
+        .map(({ id, label, completed }) => ({ id, label, completed }))
         .filter((item) => item.label);
+}
+
+/** Full checklist including empty labels — used on save so the server can reject blanks. */
+function checklistSavePayload() {
+    return checklistRows().map(({ id, label, completed }) => ({ id, label, completed }));
+}
+
+function clearChecklistValidation() {
+    document
+        .querySelectorAll(".tr-calendar-event-preview__checklist-label.is-invalid")
+        .forEach((input) => input.classList.remove("is-invalid"));
+
+    const banner = document.querySelector(".tr-calendar-event-preview__work-log-error");
+
+    if (banner) {
+        banner.hidden = true;
+        banner.textContent = "";
+    }
+}
+
+function showChecklistValidationMessage(message) {
+    const list = document.querySelector(".tr-calendar-event-preview__checklist");
+
+    if (!list) {
+        return;
+    }
+
+    let banner = document.querySelector(".tr-calendar-event-preview__work-log-error");
+
+    if (!banner) {
+        banner = document.createElement("p");
+        banner.className = "tr-calendar-event-preview__work-log-error";
+        banner.setAttribute("role", "alert");
+        list.insertAdjacentElement("beforebegin", banner);
+    }
+
+    banner.hidden = false;
+    banner.textContent = message;
+}
+
+function validateWorkLogBeforeSave() {
+    const workLog = previewLabels.workLog || {};
+    clearChecklistValidation();
+
+    const emptyRows = checklistRows().filter((item) => !item.label);
+
+    if (emptyRows.length === 0) {
+        return true;
+    }
+
+    emptyRows.forEach((item) => item.input?.classList.add("is-invalid"));
+
+    const firstInput = emptyRows[0]?.input;
+    firstInput?.scrollIntoView({ block: "center", behavior: "smooth" });
+    firstInput?.focus();
+
+    const message =
+        workLog.emptyChecklistItem ||
+        "Fill in or remove empty checklist items before saving.";
+
+    showChecklistValidationMessage(message);
+
+    // Prefer in-panel alert; toast/modal can sit awkwardly over the preview drawer.
+    if (typeof window.notify?.error === "function") {
+        window.notify.error(message);
+    } else {
+        window.alert(message);
+    }
+
+    return false;
 }
 
 function generateCustomerNote() {
@@ -1544,6 +1627,10 @@ async function saveBeauticianNotes(button) {
         return;
     }
 
+    if (!validateWorkLogBeforeSave()) {
+        return;
+    }
+
     const originalText = button.textContent;
 
     button.disabled = true;
@@ -1551,11 +1638,13 @@ async function saveBeauticianNotes(button) {
 
     try {
         const url = notesUrlTemplate.replace("__ID__", bookingId);
-        const response = await window.axios.patch(url, {
+        // POST: many hosts/WAFs block PATCH and surface it as a generic 500.
+        const response = await window.axios.post(url, {
             beautician_notes: textarea.value,
             beautician_notes_date: document.getElementById("tr-booking-beautician-notes-date")?.value || null,
             beautician_notes_time: document.getElementById("tr-booking-beautician-notes-time")?.value || null,
-            beautician_checklist: checklistPayload(),
+            // Include empty labels so the API rejects them if client validation is skipped.
+            beautician_checklist: checklistSavePayload(),
         });
         const booking = response.data?.booking;
 
@@ -1585,6 +1674,12 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
     }
 
     calendarEventPreviewReady = true;
+
+    document.addEventListener("input", (event) => {
+        if (event.target.matches?.(".tr-calendar-event-preview__checklist-label")) {
+            event.target.classList.remove("is-invalid");
+        }
+    });
 
     document.addEventListener("keydown", (event) => {
         const overlay = document.getElementById("tr-calendar-event-preview");

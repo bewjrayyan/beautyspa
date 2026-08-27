@@ -203,13 +203,15 @@ class BeauticianAppointmentReminderService
         $date = $booking->appointment_date?->format('d M Y') ?: '—';
         $time = $booking->displayAppointmentTime() ?: '—';
         $portalUrl = route('admin.treatment_reservations.portal');
+        $reference = $booking->referenceCode();
 
-        return WhatsAppMessageTemplate::render('whatsapp_beautician_reminder_message', [
+        $message = WhatsAppMessageTemplate::render('whatsapp_beautician_reminder_message', [
             'store' => $store,
             'customer' => $customer,
             'treatment' => $treatment,
             'date' => $date,
             'time' => $time,
+            'reference' => $reference,
             'portal_url' => $portalUrl,
         ], implode("\n", [
             "⏰ *Peringatan Temujanji — {$store}*",
@@ -218,9 +220,22 @@ class BeauticianAppointmentReminderService
             "Rawatan: {$treatment}",
             "Tarikh: {$date}",
             "Masa: {$time}",
+            "Rujukan: {$reference}",
             '',
             "Buka job sheet: {$portalUrl}",
         ]));
+
+        return $this->ensureReferenceLine($message, $reference);
+    }
+
+
+    private function ensureReferenceLine(string $message, string $reference): string
+    {
+        if (stripos($message, $reference) !== false) {
+            return $message;
+        }
+
+        return rtrim($message) . "\nRujukan: {$reference}";
     }
 
 

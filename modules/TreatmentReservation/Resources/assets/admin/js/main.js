@@ -175,18 +175,22 @@ class TreatmentReservationsApp {
     }
 
     initCalendar() {
-        this.grid = document.getElementById("tr-calendar-grid");
-        this.gridViewport = document.getElementById("tr-calendar-grid-viewport");
-        this.gridTrack = document.getElementById("tr-calendar-grid-track");
-        this.monthLabel = document.getElementById("tr-cal-month-label");
-        this.monthPrevLabel = document.getElementById("tr-cal-month-prev");
-        this.monthNextLabel = document.getElementById("tr-cal-month-next");
-        this.monthPrev2Label = document.getElementById("tr-cal-month-prev2");
-        this.monthNext2Label = document.getElementById("tr-cal-month-next2");
-        this.monthInput = document.getElementById("tr-month");
+        // Prefer elements inside this app root (admin, portal job sheet, beautician schedule).
+        const scope = this.root || document;
+        const q = (sel) => scope.querySelector(sel) || document.querySelector(sel);
+
+        this.grid = q("#tr-calendar-grid");
+        this.gridViewport = q("#tr-calendar-grid-viewport");
+        this.gridTrack = q("#tr-calendar-grid-track");
+        this.monthLabel = q("#tr-cal-month-label");
+        this.monthPrevLabel = q("#tr-cal-month-prev");
+        this.monthNextLabel = q("#tr-cal-month-next");
+        this.monthPrev2Label = q("#tr-cal-month-prev2");
+        this.monthNext2Label = q("#tr-cal-month-next2");
+        this.monthInput = q("#tr-month");
 
         // Clickable sibling month buttons
-        document.querySelectorAll("[data-month-offset]").forEach((btn) => {
+        scope.querySelectorAll("[data-month-offset]").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const offset = parseInt(btn.dataset.monthOffset, 10);
                 this.shiftMonth(offset);
@@ -194,7 +198,8 @@ class TreatmentReservationsApp {
         });
         this.emptyCalendarLabel = this.root.dataset.calEmptyLabel || "";
         this.compactCalendar =
-            !!document.querySelector("[data-crm-compact-calendar]")
+            !!scope.querySelector("[data-crm-compact-calendar]")
+            || !!document.querySelector("[data-crm-compact-calendar]")
             || (
                 this.root.classList.contains("tr-reservations--view-calendar")
                 && window.matchMedia("(max-width: 991px)").matches
@@ -202,9 +207,9 @@ class TreatmentReservationsApp {
         this.pendingSlideDirection = 0;
         this.calendarAnimating = false;
 
-        document.getElementById("tr-cal-prev")?.addEventListener("click", () => this.shiftMonth(-1));
-        document.getElementById("tr-cal-next")?.addEventListener("click", () => this.shiftMonth(1));
-        document.getElementById("tr-cal-today")?.addEventListener("click", () => {
+        q("#tr-cal-prev")?.addEventListener("click", () => this.shiftMonth(-1));
+        q("#tr-cal-next")?.addEventListener("click", () => this.shiftMonth(1));
+        q("#tr-cal-today")?.addEventListener("click", () => {
             const todayKey = TreatmentReservationsApp.localDateKey();
             const todayMonth = todayKey.slice(0, 7);
 
@@ -271,18 +276,20 @@ class TreatmentReservationsApp {
         }
 
         // Month / week view toggle (admin calendar, CRM agenda, portal — same controls).
-        this.calendarRoot = this.grid?.closest(".tr-calendar") || document.querySelector(".tr-calendar");
+        this.calendarRoot = this.grid?.closest(".tr-calendar")
+            || scope.querySelector(".tr-calendar")
+            || document.querySelector(".tr-calendar");
         this.calendarBoard = this.calendarRoot?.querySelector(".tr-calendar-board") || null;
         this.calendarMeta = this.calendarRoot?.querySelector(".tr-calendar-meta") || null;
-        this.dayView = this.calendarRoot?.querySelector("#tr-cal-day-view") || document.getElementById("tr-cal-day-view");
-        this.dayTitle = this.calendarRoot?.querySelector("#tr-cal-day-title") || document.getElementById("tr-cal-day-title");
-        this.weekGrid = this.calendarRoot?.querySelector("#tr-cal-week-grid") || document.getElementById("tr-cal-week-grid");
+        this.dayView = this.calendarRoot?.querySelector("#tr-cal-day-view") || q("#tr-cal-day-view");
+        this.dayTitle = this.calendarRoot?.querySelector("#tr-cal-day-title") || q("#tr-cal-day-title");
+        this.weekGrid = this.calendarRoot?.querySelector("#tr-cal-week-grid") || q("#tr-cal-week-grid");
         this.currentCalView = "month";
         this.selectedDate = TreatmentReservationsApp.localDateKey();
         this.weekStart = this.getWeekStart(this.selectedDate);
 
-        document.getElementById("tr-cal-day-prev")?.addEventListener("click", () => this.shiftWeek(-1));
-        document.getElementById("tr-cal-day-next")?.addEventListener("click", () => this.shiftWeek(1));
+        q("#tr-cal-day-prev")?.addEventListener("click", () => this.shiftWeek(-1));
+        q("#tr-cal-day-next")?.addEventListener("click", () => this.shiftWeek(1));
 
         this.calendarRoot?.querySelectorAll("[data-cal-view]").forEach((btn) => {
             btn.addEventListener("click", () => {
@@ -293,6 +300,7 @@ class TreatmentReservationsApp {
                 this.calendarRoot.querySelectorAll("[data-cal-view]").forEach((b) => b.classList.remove("is-active"));
                 btn.classList.add("is-active");
                 this.currentCalView = view;
+                this.syncCalendarIntroCopy(view);
 
                 if (view === "week") {
                     this.showDayView();
@@ -301,6 +309,31 @@ class TreatmentReservationsApp {
                 }
             });
         });
+
+        this.syncCalendarIntroCopy(this.currentCalView);
+    }
+
+    syncCalendarIntroCopy(view = this.currentCalView) {
+        const intro = this.calendarRoot?.querySelector(".tr-calendar-intro");
+        if (!intro) {
+            return;
+        }
+
+        const isWeek = view === "week";
+        const title = intro.querySelector("#tr-calendar-intro-title");
+        const subtitle = intro.querySelector("#tr-calendar-intro-subtitle");
+
+        if (title) {
+            title.textContent = isWeek
+                ? (intro.dataset.titleWeek || title.textContent)
+                : (intro.dataset.titleMonth || title.textContent);
+        }
+
+        if (subtitle) {
+            subtitle.textContent = isWeek
+                ? (intro.dataset.subtitleWeek || subtitle.textContent)
+                : (intro.dataset.subtitleMonth || subtitle.textContent);
+        }
     }
 
     showDayView() {
@@ -311,6 +344,7 @@ class TreatmentReservationsApp {
             this.dayView.style.display = "";
         }
         this.calendarRoot?.classList.add("tr-calendar--week-view");
+        this.syncCalendarIntroCopy("week");
         this.weekStart = this.getWeekStart(this.selectedDate);
         // Ensure bookings are loaded for the currently visible week range.
         this.loadCalendar();
@@ -324,6 +358,7 @@ class TreatmentReservationsApp {
             this.dayView.style.display = "none";
         }
         this.calendarRoot?.classList.remove("tr-calendar--week-view");
+        this.syncCalendarIntroCopy("month");
     }
 
     isWeekCalView() {
@@ -619,8 +654,9 @@ class TreatmentReservationsApp {
         headerHtml += '</div>';
 
         const ROW_HEIGHT = 100;
-        const DEFAULT_START_HOUR = 7;
-        const DEFAULT_END_HOUR = 21;
+        // Full-day 24h grid (00:00–23:00). Still expands if bookings need it (clamped 0–23).
+        const DEFAULT_START_HOUR = 0;
+        const DEFAULT_END_HOUR = 23;
 
         const parseTime = (booking) => {
             const value = booking?.appointment_time_value || booking?.time || "";
@@ -667,8 +703,7 @@ class TreatmentReservationsApp {
         // Time rows (empty grid lines)
         let rowsHtml = '';
         for (let hour = START_HOUR; hour <= END_HOUR; hour++) {
-            const timeLabel = (hour < 12 ? (hour === 0 ? 12 : hour) : (hour === 12 ? 12 : hour - 12))
-                + ":00 " + (hour < 12 ? "AM" : "PM");
+            const timeLabel = String(hour).padStart(2, "0") + ":00";
 
             rowsHtml += '<div class="tr-week-row">';
             rowsHtml += '<div class="tr-week-row__time">' + timeLabel + '</div>';
@@ -1542,13 +1577,15 @@ function buildCalendarPreviewLabels(root) {
         source: root.dataset.calPreviewSource || "Source",
         branch: root.dataset.calPreviewBranch || "Branch",
         bookingId: root.dataset.calPreviewBookingId || "Ref",
+        bookingIdTitle: root.dataset.calPreviewBookingIdTitle || "Treatment reference — quote this when contacting the clinic",
         session: root.dataset.calPreviewSession || "Session",
-        status: root.dataset.calPreviewStatus || "Status",
+        status: root.dataset.calPreviewStatus || "Job sheet status",
+        statusTitle: root.dataset.calPreviewStatusTitle || root.dataset.calPreviewStatus || "Job sheet status",
         reschedule: root.dataset.calPreviewReschedule || "Reschedule",
         actionProfileShort: root.dataset.calPreviewActionProfileShort || "Profile",
-        actionCustomerShort: root.dataset.calPreviewActionCustomerShort || "Customer",
-        actionConsultationShort: root.dataset.calPreviewActionConsultationShort || "Consultation",
-        actionBeauticianShort: root.dataset.calPreviewActionBeauticianShort || "Beautician",
+        actionCustomerShort: root.dataset.calPreviewActionCustomerShort || "Remind customer",
+        actionConsultationShort: root.dataset.calPreviewActionConsultationShort || "Send Consult Form",
+        actionBeauticianShort: root.dataset.calPreviewActionBeauticianShort || "Remind beautician",
         actionRescheduleShort: root.dataset.calPreviewActionRescheduleShort || "Reschedule",
         scheduleTba: root.dataset.calPreviewScheduleTba || "Schedule slot",
         statusUpdateFailed: root.dataset.calPreviewStatusUpdateFailed || "Failed to update status",
@@ -1573,15 +1610,20 @@ function buildCalendarPreviewOptions(root) {
         : {};
 
     if (root.id === "tr-portal-app") {
+        const canEdit = root.dataset.crmCanEdit !== "0";
+
         return {
             hideOrderLink: true,
             hideBeautician: false,
             showWhatsApp: true,
-            portalGenericWhatsApp: true,
+            portalGenericWhatsApp: false,
             portalBeauticianId: root.dataset.portalBeauticianId || "",
-            canSendNotifications: root.dataset.crmCanEdit === "1",
+            canSendNotifications: canEdit,
+            crmCanEdit: canEdit,
+            statusUrlTemplate: root.dataset.statusUrl || "",
             allowBeauticianNotes: true,
             notesUrlTemplate: root.dataset.notesUrl || "",
+            whatsappConfigured: root.dataset.whatsappConfigured === "1",
             whatsappUrlTemplate: root.dataset.whatsappUrl || "",
             consultationUrlTemplate: root.dataset.consultationUrl || "",
             rescheduleUrlTemplate: root.dataset.rescheduleUrl || "",

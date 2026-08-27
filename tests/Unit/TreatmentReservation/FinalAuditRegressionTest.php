@@ -291,6 +291,8 @@ class FinalAuditRegressionTest extends TestCase
         $this->assertStringContainsString("'upcomingBookings' => []", $service);
         $this->assertStringContainsString("'beauticianWorkload' => []", $service);
         $this->assertStringContainsString("'recentActivity' => []", $service);
+        $this->assertStringContainsString("'ledger' => []", $service);
+        $this->assertStringContainsString("'ledgerCount' => 0", $service);
         $this->assertStringContainsString('Lightweight list row', $service);
         $this->assertStringNotContainsString("toKanbanPayload()", substr(
             $service,
@@ -332,6 +334,7 @@ class FinalAuditRegressionTest extends TestCase
 
         $this->assertStringContainsString('needs-attention-panel', $dashboard);
         $this->assertStringNotContainsString('booking-stats-panel', $dashboard);
+        $this->assertStringNotContainsString('ledger-table', $dashboard);
         $this->assertStringContainsString('CrmNeedsAttentionService', $service);
         $this->assertStringContainsString("bucket('overdue'", $needs);
         $this->assertStringContainsString('needs_attention_bucket_', $needs);
@@ -376,7 +379,7 @@ class FinalAuditRegressionTest extends TestCase
         $sync = file_get_contents($root . '/modules/TreatmentReservation/Services/BookingSyncService.php');
         $dashboard = file_get_contents($root . '/modules/TreatmentReservation/Services/ReservationDashboardService.php');
         $orderService = file_get_contents($root . '/modules/Checkout/Services/OrderService.php');
-        $ledger = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/dashboard/ledger-table.blade.php');
+        $crmDashboard = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/dashboard.blade.php');
 
         $scope = substr(
             $booking,
@@ -391,8 +394,7 @@ class FinalAuditRegressionTest extends TestCase
         $this->assertStringContainsString("->where('source', TreatmentBooking::SOURCE_CHECKOUT)", $sync);
         $this->assertStringContainsString('->trashBookingsForOrder($order)', $orderService);
         $this->assertGreaterThanOrEqual(2, substr_count($dashboard, '->withActiveOrder()'));
-        $this->assertStringContainsString('tr-crm-ledger__treatment-sub', $ledger);
-        $this->assertStringContainsString("\$row['treatment_subtitle']", $ledger);
+        $this->assertStringNotContainsString('ledger-table', $crmDashboard);
     }
 
     private function scheduledBooking(int $id, string $date, string $time): TreatmentBooking

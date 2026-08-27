@@ -148,13 +148,13 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
     }
 
     &__new {
-        background: #3b82f6;
-        border-color: #3b82f6;
+        background: $crm-accent;
+        border-color: $crm-accent;
 
         &:hover,
         &:focus {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: color-mix(in srgb, $crm-accent 88%, #000);
+            border-color: color-mix(in srgb, $crm-accent 88%, #000);
         }
     }
 }
@@ -243,6 +243,10 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
         gap: 16px;
     }
 
+    &__toolbar {
+        margin-bottom: 16px;
+    }
+
     &__pipeline-wrap {
         margin-bottom: 18px;
     }
@@ -299,44 +303,81 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
         }
 
         .tr-calendar-intro {
-            display: none;
+            display: block;
+            width: 100%;
+            max-width: none;
+            min-width: 0;
+            padding: 0;
+
+            h4 {
+                margin: 0 0 4px;
+                font-size: 16px;
+                font-weight: 700;
+                line-height: 1.3;
+            }
+
+            .tr-calendar-intro__meta {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: baseline;
+                gap: 6px 12px;
+            }
+
+            .tr-calendar-intro__text,
+            .tr-calendar-intro__hint {
+                margin: 0;
+                font-size: 12px;
+                line-height: 1.45;
+                white-space: normal;
+            }
         }
 
+        // Stack title + controls so nav never squeezes the intro text.
         .tr-calendar-top {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0 0 12px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            padding: 12px 16px 10px;
             background: transparent;
             border-bottom: 0;
         }
 
         .tr-calendar-month-nav {
             width: 100%;
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto auto;
+            display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
+            justify-content: space-between;
+            gap: 10px 12px;
+            padding: 10px 12px;
             background: #f8fafc;
             border-radius: 14px;
             border: 1px solid #e8edf3;
         }
 
         .tr-calendar-month-nav__expand {
-            justify-self: start;
+            flex: 0 0 auto;
+            order: 1;
         }
 
         .tr-calendar-month-nav__group {
-            grid-column: 2;
-            justify-self: center;
+            flex: 1 1 auto;
+            order: 2;
+            justify-content: center;
+            min-width: 0;
+            max-width: 100%;
         }
 
         .tr-calendar-month-nav__trailing {
-            grid-column: 3;
-            justify-self: end;
-            flex-wrap: nowrap;
+            flex: 0 1 auto;
+            order: 3;
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
             gap: 8px;
+            margin-left: auto;
         }
 
         .tr-calendar-month-nav__today {
@@ -345,18 +386,19 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
         }
 
         .tr-calendar-month-nav__label {
-            min-width: 120px;
-            font-size: 16px;
+            min-width: 0;
+            font-size: 15px;
             font-weight: 800;
+            white-space: nowrap;
         }
 
         .tr-calendar-month-nav__sibling {
             font-size: 13px;
             font-weight: 600;
             color: #64748b;
-            min-width: 80px;
+            min-width: 0;
             text-align: center;
-            padding: 6px 10px;
+            padding: 6px 8px;
             border: 0;
             background: transparent;
             border-radius: 8px;
@@ -407,59 +449,53 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
 }
 
 .tr-crm-kpi {
+    --tr-kpi-accent: #94a3b8;
+
     position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
     overflow: hidden;
-    padding: 22px 24px 18px;
-    border-radius: 18px;
-    background: linear-gradient(145deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 100%);
-    border: 1.5px solid rgba(226, 232, 240, 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    min-height: 0;
+    padding: 18px 18px 16px 16px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid $crm-border;
     box-shadow:
-        0 1px 3px rgba(15, 23, 42, 0.04),
-        0 8px 32px rgba(15, 23, 42, 0.06);
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 8px 24px rgba(15, 23, 42, 0.04);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
+    &::before {
+        content: '';
+        position: absolute;
+        top: 12px;
+        bottom: 12px;
+        left: 0;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--tr-kpi-accent);
+    }
+
     &:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
         box-shadow:
             0 4px 12px rgba(15, 23, 42, 0.06),
-            0 16px 48px rgba(15, 23, 42, 0.10);
+            0 14px 36px rgba(15, 23, 42, 0.08);
     }
 
-    // Variant accent borders
-    &--today {
-        border-color: rgba(14, 165, 233, 0.35);
-        &:hover { border-color: rgba(14, 165, 233, 0.5); }
-    }
-    &--pending {
-        border-color: rgba(234, 88, 12, 0.30);
-        &:hover { border-color: rgba(234, 88, 12, 0.45); }
-    }
-    &--in_progress {
-        border-color: rgba(99, 102, 241, 0.30);
-        &:hover { border-color: rgba(99, 102, 241, 0.45); }
-    }
-    &--completed {
-        border-color: rgba(4, 120, 87, 0.30);
-        &:hover { border-color: rgba(4, 120, 87, 0.45); }
-    }
-
-    // Top row: icon + label
-    &__top {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 14px;
-    }
+    &--today { --tr-kpi-accent: #0284c7; border-color: rgba(14, 165, 233, 0.28); }
+    &--pending { --tr-kpi-accent: #c2410c; border-color: rgba(234, 88, 12, 0.24); }
+    &--in_progress { --tr-kpi-accent: #6d28d9; border-color: rgba(99, 102, 241, 0.24); }
+    &--completed { --tr-kpi-accent: #047857; border-color: rgba(4, 120, 87, 0.24); }
 
     &__icon-wrap {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 44px;
-        height: 44px;
+        width: 48px;
+        height: 48px;
+        margin-left: 4px;
         border-radius: 14px;
         font-size: 18px;
         flex-shrink: 0;
@@ -468,44 +504,49 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
     &--today &__icon-wrap {
         background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
         color: #0284c7;
-        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.18);
     }
     &--pending &__icon-wrap {
         background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
         color: #c2410c;
-        box-shadow: 0 6px 20px rgba(234, 88, 12, 0.18);
     }
     &--in_progress &__icon-wrap {
         background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
         color: #6d28d9;
-        box-shadow: 0 6px 20px rgba(109, 40, 217, 0.18);
     }
     &--completed &__icon-wrap {
         background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
         color: #047857;
-        box-shadow: 0 6px 20px rgba(4, 120, 87, 0.18);
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        flex: 1;
+        padding-top: 2px;
     }
 
     &__label {
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
         color: $crm-muted;
-        letter-spacing: 0.01em;
-        text-align: center;
+        letter-spacing: 0.02em;
+        text-align: left;
+        line-height: 1.3;
     }
 
-    // Metric row: big number + unit
     &__metric {
         display: flex;
         align-items: baseline;
-        justify-content: center;
-        gap: 8px;
-        margin-bottom: 12px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 6px 8px;
     }
 
     &__value {
         margin: 0;
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 800;
         line-height: 1;
         color: $crm-text;
@@ -513,16 +554,16 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
     }
 
     &__unit {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         color: #64748b;
     }
 
-    // Footer hints
     &__footer {
-        padding-top: 12px;
-        border-top: 1px solid rgba(226, 232, 240, 0.5);
-        text-align: center;
+        padding-top: 8px;
+        margin-top: 2px;
+        border-top: 1px solid #f1f5f9;
+        text-align: left;
     }
 
     &__hint {
@@ -530,7 +571,7 @@ $crm-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04)
         font-size: 13px;
         font-weight: 600;
         color: $crm-text;
-        line-height: 1.4;
+        line-height: 1.35;
     }
 
     &__subhint {
@@ -1722,6 +1763,12 @@ body.tr-crm-drawer-open {
     }
 }
 
+
+.tr-crm-pipeline-card__cta--schedule {
+    background: #0f766e !important;
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.28) !important;
+}
+
 .tr-crm-specialists {
     margin: 0;
     padding: 8px;
@@ -1895,6 +1942,175 @@ body.tr-crm-drawer-open {
 }
 
 
+
+
+/* TBA appointments — structured cards above the operational pipeline */
+.tr-crm-tba-panel {
+    margin-bottom: 16px;
+    border-color: #fde68a;
+    background: linear-gradient(180deg, #fffbeb 0%, #fff 42%);
+
+    .tr-crm-panel__head {
+        border-bottom-color: #fef3c7;
+    }
+
+    .tr-crm-panel__title {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+}
+
+.tr-crm-tba-panel__count {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.tr-crm-tba-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    padding: 14px 16px 16px;
+}
+
+.tr-crm-tba-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 20px rgba(245, 158, 11, 0.06);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+
+    &--schedulable {
+        cursor: grab;
+
+        &:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.14);
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    &__top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    &__customer {
+        margin: 0;
+        min-width: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    &__badge {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #fef3c7;
+        color: #92400e;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        line-height: 1.4;
+    }
+
+    &__treatment {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        font-size: 12px;
+        color: #64748b;
+        line-height: 1.35;
+    }
+
+    &__ref {
+        display: inline-flex;
+        align-items: center;
+        padding: 1px 7px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    &__sep {
+        color: #cbd5e1;
+    }
+
+    &__beautician {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    &__actions {
+        margin-top: auto;
+        padding-top: 2px;
+    }
+
+    &__cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        min-height: 34px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+}
+
+.tr-crm-tba-empty {
+    margin: 0;
+    padding: 8px 4px 4px;
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: #64748b;
+}
+
+@media (max-width: 767px) {
+    .tr-crm-tba-list {
+        grid-template-columns: 1fr;
+        padding: 12px;
+        gap: 10px;
+    }
+}
+
 .tr-crm-panel--needs-attention {
     .tr-crm-panel__count--alert {
         background: #fee2e2;
@@ -1964,9 +2180,9 @@ body.tr-crm-drawer-open {
     margin: 0;
     padding: 0;
     list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
 }
 
 .tr-crm-needs__item {
@@ -2060,6 +2276,7 @@ body.tr-crm-drawer-open {
 }
 
 .tr-crm-needs__empty {
+    grid-column: 1 / -1;
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -2086,6 +2303,12 @@ body.tr-crm-drawer-open {
         margin: 0;
         font-size: 12px;
         line-height: 1.4;
+    }
+}
+
+@media (max-width: 767px) {
+    .tr-crm-needs__list {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -3038,6 +3261,22 @@ body.tr-crm-drawer-open {
     }
 }
 
+
+@media (max-width: 1199px) {
+    .tr-crm-dashboard__calendar {
+        .tr-calendar-month-nav__group {
+            order: 3;
+            flex: 1 1 100%;
+            justify-content: space-between;
+        }
+
+        .tr-calendar-month-nav__trailing {
+            order: 2;
+            margin-left: 0;
+        }
+    }
+}
+
 .tr-crm-calendar-agenda {
     display: grid;
     width: 100%;
@@ -3365,32 +3604,136 @@ body.tr-crm-drawer-open {
 }
 
 .tr-crm-page-header {
-    margin-bottom: 24px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 22px 24px;
+    overflow: hidden;
+    border: 1px solid #eadce3;
+    border-radius: 16px;
+    background:
+        linear-gradient(90deg, rgba(91, 18, 56, 0.04), transparent 42%),
+        #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 5px 16px rgba(15, 23, 42, 0.04);
+
+    &::before {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 5px;
+        content: "";
+        background: linear-gradient(180deg, #8d3560, $crm-accent);
+    }
 
     &__intro {
+        display: flex;
+        align-items: center;
+        gap: 14px;
         min-width: 0;
+        flex: 1;
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        border: 1px solid #e7cad8;
+        border-radius: 13px;
+        background: #f9eaf1;
+        color: $crm-accent;
+        font-size: 21px;
+    }
+
+    &__eyebrow {
+        display: block;
+        margin-bottom: 2px;
+        color: #8a365f;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
     }
 
     &__title {
-        margin: 0 0 8px;
-        font-size: 2rem;
+        margin: 0 0 3px;
+        font-size: clamp(23px, 2vw, 29px);
         font-weight: 700;
         color: $crm-text;
-        letter-spacing: -0.03em;
-        line-height: 1.15;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
     }
 
     &__lead {
         margin: 0;
-        max-width: 680px;
+        max-width: 780px;
         font-size: 15px;
-        line-height: 1.6;
+        line-height: 1.5;
         color: $crm-muted;
+    }
+
+    &__status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex: 0 0 auto;
+        padding: 10px 14px;
+        border: 1px solid #bde7d1;
+        border-radius: 999px;
+        background: #effbf4;
+        color: #166534;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+
+        span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22a861;
+            box-shadow: 0 0 0 4px rgba(34, 168, 97, 0.13);
+        }
     }
 
     &__toolbar {
         margin-top: 20px;
         width: 100%;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .tr-crm-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px 17px 18px 20px;
+
+        &__intro {
+            align-items: flex-start;
+        }
+
+        &__icon {
+            width: 42px;
+            height: 42px;
+            font-size: 18px;
+        }
+
+        &__title {
+            font-size: 22px;
+        }
+
+        &__lead {
+            font-size: 14px;
+        }
+
+        &__status {
+            margin-left: 56px;
+        }
     }
 }
 
@@ -3674,22 +4017,30 @@ body.tr-crm-drawer-open {
         padding: 0 16px 0 12px;
         border: 0;
         border-radius: 11px;
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        background: linear-gradient(
+            135deg,
+            $crm-accent 0%,
+            color-mix(in srgb, $crm-accent 82%, #000) 100%
+        );
         color: #fff;
         font-size: 13px;
         font-weight: 700;
         letter-spacing: -0.01em;
-        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.30);
+        box-shadow: 0 8px 20px color-mix(in srgb, $crm-accent 30%, transparent);
         transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
         white-space: nowrap;
 
         &:hover,
         &:focus {
             color: #fff;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background: linear-gradient(
+                135deg,
+                color-mix(in srgb, $crm-accent 88%, #000) 0%,
+                color-mix(in srgb, $crm-accent 72%, #000) 100%
+            );
             filter: none;
             transform: translateY(-1px);
-            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 10px 24px color-mix(in srgb, $crm-accent 35%, transparent);
         }
     }
 
@@ -3766,6 +4117,17 @@ body.tr-crm-drawer-open {
         font-size: 1.35rem;
         letter-spacing: -0.02em;
     }
+}
+
+
+
+.tr-crm-panel--pipeline.tr-crm-panel--flash {
+    outline: none;
+    box-shadow:
+        0 0 0 3px color-mix(in srgb, $crm-accent 28%, transparent),
+        0 10px 28px rgba(15, 23, 42, 0.08);
+    border-color: color-mix(in srgb, $crm-accent 40%, $crm-border);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .tr-crm-pipeline__queue-badge {
@@ -3956,11 +4318,19 @@ body.tr-crm-drawer-open {
         padding: 10px 12px;
         margin-bottom: 6px;
         border-radius: 10px;
+        border: 1px solid transparent;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 
         &:hover {
             border-color: color-mix(in srgb, $crm-accent 28%, $crm-border);
             box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
         }
+    }
+
+    &--flash {
+        border-color: #60a5fa !important;
+        background: #f0f7ff;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.45), 0 8px 22px rgba(37, 99, 235, 0.12);
     }
 
     &__compact {
