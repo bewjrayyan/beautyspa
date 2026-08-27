@@ -326,7 +326,7 @@ class SettingTabs extends Tabs
         return tap(new SettingTab('sms', trans('setting::settings.tabs.whatsapp')), function (SettingTab $tab) {
             $tab->weight(25);
 
-            $tab->fields([
+            $fields = [
                 'onesender_enabled',
                 'onesender_api_url',
                 'onesender_api_key',
@@ -370,10 +370,30 @@ class SettingTabs extends Tabs
                 'whatsapp_completed_beautician_message',
                 'whatsapp_beautician_new_booking_message',
                 'whatsapp_beautician_reminder_message',
-            ]);
+            ];
+
+            if (Module::isEnabled('WhatsappBirthdayReminder')) {
+                $fields = array_merge($fields, [
+                    'wabr_enabled',
+                    'wabr_message_template',
+                    'wabr_image_file_id',
+                    'wabr_reward_type',
+                    'wabr_reward_points',
+                    'wabr_discount_value',
+                    'wabr_discount_is_percent',
+                    'wabr_voucher_value',
+                    'wabr_coupon_validity_days',
+                    'wabr_schedule_time',
+                ]);
+            }
+
+            $tab->fields($fields);
 
             $tab->view('setting::admin.settings.tabs.sms', [
                 'orderStatuses' => collect(Order::statuses())->mapWithKeys(fn ($status) => [$status => trans('order::statuses.' . $status)])->all(),
+                'wabrImageFile' => Module::isEnabled('WhatsappBirthdayReminder')
+                    ? File::findOrNew((int) setting('wabr_image_file_id'))
+                    : null,
             ]);
         });
     }

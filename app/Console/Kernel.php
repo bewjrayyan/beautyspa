@@ -47,6 +47,10 @@ class Kernel extends ConsoleKernel
             $schedule->command('loyalty:award-birthday-bonus')->dailyAt('08:00');
         }
 
+        if (app('modules')->isEnabled('WhatsappBirthdayReminder')) {
+            $schedule->command('whatsapp-birthday:send')->dailyAt('09:00');
+        }
+
         if (app('modules')->isEnabled('TreatmentReservation')) {
             $schedule->command('treatment-reservations:send-appointment-reminders')->everyFifteenMinutes();
             $schedule->command('treatment-reservations:send-customer-appointment-reminders')->everyFifteenMinutes();

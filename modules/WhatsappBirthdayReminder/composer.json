@@ -1,0 +1,15 @@
+{
+    "name": "aestheticcart/whatsappbirthdayreminder",
+    "description": "WhatsApp birthday reminders with loyalty rewards",
+    "authors": [
+        {
+            "name": "AestheticCart"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\WhatsappBirthdayReminder\\": ""
+        }
+    }
+}

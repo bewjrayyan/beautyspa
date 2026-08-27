@@ -138,6 +138,9 @@ return [
         'placeholders_hint' => 'Message templates support placeholders: :store, :customer, :treatment, :date (where applicable).',
         'default_template_preview' => 'Default template (ready to use)',
         'template_hint' => 'Leave blank to use the default template. Placeholders are replaced when the message is sent.',
+        'preview_title' => 'WhatsApp preview',
+        'preview_recipient' => 'Sample recipient',
+        'preview_now' => 'Now',
         'template_hints' => [
             'welcome' => 'Placeholders: :first_name, :store',
             'customer_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :beautician, :tracking_url, :extra_lines (legacy: :beautician_line, :tracking_line)',

@@ -45,11 +45,11 @@
                     'placeholder' => config('setting.whatsapp_notifications.bank_transfer_payment_proof_whatsapp_group_id') ?: trans('setting::settings.sms.placeholders.whatsapp_group_id'),
                 ]) }}
                 <p class="help-block text-muted wa-settings__full-width">{{ trans('setting::settings.form.bank_transfer_payment_proof_whatsapp_help') }}</p>
-                {{ Form::textarea('bank_transfer_payment_proof_whatsapp_message', trans('setting::attributes.bank_transfer_payment_proof_whatsapp_message'), $errors, $settings, [
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'bank_transfer_payment_proof_whatsapp_message',
                     'rows' => 6,
-                    'placeholder' => config('setting.whatsapp_notifications.bank_transfer_payment_proof_whatsapp_message'),
-                ]) }}
-                <p class="help-block text-muted wa-settings__full-width">{{ trans('setting::settings.form.bank_transfer_payment_proof_whatsapp_message_help') }}</p>
+                    'hint' => trans('setting::settings.form.bank_transfer_payment_proof_whatsapp_message_help'),
+                ])
                 {{ Form::text('whatsapp_group_staff_name', trans('setting::attributes.whatsapp_group_staff_name'), $errors, $settings, [
                     'placeholder' => config('setting.whatsapp_notifications.whatsapp_group_staff_name'),
                 ]) }}
@@ -277,5 +277,13 @@
                 ])
             @endcomponent
         @endcomponent
+
+        @if (\Nwidart\Modules\Facades\Module::isEnabled('WhatsappBirthdayReminder'))
+            @include('whatsappbirthday::admin.settings.sms-section', [
+                'settings' => $settings,
+                'errors' => $errors,
+                'wabrImageFile' => $wabrImageFile ?? null,
+            ])
+        @endif
     </div>
 </div>

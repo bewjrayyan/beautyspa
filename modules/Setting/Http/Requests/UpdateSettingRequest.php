@@ -228,6 +228,17 @@ class UpdateSettingRequest extends Request
             'whatsapp_beautician_reminder_enabled' => 'required|boolean',
             'whatsapp_beautician_reminder_minutes' => 'nullable|integer|min:15|max:1440',
 
+            'wabr_enabled' => 'nullable|boolean',
+            'wabr_message_template' => 'nullable|string|max:2000',
+            'wabr_image_file_id' => 'nullable|integer',
+            'wabr_reward_type' => 'nullable|in:points,discount,voucher,none',
+            'wabr_reward_points' => 'nullable|integer|min:0|max:100000',
+            'wabr_discount_value' => 'nullable|numeric|min:0',
+            'wabr_discount_is_percent' => 'nullable|boolean',
+            'wabr_voucher_value' => 'nullable|numeric|min:0',
+            'wabr_coupon_validity_days' => 'nullable|integer|min:1|max:365',
+            'wabr_schedule_time' => ['nullable', 'regex:/^\d{2}:\d{2}$/'],
+
             'google_service_account_json' => [
                 'nullable',
                 'string',

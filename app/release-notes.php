@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.46' => [
+        'date' => '2026-08-27',
+        'en' => [
+            'summary' => 'WhatsApp Birthday Reminder: greet customers with image messages and loyalty rewards from Settings → WhatsApp.',
+            'changes' => [
+                'New WhatsappBirthdayReminder module: daily cron finds birthdays, awards points/discount/voucher, sends OneSender WhatsApp (image + caption).',
+                'Configure under Admin → Settings → WhatsApp Notifications (tab=sms); delivery logs without a top-level sidebar item.',
+                'Integrates with Loyalty (shared yearly birthday points reference; skips duplicate plain-text birthday WhatsApp).',
+                'Live WhatsApp message template preview on the SMS settings tab.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Peringatan Hari Lahir WhatsApp: ucapan bergambar dan ganjaran loyaliti dari Tetapan → WhatsApp.',
+            'changes' => [
+                'Modul WhatsappBirthdayReminder baharu: cron harian cari hari lahir, beri poin/diskaun/baucar, hantar WhatsApp OneSender (gambar + kapsyen).',
+                'Konfigurasi di Admin → Tetapan → Notifikasi WhatsApp (tab=sms); log penghantaran tanpa item sidebar utama.',
+                'Integrasi Loyalty (rujukan poin hari lahir tahunan sama; elak WhatsApp teks birthday berganda).',
+                'Pratonton templat mesej WhatsApp secara langsung pada tab tetapan SMS.',
+            ],
+        ],
+    ],
+
     '4.11.45' => [
         'date' => '2026-08-26',
         'en' => [

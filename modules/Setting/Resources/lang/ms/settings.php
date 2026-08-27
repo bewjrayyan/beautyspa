@@ -140,6 +140,9 @@ return [
         'placeholders_hint' => 'Templat mesej menyokong placeholder: :store, :customer, :treatment, :date (jika berkenaan).',
         'default_template_preview' => 'Templat lalai (siap guna)',
         'template_hint' => 'Biarkan kosong untuk guna templat lalai. Placeholder akan diganti semasa mesej dihantar.',
+        'preview_title' => 'Pratonton WhatsApp',
+        'preview_recipient' => 'Penerima contoh',
+        'preview_now' => 'Sekarang',
         'template_hints' => [
             'welcome' => 'Placeholder: :first_name, :store',
             'customer_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :beautician, :tracking_url, :extra_lines (lama: :beautician_line, :tracking_line)',

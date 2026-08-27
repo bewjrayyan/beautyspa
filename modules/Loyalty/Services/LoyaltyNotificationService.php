@@ -62,6 +62,15 @@ class LoyaltyNotificationService
             return;
         }
 
+        // Rich image greetings are owned by WhatsappBirthdayReminder when active.
+        if (
+            app('modules')->isEnabled('WhatsappBirthdayReminder')
+            && class_exists(\Modules\WhatsappBirthdayReminder\Services\BirthdayReminderConfig::class)
+            && app(\Modules\WhatsappBirthdayReminder\Services\BirthdayReminderConfig::class)->ownsBirthdayWhatsApp()
+        ) {
+            return;
+        }
+
         $this->send($user->phone, trans('loyalty::notifications.birthday_bonus', [
             'first_name' => $user->first_name,
             'points' => number_format($points),

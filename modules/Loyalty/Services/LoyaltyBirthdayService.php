@@ -31,6 +31,21 @@ class LoyaltyBirthdayService
             return false;
         }
 
+        // WhatsApp Birthday Reminder owns points + greeting when configured for points.
+        if (
+            app('modules')->isEnabled('WhatsappBirthdayReminder')
+            && class_exists(\Modules\WhatsappBirthdayReminder\Services\BirthdayReminderConfig::class)
+        ) {
+            $wabr = app(\Modules\WhatsappBirthdayReminder\Services\BirthdayReminderConfig::class);
+
+            if (
+                $wabr->enabled()
+                && $wabr->rewardType() === \Modules\WhatsappBirthdayReminder\Enums\RewardType::POINTS
+            ) {
+                return false;
+            }
+        }
+
         $dob = $user->date_of_birth;
 
         if ($dob->month !== now()->month || $dob->day !== now()->day) {

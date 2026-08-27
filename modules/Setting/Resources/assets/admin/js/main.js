@@ -421,6 +421,63 @@ $(function () {
     }
 })();
 
+(function initWhatsAppTemplatePreviews() {
+    const sampleValues = {
+        first_name: "Aina",
+        last_name: "Rahman",
+        full_name: "Aina Rahman",
+        store: "Aesthetic Spa",
+        store_name: "Aesthetic Spa",
+        customer: "Aina Rahman",
+        treatment: "Deep Cleansing Facial",
+        date: "28 Aug 2026",
+        time: "3:00 PM",
+        order_id: "FC-1042",
+        order_date: "27 Aug 2026",
+        status: "Confirmed",
+        status_type: "booking",
+        previous_status: "Pending",
+        order_status: "Confirmed",
+        payment_status: "Paid",
+        appointment_date: "28 Aug 2026",
+        appointment_time: "3:00 PM",
+        beautician: "Nadia",
+        staff: "Nadia",
+        phone: "012-345 6789",
+        email: "aina@example.com",
+        points: "100",
+        reward_label: "Birthday reward",
+        reward_line: "You received a special birthday reward.",
+        coupon_code: "BDAY-AINA",
+        tracking_url: "aestheticspa.example/track/FC-1042",
+        portal_url: "aestheticspa.example/portal",
+        extra_lines: "",
+        treatments: "• Deep Cleansing Facial",
+        payment_summary: "Total: RM 180.00 | Paid",
+        treatment_line: "Deep Cleansing Facial",
+    };
+
+    const renderPreview = (textarea) => {
+        const output = textarea.closest(".st-wa-template")?.querySelector("[data-wa-preview-output]");
+
+        if (!output) {
+            return;
+        }
+
+        const template = textarea.value.trim() || textarea.dataset.waPreviewDefault || "";
+        const rendered = template.replace(/[:{]([a-z0-9_]+)[}]?/gi, (match, key) => {
+            return Object.prototype.hasOwnProperty.call(sampleValues, key) ? sampleValues[key] : match;
+        });
+
+        output.textContent = rendered;
+    };
+
+    document.querySelectorAll("textarea[data-wa-preview]").forEach((textarea) => {
+        renderPreview(textarea);
+        textarea.addEventListener("input", () => renderPreview(textarea));
+    });
+})();
+
 (function initMaintenanceSettingsPanel() {
     const root = document.querySelector('.admin-settings[data-active-tab="maintenance"]');
 
@@ -1189,4 +1246,3 @@ $(document).on("toggle", "details.social-login-help", function () {
 
     hint.text(this.open ? hint.data("open-label") : hint.data("closed-label"));
 });
-

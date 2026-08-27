@@ -1,0 +1,9 @@
+{
+    "name": "WhatsappBirthdayReminder",
+    "alias": "whatsappbirthday",
+    "description": "Send WhatsApp birthday greetings with loyalty rewards to customers.",
+    "priority": 100,
+    "providers": [
+        "Modules\\WhatsappBirthdayReminder\\Providers\\WhatsappBirthdayReminderServiceProvider"
+    ]
+}

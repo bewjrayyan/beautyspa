@@ -1407,8 +1407,8 @@ $settings-block-max: none;
     }
 
     .st-wa-item {
-        margin-bottom: 16px;
-        padding: 14px 16px;
+        margin-bottom: 12px;
+        padding: 12px 14px;
         border-radius: 10px;
         border: 1px solid $settings-border;
         background: $settings-bg;
@@ -1457,9 +1457,9 @@ $settings-block-max: none;
         &__fields {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-top: 14px;
-            padding-top: 14px;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px dashed color-mix(in srgb, $settings-border 80%, transparent);
 
             &--plain {
@@ -1489,20 +1489,27 @@ $settings-block-max: none;
 
     .st-wa-template {
         display: flex;
-        flex-direction: column;
-        gap: 8px;
+        align-items: stretch;
+        gap: 16px;
+
+        &__editor {
+            min-width: 0;
+            flex: 1 1 58%;
+        }
 
         .form-group {
             margin-bottom: 0;
         }
 
         &__textarea {
-            min-height: 128px;
+            min-height: 112px;
+            max-height: 210px;
             padding: 11px 13px;
             font-size: 13px;
             line-height: 1.55;
             font-family: inherit;
             resize: vertical;
+            overflow-y: auto;
         }
 
         &__hint {
@@ -1514,6 +1521,89 @@ $settings-block-max: none;
             background: color-mix(in srgb, $settings-bg 65%, #fff);
             border-radius: 8px;
             border: 1px solid color-mix(in srgb, $settings-border 70%, transparent);
+        }
+
+        &__preview {
+            display: flex;
+            flex: 0 1 300px;
+            flex-direction: column;
+            align-self: flex-start;
+            min-width: 220px;
+            overflow: hidden;
+            border: 1px solid #cfe8d8;
+            border-radius: 12px;
+            background: #efeae2;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+        }
+
+        &__preview-head {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 12px;
+            color: #fff;
+            background: #128c7e;
+
+            strong,
+            small {
+                display: block;
+            }
+
+            strong {
+                font-size: 12px;
+            }
+
+            small {
+                margin-top: 2px;
+                font-size: 10px;
+                opacity: 0.82;
+            }
+        }
+
+        &__preview-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.18);
+            font-size: 14px;
+        }
+
+        &__preview-status {
+            margin-left: auto;
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        &__preview-body {
+            min-height: 88px;
+            max-height: 190px;
+            margin: 10px 10px 4px auto;
+            padding: 10px 11px;
+            max-width: 94%;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            border-radius: 8px 2px 8px 8px;
+            background: #dcf8c6;
+            color: #1f2937;
+            font-size: 12px;
+            line-height: 1.5;
+            overflow-y: auto;
+            box-shadow: 0 1px 1px rgba(15, 23, 42, 0.08);
+        }
+
+        &__preview-time {
+            align-self: flex-end;
+            padding: 0 14px 10px;
+            color: #72808a;
+            font-size: 10px;
+
+            span {
+                color: #53bdeb;
+                letter-spacing: -2px;
+            }
         }
     }
 
@@ -1537,6 +1627,18 @@ $settings-block-max: none;
             background: $settings-bg;
             color: $settings-muted;
             border: 1px solid $settings-border;
+        }
+    }
+}
+
+@media (max-width: 991px) {
+    .st-tab--whatsapp .st-wa-template {
+        flex-direction: column;
+
+        &__preview {
+            width: 100%;
+            min-width: 0;
+            flex-basis: auto;
         }
     }
 }
