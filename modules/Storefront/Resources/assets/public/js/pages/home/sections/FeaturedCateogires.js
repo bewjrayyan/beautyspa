@@ -1,6 +1,6 @@
 import { Navigation, Pagination } from "swiper/modules";
 import ProductTabsMixin from "../../../mixins/ProductTabsMixin";
-import { productSliderNavigation, swiperDomObservers } from "../../../support/productSliderPagination";
+import { productSliderNavigation } from "../../../support/productSliderPagination";
 import "../../../components/ProductCard";
 
 Alpine.data("FeaturedCategories", (tabs) => ({
@@ -26,7 +26,10 @@ Alpine.data("FeaturedCategories", (tabs) => ({
             slidesPerView: 1.35,
             spaceBetween: 12,
             watchOverflow: true,
-            ...swiperDomObservers(),
+            // Observer fights Alpine x-for when switching category tabs and can leave
+            // a destroyed instance with full-width cards.
+            observer: false,
+            observeParents: false,
             ...productSliderNavigation(swiperEl, this.$el),
             breakpoints: {
                 576: {

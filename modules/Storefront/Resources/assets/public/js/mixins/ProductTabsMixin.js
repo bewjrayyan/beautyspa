@@ -6,22 +6,25 @@ import {
     resetProductSliderControls,
 } from "../support/productSliderPagination";
 import { whenVisible } from "../support/whenVisible";
-import { runSwiperInit } from "../support/scheduleInit";
+import { runAfterPaint, runSwiperInit } from "../support/scheduleInit";
 
 export default function (tabs) {
+    // Store outside Alpine reactivity — assigning Swiper to `this.swiper` lets Alpine
+    // proxy the instance and break slide sizing after tab product updates.
+    let swiperInstance = null;
+
     return {
         tabs,
         activeTab: null,
         activeTabIndex: null,
         loading: false,
-        swiper: null,
         products: [],
         productsByTab: {},
         _renderGeneration: 0,
         _initialFetchDone: false,
 
         ...productSliderStateMixin(function () {
-            return this.swiper;
+            return swiperInstance;
         }),
 
         get hasAnyProduct() {
@@ -95,7 +98,6 @@ export default function (tabs) {
             }
 
             this.loading = true;
-            this.destroySwiper();
             this.products = [];
             this.fetchProducts(index);
         },
@@ -141,22 +143,106 @@ export default function (tabs) {
             });
         },
 
-        destroySwiper() {
-            if (this.swiper && !this.swiper.destroyed) {
-                this.swiper.destroy(false, false);
+        waitForProductSlides(swiperEl, expectedCount, timeoutMs = 1500) {
+            const expected = Math.max(0, Number(expectedCount) || 0);
+
+            if (!swiperEl || expected === 0) {
+                return this.waitForSlidesPaint();
             }
 
-            this.swiper = null;
+            const slideCount = () =>
+                swiperEl.querySelectorAll(
+                    ".swiper-slide:not(.swiper-slide-skeleton)"
+                ).length;
+
+            if (slideCount() >= expected) {
+                return this.waitForSlidesPaint();
+            }
+
+            return new Promise((resolve) => {
+                const startedAt = Date.now();
+
+                const check = () => {
+                    if (
+                        slideCount() >= expected ||
+                        Date.now() - startedAt >= timeoutMs
+                    ) {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(resolve);
+                        });
+                        return;
+                    }
+
+                    requestAnimationFrame(check);
+                };
+
+                check();
+            });
+        },
+
+        cleanSwiperDom(swiperEl) {
+            if (!swiperEl) {
+                return;
+            }
+
+            swiperEl.classList.remove(
+                "swiper-initialized",
+                "swiper-horizontal",
+                "swiper-vertical",
+                "swiper-backface-hidden"
+            );
+            swiperEl.classList.add("is-swiper-pending");
+
+            if (swiperEl.swiper) {
+                try {
+                    if (!swiperEl.swiper.destroyed) {
+                        swiperEl.swiper.destroy(true, false);
+                    }
+                } catch (e) {
+                    // ignore
+                }
+
+                delete swiperEl.swiper;
+            }
+
+            const wrapper = swiperEl.querySelector(".swiper-wrapper");
+
+            if (wrapper) {
+                wrapper.removeAttribute("style");
+            }
+
+            swiperEl.querySelectorAll(".swiper-slide").forEach((slide) => {
+                slide.removeAttribute("style");
+            });
+        },
+
+        destroySwiper() {
+            if (swiperInstance && !swiperInstance.destroyed) {
+                try {
+                    swiperInstance.destroy(true, false);
+                } catch (e) {
+                    // ignore
+                }
+            }
+
+            swiperInstance = null;
+            this.cleanSwiperDom(this.$el?.querySelector(this.selector()));
         },
 
         mountSwiper(swiperEl) {
+            if (!swiperEl?.isConnected) {
+                return null;
+            }
+
+            this.cleanSwiperDom(swiperEl);
+
             const options = this.swiperOptions(swiperEl);
 
             this.bindProductSliderModules(swiperEl, options);
 
             const self = this;
 
-            this.swiper = new Swiper(
+            swiperInstance = new Swiper(
                 swiperEl,
                 wrapProductSliderOptions(
                     options,
@@ -165,23 +251,43 @@ export default function (tabs) {
                     (swiper) => self.updateSliderState(swiper)
                 )
             );
+
+            swiperEl.classList.remove("is-swiper-pending");
+
+            return swiperInstance;
+        },
+
+        refreshOrMountSwiper(swiperEl) {
+            if (!swiperEl?.isConnected) {
+                return;
+            }
+
+            if (swiperInstance && !swiperInstance.destroyed && swiperEl.swiper === swiperInstance) {
+                try {
+                    swiperInstance.update();
+                    swiperInstance.slideTo(0, 0);
+                    this.updateSliderState(swiperInstance);
+                    swiperEl.classList.remove("is-swiper-pending");
+
+                    return;
+                } catch (e) {
+                    swiperInstance = null;
+                }
+            }
+
+            this.mountSwiper(swiperEl);
         },
 
         scheduleSwiperMount(swiperEl) {
             return new Promise((resolve) => {
-                runSwiperInit(() => {
-                    if (swiperEl.isConnected) {
-                        this.mountSwiper(swiperEl);
+                runAfterPaint(() => {
+                    if (swiperEl?.isConnected) {
+                        this.refreshOrMountSwiper(swiperEl);
                     }
 
                     resolve();
                 });
             });
-        },
-
-        refreshSwiper(swiperEl) {
-            this.destroySwiper();
-            return this.scheduleSwiperMount(swiperEl);
         },
 
         async renderProducts(tabIndex, products) {
@@ -192,17 +298,18 @@ export default function (tabs) {
             }
 
             const generation = this._renderGeneration;
-            const swiperEl = this.$el.querySelector(this.selector());
 
             this.loading = true;
-            this.destroySwiper();
             this.products = Array.isArray(products) ? [...products] : products;
             this.hideSkeletons();
 
             try {
                 await this.$nextTick();
                 await this.$nextTick();
-                await this.waitForSlidesPaint();
+
+                let swiperEl = this.$el.querySelector(this.selector());
+
+                await this.waitForProductSlides(swiperEl, this.products.length);
 
                 if (
                     generation !== this._renderGeneration ||
@@ -210,6 +317,8 @@ export default function (tabs) {
                 ) {
                     return;
                 }
+
+                swiperEl = this.$el.querySelector(this.selector()) || swiperEl;
 
                 if (!swiperEl) {
                     this.sliderIndex = 0;
@@ -229,7 +338,20 @@ export default function (tabs) {
                     return;
                 }
 
-                await this.refreshSwiper(swiperEl);
+                // Prefer update() over destroy/remount so Alpine x-for and Swiper
+                // do not fight when switching Shop by Category tabs.
+                this.refreshOrMountSwiper(swiperEl);
+
+                await this.waitForSlidesPaint();
+
+                if (
+                    generation === this._renderGeneration &&
+                    this.isActiveTab(tabIndex) &&
+                    this.products.length > 0 &&
+                    (!swiperEl.swiper || swiperEl.swiper.destroyed)
+                ) {
+                    this.mountSwiper(this.$el.querySelector(this.selector()) || swiperEl);
+                }
             } finally {
                 if (
                     generation === this._renderGeneration &&

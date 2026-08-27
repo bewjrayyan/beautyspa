@@ -1,10 +1,37 @@
 import Swiper from "swiper";
 import { Autoplay, Navigation, Pagination, Parallax } from "swiper/modules";
-import { runSwiperInit } from "../../../support/scheduleInit";
+import { runAfterPaint } from "../../../support/scheduleInit";
+
+function readSliderOptions(sliderEl) {
+    const dataset = sliderEl?.dataset ?? {};
+
+    const toBool = (value, fallback = false) => {
+        if (value === undefined || value === null || value === "") {
+            return fallback;
+        }
+
+        return value === true || value === "true" || value === "1" || value === 1;
+    };
+
+    const toNumber = (value, fallback) => {
+        const parsed = Number(value);
+
+        return Number.isFinite(parsed) ? parsed : fallback;
+    };
+
+    return {
+        speed: toNumber(dataset.speed, 300),
+        autoplay: toBool(dataset.autoplay, false),
+        autoplaySpeed: toNumber(dataset.autoplaySpeed, 5000),
+        dots: toBool(dataset.dots, false),
+        arrows: toBool(dataset.arrows, false),
+    };
+}
 
 Alpine.data("Hero", () => ({
     init() {
-        runSwiperInit(() => this.initHeroSlider());
+        // Paint first, then init — faster than waiting for requestIdleCallback.
+        runAfterPaint(() => this.initHeroSlider());
     },
 
     loadSlideBackground(slideEl) {
@@ -38,17 +65,17 @@ Alpine.data("Hero", () => ({
     initHeroSlider() {
         const sliderEl = this.$el?.querySelector?.(".home-slider");
 
-        if (!sliderEl) {
+        if (!sliderEl || sliderEl.swiper) {
             return;
         }
 
         const {
-            speed = 300,
-            autoplay = false,
-            autoplaySpeed = 5000,
-            dots = false,
-            arrows = false,
-        } = $(sliderEl).data() ?? {};
+            speed,
+            autoplay,
+            autoplaySpeed,
+            dots,
+            arrows,
+        } = readSliderOptions(sliderEl);
 
         const swiper = new Swiper(sliderEl, {
             modules: [Autoplay, Navigation, Pagination, Parallax],

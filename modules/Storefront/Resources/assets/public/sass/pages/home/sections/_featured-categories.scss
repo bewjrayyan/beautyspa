@@ -1,3 +1,60 @@
+
+/* If Swiper init fails mid tab-switch, keep cards at the desktop peek width. */
+.featured-categories-wrap {
+    .featured-category-products.swiper-initialized {
+        .swiper-slide:not([style*="width"]) {
+            flex: 0 0 calc((100% - 60px) / 4.3);
+            width: calc((100% - 60px) / 4.3);
+            max-width: calc((100% - 60px) / 4.3);
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .featured-categories-wrap {
+        .featured-category-products.swiper-initialized {
+            .swiper-slide:not([style*="width"]) {
+                flex: 0 0 88%;
+                width: 88%;
+                max-width: 88%;
+            }
+        }
+    }
+}
+
+/* Safety net: if Swiper leaves a stale initialized class without instance, cards must not go full-width. */
+.featured-categories-wrap {
+    .featured-category-products.swiper {
+        .swiper-wrapper {
+            display: flex;
+        }
+
+        &:not(.swiper-initialized),
+        &.is-swiper-pending {
+            .swiper-slide {
+                flex: 0 0 calc(100% / 4.3);
+                max-width: calc(100% / 4.3);
+                width: calc(100% / 4.3);
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .featured-categories-wrap {
+        .featured-category-products.swiper {
+            &:not(.swiper-initialized),
+            &.is-swiper-pending {
+                .swiper-slide {
+                    flex: 0 0 88%;
+                    max-width: 88%;
+                    width: 88%;
+                }
+            }
+        }
+    }
+}
+
 .featured-categories-wrap {
     margin-top: 50px;
 

@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.49' => [
+        'date' => '2026-08-27',
+        'en' => [
+            'summary' => 'Faster homepage load, fixed hero slider crash, and Shop by Category card layout.',
+            'changes' => [
+                'Fix homepage hero Uncaught ReferenceError: $ is not defined by reading slider options without jQuery.',
+                'Split homepage JS so above-the-fold hero/features load first and below-fold sections load in parallel chunks.',
+                'Fix Shop by Category tab switches that showed one giant product card; Swiper now updates instead of fighting Alpine.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Homepage lebih pantas, betulkan ralat hero slider, dan layout card Shop by Category.',
+            'changes' => [
+                'Betulkan ralat homepage hero Uncaught ReferenceError: $ is not defined dengan baca pilihan slider tanpa jQuery.',
+                'Pecahkan JS homepage supaya hero/features di atas load dulu dan section bawah load secara parallel.',
+                'Betulkan tukar tab Shop by Category yang papar satu card produk besar; Swiper kini update tanpa bergaduh dengan Alpine.',
+            ],
+        ],
+    ],
+
     '4.11.48' => [
         'date' => '2026-08-27',
         'en' => [

@@ -78,6 +78,16 @@
     "file": "assets/ProductRating-D-JTI-a8-v4.7.72.js",
     "name": "ProductRating"
   },
+  "_ProductTabsMixin-BhXtUvKy-v4.7.72.js": {
+    "file": "assets/ProductTabsMixin-BhXtUvKy-v4.7.72.js",
+    "name": "ProductTabsMixin",
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js"
+    ]
+  },
   "_SweetNotification-DzW5gpMi-v4.7.72.js": {
     "file": "assets/SweetNotification-DzW5gpMi-v4.7.72.js",
     "name": "SweetNotification",
@@ -1663,20 +1673,152 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/home/main.js": {
-    "file": "assets/main-DWCreN7K-v4.7.72.js",
+    "file": "assets/main-BW5XyHty-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
     "isEntry": true,
     "imports": [
+      "_preload-helper-PPVm8Dsz-v4.7.72.js",
       "_swiper-HPVPsAq3-v4.7.72.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js"
+    ],
+    "dynamicImports": [
+      "modules/Storefront/Resources/assets/public/js/pages/home/sections/FeaturedCateogires.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/sections/ProductTabsOne.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/sections/TopBrands.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/sections/FlashSale.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/sections/GridProducts.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/sections/ProductTabsTwo.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/sections/GoogleReviews.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/sections/Blog.js"
+    ]
+  },
+  "modules/Storefront/Resources/assets/public/js/pages/home/sections/Blog.js": {
+    "file": "assets/Blog-DP0GiKmw-v4.7.72.js",
+    "name": "Blog",
+    "src": "modules/Storefront/Resources/assets/public/js/pages/home/sections/Blog.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
       "_scheduleInit-mT4ow-ox-v4.7.72.js",
       "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
+      "_preload-helper-PPVm8Dsz-v4.7.72.js"
+    ]
+  },
+  "modules/Storefront/Resources/assets/public/js/pages/home/sections/FeaturedCateogires.js": {
+    "file": "assets/FeaturedCateogires-CbUBjWtz-v4.7.72.js",
+    "name": "FeaturedCateogires",
+    "src": "modules/Storefront/Resources/assets/public/js/pages/home/sections/FeaturedCateogires.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "_ProductTabsMixin-BhXtUvKy-v4.7.72.js",
+      "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
+      "_preload-helper-PPVm8Dsz-v4.7.72.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js",
+      "_ProductMixin-tk-w0tK2-v4.7.72.js",
+      "_functions-DX_VpuMs-v4.7.72.js",
+      "_ProductRating-D-JTI-a8-v4.7.72.js"
+    ]
+  },
+  "modules/Storefront/Resources/assets/public/js/pages/home/sections/FlashSale.js": {
+    "file": "assets/FlashSale-RGZ_24zs-v4.7.72.js",
+    "name": "FlashSale",
+    "src": "modules/Storefront/Resources/assets/public/js/pages/home/sections/FlashSale.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js",
       "_countdown-Ca8yf0gn-v4.7.72.js",
       "_ProductMixin-tk-w0tK2-v4.7.72.js",
       "_lodash-_ngdg7Eh-v4.7.72.js",
-      "_ProductRating-D-JTI-a8-v4.7.72.js",
-      "_functions-DX_VpuMs-v4.7.72.js"
+      "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
+      "_preload-helper-PPVm8Dsz-v4.7.72.js",
+      "_functions-DX_VpuMs-v4.7.72.js",
+      "_ProductRating-D-JTI-a8-v4.7.72.js"
+    ]
+  },
+  "modules/Storefront/Resources/assets/public/js/pages/home/sections/GoogleReviews.js": {
+    "file": "assets/GoogleReviews-CByKereq-v4.7.72.js",
+    "name": "GoogleReviews",
+    "src": "modules/Storefront/Resources/assets/public/js/pages/home/sections/GoogleReviews.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js",
+      "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
+      "_preload-helper-PPVm8Dsz-v4.7.72.js"
+    ]
+  },
+  "modules/Storefront/Resources/assets/public/js/pages/home/sections/GridProducts.js": {
+    "file": "assets/GridProducts-CR4RPk_w-v4.7.72.js",
+    "name": "GridProducts",
+    "src": "modules/Storefront/Resources/assets/public/js/pages/home/sections/GridProducts.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "_ProductTabsMixin-BhXtUvKy-v4.7.72.js",
+      "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
+      "_preload-helper-PPVm8Dsz-v4.7.72.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js",
+      "_ProductMixin-tk-w0tK2-v4.7.72.js",
+      "_functions-DX_VpuMs-v4.7.72.js",
+      "_ProductRating-D-JTI-a8-v4.7.72.js"
+    ]
+  },
+  "modules/Storefront/Resources/assets/public/js/pages/home/sections/ProductTabsOne.js": {
+    "file": "assets/ProductTabsOne-Iuf8HI2f-v4.7.72.js",
+    "name": "ProductTabsOne",
+    "src": "modules/Storefront/Resources/assets/public/js/pages/home/sections/ProductTabsOne.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "_ProductTabsMixin-BhXtUvKy-v4.7.72.js",
+      "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
+      "_preload-helper-PPVm8Dsz-v4.7.72.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js",
+      "_ProductMixin-tk-w0tK2-v4.7.72.js",
+      "_functions-DX_VpuMs-v4.7.72.js",
+      "_ProductRating-D-JTI-a8-v4.7.72.js"
+    ]
+  },
+  "modules/Storefront/Resources/assets/public/js/pages/home/sections/ProductTabsTwo.js": {
+    "file": "assets/ProductTabsTwo-UTAdT-CH-v4.7.72.js",
+    "name": "ProductTabsTwo",
+    "src": "modules/Storefront/Resources/assets/public/js/pages/home/sections/ProductTabsTwo.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "_ProductTabsMixin-BhXtUvKy-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/custom-page/main.js",
+      "_productSliderStateMixin-CgvjgpW9-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
+      "_preload-helper-PPVm8Dsz-v4.7.72.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js",
+      "_ProductMixin-tk-w0tK2-v4.7.72.js",
+      "_functions-DX_VpuMs-v4.7.72.js",
+      "_ProductRating-D-JTI-a8-v4.7.72.js"
+    ]
+  },
+  "modules/Storefront/Resources/assets/public/js/pages/home/sections/TopBrands.js": {
+    "file": "assets/TopBrands-BQhIEafA-v4.7.72.js",
+    "name": "TopBrands",
+    "src": "modules/Storefront/Resources/assets/public/js/pages/home/sections/TopBrands.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_swiper-HPVPsAq3-v4.7.72.js",
+      "modules/Storefront/Resources/assets/public/js/pages/home/main.js",
+      "_scheduleInit-mT4ow-ox-v4.7.72.js",
+      "_preload-helper-PPVm8Dsz-v4.7.72.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/products/index/main.js": {
@@ -1831,7 +1973,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/custom-page/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/home/main.scss": {
-    "file": "assets/main-BYwGU3x_-v4.7.72.css",
+    "file": "assets/main-BzgnznI6-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/home/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/products/index/main.scss": {

@@ -178,6 +178,12 @@
         @stack('scripts')
 
         <script type="module">
+            // Homepage splits below-fold Alpine components into async chunks.
+            // Wait so x-data components are registered before Alpine walks the DOM.
+            if (window.__storefrontPageReady) {
+                await window.__storefrontPageReady;
+            }
+
             Alpine.start();
         </script>
 
