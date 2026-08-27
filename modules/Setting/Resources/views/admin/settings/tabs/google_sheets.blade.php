@@ -13,7 +13,6 @@
 @endphp
 
 <div class="st-tab st-tab--google-sheets settings-form" data-google-sheets-settings>
-    <p class="st-tab__lead">{{ trans('setting::settings.tab_leads.google_sheets') }}</p>
 
     @include('setting::admin.settings.partials.google_sheets_setup_guide')
 

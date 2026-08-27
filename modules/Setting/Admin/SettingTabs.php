@@ -95,6 +95,7 @@ class SettingTabs extends Tabs
 
             $tab->fields([
                 'translatable.admin_logo',
+                'translatable.admin_sidebar_logo',
                 'translatable.admin_small_logo',
                 'admin_sidebar_color',
                 'admin_sidebar_accent_color',
@@ -102,6 +103,7 @@ class SettingTabs extends Tabs
 
             $tab->view('setting::admin.settings.tabs.logo', [
                 'logo' => $this->getMedia(setting('admin_logo')),
+                'sidebarLogo' => $this->getMedia(setting('admin_sidebar_logo')),
                 'shortLogo' => $this->getMedia(setting('admin_small_logo')),
             ]);
         });

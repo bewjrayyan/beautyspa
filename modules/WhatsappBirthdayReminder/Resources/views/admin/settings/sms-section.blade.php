@@ -1,8 +1,13 @@
 @php
     use Modules\WhatsappBirthdayReminder\Enums\RewardType;
+    use Modules\WhatsappBirthdayReminder\Services\BirthdayReminderConfig;
     use Modules\WhatsappBirthdayReminder\Support\BirthdayReminderSettingsDefaults;
 
     BirthdayReminderSettingsDefaults::applyMissingOnly();
+
+    $wabrConfig = app(BirthdayReminderConfig::class);
+    $wabrDefaultImageUrl = $wabrConfig->defaultImageUrl();
+    $wabrPreviewImageUrl = $wabrImageFile?->path ?: $wabrDefaultImageUrl;
 
     $rewardTypes = [
         RewardType::POINTS => trans('whatsappbirthday::settings.reward_type_points'),
@@ -48,32 +53,68 @@
             'hint' => trans('whatsappbirthday::settings.message_template_help'),
             'showDefaultPreview' => false,
             'previewType' => 'image',
-            'previewImageUrl' => $wabrImageFile?->path,
+            'previewImageUrl' => $wabrPreviewImageUrl,
             'editorPrefix' => view('media::admin.image_picker.single', [
                 'title' => trans('whatsappbirthday::settings.image'),
                 'inputName' => 'wabr_image_file_id',
                 'file' => $wabrImageFile ?? \Modules\Media\Entities\File::findOrNew((int) setting('wabr_image_file_id')),
+                'aspect' => 'square',
+                'modernDropzone' => true,
+                'dropzoneTitle' => trans('whatsappbirthday::settings.dropzone_title'),
+                'dropzoneHint' => trans('whatsappbirthday::settings.dropzone_hint'),
+                'defaultPreviewUrl' => $wabrDefaultImageUrl,
+                'defaultPreviewBadge' => trans('whatsappbirthday::settings.image_default'),
             ])->render(),
             'editorHint' => trans('whatsappbirthday::settings.image_help'),
         ])
 
-        <div class="wa-settings__birthday-reward-grid">
-            {{ Form::select('wabr_reward_type', trans('whatsappbirthday::settings.reward_type'), $errors, $rewardTypes, $settings) }}
-            {{ Form::number('wabr_reward_points', trans('whatsappbirthday::settings.reward_points'), $errors, $settings, ['min' => 0]) }}
-            {{ Form::number('wabr_discount_value', trans('whatsappbirthday::settings.discount_value'), $errors, $settings, ['min' => 0, 'step' => '0.01']) }}
-            {{ Form::number('wabr_voucher_value', trans('whatsappbirthday::settings.voucher_value'), $errors, $settings, ['min' => 0, 'step' => '0.01']) }}
-            {{ Form::number('wabr_coupon_validity_days', trans('whatsappbirthday::settings.coupon_validity_days'), $errors, $settings, ['min' => 1, 'max' => 365]) }}
-            {{ Form::text('wabr_schedule_time', trans('whatsappbirthday::settings.schedule_time'), $errors, $settings, ['placeholder' => '09:00']) }}
-            <div class="wa-settings__birthday-percent">
-                {{ Form::checkbox('wabr_discount_is_percent', trans('whatsappbirthday::settings.discount_is_percent'), trans('whatsappbirthday::settings.discount_is_percent'), $errors, $settings) }}
+        <div class="wa-settings__birthday-reward" data-wabr-reward>
+            <div class="wa-settings__birthday-reward-grid">
+                <div class="wa-settings__birthday-reward-cell">
+                    {{ Form::select('wabr_reward_type', trans('whatsappbirthday::settings.reward_type'), $errors, $rewardTypes, $settings) }}
+                </div>
+
+                <div class="wa-settings__birthday-reward-cell hide" data-wabr-reward-for="points">
+                    {{ Form::number('wabr_reward_points', trans('whatsappbirthday::settings.reward_points'), $errors, $settings, ['min' => 0]) }}
+                </div>
+
+                <div class="wa-settings__birthday-reward-cell hide" data-wabr-reward-for="discount">
+                    {{ Form::number('wabr_discount_value', trans('whatsappbirthday::settings.discount_value'), $errors, $settings, ['min' => 0, 'step' => '0.01']) }}
+                </div>
+
+                <div class="wa-settings__birthday-reward-cell hide" data-wabr-reward-for="voucher">
+                    {{ Form::number('wabr_voucher_value', trans('whatsappbirthday::settings.voucher_value'), $errors, $settings, ['min' => 0, 'step' => '0.01']) }}
+                </div>
+
+                <div class="wa-settings__birthday-reward-cell hide" data-wabr-reward-for="discount voucher">
+                    {{ Form::number('wabr_coupon_validity_days', trans('whatsappbirthday::settings.coupon_validity_days'), $errors, $settings, ['min' => 1, 'max' => 365]) }}
+                </div>
+
+                <div class="wa-settings__birthday-reward-cell">
+                    {{ Form::text('wabr_schedule_time', trans('whatsappbirthday::settings.schedule_time'), $errors, $settings, ['placeholder' => '09:00']) }}
+                </div>
+
+                <div class="wa-settings__birthday-reward-cell wa-settings__birthday-reward-cell--full hide" data-wabr-reward-for="discount">
+                    <div class="wa-settings__birthday-percent">
+                        {{ Form::checkbox('wabr_discount_is_percent', trans('whatsappbirthday::settings.discount_is_percent'), trans('whatsappbirthday::settings.discount_is_percent'), $errors, $settings) }}
+                    </div>
+                </div>
+
+                <p class="help-block text-muted wa-settings__birthday-help">{{ trans('whatsappbirthday::settings.schedule_time_help') }}</p>
             </div>
-            <p class="help-block text-muted wa-settings__birthday-help">{{ trans('whatsappbirthday::settings.schedule_time_help') }}</p>
         </div>
 
         @if (auth()->user()?->hasAccess('admin.whatsapp_birthday.index'))
-            <p class="help-block">
-                <a href="{{ route('admin.whatsapp_birthday.index') }}">{{ trans('whatsappbirthday::admin.view_logs') }}</a>
-            </p>
+            <div class="wa-settings__toolbar wa-settings__birthday-toolbar">
+                <a
+                    href="{{ route('admin.whatsapp_birthday.index') }}"
+                    class="btn btn-default btn-sm"
+                    data-settings-allow-leave
+                >
+                    <i class="fa fa-list-alt" aria-hidden="true"></i>
+                    {{ trans('whatsappbirthday::admin.view_logs') }}
+                </a>
+            </div>
         @endif
     @endcomponent
     </div>

@@ -38,7 +38,9 @@ class LayoutComposer
 
     private function getAdminLogo()
     {
-        return $this->getMedia(setting('admin_logo'))->path;
+        $fileId = setting('admin_sidebar_logo') ?: setting('admin_logo');
+
+        return $this->getMedia($fileId)->path;
     }
 
 

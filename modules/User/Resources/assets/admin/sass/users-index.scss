@@ -572,6 +572,28 @@ $users-purple-soft: #f5f3ff;
         padding: 16px 18px 20px;
     }
 
+    .admin-users-table {
+        thead > tr > th {
+            &.dt-orderable-asc,
+            &.dt-orderable-desc,
+            &.dt-ordering-asc,
+            &.dt-ordering-desc {
+                cursor: pointer;
+                padding-right: 28px;
+            }
+
+            .dt-column-order {
+                opacity: 0.45;
+            }
+
+            &.dt-ordering-asc .dt-column-order,
+            &.dt-ordering-desc .dt-column-order {
+                opacity: 1;
+                color: $users-primary;
+            }
+        }
+    }
+
     .dt-layout-row {
         align-items: center;
         gap: 12px;

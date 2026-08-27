@@ -1115,7 +1115,7 @@
     "src": "modules/Loyalty/Resources/assets/public/sass/pages/account/loyalty/main.scss"
   },
   "modules/Media/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-C6A3op6A-v4.7.72.js",
+    "file": "assets/main-DzNyzMO6-v4.7.72.js",
     "name": "main",
     "src": "modules/Media/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1128,7 +1128,7 @@
     ]
   },
   "modules/Media/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-C9ekVFI4-v4.7.72.css",
+    "file": "assets/main-CstJN9KS-v4.7.72.css",
     "src": "modules/Media/Resources/assets/admin/sass/main.scss"
   },
   "modules/Menu/Resources/assets/admin/js/main.js": {
@@ -1276,13 +1276,13 @@
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-Cu5evuTA-v4.7.72.js",
+    "file": "assets/main-DUwofS8w-v4.7.72.js",
     "name": "main",
     "src": "modules/Setting/Resources/assets/admin/js/main.js",
     "isEntry": true
   },
   "modules/Setting/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-fAh_xU2C-v4.7.72.css",
+    "file": "assets/main-BkTenG4Z-v4.7.72.css",
     "src": "modules/Setting/Resources/assets/admin/sass/main.scss"
   },
   "modules/Slider/Resources/assets/admin/js/main.js": {
@@ -2049,7 +2049,7 @@
     "src": "modules/User/Resources/assets/admin/sass/auth/main.scss"
   },
   "modules/User/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-DV6BC1gw-v4.7.72.css",
+    "file": "assets/main-BaHHEr4t-v4.7.72.css",
     "src": "modules/User/Resources/assets/admin/sass/main.scss"
   },
   "modules/Variation/Resources/assets/admin/js/create.js": {

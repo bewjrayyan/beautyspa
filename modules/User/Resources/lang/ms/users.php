@@ -56,8 +56,16 @@ return [
             'profile_information' => 'Maklumat profil',
         ],
         'account' => 'Akaun',
+        'orders' => 'Pesanan',
         'permissions' => 'Kebenaran',
         'new_password' => 'Kata laluan baharu',
+    ],
+    'orders_tab' => [
+        'title' => 'Pesanan',
+        'lead' => 'Pesanan yang dikaitkan dengan akaun pelanggan ini.',
+        'total' => 'pesanan',
+        'view_all' => 'Buka dalam Pesanan',
+        'empty' => 'Tiada pesanan dijumpai untuk pengguna ini.',
     ],
     'form' => [
         'activated' => 'Akaun aktif',

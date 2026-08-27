@@ -34,6 +34,7 @@ class FileUsage
      */
     protected static array $translatableFileSettingKeys = [
         'admin_logo',
+        'admin_sidebar_logo',
         'admin_small_logo',
         'storefront_header_logo',
         'storefront_footer_logo',

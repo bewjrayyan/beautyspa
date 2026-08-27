@@ -168,7 +168,7 @@ $(function () {
         searchInput.value = "";
     }
     const navGroups = document.getElementById("settings-nav-groups");
-    const unsavedBadge = document.getElementById("settings-unsaved-badge");
+    const unsavedBadges = document.querySelectorAll(".settings-unsaved-badge");
     let formDirty = false;
     let dirtyTrackingEnabled = false;
     let baselineSnapshot = "";
@@ -236,7 +236,7 @@ $(function () {
         const dirty = getFormSnapshot() !== baselineSnapshot;
 
         formDirty = dirty;
-        unsavedBadge?.classList.toggle("is-hidden", !dirty);
+        unsavedBadges.forEach((badge) => badge.classList.toggle("is-hidden", !dirty));
     };
 
     const establishBaseline = () => {
@@ -290,7 +290,19 @@ $(function () {
         });
 
         formDirty = false;
-        unsavedBadge?.classList.add("is-hidden");
+        unsavedBadges.forEach((badge) => badge.classList.add("is-hidden"));
+    });
+
+    form.addEventListener("click", (event) => {
+        const link = event.target.closest("a[data-settings-allow-leave]");
+
+        if (!link || !form.contains(link)) {
+            return;
+        }
+
+        // Leaving settings for another admin page — skip the unsaved beforeunload trap.
+        formDirty = false;
+        unsavedBadges.forEach((badge) => badge.classList.add("is-hidden"));
     });
 
     window.addEventListener("beforeunload", (event) => {
@@ -472,10 +484,80 @@ $(function () {
         output.textContent = rendered;
     };
 
+    const syncPreviewMedia = (template) => {
+        const media = template.querySelector("[data-wa-preview-media]");
+        const field = template.querySelector(".ac-media-field");
+
+        if (!media || !field) {
+            return;
+        }
+
+        const pickerImg = field.querySelector(".ac-media-preview img");
+        const defaultUrl = field.dataset.defaultPreviewUrl || "";
+        const url = (pickerImg?.getAttribute("src") || defaultUrl || "").trim();
+        const alt = media.dataset.waPreviewMediaAlt || "";
+        const missing = media.dataset.waPreviewMediaMissing || "";
+
+        media.replaceChildren();
+
+        if (url) {
+            media.classList.remove("st-wa-template__preview-media--empty");
+            const img = document.createElement("img");
+            img.src = url;
+            img.alt = alt;
+            media.appendChild(img);
+            return;
+        }
+
+        media.classList.add("st-wa-template__preview-media--empty");
+        const icon = document.createElement("i");
+        icon.className = "fa fa-picture-o";
+        icon.setAttribute("aria-hidden", "true");
+        const label = document.createElement("span");
+        label.textContent = missing;
+        media.append(icon, label);
+    };
+
     document.querySelectorAll("textarea[data-wa-preview]").forEach((textarea) => {
         renderPreview(textarea);
         textarea.addEventListener("input", () => renderPreview(textarea));
     });
+
+    document.querySelectorAll(".st-wa-template").forEach((template) => {
+        syncPreviewMedia(template);
+    });
+
+    $(document).on("ac-media:changed", ".st-wa-template .ac-media-field", function () {
+        const template = this.closest(".st-wa-template");
+
+        if (template) {
+            syncPreviewMedia(template);
+        }
+    });
+})();
+
+(function initBirthdayRewardPanels() {
+    const root = document.querySelector("[data-wabr-reward]");
+    const select = document.getElementById("wabr_reward_type");
+
+    if (!root || !select) {
+        return;
+    }
+
+    const sync = () => {
+        const type = select.value;
+
+        root.querySelectorAll("[data-wabr-reward-for]").forEach((panel) => {
+            const types = (panel.dataset.wabrRewardFor || "")
+                .split(/\s+/)
+                .filter(Boolean);
+
+            panel.classList.toggle("hide", !types.includes(type));
+        });
+    };
+
+    select.addEventListener("change", sync);
+    sync();
 })();
 
 (function initMaintenanceSettingsPanel() {

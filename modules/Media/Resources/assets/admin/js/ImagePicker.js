@@ -275,6 +275,7 @@ export default class ImagePicker {
                     .find(".ac-media-preview, .single-image.image-holder-wrapper")
                     .removeClass("hide")
                     .html(this.getDefaultPreviewTemplate(inputName, defaultPreviewUrl, $field.data("defaultPreviewBadge")));
+                $field.trigger("ac-media:changed");
 
                 if (typeof window.scheduleSettingsFormBaseline === "function") {
                     window.scheduleSettingsFormBaseline(300);

@@ -1,24 +1,4 @@
 <div class="st-tab st-tab--whatsapp settings-form">
-    @php
-        $onesenderEnabled = filter_var($settings['onesender_enabled'] ?? setting('onesender_enabled'), FILTER_VALIDATE_BOOLEAN);
-    @endphp
-
-    <div class="wa-settings__hero">
-        <div class="wa-settings__hero-icon" aria-hidden="true"><i class="fa fa-whatsapp"></i></div>
-        <div class="wa-settings__hero-copy">
-            <span class="wa-settings__eyebrow">{{ trans('setting::settings.sms.hero_eyebrow') }}</span>
-            <h3>{{ trans('setting::settings.tabs.whatsapp') }}</h3>
-            <p>{{ trans('setting::settings.sms.lead') }}</p>
-        </div>
-        <div class="wa-settings__hero-meta">
-            <span class="wa-settings__status wa-settings__status--{{ $onesenderEnabled ? 'on' : 'off' }}">
-                <i class="fa fa-{{ $onesenderEnabled ? 'check-circle' : 'exclamation-circle' }}" aria-hidden="true"></i>
-                {{ trans('setting::settings.sms.hero_status_' . ($onesenderEnabled ? 'on' : 'off')) }}
-            </span>
-            <span class="wa-settings__live"><i class="fa fa-eye" aria-hidden="true"></i> {{ trans('setting::settings.sms.hero_live_preview') }}</span>
-        </div>
-    </div>
-
     <div class="wa-settings">
         @component('setting::admin.settings.partials.section', [
             'icon' => 'fa-whatsapp',
@@ -70,27 +50,6 @@
                         'placeholder' => config('setting.whatsapp_notifications.onesender_whatsapp_group_id') ?: trans('setting::settings.sms.placeholders.whatsapp_group_id'),
                     ]) }}
                 </div>
-            </div>
-
-            <div class="wa-settings__subsection wa-settings__subsection--payment">
-                <div class="wa-settings__subsection-head">
-                    <span class="wa-settings__subsection-icon"><i class="fa fa-credit-card" aria-hidden="true"></i></span>
-                    <div>
-                        <h6>{{ trans('setting::settings.sms.sections.payment_proof.title') }}</h6>
-                        <p>{{ trans('setting::settings.sms.sections.payment_proof.description') }}</p>
-                    </div>
-                </div>
-                <div class="wa-settings__fields-grid">
-                    {{ Form::checkbox('bank_transfer_payment_proof_whatsapp_enabled', trans('setting::attributes.bank_transfer_payment_proof_whatsapp_enabled'), trans('setting::settings.form.enable_bank_transfer_payment_proof_whatsapp'), $errors, $settings) }}
-                    {{ Form::text('bank_transfer_payment_proof_whatsapp_group_id', trans('setting::attributes.bank_transfer_payment_proof_whatsapp_group_id'), $errors, $settings, [
-                        'placeholder' => config('setting.whatsapp_notifications.bank_transfer_payment_proof_whatsapp_group_id') ?: trans('setting::settings.sms.placeholders.whatsapp_group_id'),
-                    ]) }}
-                </div>
-                @include('setting::admin.settings.partials.wa-message-template', [
-                    'messageName' => 'bank_transfer_payment_proof_whatsapp_message',
-                    'rows' => 6,
-                    'hint' => trans('setting::settings.form.bank_transfer_payment_proof_whatsapp_message_help'),
-                ])
             </div>
 
             <div class="wa-settings__subsection">
@@ -153,6 +112,25 @@
                     <p class="help-block text-muted">{{ trans('setting::settings.form.onesender_outbound_delay_help') }}</p>
                 @endcomponent
             </div>
+        @endcomponent
+
+        @component('setting::admin.settings.partials.section', [
+            'icon' => 'fa-credit-card',
+            'title' => trans('setting::settings.sms.sections.payment_proof.title'),
+            'description' => trans('setting::settings.sms.sections.payment_proof.description'),
+            'class' => 'wa-section--payment-proof',
+        ])
+            <div class="wa-settings__fields-grid">
+                {{ Form::checkbox('bank_transfer_payment_proof_whatsapp_enabled', trans('setting::attributes.bank_transfer_payment_proof_whatsapp_enabled'), trans('setting::settings.form.enable_bank_transfer_payment_proof_whatsapp'), $errors, $settings) }}
+                {{ Form::text('bank_transfer_payment_proof_whatsapp_group_id', trans('setting::attributes.bank_transfer_payment_proof_whatsapp_group_id'), $errors, $settings, [
+                    'placeholder' => config('setting.whatsapp_notifications.bank_transfer_payment_proof_whatsapp_group_id') ?: trans('setting::settings.sms.placeholders.whatsapp_group_id'),
+                ]) }}
+            </div>
+            @include('setting::admin.settings.partials.wa-message-template', [
+                'messageName' => 'bank_transfer_payment_proof_whatsapp_message',
+                'rows' => 6,
+                'hint' => trans('setting::settings.form.bank_transfer_payment_proof_whatsapp_message_help'),
+            ])
         @endcomponent
 
         @component('setting::admin.settings.partials.section', [

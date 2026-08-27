@@ -42,6 +42,10 @@ return [
         'previous' => 'Previous',
         'next' => 'Next',
     ],
+    'tabs' => [
+        'fix_errors' => 'Please fix the following before saving:',
+        'nav_error_aria' => ':tab tab has :count validation issue(s)',
+    ],
     'notifications' => [
         'success' => 'Success',
         'error' => 'Something went wrong',

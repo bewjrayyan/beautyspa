@@ -8,7 +8,6 @@
 @endphp
 
 <div class="st-tab st-tab--loyalty">
-    <p class="st-tab__lead">{{ trans('loyalty::settings.help') }}</p>
 
     <div class="loyalty-settings">
         <div class="loyalty-settings__grid">

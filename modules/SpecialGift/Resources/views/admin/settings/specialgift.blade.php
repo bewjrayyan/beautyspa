@@ -17,8 +17,6 @@
         <a href="{{ route('admin.gift_voucher_submissions.index') }}" class="alert-link">{{ trans('specialgift::settings.hub_link') }}</a>
     </div>
 
-    <p class="st-tab__lead">{{ trans('specialgift::settings.lead') }}</p>
-
     <div class="st-card st-card--status">
         <div class="st-card__header">
             <span class="st-card__icon" aria-hidden="true">

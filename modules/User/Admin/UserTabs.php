@@ -15,9 +15,40 @@ class UserTabs extends Tabs
         $this->group('user_information', trans('user::users.tabs.group.user_information'))
             ->active()
             ->add($this->account())
+            ->add($this->orders())
             ->add($this->consultations())
             ->add($this->permissions())
             ->add($this->newPassword());
+    }
+
+
+
+    private function orders()
+    {
+        if (! request()->routeIs('admin.users.edit')) {
+            return;
+        }
+
+        if (! app('modules')->isEnabled('Order')) {
+            return;
+        }
+
+        return tap(new Tab('orders', trans('user::users.tabs.orders')), function (Tab $tab) {
+            $tab->weight(12);
+            $tab->view(function ($data) {
+                $user = $data['user'];
+                $orders = $user->orders()
+                    ->with(['beautician', 'spaBranch'])
+                    ->latest()
+                    ->paginate(15, ['*'], 'orders_page')
+                    ->appends(array_merge(request()->except('orders_page'), ['tab' => 'orders']));
+
+                return view('user::admin.users.tabs.orders', [
+                    'user' => $user,
+                    'orders' => $orders,
+                ]);
+            });
+        });
     }
 
 

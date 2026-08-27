@@ -143,14 +143,32 @@ class Tab
      */
     public function getNav()
     {
-        $htmlString =  "<li class='{$this->activeClass()} {$this->errorClass()}'>
-                <a href='#{$this->name}' data-toggle='tab'>{$this->label}";
+        $hasErrors = $this->errors->hasAny($this->fields);
+        $errorMessages = $this->fieldErrorMessages();
+        $errorTooltip = $errorMessages !== []
+            ? e(implode(' · ', $errorMessages))
+            : '';
+        $errorCount = count($errorMessages);
+        $ariaLabel = $hasErrors
+            ? e(trans('admin::admin.tabs.nav_error_aria', [
+                'tab' => $this->label,
+                'count' => $errorCount,
+            ]))
+            : e($this->label);
 
-        if ($this->errors->hasAny($this->fields)) {
-            $htmlString .= "<i class='fa fa-exclamation-circle' aria-hidden='true'></i>";
+        $htmlString = "<li class='{$this->activeClass()} {$this->errorClass()}'>"
+            . "<a href='#{$this->name}' data-toggle='tab'"
+            . ($errorTooltip !== '' ? ' title="' . $errorTooltip . '"' : '')
+            . ' aria-label="' . $ariaLabel . '">' . $this->label;
+
+        if ($hasErrors) {
+            $htmlString .= '<span class="admin-tab-nav__error-badge" aria-hidden="true">'
+                . "<i class='fa fa-exclamation-circle'></i>"
+                . '<span class="admin-tab-nav__error-count">' . $errorCount . '</span>'
+                . '</span>';
         }
 
-        $htmlString .= "</a></li>";
+        $htmlString .= '</a></li>';
 
         return $htmlString;
     }
@@ -298,6 +316,7 @@ class Tab
         } else {
             $html .= "<div class='tab-pane fade in {$this->activeClass()}' id='{$this->name}'>";
             $html .= "<h4 class='tab-content-title'>{$this->label}</h4>";
+            $html .= $this->errorSummaryHtml();
         }
 
         return $html;
@@ -355,6 +374,55 @@ class Tab
     private function errorClass()
     {
         return $this->errors->hasAny($this->fields) ? 'has-error' : '';
+    }
+
+
+    /**
+     * @return list<string>
+     */
+    private function fieldErrorMessages(): array
+    {
+        if ($this->fields === []) {
+            return [];
+        }
+
+        $messages = [];
+
+        foreach ($this->fields as $field) {
+            if (! $this->errors->has($field)) {
+                continue;
+            }
+
+            $message = $this->errors->first($field);
+
+            if (is_string($message) && $message !== '' && ! in_array($message, $messages, true)) {
+                $messages[] = $message;
+            }
+        }
+
+        return $messages;
+    }
+
+
+    private function errorSummaryHtml(): string
+    {
+        $messages = $this->fieldErrorMessages();
+
+        if ($messages === []) {
+            return '';
+        }
+
+        $items = collect($messages)
+            ->map(fn (string $message) => '<li>'.e($message).'</li>')
+            ->implode('');
+
+        return '<div class="admin-tab-error-summary" role="alert">'
+            . '<div class="admin-tab-error-summary__head">'
+            . '<i class="fa fa-exclamation-circle" aria-hidden="true"></i>'
+            . '<p class="admin-tab-error-summary__title">'.e(trans('admin::admin.tabs.fix_errors')).'</p>'
+            . '</div>'
+            . '<ul class="admin-tab-error-summary__list">'.$items.'</ul>'
+            . '</div>';
     }
 
 

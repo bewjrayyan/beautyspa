@@ -30,7 +30,50 @@ class UserTable extends AdminTable
      */
     public function make()
     {
-        return $this->newTable()
+        $sortDirection = static function (string $order): string {
+            return strtolower($order) === 'desc' ? 'desc' : 'asc';
+        };
+
+        $builder = $this->newTable()
+            ->orderColumn('user', function ($query, $order) use ($sortDirection) {
+                $direction = $sortDirection($order);
+
+                $query
+                    ->orderBy('users.first_name', $direction)
+                    ->orderBy('users.last_name', $direction)
+                    ->orderBy('users.email', $direction);
+            })
+            ->orderColumn('roles', function ($query, $order) use ($sortDirection) {
+                $direction = strtoupper($sortDirection($order));
+                $locale = locale();
+
+                $query->orderByRaw(
+                    "(SELECT MIN(rt.name) FROM user_roles ur
+                        INNER JOIN role_translations rt ON rt.role_id = ur.role_id AND rt.locale = ?
+                        WHERE ur.user_id = users.id) {$direction}",
+                    [$locale]
+                );
+            })
+            ->orderColumn('status', function ($query, $order) use ($sortDirection) {
+                $direction = strtoupper($sortDirection($order));
+
+                $query->orderByRaw(
+                    "(SELECT COALESCE(MAX(a.completed), 0) FROM activations a WHERE a.user_id = users.id) {$direction}"
+                );
+            });
+
+        if (app('modules')->isEnabled('Loyalty')) {
+            $builder->orderColumn('loyalty_member', function ($query, $order) use ($sortDirection) {
+                $direction = strtoupper($sortDirection($order));
+
+                $query->orderByRaw(
+                    "(SELECT CASE WHEN lw.id IS NOT NULL THEN 1 ELSE 0 END
+                        FROM loyalty_wallets lw WHERE lw.user_id = users.id LIMIT 1) {$direction}"
+                );
+            });
+        }
+
+        return $builder
             ->addColumn('user', function ($user) {
                 $avatar = view('user::admin.partials.avatar', [
                     'user' => $user,

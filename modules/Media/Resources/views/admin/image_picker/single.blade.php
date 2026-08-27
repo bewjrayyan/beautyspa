@@ -3,6 +3,17 @@
         $hasFile = $file->exists;
         $showLabel = filled($title ?? '');
         $aspect = $aspect ?? 'logo';
+        $modernDropzone = (bool) ($modernDropzone ?? ($aspect === 'logo'));
+        $dropzoneTitle = $dropzoneTitle ?? ($modernDropzone
+            ? ($aspect === 'logo'
+                ? trans('media::media.dropzone_logo_title')
+                : trans('media::media.dropzone_poster_title'))
+            : trans('media::media.dropzone_title'));
+        $dropzoneHint = $dropzoneHint ?? ($modernDropzone
+            ? ($aspect === 'logo'
+                ? trans('media::media.dropzone_logo_hint')
+                : trans('media::media.dropzone_poster_hint'))
+            : trans('media::media.dropzone_hint'));
         $defaultPreviewUrl = $defaultPreviewUrl ?? null;
         $defaultPreviewBadge = $defaultPreviewBadge ?? null;
         $usingDefaultPreview = ! $hasFile && filled($defaultPreviewUrl);
@@ -16,6 +27,10 @@
             $fieldClass .= ' ac-media-field--og';
         } elseif ($aspect === 'logo') {
             $fieldClass .= ' ac-media-field--logo';
+        }
+
+        if ($modernDropzone) {
+            $fieldClass .= ' ac-media-field--modern';
         }
     @endphp
 
@@ -35,17 +50,25 @@
 
         <div class="ac-media-field__canvas{{ ($hasFile || $usingDefaultPreview) ? ' is-filled' : '' }}">
             <div
-                class="ac-media-dropzone{{ ($hasFile || $usingDefaultPreview) ? ' hide' : '' }}"
+                class="ac-media-dropzone{{ $modernDropzone ? ' ac-media-dropzone--modern' : '' }}{{ ($hasFile || $usingDefaultPreview) ? ' hide' : '' }}"
                 tabindex="0"
                 role="button"
-                aria-label="{{ trans('media::media.dropzone_title') }}"
+                aria-label="{{ $dropzoneTitle }}"
             >
                 <div class="ac-media-dropzone__content">
                     <span class="ac-media-dropzone__icon" aria-hidden="true">
                         <i class="fa fa-cloud-upload"></i>
                     </span>
-                    <p class="ac-media-dropzone__title">{{ trans('media::media.dropzone_title') }}</p>
-                    <p class="ac-media-dropzone__hint">{{ trans('media::media.dropzone_hint') }}</p>
+                    <p class="ac-media-dropzone__title">{{ $dropzoneTitle }}</p>
+                    <p class="ac-media-dropzone__hint">{{ $dropzoneHint }}</p>
+
+                    @if ($modernDropzone)
+                        <div class="ac-media-dropzone__formats" aria-hidden="true">
+                            <span>JPG</span>
+                            <span>PNG</span>
+                            <span>WebP</span>
+                        </div>
+                    @endif
 
                     <div class="ac-media-dropzone__actions">
                         <button type="button" class="btn btn-default btn-sm image-picker-browse" data-input-name="{{ $inputName }}">

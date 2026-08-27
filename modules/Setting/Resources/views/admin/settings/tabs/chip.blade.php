@@ -1,5 +1,4 @@
 <div class="st-tab st-tab--chip settings-form">
-    <p class="st-tab__lead">{{ trans('setting::settings.tab_leads.chip') }}</p>
 
     <div class="chip-settings">
         <div class="chip-settings__main">

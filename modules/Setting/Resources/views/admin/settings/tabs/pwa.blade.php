@@ -1,5 +1,4 @@
 @component('setting::admin.settings.partials.settings-wrap')
-    <p class="st-tab__lead">{{ trans('setting::settings.tab_leads.pwa') }}</p>
 
     <div class="st-enable-card">
         {{ Form::checkbox('pwa_enabled', trans('setting::attributes.pwa_enabled'), trans('setting::settings.form.enable_pwa'), $errors, $settings) }}

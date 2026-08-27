@@ -16,7 +16,6 @@
 @endphp
 
 <div class="st-tab st-tab--google-calendar settings-form" data-google-calendar-settings>
-    <p class="st-tab__lead">{{ trans('setting::settings.tab_leads.google_calendar') }}</p>
 
     <div class="gs-settings">
         @component('setting::admin.settings.partials.section', [

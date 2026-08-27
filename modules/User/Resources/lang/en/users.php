@@ -56,8 +56,16 @@ return [
             'profile_information' => 'Profile Information',
         ],
         'account' => 'Account',
+        'orders' => 'Orders',
         'permissions' => 'Permissions',
         'new_password' => 'New Password',
+    ],
+    'orders_tab' => [
+        'title' => 'Orders',
+        'lead' => 'Orders linked to this customer account.',
+        'total' => 'orders',
+        'view_all' => 'Open in Orders',
+        'empty' => 'No orders found for this user.',
     ],
     'form' => [
         'activated' => 'Activated',

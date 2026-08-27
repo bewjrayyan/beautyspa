@@ -3,7 +3,6 @@
 @endphp
 
 <div class="st-tab st-tab--gift st-tab--gift-hub st-tab--gift-settings">
-    <p class="st-tab__lead">{{ trans('specialgift::settings.lead') }}</p>
 
     <div class="gv-settings-grid">
         <div class="gv-settings-grid__main">

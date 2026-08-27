@@ -46,6 +46,10 @@ return [
         'previous' => 'Sebelum',
         'next' => 'Seterusnya',
     ],
+    'tabs' => [
+        'fix_errors' => 'Sila betulkan perkara berikut sebelum simpan:',
+        'nav_error_aria' => 'Tab :tab mempunyai :count isu pengesahan',
+    ],
     'notifications' => [
         'success' => 'Berjaya',
         'error' => 'Berlaku ralat',

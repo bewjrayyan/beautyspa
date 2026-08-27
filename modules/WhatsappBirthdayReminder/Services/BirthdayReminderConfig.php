@@ -87,15 +87,51 @@ class BirthdayReminderConfig
     }
 
 
+    public function defaultImagePath(): string
+    {
+        return module_path('WhatsappBirthdayReminder', 'Resources/assets/images/default-birthday.jpg');
+    }
+
+
+    public function defaultImageUrl(): string
+    {
+        return asset('modules/whatsappbirthdayreminder/default-birthday.jpg');
+    }
+
+
+    public function resolveImagePath(): ?string
+    {
+        $customPath = $this->imageFile()?->realPath();
+
+        if (is_string($customPath) && is_readable($customPath)) {
+            return $customPath;
+        }
+
+        $defaultPath = $this->defaultImagePath();
+
+        if (is_readable($defaultPath)) {
+            return $defaultPath;
+        }
+
+        $publicDefault = public_path('modules/whatsappbirthdayreminder/default-birthday.jpg');
+
+        return is_readable($publicDefault) ? $publicDefault : null;
+    }
+
+
     public function imageUrl(): ?string
     {
         $file = $this->imageFile();
 
-        if (! $file) {
+        if ($file) {
+            return $this->absolutePublicUrl((string) $file->path);
+        }
+
+        if ($this->resolveImagePath() === null) {
             return null;
         }
 
-        return $this->absolutePublicUrl((string) $file->path);
+        return $this->absolutePublicUrl($this->defaultImageUrl());
     }
 
 

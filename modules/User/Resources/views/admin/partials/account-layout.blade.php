@@ -49,7 +49,7 @@
             <div class="tab-content clearfix">
                 {{ $contents }}
 
-                @include('admin::form.footer')
+                @include('user::admin.partials.profile-form-footer')
             </div>
         </div>
     </div>

@@ -51,16 +51,19 @@
             <span class="st-wa-template__preview-status"><i class="fa fa-check" aria-hidden="true"></i></span>
         </div>
         @if ($previewType === 'image')
-            @if ($previewImageUrl)
-                <div class="st-wa-template__preview-media">
+            <div
+                class="st-wa-template__preview-media{{ $previewImageUrl ? '' : ' st-wa-template__preview-media--empty' }}"
+                data-wa-preview-media
+                data-wa-preview-media-alt="{{ trans('setting::settings.sms.preview_media_alt') }}"
+                data-wa-preview-media-missing="{{ trans('setting::settings.sms.preview_media_missing') }}"
+            >
+                @if ($previewImageUrl)
                     <img src="{{ $previewImageUrl }}" alt="{{ trans('setting::settings.sms.preview_media_alt') }}">
-                </div>
-            @else
-                <div class="st-wa-template__preview-media st-wa-template__preview-media--empty">
+                @else
                     <i class="fa fa-picture-o" aria-hidden="true"></i>
                     <span>{{ trans('setting::settings.sms.preview_media_missing') }}</span>
-                </div>
-            @endif
+                @endif
+            </div>
         @elseif ($previewType === 'document' && is_array($previewDocument))
             <div class="st-wa-template__preview-document">
                 <span class="st-wa-template__preview-document-icon"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></span>

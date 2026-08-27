@@ -226,27 +226,27 @@
                     },
                     {
                         data: 'user',
-                        orderable: false,
+                        name: 'user',
                         searchable: false,
                         title: @json(trans('user::users.index.column_user')),
                     },
                     {
                         data: 'roles',
-                        orderable: false,
+                        name: 'roles',
                         searchable: false,
                         title: @json(trans('user::users.index.column_roles')),
                     },
                     @if ($loyaltyEnabled)
                     {
                         data: 'loyalty_member',
-                        orderable: false,
+                        name: 'loyalty_member',
                         searchable: false,
                         title: @json(trans('user::users.index.column_loyalty_member')),
                     },
                     @endif
                     {
                         data: 'status',
-                        orderable: false,
+                        name: 'status',
                         searchable: false,
                         title: @json(trans('user::users.index.column_status')),
                     },

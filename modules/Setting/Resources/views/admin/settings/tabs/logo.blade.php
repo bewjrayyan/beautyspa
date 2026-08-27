@@ -1,8 +1,8 @@
-<div class="st-fields-grid st-fields-grid--sections st-fields-grid--tiles">
+<div class="st-fields-grid st-fields-grid--sections st-fields-grid--tiles st-fields-grid--logos">
     <div class="st-fields-grid__col">
         @component('setting::admin.settings.partials.section', [
             'icon' => 'fa-picture-o',
-            'title' => trans('setting::settings.form.logo'),
+            'title' => trans('setting::settings.form.admin_logo'),
             'class' => 'st-section--media',
         ])
             @include('media::admin.image_picker.single', [
@@ -11,6 +11,23 @@
                 'inputName' => 'translatable[admin_logo]',
                 'file' => $logo,
             ])
+            <p class="help-block text-muted">{{ trans('setting::settings.form.admin_logo_help') }}</p>
+        @endcomponent
+    </div>
+
+    <div class="st-fields-grid__col">
+        @component('setting::admin.settings.partials.section', [
+            'icon' => 'fa-bars',
+            'title' => trans('setting::settings.form.sidebar_logo'),
+            'class' => 'st-section--media',
+        ])
+            @include('media::admin.image_picker.single', [
+                'title' => '',
+                'aspect' => 'logo',
+                'inputName' => 'translatable[admin_sidebar_logo]',
+                'file' => $sidebarLogo,
+            ])
+            <p class="help-block text-muted">{{ trans('setting::settings.form.sidebar_logo_help') }}</p>
         @endcomponent
     </div>
 
@@ -26,6 +43,7 @@
                 'inputName' => 'translatable[admin_small_logo]',
                 'file' => $shortLogo,
             ])
+            <p class="help-block text-muted">{{ trans('setting::settings.form.small_logo_help') }}</p>
         @endcomponent
     </div>
 </div>

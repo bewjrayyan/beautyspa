@@ -5,6 +5,30 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.48' => [
+        'date' => '2026-08-27',
+        'en' => [
+            'summary' => 'Settings hero headers, sidebar logo upload, and richer user edit Orders tab.',
+            'changes' => [
+                'Add shared settings-tab hero headers (WhatsApp green accent; other tabs use a blue/neutral hero).',
+                'Support a dedicated admin sidebar logo upload, separate from login and mini logos, with modern media dropzones.',
+                'WhatsApp Birthday Reminder: default birthday poster, live preview sync, and clearer reward-type panels.',
+                'User edit: Orders tab (with spa branch and beautician), clearer required-field asterisks, prominent right-aligned Save, and tab validation error badges.',
+                'Users index table columns are sortable for user, roles, loyalty, status, and last login.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Header hero tetapan, muat naik logo sidebar, dan tab Pesanan pengguna yang lebih lengkap.',
+            'changes' => [
+                'Tambah header hero tab tetapan (aksen hijau WhatsApp; tab lain biru/neutral).',
+                'Sokong muat naik logo sidebar admin berasingan daripada logo login dan mini, dengan dropzone media moden.',
+                'Peringatan Hari Lahir WhatsApp: poster lalai, pratonton langsung, dan panel jenis ganjaran lebih jelas.',
+                'Sunting pengguna: tab Pesanan (dengan cawangan spa dan beautician), asterisk medan wajib, butang Simpan lebih menonjol di kanan, dan lencana ralat validasi tab.',
+                'Lajur jadual senarai pengguna boleh diisih untuk pengguna, peranan, loyaliti, status, dan log masuk terakhir.',
+            ],
+        ],
+    ],
+
     '4.11.47' => [
         'date' => '2026-08-27',
         'en' => [
