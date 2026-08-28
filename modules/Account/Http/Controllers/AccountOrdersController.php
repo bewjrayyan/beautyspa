@@ -10,6 +10,9 @@ use Modules\Media\Entities\File;
 use Modules\Order\Entities\Order;
 use Modules\Order\Services\OrderProductDiscountAllocator;
 use Modules\Order\Services\SendOrderBeauticianNotification;
+use Modules\Order\Services\OrderReceiptPageData;
+use Modules\Order\Services\OrderWhatsAppPdfService;
+use Modules\Order\Services\OrderCustomerWhatsAppService;
 use Modules\Order\Services\OrderPaymentProofPublicUrlService;
 use Modules\Review\Entities\Review;
 
@@ -157,14 +160,57 @@ class AccountOrdersController
             $logo = File::find($logoId)?->path;
         }
 
-        return view('storefront::public.account.orders.receipt', [
+        return view('order::admin.orders.print.receipt', array_merge([
             'order' => $order,
             'logo' => $logo,
-            'orderRewards' => $this->orderRewards($order),
-            'autoPrint' => false,
+        ], OrderReceiptPageData::forWeb(
+            $order,
+            route('account.orders.receipt.whatsapp', $order->id),
+            route('account.orders.receipt.download', $order->id),
+        )));
+    }
+
+
+
+    public function downloadReceipt(int $id, OrderWhatsAppPdfService $pdf): Response
+    {
+        $order = $this->findUserOrder($id);
+
+        $filename = sprintf('receipt-%d.pdf', $order->id);
+
+        return response($pdf->receiptPdfBinary($order), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Cache-Control' => 'private, no-store, max-age=0',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 
+
+    public function sendReceiptWhatsApp(int $id, OrderCustomerWhatsAppService $whatsapp): RedirectResponse
+    {
+        $order = $this->findUserOrder($id);
+
+        if (! $whatsapp->canSend($order)) {
+            return redirect()
+                ->back()
+                ->with('error', trans('storefront::order_complete.receipt_whatsapp_unavailable'));
+        }
+
+        try {
+            $whatsapp->sendReceipt($order);
+
+            return redirect()
+                ->back()
+                ->with('success', trans('storefront::order_complete.receipt_whatsapp_sent'));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage() ?: trans('order::whatsapp.send_failed'));
+        }
+    }
 
     public function notifyBeautician(int $id, SendOrderBeauticianNotification $notification): RedirectResponse
     {

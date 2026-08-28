@@ -9,11 +9,16 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Modules\Order\Entities\Order;
+use Modules\Media\Entities\File;
 use Modules\Checkout\Services\OrderGoogleCalendarUrl;
 use Modules\Checkout\Services\CheckoutPaymentFinalizer;
 use Modules\Order\Services\SendOrderBeauticianNotification;
 use Modules\Checkout\Services\CheckoutCompletionGuard;
 use Modules\Payment\Services\PaymentGatewayResolver;
+use Modules\Order\Services\OrderCustomerWhatsAppService;
+use Modules\Order\Services\OrderReceiptPageData;
+use Modules\Order\Services\OrderWhatsAppPdfService;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Checkout thank-you + payment return handler.
@@ -152,6 +157,7 @@ class CheckoutCompleteController
         $canNotifyBeautician = $hasTreatmentBooking
             && $order->beautician_id
             && setting('whatsapp_completed_beautician_enabled', true);
+        $canSendReceiptWhatsApp = app(OrderCustomerWhatsAppService::class)->canSend($order);
 
         if (app('modules')->isEnabled('Loyalty')) {
             try {
@@ -167,6 +173,7 @@ class CheckoutCompleteController
             'googleCalendarUrl',
             'hasTreatmentBooking',
             'canNotifyBeautician',
+            'canSendReceiptWhatsApp',
             'orderRewards',
         ));
     }
@@ -204,6 +211,102 @@ class CheckoutCompleteController
     }
 
 
+    public function receipt()
+    {
+        $order = $this->resolvePlacedOrder();
+
+        if (! $order) {
+            return redirect()->route('home');
+        }
+
+        CheckoutCompletionGuard::keepPlacedOrder();
+
+        $order->load([
+            'products.variations',
+            'products.options.option',
+            'products.options.values',
+            'coupon',
+            'taxes',
+            'transaction',
+            'beautician',
+            'spaBranch',
+            'treatmentBookings.product',
+            'treatmentBookings.beautician',
+            'treatmentBookings.orderProduct.options.values',
+            'treatmentBookings.orderProduct.variations.values',
+        ]);
+
+        $logo = null;
+        $logoId = setting('storefront_header_logo');
+
+        if ($logoId) {
+            $logo = File::find($logoId)?->path;
+        }
+
+        return view('order::admin.orders.print.receipt', array_merge([
+            'order' => $order,
+            'logo' => $logo,
+        ], OrderReceiptPageData::forWeb(
+            $order,
+            route('checkout.complete.receipt.whatsapp'),
+            route('checkout.complete.receipt.download'),
+        )));
+    }
+
+
+    public function downloadReceipt(OrderWhatsAppPdfService $pdf): Response|RedirectResponse
+    {
+        $order = $this->resolvePlacedOrder();
+
+        if (! $order) {
+            return redirect()->route('home');
+        }
+
+        CheckoutCompletionGuard::keepPlacedOrder();
+
+        $filename = sprintf('receipt-%d.pdf', $order->id);
+
+        return response($pdf->receiptPdfBinary($order), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Cache-Control' => 'private, no-store, max-age=0',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+
+    public function sendReceiptWhatsApp(OrderCustomerWhatsAppService $whatsapp): RedirectResponse
+    {
+        $order = $this->resolvePlacedOrder();
+
+        if (! $order) {
+            return redirect()->route('home');
+        }
+
+        CheckoutCompletionGuard::keepPlacedOrder();
+
+        if (! $whatsapp->canSend($order)) {
+            return redirect()
+                ->back(fallback: CheckoutCompletionGuard::thankYouUrl($order))
+                ->with('error', trans('storefront::order_complete.receipt_whatsapp_unavailable'));
+        }
+
+        try {
+            $whatsapp->sendReceipt($order);
+
+            return redirect()
+                ->back(fallback: CheckoutCompletionGuard::thankYouUrl($order))
+                ->with('success', trans('storefront::order_complete.receipt_whatsapp_sent'));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->back(fallback: CheckoutCompletionGuard::thankYouUrl($order))
+                ->with('error', $e->getMessage() ?: trans('order::whatsapp.send_failed'));
+        }
+    }
+
+
     public function notifyBeautician(SendOrderBeauticianNotification $notification)
     {
         $order = $this->resolvePlacedOrder();
@@ -218,11 +321,11 @@ class CheckoutCompleteController
             $notification->send($order);
 
             return redirect()
-                ->to(CheckoutCompletionGuard::thankYouUrl($order))
+                ->back(fallback: CheckoutCompletionGuard::thankYouUrl($order))
                 ->with('success', trans('storefront::order_complete.beautician_notify_sent'));
         } catch (Exception $e) {
             return redirect()
-                ->to(CheckoutCompletionGuard::thankYouUrl($order))
+                ->back(fallback: CheckoutCompletionGuard::thankYouUrl($order))
                 ->with('error', $e->getMessage());
         }
     }

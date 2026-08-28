@@ -28,31 +28,39 @@ class OrderWhatsAppController
         OrderCustomerWhatsAppService $whatsapp,
         string $method,
         string $successKey,
-    ): JsonResponse {
+    ): JsonResponse|\Illuminate\Http\RedirectResponse {
         if (! $whatsapp->canSend($order)) {
-            return response()->json([
-                'message' => trans(
-                    OneSenderWhatsAppService::isConfigured()
-                        ? 'order::whatsapp.no_phone'
-                        : 'order::whatsapp.not_configured'
-                ),
-            ], 422);
+            $message = trans(
+                OneSenderWhatsAppService::isConfigured()
+                    ? 'order::whatsapp.no_phone'
+                    : 'order::whatsapp.not_configured'
+            );
+
+            return $this->respond($message, false);
         }
 
         try {
             $whatsapp->{$method}($order);
         } catch (InvalidArgumentException $exception) {
-            return response()->json(['message' => $exception->getMessage()], 422);
+            return $this->respond($exception->getMessage(), false);
         } catch (Throwable $exception) {
             report($exception);
 
-            return response()->json([
-                'message' => $exception->getMessage() ?: trans('order::whatsapp.send_failed'),
-            ], 422);
+            return $this->respond($exception->getMessage() ?: trans('order::whatsapp.send_failed'), false);
         }
 
-        return response()->json([
-            'message' => trans($successKey),
-        ]);
+        return $this->respond(trans($successKey), true);
+    }
+
+
+    private function respond(string $message, bool $success): JsonResponse|\Illuminate\Http\RedirectResponse
+    {
+        if (request()->expectsJson()) {
+            return response()->json(['message' => $message], $success ? 200 : 422);
+        }
+
+        return redirect()
+            ->back()
+            ->with($success ? 'success' : 'error', $message);
     }
 }

@@ -85,3 +85,9 @@ Route::get('orders/{order}/receipt', [
     'uses' => 'OrderPrintController@receipt',
     'middleware' => 'can:admin.orders.show',
 ]);
+
+Route::get('orders/{order}/receipt/download', [
+    'as' => 'admin.orders.receipt.download',
+    'uses' => 'OrderPrintController@downloadReceipt',
+    'middleware' => 'can:admin.orders.show',
+]);

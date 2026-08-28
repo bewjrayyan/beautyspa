@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.60' => [
+        'date' => '2026-08-28',
+        'en' => [
+            'summary' => 'Unified 80mm thermal receipt with WhatsApp and download across checkout, admin, and account.',
+            'changes' => [
+                'Checkout complete, admin order receipt, beautician portal, and customer account share the same thermal receipt layout.',
+                'Replace print dialog with WhatsApp send and PDF download buttons below the receipt card.',
+                'Receipt PDF uses the same HTML template as the web view, sized for 80mm thermal paper.',
+                'Fix missing checkout summary translation keys for beautician and schedule pending states.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Resit thermal 80mm diseragamkan dengan WhatsApp dan muat turun di checkout, admin, dan akaun.',
+            'changes' => [
+                'Checkout complete, resit pesanan admin, portal beautician, dan akaun pelanggan guna layout resit thermal yang sama.',
+                'Ganti dialog cetak dengan butang hantar WhatsApp dan muat turun PDF di bawah kad resit.',
+                'PDF resit guna template HTML sama seperti paparan web, saiz kertas thermal 80mm.',
+                'Baiki kunci terjemahan ringkasan checkout untuk keadaan beautician dan jadual menunggu.',
+            ],
+        ],
+    ],
+
     '4.11.59' => [
         'date' => '2026-08-28',
         'en' => [

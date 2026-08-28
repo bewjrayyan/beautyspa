@@ -5,9 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ trans('order::print.receipt') }} #{{ $order->id }}</title>
     @if ($forPdf ?? false)
-        @if (! empty($printCssUrl))
+        @if (! empty($inlineReceiptCss))
+            <style>{!! $inlineReceiptCss !!}</style>
+        @elseif (! empty($printCssUrl))
             <link rel="stylesheet" href="{{ $printCssUrl }}">
         @endif
+        <style>
+            :root {
+                --color-primary: {{ function_exists('storefront_theme_color') ? storefront_theme_color() : '#0068e1' }};
+            }
+        </style>
     @else
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,9 +25,45 @@
         :root {
             --color-primary: {{ function_exists('storefront_theme_color') ? storefront_theme_color() : '#0068e1' }};
         }
+        @if (($receiptActions ?? false) && ! ($forPdf ?? false))
+        .order-receipt-wrap { max-width: 360px; margin: 16px auto 24px; padding: 0 16px; }
+        .order-receipt-wrap .order-receipt { margin: 0; }
+        .order-receipt-flash { margin-bottom: 12px; padding: 10px 14px; font-size: 13px; font-weight: 600; border-radius: 10px; }
+        .order-receipt-flash--success { color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; }
+        .order-receipt-flash--error { color: #991b1b; background: #fef2f2; border: 1px solid #fecaca; }
+        .order-receipt-toolbar { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; margin-top: 12px; }
+        .order-receipt-toolbar__form { margin: 0; flex: 1 1 0; min-width: 0; }
+        .order-receipt-toolbar__btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            width: 100%; flex: 1 1 0; min-width: 0; min-height: 38px; padding: 8px 8px;
+            font-family: inherit; font-size: 11px; font-weight: 600; line-height: 1.2;
+            white-space: nowrap; text-decoration: none; border-radius: 8px; cursor: pointer;
+            box-sizing: border-box; transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .order-receipt-toolbar__btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12); }
+        .order-receipt-toolbar__btn--whatsapp { color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; }
+        .order-receipt-toolbar__btn--download { color: #fff; background: var(--color-primary, #0068e1); border: 1px solid transparent; }
+        .order-receipt-toolbar__icon { width: 14px; height: 14px; flex-shrink: 0; }
+        @media print { .order-receipt-toolbar, .order-receipt-flash { display: none !important; } }
+        @endif
     </style>
 </head>
 <body class="{{ is_rtl() ? 'rtl' : 'ltr' }}">
+    @if (($receiptActions ?? false) && ! ($forPdf ?? false))
+        <div class="order-receipt-wrap">
+            @if (session('success'))
+                <div class="order-receipt-flash order-receipt-flash--success" role="status">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="order-receipt-flash order-receipt-flash--error" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endif
+    @endif
+
     <article class="order-receipt">
         <header class="order-receipt__header">
             @if ($logo ?? null)
@@ -131,6 +174,17 @@
         </footer>
     </article>
 
-    @include('order::admin.orders.print._print-actions')
+    @unless ($forPdf ?? false)
+        @if ($receiptActions ?? false)
+            @include('order::admin.orders.print._receipt-actions', [
+                'canSendReceiptWhatsApp' => $canSendReceiptWhatsApp ?? false,
+                'receiptWhatsAppUrl' => $receiptWhatsAppUrl,
+                'receiptDownloadUrl' => $receiptDownloadUrl,
+            ])
+        </div>
+        @else
+            @include('order::admin.orders.print._print-actions')
+        @endif
+    @endunless
 </body>
 </html>

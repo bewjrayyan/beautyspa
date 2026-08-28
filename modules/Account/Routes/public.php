@@ -27,6 +27,10 @@ Route::middleware('auth')->group(function () {
     Route::get('account/orders/{id}', 'AccountOrdersController@show')->name('account.orders.show');
     Route::get('account/orders/{id}/invoice', 'AccountOrdersController@invoice')->name('account.orders.invoice');
     Route::get('account/orders/{id}/receipt', 'AccountOrdersController@receipt')->name('account.orders.receipt');
+    Route::get('account/orders/{id}/receipt/download', 'AccountOrdersController@downloadReceipt')->name('account.orders.receipt.download');
+    Route::post('account/orders/{id}/receipt/whatsapp', 'AccountOrdersController@sendReceiptWhatsApp')
+        ->middleware('throttle:10,1')
+        ->name('account.orders.receipt.whatsapp');
     Route::post('account/orders/{id}/notify-beautician', 'AccountOrdersController@notifyBeautician')
         ->name('account.orders.notify_beautician');
 

@@ -484,6 +484,12 @@
     gap: 10px;
 }
 
+.order-complete-actions__receipt {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .order-complete-actions__secondary {
     display: flex;
     flex-wrap: wrap;
@@ -518,7 +524,17 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
-    &--print {
+    &--whatsapp {
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        background: #f0fdf4;
+
+        i {
+            color: #16a34a;
+        }
+    }
+
+    &--download {
         border: 1px solid #e5e7eb;
         color: #374151;
         background: #fff;
@@ -765,7 +781,13 @@
     }
 
     .order-complete-actions__primary,
-    .order-complete-actions__secondary {
+    .order-complete-actions__receipt {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.order-complete-actions__secondary {
         flex-direction: column;
     }
 

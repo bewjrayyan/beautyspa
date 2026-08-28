@@ -19,6 +19,11 @@ Route::any('checkout/{orderId}/complete', 'CheckoutCompleteController@store')
     ->withoutMiddleware(\AestheticCart\Http\Middleware\VerifyCsrfToken::class);
 Route::get('checkout/complete', 'CheckoutCompleteController@show')->name('checkout.complete.show');
 Route::get('checkout/complete/invoice', 'CheckoutCompleteController@invoice')->name('checkout.complete.invoice');
+Route::get('checkout/complete/receipt', 'CheckoutCompleteController@receipt')->name('checkout.complete.receipt');
+Route::get('checkout/complete/receipt/download', 'CheckoutCompleteController@downloadReceipt')->name('checkout.complete.receipt.download');
+Route::post('checkout/complete/receipt/whatsapp', 'CheckoutCompleteController@sendReceiptWhatsApp')
+    ->middleware('throttle:10,1')
+    ->name('checkout.complete.receipt.whatsapp');
 Route::post('checkout/complete/notify-beautician', 'CheckoutCompleteController@notifyBeautician')
     ->name('checkout.complete.notify_beautician');
 

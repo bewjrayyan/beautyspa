@@ -8,6 +8,12 @@
 
     <section class="order-complete-wrap">
         <div class="container">
+            @if (session('success'))
+                <div class="order-complete-alert order-complete-alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             @if (session('error'))
                 <div class="order-complete-alert order-complete-alert-error">
                     {{ session('error') }}
@@ -199,14 +205,29 @@
                             <i class="las la-file-invoice"></i>
                             {{ trans('storefront::order_complete.view_invoice') }}
                         </a>
+                    </div>
+
+                    <div class="order-complete-actions__receipt">
+                        @if ($canSendReceiptWhatsApp ?? false)
+                            <form
+                                action="{{ route('checkout.complete.receipt.whatsapp') }}"
+                                method="POST"
+                                class="order-complete-action-form"
+                            >
+                                @csrf
+                                <button type="submit" class="btn btn-default order-complete-btn order-complete-btn--whatsapp">
+                                    <i class="lab la-whatsapp"></i>
+                                    {{ trans('storefront::order_complete.send_receipt_whatsapp') }}
+                                </button>
+                            </form>
+                        @endif
+
                         <a
-                            href="{{ route('checkout.complete.invoice', ['print' => 1]) }}"
-                            class="btn btn-default order-complete-btn order-complete-btn--print"
-                            target="_blank"
-                            rel="noopener"
+                            href="{{ route('checkout.complete.receipt.download') }}"
+                            class="btn btn-default order-complete-btn order-complete-btn--download"
                         >
-                            <i class="las la-print"></i>
-                            {{ trans('storefront::order_complete.print_invoice') }}
+                            <i class="las la-download"></i>
+                            {{ trans('storefront::order_complete.download_receipt') }}
                         </a>
                     </div>
 
