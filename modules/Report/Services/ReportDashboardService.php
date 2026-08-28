@@ -98,7 +98,7 @@ class ReportDashboardService
                 [$today]
             )
             ->selectRaw(
-                'SUM(CASE WHEN appointment_date >= ? AND status NOT IN (?, ?, ?) THEN 1 ELSE 0 END) as upcoming_count',
+                'SUM(CASE WHEN appointment_date >= ? AND status NOT IN (?, ?) THEN 1 ELSE 0 END) as upcoming_count',
                 [$today, Order::CANCELED, Order::COMPLETED]
             )
             ->selectRaw(

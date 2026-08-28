@@ -9,23 +9,36 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
+use Modules\Setting\Services\ApplicationQueueService;
 use Modules\Setting\Services\OperationsAuditLogger;
 use Modules\Setting\Services\OperationsDashboardService;
+use Modules\Setting\Services\QueuePendingJobInspector;
 
 class OperationsController
 {
-    public function index(Request $request, OperationsDashboardService $dashboard): View
+    public function index(
+        Request $request,
+        OperationsDashboardService $dashboard,
+        QueuePendingJobInspector $jobInspector,
+        ApplicationQueueService $queueService,
+    ): View
     {
         $pendingJobs = Schema::hasTable('jobs')
             ? DB::table('jobs')
-                ->select(['id', 'queue', 'payload', 'attempts', 'reserved_at', 'created_at'])
+                ->select(['id', 'queue', 'payload', 'attempts', 'reserved_at', 'available_at', 'created_at'])
                 ->orderByDesc('id')
                 ->paginate(20, ['*'], 'pending_page')
             : null;
 
         if ($pendingJobs) {
-            $pendingJobs->setCollection($pendingJobs->getCollection()->map(function (object $job): object {
-                $job->display_name = $this->jobDisplayName((string) $job->payload);
+            $pendingJobs->setCollection($pendingJobs->getCollection()->map(function (object $job) use ($jobInspector): object {
+                $payload = (string) $job->payload;
+                $job->display_name = $this->jobDisplayName($payload);
+                $diagnosis = $jobInspector->inspect($job);
+                $job->pending_reason_key = $diagnosis['key'];
+                $job->pending_reason_detail = $diagnosis['detail'];
+                $job->pending_reason_context = $diagnosis['context'];
+                $job->pending_reason_severity = $diagnosis['severity'];
                 unset($job->payload);
 
                 return $job;
@@ -78,6 +91,11 @@ class OperationsController
             'retentionRuns' => $retentionRuns,
             'legalHolds' => $legalHolds,
             'audits' => $audits,
+            'queueConnection' => $queueConnection = $jobInspector->queueConnection(),
+            'queueWorkerLikelyRunning' => $jobInspector->queueWorkerLikelyRunning(),
+            'queueWorkerCommand' => $queueService->workerCommand($queueConnection),
+            'cronScheduleCommand' => $queueService->cronScheduleCommand(),
+            'cronWorkerCommand' => $queueService->cronWorkerCommand($queueConnection),
             'canManageQueue' => $request->user()?->hasAccess('admin.operations.manage_queue') ?? false,
             'canManageRetention' => $request->user()?->hasAccess('admin.operations.manage_retention') ?? false,
         ]);
@@ -106,6 +124,37 @@ class OperationsController
         $this->forgetDashboardCache();
 
         return back()->with('success', trans('setting::operations.queue_cancelled'));
+    }
+
+    public function processQueue(
+        Request $request,
+        ApplicationQueueService $queue,
+        OperationsAuditLogger $audit
+    ): RedirectResponse {
+        $result = $queue->processPendingBatch();
+
+        if ($result['error'] === 'sync') {
+            return back()->with('error', trans('setting::operations.queue_process_sync'));
+        }
+
+        if ($result['error'] === 'no_table') {
+            return back()->with('error', trans('setting::operations.queue_process_no_table'));
+        }
+
+        if ($result['error'] === 'worker_failed') {
+            return back()->with('error', trans('setting::operations.queue_process_failed'));
+        }
+
+        $audit->record($request, 'queue.processed', 'queue', null, [
+            'processed' => $result['processed'],
+            'remaining' => $result['remaining'],
+        ]);
+        $this->forgetDashboardCache();
+
+        return back()->with('success', trans('setting::operations.queue_processed', [
+            'count' => $result['processed'],
+            'remaining' => $result['remaining'],
+        ]));
     }
 
     public function retryFailed(

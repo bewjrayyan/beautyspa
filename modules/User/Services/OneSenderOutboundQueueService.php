@@ -191,6 +191,35 @@ class OneSenderOutboundQueueService
     }
 
 
+    public function deleteDeletableFromQuery($query): int
+    {
+        $count = 0;
+
+        (clone $query)
+            ->whereIn('status', [
+                OneSenderOutboundMessage::STATUS_SENT,
+                OneSenderOutboundMessage::STATUS_FAILED,
+                OneSenderOutboundMessage::STATUS_CANCELLED,
+            ])
+            ->orderBy('id')
+            ->chunkById(100, function ($messages) use (&$count) {
+                foreach ($messages as $message) {
+                    if ($this->deleteMessage($message)) {
+                        $count++;
+                    }
+                }
+            });
+
+        return $count;
+    }
+
+
+    public function deleteAllDeletable(): int
+    {
+        return $this->deleteDeletableFromQuery(OneSenderOutboundMessage::query());
+    }
+
+
     public function markSent(OneSenderOutboundMessage $message): void
     {
         $message->update([

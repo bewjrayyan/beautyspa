@@ -32,6 +32,12 @@ Route::post('settings/operations/failed-jobs/{uuid}/retry', [
     'middleware' => ['can:admin.operations.manage_queue', 'throttle:10,1'],
 ])->whereUuid('uuid');
 
+Route::post('settings/operations/queue/process', [
+    'as' => 'admin.operations.queue.process',
+    'uses' => 'OperationsController@processQueue',
+    'middleware' => ['can:admin.operations.manage_queue', 'throttle:5,1'],
+]);
+
 Route::post('settings/operations/consultations/{submission}/legal-hold', [
     'as' => 'admin.operations.legal_hold.place',
     'uses' => 'OperationsController@placeLegalHold',
@@ -95,6 +101,18 @@ Route::post('settings/onesender-queue/process-due', [
 Route::delete('settings/onesender-queue/{message}', [
     'as' => 'admin.onesender_queue.destroy',
     'uses' => 'OneSenderOutboundQueueController@destroy',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
+Route::post('settings/onesender-queue/delete-filtered', [
+    'as' => 'admin.onesender_queue.destroy_filtered',
+    'uses' => 'OneSenderOutboundQueueController@destroyFiltered',
+    'middleware' => 'can:admin.settings.edit',
+]);
+
+Route::post('settings/onesender-queue/delete-all', [
+    'as' => 'admin.onesender_queue.destroy_all',
+    'uses' => 'OneSenderOutboundQueueController@destroyAll',
     'middleware' => 'can:admin.settings.edit',
 ]);
 

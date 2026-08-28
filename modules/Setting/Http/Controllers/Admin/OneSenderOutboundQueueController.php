@@ -2,6 +2,7 @@
 
 namespace Modules\Setting\Http\Controllers\Admin;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Modules\User\Entities\OneSenderOutboundMessage;
@@ -11,22 +12,6 @@ class OneSenderOutboundQueueController
 {
     public function index(Request $request)
     {
-        $query = OneSenderOutboundMessage::query()->orderByDesc('id');
-
-        if ($status = trim((string) $request->query('status'))) {
-            $query->where('status', $status);
-        }
-
-        if ($recipient = trim((string) $request->query('recipient'))) {
-            $query->where('recipient', 'like', '%' . $recipient . '%');
-        }
-
-        if ($source = trim((string) $request->query('source'))) {
-            $query->where('source', 'like', '%' . $source . '%');
-        }
-
-        $messages = $query->paginate(30)->withQueryString();
-
         $statuses = [
             OneSenderOutboundMessage::STATUS_PENDING,
             OneSenderOutboundMessage::STATUS_PROCESSING,
@@ -35,9 +20,36 @@ class OneSenderOutboundQueueController
             OneSenderOutboundMessage::STATUS_CANCELLED,
         ];
 
-        $pendingCount = app(OneSenderOutboundQueueService::class)->pendingCount();
+        $messages = $this->filteredQuery($request)->paginate(30)->withQueryString();
 
-        return view('setting::admin.onesender_queue.index', compact('messages', 'statuses', 'pendingCount'));
+        $statusCounts = array_fill_keys($statuses, 0);
+
+        foreach (OneSenderOutboundMessage::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status') as $status => $count) {
+            if (array_key_exists($status, $statusCounts)) {
+                $statusCounts[$status] = (int) $count;
+            }
+        }
+
+        $pendingCount = app(OneSenderOutboundQueueService::class)->pendingCount();
+        $filteredCount = $messages->total();
+        $deletableFilteredCount = $this->deletableQuery($this->filteredQuery($request))->count();
+        $deletableTotalCount = $this->deletableQuery(OneSenderOutboundMessage::query())->count();
+        $hasActiveFilters = request()->hasAny(['status', 'recipient', 'source'])
+            && collect(['status', 'recipient', 'source'])->contains(fn (string $key) => trim((string) request($key)) !== '');
+
+        return view('setting::admin.onesender_queue.index', compact(
+            'messages',
+            'statuses',
+            'statusCounts',
+            'pendingCount',
+            'filteredCount',
+            'deletableFilteredCount',
+            'deletableTotalCount',
+            'hasActiveFilters',
+        ));
     }
 
 
@@ -73,6 +85,28 @@ class OneSenderOutboundQueueController
     }
 
 
+    public function destroyFiltered(Request $request): RedirectResponse
+    {
+        $count = app(OneSenderOutboundQueueService::class)->deleteDeletableFromQuery(
+            $this->deletableQuery($this->filteredQuery($request))
+        );
+
+        return redirect()
+            ->route('admin.onesender_queue.index', $request->only(['status', 'recipient', 'source']))
+            ->with('success', trans('setting::settings.onesender_queue.deleted_filtered', ['count' => $count]));
+    }
+
+
+    public function destroyAll(): RedirectResponse
+    {
+        $count = app(OneSenderOutboundQueueService::class)->deleteAllDeletable();
+
+        return redirect()
+            ->route('admin.onesender_queue.index')
+            ->with('success', trans('setting::settings.onesender_queue.deleted_all', ['count' => $count]));
+    }
+
+
     public function processDue(): RedirectResponse
     {
         $processed = app(OneSenderOutboundQueueService::class)->processDueBatch();
@@ -80,5 +114,35 @@ class OneSenderOutboundQueueController
         return back()->with('success', trans('setting::settings.onesender_queue.processed_due', [
             'count' => $processed,
         ]));
+    }
+
+
+    private function filteredQuery(Request $request): Builder
+    {
+        $query = OneSenderOutboundMessage::query()->orderByDesc('id');
+
+        if ($status = trim((string) $request->query('status', $request->input('status')))) {
+            $query->where('status', $status);
+        }
+
+        if ($recipient = trim((string) $request->query('recipient', $request->input('recipient')))) {
+            $query->where('recipient', 'like', '%' . $recipient . '%');
+        }
+
+        if ($source = trim((string) $request->query('source', $request->input('source')))) {
+            $query->where('source', 'like', '%' . $source . '%');
+        }
+
+        return $query;
+    }
+
+
+    private function deletableQuery(Builder $query): Builder
+    {
+        return (clone $query)->whereIn('status', [
+            OneSenderOutboundMessage::STATUS_SENT,
+            OneSenderOutboundMessage::STATUS_FAILED,
+            OneSenderOutboundMessage::STATUS_CANCELLED,
+        ]);
     }
 }

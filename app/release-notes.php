@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.54' => [
+        'date' => '2026-08-28',
+        'en' => [
+            'summary' => 'Fix reports dashboard SQL error, and expand Operations and OneSender queue tooling.',
+            'changes' => [
+                'Fix beautician bookings report stats query (invalid SQL parameter binding on /admin/reports).',
+                'Operations: diagnose why pending queue jobs are waiting (delayed, sync driver, scheduler, worker).',
+                'Operations: run a one-off queue:work batch from admin and show suggested worker/cron commands.',
+                'OneSender outbound queue: status count chips, refined filters, and bulk delete for filtered rows.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Betulkan ralat SQL papan laporan, dan luaskan alat Operations serta antrian OneSender.',
+            'changes' => [
+                'Betulkan query statistik laporan tempahan beautician (parameter SQL tidak sah pada /admin/reports).',
+                'Operations: diagnosis sebab job antrian tertunda (lewat, driver sync, penjadual, worker).',
+                'Operations: jalankan batch queue:work sekali dari admin dan papar arahan worker/cron yang dicadangkan.',
+                'Antrian keluar OneSender: cip kiraan status, penapis diperhalusi, dan padam pukal untuk baris ditapis.',
+            ],
+        ],
+    ],
+
     '4.11.53' => [
         'date' => '2026-08-27',
         'en' => [

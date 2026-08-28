@@ -39,6 +39,7 @@
         ];
         $pendingLimit = max(1, (int) ($snapshot['queue']['limits']['pending'] ?? 1));
         $failedLimit = max(1, (int) ($snapshot['queue']['limits']['failed'] ?? 0) + 1);
+        $showQueueProcess = $canManageQueue && ($snapshot['queue']['pending'] ?? 0) > 0 && $queueConnection !== 'sync';
         $pendingPct = min(100, (int) round(($snapshot['queue']['pending'] / $pendingLimit) * 100));
         $failedPct = min(100, (int) round(($snapshot['queue']['failed'] / $failedLimit) * 100));
         $ageLimit = max(1, (int) ($snapshot['queue']['limits']['oldest_minutes'] ?? 1));
@@ -183,13 +184,62 @@
                     <h4>{{ trans('setting::operations.queue') }}</h4>
                     <p>{{ number_format($snapshot['queue']['pending']) }} {{ strtolower(trans('setting::operations.pending')) }} · limit {{ number_format($snapshot['queue']['limits']['pending']) }}</p>
                 </div>
+                @if($showQueueProcess)
+                    <div class="operations-panel__actions">
+                        <form class="operations-inline-form" method="POST" action="{{ route('admin.operations.queue.process') }}" onsubmit="return confirm(@js(trans('setting::operations.queue_process_confirm')));">
+                            @csrf
+                            <button class="btn operations-btn operations-btn--primary operations-btn--sm" type="submit"><i class="fa fa-play"></i>{{ trans('setting::operations.queue_process_now') }}</button>
+                        </form>
+                    </div>
+                @endif
             </header>
+            @if(($snapshot['queue']['pending'] ?? 0) > 0 && ! $queueWorkerLikelyRunning)
+                <div class="operations-queue-alert" role="note">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                    <div class="operations-queue-alert__content">
+                        <strong>{{ trans('setting::operations.queue_worker_alert_title') }}</strong>
+                        <p>{{ trans('setting::operations.queue_worker_alert_body', ['connection' => $queueConnection]) }}</p>
+                        @unless($snapshot['scheduler']['healthy'] ?? false)
+                            <p>{{ trans('setting::operations.queue_scheduler_alert_body') }}</p>
+                        @endunless
+                        @if($showQueueProcess)
+                            <div class="operations-queue-alert__actions">
+                                <form class="operations-inline-form" method="POST" action="{{ route('admin.operations.queue.process') }}" onsubmit="return confirm(@js(trans('setting::operations.queue_process_confirm')));">
+                                    @csrf
+                                    <button class="btn operations-btn operations-btn--primary operations-btn--sm" type="submit"><i class="fa fa-play"></i>{{ trans('setting::operations.queue_process_now') }}</button>
+                                </form>
+                            </div>
+                        @endif
+                        <details class="operations-queue-setup">
+                            <summary>{{ trans('setting::operations.queue_setup_title') }}</summary>
+                            <div class="operations-queue-setup__commands">
+                                <div class="operations-queue-setup__row">
+                                    <span class="operations-queue-setup__label">{{ trans('setting::operations.queue_setup_worker') }}</span>
+                                    <code class="operations-queue-setup__code">{{ $queueWorkerCommand }}</code>
+                                    <button type="button" class="btn operations-btn operations-btn--secondary operations-btn--sm operations-queue-setup__copy" data-copy="{{ $queueWorkerCommand }}">{{ trans('setting::operations.queue_setup_copy') }}</button>
+                                </div>
+                                <div class="operations-queue-setup__row">
+                                    <span class="operations-queue-setup__label">{{ trans('setting::operations.queue_setup_cron') }}</span>
+                                    <code class="operations-queue-setup__code">{{ $cronScheduleCommand }}</code>
+                                    <button type="button" class="btn operations-btn operations-btn--secondary operations-btn--sm operations-queue-setup__copy" data-copy="{{ $cronScheduleCommand }}">{{ trans('setting::operations.queue_setup_copy') }}</button>
+                                </div>
+                                <div class="operations-queue-setup__row">
+                                    <span class="operations-queue-setup__label">{{ trans('setting::operations.queue_setup_cron_worker') }}</span>
+                                    <code class="operations-queue-setup__code">{{ $cronWorkerCommand }}</code>
+                                    <button type="button" class="btn operations-btn operations-btn--secondary operations-btn--sm operations-queue-setup__copy" data-copy="{{ $cronWorkerCommand }}">{{ trans('setting::operations.queue_setup_copy') }}</button>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            @endif
             <div class="operations-panel__body operations-panel__body--flush operations-table-wrap">
                 <table class="table operations-table">
                     <thead>
                         <tr>
                             <th>{{ trans('setting::operations.job') }}</th>
                             <th>{{ trans('setting::operations.queue_name') }}</th>
+                            <th>{{ trans('setting::operations.pending_reason') }}</th>
                             <th>{{ trans('setting::operations.attempts') }}</th>
                             <th>{{ trans('setting::operations.queued_at') }}</th>
                             <th class="text-right">{{ trans('setting::operations.actions') }}</th>
@@ -198,8 +248,18 @@
                     <tbody>
                         @forelse($pendingJobs?->items() ?? [] as $job)
                             <tr>
-                                <td><code class="operations-code" title="{{ $job->display_name }}">{{ $job->display_name }}</code></td>
+                                <td>
+                                    <code class="operations-code" title="{{ $job->display_name }}">{{ $job->display_name }}</code>
+                                    @if($job->pending_reason_context)
+                                        <small class="operations-job-context">{{ $job->pending_reason_context }}</small>
+                                    @endif
+                                </td>
                                 <td><span class="operations-tag">{{ $job->queue }}</span></td>
+                                <td>
+                                    <span class="operations-reason operations-reason--{{ $job->pending_reason_severity }}" title="{{ trans('setting::operations.pending_reasons.' . $job->pending_reason_key . '_hint') }}">
+                                        {{ trans('setting::operations.pending_reasons.' . $job->pending_reason_key, ['detail' => $job->pending_reason_detail]) }}
+                                    </span>
+                                </td>
                                 <td>{{ $job->attempts }}</td>
                                 <td>{{ date('Y-m-d H:i:s', $job->created_at) }}</td>
                                 <td class="text-right">
@@ -214,7 +274,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5"><div class="operations-empty"><i class="fa fa-check-circle-o"></i><span>{{ trans('setting::operations.empty_pending') }}</span></div></td></tr>
+                            <tr><td colspan="6"><div class="operations-empty"><i class="fa fa-check-circle-o"></i><span>{{ trans('setting::operations.empty_pending') }}</span></div></td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -361,7 +421,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5"><div class="operations-empty"><i class="fa fa-shield"></i><span>{{ trans('setting::operations.no_holds') }}</span></div></td></tr>
+                            <tr><td colspan="6"><div class="operations-empty"><i class="fa fa-shield"></i><span>{{ trans('setting::operations.no_holds') }}</span></div></td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -467,4 +527,20 @@
 
 @push('globals')
     @vite(['modules/Setting/Resources/assets/admin/sass/main.scss'])
+@endpush
+@push('scripts')
+<script>
+document.querySelectorAll('.operations-queue-setup__copy').forEach(function (button) {
+    button.addEventListener('click', function () {
+        var text = button.getAttribute('data-copy') || '';
+        if (!text) return;
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(function () {
+                button.classList.add('is-copied');
+                setTimeout(function () { button.classList.remove('is-copied'); }, 1500);
+            });
+        }
+    });
+});
+</script>
 @endpush

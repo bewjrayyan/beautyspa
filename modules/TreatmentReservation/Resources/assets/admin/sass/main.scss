@@ -4511,7 +4511,7 @@ body.tr-calendar-event-preview-open {
 
 // Week grid — clear date/time cell borders
 .tr-cal-week-grid {
-    border: 1px solid #94a3b8;
+    border: 1px solid #cbd5e1;
     border-radius: 10px;
     overflow: hidden;
     background: #fff;
@@ -4520,7 +4520,7 @@ body.tr-calendar-event-preview-open {
 .tr-week-header {
     display: grid;
     grid-template-columns: 80px repeat(7, minmax(0, 1fr));
-    border-bottom: 2px solid #94a3b8;
+    border-bottom: 1px solid #e2e8f0;
     background: #f8fafc;
 
     &__time {
@@ -4529,14 +4529,14 @@ body.tr-calendar-event-preview-open {
         font-weight: 600;
         color: #0f172a;
         text-align: center;
-        border-right: 1px solid #94a3b8;
+        border-right: 1px solid #e2e8f0;
         background: #f1f5f9;
     }
 
     &__day {
         padding: 12px 8px;
         text-align: center;
-        border-left: 1px solid #94a3b8;
+        border-left: 1px solid #e2e8f0;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -4681,7 +4681,7 @@ body.tr-calendar-event-preview-open {
     &__col {
         position: relative;
         pointer-events: auto;
-        border-left: 1px solid #94a3b8;
+        border-left: 1px solid #e2e8f0;
         box-sizing: border-box;
     }
 }
@@ -4690,7 +4690,7 @@ body.tr-calendar-event-preview-open {
     display: grid;
     grid-template-columns: 80px repeat(7, minmax(0, 1fr));
     height: 100px;
-    border-bottom: 1px solid #94a3b8;
+    border-bottom: 1px solid #e2e8f0;
 
     &:last-child {
         border-bottom: 0;
@@ -4704,7 +4704,7 @@ body.tr-calendar-event-preview-open {
         font-weight: 700;
         color: #0f172a;
         text-align: right;
-        border-right: 1px solid #94a3b8;
+        border-right: 1px solid #e2e8f0;
         background: #f8fafc;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         display: flex;
@@ -4715,7 +4715,7 @@ body.tr-calendar-event-preview-open {
     }
 
     &__cell {
-        border-left: 1px solid #94a3b8;
+        border-left: 1px solid #e2e8f0;
         height: 100px;
         overflow: hidden;
         box-sizing: border-box;
@@ -6990,44 +6990,41 @@ body.tr-reschedule-workspace-open {
 }
 
 
-/* Portal / embedded: same week grid polish + scrollable 24h range */
+/* Portal / embedded: week grid shows full 24h range (no inner vertical scroll) */
 #tr-portal-app .tr-calendar--week-view,
 #tr-beautician-schedule-app .tr-calendar--week-view,
 .tr-calendar--embedded.tr-calendar--week-view {
     .tr-calendar-day-view {
         display: block;
         padding: 0 12px 16px;
-        max-height: min(72vh, 920px);
-        overflow: auto;
-        overscroll-behavior: contain;
-        -webkit-overflow-scrolling: touch;
+        max-height: none;
+        overflow: visible;
     }
 
     .tr-cal-week-grid {
         min-height: 0;
-        border: 1px solid #94a3b8;
+        border: 1px solid #cbd5e1;
         border-radius: 10px;
         overflow: visible;
         background: #fff;
     }
 
     .tr-week-header {
-        position: sticky;
-        top: 0;
-        z-index: 3;
+        position: static;
+        z-index: auto;
         background: #f8fafc;
     }
 
     .tr-week-row {
-        border-bottom-color: #94a3b8;
+        border-bottom-color: #e2e8f0;
 
         &__time {
-            border-right-color: #94a3b8;
+            border-right-color: #e2e8f0;
             background: #f8fafc;
         }
 
         &__cell {
-            border-left-color: #94a3b8;
+            border-left-color: #e2e8f0;
         }
     }
 }
