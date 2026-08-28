@@ -81,7 +81,7 @@ return [
         'appointment_time' => 'Masa',
         'spa_branch' => 'Spa branch',
         'copied' => 'Copied',
-        'pay_with_chip_alt' => 'Pay with CHIP — cards, e-wallets and online banking',
+        'pay_with_chip_alt' => 'Bayar dengan CHIP — kad, e-wallet dan perbankan dalam talian',
         'order_information' => 'Maklumat Pesanan',
         'id' => 'ID',
         'phone' => 'Telefon:',

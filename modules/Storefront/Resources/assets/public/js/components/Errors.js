@@ -3,8 +3,12 @@ export default class {
         this.errors = {};
     }
 
-    record(errors) {
-        this.errors = errors;
+    record(errors, replace = false) {
+        if (replace) {
+            this.errors = errors;
+        } else {
+            Object.assign(this.errors, errors);
+        }
     }
 
     any() {
@@ -12,13 +16,20 @@ export default class {
     }
 
     has(key) {
-        return this.errors.hasOwnProperty(key);
+        const normalized = this.normalizeKey(key);
+        return Object.prototype.hasOwnProperty.call(this.errors, normalized)
+            || Object.prototype.hasOwnProperty.call(this.errors, key);
     }
 
     get(key) {
-        if (this.errors[key]) {
-            return this.errors[key][0];
+        const normalized = this.normalizeKey(key);
+        const value = this.errors[normalized] ?? this.errors[key];
+
+        if (!value) {
+            return undefined;
         }
+
+        return Array.isArray(value) ? value[0] : value;
     }
 
     clear(key) {
@@ -26,7 +37,9 @@ export default class {
             return;
         }
 
-        delete this.errors[this.normalizeKey(key)];
+        const normalized = this.normalizeKey(key);
+        delete this.errors[normalized];
+        delete this.errors[key];
     }
 
     reset() {
@@ -36,7 +49,6 @@ export default class {
     normalizeKey(key) {
         let keyParts = key.replace("[]", "").split("[");
 
-        // No need to normalize the key.
         if (keyParts.length === 1) {
             return key;
         }

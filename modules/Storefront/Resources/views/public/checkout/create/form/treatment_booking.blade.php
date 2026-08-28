@@ -4,11 +4,16 @@
 .checkout-schedule-option:has(input:checked) { border-color: #f274ac; background: #fff4f8; color: #6f2948; font-weight: 600; }
 .checkout-schedule-option input { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; pointer-events: none; }
 .checkout-schedule-option__tick { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 20px; height: 20px; margin-top: 1px; color: transparent; background: #fff; border: 2px solid #d1d5db; border-radius: 5px; transition: all 0.15s ease; }
-.checkout-schedule-option__tick i { font-size: 12px; line-height: 1; }
+.checkout-schedule-option__tick i { font-size: 12px; line-height: 1; opacity: 0; transform: scale(0.85); transition: opacity 0.15s ease, transform 0.15s ease; }
 .checkout-schedule-option:has(input:checked) .checkout-schedule-option__tick { color: #fff; background: #f274ac; border-color: #f274ac; }
+.checkout-schedule-option:has(input:checked) .checkout-schedule-option__tick i { opacity: 1; transform: scale(1); }
 .checkout-treatment-card { border: 1px solid #eadfe4; border-radius: 14px; padding: 16px; margin-bottom: 14px; background: #fffafc; }
-.checkout-treatment-card__title { font-size: 15px; font-weight: 600; color: #6f2948; margin: 0 0 12px; }
-.checkout-treatment-card .is-disabled-field { opacity: 0.55; pointer-events: none; }
+.checkout-treatment-card__header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.checkout-treatment-card__number { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 28px; height: 28px; font-size: 13px; font-weight: 700; line-height: 1; color: #fff; background: #f274ac; border-radius: 50%; }
+.checkout-treatment-card__title { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: #6f2948; margin: 0; padding-top: 4px; }
+.checkout-treatment-card .is-disabled-field { opacity: 0.55; }
+.checkout-treatment-card .is-disabled-field .checkout-input-wrap { pointer-events: auto; cursor: pointer; }
+.checkout-treatment-card .is-disabled-field .form-control:disabled { pointer-events: none; }
 @media (max-width: 640px) { .checkout-schedule-toggle { grid-template-columns: 1fr; } }
 </style>
 <template x-if="requiresTreatmentBooking">
@@ -24,8 +29,15 @@
         </div>
 
         <template x-for="(line, lineIndex) in treatmentSchedules" :key="line.cart_item_id || ('p-' + line.product_id + '-' + lineIndex)">
-            <div class="checkout-treatment-card">
-                <h5 class="checkout-treatment-card__title" x-text="line.name"></h5>
+            <div class="checkout-treatment-card" :data-treatment-line-index="lineIndex">
+                <div class="checkout-treatment-card__header">
+                    <span
+                        class="checkout-treatment-card__number"
+                        x-text="lineIndex + 1"
+                        :aria-label="`${lineIndex + 1}. ${line.name}`"
+                    ></span>
+                    <h5 class="checkout-treatment-card__title" x-text="line.name"></h5>
+                </div>
 
                 <div class="form-group checkout-field-beautician">
                     <label class="input-label">
@@ -37,8 +49,7 @@
                             type="button"
                             class="beautician-selected-card"
                             :class="{ 'is-open': line.pickerOpen, 'is-placeholder': !lineBeautician(line), 'is-disabled': hasSpaBranches && !hasSpaBranchSelected }"
-                            @click="spaBranchPickerOpen = false; hasSpaBranches && !hasSpaBranchSelected ? null : (line.pickerOpen = !line.pickerOpen)"
-                            :disabled="hasSpaBranches && !hasSpaBranchSelected"
+                            @click="handleLineBeauticianPickerClick(lineIndex)"
                             :aria-expanded="line.pickerOpen"
                             aria-haspopup="listbox"
                         >
@@ -85,15 +96,15 @@
 
                 <div class="form-group checkout-schedule-mode">
                     <div class="checkout-schedule-toggle" role="group" aria-label="{{ trans('storefront::checkout.schedule_mode') }}">
-                        <label class="checkout-schedule-option" x-show="canScheduleLaterForLine(line)" x-cloak>
-                            <input type="radio" :name="`schedule_later_${lineIndex}`" value="1" x-model="line.schedule_later" @change="onLineScheduleModeChange(lineIndex)">
-                            <span class="checkout-schedule-option__tick" aria-hidden="true"><i class="las la-check"></i></span>
-                            <span>{{ trans('storefront::checkout.schedule_later_tba') }}</span>
-                        </label>
                         <label class="checkout-schedule-option">
                             <input type="radio" :name="`schedule_later_${lineIndex}`" value="0" x-model="line.schedule_later" @change="onLineScheduleModeChange(lineIndex)">
                             <span class="checkout-schedule-option__tick" aria-hidden="true"><i class="las la-check"></i></span>
                             <span>{{ trans('storefront::checkout.schedule_now') }}</span>
+                        </label>
+                        <label class="checkout-schedule-option" x-show="canScheduleLaterForLine(line)" x-cloak>
+                            <input type="radio" :name="`schedule_later_${lineIndex}`" value="1" x-model="line.schedule_later" @change="onLineScheduleModeChange(lineIndex)">
+                            <span class="checkout-schedule-option__tick" aria-hidden="true"><i class="las la-check"></i></span>
+                            <span>{{ trans('storefront::checkout.schedule_later_tba') }}</span>
                         </label>
                     </div>
                     <p class="help-block" x-show="isLineScheduleLater(line)" x-cloak>
@@ -101,13 +112,13 @@
                     </p>
                 </div>
 
-                <div class="row checkout-appointment-row" x-show="!isLineScheduleLater(line)" x-cloak>
+                <div class="row checkout-appointment-row" x-show="isLineScheduleNow(line)" x-cloak>
                     <div class="col-md-9">
-                        <div class="form-group checkout-field-icon" :class="{ 'is-disabled-field': !line.beautician_id || line.loadingDates || (line.datesResolved && !line.availableDates.length) }">
+                        <div class="form-group checkout-field-icon" :class="{ 'is-disabled-field': !lineCanUseAppointmentFields(line) || line.loadingDates || (line.datesResolved && !line.availableDates.length) }">
                             <label class="input-label">{{ trans('storefront::checkout.appointment_date') }} <span>*</span></label>
                             <div
                                 class="checkout-input-wrap"
-                                @click="openLineDatePicker(lineIndex)"
+                                @click="lineCanUseAppointmentFields(line) ? openLineDatePicker(lineIndex) : promptTreatmentBookingStep(lineIndex, { forAppointment: true })"
                             >
                                 <i class="las la-calendar"></i>
                                 <input
@@ -116,11 +127,14 @@
                                     :data-line-index="lineIndex"
                                     placeholder="{{ trans('storefront::checkout.appointment_date') }}"
                                     readonly
-                                    :required="!isLineScheduleLater(line)"
+                                    :required="isLineScheduleNow(line)"
                                     :aria-disabled="!line.beautician_id || line.loadingDates || !line.availableDates.length"
                                 >
                             </div>
-                            <p class="help-block" x-show="!line.beautician_id" x-cloak>
+                            <p class="help-block" x-show="lineNeedsBranchFirst()" x-cloak>
+                                {{ trans('storefront::checkout.select_spa_branch_before_date') }}
+                            </p>
+                            <p class="help-block" x-show="!lineNeedsBranchFirst() && lineNeedsBeautician(line)" x-cloak>
                                 {{ trans('storefront::checkout.select_beautician_before_date') }}
                             </p>
                             <p class="help-block" x-show="line.beautician_id && line.loadingDates" x-cloak>
@@ -139,16 +153,19 @@
                         </div>
                     </div>
                     <div class="col-md-9">
-                        <div class="form-group checkout-field-icon" :class="{ 'is-disabled-field': !line.beautician_id || !line.appointment_date }">
+                        <div class="form-group checkout-field-icon" :class="{ 'is-disabled-field': !lineCanUseAppointmentFields(line) || !line.appointment_date }">
                             <label class="input-label">{{ trans('storefront::checkout.appointment_time') }} <span>*</span></label>
-                            <div class="checkout-input-wrap">
+                            <div
+                                class="checkout-input-wrap"
+                                @click="(!lineCanUseAppointmentFields(line) || !line.appointment_date) && promptLineAppointmentTime(lineIndex)"
+                            >
                                 <i class="las la-clock"></i>
                                 <select
                                     class="form-control"
                                     x-model="line.appointment_time"
                                     @change="onLineAppointmentTimeChange(lineIndex)"
-                                    :disabled="isLineScheduleLater(line) || !line.beautician_id || !line.appointment_date || (!line.slots.length && !line.appointment_time && !line.loadingSlots)"
-                                    :required="!isLineScheduleLater(line)"
+                                    :disabled="!isLineScheduleNow(line) || !line.beautician_id || !line.appointment_date || (!line.slots.length && !line.appointment_time && !line.loadingSlots)"
+                                    :required="isLineScheduleNow(line)"
                                 >
                                     <template x-for="opt in lineAppointmentTimeOptions(line)" :key="opt.key">
                                         <option :value="opt.value" :disabled="opt.disabled" x-text="opt.label"></option>
@@ -163,7 +180,7 @@
                                 {{ trans('storefront::checkout.appointment_time_conflicts_sibling') }}
                             </p>
                             <p class="help-block" x-show="line.beautician_id && line.appointment_date && !line.loadingSlots && !line.slots.length" x-cloak>
-                                <span x-text="slotLabels.empty || 'No available times on this date.'"></span>
+                                <span x-text="slotLabels.empty"></span>
                             </p>
                             <span class="error-message" x-show="errors.has(`treatment_bookings.${lineIndex}.appointment_time`)" x-text="errors.get(`treatment_bookings.${lineIndex}.appointment_time`)"></span>
                         </div>

@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.57' => [
+        'date' => '2026-08-28',
+        'en' => [
+            'summary' => 'Modern checkout treatment booking flow, order summary item removal, and BM translation fixes.',
+            'changes' => [
+                'Treatment checkout: explicit schedule mode (no default), branch → beautician → date/time prerequisite flow with focus/pulse hints and circle numbering per product line.',
+                'Fix Errors.js showing single-letter validation messages; register checkout JS translation keys via js_langs partial.',
+                'Order summary: clearer item dividers, remove item button (same as cart), sync treatment schedules and redirect when cart empties.',
+                'Checkout UI: payment card bottom margin, softer field attention pulse on picker wrappers, full BM checkout strings.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Aliran tempahan rawatan checkout moden, buang item ringkasan order, dan pembetulan terjemahan BM.',
+            'changes' => [
+                'Checkout rawatan: mod jadual eksplisit (tiada lalai), aliran prasyarat cawangan → beautician → tarikh/masa dengan fokus/pulse dan nombor bulat setiap produk.',
+                'Betulkan Errors.js papar satu huruf mesej validasi; daftar kunci terjemahan JS checkout melalui partial js_langs.',
+                'Ringkasan order: pemisah item lebih jelas, butang buang item (sama cart), sync jadual rawatan dan redirect bila cart kosong.',
+                'UI checkout: margin bawah kad bayaran, pulse perhatian field pada wrapper picker, rentetan BM checkout penuh.',
+            ],
+        ],
+    ],
+
     '4.11.56' => [
         'date' => '2026-08-28',
         'en' => [

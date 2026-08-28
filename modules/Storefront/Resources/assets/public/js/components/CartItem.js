@@ -250,6 +250,7 @@ Alpine.data("CartItem", (cartItem) => ({
 
         axios.delete(`/cart/items/${cartItem.id}`).then((response) => {
             this.$store.cart.updateCart(response.data);
+            window.dispatchEvent(new CustomEvent("cart:updated"));
         });
     },
 }));

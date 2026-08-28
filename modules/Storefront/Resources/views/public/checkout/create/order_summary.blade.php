@@ -75,6 +75,17 @@
                                     x-text="formatCurrency(lineTotal(cartItem.qty))"
                                 ></span>
                             </div>
+
+                            <div class="remove-cart-item">
+                                <button
+                                    type="button"
+                                    class="btn-remove"
+                                    @click="removeCartItem"
+                                    aria-label="{{ trans('storefront::checkout.remove_cart_item') }}"
+                                >
+                                    <i class="las la-times"></i>
+                                </button>
+                            </div>
                         </li>
                     </template>
                 </ul>

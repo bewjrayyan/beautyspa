@@ -77,7 +77,7 @@ Alpine.data(
             ship_to_a_different_address: false,
             beautician_id: "",
             appointment_date: "",
-            schedule_later: "1",
+            schedule_later: "",
             appointment_time: "",
             spa_branch_id: "",
             order_note: "",
@@ -356,6 +356,13 @@ Alpine.data(
             this.spaBranchPickerOpen = false;
             this.beauticianPickerOpen = false;
             this.errors.clear("spa_branch_id");
+            (this.treatmentSchedules || []).forEach((line) => {
+                line.pickerOpen = false;
+            });
+
+            if (this.requiresTreatmentBooking) {
+                this.autoFocusBeauticianAfterBranchSelect();
+            }
         },
 
         selectBeautician(beautician) {
@@ -687,11 +694,11 @@ Alpine.data(
                         line.availableDates = [];
                         line.datesResolved = false;
                         line.datesLoadFailed = false;
-                        if (!this.canScheduleLaterForLine(line)) {
-                            line.schedule_later = "0";
+                        if (!this.canScheduleLaterForLine(line) && this.isLineScheduleLater(line)) {
+                            line.schedule_later = "";
                         }
                         this.destroyLineDatePicker(index);
-                        if (!this.isLineScheduleLater(line) && line.beautician_id) {
+                        if (this.isLineScheduleNow(line) && line.beautician_id) {
                             this.loadLineAvailableDates(index);
                         }
                     });
@@ -703,6 +710,10 @@ Alpine.data(
             if (this.requiresTreatmentBooking) {
                 this.bootTreatmentSchedules();
             }
+
+            window.addEventListener("cart:updated", () => {
+                this.onCheckoutCartUpdated();
+            });
 
             this.$nextTick(() => {
                 bootModernPhoneInputs(this.$el);
@@ -829,11 +840,42 @@ Alpine.data(
             });
         },
 
+        onCheckoutCartUpdated() {
+            if (!this.cartFetched) {
+                return;
+            }
+
+            if (this.cartIsEmpty) {
+                window.location.href = AestheticCart.url("/cart");
+
+                return;
+            }
+
+            if (!this.requiresTreatmentBooking) {
+                return;
+            }
+
+            this.syncTreatmentCartItemsFromCart();
+            this.bootTreatmentSchedules();
+        },
+
+        syncTreatmentCartItemsFromCart() {
+            this.treatmentCartItems = Object.values(this.cart.items || {})
+                .filter((item) => item.product?.is_virtual)
+                .map((item) => ({
+                    cart_item_id: String(item.id),
+                    product_id: Number(item.product.id),
+                    name: String(item.product.name || "Treatment"),
+                }));
+
+            this.ensureTreatmentSchedules();
+        },
+
         bootTreatmentSchedules() {
             this.ensureTreatmentSchedules();
             this.$nextTick(() => {
                 (this.treatmentSchedules || []).forEach((line, index) => {
-                    if (!this.isLineScheduleLater(line) && line.beautician_id) {
+                    if (this.isLineScheduleNow(line) && line.beautician_id) {
                         this.loadLineAvailableDates(index);
                         if (line.appointment_date) {
                             this.loadLineAppointmentSlots(index);
@@ -878,7 +920,7 @@ Alpine.data(
                     product_id: Number(item.product_id),
                     name: item.name || "Treatment",
                     beautician_id: prev?.beautician_id || "",
-                    schedule_later: prev?.schedule_later ?? "1",
+                    schedule_later: prev?.schedule_later ?? "",
                     appointment_date: prev?.appointment_date || "",
                     appointment_time: prev?.appointment_time || "",
                     slots: prev?.slots || [],
@@ -899,7 +941,7 @@ Alpine.data(
 
             (this.treatmentSchedules || []).forEach((line) => {
                 if (!this.canScheduleLaterForLine(line) && this.isLineScheduleLater(line)) {
-                    line.schedule_later = "0";
+                    line.schedule_later = "";
                 }
             });
         },
@@ -909,8 +951,193 @@ Alpine.data(
             return this.beauticians.find((b) => String(b.id) === String(line.beautician_id)) ?? null;
         },
 
+        isLineScheduleNow(line) {
+            return line?.schedule_later === false || line?.schedule_later === 0 || line?.schedule_later === "0";
+        },
+
+        isLineScheduleModeSelected(line) {
+            return this.isLineScheduleNow(line) || this.isLineScheduleLater(line);
+        },
+
         isLineScheduleLater(line) {
             return line?.schedule_later === true || line?.schedule_later === 1 || line?.schedule_later === "1";
+        },
+
+        lineNeedsBranchFirst() {
+            return this.hasSpaBranches && !this.hasSpaBranchSelected;
+        },
+
+        lineNeedsBeautician(line) {
+            return !line?.beautician_id;
+        },
+
+        lineCanUseAppointmentFields(line) {
+            return !this.lineNeedsBranchFirst() && !this.lineNeedsBeautician(line);
+        },
+
+        pulseCheckoutField(el) {
+            if (!el) {
+                return;
+            }
+
+            const target =
+                el.closest(".beautician-picker-dropdown")
+                ?? el.closest(".checkout-field-spa-branch")
+                ?? el;
+
+            target.classList.remove("checkout-field--needs-attention");
+            void target.offsetWidth;
+            target.classList.add("checkout-field--needs-attention");
+            window.setTimeout(
+                () => target.classList.remove("checkout-field--needs-attention"),
+                3600
+            );
+        },
+
+        focusSpaBranchField({ showError = true, openPicker = false } = {}) {
+            if (showError) {
+                this.errors.record({
+                    spa_branch_id: trans("storefront::checkout.select_spa_branch_first"),
+                });
+            } else {
+                this.errors.clear("spa_branch_id");
+            }
+
+            this.spaBranchPickerOpen = openPicker;
+            this.beauticianPickerOpen = false;
+            (this.treatmentSchedules || []).forEach((line) => {
+                line.pickerOpen = false;
+            });
+
+            this.runAfterCheckoutFieldReady(() => {
+                const card = document.querySelector(".checkout-field-spa-branch .beautician-selected-card");
+                card?.closest(".checkout-card-branch")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+                this.pulseCheckoutField(card);
+
+                if (card) {
+                    card.focus({ preventScroll: true });
+                }
+            });
+        },
+
+        runAfterCheckoutFieldReady(callback) {
+            this.$nextTick(() => {
+                window.requestAnimationFrame(() => {
+                    callback();
+                });
+            });
+        },
+
+        findLineBeauticianCard(lineIndex) {
+            const selector = `[data-treatment-line-index="${lineIndex}"] .beautician-selected-card`;
+
+            return (
+                this.$el?.querySelector(selector)
+                ?? document.querySelector(selector)
+            );
+        },
+
+        focusLineBeauticianField(lineIndex, { showError = true, openPicker = false } = {}) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line) {
+                return;
+            }
+
+            const errorKey = `treatment_bookings.${lineIndex}.beautician_id`;
+
+            if (showError) {
+                this.errors.record({
+                    [errorKey]: trans("storefront::checkout.select_beautician"),
+                });
+            } else {
+                this.errors.clear(errorKey);
+            }
+
+            this.spaBranchPickerOpen = false;
+            (this.treatmentSchedules || []).forEach((otherLine, index) => {
+                otherLine.pickerOpen = openPicker && index === lineIndex;
+            });
+
+            this.runAfterCheckoutFieldReady(() => {
+                const card = this.findLineBeauticianCard(lineIndex);
+                card?.closest(".checkout-treatment-card")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+                this.pulseCheckoutField(card);
+
+                if (card) {
+                    card.focus({ preventScroll: true });
+                }
+            });
+        },
+
+        autoFocusBeauticianAfterBranchSelect() {
+            if (!this.requiresTreatmentBooking || !this.hasSpaBranchSelected) {
+                return;
+            }
+
+            this.spaBranchPickerOpen = false;
+
+            const lineIndex = (this.treatmentSchedules || []).findIndex(
+                (line) => this.lineNeedsBeautician(line)
+            );
+
+            if (lineIndex === -1) {
+                return;
+            }
+
+            this.runAfterCheckoutFieldReady(() => {
+                this.focusLineBeauticianField(lineIndex, {
+                    showError: false,
+                    openPicker: false,
+                });
+            });
+        },
+
+        promptTreatmentBookingStep(lineIndex, { forAppointment = false } = {}) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line) {
+                return false;
+            }
+
+            if (this.lineNeedsBranchFirst()) {
+                this.focusSpaBranchField();
+                notify(trans("storefront::checkout.select_spa_branch_before_schedule"));
+                return false;
+            }
+
+            if (this.lineNeedsBeautician(line)) {
+                this.focusLineBeauticianField(lineIndex);
+                notify(
+                    trans(
+                        forAppointment
+                            ? "storefront::checkout.select_beautician_before_date"
+                            : "storefront::checkout.select_beautician_before_schedule"
+                    )
+                );
+                return false;
+            }
+
+            return true;
+        },
+
+        handleLineBeauticianPickerClick(lineIndex) {
+            if (this.lineNeedsBranchFirst()) {
+                this.promptTreatmentBookingStep(lineIndex);
+                return;
+            }
+
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line) {
+                return;
+            }
+
+            this.spaBranchPickerOpen = false;
+            line.pickerOpen = !line.pickerOpen;
         },
 
         canScheduleLaterForLine(line) {
@@ -1023,7 +1250,7 @@ Alpine.data(
 
             this.destroyLineDatePicker(lineIndex);
 
-            if (!this.isLineScheduleLater(line)) {
+            if (this.isLineScheduleNow(line)) {
                 this.loadLineAvailableDates(lineIndex);
             }
         },
@@ -1031,6 +1258,11 @@ Alpine.data(
         onLineScheduleModeChange(lineIndex) {
             const line = this.treatmentSchedules[lineIndex];
             if (!line) return;
+
+            if (line.schedule_later !== "" && !this.promptTreatmentBookingStep(lineIndex)) {
+                line.schedule_later = "";
+                return;
+            }
 
             if (this.isLineScheduleLater(line)) {
                 line.appointment_date = "";
@@ -1043,11 +1275,13 @@ Alpine.data(
                 line.datesResolved = false;
                 line.datesLoadFailed = false;
                 this.destroyLineDatePicker(lineIndex);
-            } else if (line.beautician_id) {
-                // Wait for x-show to reveal date inputs before Flatpickr binds.
-                this.$nextTick(() => this.loadLineAvailableDates(lineIndex));
-            } else {
-                this.$nextTick(() => this.initAppointmentPickers());
+            } else if (this.isLineScheduleNow(line)) {
+                if (line.beautician_id) {
+                    // Wait for x-show to reveal date inputs before Flatpickr binds.
+                    this.$nextTick(() => this.loadLineAvailableDates(lineIndex));
+                } else {
+                    this.$nextTick(() => this.initAppointmentPickers());
+                }
             }
         },
 
@@ -1060,15 +1294,35 @@ Alpine.data(
             }
         },
 
+        promptLineAppointmentTime(lineIndex) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line || this.isLineScheduleLater(line)) {
+                return;
+            }
+
+            if (!this.lineCanUseAppointmentFields(line)) {
+                this.promptTreatmentBookingStep(lineIndex, { forAppointment: true });
+                return;
+            }
+
+            if (!line.appointment_date) {
+                notify(trans("storefront::checkout.select_date_first"));
+                this.openLineDatePicker(lineIndex);
+            }
+        },
+
         openLineDatePicker(lineIndex) {
             const line = this.treatmentSchedules[lineIndex];
-            if (
-                !line ||
-                this.isLineScheduleLater(line) ||
-                !line.beautician_id ||
-                line.loadingDates ||
-                !(line.availableDates || []).length
-            ) {
+            if (!line || this.isLineScheduleLater(line)) {
+                return;
+            }
+
+            if (!this.lineCanUseAppointmentFields(line)) {
+                this.promptTreatmentBookingStep(lineIndex, { forAppointment: true });
+                return;
+            }
+
+            if (line.loadingDates || !(line.availableDates || []).length) {
                 return;
             }
 
@@ -1192,7 +1446,7 @@ Alpine.data(
 
         buildSiblingHolds(excludeLineIndex) {
             return (this.treatmentSchedules || [])
-                .filter((line, index) => index !== excludeLineIndex && !this.isLineScheduleLater(line))
+                .filter((line, index) => index !== excludeLineIndex && this.isLineScheduleNow(line))
                 .filter((line) => line.beautician_id && line.appointment_date && line.appointment_time)
                 .map((line) => ({
                     beautician_id: Number(line.beautician_id),
@@ -1474,7 +1728,7 @@ Alpine.data(
                     return;
                 }
 
-                if (!line || this.isLineScheduleLater(line)) {
+                if (!line || !this.isLineScheduleNow(line)) {
                     if (dateEl._flatpickr) {
                         dateEl._flatpickr.destroy();
                     }
@@ -1565,7 +1819,7 @@ Alpine.data(
                     .forEach((dateEl) => {
                         const lineIndex = Number(dateEl.dataset.lineIndex);
                         const line = this.treatmentSchedules[lineIndex];
-                        if (!line || this.isLineScheduleLater(line)) {
+                        if (!line || !this.isLineScheduleNow(line)) {
                             if (dateEl._flatpickr) {
                                 dateEl._flatpickr.destroy();
                             }
@@ -1913,7 +2167,7 @@ Alpine.data(
         recordValidationErrors(response) {
             const bag = response?.data?.errors || {};
 
-            this.errors.record(bag);
+            this.errors.record(bag, true);
 
             const treatmentKey = Object.keys(bag).find((key) => key.startsWith("treatment_bookings."));
             const preferredKey = treatmentKey || Object.keys(bag)[0];
@@ -2388,7 +2642,10 @@ Alpine.data(
             const discount =
                 this.cart?.loyalty?.value?.inCurrentCurrency?.amount ?? 0;
 
-            return `${points} pts (−RM ${discount.toFixed(2)})`;
+            return trans("loyalty::checkout.applied", {
+                points: String(points),
+                discount: discount.toFixed(2),
+            });
         },
 
         async useMaxLoyaltyPoints() {
@@ -2400,7 +2657,7 @@ Alpine.data(
             } catch (error) {
                 this.loyaltyError =
                     error.response?.data?.message ||
-                    "Could not load maximum points.";
+                    trans("loyalty::checkout.load_max_failed");
             }
         },
 
@@ -2420,7 +2677,7 @@ Alpine.data(
                     this.loyaltyError =
                         error.response?.data?.message ||
                         error.response?.data?.errors?.points?.[0] ||
-                        "Could not apply points.";
+                        trans("loyalty::checkout.apply_failed");
                 })
                 .finally(() => {
                     this.applyingLoyalty = false;
@@ -2443,16 +2700,38 @@ Alpine.data(
                 return true;
             }
 
+            if (this.lineNeedsBranchFirst()) {
+                this.focusSpaBranchField();
+                notify(trans("storefront::checkout.select_spa_branch_before_schedule"));
+                return false;
+            }
+
             this.reapplyAllSiblingHolds();
             this.checkSiblingScheduleConflicts();
 
-            if ((this.treatmentSchedules || []).some((line) => !this.isLineScheduleLater(line) && line.slotConflict)) {
+            if ((this.treatmentSchedules || []).some((line) => this.isLineScheduleNow(line) && line.slotConflict)) {
                 notify(trans("storefront::checkout.appointment_time_conflicts_sibling"));
                 return false;
             }
 
             for (let index = 0; index < (this.treatmentSchedules || []).length; index++) {
                 const line = this.treatmentSchedules[index];
+
+                if (!this.isLineScheduleModeSelected(line)) {
+                    notify(trans("storefront::checkout.select_schedule_mode"));
+                    this.$nextTick(() => {
+                        this.$el
+                            ?.querySelector(`[data-treatment-line-index="${index}"]`)
+                            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    });
+                    return false;
+                }
+
+                if (this.lineNeedsBeautician(line)) {
+                    this.focusLineBeauticianField(index);
+                    notify(trans("storefront::checkout.select_beautician_before_schedule"));
+                    return false;
+                }
 
                 if (this.isLineScheduleLater(line)) {
                     continue;

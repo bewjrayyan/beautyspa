@@ -1050,6 +1050,10 @@ $checkout-text-muted: #4b5563;
     }
 }
 
+.checkout-card-payment {
+    margin-bottom: 32px;
+}
+
 .checkout-card-payment .shipping-method {
     margin-top: 20px;
     padding-top: 20px;
@@ -1088,11 +1092,22 @@ $checkout-text-muted: #4b5563;
 }
 
 .order-summary--modern .cart-item {
-    padding: 14px 0;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 16px 0;
+    border-bottom: 1px solid #d1d5db;
 
     &:last-child {
         border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    &:first-child {
+        padding-top: 0;
+    }
+
+    .remove-cart-item {
+        top: 0;
+        right: 0;
+        transform: none;
     }
 
     .product-image {
@@ -1388,6 +1403,11 @@ $checkout-text-muted: #4b5563;
         font-size: 13px;
         line-height: 1;
         font-weight: 700;
+        opacity: 0;
+        transform: scale(0.85);
+        transition:
+            opacity 0.2s ease,
+            transform 0.2s ease;
     }
 
     .is-checked & {
@@ -1395,6 +1415,11 @@ $checkout-text-muted: #4b5563;
         background: $checkout-pink;
         border-color: $checkout-pink;
         transform: scale(1.02);
+
+        i {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 }
 
@@ -1508,5 +1533,42 @@ $checkout-text-muted: #4b5563;
         width: 100%;
         justify-content: flex-start;
         margin-left: 34px;
+    }
+}
+
+
+.beautician-picker-dropdown.checkout-field--needs-attention {
+    position: relative;
+    overflow: visible;
+    z-index: 2;
+
+    &::after {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border: 2px solid rgba(242, 116, 172, 0.75);
+        border-radius: 14px;
+        pointer-events: none;
+        animation: checkout-attention-pulse 1.2s ease-out 2;
+        z-index: 10;
+    }
+
+    .beautician-selected-card {
+        border-color: $checkout-pink !important;
+        box-shadow: 0 0 0 3px $checkout-pink-soft !important;
+    }
+}
+
+@keyframes checkout-attention-pulse {
+    0% {
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
     }
 }
