@@ -56,11 +56,18 @@ class LoyaltyStampWallet extends Model
      */
     public function earnedStampsCount(): int
     {
-        if ($this->relationLoaded('entries')) {
-            return (int) $this->entries->sum('stamps_added');
+        $this->loadMissing(['program', 'entries.order.products.product']);
+
+        if (! $this->program) {
+            if ($this->relationLoaded('entries')) {
+                return (int) $this->entries->sum('stamps_added');
+            }
+
+            return (int) $this->entries()->sum('stamps_added');
         }
 
-        return (int) $this->entries()->sum('stamps_added');
+        return app(\Modules\Loyalty\Services\StampProgramEligibleProductService::class)
+            ->countQualifyingEntries($this);
     }
 
 

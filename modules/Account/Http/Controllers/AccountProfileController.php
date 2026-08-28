@@ -5,14 +5,15 @@ namespace Modules\Account\Http\Controllers;
 use Illuminate\Http\Response;
 use Modules\Account\Services\ProfileAvatarService;
 use Modules\Loyalty\Services\LoyaltyConfig;
-use Modules\Loyalty\Services\LoyaltyStampProgressService;
 use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\User\Http\Requests\UpdateProfileRequest;
+use Modules\User\Services\ProfileAddressService;
 
 class AccountProfileController
 {
     public function __construct(
-        private ProfileAvatarService $avatars
+        private ProfileAvatarService $avatars,
+        private ProfileAddressService $profileAddresses,
     ) {}
 
 
@@ -28,25 +29,18 @@ class AccountProfileController
 
         $loyaltyWallet = null;
         $loyaltyBalanceRm = 0;
-        $loyaltyEarnRate = 0;
-        $stampCards = [];
-
         if (app('modules')->isEnabled('Loyalty')) {
             $loyaltyWallet = app(LoyaltyWalletService::class)->getOrCreateForUser($account);
             $loyaltyWallet->load('tier');
 
             $loyaltyConfig = app(LoyaltyConfig::class);
             $loyaltyBalanceRm = $loyaltyConfig->pointsToRm($loyaltyWallet->balance);
-            $loyaltyEarnRate = $loyaltyConfig->earnRatePerRm();
-            $stampCards = app(LoyaltyStampProgressService::class)->forAccount($account);
         }
 
         return view('storefront::public.account.profile.edit', [
             'account' => $account,
             'loyaltyWallet' => $loyaltyWallet,
             'loyaltyBalanceRm' => $loyaltyBalanceRm,
-            'loyaltyEarnRate' => $loyaltyEarnRate,
-            'stampCards' => $stampCards,
         ]);
     }
 
@@ -77,6 +71,8 @@ class AccountProfileController
             $request->file('avatar'),
             $request->boolean('remove_avatar')
         );
+
+        $this->profileAddresses->syncNameFromProfile($user->fresh());
 
         return back()->with('success', trans('account::messages.profile_updated'));
     }

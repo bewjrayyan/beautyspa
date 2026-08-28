@@ -95,18 +95,19 @@
                         </div>
 
                         <div class="account-profile-show__hero-summary">
+                            <p class="account-profile-show__eyebrow">{{ trans('storefront::account.pages.my_profile') }}</p>
                             <h1 class="account-profile-show__title">{{ $account->full_name }}</h1>
 
                             <p class="account-profile-show__email d-lg-none">{{ $account->email }}</p>
 
                             <div class="account-profile-show__meta-row d-none d-lg-flex">
-                                <span>
-                                    <i class="las la-envelope"></i>
+                                <span class="account-profile-show__meta-chip">
+                                    <i class="las la-envelope" aria-hidden="true"></i>
                                     {{ $account->email }}
                                 </span>
                                 @if ($account->phone)
-                                    <span>
-                                        <i class="las la-phone"></i>
+                                    <span class="account-profile-show__meta-chip">
+                                        <i class="las la-phone" aria-hidden="true"></i>
                                         {{ $account->phone }}
                                     </span>
                                 @endif
@@ -136,56 +137,62 @@
                         </button>
                     </div>
 
+                    <div class="account-profile-show__metrics" aria-label="{{ trans('storefront::account.profile.account_details') }}">
                     <ul class="account-profile-show__stats">
-                            <li>
-                                <span class="account-profile-show__stat-label">
-                                    <i class="las la-calendar-check" aria-hidden="true"></i>
-                                    {{ trans('storefront::account.profile.member_since') }}
-                                </span>
-                                <span class="account-profile-show__stat-value">{{ $account->created_at?->format('d M Y') ?? '—' }}</span>
+                        <li>
+                            <span class="account-profile-show__stat-label">
+                                <i class="las la-calendar-check" aria-hidden="true"></i>
+                                {{ trans('storefront::account.profile.member_since') }}
+                            </span>
+                            <span class="account-profile-show__stat-value">{{ $account->created_at?->format('d M Y') ?? '—' }}</span>
+                        </li>
+                        <li>
+                            <span class="account-profile-show__stat-label">
+                                <i class="las la-history" aria-hidden="true"></i>
+                                {{ trans('storefront::account.profile.last_login') }}
+                            </span>
+                            <span class="account-profile-show__stat-value">
+                                @if ($account->last_login)
+                                    {{ $account->last_login->format('d M Y · h:i A') }}
+                                @else
+                                    —
+                                @endif
+                            </span>
+                        </li>
+                        @if (app('modules')->isEnabled('Loyalty') && $loyaltyWallet)
+                            <li class="account-profile-show__stat--loyalty">
+                                <a href="{{ route('account.loyalty.index') }}" class="account-profile-show__stat-link">
+                                    <span class="account-profile-show__stat-label">
+                                        <i class="las la-coins" aria-hidden="true"></i>
+                                        {{ trans('loyalty::account.points_balance') }}
+                                    </span>
+                                    <span class="account-profile-show__stat-value">
+                                        {{ number_format($loyaltyWallet->balance) }}
+                                        <span class="account-profile-show__stat-sub">· RM {{ number_format($loyaltyBalanceRm, 2) }}</span>
+                                    </span>
+                                    <i class="las la-angle-right account-profile-show__stat-chevron" aria-hidden="true"></i>
+                                </a>
                             </li>
-                            <li>
-                                <span class="account-profile-show__stat-label">
-                                    <i class="las la-history" aria-hidden="true"></i>
-                                    {{ trans('storefront::account.profile.last_login') }}
-                                </span>
-                                <span class="account-profile-show__stat-value">
-                                    @if ($account->last_login)
-                                        {{ $account->last_login->format('d M Y · h:i A') }}
-                                    @else
-                                        —
-                                    @endif
-                                </span>
-                            </li>
-                            @if (app('modules')->isEnabled('Loyalty') && $loyaltyWallet)
-                                <li class="account-profile-show__stat--loyalty">
-                                    <a href="{{ route('account.loyalty.index') }}" class="account-profile-show__stat-link">
-                                        <span class="account-profile-show__stat-label">
-                                            <i class="las la-coins" aria-hidden="true"></i>
-                                            {{ trans('loyalty::account.points_balance') }}
-                                        </span>
-                                        <span class="account-profile-show__stat-value">
-                                            {{ number_format($loyaltyWallet->balance) }}
-                                            <span class="account-profile-show__stat-sub">· RM {{ number_format($loyaltyBalanceRm, 2) }}</span>
-                                        </span>
-                                        <i class="las la-angle-right account-profile-show__stat-chevron" aria-hidden="true"></i>
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
+                        @endif
+                    </ul>
+                    </div>
                 </div>
             </header>
 
             <div class="account-profile-show__layout">
                 <main class="account-profile-show__main">
-                    <section class="account-profile-show__section">
-                        <h2 class="account-profile-show__section-title d-none d-lg-flex">
-                            <i class="las la-user"></i>
-                            {{ trans('storefront::account.profile.personal_info') }}
-                        </h2>
-                        <p class="account-profile-show__section-label">{{ trans('storefront::account.profile.personal_info') }}</p>
+                    <section class="account-profile-card">
+                        <header class="account-profile-card__head">
+                            <span class="account-profile-card__icon" aria-hidden="true">
+                                <i class="las la-user"></i>
+                            </span>
+                            <div>
+                                <h2 class="account-profile-card__title">{{ trans('storefront::account.profile.personal_info') }}</h2>
+                                <p class="account-profile-card__lead">{{ trans('storefront::account.profile.personal_info_lead') }}</p>
+                            </div>
+                        </header>
 
-                        <div class="account-profile-show__fields">
+                        <div class="account-profile-card__body account-profile-show__fields">
                             <div class="account-profile-show__field-row account-profile-show__field-row--split">
                                 <div class="form-group">
                                     <label for="first-name">
@@ -197,6 +204,7 @@
                                         value="{{ old('first_name', $account->first_name) }}"
                                         id="first-name"
                                         class="form-control"
+                                        autocomplete="given-name"
                                     >
                                     @error('first_name')
                                         <span class="error-message">{{ $message }}</span>
@@ -213,6 +221,7 @@
                                         value="{{ old('last_name', $account->last_name) }}"
                                         id="last-name"
                                         class="form-control"
+                                        autocomplete="family-name"
                                     >
                                     @error('last_name')
                                         <span class="error-message">{{ $message }}</span>
@@ -230,6 +239,7 @@
                                     value="{{ old('email', $account->email) }}"
                                     id="email"
                                     class="form-control"
+                                    autocomplete="email"
                                 >
                                 @error('email')
                                     <span class="error-message">{{ $message }}</span>
@@ -254,18 +264,22 @@
                             </div>
 
                             @if (app('modules')->isEnabled('Loyalty'))
-                                <div class="form-group">
+                                @php
+                                    $profileDobValue = old('date_of_birth', $account->date_of_birth?->format('Y-m-d'));
+                                @endphp
+                                <div class="form-group form-group--full">
                                     <label for="date-of-birth">
                                         {{ trans('loyalty::account.date_of_birth') }}
                                     </label>
-                                    <div class="account-profile-show__date-wrap">
+                                    <div class="account-profile-dob-wrap">
                                         <i class="las la-calendar" aria-hidden="true"></i>
                                         <input
                                             type="text"
                                             name="date_of_birth"
                                             id="date-of-birth"
-                                            class="form-control modern-datepicker"
-                                            value="{{ old('date_of_birth', $account->date_of_birth?->format('Y-m-d')) }}"
+                                            class="form-control account-dob-picker"
+                                            value="{{ $profileDobValue }}"
+                                            data-default-date="{{ $profileDobValue }}"
                                             data-max-date="{{ now()->subDay()->format('Y-m-d') }}"
                                             placeholder="{{ trans('loyalty::account.date_of_birth') }}"
                                             autocomplete="bday"
@@ -280,18 +294,18 @@
                         </div>
                     </section>
 
-                    @include('loyalty::public.account.partials.profile-stamps', [
-                        'stampCards' => $stampCards ?? [],
-                    ])
+                    <section class="account-profile-card">
+                        <header class="account-profile-card__head">
+                            <span class="account-profile-card__icon account-profile-card__icon--security" aria-hidden="true">
+                                <i class="las la-lock"></i>
+                            </span>
+                            <div>
+                                <h2 class="account-profile-card__title">{{ trans('storefront::account.profile.security') }}</h2>
+                                <p class="account-profile-card__lead">{{ trans('storefront::account.profile.security_lead') }}</p>
+                            </div>
+                        </header>
 
-                    <section class="account-profile-show__section">
-                        <h2 class="account-profile-show__section-title d-none d-lg-flex">
-                            <i class="las la-lock"></i>
-                            {{ trans('storefront::account.profile.security') }}
-                        </h2>
-                        <p class="account-profile-show__section-label">{{ trans('storefront::account.profile.security') }}</p>
-
-                        <div class="account-profile-show__fields">
+                        <div class="account-profile-card__body account-profile-show__fields account-profile-show__fields--security">
                             <div class="form-group">
                                 <label for="password">{{ trans('storefront::account.profile.new_password') }}</label>
                                 <input type="password" name="password" id="password" class="form-control" autocomplete="new-password">
@@ -310,23 +324,13 @@
                         </div>
                     </section>
 
-                    <div class="account-profile-show__actions d-none d-lg-block">
-                        <button type="submit" class="btn btn-lg btn-primary account-profile-show__submit" data-loading>
+                    <div class="account-profile-show__actions-bar d-none d-lg-flex">
+                        <p class="account-profile-show__actions-hint">{{ trans('storefront::account.profile.save_hint') }}</p>
+                        <button type="submit" class="btn btn-primary account-profile-show__submit" data-loading>
                             {{ trans('storefront::account.profile.save_changes') }}
                         </button>
                     </div>
                 </main>
-
-                <aside class="account-profile-show__sidebar d-none d-lg-flex">
-                @if (app('modules')->isEnabled('Loyalty') && $loyaltyWallet)
-                    @include('loyalty::public.account.partials.profile-sidebar', [
-                        'account' => $account,
-                        'loyaltyWallet' => $loyaltyWallet,
-                        'loyaltyBalanceRm' => $loyaltyBalanceRm,
-                        'loyaltyEarnRate' => $loyaltyEarnRate,
-                    ])
-                @endif
-                </aside>
             </div>
 
             <div class="account-profile-show__mobile-save d-lg-none">

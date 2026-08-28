@@ -1,16 +1,19 @@
-@import "../../../../../../../../Loyalty/Resources/assets/public/sass/components/membership-card";
-@import "../../../../../../../../Loyalty/Resources/assets/public/sass/components/stamp-cards";
-
-$profile-pink: var(--color-primary, #f274ac);
-$profile-pink-soft: rgba(242, 116, 172, 0.12);
-$profile-surface: #fff;
-$profile-border: #e8ecf1;
-$profile-text: #1a202c;
+// Modern SaaS account settings — neutral canvas, bordered cards, restrained accent
+$profile-accent: var(--color-primary, #ec4899);
+$profile-accent-soft: color-mix(in srgb, var(--color-primary, #ec4899) 10%, transparent);
+$profile-canvas: #f8fafc;
+$profile-surface: #ffffff;
+$profile-border: #e2e8f0;
+$profile-border-strong: #cbd5e1;
+$profile-text: #0f172a;
 $profile-muted: #64748b;
-$profile-radius: 14px;
-$profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+$profile-subtle: #94a3b8;
+$profile-radius: 12px;
+$profile-radius-lg: 16px;
+$profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+$profile-focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-primary, #ec4899) 18%, transparent);
 
-@import "sections/profile-stamps";
+@import "sections/profile-dob-picker";
 @import "sections/profile-fields";
 @import "profile-mobile";
 
@@ -24,6 +27,17 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .account-profile-show__avatar-edit,
+    .account-profile-show__avatar-remove,
+    .account-profile-show__photo-btn,
+    .account-profile-show__stat-link,
+    .account-profile-show__submit,
+    .account-profile-show__fields .form-control {
+        transition: none !important;
+    }
 }
 
 .account-profile-show {
@@ -44,32 +58,39 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 
 .account-profile-show__hero {
     margin-bottom: 16px;
-    padding: 14px 16px;
-    background: linear-gradient(135deg, $profile-pink-soft 0%, $profile-surface 60%);
+    padding: 0;
+    overflow: hidden;
+    background: $profile-surface;
     border: 1px solid $profile-border;
-    border-radius: $profile-radius;
+    border-radius: $profile-radius-lg;
     box-shadow: $profile-shadow;
 }
 
 .account-profile-show__hero-main {
-    position: relative;
     display: flex;
-    align-items: flex-start;
-    gap: 14px;
+    flex-direction: column;
     min-width: 0;
 }
 
 .account-profile-show__hero-head {
     display: flex;
-    align-items: flex-start;
-    gap: 14px;
+    align-items: center;
+    gap: 20px;
     min-width: 0;
-    flex: 1;
+    padding: 24px 28px;
 }
 
 .account-profile-show__hero-summary {
     flex: 1;
     min-width: 0;
+}
+
+.account-profile-show__eyebrow {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: $profile-subtle;
 }
 
 .account-profile-show__avatar-block {
@@ -78,19 +99,19 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 
 .account-profile-show__avatar-wrap {
     position: relative;
-    width: 72px;
-    height: 72px;
+    width: 80px;
+    height: 80px;
 }
 
 .account-profile-show__avatar {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 72px;
-    height: 72px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    border: 2px solid $profile-surface;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.1);
+    border: 2px solid $profile-border;
+    background: $profile-canvas;
     overflow: hidden;
 
     &--photo {
@@ -98,11 +119,11 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     }
 
     &--initial {
-        font-size: 26px;
-        font-weight: 800;
-        color: #fff;
-        background: $profile-pink;
-        letter-spacing: 0.04em;
+        font-size: 28px;
+        font-weight: 700;
+        color: $profile-accent;
+        background: $profile-accent-soft;
+        letter-spacing: 0.03em;
     }
 }
 
@@ -114,20 +135,25 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     margin: 0;
-    color: #fff;
-    background: $profile-pink;
-    border: 2px solid $profile-surface;
+    color: $profile-text;
+    background: $profile-surface;
+    border: 1px solid $profile-border;
     border-radius: 50%;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+    box-shadow: $profile-shadow;
     cursor: pointer;
-    transition: background 0.15s ease, transform 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease;
 
     &:hover {
-        background: color-mix(in srgb, $profile-pink 88%, #000);
-        transform: scale(1.05);
+        background: $profile-canvas;
+        border-color: $profile-border-strong;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: $profile-focus-ring;
     }
 }
 
@@ -139,19 +165,18 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     padding: 0;
     color: #fff;
-    background: #dc2626;
+    background: #ef4444;
     border: 2px solid $profile-surface;
     border-radius: 50%;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
     cursor: pointer;
     transition: background 0.15s ease;
 
     &:hover {
-        background: #b91c1c;
+        background: #dc2626;
     }
 }
 
@@ -167,7 +192,6 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     max-width: 120px;
     margin: 6px 0 0;
     font-size: 11px;
-    line-height: 1.35;
     color: #dc2626;
     text-align: center;
 }
@@ -181,38 +205,34 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 7px 14px;
+    min-height: 40px;
+    padding: 8px 14px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
-    line-height: 1.2;
     color: $profile-text;
-    background: #f2f2f7;
-    border: 1px solid #e5e5ea;
-    border-radius: 999px;
+    background: $profile-surface;
+    border: 1px solid $profile-border;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
 
     i {
-        font-size: 15px;
-        color: $profile-pink;
+        font-size: 16px;
+        color: $profile-muted;
     }
 
     &:hover {
-        background: $profile-pink-soft;
-        border-color: rgba(242, 116, 172, 0.22);
+        background: $profile-canvas;
+        border-color: $profile-border-strong;
     }
 
     &--danger {
         color: #b91c1c;
-
-        i {
-            color: #dc2626;
-        }
+        border-color: #fecaca;
 
         &:hover {
             background: #fef2f2;
-            border-color: #fecaca;
         }
     }
 }
@@ -221,335 +241,329 @@ $profile-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     display: none;
     margin: 0;
     font-size: 13px;
-    line-height: 1.4;
     color: $profile-muted;
-    word-break: break-word;
-}
-
-.account-profile-show__identity {
-    flex: 1;
-    min-width: 0;
 }
 
 .account-profile-show__title {
-    margin: 0 0 4px;
-    font-size: 20px;
-    font-weight: 700;
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 650;
     line-height: 1.25;
+    letter-spacing: -0.02em;
     color: $profile-text;
-    word-break: break-word;
 }
 
 .account-profile-show__meta-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 14px;
-    margin-bottom: 8px;
+    gap: 12px 20px;
+}
+
+.account-profile-show__meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 13px;
     line-height: 1.4;
     color: $profile-muted;
 
-    span {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        min-width: 0;
-        word-break: break-word;
-    }
-
     i {
-        flex-shrink: 0;
         font-size: 15px;
-        color: $profile-pink;
+        color: $profile-subtle;
     }
+}
+
+.account-profile-show__metrics {
+    border-top: 1px solid $profile-border;
+    background: $profile-canvas;
 }
 
 .account-profile-show__stats {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 0;
     margin: 0;
     padding: 0;
     list-style: none;
 
     > li {
-        flex: 1 1 120px;
+        flex: 1 1 160px;
         min-width: 0;
-        padding: 8px 10px;
-        background: rgba(255, 255, 255, 0.72);
-        border: 1px solid rgba(232, 236, 241, 0.9);
-        border-radius: 10px;
+        padding: 16px 24px;
+        background: transparent;
+        border: none;
+        border-right: 1px solid $profile-border;
+
+        &:last-child {
+            border-right: none;
+        }
     }
 }
 
 .account-profile-show__stat-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 2px;
-    font-size: 10px;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
     font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: $profile-muted;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-transform: uppercase;
+    color: $profile-subtle;
 
     i {
-        flex-shrink: 0;
-        font-size: 13px;
-        color: $profile-pink;
+        display: none;
     }
 }
 
 .account-profile-show__stat-value {
     display: block;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    line-height: 1.35;
+    line-height: 1.4;
     color: $profile-text;
-    word-break: break-word;
 }
 
 .account-profile-show__stat-sub {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     color: $profile-muted;
 }
 
 .account-profile-show__stat--loyalty {
     padding: 0;
-    background: transparent;
-    border: none;
 }
 
 .account-profile-show__stat-link {
-    position: relative;
-    display: block;
-    padding: 8px 10px;
-    background: linear-gradient(135deg, rgba(242, 116, 172, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
-    border: 1px solid rgba(242, 116, 172, 0.18);
-    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 100%;
+    padding: 16px 24px;
     color: inherit;
     text-decoration: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+    transition: background 0.15s ease;
 
     &:hover {
-        border-color: rgba(242, 116, 172, 0.35);
-        box-shadow: 0 2px 8px rgba(242, 116, 172, 0.12);
+        background: color-mix(in srgb, $profile-accent 6%, $profile-canvas);
+    }
+
+    .account-profile-show__stat-label,
+    .account-profile-show__stat-value {
+        flex: 1;
     }
 }
 
 .account-profile-show__stat-chevron {
-    display: none;
+    flex-shrink: 0;
+    font-size: 16px;
+    color: $profile-subtle;
 }
 
 .account-profile-show__layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 272px;
     gap: 16px;
-    align-items: start;
 }
 
-.account-profile-show__sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
+.account-profile-card {
+    background: $profile-surface;
+    border: 1px solid $profile-border;
+    border-radius: $profile-radius-lg;
+    box-shadow: $profile-shadow;
+    overflow: hidden;
 
-.account-profile-show__section {
-    margin-bottom: 14px;
-
-    &:last-child {
-        margin-bottom: 0;
+    &__head {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 20px 24px;
+        border-bottom: 1px solid $profile-border;
+        background: $profile-surface;
     }
-}
 
-.account-profile-show__section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 10px;
-    font-size: 16px;
-    font-weight: 700;
-    color: $profile-text;
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+        color: $profile-muted;
+        background: $profile-canvas;
+        border: 1px solid $profile-border;
+        border-radius: 8px;
 
-    i {
-        font-size: 20px;
-        color: $profile-pink;
+        &--security {
+            color: $profile-muted;
+            background: $profile-canvas;
+        }
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 650;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+        color: $profile-text;
+    }
+
+    &__lead {
+        margin: 2px 0 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: $profile-muted;
+    }
+
+    &__body {
+        padding: 24px;
     }
 }
 
 .account-profile-show__fields {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 16px;
-    padding: 14px 16px;
-    background: $profile-surface;
-    border: 1px solid $profile-border;
-    border-radius: $profile-radius;
-    box-shadow: $profile-shadow;
+    gap: 20px 16px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 
     .form-group {
-        margin-bottom: 12px;
+        margin: 0;
+    }
+
+    .form-group--full {
+        grid-column: 1 / -1;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: $profile-text;
     }
 
     label span {
-        color: $profile-pink;
+        color: #ef4444;
+        margin-left: 2px;
     }
 
-    .help-block {
-        margin-top: 4px;
-        font-size: 11px;
+    .form-control {
+        width: 100%;
+        min-height: 40px;
+        padding: 9px 12px;
+        font-size: 14px;
         line-height: 1.4;
+        color: $profile-text;
+        background: $profile-surface;
+        border: 1px solid $profile-border;
+        border-radius: 8px;
+        box-shadow: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &::placeholder {
+            color: $profile-subtle;
+        }
+
+        &:hover:not(:focus) {
+            border-color: $profile-border-strong;
+        }
+
+        &:focus {
+            border-color: $profile-accent;
+            box-shadow: $profile-focus-ring;
+        }
+    }
+
+    .help-block,
+    .account-profile-show__field-hint {
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 1.45;
         color: $profile-muted;
     }
+
+    .error-message {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        color: #dc2626;
+    }
+
+    &--security {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+    }
 }
 
-.account-profile-show__actions {
-    padding-top: 2px;
-}
 
-.account-profile-show__submit {
-    min-width: 180px;
-    border-radius: 10px;
-}
-
-.account-profile-sidebar__card {
-    position: sticky;
-    top: 24px;
-    padding: 14px 16px;
+.account-profile-show__actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 4px;
+    padding: 16px 20px;
     background: $profile-surface;
     border: 1px solid $profile-border;
-    border-radius: $profile-radius;
+    border-radius: $profile-radius-lg;
     box-shadow: $profile-shadow;
 }
 
-.account-profile-sidebar__title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 12px;
-    font-size: 14px;
-    font-weight: 700;
-    color: $profile-text;
-
-    i {
-        font-size: 18px;
-        color: $profile-pink;
-    }
-}
-
-.account-profile-sidebar__list {
+.account-profile-show__actions-hint {
     margin: 0;
-    padding: 0;
-    list-style: none;
-
-    > li {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        margin-bottom: 10px;
-
-        &:last-child {
-            margin-bottom: 0;
-        }
-    }
-}
-
-.account-profile-sidebar__label {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 13px;
     color: $profile-muted;
 }
 
-.account-profile-sidebar__value {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.4;
-    color: $profile-text;
-    word-break: break-word;
-}
-
-.account-profile-sidebar__card--loyalty {
-    .account-profile-sidebar__title i {
-        color: #d97706;
-    }
-}
-
-.account-profile-loyalty__card-wrap {
-    margin-bottom: 12px;
-}
-
-.account-profile-loyalty__stats {
-    margin-bottom: 12px;
-    padding-top: 2px;
-    border-top: 1px solid $profile-border;
-}
-
-.account-profile-loyalty__points {
-    font-size: 16px;
-    font-weight: 800;
-    color: $profile-pink;
-}
-
-.account-profile-loyalty__link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    border-radius: 10px;
+.account-profile-show__submit {
+    min-width: 140px;
+    min-height: 40px;
+    padding: 0 20px;
+    font-size: 14px;
     font-weight: 600;
+    border-radius: 8px;
+    box-shadow: none;
+    transition: opacity 0.15s ease;
 
-    i {
-        font-size: 16px;
+    &:hover {
+        opacity: 0.92;
+        transform: none;
+        box-shadow: none;
     }
 }
 
 @media screen and (max-width: 1199px) {
-    .account-profile-show__layout {
-        grid-template-columns: 1fr;
+    .account-profile-show__stats {
+        > li {
+            flex: 1 1 calc(50% - 1px);
+            border-right: none;
+            border-bottom: 1px solid $profile-border;
+
+            &:nth-child(odd) {
+                border-right: 1px solid $profile-border;
+            }
+
+            &:last-child,
+            &:nth-last-child(2):nth-child(odd) {
+                border-bottom: none;
+            }
+        }
     }
 
-    .account-profile-sidebar__card {
-        position: static;
+    .account-profile-show__stat--loyalty {
+        flex: 1 1 100%;
+        border-right: none !important;
+        border-bottom: none !important;
+        border-top: 1px solid $profile-border;
     }
 }
 
 @media screen and (max-width: 767px) {
     .account-profile-show__fields {
         grid-template-columns: 1fr;
-    }
-}
-
-@media screen and (min-width: 992px) {
-    .account-profile-show__hero-main {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        column-gap: 14px;
-        row-gap: 8px;
-        align-items: start;
-    }
-
-    .account-profile-show__hero-head {
-        display: contents;
-    }
-
-    .account-profile-show__avatar-block {
-        grid-column: 1;
-        grid-row: 1;
-    }
-
-    .account-profile-show__hero-summary {
-        grid-column: 2;
-        grid-row: 1;
-    }
-
-    .account-profile-show__stats {
-        grid-column: 2;
-        grid-row: 2;
     }
 }

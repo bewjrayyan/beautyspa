@@ -1,3 +1,5 @@
+@import "../../../components/membership-card";
+
 $loyalty-pink: var(--color-primary, #f274ac);
 $loyalty-pink-soft: rgba(242, 116, 172, 0.12);
 $loyalty-surface: #fff;
@@ -257,6 +259,14 @@ $loyalty-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     color: $loyalty-muted;
 }
 
+.account-loyalty-tx__hint {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: rgba($loyalty-muted, 0.85);
+}
+
 .account-loyalty-tx__points {
     font-weight: 700;
 
@@ -275,6 +285,29 @@ $loyalty-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     display: flex;
     flex-direction: column;
     gap: 16px;
+}
+
+
+.account-loyalty-sidebar__card--membership {
+    .account-loyalty-sidebar__title i {
+        color: #d97706;
+    }
+}
+
+.account-loyalty-membership__card-wrap {
+    margin-bottom: 12px;
+}
+
+.account-loyalty-membership__stats {
+    margin-bottom: 0;
+    padding-top: 2px;
+    border-top: 1px solid $loyalty-border;
+}
+
+.account-loyalty-membership__points {
+    font-size: 16px;
+    font-weight: 800;
+    color: $loyalty-pink;
 }
 
 .account-loyalty-sidebar__card {
@@ -484,6 +517,8 @@ $loyalty-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 
 @media screen and (max-width: 1199px) {
     .account-loyalty-show__layout {
+        display: flex;
+        flex-direction: column;
         grid-template-columns: 1fr;
     }
 
@@ -492,9 +527,14 @@ $loyalty-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     }
 
     .account-loyalty-show__sidebar {
+        order: -1;
         position: static;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .account-loyalty-sidebar__card--membership {
+        grid-column: 1 / -1;
     }
 }
 

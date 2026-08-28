@@ -146,7 +146,7 @@ class OrderService
         if ($shouldSaveShipping) {
             $address = $this->storeUniqueAddress($request->shipping);
 
-            $this->makeDefaultAddress(
+            $this->makeDefaultShippingAddress(
                 $address,
                 $request->boolean('make_shipping_address_default')
             );

@@ -47,4 +47,6 @@ Route::middleware('auth')->group(function () {
     Route::put('account/addresses/{id}', 'AccountAddressController@update')->name('account.addresses.update');
     Route::delete('account/addresses/{id}', 'AccountAddressController@destroy')->name('account.addresses.destroy');
     Route::post('account/addresses/change-default', 'AccountAddressController@changeDefault')->name('account.addresses.change_default');
+    Route::post('account/addresses/change-default-shipping', 'AccountAddressController@changeDefaultShipping')->name('account.addresses.change_default_shipping');
+    Route::post('account/addresses/use-billing-for-shipping', 'AccountAddressController@useBillingForShipping')->name('account.addresses.use_billing_for_shipping');
 });

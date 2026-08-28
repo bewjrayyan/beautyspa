@@ -123,7 +123,7 @@
                                 <a href="{{ route('account.dashboard.index') }}">
                                     <i class="las la-user"></i>
 
-                                    {{ trans('storefront::layouts.account') }}
+                                    {{ trans('storefront::layouts.my_account') }}
                                 </a>
                             </li>
                         @else

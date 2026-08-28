@@ -35,5 +35,10 @@ return [
     'stamp_redeem_not_allowed' => 'You cannot redeem this stamp card.',
     'stamp_redeem_not_ready' => 'This stamp card is not complete yet.',
     'stamp_redeem_already' => 'This reward has already been redeemed.',
+    'tx_earn_purchase' => 'Purchase reward · order #:id · RM :amount eligible spend',
+    'tx_earn_purchase_hint' => 'Points from a completed, paid checkout — not referral or share bonuses.',
+    'tx_referral_bonus' => 'Referral signup bonus',
+    'tx_review_bonus' => 'Treatment review bonus',
+    'tx_points_expired' => 'Points expired',
     'stamp_redemptions' => 'Redeemed rewards',
 ];

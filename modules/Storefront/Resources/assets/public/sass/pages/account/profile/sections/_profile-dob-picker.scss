@@ -1,0 +1,204 @@
+@import "flatpickr/dist/flatpickr.css";
+@import "../../../../components/flatpickr-grid";
+
+.account-profile-dob-wrap {
+    position: relative;
+
+    > .la-calendar,
+    > .las.la-calendar {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        z-index: 2;
+        font-size: 16px;
+        color: $profile-subtle;
+        pointer-events: none;
+        transform: translateY(-50%);
+    }
+
+    .flatpickr-wrapper {
+        display: block;
+        width: 100%;
+    }
+
+    .form-control,
+    .flatpickr-input {
+        width: 100%;
+        padding-left: 42px !important;
+        cursor: pointer;
+        background-color: $profile-surface !important;
+    }
+
+    input.account-dob-picker[readonly] {
+        cursor: pointer;
+        background-color: $profile-surface !important;
+    }
+}
+
+.account-dob-datepicker-calendar.flatpickr-calendar,
+.bp-portal-datepicker-calendar.flatpickr-calendar {
+    margin-top: 8px;
+    border-radius: 18px;
+    border: 1px solid $profile-border;
+    box-shadow:
+        0 20px 48px rgba(15, 23, 42, 0.14),
+        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    overflow: hidden;
+    z-index: 10060;
+
+    &::before,
+    &::after {
+        display: none;
+    }
+
+    .flatpickr-months {
+        padding: 10px 10px 0;
+        background: linear-gradient(180deg, $profile-canvas 0%, $profile-surface 100%);
+    }
+
+    .flatpickr-month {
+        height: 44px;
+    }
+
+    .flatpickr-current-month {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        color: $profile-text;
+
+        .flatpickr-monthDropdown-months,
+        .account-dob-year-select,
+        .bp-portal-year-select {
+            min-width: 88px;
+            max-width: 112px;
+            padding: 6px 28px 6px 10px;
+            border: 1px solid $profile-border;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: $profile-text;
+            background: $profile-surface;
+            cursor: pointer;
+            appearance: auto;
+
+            &:focus {
+                outline: none;
+                border-color: $profile-accent;
+                box-shadow: $profile-focus-ring;
+            }
+        }
+
+        .account-dob-year-wrap,
+        .bp-portal-year-wrap {
+            position: relative;
+            min-width: 88px;
+
+            .account-dob-year-input,
+            .bp-portal-year-input {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .arrowUp,
+            .arrowDown {
+                display: none !important;
+            }
+        }
+    }
+
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+        top: 12px;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease, color 0.15s ease;
+
+        &:hover {
+            background: $profile-accent-soft;
+            color: $profile-accent;
+        }
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    .flatpickr-weekdays {
+        background: $profile-surface;
+        padding-top: 6px;
+    }
+
+    span.flatpickr-weekday {
+        font-size: 11px;
+        font-weight: 700;
+        color: $profile-subtle;
+    }
+
+    .flatpickr-days {
+        border: 0;
+        width: 100%;
+        max-width: none;
+    }
+
+    .dayContainer {
+        padding: 4px 8px 10px;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .flatpickr-day {
+        flex: 1 0 14.2857143%;
+        width: 14.2857143%;
+        max-width: none;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        border: 0;
+        margin: 0;
+
+        &:hover {
+            background: $profile-accent-soft;
+            color: $profile-text;
+        }
+
+        &.today {
+            border: 1px solid color-mix(in srgb, $profile-accent 45%, $profile-border);
+            color: $profile-accent;
+        }
+
+        &.selected,
+        &.startRange,
+        &.endRange {
+            background: $profile-accent;
+            color: #fff;
+            box-shadow: 0 8px 18px color-mix(in srgb, $profile-accent 28%, transparent);
+
+            &:hover {
+                background: $profile-accent;
+                color: #fff;
+            }
+        }
+
+        &.flatpickr-disabled,
+        &.prevMonthDay,
+        &.nextMonthDay {
+            color: #cbd5e1;
+        }
+    }
+}

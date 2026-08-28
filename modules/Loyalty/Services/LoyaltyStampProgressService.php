@@ -52,7 +52,7 @@ class LoyaltyStampProgressService
      */
     public function cardFromWallet(LoyaltyStampWallet $wallet): ?array
     {
-        $wallet->loadMissing(['program', 'entries']);
+        $wallet->loadMissing(['program', 'entries.order.products.product']);
 
         if (! $wallet->program) {
             return null;
@@ -80,7 +80,7 @@ class LoyaltyStampProgressService
             ->where('user_id', $user->id)
             ->whereIn('program_id', $programs->pluck('id'))
             ->whereNull('redeemed_at')
-            ->with(['program', 'entries'])
+            ->with(['program', 'entries.order.products.product'])
             ->latest('id')
             ->get()
             ->groupBy('program_id');
@@ -88,9 +88,7 @@ class LoyaltyStampProgressService
         $cards = [];
 
         foreach ($programs as $program) {
-            $wallet = $wallets->get($program->id)?->first(
-                fn (LoyaltyStampWallet $w) => $w->isActive() || $w->completed_at || $this->isExpired($w)
-            );
+            $wallet = $this->resolveDisplayWallet($wallets->get($program->id) ?? collect());
 
             if (! $wallet && ! $includeNotStarted) {
                 continue;
@@ -111,10 +109,17 @@ class LoyaltyStampProgressService
             : 0;
 
         $isExpired = $wallet && $this->isExpired($wallet);
+
+        if ($isExpired && $stampsEarned === 0 && ! $wallet->completed_at) {
+            $wallet = null;
+            $isExpired = false;
+            $stampsEarned = 0;
+        }
+
         $isComplete = $wallet
             && ! $isExpired
             && ($stampsEarned >= $stampsRequired || $wallet->redeemed_at || $wallet->fulfilled_at);
-        $canRedeem = $wallet && $wallet->completed_at && ! $wallet->redeemed_at;
+        $canRedeem = $wallet && ! $isExpired && $stampsEarned >= $stampsRequired && ! $wallet->redeemed_at;
 
         return [
             'wallet_id' => $wallet?->id,
@@ -140,11 +145,38 @@ class LoyaltyStampProgressService
     {
         $fromEntries = $wallet->earnedStampsCount();
 
+        $updates = [];
+
         if ((int) $wallet->stamps_count !== $fromEntries) {
-            $wallet->forceFill(['stamps_count' => $fromEntries])->saveQuietly();
+            $updates['stamps_count'] = $fromEntries;
+        }
+
+        if ($wallet->completed_at && $fromEntries < $stampsRequired) {
+            $updates['completed_at'] = null;
+        }
+
+        if ($updates !== []) {
+            $wallet->forceFill($updates)->saveQuietly();
         }
 
         return min(max(0, $fromEntries), $stampsRequired);
+    }
+
+
+    /**
+     * Prefer the live card; fall back to ready-to-redeem, then the latest expired card.
+     *
+     * @param  \Illuminate\Support\Collection<int, LoyaltyStampWallet>  $programWallets
+     */
+    private function resolveDisplayWallet(Collection $programWallets): ?LoyaltyStampWallet
+    {
+        if ($programWallets->isEmpty()) {
+            return null;
+        }
+
+        return $programWallets->first(fn (LoyaltyStampWallet $wallet) => $wallet->isActive())
+            ?? $programWallets->first(fn (LoyaltyStampWallet $wallet) => $wallet->completed_at && ! $wallet->redeemed_at)
+            ?? $programWallets->first(fn (LoyaltyStampWallet $wallet) => $this->isExpired($wallet));
     }
 
 

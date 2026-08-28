@@ -35,5 +35,10 @@ return [
     'stamp_redeem_not_allowed' => 'Anda tidak boleh menebus kad setem ini.',
     'stamp_redeem_not_ready' => 'Kad setem ini belum penuh lagi.',
     'stamp_redeem_already' => 'Ganjaran ini telah ditebus.',
+    'tx_earn_purchase' => 'Ganjaran pembelian · pesanan #:id · RM :amount perbelanjaan layak',
+    'tx_earn_purchase_hint' => 'Mata daripada checkout berbayar — bukan bonus rujukan atau kongsi kod.',
+    'tx_referral_bonus' => 'Bonus pendaftaran rujukan',
+    'tx_review_bonus' => 'Bonus ulasan rawatan',
+    'tx_points_expired' => 'Mata tamat tempoh',
     'stamp_redemptions' => 'Ganjaran ditebus',
 ];

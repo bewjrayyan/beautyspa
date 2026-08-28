@@ -5,6 +5,30 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.56' => [
+        'date' => '2026-08-28',
+        'en' => [
+            'summary' => 'Unify customer billing/shipping addresses, modernize account profile and addresses, and fix loyalty earn sync.',
+            'changes' => [
+                'Checkout and account: sync profile names with billing defaults, seed addresses from last order, and add separate billing/shipping defaults with shipping_address_id migration.',
+                'My Addresses: checkout-style cards, billing vs shipping sections, set-default actions, and checkout prefill when shipping differs.',
+                'Account profile: SaaS-style layout, shared DOB datepicker, remove stamp cards from profile (membership moved to loyalty page).',
+                'Loyalty: fix points earn idempotency and order fillable, clearer transaction labels, membership sidebar on loyalty index.',
+                'Header nav label My Account and bordered desktop account sidebar menu.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Seragamkan alamat bil/penghantaran pelanggan, modenkan profil dan alamat akaun, dan betulkan sync mata ganjaran.',
+            'changes' => [
+                'Checkout dan akaun: selaraskan nama profil dengan lalai bil, seed alamat dari order terakhir, dan lalai bil/penghantaran berasingan dengan migrasi shipping_address_id.',
+                'Alamat Saya: kad gaya checkout, bahagian bil vs penghantaran, tindakan tetapkan lalai, dan prefill checkout bila penghantaran berbeza.',
+                'Profil akaun: susun atur SaaS, datepicker DOB berkongsi, buang kad setem dari profil (keahlian dipindah ke halaman ganjaran).',
+                'Ganjaran: betulkan idempotency earn dan fillable order, label transaksi lebih jelas, sidebar keahlian di indeks loyalty.',
+                'Label nav header Akaun Saya dan menu sidebar akaun desktop berbingkai.',
+            ],
+        ],
+    ],
+
     '4.11.55' => [
         'date' => '2026-08-28',
         'en' => [

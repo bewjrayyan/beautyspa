@@ -34,9 +34,13 @@ class ProcessLoyaltyOnOrderStatusChanged implements ShouldQueueAfterCommit
             return;
         }
 
-        $order = $event->order;
+        $order = $event->order->fresh();
 
-        if ($order->status === Order::COMPLETED) {
+        if (! $order) {
+            return;
+        }
+
+        if ($order->status === Order::COMPLETED && $order->isPaymentPaid()) {
             $this->earn->earnFromCompletedOrder($order);
             $this->stamps->awardForOrder($order);
 

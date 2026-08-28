@@ -61,7 +61,7 @@
                     <span class="bottom-navigation-item__icon" aria-hidden="true">
                         <i class="las la-user"></i>
                     </span>
-                    <span class="bottom-navigation-item__label">{{ trans('storefront::layouts.account') }}</span>
+                    <span class="bottom-navigation-item__label">{{ trans('storefront::layouts.my_account') }}</span>
                 </a>
             </li>
         </ul>

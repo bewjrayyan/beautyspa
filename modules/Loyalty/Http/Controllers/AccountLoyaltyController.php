@@ -8,6 +8,7 @@ use Modules\Loyalty\Entities\LoyaltyStampWallet;
 use Modules\Loyalty\Services\LoyaltyConfig;
 use Modules\Loyalty\Services\LoyaltyStampProgressService;
 use Modules\Loyalty\Services\LoyaltyStampRedeemService;
+use Modules\Loyalty\Services\LoyaltyTransactionLabelService;
 use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\Loyalty\Services\LoyaltyReferralService;
 
@@ -18,7 +19,8 @@ class AccountLoyaltyController
         private LoyaltyConfig $config,
         private LoyaltyReferralService $referrals,
         private LoyaltyStampProgressService $stampProgress,
-        private LoyaltyStampRedeemService $stampRedeem
+        private LoyaltyStampRedeemService $stampRedeem,
+        private LoyaltyTransactionLabelService $transactionLabels
     ) {}
 
 
@@ -33,6 +35,7 @@ class AccountLoyaltyController
         $referralCode = $this->referrals->ensureReferralCode($user);
 
         return view('loyalty::public.account.loyalty.index', [
+            'account' => $user,
             'wallet' => $wallet,
             'transactions' => $transactions,
             'pointValueRm' => $this->config->pointValueRm(),
@@ -41,6 +44,8 @@ class AccountLoyaltyController
             'referralEnabled' => $this->config->referralEnabled(),
             'stampCards' => $this->stampProgress->forAccount($user),
             'stampRedemptions' => $this->stampProgress->recentRedemptions($user),
+            'earnRate' => $this->config->earnRatePerRm(),
+            'transactionLabels' => $this->transactionLabels,
         ]);
     }
 

@@ -44,7 +44,7 @@ class LoyaltyStampAwardService
         }
 
         foreach ($programs as $program) {
-            if (! $this->eligibleProducts->orderQualifies($order, $program)) {
+            if (! $this->eligibleProducts->orderEarnsStampVisit($order, $program)) {
                 continue;
             }
 

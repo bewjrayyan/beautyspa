@@ -8,12 +8,18 @@ class DefaultAddress extends Model
 {
     public $timestamps = false;
     protected $with = ['address'];
-    protected $fillable = ['customer_id', 'address_id'];
+    protected $fillable = ['customer_id', 'address_id', 'shipping_address_id'];
 
 
     public function address()
     {
         return $this->belongsTo(Address::class);
+    }
+
+
+    public function shippingAddress()
+    {
+        return $this->belongsTo(Address::class, 'shipping_address_id');
     }
 
 

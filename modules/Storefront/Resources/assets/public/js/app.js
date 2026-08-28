@@ -12,11 +12,20 @@ import "./vendors/axios";
  */
 async function bootFormEnhancements() {
     const hasDatepicker = document.querySelector("input.modern-datepicker");
+    const hasDobPicker = document.querySelector("input.account-dob-picker");
     const hasPhone = document.querySelector("input.modern-phone-input");
 
     if (hasDatepicker) {
         const { initModernDatepickers } = await import("./lib/modernDatepicker");
         initModernDatepickers();
+    }
+
+    if (hasDobPicker) {
+        const { initDateOfBirthPickers, syncDateOfBirthPickersOnSubmit } = await import("./lib/dateOfBirthPicker");
+        initDateOfBirthPickers();
+        document.querySelectorAll(".account-profile-form").forEach((form) => {
+            syncDateOfBirthPickersOnSubmit(form);
+        });
     }
 
     if (hasPhone) {

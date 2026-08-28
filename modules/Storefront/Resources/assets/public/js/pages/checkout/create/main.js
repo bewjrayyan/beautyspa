@@ -2096,7 +2096,20 @@ Alpine.data(
         initBillingDefaults() {
             if (this.defaultAddress?.address_id) {
                 this.form.billingAddressId = this.defaultAddress.address_id;
-                this.form.shippingAddressId = this.defaultAddress.address_id;
+
+                const billingId = Number(this.defaultAddress.address_id);
+                const shippingId = Number(
+                    this.defaultAddress.shipping_address_id || 0,
+                );
+
+                if (shippingId && shippingId !== billingId) {
+                    this.form.ship_to_a_different_address = true;
+                    this.form.shippingAddressId = shippingId;
+                    this.form.newShippingAddress = false;
+                } else {
+                    this.form.shippingAddressId = this.defaultAddress.address_id;
+                }
+
                 this.mergeSavedBillingAddress();
                 this.mergeSavedShippingAddress();
 

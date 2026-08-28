@@ -43,7 +43,7 @@ class LoyaltyEarnService
             return;
         }
 
-        if ($order->loyalty_points_earned > 0) {
+        if ($order->status !== Order::COMPLETED || ! $order->isPaymentPaid()) {
             return;
         }
 
@@ -55,6 +55,24 @@ class LoyaltyEarnService
 
         $wallet = $this->wallets->getOrCreateForUser($user);
         $wallet->load('tier');
+
+        $earnRef = (string) $order->id . ':earn';
+        $existingEarn = $this->wallets->findExistingTransaction(
+            $wallet,
+            TransactionType::EARN,
+            'order',
+            $earnRef
+        );
+
+        if ($existingEarn) {
+            $this->syncOrderPointsEarned($order, (int) $existingEarn->points);
+
+            return;
+        }
+
+        if ($order->loyalty_points_earned > 0) {
+            return;
+        }
 
         $tierMultiplier = (float) $wallet->tier->earn_multiplier;
         $points = $this->calculatePointsForOrder($order, $tierMultiplier);
@@ -83,11 +101,14 @@ class LoyaltyEarnService
                 $expiresAt
             );
 
-            $order->update([
-                'loyalty_points_earned' => $points,
-            ]);
+            $this->syncOrderPointsEarned($order, $points);
 
             $this->notifications->notifyPointsEarned($user, $points, $wallet);
+        } elseif ($eligible > 0) {
+            // Eligible visit recorded for tier spend even when rounded points are zero.
+            $this->syncOrderPointsEarned($order, 0);
+        } else {
+            return;
         }
 
         $this->lifetimeSpend->recalculateWallet($wallet);
@@ -107,13 +128,13 @@ class LoyaltyEarnService
 
     public function clawbackFromOrder(Order $order): void
     {
-        if (!$order->customer_id || $order->loyalty_points_earned <= 0) {
+        if (! $order->customer_id) {
             return;
         }
 
         $user = User::find($order->customer_id);
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -126,11 +147,19 @@ class LoyaltyEarnService
             return;
         }
 
-        if (!$this->wallets->findExistingTransaction($wallet, TransactionType::EARN, 'order', $earnRef)) {
+        $earnTx = $this->wallets->findExistingTransaction($wallet, TransactionType::EARN, 'order', $earnRef);
+
+        if (! $earnTx && (int) $order->loyalty_points_earned <= 0) {
             return;
         }
 
-        $points = (int) $order->loyalty_points_earned;
+        $points = $earnTx
+            ? (int) $earnTx->points
+            : (int) $order->loyalty_points_earned;
+
+        if ($points <= 0) {
+            return;
+        }
         $eligible = $this->eligibleAmount($order);
 
         $this->wallets->debit(
@@ -222,5 +251,15 @@ class LoyaltyEarnService
         $multiplier = (float) ($product->loyalty_earn_multiplier ?? 1);
 
         return $multiplier > 0 ? $multiplier : 1.0;
+    }
+
+
+    private function syncOrderPointsEarned(Order $order, int $points): void
+    {
+        if ((int) $order->loyalty_points_earned === $points) {
+            return;
+        }
+
+        $order->update(['loyalty_points_earned' => max(0, $points)]);
     }
 }

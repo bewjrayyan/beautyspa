@@ -3,7 +3,9 @@
 namespace Modules\Loyalty\Services;
 
 use Modules\Category\Entities\Category;
+use Modules\Loyalty\Entities\LoyaltyStampEntry;
 use Modules\Loyalty\Entities\LoyaltyStampProgram;
+use Modules\Loyalty\Entities\LoyaltyStampWallet;
 use Modules\Order\Entities\Order;
 use Modules\Order\Entities\OrderProduct;
 use Modules\Product\Entities\Product;
@@ -11,7 +13,8 @@ use Modules\Product\Entities\Product;
 class StampProgramEligibleProductService
 {
     public function __construct(
-        private StampProgramProductCatalogService $catalog
+        private StampProgramProductCatalogService $catalog,
+        private LoyaltyLifetimeSpendService $lifetimeSpend,
     ) {}
 
 
@@ -152,6 +155,93 @@ class StampProgramEligibleProductService
         }
 
         return $order->products->isNotEmpty();
+    }
+
+
+    /**
+     * A visit counts toward a stamp only when the order qualifies for the program
+     * and has eligible spend on matching line items (same basis as loyalty points).
+     */
+    public function orderEarnsStampVisit(Order $order, LoyaltyStampProgram $program): bool
+    {
+        if ($order->status !== Order::COMPLETED && ! $order->isPaymentPaid()) {
+            return false;
+        }
+
+        if (in_array($order->payment_status, [Order::PAYMENT_REFUNDED, Order::PAYMENT_CANCELED], true)) {
+            return false;
+        }
+
+        $order->loadMissing(['products.product']);
+
+        if (! $this->orderQualifies($order, $program)) {
+            return false;
+        }
+
+        return $this->hasEligibleSpendOnQualifyingLines($order, $program);
+    }
+
+
+    /**
+     * Count stamp entries whose linked orders still qualify as eligible visits.
+     */
+    public function countQualifyingEntries(LoyaltyStampWallet $wallet): int
+    {
+        $program = $wallet->program;
+
+        if (! $program) {
+            return 0;
+        }
+
+        $entries = $wallet->relationLoaded('entries')
+            ? $wallet->entries
+            : $wallet->entries()->with(['order.products.product'])->get();
+
+        return (int) $entries
+            ->filter(function (LoyaltyStampEntry $entry) use ($program) {
+                return $entry->order && $this->orderEarnsStampVisit($entry->order, $program);
+            })
+            ->sum('stamps_added');
+    }
+
+
+    /**
+     * @param array<string, mixed> $rule
+     */
+    private function hasEligibleSpendOnQualifyingLines(Order $order, LoyaltyStampProgram $program): bool
+    {
+        $orderEligible = $this->lifetimeSpend->eligibleAmount($order);
+
+        if ($orderEligible <= 0) {
+            return false;
+        }
+
+        $rules = $this->normalizeStored($program->product_ids);
+
+        if ($rules === []) {
+            return true;
+        }
+
+        $subTotal = (float) $order->sub_total->amount();
+
+        if ($subTotal <= 0) {
+            return false;
+        }
+
+        foreach ($order->products as $line) {
+            if (! collect($rules)->contains(fn (array $rule) => $this->lineMatchesRule($line, $rule))) {
+                continue;
+            }
+
+            $lineTotal = (float) $line->line_total->amount();
+            $lineEligible = ($lineTotal / $subTotal) * $orderEligible;
+
+            if ($lineEligible > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

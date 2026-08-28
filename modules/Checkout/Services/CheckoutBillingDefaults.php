@@ -21,16 +21,35 @@ class CheckoutBillingDefaults
         $address = app(ProfileAddressService::class)->resolveAddress($user);
 
         if ($address !== null) {
-            return $this->fromAddress($address);
+            return $this->withProfileNames($user, $this->fromAddress($address));
         }
 
         $lastOrder = $user->orders()->latest()->first();
 
         if ($lastOrder instanceof Order && filled($lastOrder->billing_address_1)) {
-            return $this->fromOrder($lastOrder);
+            return $this->withProfileNames($user, $this->fromOrder($lastOrder));
         }
 
         return $this->fromProfile($user);
+    }
+
+    /**
+     * Billing name always follows the live profile; only address lines may fall back to order history.
+     *
+     * @param  array<string, string>  $billing
+     * @return array<string, string>
+     */
+    private function withProfileNames(User $user, array $billing): array
+    {
+        if (filled($user->first_name)) {
+            $billing['first_name'] = (string) $user->first_name;
+        }
+
+        if (filled($user->last_name)) {
+            $billing['last_name'] = (string) $user->last_name;
+        }
+
+        return $billing;
     }
 
     /**

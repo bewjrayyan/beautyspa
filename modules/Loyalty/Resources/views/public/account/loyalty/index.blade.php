@@ -10,7 +10,7 @@
 
 @section('panel')
     @php
-        $earnRate = config('fleetcart.modules.loyalty.config.earn_rate_per_rm', 1);
+        $earnRate = $earnRate ?? config('fleetcart.modules.loyalty.config.earn_rate_per_rm', 1);
         $tierMultiplier = $wallet->tier?->earn_multiplier ?? 1;
         $referralUrl = route('register') . '?ref=' . urlencode($referralCode);
     @endphp
@@ -157,8 +157,13 @@
                                             @else
                                                 {{ $tx->type }}
                                             @endif
-                                            @if ($tx->description)
-                                                <span class="account-loyalty-tx__desc">{{ $tx->description }}</span>
+                                            @php
+                                                $txLabel = $transactionLabels->customerLabel($tx);
+                                                $txHint = $transactionLabels->customerHint($tx);
+                                            @endphp
+                                            <span class="account-loyalty-tx__desc">{{ $txLabel }}</span>
+                                            @if ($txHint)
+                                                <span class="account-loyalty-tx__hint">{{ $txHint }}</span>
                                             @endif
                                         </td>
                                         <td>
@@ -177,6 +182,13 @@
             </main>
 
             <aside class="account-loyalty-show__sidebar">
+                @include('loyalty::public.account.partials.membership-sidebar', [
+                    'account' => $account,
+                    'wallet' => $wallet,
+                    'balanceRm' => $balanceRm,
+                    'earnRate' => $earnRate,
+                ])
+
                 @if (($stampRedemptions ?? collect())->isNotEmpty())
                     <div class="account-loyalty-sidebar__card">
                         <h2 class="account-loyalty-sidebar__title">
