@@ -95,6 +95,8 @@
 
         <div class="order-receipt__divider"></div>
 
+        @include('order::partials.treatment_appointment_summary', ['order' => $order, 'style' => 'order-receipt'])
+
         <dl class="order-receipt__totals">
             @include('order::partials.pricing_breakdown', ['order' => $order, 'style' => 'order-receipt'])
 
@@ -122,25 +124,6 @@
                 </div>
             @endif
         </dl>
-
-        @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
-            <div class="order-receipt__divider"></div>
-            <section class="order-receipt__appointment">
-                <p class="order-receipt__label">{{ trans('order::print.appointment') }}</p>
-                @if ($order->spaBranch)
-                    <p class="order-receipt__value">{{ trans('order::orders.spa_branch') }}: {{ $order->spaBranch->name }}</p>
-                @endif
-                @if ($order->beautician)
-                    <p class="order-receipt__value">{{ trans('order::print.beautician') }}: {{ $order->beautician->name }}</p>
-                @endif
-                @if ($order->appointment_date)
-                    <p class="order-receipt__value">{{ trans('order::print.appointment_date') }}: {{ $order->appointment_date->format('d M Y') }}</p>
-                @endif
-                @if ($order->appointment_time)
-                    <p class="order-receipt__value">{{ trans('order::print.appointment_time') }}: {{ $order->displayAppointmentTime() }}</p>
-                @endif
-            </section>
-        @endif
 
         <footer class="order-receipt__footer">
             <p>{{ trans('order::print.thank_you') }}</p>

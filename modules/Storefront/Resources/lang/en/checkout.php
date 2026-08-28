@@ -94,4 +94,10 @@ return [
     'schedule_now' => 'Choose date & time now',
     'schedule_later_tba' => 'Schedule later (TBA)',
     'schedule_later_help' => 'We will confirm your appointment date and time with you based on beautician availability.',
+    'appointment_details' => 'Appointment Details',
+    'appointment_schedule' => 'Appointment',
+    'summary_schedule_pending' => 'Schedule pending',
+    'summary_date_time_pending' => 'Date & time pending',
+    'summary_beautician_pending' => 'Not selected',
+    'summary_incomplete' => 'incomplete',
 ];

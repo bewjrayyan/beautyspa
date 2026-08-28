@@ -238,6 +238,39 @@ body {
     border-top: 1px solid $receipt-border;
 }
 
+
+.payment-receipt__appointment-summary {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid $receipt-border;
+}
+
+.payment-receipt__summary--appointments {
+    margin-top: 6px;
+    padding-top: 0;
+    border-top: none;
+
+    .payment-receipt__summary-row--product {
+        display: block;
+        padding: 2px 0 4px;
+
+        dd {
+            width: 100%;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6f2948;
+            white-space: normal;
+        }
+
+        &.payment-receipt__summary-row--spaced {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed $receipt-border;
+        }
+    }
+}
+
 .payment-receipt__summary-row {
     display: flex;
     justify-content: space-between;

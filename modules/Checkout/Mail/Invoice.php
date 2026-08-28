@@ -53,6 +53,10 @@ class Invoice extends Mailable implements ShouldQueue
             'transaction',
             'beautician',
             'spaBranch',
+            'treatmentBookings.product',
+            'treatmentBookings.beautician',
+            'treatmentBookings.orderProduct.options.values',
+            'treatmentBookings.orderProduct.variations.values',
         ]);
 
         $logo = app(MailLogoEmbedder::class)->embed($this);

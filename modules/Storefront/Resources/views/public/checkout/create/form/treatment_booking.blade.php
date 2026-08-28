@@ -14,6 +14,7 @@
 .checkout-treatment-card .is-disabled-field { opacity: 0.55; }
 .checkout-treatment-card .is-disabled-field .checkout-input-wrap { pointer-events: auto; cursor: pointer; }
 .checkout-treatment-card .is-disabled-field .form-control:disabled { pointer-events: none; }
+.checkout-treatment-card .is-disabled-field .checkout-appointment-slots { pointer-events: auto; cursor: pointer; }
 @media (max-width: 640px) { .checkout-schedule-toggle { grid-template-columns: 1fr; } }
 </style>
 <template x-if="requiresTreatmentBooking">
@@ -112,78 +113,81 @@
                     </p>
                 </div>
 
-                <div class="row checkout-appointment-row" x-show="isLineScheduleNow(line)" x-cloak>
-                    <div class="col-md-9">
-                        <div class="form-group checkout-field-icon" :class="{ 'is-disabled-field': !lineCanUseAppointmentFields(line) || line.loadingDates || (line.datesResolved && !line.availableDates.length) }">
-                            <label class="input-label">{{ trans('storefront::checkout.appointment_date') }} <span>*</span></label>
-                            <div
-                                class="checkout-input-wrap"
-                                @click="lineCanUseAppointmentFields(line) ? openLineDatePicker(lineIndex) : promptTreatmentBookingStep(lineIndex, { forAppointment: true })"
+                <div class="checkout-appointment-row" x-show="isLineScheduleNow(line)" x-cloak>
+                    <div class="form-group checkout-field-icon" :class="{ 'is-disabled-field': !lineCanUseAppointmentFields(line) || line.loadingDates || (line.datesResolved && !line.availableDates.length) }">
+                        <label class="input-label">{{ trans('storefront::checkout.appointment_date') }} <span>*</span></label>
+                        <div
+                            class="checkout-input-wrap"
+                            @click="lineCanUseAppointmentFields(line) ? openLineDatePicker(lineIndex) : promptTreatmentBookingStep(lineIndex, { forAppointment: true })"
+                        >
+                            <i class="las la-calendar"></i>
+                            <input
+                                type="text"
+                                class="form-control checkout-datepicker"
+                                :data-line-index="lineIndex"
+                                placeholder="{{ trans('storefront::checkout.appointment_date') }}"
+                                readonly
+                                :required="isLineScheduleNow(line)"
+                                :aria-disabled="!line.beautician_id || line.loadingDates || !line.availableDates.length"
                             >
-                                <i class="las la-calendar"></i>
-                                <input
-                                    type="text"
-                                    class="form-control checkout-datepicker"
-                                    :data-line-index="lineIndex"
-                                    placeholder="{{ trans('storefront::checkout.appointment_date') }}"
-                                    readonly
-                                    :required="isLineScheduleNow(line)"
-                                    :aria-disabled="!line.beautician_id || line.loadingDates || !line.availableDates.length"
-                                >
-                            </div>
-                            <p class="help-block" x-show="lineNeedsBranchFirst()" x-cloak>
-                                {{ trans('storefront::checkout.select_spa_branch_before_date') }}
-                            </p>
-                            <p class="help-block" x-show="!lineNeedsBranchFirst() && lineNeedsBeautician(line)" x-cloak>
-                                {{ trans('storefront::checkout.select_beautician_before_date') }}
-                            </p>
-                            <p class="help-block" x-show="line.beautician_id && line.loadingDates" x-cloak>
-                                {{ trans('storefront::checkout.loading_appointment_dates') }}
-                            </p>
-                            <p class="help-block text-danger" x-show="line.beautician_id && line.datesLoadFailed" x-cloak>
-                                {{ trans('storefront::checkout.appointment_dates_load_failed') }}
-                            </p>
-                            <p class="help-block" x-show="line.beautician_id && line.datesResolved && !line.loadingDates && !line.datesLoadFailed && !line.availableDates.length && line.dateOptions.some(o => o.status === 'fully_booked')" x-cloak>
-                                {{ trans('storefront::checkout.no_available_appointment_dates_all_booked') }}
-                            </p>
-                            <p class="help-block" x-show="line.beautician_id && line.datesResolved && !line.loadingDates && !line.datesLoadFailed && !line.availableDates.length && !line.dateOptions.some(o => o.status === 'fully_booked')" x-cloak>
-                                {{ trans('storefront::checkout.no_available_appointment_dates') }}
-                            </p>
-                            <span class="error-message" x-show="errors.has(`treatment_bookings.${lineIndex}.appointment_date`)" x-text="errors.get(`treatment_bookings.${lineIndex}.appointment_date`)"></span>
                         </div>
+                        <p class="help-block" x-show="lineNeedsBranchFirst()" x-cloak>
+                            {{ trans('storefront::checkout.select_spa_branch_before_date') }}
+                        </p>
+                        <p class="help-block" x-show="!lineNeedsBranchFirst() && lineNeedsBeautician(line)" x-cloak>
+                            {{ trans('storefront::checkout.select_beautician_before_date') }}
+                        </p>
+                        <p class="help-block" x-show="line.beautician_id && line.loadingDates" x-cloak>
+                            {{ trans('storefront::checkout.loading_appointment_dates') }}
+                        </p>
+                        <p class="help-block text-danger" x-show="line.beautician_id && line.datesLoadFailed" x-cloak>
+                            {{ trans('storefront::checkout.appointment_dates_load_failed') }}
+                        </p>
+                        <p class="help-block" x-show="line.beautician_id && line.datesResolved && !line.loadingDates && !line.datesLoadFailed && !line.availableDates.length && line.dateOptions.some(o => o.status === 'fully_booked')" x-cloak>
+                            {{ trans('storefront::checkout.no_available_appointment_dates_all_booked') }}
+                        </p>
+                        <p class="help-block" x-show="line.beautician_id && line.datesResolved && !line.loadingDates && !line.datesLoadFailed && !line.availableDates.length && !line.dateOptions.some(o => o.status === 'fully_booked')" x-cloak>
+                            {{ trans('storefront::checkout.no_available_appointment_dates') }}
+                        </p>
+                        <span class="error-message" x-show="errors.has(`treatment_bookings.${lineIndex}.appointment_date`)" x-text="errors.get(`treatment_bookings.${lineIndex}.appointment_date`)"></span>
                     </div>
-                    <div class="col-md-9">
-                        <div class="form-group checkout-field-icon" :class="{ 'is-disabled-field': !lineCanUseAppointmentFields(line) || !line.appointment_date }">
-                            <label class="input-label">{{ trans('storefront::checkout.appointment_time') }} <span>*</span></label>
-                            <div
-                                class="checkout-input-wrap"
-                                @click="(!lineCanUseAppointmentFields(line) || !line.appointment_date) && promptLineAppointmentTime(lineIndex)"
-                            >
-                                <i class="las la-clock"></i>
-                                <select
-                                    class="form-control"
-                                    x-model="line.appointment_time"
-                                    @change="onLineAppointmentTimeChange(lineIndex)"
-                                    :disabled="!isLineScheduleNow(line) || !line.beautician_id || !line.appointment_date || (!line.slots.length && !line.appointment_time && !line.loadingSlots)"
-                                    :required="isLineScheduleNow(line)"
-                                >
-                                    <template x-for="opt in lineAppointmentTimeOptions(line)" :key="opt.key">
-                                        <option :value="opt.value" :disabled="opt.disabled" x-text="opt.label"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <p class="help-block text-muted" x-show="line.beautician_id && line.appointment_date && lineAvailableScheduleTimes(line)" x-cloak>
-                                <span>{{ trans('storefront::checkout.appointment_times_bookable') }} </span>
-                                <span x-text="lineAvailableScheduleTimes(line)"></span>
-                            </p>
-                            <p class="help-block text-danger" x-show="line.slotConflict" x-cloak>
-                                {{ trans('storefront::checkout.appointment_time_conflicts_sibling') }}
-                            </p>
-                            <p class="help-block" x-show="line.beautician_id && line.appointment_date && !line.loadingSlots && !line.slots.length" x-cloak>
-                                <span x-text="slotLabels.empty"></span>
-                            </p>
-                            <span class="error-message" x-show="errors.has(`treatment_bookings.${lineIndex}.appointment_time`)" x-text="errors.get(`treatment_bookings.${lineIndex}.appointment_time`)"></span>
+
+                    <div
+                        class="form-group checkout-field-appointment-time"
+                        :class="{ 'is-disabled-field': !lineCanUseAppointmentFields(line) || !line.appointment_date }"
+                    >
+                        <label class="input-label">{{ trans('storefront::checkout.appointment_time') }} <span>*</span></label>
+                        <div
+                            class="checkout-appointment-slots"
+                            @click="(!lineCanUseAppointmentFields(line) || !line.appointment_date) && promptLineAppointmentTime(lineIndex)"
+                        >
+                            <template x-if="lineAppointmentSlotsPlaceholder(line)">
+                                <p class="checkout-appointment-slots__message" x-text="lineAppointmentSlotsPlaceholder(line)"></p>
+                            </template>
+                            <template x-for="opt in lineAppointmentSlotGrid(line)" :key="`${lineIndex}-${opt.time}-${opt.status}`">
+                                <button
+                                    type="button"
+                                    class="checkout-appointment-slot"
+                                    :class="{
+                                        'is-selected': String(line.appointment_time || '').slice(0, 5) === String(opt.time || '').slice(0, 5),
+                                        'is-booked': opt.status === 'booked',
+                                        'is-unavailable': opt.status === 'unavailable',
+                                    }"
+                                    :disabled="opt.status !== 'available'"
+                                    @click.stop="selectLineAppointmentSlot(lineIndex, opt)"
+                                    x-text="formatSlotOptionLabel(opt)"
+                                ></button>
+                            </template>
                         </div>
+                        <input
+                            type="hidden"
+                            :name="`treatment_bookings[${lineIndex}][appointment_time]`"
+                            x-model="line.appointment_time"
+                        >
+                        <p class="help-block text-danger" x-show="line.slotConflict" x-cloak>
+                            {{ trans('storefront::checkout.appointment_time_conflicts_sibling') }}
+                        </p>
+                        <span class="error-message" x-show="errors.has(`treatment_bookings.${lineIndex}.appointment_time`)" x-text="errors.get(`treatment_bookings.${lineIndex}.appointment_time`)"></span>
                     </div>
                 </div>
             </div>

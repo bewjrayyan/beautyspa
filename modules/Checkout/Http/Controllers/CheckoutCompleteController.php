@@ -182,7 +182,20 @@ class CheckoutCompleteController
 
         CheckoutCompletionGuard::keepPlacedOrder();
 
-        $order->load(['products', 'coupon', 'taxes', 'beautician']);
+        $order->load([
+            'products.variations',
+            'products.options.option',
+            'products.options.values',
+            'coupon',
+            'taxes',
+            'transaction',
+            'beautician',
+            'spaBranch',
+            'treatmentBookings.product',
+            'treatmentBookings.beautician',
+            'treatmentBookings.orderProduct.options.values',
+            'treatmentBookings.orderProduct.variations.values',
+        ]);
 
         return view('order::admin.orders.print.show', [
             'order' => $order,

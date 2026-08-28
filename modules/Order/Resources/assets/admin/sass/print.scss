@@ -430,6 +430,40 @@ body {
     }
 }
 
+
+.order-invoice__appointment-summary {
+    width: 100%;
+    padding: 12px 14px;
+    background: #fff;
+    border: 1px solid $invoice-border;
+    border-radius: 8px;
+}
+
+.order-invoice__appointment-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.order-invoice__appointment-product {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #6f2948;
+
+    &--spaced {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed $invoice-border;
+    }
+}
+
+.order-invoice__row--appointment {
+    padding: 2px 0;
+    font-size: 12px;
+}
+
 .order-invoice__totals-column {
     display: flex;
     flex-direction: column;

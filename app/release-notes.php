@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.59' => [
+        'date' => '2026-08-28',
+        'en' => [
+            'summary' => 'Checkout treatment slots and appointment summaries on receipt, invoice, and email.',
+            'changes' => [
+                'Checkout: appointment time slot grid (portal-style), full-width stacked date/time fields, live appointment details in order summary sidebar.',
+                'Checkout: no payment gateway auto-selected on load; customer must choose explicitly.',
+                'Receipt, invoice, email, and PDF: per-treatment appointment details (branch, beautician, schedule) above payment totals via OrderTreatmentAppointmentSummary.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Slot temujanji checkout dan butiran temujanji setiap rawatan pada resit, invois, dan e-mel.',
+            'changes' => [
+                'Checkout: grid slot masa (gaya portal), tarikh/masa susun penuh, butiran temujanji langsung di sidebar ringkasan order.',
+                'Checkout: tiada gateway bayaran dipilih automatik; pelanggan mesti pilih sendiri.',
+                'Resit, invois, e-mel, dan PDF: butiran temujanji setiap rawatan (cawangan, beautician, jadual) di atas jumlah bayaran.',
+            ],
+        ],
+    ],
+
     '4.11.58' => [
         'date' => '2026-08-28',
         'en' => [

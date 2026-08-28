@@ -98,6 +98,50 @@
             @include('loyalty::public.checkout.loyalty')
         </div>
 
+        <template x-if="requiresTreatmentBooking && cartFetched">
+            <div class="checkout-appointment-summary">
+                <h4 class="checkout-appointment-summary__title">
+                    {{ trans('storefront::checkout.appointment_details') }}
+                </h4>
+
+                <ul class="list-inline order-summary-list checkout-appointment-summary-list">
+                    <template x-if="selectedSpaBranch">
+                        <li>
+                            <label>{{ trans('storefront::checkout.spa_branch') }}</label>
+                            <span x-text="selectedSpaBranch?.name"></span>
+                        </li>
+                    </template>
+
+                    <template x-for="(line, lineIndex) in treatmentSchedules" :key="line.cart_item_id || ('summary-' + line.product_id + '-' + lineIndex)">
+                        <li
+                            class="checkout-appointment-summary__group"
+                            :class="{ 'checkout-appointment-summary__group--spaced': lineIndex > 0 }"
+                        >
+                            <p class="checkout-appointment-summary__product" x-text="`${lineIndex + 1}. ${line.name}`"></p>
+
+                            <div class="checkout-appointment-summary__row">
+                                <label>{{ trans('storefront::checkout.beautician') }}</label>
+                                <span
+                                    :class="{ 'is-pending': !line.beautician_id }"
+                                    x-text="lineBeauticianSummaryText(line)"
+                                ></span>
+                            </div>
+
+                            <div class="checkout-appointment-summary__row">
+                                <label>{{ trans('storefront::checkout.appointment_schedule') }}</label>
+                                <span
+                                    :class="{
+                                        'is-pending': !isLineScheduleModeSelected(line) || (!isLineScheduleLater(line) && (!line.appointment_date || !line.appointment_time)),
+                                    }"
+                                    x-text="lineAppointmentSummaryText(line)"
+                                ></span>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+
         <div class="order-summary-middle">
             <ul class="list-inline order-summary-list order-summary-list-skeleton">
                 <li>

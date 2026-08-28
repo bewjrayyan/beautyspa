@@ -18,6 +18,10 @@ function localDateYmd(date = new Date()) {
     return `${y}-${m}-${d}`;
 }
 
+const APPOINTMENT_DATES_INITIAL_DAYS = 21;
+const APPOINTMENT_DATES_FULL_DAYS = 60;
+const APPOINTMENT_DATES_CACHE_TTL_MS = 120000;
+
 Alpine.data(
     "Checkout",
     ({
@@ -124,6 +128,8 @@ Alpine.data(
         paymentProofFileSize: "",
         paymentProofDragging: false,
         paymentProofError: "",
+        appointmentDatesCache: {},
+        appointmentDatesControllers: {},
 
         get cartFetched() {
             return this.$store.cart.fetched;
@@ -404,6 +410,68 @@ Alpine.data(
             return base;
         },
 
+        formatAppointmentDate(dateStr) {
+            if (!dateStr) {
+                return "";
+            }
+
+            const parts = String(dateStr).split("-").map(Number);
+
+            if (parts.length < 3 || parts.some(Number.isNaN)) {
+                return String(dateStr);
+            }
+
+            const [year, month, day] = parts;
+            const date = new Date(year, month - 1, day);
+
+            return date.toLocaleDateString([], {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+        },
+
+        lineAppointmentSummaryText(line) {
+            if (!this.isLineScheduleModeSelected(line)) {
+                return trans("storefront::checkout.summary_schedule_pending");
+            }
+
+            if (this.isLineScheduleLater(line)) {
+                return trans("storefront::checkout.schedule_later_tba");
+            }
+
+            const parts = [];
+
+            if (line?.appointment_date) {
+                parts.push(this.formatAppointmentDate(line.appointment_date));
+            }
+
+            if (line?.appointment_time) {
+                parts.push(this.formatAppointmentSlot(line.appointment_time));
+            }
+
+            if (!parts.length) {
+                return trans("storefront::checkout.summary_date_time_pending");
+            }
+
+            if (!line?.appointment_date || !line?.appointment_time) {
+                return `${parts.join(" · ")} (${trans("storefront::checkout.summary_incomplete")})`;
+            }
+
+            return parts.join(" · ");
+        },
+
+        lineBeauticianSummaryText(line) {
+            const beautician = this.lineBeautician(line);
+
+            if (beautician?.name) {
+                return beautician.name;
+            }
+
+            return trans("storefront::checkout.summary_beautician_pending");
+        },
+
         async loadAppointmentSlots() {
             if (
                 this.isScheduleLater ||
@@ -582,7 +650,7 @@ Alpine.data(
 
         init() {
             // Cart store updates (tax, shipping, coupon, loyalty) re-run this effect.
-            // Never clobber the customer's payment choice with firstPaymentMethod (often FPX).
+            // Do not auto-select any payment gateway; customer must choose explicitly.
             Alpine.effect(() => {
                 if (!this.cartFetched) {
                     return;
@@ -686,20 +754,25 @@ Alpine.data(
                     this.beauticianPickerOpen = false;
                     this.spaBranchPickerOpen = false;
                     this.syncBeauticianWithBranch();
+                    this.clearAppointmentDatesCache();
                     (this.treatmentSchedules || []).forEach((line, index) => {
                         line.pickerOpen = false;
                         line.appointment_date = "";
                         line.appointment_time = "";
                         line.slots = [];
                         line.availableDates = [];
+                        line.dateOptions = [];
                         line.datesResolved = false;
                         line.datesLoadFailed = false;
                         if (!this.canScheduleLaterForLine(line) && this.isLineScheduleLater(line)) {
                             line.schedule_later = "";
                         }
                         this.destroyLineDatePicker(index);
-                        if (this.isLineScheduleNow(line) && line.beautician_id) {
-                            this.loadLineAvailableDates(index);
+                        if (line.beautician_id) {
+                            this.prefetchLineAvailableDates(index);
+                            if (this.isLineScheduleNow(line)) {
+                                this.loadLineAvailableDates(index);
+                            }
                         }
                     });
                 });
@@ -875,6 +948,11 @@ Alpine.data(
             this.ensureTreatmentSchedules();
             this.$nextTick(() => {
                 (this.treatmentSchedules || []).forEach((line, index) => {
+                    if (line.beautician_id) {
+                        this.prefetchLineAvailableDates(index);
+                    }
+                });
+                (this.treatmentSchedules || []).forEach((line, index) => {
                     if (this.isLineScheduleNow(line) && line.beautician_id) {
                         this.loadLineAvailableDates(index);
                         if (line.appointment_date) {
@@ -936,6 +1014,7 @@ Alpine.data(
                     datesLoadFailed: Boolean(prev?.datesLoadFailed),
                     durationMinutes: prev?.durationMinutes || null,
                     slotConflict: Boolean(prev?.slotConflict),
+                    pendingDateFocus: Boolean(prev?.pendingDateFocus),
                 };
             });
 
@@ -983,6 +1062,8 @@ Alpine.data(
             const target =
                 el.closest(".beautician-picker-dropdown")
                 ?? el.closest(".checkout-field-spa-branch")
+                ?? el.closest(".checkout-input-wrap")
+                ?? el.closest(".checkout-appointment-slots")
                 ?? el;
 
             target.classList.remove("checkout-field--needs-attention");
@@ -1038,6 +1119,93 @@ Alpine.data(
                 this.$el?.querySelector(selector)
                 ?? document.querySelector(selector)
             );
+        },
+
+        findLineAppointmentRow(lineIndex) {
+            return this.$el?.querySelector(
+                `[data-treatment-line-index="${lineIndex}"] .checkout-appointment-row`
+            );
+        },
+
+        findLineDateInput(lineIndex) {
+            return this.$el?.querySelector(
+                `.checkout-datepicker[data-line-index="${lineIndex}"]`
+            );
+        },
+
+        findLineDateFieldWrap(lineIndex) {
+            return this.findLineDateInput(lineIndex)?.closest(".checkout-input-wrap") ?? null;
+        },
+
+        findLineTimeFieldWrap(lineIndex) {
+            return (
+                this.$el?.querySelector(
+                    `[data-treatment-line-index="${lineIndex}"] .checkout-appointment-slots`
+                ) ?? null
+            );
+        },
+
+        scheduleLineAppointmentDateFocus(lineIndex) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line || !this.isLineScheduleNow(line)) {
+                return;
+            }
+
+            line.pendingDateFocus = true;
+            this.highlightLineAppointmentFields(lineIndex);
+            this.refreshLineDatePicker(lineIndex);
+        },
+
+        highlightLineAppointmentFields(lineIndex) {
+            this.runAfterCheckoutFieldReady(() => {
+                this.findLineAppointmentRow(lineIndex)?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+
+                this.pulseCheckoutField(this.findLineDateFieldWrap(lineIndex));
+                this.pulseCheckoutField(this.findLineTimeFieldWrap(lineIndex));
+            });
+        },
+
+        focusLineDateInput(lineIndex) {
+            const dateInput = this.findLineDateInput(lineIndex);
+            if (!dateInput) {
+                return false;
+            }
+
+            const picker = dateInput._flatpickr;
+            const target = picker?.altInput ?? dateInput;
+
+            if (target.disabled) {
+                return false;
+            }
+
+            target.focus({ preventScroll: true });
+
+            return document.activeElement === target;
+        },
+
+        completeLineAppointmentDateFocus(lineIndex) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line?.pendingDateFocus || !this.isLineScheduleNow(line)) {
+                return;
+            }
+
+            line.pendingDateFocus = false;
+            this.highlightLineAppointmentFields(lineIndex);
+
+            window.requestAnimationFrame(() => {
+                if (!this.focusLineDateInput(lineIndex)) {
+                    window.requestAnimationFrame(() => {
+                        this.focusLineDateInput(lineIndex);
+                    });
+                }
+            });
+        },
+
+        autoFocusLineAppointmentFields(lineIndex) {
+            this.scheduleLineAppointmentDateFocus(lineIndex);
         },
 
         focusLineBeauticianField(lineIndex, { showError = true, openPicker = false } = {}) {
@@ -1227,6 +1395,54 @@ Alpine.data(
             ];
         },
 
+        lineAppointmentSlotGrid(line) {
+            if (!line?.appointment_date || line.loadingSlots) {
+                return [];
+            }
+
+            return (line.slotOptions || []).filter((option) => option.status !== "past");
+        },
+
+        lineAppointmentSlotsPlaceholder(line) {
+            if (!line?.beautician_id) {
+                return this.slotLabels.select_beautician || "Select beautician first";
+            }
+
+            if (!line.appointment_date) {
+                return this.slotLabels.select_date || "Select a date first";
+            }
+
+            if (line.loadingSlots) {
+                return this.slotLabels.loading || "Loading…";
+            }
+
+            if (!this.lineAppointmentSlotGrid(line).length) {
+                return this.slotLabels.empty || "No available times";
+            }
+
+            return "";
+        },
+
+        selectLineAppointmentSlot(lineIndex, option) {
+            if (!option || option.status !== "available") {
+                return;
+            }
+
+            const line = this.treatmentSchedules[lineIndex];
+            if (!line || !this.isLineScheduleNow(line)) {
+                return;
+            }
+
+            if (!this.lineCanUseAppointmentFields(line) || !line.appointment_date) {
+                this.promptLineAppointmentTime(lineIndex);
+                return;
+            }
+
+            line.appointment_time = String(option.time).slice(0, 5);
+            this.errors.clear(`treatment_bookings.${lineIndex}.appointment_time`);
+            this.onLineAppointmentTimeChange(lineIndex);
+        },
+
         selectLineBeautician(lineIndex, beautician) {
             const line = this.treatmentSchedules[lineIndex];
             if (!line) return;
@@ -1252,6 +1468,8 @@ Alpine.data(
 
             if (this.isLineScheduleNow(line)) {
                 this.loadLineAvailableDates(lineIndex);
+            } else {
+                this.prefetchLineAvailableDates(lineIndex);
             }
         },
 
@@ -1276,11 +1494,18 @@ Alpine.data(
                 line.datesLoadFailed = false;
                 this.destroyLineDatePicker(lineIndex);
             } else if (this.isLineScheduleNow(line)) {
+                line.pendingDateFocus = true;
+                this.highlightLineAppointmentFields(lineIndex);
+
                 if (line.beautician_id) {
-                    // Wait for x-show to reveal date inputs before Flatpickr binds.
-                    this.$nextTick(() => this.loadLineAvailableDates(lineIndex));
+                    this.$nextTick(() => {
+                        this.loadLineAvailableDates(lineIndex, { focusAfterLoad: true });
+                    });
                 } else {
-                    this.$nextTick(() => this.initAppointmentPickers());
+                    this.$nextTick(() => {
+                        this.initAppointmentPickers();
+                        this.scheduleLineAppointmentDateFocus(lineIndex);
+                    });
                 }
             }
         },
@@ -1345,7 +1570,154 @@ Alpine.data(
             });
         },
 
-        async loadLineAvailableDates(lineIndex) {
+        clearAppointmentDatesCache() {
+            Object.values(this.appointmentDatesControllers || {}).forEach((controller) => {
+                controller?.abort?.();
+            });
+            this.appointmentDatesControllers = {};
+            this.appointmentDatesCache = {};
+        },
+
+        abortLineDatesRequest(lineIndex) {
+            const controller = this.appointmentDatesControllers?.[lineIndex];
+            if (controller) {
+                controller.abort();
+                delete this.appointmentDatesControllers[lineIndex];
+            }
+        },
+
+        lineDatesCacheKey(line, days = APPOINTMENT_DATES_FULL_DAYS) {
+            if (!line?.product_id || !this.form.spa_branch_id || !line.beautician_id) {
+                return null;
+            }
+
+            return [
+                line.product_id,
+                this.form.spa_branch_id,
+                line.beautician_id,
+                this.minAppointmentDate,
+                days,
+            ].join(":");
+        },
+
+        parseDatesPayload(data) {
+            const dateOptions = Array.isArray(data?.date_options)
+                ? data.date_options
+                : (Array.isArray(data?.dates)
+                    ? data.dates.map((date) => ({ date, status: "available" }))
+                    : []);
+            const availableDates = dateOptions
+                .filter((opt) => opt.status === "available")
+                .map((opt) => opt.date);
+
+            return { dateOptions, availableDates };
+        },
+
+        mergeDateOptions(existing, incoming) {
+            const byDate = new Map();
+
+            (existing || []).forEach((option) => {
+                byDate.set(option.date, option);
+            });
+            (incoming || []).forEach((option) => {
+                byDate.set(option.date, option);
+            });
+
+            return Array.from(byDate.values()).sort((a, b) => a.date.localeCompare(b.date));
+        },
+
+        cacheLineDates(line, payload, days) {
+            const key = this.lineDatesCacheKey(line, days);
+            if (!key) {
+                return;
+            }
+
+            this.appointmentDatesCache[key] = {
+                ...payload,
+                days,
+                fetchedAt: Date.now(),
+            };
+        },
+
+        getBestCachedLineDates(line) {
+            for (const days of [APPOINTMENT_DATES_FULL_DAYS, APPOINTMENT_DATES_INITIAL_DAYS]) {
+                const key = this.lineDatesCacheKey(line, days);
+                const cached = key ? this.appointmentDatesCache[key] : null;
+
+                if (cached) {
+                    return cached;
+                }
+            }
+
+            return null;
+        },
+
+        applyLineDatePayload(line, payload) {
+            line.dateOptions = payload.dateOptions;
+            line.availableDates = payload.availableDates;
+            line.datesResolved = true;
+            line.datesLoadFailed = false;
+
+            if (
+                line.appointment_date &&
+                !line.availableDates.includes(line.appointment_date)
+            ) {
+                line.appointment_date = "";
+                line.appointment_time = "";
+                line.slots = [];
+                line.slotOptions = [];
+            }
+        },
+
+        async fetchLineAvailableDatesRequest(line, days, signal) {
+            const from = this.minAppointmentDate;
+            const toDate = new Date(`${from}T12:00:00`);
+            toDate.setDate(toDate.getDate() + days);
+            const to = localDateYmd(toDate);
+            const { data } = await axios.get(this.availabilityDatesUrl, {
+                params: {
+                    product_id: line.product_id,
+                    spa_branch_id: this.form.spa_branch_id,
+                    beautician_id: line.beautician_id,
+                    from,
+                    to,
+                },
+                signal,
+            });
+
+            return this.parseDatesPayload(data);
+        },
+
+        refreshLineDatePicker(lineIndex) {
+            this.destroyLineDatePicker(lineIndex);
+            this.$nextTick(() => this.initLineDatePicker(lineIndex));
+        },
+
+        prefetchLineAvailableDates(lineIndex) {
+            const line = this.treatmentSchedules[lineIndex];
+            if (
+                !line ||
+                !this.availabilityDatesUrl ||
+                !this.form.spa_branch_id ||
+                !line.product_id ||
+                !line.beautician_id
+            ) {
+                return;
+            }
+
+            const cached = this.getBestCachedLineDates(line);
+            if (
+                cached &&
+                cached.days >= APPOINTMENT_DATES_FULL_DAYS &&
+                Date.now() - cached.fetchedAt < APPOINTMENT_DATES_CACHE_TTL_MS
+            ) {
+                return;
+            }
+
+            this.loadLineAvailableDates(lineIndex, { background: true });
+        },
+
+        async loadLineAvailableDates(lineIndex, { background = false, focusAfterLoad = false } = {}) {
             const line = this.treatmentSchedules[lineIndex];
             if (
                 !line ||
@@ -1357,61 +1729,103 @@ Alpine.data(
             ) {
                 if (line) {
                     line.availableDates = [];
+                    line.dateOptions = [];
                     line.datesResolved = false;
                     line.datesLoadFailed = false;
+                    line.loadingDates = false;
                 }
                 this.$nextTick(() => this.initLineDatePicker(lineIndex));
                 return;
             }
 
-            line.loadingDates = true;
-            line.datesLoadFailed = false;
+            const cached = this.getBestCachedLineDates(line);
+            const cacheIsFresh =
+                cached &&
+                Date.now() - cached.fetchedAt < APPOINTMENT_DATES_CACHE_TTL_MS;
 
-            try {
-                const from = this.minAppointmentDate;
-                const toDate = new Date(`${from}T12:00:00`);
-                toDate.setDate(toDate.getDate() + 60);
-                const to = localDateYmd(toDate);
-                const { data } = await axios.get(this.availabilityDatesUrl, {
-                    params: {
-                        product_id: line.product_id,
-                        spa_branch_id: this.form.spa_branch_id,
-                        beautician_id: line.beautician_id,
-                        from,
-                        to,
-                    },
-                });
-                line.dateOptions = Array.isArray(data.date_options)
-                    ? data.date_options
-                    : (Array.isArray(data.dates)
-                        ? data.dates.map((date) => ({ date, status: "available" }))
-                        : []);
-                line.availableDates = line.dateOptions
-                    .filter((opt) => opt.status === "available")
-                    .map((opt) => opt.date);
-                line.datesResolved = true;
+            if (cached) {
+                this.applyLineDatePayload(line, cached);
+
+                if (!background) {
+                    line.loadingDates = false;
+                    this.refreshLineDatePicker(lineIndex);
+                }
 
                 if (
-                    line.appointment_date &&
-                    !line.availableDates.includes(line.appointment_date)
+                    cacheIsFresh &&
+                    cached.days >= APPOINTMENT_DATES_FULL_DAYS
                 ) {
+                    if (focusAfterLoad) {
+                        this.scheduleLineAppointmentDateFocus(lineIndex);
+                    }
+                    return;
+                }
+            }
+
+            const showLoading = !background && this.isLineScheduleNow(line);
+            if (showLoading && !cached) {
+                line.loadingDates = true;
+            }
+            line.datesLoadFailed = false;
+
+            this.abortLineDatesRequest(lineIndex);
+            const controller = new AbortController();
+            this.appointmentDatesControllers[lineIndex] = controller;
+
+            try {
+                const initialPayload = await this.fetchLineAvailableDatesRequest(
+                    line,
+                    APPOINTMENT_DATES_INITIAL_DAYS,
+                    controller.signal,
+                );
+                this.cacheLineDates(line, initialPayload, APPOINTMENT_DATES_INITIAL_DAYS);
+                this.applyLineDatePayload(line, initialPayload);
+
+                if (showLoading) {
+                    line.loadingDates = false;
+                    this.refreshLineDatePicker(lineIndex);
+                }
+
+                if (controller.signal.aborted) {
+                    return;
+                }
+
+                const fullPayload = await this.fetchLineAvailableDatesRequest(
+                    line,
+                    APPOINTMENT_DATES_FULL_DAYS,
+                    controller.signal,
+                );
+                this.cacheLineDates(line, fullPayload, APPOINTMENT_DATES_FULL_DAYS);
+                this.applyLineDatePayload(line, fullPayload);
+
+                if (this.isLineScheduleNow(line)) {
+                    this.refreshLineDatePicker(lineIndex);
+                }
+            } catch (error) {
+                if (error?.code === "ERR_CANCELED") {
+                    return;
+                }
+
+                if (!cached) {
+                    line.availableDates = [];
+                    line.dateOptions = [];
+                    line.datesResolved = true;
+                    line.datesLoadFailed = true;
                     line.appointment_date = "";
                     line.appointment_time = "";
                     line.slots = [];
-                    line.slotOptions = [];
                 }
-            } catch (e) {
-                line.availableDates = [];
-                line.dateOptions = [];
-                line.datesResolved = true;
-                line.datesLoadFailed = true;
-                line.appointment_date = "";
-                line.appointment_time = "";
-                line.slots = [];
             } finally {
                 line.loadingDates = false;
-                this.destroyLineDatePicker(lineIndex);
-                this.$nextTick(() => this.initLineDatePicker(lineIndex));
+                delete this.appointmentDatesControllers[lineIndex];
+
+                if (this.isLineScheduleNow(line)) {
+                    if (focusAfterLoad) {
+                        this.scheduleLineAppointmentDateFocus(lineIndex);
+                    } else {
+                        this.refreshLineDatePicker(lineIndex);
+                    }
+                }
             }
         },
 
@@ -1713,7 +2127,7 @@ Alpine.data(
             }
         },
 
-        initLineDatePicker(lineIndex) {
+        initLineDatePicker(lineIndex, attempt = 0) {
             if (!this.requiresTreatmentBooking) {
                 return;
             }
@@ -1725,12 +2139,23 @@ Alpine.data(
                 const line = this.treatmentSchedules[lineIndex];
 
                 if (!dateEl) {
+                    if (attempt < 8) {
+                        window.setTimeout(
+                            () => this.initLineDatePicker(lineIndex, attempt + 1),
+                            50
+                        );
+                    }
+
                     return;
                 }
 
                 if (!line || !this.isLineScheduleNow(line)) {
                     if (dateEl._flatpickr) {
                         dateEl._flatpickr.destroy();
+                    }
+
+                    if (line) {
+                        line.pendingDateFocus = false;
                     }
 
                     return;
@@ -1805,6 +2230,12 @@ Alpine.data(
                             dateEl.value = line.appointment_date;
                         } else {
                             dateEl.value = "";
+                        }
+
+                        if (line.pendingDateFocus) {
+                            this.$nextTick(() => {
+                                this.completeLineAppointmentDateFocus(lineIndex);
+                            });
                         }
         },
 
@@ -2549,8 +2980,8 @@ Alpine.data(
         },
 
         /**
-         * Default payment once when empty, or recover if the current method
-         * disappeared from gateways. Do not reset a still-valid user selection.
+         * Clear selection only when the chosen gateway is no longer available.
+         * Never auto-select a whitelist/default gateway on load.
          */
         ensurePaymentMethodSelected() {
             if (this.placingOrder) {
@@ -2560,15 +2991,15 @@ Alpine.data(
             const availableIds = this.gatewayOptions.map((gateway) => gateway.id);
             const selected = this.form.payment_method;
 
-            if (selected && availableIds.includes(selected)) {
+            if (!selected) {
                 return;
             }
 
-            const fallback = this.firstPaymentMethod;
-
-            if (fallback) {
-                this.changePaymentMethod(fallback);
+            if (availableIds.includes(selected)) {
+                return;
             }
+
+            this.changePaymentMethod("");
         },
 
         changeShippingMethod(shippingMethodName) {

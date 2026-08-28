@@ -37,6 +37,11 @@ class OrderPrintController
             'taxes',
             'transaction',
             'beautician',
+            'spaBranch',
+            'treatmentBookings.product',
+            'treatmentBookings.beautician',
+            'treatmentBookings.orderProduct.options.values',
+            'treatmentBookings.orderProduct.variations.values',
         ]);
 
         $logo = $this->resolveStoreLogo();

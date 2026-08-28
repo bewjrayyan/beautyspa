@@ -213,6 +213,8 @@
                 </div>
 
                 <div class="order-invoice__totals-column">
+                @include('order::partials.treatment_appointment_summary', ['order' => $order, 'style' => 'invoice'])
+
                 <div class="order-invoice__totals">
                     @include('order::partials.pricing_breakdown', ['order' => $order, 'style' => 'invoice'])
 
@@ -221,38 +223,6 @@
                         <dd>{{ $order->total->convert($order->currency, $order->currency_rate)->format($order->currency) }}</dd>
                     </dl>
                 </div>
-
-                @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
-                    <div class="order-invoice__meta-box order-invoice__meta-appointment">
-                        <p class="order-invoice__meta-label">{{ trans('order::print.appointment') }}</p>
-                        <div class="order-invoice__meta-box-rows">
-                            @if ($order->spaBranch)
-                                <dl class="order-invoice__meta-fact">
-                                    <dt>{{ trans('order::orders.spa_branch') }}</dt>
-                                    <dd>{{ $order->spaBranch->name }}</dd>
-                                </dl>
-                            @endif
-                            @if ($order->beautician)
-                                <dl class="order-invoice__meta-fact">
-                                    <dt>{{ trans('order::print.beautician') }}</dt>
-                                    <dd>{{ $order->beautician->name }}</dd>
-                                </dl>
-                            @endif
-                            @if ($order->appointment_date)
-                                <dl class="order-invoice__meta-fact">
-                                    <dt>{{ trans('order::print.appointment_date') }}</dt>
-                                    <dd>{{ $order->appointment_date->format('d M Y') }}</dd>
-                                </dl>
-                            @endif
-                            @if ($order->appointment_time)
-                                <dl class="order-invoice__meta-fact">
-                                    <dt>{{ trans('order::print.appointment_time') }}</dt>
-                                    <dd>{{ $order->displayAppointmentTime() }}</dd>
-                                </dl>
-                            @endif
-                        </div>
-                    </div>
-                @endif
                 </div>
             </div>
         </section>

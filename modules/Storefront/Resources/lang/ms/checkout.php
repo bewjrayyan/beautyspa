@@ -94,4 +94,10 @@ return [
     'schedule_now' => 'Pilih tarikh & masa sekarang',
     'schedule_later_tba' => 'Jadual kemudian (TBA)',
     'schedule_later_help' => 'Kami akan sahkan tarikh dan masa temujanji anda kemudian berdasarkan slot beautician yang tersedia.',
+    'appointment_details' => 'Butiran temujanji',
+    'appointment_schedule' => 'Temujanji',
+    'summary_schedule_pending' => 'Jadual belum dipilih',
+    'summary_date_time_pending' => 'Tarikh & masa belum dipilih',
+    'summary_beautician_pending' => 'Belum dipilih',
+    'summary_incomplete' => 'tidak lengkap',
 ];

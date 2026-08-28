@@ -51,6 +51,8 @@
         </tbody>
     </table>
 
+    @include('order::partials.treatment_appointment_summary', ['order' => $order, 'style' => 'pdf'])
+
     <table class="totals">
         <tr>
             <td class="label">{{ trans('order::print.subtotal') }}</td>

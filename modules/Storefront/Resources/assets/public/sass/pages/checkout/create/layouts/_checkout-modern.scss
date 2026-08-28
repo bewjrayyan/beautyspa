@@ -577,12 +577,116 @@ $checkout-text-muted: #4b5563;
 }
 
 .checkout-appointment-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     margin-top: 4px;
+
+    .form-group {
+        margin-bottom: 0;
+    }
+}
+
+.checkout-appointment-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 10px;
+    min-height: 88px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #fffafc;
+
+    &.checkout-field--needs-attention {
+        border-color: $checkout-pink !important;
+        box-shadow: 0 0 0 3px $checkout-pink-soft !important;
+    }
+}
+
+.checkout-appointment-slots__message {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 10px 4px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.checkout-appointment-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+    padding: 10px 8px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #6f2948;
+    background: #fff;
+    border: 1.5px solid #e5c4d4;
+    border-radius: 14px;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+        background: #fff4f8;
+        border-color: $checkout-pink;
+        outline: none;
+        transform: translateY(-1px);
+    }
+
+    &.is-selected {
+        color: #fff;
+        background: $checkout-pink;
+        border-color: $checkout-pink;
+        box-shadow: 0 8px 20px rgba(242, 116, 172, 0.28);
+    }
+
+    &.is-booked,
+    &.is-unavailable {
+        color: #9ca3af;
+        background: #f9fafb;
+        border-color: #e5e7eb;
+        text-decoration: line-through;
+        cursor: not-allowed;
+        opacity: 0.72;
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+    }
+}
+
+.checkout-field-appointment-time.is-disabled-field {
+    .checkout-appointment-slots {
+        opacity: 0.72;
+        cursor: pointer;
+    }
 }
 
 .checkout-field-icon {
     .checkout-input-wrap {
         position: relative;
+        border-radius: 12px;
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+
+        &:focus-within {
+            .form-control {
+                border-color: $checkout-pink;
+                box-shadow: 0 0 0 3px $checkout-pink-soft;
+            }
+        }
 
         > i {
             position: absolute;
@@ -1384,6 +1488,86 @@ $checkout-text-muted: #4b5563;
     border-top: 1px solid #f3f4f6;
 }
 
+.checkout-appointment-summary {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+
+    &__title {
+        margin: 0 0 12px;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: #6f2948;
+    }
+}
+
+.checkout-appointment-summary-list {
+    li {
+        align-items: flex-start;
+    }
+
+    label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #6b7280;
+    }
+
+    > li > span {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        text-align: right;
+    }
+
+    span.is-pending {
+        color: #9ca3af;
+        font-weight: 500;
+    }
+
+    .checkout-appointment-summary__group {
+        display: block;
+        margin-bottom: 0;
+
+        &--spaced {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #e5e7eb;
+        }
+    }
+
+    .checkout-appointment-summary__product {
+        margin: 0 0 6px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: #6f2948;
+    }
+
+    .checkout-appointment-summary__row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 9px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            margin-bottom: 0;
+            padding-right: 20px;
+        }
+
+        span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            text-align: right;
+        }
+    }
+}
+
 .order-summary-total--highlight {
     margin-top: 12px;
     padding-top: 14px;
@@ -1614,7 +1798,9 @@ $checkout-text-muted: #4b5563;
 }
 
 
-.beautician-picker-dropdown.checkout-field--needs-attention {
+.beautician-picker-dropdown.checkout-field--needs-attention,
+.checkout-treatment-card .checkout-input-wrap.checkout-field--needs-attention,
+.checkout-treatment-card .checkout-appointment-slots.checkout-field--needs-attention {
     position: relative;
     overflow: visible;
     z-index: 2;
@@ -1629,11 +1815,18 @@ $checkout-text-muted: #4b5563;
         animation: checkout-attention-pulse 1.2s ease-out 2;
         z-index: 10;
     }
+}
 
+.beautician-picker-dropdown.checkout-field--needs-attention {
     .beautician-selected-card {
         border-color: $checkout-pink !important;
         box-shadow: 0 0 0 3px $checkout-pink-soft !important;
     }
+}
+
+.checkout-treatment-card .checkout-input-wrap.checkout-field--needs-attention {
+    border-color: $checkout-pink !important;
+    box-shadow: 0 0 0 3px $checkout-pink-soft !important;
 }
 
 @keyframes checkout-attention-pulse {

@@ -177,6 +177,28 @@ body {
     margin-top: 2px;
 }
 
+
+.order-receipt__appointment-summary {
+    margin: 8px 0;
+}
+
+.order-receipt__appointment-product {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6f2948;
+
+    &--spaced {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed #e5e7eb;
+    }
+}
+
+.order-receipt__totals--appointments {
+    margin-bottom: 0;
+}
+
 .order-receipt__totals {
     margin: 0;
 }

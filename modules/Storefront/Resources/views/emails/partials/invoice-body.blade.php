@@ -52,18 +52,7 @@
                                         <p style="margin:0;"><strong>{{ trans('storefront::invoice.order_status') }}:</strong> {{ $order->status() }}</p>
                                     </td>
                                     <td width="50%" valign="top" style="padding:0 0 16px 12px;text-align:{{ $align }};">
-                                        @if ($order->appointment_date)
-                                            <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:{{ $themeColor }};">
-                                                {{ trans('order::print.appointment') }}
-                                            </p>
-                                            <p style="margin:0 0 4px;"><strong>{{ trans('order::print.appointment_date') }}:</strong> {{ $order->appointment_date->format('d M Y') }}</p>
-                                            @if ($order->appointment_time)
-                                                <p style="margin:0 0 4px;"><strong>{{ trans('order::print.appointment_time') }}:</strong> {{ $order->displayAppointmentTime() }}</p>
-                                            @endif
-                                            @if ($order->beautician?->name)
-                                                <p style="margin:0;"><strong>{{ trans('order::print.beautician') }}:</strong> {{ $order->beautician->name }}</p>
-                                            @endif
-                                        @elseif ($order->hasPhysicalProducts())
+                                        @if ($order->hasPhysicalProducts())
                                             <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:{{ $themeColor }};">
                                                 {{ trans('storefront::invoice.shipping_address') }}
                                             </p>
@@ -142,6 +131,8 @@
                             </table>
                         </td>
                     </tr>
+
+                    @include('order::partials.treatment_appointment_summary', ['order' => $order, 'style' => 'email', 'themeColor' => $themeColor])
 
                     <tr>
                         <td style="padding:8px 32px 28px;">

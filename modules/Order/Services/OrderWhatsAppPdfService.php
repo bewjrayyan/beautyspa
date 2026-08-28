@@ -75,6 +75,10 @@ class OrderWhatsAppPdfService
             'transaction',
             'beautician',
             'spaBranch',
+            'treatmentBookings.product',
+            'treatmentBookings.beautician',
+            'treatmentBookings.orderProduct.options.values',
+            'treatmentBookings.orderProduct.variations.values',
         ]);
 
         return $order;

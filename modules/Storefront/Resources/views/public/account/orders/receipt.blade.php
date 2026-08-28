@@ -65,38 +65,6 @@
             </dl>
         </section>
 
-        @if ($order->beautician || $order->spaBranch || $order->appointment_date || $order->appointment_time)
-            <section class="payment-receipt__block payment-receipt__block--muted">
-                <p class="payment-receipt__block-label">{{ trans('storefront::receipt.appointment') }}</p>
-                <dl class="payment-receipt__facts payment-receipt__facts--inline">
-                    @if ($order->spaBranch)
-                        <div class="payment-receipt__fact">
-                            <dt>{{ trans('storefront::account.view_order.spa_branch') }}</dt>
-                            <dd>{{ $order->spaBranch->name }}</dd>
-                        </div>
-                    @endif
-                    @if ($order->beautician)
-                        <div class="payment-receipt__fact">
-                            <dt>{{ trans('storefront::receipt.beautician') }}</dt>
-                            <dd>{{ $order->beautician->name }}</dd>
-                        </div>
-                    @endif
-                    @if ($order->appointment_date)
-                        <div class="payment-receipt__fact">
-                            <dt>{{ trans('storefront::receipt.appointment_date') }}</dt>
-                            <dd>{{ $order->appointment_date->format('d M Y') }}</dd>
-                        </div>
-                    @endif
-                    @if ($order->appointment_time)
-                        <div class="payment-receipt__fact">
-                            <dt>{{ trans('storefront::receipt.appointment_time') }}</dt>
-                            <dd>{{ $order->displayAppointmentTime() }}</dd>
-                        </div>
-                    @endif
-                </dl>
-            </section>
-        @endif
-
         <section class="payment-receipt__block">
             <table class="payment-receipt__lines">
                 <thead>
@@ -125,6 +93,8 @@
                     @endforeach
                 </tbody>
             </table>
+
+            @include('order::partials.treatment_appointment_summary', ['order' => $order, 'style' => 'payment-receipt'])
 
             <dl class="payment-receipt__summary">
                 @include('order::partials.pricing_breakdown', ['order' => $order, 'style' => 'payment-receipt'])
