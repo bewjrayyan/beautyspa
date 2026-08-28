@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.58' => [
+        'date' => '2026-08-28',
+        'en' => [
+            'summary' => 'Polish checkout order summary item layout, remove button, and price alignment.',
+            'changes' => [
+                'Order summary: dedicated aside column so remove (×) no longer overlaps prices.',
+                'Remove button styled as a prominent pink circle; larger strikethrough regular price text.',
+                'Sale and regular line prices right-aligned in a fixed-width column with tabular numerals.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penggilapan susun atur item ringkasan order checkout, butang buang, dan penjajaran harga.',
+            'changes' => [
+                'Ringkasan order: lajur aside khusus supaya buang (×) tidak bertindih harga.',
+                'Butang buang digaya bulat pink menonjol; teks harga asal coret lebih besar.',
+                'Harga jualan dan asal dijajarkan kanan dalam lajur lebar tetap dengan angka tabular.',
+            ],
+        ],
+    ],
+
     '4.11.57' => [
         'date' => '2026-08-28',
         'en' => [

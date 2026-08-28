@@ -60,31 +60,33 @@
                                     </ul>
                                 </template>
                             </div>
-                            
-                            <div class="product-price product-price--modern">
-                                <template x-if="hasSpecialPrice">
+
+                            <div class="cart-item-aside">
+                                <div class="remove-cart-item">
+                                    <button
+                                        type="button"
+                                        class="btn-remove"
+                                        @click="removeCartItem"
+                                        aria-label="{{ trans('storefront::checkout.remove_cart_item') }}"
+                                    >
+                                        <i class="las la-times"></i>
+                                    </button>
+                                </div>
+
+                                <div class="product-price product-price--modern">
+                                    <template x-if="hasSpecialPrice">
+                                        <span
+                                            class="previous-price"
+                                            x-text="formatCurrency(lineRegularTotal(cartItem.qty))"
+                                        ></span>
+                                    </template>
+
                                     <span
-                                        class="previous-price"
-                                        x-text="formatCurrency(lineRegularTotal(cartItem.qty))"
+                                        class="special-price"
+                                        :class="{ 'is-regular-price': !hasSpecialPrice }"
+                                        x-text="formatCurrency(lineTotal(cartItem.qty))"
                                     ></span>
-                                </template>
-
-                                <span
-                                    class="special-price"
-                                    :class="{ 'is-regular-price': !hasSpecialPrice }"
-                                    x-text="formatCurrency(lineTotal(cartItem.qty))"
-                                ></span>
-                            </div>
-
-                            <div class="remove-cart-item">
-                                <button
-                                    type="button"
-                                    class="btn-remove"
-                                    @click="removeCartItem"
-                                    aria-label="{{ trans('storefront::checkout.remove_cart_item') }}"
-                                >
-                                    <i class="las la-times"></i>
-                                </button>
+                                </div>
                             </div>
                         </li>
                     </template>
