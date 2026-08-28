@@ -17,6 +17,31 @@ class AdminPortalPreview
         $this->beautician = $beautician->loadMissing('user');
 
         $this->portalUser = $this->beautician->user;
+
+        $this->ensureSessionStarted((int) $beautician->id);
+    }
+
+
+    public function startedAt(): ?\Carbon\CarbonInterface
+    {
+        $timestamp = session('admin_portal_preview_started_at');
+
+        if (! is_numeric($timestamp)) {
+            return null;
+        }
+
+        return \Carbon\Carbon::createFromTimestamp((int) $timestamp);
+    }
+
+
+    private function ensureSessionStarted(int $beauticianId): void
+    {
+        if ((int) session('admin_portal_preview_beautician_id') !== $beauticianId) {
+            session([
+                'admin_portal_preview_started_at' => now()->timestamp,
+                'admin_portal_preview_beautician_id' => $beauticianId,
+            ]);
+        }
     }
 
 

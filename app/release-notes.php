@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.55' => [
+        'date' => '2026-08-28',
+        'en' => [
+            'summary' => 'Portal beautician booking fixes, shared manual slot resolver, and Flatpickr locale/grid polish.',
+            'changes' => [
+                'Add ManualBookingSlotsResolver so admin and portal manual booking use the same DB-backed availability rules.',
+                'Portal manual booking: validate product/spa branch, always send beautician_id for slot requests, and pass default spa branch from locked beautician.',
+                'Flatpickr: shared locale helper, grid styling, and modern datepicker updates across admin and storefront.',
+                'Portal UI: job sheet hero, account page, calendar, admin preview banner, and CRM toolbar polish; remove unused dashboard-hero partial.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pembetulan tempahan portal beautician, resolver slot manual berkongsi, dan penggilapan Flatpickr locale/grid.',
+            'changes' => [
+                'Tambah ManualBookingSlotsResolver supaya tempahan manual admin dan portal guna peraturan ketersediaan DB yang sama.',
+                'Tempahan manual portal: sahkan produk/cawangan spa, hantar beautician_id untuk slot, dan lalai spa branch dari beautician dikunci.',
+                'Flatpickr: helper locale berkongsi, gaya grid, dan kemas kini datepicker moden di admin dan storefront.',
+                'UI portal: hero jobsheet, halaman akaun, kalendar, banner pratonton admin, dan penggilapan toolbar CRM; buang partial dashboard-hero tidak digunakan.',
+            ],
+        ],
+    ],
+
     '4.11.54' => [
         'date' => '2026-08-28',
         'en' => [

@@ -445,7 +445,7 @@
                                 <div class="row g-2 align-items-end">
                                     <div class="col-md-6">
                                         <label class="form-label">{{ TrLang::trans('admin.appointment_availability.date') }}</label>
-                                        <input type="date" class="form-control" id="tr-override-date">
+                                        <input type="text" class="form-control datetime-picker" id="tr-override-date" autocomplete="off" data-min-date="{{ today()->toDateString() }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">{{ TrLang::trans('admin.appointment_availability.status') }}</label>

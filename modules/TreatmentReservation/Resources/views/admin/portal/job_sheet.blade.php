@@ -57,7 +57,7 @@
         data-calendar-details-url="{{ $portalApiRoutes['calendar_details'] }}"
         data-kanban-url="{{ $portalApiRoutes['kanban'] }}"
         data-status-url="{{ $portalApiRoutes['update_status'] }}"
-        data-schedule-before-start="{{ TrLang::trans('admin.crm.error_schedule_before_start') }}"
+        data-schedule-before-start="{{ trans('treatmentreservation::admin.crm.error_schedule_before_start') }}"
         data-notes-url="{{ $portalApiRoutes['update_notes'] }}"
         data-whatsapp-url="{{ $portalApiRoutes['send_whatsapp'] }}"
         data-consultation-url="{{ $portalApiRoutes['consultation'] }}"
@@ -147,6 +147,8 @@
             'adminPortalPreview' => $adminPortalPreview ?? false,
             'backUrl' => $backUrl ?? null,
             'activePortalNav' => 'job_sheet',
+            'portalCanCreate' => $portalCanCreate ?? false,
+            'manualBookingModalId' => 'tr-portal-manual-booking-modal',
         ])
 
         <div class="tr-portal-saas__layout">
@@ -234,22 +236,22 @@
 
     </div>
 
-    @if (empty($adminPortalPreview))
-        @hasAccess('admin.treatment_reservations.portal.create')
-            @include('treatmentreservation::admin.reservations.partials.manual-booking-modal', [
-                'portalMode' => true,
-                'allowBeauticianSelect' => true,
-                'beauticianPickerOptions' => $beauticianPickerOptions,
-                'defaultBeauticianId' => $beautician->id,
-                'manualBookingProductCatalog' => $manualBookingProductCatalog,
-                'modalId' => 'tr-portal-manual-booking-modal',
-                'slotsUrl' => route('admin.treatment_reservations.portal.manual_bookings.slots'),
-                'storeUrl' => route('admin.treatment_reservations.portal.manual_bookings.store'),
-                'customersUrl' => route('admin.treatment_reservations.portal.manual_bookings.customers'),
-                'updateUrlTemplate' => route('admin.treatment_reservations.portal.manual_bookings.update', ['booking' => '__ID__']),
-                'cancelUrlTemplate' => route('admin.treatment_reservations.portal.manual_bookings.cancel', ['booking' => '__ID__']),
-            ])
-        @endHasAccess
+    @if (! empty($portalCanCreate))
+        @include('treatmentreservation::admin.reservations.partials.manual-booking-modal', [
+            'portalMode' => true,
+            'allowBeauticianSelect' => empty($adminPortalPreview),
+            'lockedBeautician' => $beautician,
+            'beauticianPickerOptions' => $beauticianPickerOptions,
+            'defaultBeauticianId' => $beautician->id,
+            'defaultSpaBranchId' => $defaultSpaBranchId ?? null,
+            'manualBookingProductCatalog' => $manualBookingProductCatalog,
+            'modalId' => 'tr-portal-manual-booking-modal',
+            'slotsUrl' => $crmRoutes['manualBookingSlots'] ?? route('admin.treatment_reservations.portal.manual_bookings.slots'),
+            'storeUrl' => $crmRoutes['manualBookingStore'] ?? route('admin.treatment_reservations.portal.manual_bookings.store'),
+            'customersUrl' => $crmRoutes['manualBookingCustomers'] ?? route('admin.treatment_reservations.portal.manual_bookings.customers'),
+            'updateUrlTemplate' => $crmRoutes['manualBookingUpdate'] ?? route('admin.treatment_reservations.portal.manual_bookings.update', ['booking' => '__ID__']),
+            'cancelUrlTemplate' => $crmRoutes['manualBookingCancel'] ?? route('admin.treatment_reservations.portal.manual_bookings.cancel', ['booking' => '__ID__']),
+        ])
     @endif
 
     @include('treatmentreservation::admin.reservations.partials.dashboard.customer-profile-drawer', [

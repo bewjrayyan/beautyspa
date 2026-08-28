@@ -17,6 +17,11 @@
         ? route('admin.beauticians.portal.account', $beautician->id)
         : route('admin.treatment_reservations.portal.account');
     $activePortalNav = $activePortalNav ?? 'job_sheet';
+    $portalCanCreate = $portalCanCreate ?? (
+        (! empty($adminPortalPreview) && auth()->user()?->hasAccess('admin.treatment_reservations.create'))
+        || (empty($adminPortalPreview) && auth()->user()?->hasAccess('admin.treatment_reservations.portal.create'))
+    );
+    $manualBookingModalId = $manualBookingModalId ?? 'tr-portal-manual-booking-modal';
     $portalAvailabilityUrl = $onBeauticianRoute
         ? route('admin.beauticians.portal.availability', $beautician->id)
         : route('admin.treatment_reservations.portal.availability');
@@ -35,10 +40,6 @@
         </div>
 
         <div class="tr-portal-saas-hero__intro">
-            <span class="tr-portal-saas-hero__eyebrow">
-                <span class="tr-portal-saas-hero__live-dot" aria-hidden="true"></span>
-                {{ trans('treatmentreservation::admin.portal.job_sheet_eyebrow') }}
-            </span>
             <h1 class="tr-portal-saas-hero__title">
                 {{ trans('treatmentreservation::admin.portal.job_sheet_title', ['name' => $beautician->first_name]) }}
             </h1>
@@ -47,32 +48,39 @@
             </p>
         </div>
 
-        <nav class="tr-portal-saas-hero__nav" aria-label="{{ trans('treatmentreservation::admin.portal.job_sheet_nav_aria') }}">
-            <a
-                href="{{ $portalDashboardUrl }}"
-                class="tr-portal-saas-hero__nav-link{{ $activePortalNav === 'dashboard' ? ' is-active' : '' }}"
-                @if ($activePortalNav === 'dashboard') aria-current="page" @endif
-            >
-                <i class="fa fa-tachometer" aria-hidden="true"></i>
-                {{ trans('treatmentreservation::sidebar.my_job_sheet') }}
-            </a>
-            <a
-                href="{{ $portalJobSheetUrl }}"
-                class="tr-portal-saas-hero__nav-link{{ $activePortalNav === 'job_sheet' ? ' is-active' : '' }}"
-                @if ($activePortalNav === 'job_sheet') aria-current="page" @endif
-            >
-                <i class="fa fa-columns" aria-hidden="true"></i>
-                {{ trans('treatmentreservation::admin.portal.tab_kanban') }}
-            </a>
-            <a
-                href="{{ $portalCalendarUrl }}"
-                class="tr-portal-saas-hero__nav-link{{ $activePortalNav === 'calendar' ? ' is-active' : '' }}"
-                @if ($activePortalNav === 'calendar') aria-current="page" @endif
-            >
-                <i class="fa fa-calendar" aria-hidden="true"></i>
-                {{ trans('treatmentreservation::admin.portal.tab_calendar') }}
-            </a>
-        </nav>
+        <div class="tr-portal-saas-hero__aside">
+            <nav class="tr-portal-saas-hero__nav" aria-label="{{ trans('treatmentreservation::admin.portal.job_sheet_nav_aria') }}">
+                <a
+                    href="{{ $portalDashboardUrl }}"
+                    class="tr-portal-saas-hero__nav-link{{ $activePortalNav === 'dashboard' ? ' is-active' : '' }}"
+                    @if ($activePortalNav === 'dashboard') aria-current="page" @endif
+                >
+                    <i class="fa fa-tachometer" aria-hidden="true"></i>
+                    {{ trans('treatmentreservation::sidebar.my_job_sheet') }}
+                </a>
+                <a
+                    href="{{ $portalJobSheetUrl }}"
+                    class="tr-portal-saas-hero__nav-link{{ $activePortalNav === 'job_sheet' ? ' is-active' : '' }}"
+                    @if ($activePortalNav === 'job_sheet') aria-current="page" @endif
+                >
+                    <i class="fa fa-columns" aria-hidden="true"></i>
+                    {{ trans('treatmentreservation::admin.portal.tab_kanban') }}
+                </a>
+                <a
+                    href="{{ $portalCalendarUrl }}"
+                    class="tr-portal-saas-hero__nav-link{{ $activePortalNav === 'calendar' ? ' is-active' : '' }}"
+                    @if ($activePortalNav === 'calendar') aria-current="page" @endif
+                >
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                    {{ trans('treatmentreservation::admin.portal.tab_calendar') }}
+                </a>
+            </nav>
+
+            <span class="tr-portal-saas-hero__eyebrow">
+                <span class="tr-portal-saas-hero__live-dot" aria-hidden="true"></span>
+                {{ trans('treatmentreservation::admin.portal.job_sheet_eyebrow') }}
+            </span>
+        </div>
     </div>
 
     <div class="tr-portal-saas-hero__toolbar">
@@ -90,18 +98,19 @@
         </div>
 
         <div class="tr-portal-saas-hero__actions">
+            @if (! empty($portalCanCreate))
+                <button
+                    type="button"
+                    class="tr-portal-saas-hero__btn tr-portal-saas-hero__btn--primary tr-manual-booking-open-btn"
+                    data-toggle="modal"
+                    data-target="#{{ $manualBookingModalId }}"
+                >
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    {{ trans('treatmentreservation::admin.crm.new_reservation') }}
+                </button>
+            @endif
+
             @if ($showPortalActions)
-                @hasAccess('admin.treatment_reservations.portal.create')
-                    <button
-                        type="button"
-                        class="tr-portal-saas-hero__btn tr-portal-saas-hero__btn--primary"
-                        data-toggle="modal"
-                        data-target="#tr-portal-manual-booking-modal"
-                    >
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                        {{ trans('treatmentreservation::admin.manual_booking.portal_open') }}
-                    </button>
-                @endHasAccess
                 <a href="{{ $portalAvailabilityUrl }}" class="tr-portal-saas-hero__btn">
                     <i class="fa fa-clock-o" aria-hidden="true"></i>
                     {{ trans('treatmentreservation::admin.availability.title') }}
@@ -109,11 +118,6 @@
                 <a href="{{ $portalAccountUrl }}" class="tr-portal-saas-hero__btn tr-portal-saas-hero__btn--ghost">
                     <i class="fa fa-user" aria-hidden="true"></i>
                     {{ trans('treatmentreservation::admin.portal.account_title') }}
-                </a>
-            @elseif (! empty($backUrl))
-                <a href="{{ $backUrl }}" class="tr-portal-saas-hero__btn tr-portal-saas-hero__btn--ghost">
-                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                    {{ trans('beautician::beauticians.form.back_to_beautician_profile') }}
                 </a>
             @endif
         </div>

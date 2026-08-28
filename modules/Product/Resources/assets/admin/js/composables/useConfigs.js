@@ -8,6 +8,9 @@ const flatpickrConfig = ref({
     altFormat: "d/m/Y H:i",
     time_24hr: false,
     disableMobile: true,
+    locale: {
+        firstDayOfWeek: 1,
+    },
 });
 
 const searchableSelectizeConfig = ref({

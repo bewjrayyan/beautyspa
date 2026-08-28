@@ -72,10 +72,10 @@
                         value="{{ request('source') }}">
                 </div>
                 <div class="form-group" style="margin-right: 8px;">
-                    <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                    <input type="text" name="date_from" class="form-control datetime-picker" value="{{ request('date_from') }}" data-default-date="{{ request('date_from') }}">
                 </div>
                 <div class="form-group" style="margin-right: 8px;">
-                    <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+                    <input type="text" name="date_to" class="form-control datetime-picker" value="{{ request('date_to') }}" data-default-date="{{ request('date_to') }}">
                 </div>
                 <button type="submit" class="btn btn-default">{{ trans('setting::settings.onesender_logs.filter') }}</button>
                 <a href="{{ route('admin.onesender_logs.index') }}" class="btn btn-link">{{ trans('setting::settings.onesender_logs.reset') }}</a>

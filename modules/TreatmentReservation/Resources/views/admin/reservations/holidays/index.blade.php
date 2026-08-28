@@ -88,13 +88,15 @@
                         <div class="col-md-3">
                             <label class="form-label">{{ TrLang::trans('admin.holidays_add_date_label') }}</label>
                             <input
-                                type="date"
+                                type="text"
                                 name="date"
-                                class="form-control"
+                                class="form-control datetime-picker"
                                 required
+                                autocomplete="off"
                                 value="{{ $year . '-01-01' }}"
-                                min="{{ $year . '-01-01' }}"
-                                max="{{ $year . '-12-31' }}"
+                                data-default-date="{{ $year . '-01-01' }}"
+                                data-min-date="{{ $year . '-01-01' }}"
+                                data-max-date="{{ $year . '-12-31' }}"
                             />
                         </div>
 

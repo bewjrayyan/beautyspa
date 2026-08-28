@@ -8,6 +8,7 @@ const schedulingDetailRequests = new Map();
 
 import { openManualBookingEditor } from "./manual-booking.js";
 import flatpickr from "flatpickr";
+import { buildStandardDatepickerOptions } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 
 export function setCalendarBookings(bookings) {
     calendarBookingsById.clear();
@@ -182,13 +183,8 @@ function initWorkLogPickers(overlay) {
     const timeInput = overlay.querySelector("#tr-booking-beautician-notes-time");
 
     if (dateInput && !dateInput._flatpickr) {
-        flatpickr(dateInput, {
-            mode: "single",
-            dateFormat: "Y-m-d",
-            altInput: true,
+        flatpickr(dateInput, buildStandardDatepickerOptions(dateInput, {
             altFormat: "d M Y",
-            defaultDate: dateInput.value || null,
-            disableMobile: true,
             allowInput: false,
             animate: true,
             appendTo: document.body,
@@ -199,7 +195,7 @@ function initWorkLogPickers(overlay) {
                 );
                 instance.altInput?.setAttribute("aria-label", previewLabels.workLog?.date || "Treatment date");
             },
-        });
+        }));
     }
 
     if (timeInput && !timeInput._flatpickr) {

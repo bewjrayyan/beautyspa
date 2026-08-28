@@ -52,15 +52,45 @@
         'urgencyAlertsAsModal' => true,
     ])
 
-    <div class="tr-portal-profile-page">
+    <div
+        class="tr-portal-profile-page tr-portal-profile-page--account"
+        style="--bp-profile-color: {{ $profileColor }};"
+    >
         @include('treatmentreservation::admin.portal.partials.profile-hero', [
             'beautician' => $beautician,
             'user' => $user,
             'heroInsights' => $heroInsights,
+            'heroEyebrow' => trans('treatmentreservation::admin.portal.account_title'),
         ])
 
         <div class="row bp-layout">
             <div class="col-lg-3 bp-layout-sidebar">
+                <div class="bp-layout-sidebar__sticky">
+                <nav class="bp-card bp-card--section-nav" aria-label="{{ trans('treatmentreservation::admin.portal.account_title') }}">
+                    <div class="bp-card-body">
+                        <ul class="bp-section-nav" data-portal-section-nav>
+                            <li>
+                                <a href="#bp-section-profile" class="is-active" data-section-target="bp-section-profile">
+                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                    {{ trans('treatmentreservation::admin.portal.profile_details') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#bp-section-calendar" data-section-target="bp-section-calendar">
+                                    <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                                    {{ trans('treatmentreservation::admin.ical.title') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#bp-section-security" data-section-target="bp-section-security">
+                                    <i class="fa fa-lock" aria-hidden="true"></i>
+                                    {{ trans('treatmentreservation::admin.portal.change_password') }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
                 <div class="bp-card">
                     <div class="bp-card-header">
                         <h3>{{ trans('treatmentreservation::admin.portal.quick_links') }}</h3>
@@ -88,7 +118,7 @@
                     </div>
                 </div>
 
-                <div class="bp-card">
+                <div class="bp-card bp-card--snapshot">
                     <div class="bp-card-header">
                         <h3>{{ trans('treatmentreservation::admin.portal.contact_info') }}</h3>
                         <p>{{ trans('treatmentreservation::admin.portal.contact_info_help') }}</p>
@@ -128,13 +158,17 @@
                         </dl>
                     </div>
                 </div>
+                </div>
             </div>
 
             <div class="col-lg-9 bp-layout-main">
-                <div class="bp-card">
-                    <div class="bp-card-header">
-                        <h3>{{ trans('treatmentreservation::admin.portal.profile_details') }}</h3>
-                        <p>{{ trans('treatmentreservation::admin.portal.profile_details_help') }}</p>
+                <div class="bp-card bp-card--section" id="bp-section-profile">
+                    <div class="bp-card-header bp-card-header--featured">
+                        <span class="bp-card-header__icon" aria-hidden="true"><i class="fa fa-user"></i></span>
+                        <div class="bp-card-header__copy">
+                            <h3>{{ trans('treatmentreservation::admin.portal.profile_details') }}</h3>
+                            <p>{{ trans('treatmentreservation::admin.portal.profile_details_help') }}</p>
+                        </div>
                     </div>
                     <div class="bp-card-body">
                         <form method="POST" action="{{ $accountRoutes['profileUpdate'] ?? route('admin.treatment_reservations.portal.account.profile') }}" class="bp-account-form">
@@ -154,36 +188,51 @@
                                     ]) }}
                                 </div>
 
-                                {{ Form::email('email', trans('treatmentreservation::admin.portal.login_email'), $errors, $user, [
-                                    'required' => true,
-                                    'class' => 'bp-input',
-                                ]) }}
+                                <div class="bp-form-row">
+                                    {{ Form::email('email', trans('treatmentreservation::admin.portal.login_email'), $errors, $user, [
+                                        'required' => true,
+                                        'class' => 'bp-input',
+                                    ]) }}
 
-                                {{ Form::phone('phone', trans('beautician::attributes.phone'), $errors, $user, [
-                                    'required' => true,
-                                    'class' => 'bp-input',
-                                    'help' => trans('treatmentreservation::admin.portal.phone_help'),
-                                ]) }}
+                                    {{ Form::phone('phone', trans('beautician::attributes.phone'), $errors, $user, [
+                                        'required' => true,
+                                        'class' => 'bp-input',
+                                        'help' => trans('treatmentreservation::admin.portal.phone_help'),
+                                    ]) }}
+                                </div>
 
-                                @include('beautician::admin.partials.job_title_field', ['beautician' => $beautician])
+                                @php
+                                    $portalDobValue = old('date_of_birth', $user->date_of_birth?->format('Y-m-d'));
+                                @endphp
 
-                                <div class="form-group {{ $errors->has('date_of_birth') ? 'has-error' : '' }}">
-                                    <label for="portal_date_of_birth">{{ trans('treatmentreservation::admin.portal.date_of_birth') }}</label>
-                                    <input
-                                        type="date"
-                                        name="date_of_birth"
-                                        id="portal_date_of_birth"
-                                        class="form-control bp-input"
-                                        value="{{ old('date_of_birth', $user->date_of_birth?->format('Y-m-d')) }}"
-                                        max="{{ now()->subDay()->format('Y-m-d') }}"
-                                    >
-                                    <p class="help-block">{{ trans('treatmentreservation::admin.portal.date_of_birth_help') }}</p>
-                                    {!! $errors->first('date_of_birth', '<span class="help-block text-red">:message</span>') !!}
+                                <div class="bp-form-row">
+                                    @include('beautician::admin.partials.job_title_field', ['beautician' => $beautician])
+
+                                    <div class="form-group {{ $errors->has('date_of_birth') ? 'has-error' : '' }}">
+                                        <label for="portal_date_of_birth">{{ trans('treatmentreservation::admin.portal.date_of_birth') }}</label>
+                                        <div class="bp-datepicker-wrap">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                            <input
+                                                type="text"
+                                                name="date_of_birth"
+                                                id="portal_date_of_birth"
+                                                class="form-control bp-input portal-date-picker"
+                                                value="{{ $portalDobValue }}"
+                                                data-default-date="{{ $portalDobValue }}"
+                                                data-max-date="{{ now()->subDay()->format('Y-m-d') }}"
+                                                placeholder="{{ trans('treatmentreservation::admin.portal.date_of_birth') }}"
+                                                autocomplete="bday"
+                                            >
+                                        </div>
+                                        <p class="help-block">{{ trans('treatmentreservation::admin.portal.date_of_birth_help') }}</p>
+                                        {!! $errors->first('date_of_birth', '<span class="help-block text-red">:message</span>') !!}
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="bp-form-actions">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary bp-btn-accent">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
                                     {{ trans('treatmentreservation::admin.portal.save_profile') }}
                                 </button>
                             </div>
@@ -191,10 +240,13 @@
                     </div>
                 </div>
 
-                <div class="bp-card">
-                    <div class="bp-card-header">
-                        <h3>{{ trans('treatmentreservation::admin.ical.title') }}</h3>
-                        <p>{{ trans('treatmentreservation::admin.ical.help') }}</p>
+                <div class="bp-card bp-card--section bp-card--calendar" id="bp-section-calendar">
+                    <div class="bp-card-header bp-card-header--featured">
+                        <span class="bp-card-header__icon" aria-hidden="true"><i class="fa fa-calendar-check-o"></i></span>
+                        <div class="bp-card-header__copy">
+                            <h3>{{ trans('treatmentreservation::admin.ical.title') }}</h3>
+                            <p>{{ trans('treatmentreservation::admin.ical.help') }}</p>
+                        </div>
                     </div>
                     <div class="bp-card-body">
                         <div class="bp-ical-field">
@@ -253,17 +305,20 @@
                     </div>
                 </div>
 
-                <div class="bp-card">
-                    <div class="bp-card-header">
-                        <h3>{{ trans('treatmentreservation::admin.portal.change_password') }}</h3>
-                        <p>{{ trans('treatmentreservation::admin.portal.change_password_help') }}</p>
+                <div class="bp-card bp-card--section bp-card--security" id="bp-section-security">
+                    <div class="bp-card-header bp-card-header--featured">
+                        <span class="bp-card-header__icon" aria-hidden="true"><i class="fa fa-lock"></i></span>
+                        <div class="bp-card-header__copy">
+                            <h3>{{ trans('treatmentreservation::admin.portal.change_password') }}</h3>
+                            <p>{{ trans('treatmentreservation::admin.portal.change_password_help') }}</p>
+                        </div>
                     </div>
                     <div class="bp-card-body">
                         <form method="POST" action="{{ $accountRoutes['passwordUpdate'] ?? route('admin.treatment_reservations.portal.account.password') }}" class="bp-account-form">
                             @csrf
                             @method('PUT')
 
-                            <div class="bp-account-form__fields bp-form-row bp-form-row--3 bp-form-row--divided">
+                            <div class="bp-account-form__fields bp-password-fields">
                                 <div class="form-group {{ $errors->has('current_password') ? 'has-error' : '' }}">
                                     <label for="current_password">{{ trans('treatmentreservation::admin.portal.current_password') }}</label>
                                     <input
@@ -277,34 +332,37 @@
                                     {!! $errors->first('current_password', '<span class="help-block text-red">:message</span>') !!}
                                 </div>
 
-                                <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
-                                    <label for="password">{{ trans('treatmentreservation::admin.portal.new_password') }}</label>
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        id="password"
-                                        class="form-control bp-input"
-                                        autocomplete="new-password"
-                                        required
-                                    >
-                                    {!! $errors->first('password', '<span class="help-block text-red">:message</span>') !!}
-                                </div>
+                                <div class="bp-form-row">
+                                    <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
+                                        <label for="password">{{ trans('treatmentreservation::admin.portal.new_password') }}</label>
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            id="password"
+                                            class="form-control bp-input"
+                                            autocomplete="new-password"
+                                            required
+                                        >
+                                        {!! $errors->first('password', '<span class="help-block text-red">:message</span>') !!}
+                                    </div>
 
-                                <div class="form-group {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
-                                    <label for="password_confirmation">{{ trans('treatmentreservation::admin.portal.confirm_password') }}</label>
-                                    <input
-                                        type="password"
-                                        name="password_confirmation"
-                                        id="password_confirmation"
-                                        class="form-control bp-input"
-                                        autocomplete="new-password"
-                                        required
-                                    >
+                                    <div class="form-group {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
+                                        <label for="password_confirmation">{{ trans('treatmentreservation::admin.portal.confirm_password') }}</label>
+                                        <input
+                                            type="password"
+                                            name="password_confirmation"
+                                            id="password_confirmation"
+                                            class="form-control bp-input"
+                                            autocomplete="new-password"
+                                            required
+                                        >
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="bp-form-actions">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary bp-btn-accent">
+                                    <i class="fa fa-lock" aria-hidden="true"></i>
                                     {{ trans('treatmentreservation::admin.portal.update_password') }}
                                 </button>
                             </div>

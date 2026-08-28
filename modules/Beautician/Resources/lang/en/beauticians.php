@@ -206,6 +206,7 @@ return [
         'admin_portal_preview_badge' => 'Admin preview mode',
         'admin_portal_preview_title' => 'Viewing :name\'s portal',
         'admin_portal_preview_lead' => 'You are seeing exactly what this beautician sees — same sidebar menu, permissions, and daily workflow.',
+        'admin_portal_preview_timer_label' => 'Preview duration',
         'admin_portal_preview_exit' => 'Exit preview',
         'admin_portal_preview_edit_profile' => 'Edit profile',
         'admin_portal_preview_link_user' => 'Set up portal login',

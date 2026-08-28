@@ -291,6 +291,10 @@
     "file": "assets/flatpickr-B_JH6AFf-v4.7.72.js",
     "name": "flatpickr"
   },
+  "_flatpickrLocale-Bamlm6IG-v4.7.72.js": {
+    "file": "assets/flatpickrLocale-Bamlm6IG-v4.7.72.js",
+    "name": "flatpickrLocale"
+  },
   "_function-bind-CHqF18-c-v4.7.72.js": {
     "file": "assets/function-bind-CHqF18-c-v4.7.72.js",
     "name": "function-bind"
@@ -914,7 +918,7 @@
     ]
   },
   "modules/Admin/Resources/assets/js/app.js": {
-    "file": "assets/app-C34AyLcm-v4.7.72.js",
+    "file": "assets/app-ChrmwYRI-v4.7.72.js",
     "name": "app",
     "src": "modules/Admin/Resources/assets/js/app.js",
     "isEntry": true,
@@ -922,6 +926,7 @@
       "_flatpickr-B_JH6AFf-v4.7.72.js",
       "_mousetrap-DiKwyQ_M-v4.7.72.js",
       "_axios-CzApALvg-v4.7.72.js",
+      "_flatpickrLocale-Bamlm6IG-v4.7.72.js",
       "_functions-SAd40IVW-v4.7.72.js",
       "_nprogress-ZSQ5UQj5-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/lib/modernPhoneInput.js",
@@ -983,7 +988,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/main.scss": {
-    "file": "assets/main-BiVVCqHU-v4.7.72.css",
+    "file": "assets/main-DmtsBbiu-v4.7.72.css",
     "src": "modules/Admin/Resources/assets/sass/main.scss"
   },
   "modules/Attribute/Resources/assets/admin/js/main.js": {
@@ -1231,7 +1236,7 @@
     "isEntry": true
   },
   "modules/Product/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-ClB7OSjI-v4.7.72.js",
+    "file": "assets/main-BDYzwvra-v4.7.72.js",
     "name": "main",
     "src": "modules/Product/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1507,7 +1512,7 @@
     "src": "modules/Storefront/Resources/assets/public/images/top-mask.png"
   },
   "modules/Storefront/Resources/assets/public/js/app.js": {
-    "file": "assets/app-BgyXbeqP-v4.7.72.js",
+    "file": "assets/app-DsgA8W6K-v4.7.72.js",
     "name": "app",
     "src": "modules/Storefront/Resources/assets/public/js/app.js",
     "isEntry": true,
@@ -1528,12 +1533,13 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/lib/modernDatepicker.js": {
-    "file": "assets/modernDatepicker-CsBbCovJ-v4.7.72.js",
+    "file": "assets/modernDatepicker-Dtbcl-RA-v4.7.72.js",
     "name": "modernDatepicker",
     "src": "modules/Storefront/Resources/assets/public/js/lib/modernDatepicker.js",
     "isDynamicEntry": true,
     "imports": [
-      "_flatpickr-B_JH6AFf-v4.7.72.js"
+      "_flatpickr-B_JH6AFf-v4.7.72.js",
+      "_flatpickrLocale-Bamlm6IG-v4.7.72.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/js/lib/modernPhoneInput.js": {
@@ -1632,7 +1638,7 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js": {
-    "file": "assets/main-BKL_-m4q-v4.7.72.js",
+    "file": "assets/main-C6oIqmYt-v4.7.72.js",
     "name": "main",
     "src": "modules/Storefront/Resources/assets/public/js/pages/checkout/create/main.js",
     "isEntry": true,
@@ -1643,6 +1649,7 @@
       "_Errors-C30A2Jtx-v4.7.72.js",
       "_functions-DX_VpuMs-v4.7.72.js",
       "_CartItem-BHc5IOaw-v4.7.72.js",
+      "_flatpickrLocale-Bamlm6IG-v4.7.72.js",
       "_intl-tel-input-Bo-AfsPf-v4.7.72.js"
     ]
   },
@@ -1861,17 +1868,18 @@
     ]
   },
   "modules/Storefront/Resources/assets/public/js/vendors/flatpickr.js": {
-    "file": "assets/flatpickr-DvYxyrKQ-v4.7.72.js",
+    "file": "assets/flatpickr-CCU2QmqN-v4.7.72.js",
     "name": "flatpickr",
     "src": "modules/Storefront/Resources/assets/public/js/vendors/flatpickr.js",
     "isEntry": true,
     "imports": [
       "modules/Storefront/Resources/assets/public/js/lib/modernDatepicker.js",
-      "_flatpickr-B_JH6AFf-v4.7.72.js"
+      "_flatpickr-B_JH6AFf-v4.7.72.js",
+      "_flatpickrLocale-Bamlm6IG-v4.7.72.js"
     ]
   },
   "modules/Storefront/Resources/assets/public/sass/app.scss": {
-    "file": "assets/app-C_IkHNXO-v4.7.72.css",
+    "file": "assets/app-Bd_gfsfY-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/app.scss",
     "isEntry": true,
     "name": "app",
@@ -1901,16 +1909,16 @@
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss": {
     "file": "assets/main-Be7LCrQv-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/index/main.scss"
+  },
+  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
+    "file": "assets/main-DAoR6zom-v4.7.72.css",
+    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss",
     "isEntry": true,
     "name": "main",
     "names": [
       "main.css"
     ]
-  },
-  "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss": {
-    "file": "assets/main-DAoR6zom-v4.7.72.css",
-    "src": "modules/Storefront/Resources/assets/public/sass/pages/account/orders/receipt/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/account/orders/show/main.scss": {
     "file": "assets/main-CvmX_-RN-v4.7.72.css",
@@ -2087,23 +2095,25 @@
     "src": "modules/Translation/Resources/assets/admin/translations/sass/main.scss"
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js": {
-    "file": "assets/appointment-availability-D2_wHZDm-v4.7.72.js",
+    "file": "assets/appointment-availability-lgHwV32A-v4.7.72.js",
     "name": "appointment-availability",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/appointment-availability.js",
     "isEntry": true,
     "imports": [
       "_time-format-CCdvbXny-v4.7.72.js",
-      "_flatpickr-B_JH6AFf-v4.7.72.js"
+      "_flatpickr-B_JH6AFf-v4.7.72.js",
+      "_flatpickrLocale-Bamlm6IG-v4.7.72.js"
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-CuOnjD4B-v4.7.72.js",
+    "file": "assets/main-Cri0ySr2-v4.7.72.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
     "imports": [
       "_time-format-CCdvbXny-v4.7.72.js",
       "_flatpickr-B_JH6AFf-v4.7.72.js",
+      "_flatpickrLocale-Bamlm6IG-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/lib/modernPhoneInput.js",
       "_chart.js-CDYwASMv-v4.7.72.js",
       "_axios-CzApALvg-v4.7.72.js",
@@ -2112,7 +2122,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-DiIpKofG-v4.7.72.css",
+    "file": "assets/main-CZvSttcn-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {
@@ -2177,13 +2187,14 @@
     "isEntry": true
   },
   "modules/User/Resources/assets/admin/js/profileForm.js": {
-    "file": "assets/profileForm-qsU1C5IR-v4.7.72.js",
+    "file": "assets/profileForm-DB4tXFmw-v4.7.72.js",
     "name": "profileForm",
     "src": "modules/User/Resources/assets/admin/js/profileForm.js",
     "isEntry": true,
     "imports": [
       "_axios-CzApALvg-v4.7.72.js",
-      "_flatpickr-B_JH6AFf-v4.7.72.js"
+      "_flatpickr-B_JH6AFf-v4.7.72.js",
+      "_flatpickrLocale-Bamlm6IG-v4.7.72.js"
     ]
   },
   "modules/User/Resources/assets/admin/sass/auth/main.scss": {

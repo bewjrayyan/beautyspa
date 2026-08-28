@@ -15,12 +15,12 @@
         <div class="tr-filters__grid tr-filters__grid--reports">
             <div class="tr-filters__field">
                 <label for="tr-from">{{ trans('treatmentreservation::admin.reports.from') }}</label>
-                <input type="date" name="from" id="tr-from" class="form-control" value="{{ $filters['from'] }}">
+                <input type="text" name="from" id="tr-from" class="form-control datetime-picker" value="{{ $filters['from'] }}" data-default-date="{{ $filters['from'] }}">
             </div>
 
             <div class="tr-filters__field">
                 <label for="tr-to">{{ trans('treatmentreservation::admin.reports.to') }}</label>
-                <input type="date" name="to" id="tr-to" class="form-control" value="{{ $filters['to'] }}">
+                <input type="text" name="to" id="tr-to" class="form-control datetime-picker" value="{{ $filters['to'] }}" data-default-date="{{ $filters['to'] }}">
             </div>
 
             <div class="tr-filters__field">

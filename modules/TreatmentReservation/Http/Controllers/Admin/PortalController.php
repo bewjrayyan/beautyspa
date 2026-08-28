@@ -60,6 +60,8 @@ class PortalController extends Controller
             'beautician' => $beautician,
             'activeView' => 'dashboard',
             'stats' => $this->dashboard->stats($beauticianId, $categoryId, $spaBranchId),
+            'heroStats' => $this->dashboard->stats($beauticianId),
+            'todayAppointments' => $this->dashboard->todayActiveAppointments($beauticianId),
             'dashboardData' => $this->dashboard->crmPayload(
                 $beauticianId,
                 $categoryId,
@@ -86,8 +88,8 @@ class PortalController extends Controller
             'portalFilterContext' => $this->portalFilterContext($beautician, $filters, $lockPortalFilters),
             'crmRoutes' => $crmRoutes,
             'crmCanEdit' => true,
-            'crmCanCreate' => ! $this->isAdminBeauticianPreview($request)
-                && (auth()->user()?->hasAccess('admin.treatment_reservations.portal.create') ?? false),
+            'crmCanCreate' => $this->portalCanCreateManualBooking($request),
+            'portalCanCreate' => $this->portalCanCreateManualBooking($request),
             'crmSpecialistProfileUrl' => $this->isAdminBeauticianPreview($request)
                 ? route('admin.beauticians.portal.availability', $beautician->id)
                 : route('admin.treatment_reservations.portal.availability'),
@@ -101,6 +103,7 @@ class PortalController extends Controller
     {
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
+        $beautician->loadMissing(['files', 'spaBranches']);
 
         $viewerBeauticianId = (int) $beautician->id;
         $todayAppointments = $this->dashboard->todayActiveAppointments($viewerBeauticianId);
@@ -142,6 +145,7 @@ class PortalController extends Controller
     {
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
+        $beautician->loadMissing(['files', 'spaBranches']);
 
         $viewerBeauticianId = (int) $beautician->id;
         $todayAppointments = $this->dashboard->todayActiveAppointments($viewerBeauticianId);
@@ -193,6 +197,8 @@ class PortalController extends Controller
 
         return [
             'adminPortalPreview' => $this->isAdminBeauticianPreview($request, $beautician),
+            'portalCanCreate' => $this->portalCanCreateManualBooking($request),
+            'crmRoutes' => $this->crmApiRoutes($request, $beautician),
             'portalApiRoutes' => [
                 'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
                 'calendar_details' => route('admin.beauticians.portal.calendar.event', ['id' => $beautician->id, 'booking' => '__ID__']),
@@ -274,6 +280,7 @@ class PortalController extends Controller
     {
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
+        $beautician->loadMissing(['files', 'spaBranches']);
 
         $viewerBeauticianId = (int) $beautician->id;
         $bookings = TreatmentBooking::query()
@@ -531,6 +538,7 @@ class PortalController extends Controller
     {
         /** @var Beautician $beautician */
         $beautician = $request->attributes->get('portal_beautician');
+        $beautician->loadMissing(['files', 'spaBranches']);
 
         $viewerBeauticianId = (int) $beautician->id;
         $bookings = TreatmentBooking::query()
@@ -1038,6 +1046,22 @@ class PortalController extends Controller
             ->orderBy('position')
             ->orderBy('name')
             ->pluck('name', 'id');
+    }
+
+
+    private function portalCanCreateManualBooking(Request $request): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($this->isAdminBeauticianPreview($request)) {
+            return $user->hasAccess('admin.treatment_reservations.create');
+        }
+
+        return $user->hasAccess('admin.treatment_reservations.portal.create');
     }
 
 

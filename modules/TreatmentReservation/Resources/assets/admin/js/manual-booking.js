@@ -1,5 +1,6 @@
 import { formatAppointmentTimeDisplay, normalizeAppointmentTime24 } from "./time-format.js";
 import flatpickr from "flatpickr";
+import { buildStandardDatepickerOptions, coerceFlatpickrDate } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 import {
     formatPhoneE164,
     getPhoneInputE164,
@@ -23,15 +24,11 @@ function readProductCatalog(form) {
 }
 
 function buildAppointmentDateOptions(input, onDateChange) {
-    const options = {
-        mode: "single",
-        dateFormat: "Y-m-d",
-        altInput: true,
+    return buildStandardDatepickerOptions(input, {
         altFormat: "d M Y",
-        disableMobile: true,
         animate: true,
-        minDate: input.dataset.minDate || "today",
-        defaultDate: input.value || null,
+        minDate: coerceFlatpickrDate(input.dataset.minDate || "today"),
+        defaultDate: coerceFlatpickrDate(input.value) || undefined,
         appendTo: document.body,
         onReady: (_selectedDates, _dateStr, instance) => {
             instance.calendarContainer.classList.add("tr-manual-booking-datepicker-calendar");
@@ -43,13 +40,7 @@ function buildAppointmentDateOptions(input, onDateChange) {
             input.value = dateStr;
             onDateChange?.();
         },
-    };
-
-    if (input.dataset.maxDate) {
-        options.maxDate = input.dataset.maxDate;
-    }
-
-    return options;
+    });
 }
 
 function initAppointmentDatePicker(input, onDateChange) {
@@ -368,7 +359,7 @@ function bindManualBookingModal(modal) {
 
         const params = { date };
 
-        if (!portalMode || !fixedBeauticianId) {
+        if (beauticianId) {
             params.beautician_id = beauticianId;
         }
 

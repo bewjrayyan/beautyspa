@@ -212,6 +212,7 @@ return [
         'admin_portal_preview_badge' => 'Mod pratonton admin',
         'admin_portal_preview_title' => 'Melihat portal :name',
         'admin_portal_preview_lead' => 'Anda melihat paparan sebenar beautician ini — menu sidebar, kebenaran, dan aliran kerja harian yang sama.',
+        'admin_portal_preview_timer_label' => 'Tempoh pratonton',
         'admin_portal_preview_exit' => 'Keluar pratonton',
         'admin_portal_preview_edit_profile' => 'Edit profil',
         'admin_portal_preview_link_user' => 'Sediakan log masuk portal',

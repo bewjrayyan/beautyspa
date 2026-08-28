@@ -11,15 +11,15 @@ use Modules\Beautician\Entities\Beautician;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Http\Requests\StorePortalManualBookingRequest;
 use Modules\TreatmentReservation\Http\Requests\UpdatePortalManualBookingRequest;
-use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\TreatmentReservation\Services\CustomerLookupService;
 use Modules\TreatmentReservation\Services\ManualBookingService;
+use Modules\TreatmentReservation\Services\ManualBookingSlotsResolver;
 use Modules\User\Entities\User;
 
 class PortalManualBookingController extends Controller
 {
     public function __construct(
-        private BeauticianAvailabilityService $availability,
+        private ManualBookingSlotsResolver $slotsResolver,
         private ManualBookingService $manualBookings,
         private CustomerLookupService $customerLookup,
     ) {}
@@ -35,17 +35,19 @@ class PortalManualBookingController extends Controller
             ],
             'date' => ['required', 'date', 'after_or_equal:today'],
             'booking_id' => ['nullable', 'integer'],
+            'product_id' => ['nullable', 'integer', Rule::exists('products', 'id')->where('is_virtual', true)->where('is_active', true)->whereNull('deleted_at')],
+            'spa_branch_id' => ['nullable', 'integer', Rule::exists('spa_branches', 'id')->where('is_active', true)],
         ]);
 
-        $excludeBookingId = isset($data['booking_id']) ? (int) $data['booking_id'] : null;
-
-        return response()->json([
-            'slots' => $this->availability->availableSlots(
-                (int) $data['beautician_id'],
-                $data['date'],
-                $excludeBookingId
-            ),
-        ]);
+        try {
+            return response()->json([
+                'slots' => $this->slotsResolver->resolve($data),
+            ]);
+        } catch (\InvalidArgumentException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
+        }
     }
 
 

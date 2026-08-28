@@ -1,4 +1,5 @@
 import flatpickr from "flatpickr";
+import { buildStandardDatepickerOptions } from "../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 import { fullscreenMode } from "./functions";
 import NProgress from "nprogress";
 import { bootModernPhoneInputs } from "../../../../Storefront/Resources/assets/public/js/lib/modernPhoneInput";
@@ -91,30 +92,7 @@ export default class {
                 continue;
             }
 
-            const enableTime = el.hasAttribute("data-time");
-
-            const options = {
-                mode: el.hasAttribute("data-range") ? "range" : "single",
-                enableTime,
-                noCalendar: el.hasAttribute("data-no-calender"),
-                dateFormat: enableTime ? "Y-m-d H:i" : "Y-m-d",
-                altInput: true,
-                altFormat: enableTime ? "d/m/Y H:i" : "d/m/Y",
-                time_24hr: false,
-                disableMobile: true,
-                defaultDate:
-                    el.getAttribute("data-default-date") || el.value || null,
-            };
-
-            if (el.dataset.maxDate) {
-                options.maxDate = el.dataset.maxDate;
-            }
-
-            if (el.dataset.minDate) {
-                options.minDate = el.dataset.minDate;
-            }
-
-            flatpickr(el, options);
+            flatpickr(el, buildStandardDatepickerOptions(el));
         }
     }
 

@@ -104,12 +104,13 @@
                 <div class="form-group">
                     <label for="block_date">{{ trans('treatmentreservation::admin.availability.block_date') }}</label>
                     <input
-                        type="date"
+                        type="text"
                         name="block_date"
                         id="block_date"
-                        class="form-control bp-input"
+                        class="form-control bp-input datetime-picker"
                         required
-                        min="{{ today()->toDateString() }}"
+                        autocomplete="off"
+                        data-min-date="{{ today()->toDateString() }}"
                     >
                 </div>
                 <div class="form-group">

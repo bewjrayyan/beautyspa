@@ -1,6 +1,7 @@
 import { formatAppointmentTimeDisplay, normalizeAppointmentTime24 } from "./time-format.js";
 
 import flatpickr from "flatpickr";
+import { buildStandardDatepickerOptions } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 
 /**
  * Admin UI for Treatment + Branch appointment availability.
@@ -10,6 +11,21 @@ import flatpickr from "flatpickr";
     if (!root) return;
 
     const boot = window.trAppointmentAvailabilityBoot || {};
+    function initializeOverrideDatePicker() {
+        const input = document.getElementById("tr-override-date");
+
+        if (!input || input._flatpickr) {
+            return;
+        }
+
+        flatpickr(input, buildStandardDatepickerOptions(input, {
+            altFormat: "d M Y",
+            animate: true,
+            appendTo: document.body,
+        }));
+    }
+
+
     const csrf = root.dataset.csrf;
     let modalReturnFocus = null;
 
@@ -70,6 +86,7 @@ import flatpickr from "flatpickr";
     }
 
     initializeWorkspaceTabs();
+    initializeOverrideDatePicker();
 
     function buildTreatmentTreeOptions(products) {
         const optgroups = [];

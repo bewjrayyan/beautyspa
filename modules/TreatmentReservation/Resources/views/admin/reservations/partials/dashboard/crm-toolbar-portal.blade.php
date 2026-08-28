@@ -148,7 +148,7 @@
                 type="button"
                 class="tr-crm-toolbar__new tr-manual-booking-open-btn"
                 data-toggle="modal"
-                data-target="#tr-manual-booking-modal"
+                data-target="#tr-portal-manual-booking-modal"
             >
                 <span class="tr-crm-toolbar__new-icon" aria-hidden="true">
                     <i class="fa fa-plus"></i>

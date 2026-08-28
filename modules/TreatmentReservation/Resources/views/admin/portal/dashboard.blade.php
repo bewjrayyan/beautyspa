@@ -63,8 +63,9 @@
     ])
 
     <div
-        class="tr-reservations tr-reservations-page tr-reservations--view-dashboard tr-reservations--crm-dashboard tr-reservations--mockup tr-portal-crm-dashboard"
+        class="tr-portal tr-reservations tr-reservations-page tr-reservations--view-dashboard tr-reservations--crm-dashboard tr-reservations--mockup tr-portal-crm-dashboard tr-portal-saas"
         id="tr-reservations-app"
+        style="--tr-portal-accent: {{ $beautician->profile_color ?? '#6366f1' }};"
         data-active-view="dashboard"
         data-calendar-legend-label="{{ TrLang::trans('admin.calendar.legend_label') }}"
         data-cal-preview-title="{{ TrLang::trans('admin.calendar.preview_title') }}"
@@ -167,12 +168,16 @@
         data-portal-beautician-id="{{ $beautician->id }}"
         data-initial-category="{{ $filters['treatment_category_id'] ?? '' }}"
     >
-        <header class="tr-crm-page-header">
-            <div class="tr-crm-page-header__intro">
-                <h1 class="tr-crm-page-header__title">{{ TrLang::trans('admin.portal.dashboard_title') }}</h1>
-                <p class="tr-crm-page-header__lead">{{ TrLang::trans('admin.portal.dashboard_lead') }}</p>
-            </div>
-        </header>
+        @include('treatmentreservation::admin.portal.partials.job-sheet-hero', [
+            'beautician' => $beautician,
+            'stats' => $heroStats ?? $stats,
+            'todayAppointments' => $todayAppointments,
+            'adminPortalPreview' => $adminPortalPreview ?? false,
+            'backUrl' => $backUrl ?? null,
+            'activePortalNav' => 'dashboard',
+            'portalCanCreate' => $portalCanCreate ?? ($crmCanCreate ?? false),
+            'manualBookingModalId' => 'tr-portal-manual-booking-modal',
+        ])
 
         @if (! empty($crmCanCreate))
             @include('treatmentreservation::admin.reservations.partials.manual-booking-modal', [
@@ -186,6 +191,8 @@
                 'portalMode' => true,
                 'lockedBeautician' => $beautician,
                 'defaultBeauticianId' => $beautician->id,
+                'defaultSpaBranchId' => $filters['spa_branch_id'] ?? null,
+                'modalId' => 'tr-portal-manual-booking-modal',
             ])
         @endif
 

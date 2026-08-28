@@ -631,14 +631,22 @@
 
     .flatpickr-days {
         border: 0;
+        width: 100%;
+        max-width: none;
     }
 
     .dayContainer {
         padding: 4px 8px 10px;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
     }
 
     .flatpickr-day {
-        max-width: 40px;
+        flex: 1 0 14.2857143%;
+        width: 14.2857143%;
+        max-width: none;
+        margin: 0;
         height: 40px;
         line-height: 40px;
         border-radius: 12px;

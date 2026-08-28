@@ -39,6 +39,15 @@
     $customersUrl = $customersUrl ?? null;
     $updateUrlTemplate = $updateUrlTemplate ?? null;
     $cancelUrlTemplate = $cancelUrlTemplate ?? null;
+    $defaultSpaBranchId = $defaultSpaBranchId ?? null;
+
+    if ($portalMode && ! $defaultSpaBranchId && $lockedBeautician && function_exists('is_module_enabled') && is_module_enabled('SpaBranch')) {
+        $lockedBeautician->loadMissing('spaBranches');
+        $defaultSpaBranchId = $lockedBeautician->spaBranches
+            ->where('is_active', true)
+            ->sortBy('position')
+            ->first()?->id;
+    }
 @endphp
 
 <style>
@@ -70,6 +79,9 @@
     @if ($defaultBeauticianId)
         data-default-beautician-id="{{ $defaultBeauticianId }}"
     @endif
+    @if (! empty($defaultSpaBranchId))
+        data-spa-branch-id="{{ $defaultSpaBranchId }}"
+    @endif
     data-select-schedule="{{ $selectScheduleMessage }}"
     data-loading-slots="{{ trans('treatmentreservation::admin.manual_booking.loading_slots') }}"
     data-no-slots="{{ trans('treatmentreservation::admin.manual_booking.no_slots') }}"
@@ -96,6 +108,9 @@
         <div class="modal-content tr-manual-booking-modal__shell">
             <form id="{{ $formId }}" class="tr-manual-booking-form" novalidate enctype="multipart/form-data">
                 <input type="hidden" name="booking_id" value="" class="tr-manual-booking-id">
+                @if ($portalMode && ! empty($defaultSpaBranchId))
+                    <input type="hidden" name="spa_branch_id" value="{{ $defaultSpaBranchId }}">
+                @endif
 
                 @if ($portalMode)
                     <div class="tr-manual-booking-modal__hero">

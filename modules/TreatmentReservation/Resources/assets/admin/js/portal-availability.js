@@ -1,4 +1,5 @@
 import flatpickr from "flatpickr";
+import { buildStandardDatepickerOptions } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const page = document.querySelector("[data-availability-settings], .tr-portal-profile-page");
@@ -9,6 +10,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const dayAvailableLabel = page.dataset.dayAvailable || "Available";
     const dayOffLabel = page.dataset.dayOff || "Day off";
+
+    const blockDateInput = page.querySelector("#block_date");
+
+    if (blockDateInput && !blockDateInput._flatpickr) {
+        flatpickr(blockDateInput, buildStandardDatepickerOptions(blockDateInput, {
+            altFormat: "d M Y",
+            animate: true,
+            appendTo: document.body,
+        }));
+    }
+
 
     const initModernTimeInput = (input) => {
         if (!input || input._flatpickr) {

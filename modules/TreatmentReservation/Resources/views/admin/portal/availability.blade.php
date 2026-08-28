@@ -45,20 +45,6 @@
         ],
     ];
 
-    $heroStats = [
-        [
-            'label' => trans('treatmentreservation::admin.availability.hero_days_available'),
-            'value' => $enabledDaysCount,
-        ],
-        [
-            'label' => trans('treatmentreservation::admin.availability.hero_upcoming_blocks'),
-            'value' => $blockedTimes->count(),
-        ],
-        [
-            'label' => trans('treatmentreservation::admin.availability.hero_slot_duration'),
-            'value' => trans('treatmentreservation::admin.availability.hero_slot_duration_short'),
-        ],
-    ];
 @endphp
 
 @extends('admin::layout')
@@ -102,7 +88,6 @@
             'beautician' => $beautician,
             'user' => $user,
             'heroInsights' => $heroInsights,
-            'heroStats' => $heroStats,
         ])
 
         <div class="row bp-layout">

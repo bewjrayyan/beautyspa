@@ -1,25 +1,11 @@
 import axios from "axios";
 import flatpickr from "flatpickr";
+import { buildStandardDatepickerOptions } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 
 function buildDateOfBirthOptions(input) {
-    const options = {
-        mode: "single",
-        dateFormat: "Y-m-d",
-        altInput: true,
+    return buildStandardDatepickerOptions(input, {
         altFormat: "d/m/Y",
-        disableMobile: true,
-        defaultDate: input.dataset.defaultDate || input.value || null,
-    };
-
-    if (input.dataset.maxDate) {
-        options.maxDate = input.dataset.maxDate;
-    }
-
-    if (input.dataset.minDate) {
-        options.minDate = input.dataset.minDate;
-    }
-
-    return options;
+    });
 }
 
 function initProfileDateOfBirth(form) {

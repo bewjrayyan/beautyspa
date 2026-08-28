@@ -1,0 +1,22 @@
+// Preserve Flatpickr's 7-column flex grid. Setting max-width on .flatpickr-day
+// without flex-basis breaks weekday alignment (dates appear under wrong columns).
+.flatpickr-calendar {
+    .flatpickr-days {
+        width: 100%;
+        max-width: none;
+    }
+
+    .dayContainer {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .flatpickr-day {
+        flex: 1 0 14.2857143%;
+        width: 14.2857143%;
+        max-width: none;
+        margin: 0;
+        box-sizing: border-box;
+    }
+}

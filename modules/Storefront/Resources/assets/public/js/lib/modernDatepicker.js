@@ -1,42 +1,11 @@
 import flatpickr from "flatpickr";
+import { buildStandardDatepickerOptions } from "./flatpickrLocale.js";
 
 /**
  * Shared Flatpickr options for AestheticCart (storefront + vendor bundles).
  */
-export function buildDatepickerOptions(el) {
-    const enableTime = el.hasAttribute("data-time");
-    const noCalendar = el.hasAttribute("data-no-calender");
-
-    const options = {
-        mode: el.hasAttribute("data-range") ? "range" : "single",
-        enableTime,
-        noCalendar,
-        dateFormat: enableTime ? "Y-m-d H:i" : "Y-m-d",
-        altInput: true,
-        altFormat: enableTime ? "d/m/Y H:i" : "d/m/Y",
-        time_24hr: false,
-        disableMobile: true,
-        defaultDate: el.dataset.defaultDate || el.value || null,
-    };
-
-    if (el.dataset.maxDate) {
-        options.maxDate = el.dataset.maxDate;
-    }
-
-    if (el.dataset.minDate) {
-        options.minDate = el.dataset.minDate;
-    }
-
-    if (el.hasAttribute("data-enable-dates")) {
-        const enabledDates = (el.dataset.enableDates || "")
-            .split(",")
-            .map((date) => date.trim())
-            .filter(Boolean);
-
-        options.enable = enabledDates.length ? enabledDates : [() => false];
-    }
-
-    return options;
+export function buildDatepickerOptions(el, overrides = {}) {
+    return buildStandardDatepickerOptions(el, overrides);
 }
 
 export function initModernDatepickers(root = document) {

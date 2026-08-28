@@ -1,6 +1,7 @@
 import { formatAppointmentTimeDisplay } from "./time-format.js";
 import axios from "axios";
 import flatpickr from "flatpickr";
+import { mergeFlatpickrLocale, coerceFlatpickrDate } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 import {
     bookingAllowsDetail,
     closeCalendarEventPreview,
@@ -466,7 +467,7 @@ function initCrmDatePicker() {
 
     const pickerWrap = pickerInput.closest(".tr-crm-toolbar__date-picker");
 
-    flatpickr(pickerInput, {
+    flatpickr(pickerInput, mergeFlatpickrLocale({
         mode: "single",
         dateFormat: "Y-m-d",
         altInput: true,
@@ -475,7 +476,7 @@ function initCrmDatePicker() {
         disableMobile: true,
         animate: true,
         appendTo: document.body,
-        defaultDate: pickerInput.value || null,
+        defaultDate: coerceFlatpickrDate(pickerInput.value) || undefined,
         onReady: (_selectedDates, _dateStr, instance) => {
             instance.calendarContainer.classList.add("tr-crm-toolbar-datepicker-calendar");
         },
@@ -494,7 +495,7 @@ function initCrmDatePicker() {
             markCrmFocusPipeline();
             form.requestSubmit();
         },
-    });
+    }));
 }
 
 function initDateFilterPills() {

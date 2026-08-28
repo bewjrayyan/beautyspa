@@ -112,7 +112,7 @@
                     @elseif ($type === 'textarea')
                         <textarea class="form-control" name="answers[{{ $key }}]" rows="2" placeholder="{{ $question['placeholder'] ?? '' }}">{{ old("answers.{$key}") }}</textarea>
                     @elseif ($type === 'date')
-                        <input class="form-control" type="date" name="answers[{{ $key }}]" value="{{ old("answers.{$key}") }}">
+                        <input class="form-control modern-datepicker" type="text" name="answers[{{ $key }}]" value="{{ old("answers.{$key}") }}" data-default-date="{{ old("answers.{$key}") }}" autocomplete="off">
                     @elseif ($type === 'select')
                         <select class="form-control" name="answers[{{ $key }}]">
                             <option value="">{{ trans('account::consultation.select_one') }}</option>
