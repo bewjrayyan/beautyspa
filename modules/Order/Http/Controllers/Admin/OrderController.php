@@ -12,7 +12,6 @@ use Modules\Admin\Traits\HasCrudActions;
 use Modules\GoogleIntegration\Support\GoogleSheetsColumnConfig;
 use Modules\Order\Events\OrderUpdated;
 use Modules\Order\Http\Requests\SaveOrderRequest;
-use Modules\Order\Services\OrderPaymentProofPublicUrlService;
 use Modules\Order\Services\OrderProductDiscountAllocator;
 
 class OrderController
@@ -102,14 +101,10 @@ class OrderController
         try {
             $order = $this->getEntity($id);
             $orderProductDiscounts = $discountAllocator->forOrder($order);
-            $paymentProofUrl = $order->paymentProof
-                ? app(OrderPaymentProofPublicUrlService::class)->whatsAppMediaUrl($order->paymentProof, $order)
-                : null;
 
             return view("{$this->viewPath}.show", compact(
                 'order',
-                'orderProductDiscounts',
-                'paymentProofUrl'
+                'orderProductDiscounts'
             ));
         } catch (ModelNotFoundException) {
             return redirect()

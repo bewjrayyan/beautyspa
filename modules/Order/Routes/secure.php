@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 | Locale-free signed document URLs: /secure/... (not /{locale}/secure/...).
-| Uses signed:relative so FixSubdirectoryRequest (strips install base) does not invalidate signatures.
+| Uses signed.subdirectory:relative so signatures match after FixSubdirectoryRequest strips the install base.
 */
 
 $locales = implode('|', array_map(
@@ -30,9 +30,9 @@ if ($locales !== '') {
 }
 
 Route::get('secure/order/{order}/payment-proof/{file}', 'OrderPaymentProofController@show')
-    ->middleware(['signed:relative', 'throttle:30,1'])
+    ->middleware(['signed.subdirectory:relative', 'throttle:30,1'])
     ->name('order.payment_proofs.temporary');
 
 Route::get('secure/order/{order}/document/{type}/{fingerprint}', 'OrderTemporaryDocumentController@show')
-    ->middleware(['signed:relative', 'throttle:30,1'])
+    ->middleware(['signed.subdirectory:relative', 'throttle:30,1'])
     ->name('order.documents.temporary');

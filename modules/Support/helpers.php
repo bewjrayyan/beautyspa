@@ -217,6 +217,76 @@ if (!function_exists('aestheticcart_normalize_install_url')) {
     }
 }
 
+
+if (! function_exists('aestheticcart_resign_relative_path_without_install_base')) {
+    /**
+     * Re-sign a relative URL so the path excludes the install base (matches request validation).
+     */
+    function aestheticcart_resign_relative_path_without_install_base(string $relative): string
+    {
+        $parts = parse_url($relative) ?: [];
+        $path = '/'.ltrim((string) ($parts['path'] ?? '/'), '/');
+        $query = [];
+        parse_str((string) ($parts['query'] ?? ''), $query);
+
+        $basePath = rtrim((string) (\AestheticCart\Http\FixSubdirectoryRequest::basePath()), '/');
+
+        if ($basePath !== '' && (str_starts_with($path, $basePath.'/') || $path === $basePath)) {
+            $path = substr($path, strlen($basePath)) ?: '/';
+        }
+
+        unset($query['signature']);
+        ksort($query);
+
+        $unsigned = $path.(empty($query) ? '' : '?'.http_build_query($query));
+
+        $key = config('app.key');
+        $query['signature'] = hash_hmac('sha256', $unsigned, is_array($key) ? $key[0] : $key);
+
+        return $path.'?'.http_build_query($query);
+    }
+}
+
+
+if (! function_exists('aestheticcart_subdirectory_safe_temporary_signed_route')) {
+    /**
+     * Build a temporary signed relative route safe for subdirectory installs.
+     */
+    function aestheticcart_subdirectory_safe_temporary_signed_route(
+        string $name,
+        \DateTimeInterface|\DateInterval|int $expiration,
+        array $parameters = []
+    ): string {
+        $relative = Illuminate\Support\Facades\URL::temporarySignedRoute(
+            $name,
+            $expiration,
+            $parameters,
+            absolute: false
+        );
+
+        return aestheticcart_resign_relative_path_without_install_base($relative);
+    }
+}
+
+
+if (! function_exists('aestheticcart_absolute_from_relative_path')) {
+    /**
+     * Build an absolute URL from a signed relative path without duplicating the install base.
+     */
+    function aestheticcart_absolute_from_relative_path(string $relative): string
+    {
+        $root = rtrim((string) (\AestheticCart\Http\FixSubdirectoryRequest::resolvedAppUrl() ?: config('app.url')), '/');
+        $relative = '/'.ltrim($relative, '/');
+        $rootPath = rtrim((string) (parse_url($root, PHP_URL_PATH) ?: ''), '/');
+
+        if ($rootPath !== '' && (str_starts_with($relative, $rootPath.'/') || $relative === $rootPath)) {
+            $relative = substr($relative, strlen($rootPath)) ?: '/';
+        }
+
+        return aestheticcart_normalize_install_url($root.$relative);
+    }
+}
+
 if (!function_exists('aestheticcart_apply_install_base_url')) {
     /**
      * Prepend APP_URL subdirectory (e.g. /fleetcart) when localization strips it.

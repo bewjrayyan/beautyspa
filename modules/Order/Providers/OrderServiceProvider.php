@@ -35,7 +35,11 @@ class OrderServiceProvider extends ServiceProvider
             ]);
         }
 
-        View::composer('order::admin.orders.partials.order_and_account_information', function ($view) {
+        View::composer([
+            'order::admin.orders.partials.order_and_account_information',
+            'order::admin.orders.partials.order_totals',
+            'order::admin.orders.partials.order_summary_order_information',
+        ], function ($view) {
             $order = $view->getData()['order'] ?? null;
 
             if (! $order instanceof Order) {

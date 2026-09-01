@@ -1,4 +1,4 @@
-<div class="order-show__card order-show__card--totals">
+<div id="order-summary" class="order-show__card order-show__card--totals">
     <div class="order-show__card-head">
         <h5><i class="fa fa-calculator" aria-hidden="true"></i> {{ trans('order::orders.order_summary') }}</h5>
     </div>

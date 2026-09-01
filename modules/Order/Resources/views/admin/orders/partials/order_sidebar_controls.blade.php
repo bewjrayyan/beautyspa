@@ -1,28 +1,11 @@
-<div class="order-show__sidebar-controls">
-    <div class="order-show__sidebar-controls-head">
-        <h5 class="order-show__sidebar-controls-title">
-            <i class="fa fa-sliders" aria-hidden="true"></i>
-            {{ trans('order::orders.sidebar_controls_title') }}
-        </h5>
-        <p>{{ trans('order::orders.sidebar_controls_description') }}</p>
-    </div>
+@php
+    $hasTreatmentStatus = ! empty($treatmentBooking);
+    $hasBankTransferReference = $order->getRawOriginal('payment_method') === 'bank_transfer';
+@endphp
 
-    @if ($canSendOrderWhatsApp ?? false)
-        <section class="order-show__sidebar-block" aria-labelledby="order-sidebar-messaging-label">
-            <h6 id="order-sidebar-messaging-label" class="order-show__sidebar-block-title">
-                {{ trans('order::orders.action_group_whatsapp') }}
-            </h6>
-            @include('order::admin.orders.partials.order_whatsapp_actions', [
-                'order' => $order,
-                'canSendOrderWhatsApp' => $canSendOrderWhatsApp ?? false,
-            ])
-        </section>
-    @endif
-
-    <section class="order-show__sidebar-block" aria-labelledby="order-actions-label">
-        <h6 id="order-actions-label" class="order-show__sidebar-block-title">
-            {{ trans('order::orders.actions') }}
-        </h6>
+<div class="order-show__sidebar-actions">
+    <section class="order-show__sidebar-block order-show__sidebar-block--actions" aria-labelledby="order-actions-label">
+        <h6 id="order-actions-label" class="sr-only">{{ trans('order::orders.actions') }}</h6>
         <div class="order-show__actions">
             <div class="order-show__control order-show__control--actions">
                 <div
@@ -31,6 +14,7 @@
                     data-print-url="{{ route('admin.orders.print.show', $order) }}"
                     data-receipt-url="{{ route('admin.orders.receipt.show', $order) }}"
                     data-back-url="{{ route('admin.orders.index') }}"
+                    data-order-id="{{ $order->id }}"
                 >
                     <button
                         type="button"
@@ -70,6 +54,41 @@
                                 </span>
                             </a>
                         </li>
+
+                        @if ($canSendOrderWhatsApp ?? false)
+                            <li class="dropdown-header">{{ trans('order::orders.action_group_whatsapp') }}</li>
+                            <li>
+                                <button
+                                    type="button"
+                                    class="js-order-whatsapp-send order-show__action-item order-show__action-item--whatsapp"
+                                    data-whatsapp-type="invoice"
+                                    data-send-url="{{ route('admin.orders.whatsapp.invoice', $order) }}"
+                                    data-sending-label="{{ trans('order::whatsapp.sending') }}"
+                                >
+                                    <span class="order-show__action-icon"><i class="fa fa-whatsapp" aria-hidden="true"></i></span>
+                                    <span class="order-show__action-text">
+                                        <span class="order-show__action-title">{{ trans('order::whatsapp.send_invoice') }}</span>
+                                        <span class="order-show__action-desc">{{ trans('order::orders.action_whatsapp_invoice_desc') }}</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    type="button"
+                                    class="js-order-whatsapp-send order-show__action-item order-show__action-item--whatsapp"
+                                    data-whatsapp-type="receipt"
+                                    data-send-url="{{ route('admin.orders.whatsapp.receipt', $order) }}"
+                                    data-sending-label="{{ trans('order::whatsapp.sending') }}"
+                                >
+                                    <span class="order-show__action-icon"><i class="fa fa-whatsapp" aria-hidden="true"></i></span>
+                                    <span class="order-show__action-text">
+                                        <span class="order-show__action-title">{{ trans('order::whatsapp.send_receipt') }}</span>
+                                        <span class="order-show__action-desc">{{ trans('order::orders.action_whatsapp_receipt_desc') }}</span>
+                                    </span>
+                                </button>
+                            </li>
+                        @endif
+
                         <li class="dropdown-header">{{ trans('order::orders.action_group_other') }}</li>
                         <li>
                             <button type="button" class="js-order-action order-show__action-item order-show__action-item--email" data-action="email">
@@ -105,6 +124,35 @@
         </div>
     </section>
 
+    @if ($hasTreatmentStatus)
+        <div class="order-show__status-field order-show__status-field--treatment">
+            <label for="order-treatment-status" title="{{ trans('order::orders.treatment_status_help') }}">{{ trans('order::orders.treatment_status') }}</label>
+            <select
+                id="order-treatment-status"
+                class="form-control custom-select-black order-show__status-select"
+                data-id="{{ $order->id }}"
+            >
+                @foreach (\Modules\TreatmentReservation\Entities\TreatmentBooking::statuses() as $status)
+                    <option value="{{ $status }}" {{ $treatmentBooking->status === $status ? 'selected' : '' }}>
+                        {{ $treatmentBooking::STATUS_CANCELED === $status
+                            ? trans('treatmentreservation::admin.crm.status_canceled')
+                            : trans('treatmentreservation::admin.kanban.' . $status) }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    @endif
+</div>
+
+<div class="order-show__sidebar-controls">
+    <div class="order-show__sidebar-controls-head">
+        <h5 class="order-show__sidebar-controls-title">
+            <i class="fa fa-sliders" aria-hidden="true"></i>
+            {{ trans('order::orders.sidebar_controls_title') }}
+        </h5>
+        <p>{{ trans('order::orders.sidebar_controls_description') }}</p>
+    </div>
+
     <section class="order-show__sidebar-block order-show__sidebar-block--status" aria-labelledby="order-sidebar-status-label">
         <h6 id="order-sidebar-status-label" class="order-show__sidebar-block-title">
             {{ trans('order::orders.sidebar_status_title') }}
@@ -118,6 +166,7 @@
                     @endforeach
                 </select>
             </div>
+
             <div class="order-show__status-field order-show__status-field--payment">
                 <label for="order-payment-status" title="{{ trans('order::orders.payment_status_help') }}">{{ trans('order::orders.payment_status') }}</label>
                 <select id="order-payment-status" class="form-control custom-select-black order-show__status-select" data-id="{{ $order->id }}">
@@ -127,7 +176,7 @@
                 </select>
             </div>
 
-            @if ($order->getRawOriginal('payment_method') === 'bank_transfer')
+            @if ($hasBankTransferReference)
                 <div
                     class="order-show__payment-reference"
                     id="order-payment-reference"
@@ -172,24 +221,6 @@
                         <i class="fa fa-save" aria-hidden="true"></i>
                         {{ trans('order::orders.payment_reference_save') }}
                     </button>
-                </div>
-            @endif
-            @if (!empty($treatmentBooking))
-                <div class="order-show__status-field order-show__status-field--treatment">
-                    <label for="order-treatment-status" title="{{ trans('order::orders.treatment_status_help') }}">{{ trans('order::orders.treatment_status') }}</label>
-                    <select
-                        id="order-treatment-status"
-                        class="form-control custom-select-black order-show__status-select"
-                        data-id="{{ $order->id }}"
-                    >
-                        @foreach (\Modules\TreatmentReservation\Entities\TreatmentBooking::statuses() as $status)
-                            <option value="{{ $status }}" {{ $treatmentBooking->status === $status ? 'selected' : '' }}>
-                                {{ $treatmentBooking::STATUS_CANCELED === $status
-                                    ? trans('treatmentreservation::admin.crm.status_canceled')
-                                    : trans('treatmentreservation::admin.kanban.' . $status) }}
-                            </option>
-                        @endforeach
-                    </select>
                 </div>
             @endif
         </div>

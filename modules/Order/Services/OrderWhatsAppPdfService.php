@@ -2,11 +2,9 @@
 
 namespace Modules\Order\Services;
 
-use AestheticCart\Http\FixSubdirectoryRequest;
 use Dompdf\Dompdf;
 use Exception;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 use Modules\Media\Entities\File;
 use Modules\Order\Entities\Order;
 use Modules\Support\Services\DompdfConfigurator;
@@ -58,17 +56,14 @@ class OrderWhatsAppPdfService
             $disk->put($relativePath, $pdf);
         }
 
-        // Relative signatures survive FixSubdirectoryRequest (strips install base from REQUEST_URI).
-        $relative = URL::temporarySignedRoute(
+        // Relative signatures must exclude the install base (see aestheticcart_subdirectory_safe_temporary_signed_route).
+        $relative = aestheticcart_subdirectory_safe_temporary_signed_route(
             'order.documents.temporary',
             now()->addMinutes(90),
-            ['order' => $order->id, 'type' => $type, 'fingerprint' => $fingerprint],
-            absolute: false
+            ['order' => $order->id, 'type' => $type, 'fingerprint' => $fingerprint]
         );
 
-        $root = rtrim((string) (FixSubdirectoryRequest::resolvedAppUrl() ?: config('app.url')), '/');
-
-        return $root.$relative;
+        return aestheticcart_absolute_from_relative_path($relative);
     }
 
 

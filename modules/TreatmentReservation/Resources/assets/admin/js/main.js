@@ -923,10 +923,15 @@ class TreatmentReservationsApp {
                     `.tr-cal-event[data-booking-id="${CSS.escape(String(this.calendarFocusBookingId))}"]`
                 );
 
+                this.calendarFocusHandled = true;
+
                 if (focused) {
-                    this.calendarFocusHandled = true;
                     focused.classList.add("tr-cal-event--focused");
+                    focused.scrollIntoView({ block: "nearest", behavior: "smooth" });
                     window.setTimeout(() => focused.click(), 0);
+                } else {
+                    // Booking may be TBA / filtered out of the month grid — still open details.
+                    openBookingPreviewById(this.calendarFocusBookingId);
                 }
             }
 

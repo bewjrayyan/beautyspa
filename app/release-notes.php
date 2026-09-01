@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.61' => [
+        'date' => '2026-09-01',
+        'en' => [
+            'summary' => 'Admin order show workflow UX, payment-proof signed URLs, and job-sheet deep link.',
+            'changes' => [
+                'Admin order show: consolidate Actions dropdown, Manage order statuses, inline stamp cards beside Total, and premium glass appointment cards.',
+                'Fix subdirectory signed URLs for private payment-proof links (legacy + corrected signatures).',
+                'Manage in job sheet opens the beautician calendar focused on that appointment details drawer.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'UX workflow paparan pesanan admin, URL ditandatangani bukti bayaran, dan pautan terus job sheet.',
+            'changes' => [
+                'Paparan pesanan admin: dropdown Actions, status Manage order, stamp cards sebaris dengan Total, dan kad temujanji glass premium.',
+                'Baiki URL ditandatangani subdirectory untuk pautan bukti bayaran peribadi (tandatangan legacy + baharu).',
+                'Manage in job sheet membuka kalendar beautician terus ke butiran appointment tersebut.',
+            ],
+        ],
+    ],
+
     '4.11.60' => [
         'date' => '2026-08-28',
         'en' => [

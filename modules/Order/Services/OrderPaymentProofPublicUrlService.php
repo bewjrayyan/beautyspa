@@ -2,8 +2,6 @@
 
 namespace Modules\Order\Services;
 
-use AestheticCart\Http\FixSubdirectoryRequest;
-use Illuminate\Support\Facades\URL;
 use Modules\Media\Entities\File;
 use Modules\Order\Entities\Order;
 
@@ -16,12 +14,11 @@ class OrderPaymentProofPublicUrlService
     {
         abort_unless((int) $order->payment_proof_file_id === (int) $proof->id, 404);
 
-        // Relative signatures survive FixSubdirectoryRequest (strips /fleetcart from REQUEST_URI).
-        $relative = URL::temporarySignedRoute(
+        // Relative signatures must exclude the install base (see aestheticcart_subdirectory_safe_temporary_signed_route).
+        $relative = aestheticcart_subdirectory_safe_temporary_signed_route(
             'order.payment_proofs.temporary',
             now()->addMinutes(90),
-            ['order' => $order->id, 'file' => $proof->id],
-            absolute: false
+            ['order' => $order->id, 'file' => $proof->id]
         );
 
         return $this->absoluteFromRelative($relative);
@@ -30,8 +27,6 @@ class OrderPaymentProofPublicUrlService
 
     private function absoluteFromRelative(string $relative): string
     {
-        $root = rtrim((string) (FixSubdirectoryRequest::resolvedAppUrl() ?: config('app.url')), '/');
-
-        return $root.$relative;
+        return aestheticcart_absolute_from_relative_path($relative);
     }
 }

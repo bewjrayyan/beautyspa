@@ -2,11 +2,6 @@
     $customerProfileUrl = $order->customer
         ? route('admin.users.edit', $order->customer)
         : null;
-    $orderBookings = isset($treatmentBookings) && $treatmentBookings instanceof \Illuminate\Support\Collection
-        ? $treatmentBookings
-        : collect(! empty($treatmentBooking) ? [$treatmentBooking] : []);
-    $primaryBooking = $orderBookings->first();
-    $orderWorkspaceUrl = route('admin.orders.show', $order);
 @endphp
 
 <div class="order-show__hero">
@@ -131,50 +126,4 @@
             </div>
         </aside>
     </div>
-
-    <div class="order-show__snapshot" aria-label="{{ trans('order::orders.operational_snapshot') }}">
-        <div class="order-show__snapshot-item">
-            <span class="order-show__snapshot-icon order-show__snapshot-icon--commerce" aria-hidden="true"><i class="fa fa-shopping-bag"></i></span>
-            <span class="order-show__snapshot-copy">
-                <small>{{ trans('order::orders.items_ordered') }}</small>
-                <strong>{{ trans_choice('order::orders.items_count', $order->products->count(), ['count' => $order->products->count()]) }}</strong>
-            </span>
-        </div>
-        <div class="order-show__snapshot-item">
-            <span class="order-show__snapshot-icon order-show__snapshot-icon--payment" aria-hidden="true"><i class="fa fa-credit-card"></i></span>
-            <span class="order-show__snapshot-copy">
-                <small>{{ trans('order::orders.payment_method') }}</small>
-                <strong>{{ $order->payment_method ?: '—' }}</strong>
-            </span>
-        </div>
-        <div class="order-show__snapshot-item">
-            <span class="order-show__snapshot-icon order-show__snapshot-icon--appointment" aria-hidden="true"><i class="fa fa-calendar-check-o"></i></span>
-            <span class="order-show__snapshot-copy">
-                <small>{{ trans('order::orders.appointment_date') }}</small>
-                <strong>{{ $primaryBooking?->appointment_date?->format('d M Y') ?? $order->appointment_date?->format('d M Y') ?? '—' }}</strong>
-            </span>
-        </div>
-        <div class="order-show__snapshot-item">
-            <span class="order-show__snapshot-icon order-show__snapshot-icon--branch" aria-hidden="true"><i class="fa fa-building-o"></i></span>
-            <span class="order-show__snapshot-copy">
-                <small>{{ trans('order::orders.spa_branch') }}</small>
-                <strong>{{ $primaryBooking?->spaBranchLabel() ?? $order->spaBranch?->name ?? '—' }}</strong>
-            </span>
-        </div>
-    </div>
-
-    <nav class="order-show__workspace-nav" aria-label="{{ trans('order::orders.workspace_navigation') }}">
-        <a href="{{ $orderWorkspaceUrl }}#order-items" data-order-section="order-items" aria-controls="order-items"><i class="fa fa-shopping-bag" aria-hidden="true"></i>{{ trans('order::orders.items_ordered') }}</a>
-        @if (app('modules')->isEnabled('Loyalty') && ! empty($orderRewardData))
-            <a href="{{ $orderWorkspaceUrl }}#order-rewards" data-order-section="order-rewards" aria-controls="order-rewards"><i class="fa fa-gift" aria-hidden="true"></i>{{ trans('loyalty::orders.rewards.title') }}</a>
-        @endif
-        <a href="{{ $orderWorkspaceUrl }}#order-overview" data-order-section="order-overview" aria-controls="order-overview"><i class="fa fa-file-text-o" aria-hidden="true"></i>{{ trans('order::orders.order_information') }}</a>
-        @if ($order->hasAppointmentDetails() || $orderBookings->isNotEmpty())
-            <a href="{{ $orderWorkspaceUrl }}#order-fulfillment" data-order-section="order-fulfillment" aria-controls="order-fulfillment"><i class="fa fa-calendar-check-o" aria-hidden="true"></i>{{ trans('order::orders.appointment_information') }}</a>
-        @endif
-        <a href="{{ $orderWorkspaceUrl }}#order-customer" data-order-section="order-customer" aria-controls="order-customer"><i class="fa fa-address-card-o" aria-hidden="true"></i>{{ trans('order::orders.address_information') }}</a>
-        @if (! empty($treatmentBooking?->activities) && $treatmentBooking->activities->isNotEmpty())
-            <a href="{{ $orderWorkspaceUrl }}#order-activity" data-order-section="order-activity" aria-controls="order-activity"><i class="fa fa-history" aria-hidden="true"></i>{{ trans('order::orders.activity') }}</a>
-        @endif
-    </nav>
 </div>

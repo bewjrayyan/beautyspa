@@ -12,6 +12,7 @@ use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use AestheticCart\Http\Middleware\ValidateSubdirectoryRelativeSignature;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use AestheticCart\Http\Middleware\ConvertStringBooleans;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
@@ -77,6 +78,7 @@ class Kernel extends HttpKernel
         'cache.headers' => SetCacheHeaders::class,
         'password.confirm' => RequirePassword::class,
         'signed' => ValidateSignature::class,
+        'signed.subdirectory' => ValidateSubdirectoryRelativeSignature::class,
         'throttle' => ThrottleRequests::class,
         'verified' => EnsureEmailIsVerified::class,
     ];

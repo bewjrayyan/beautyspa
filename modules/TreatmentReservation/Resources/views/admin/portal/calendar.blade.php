@@ -75,7 +75,7 @@
         data-cal-preview-consultation-ready="{{ trans('account::consultation.request.ready') }}"
         data-cal-preview-consultation-failed="{{ trans('account::consultation.request.failed') }}"
         data-initial-bookings='@json($todayBookingsPayload)'
-        data-initial-month="{{ request('month', now()->format('Y-m')) }}"
+        data-initial-month="{{ $calendarInitialMonth ?? request('month', now()->format('Y-m')) }}"
         data-calendar-focus-booking-id="{{ $calendarFocusBookingId ?? '' }}"
         data-initial-beautician=""
         data-portal-beautician-id="{{ $beautician->id }}"

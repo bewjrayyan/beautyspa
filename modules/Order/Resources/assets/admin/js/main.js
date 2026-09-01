@@ -2,12 +2,6 @@ import axios from "axios";
 import { bindOrderWhatsAppSend } from "./orderWhatsApp";
 
 (function () {
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", bindOrderWorkspaceNavigation);
-    } else {
-        bindOrderWorkspaceNavigation();
-    }
-
     const $ = window.jQuery || window.$;
 
     if (!$) {
@@ -309,60 +303,11 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
             // blockers and embedded browsers (e.g. Cursor preview) do not break.
             closeOrderActionsDropdown($menu);
         });
-    }
 
-    function bindOrderWorkspaceNavigation() {
-        const nav = document.querySelector(".order-show__workspace-nav");
-
-        if (!nav || nav.dataset.navigationBound === "true") {
-            return;
-        }
-
-        nav.dataset.navigationBound = "true";
-
-        const links = Array.from(nav.querySelectorAll("a[data-order-section]"));
-        function markActive(activeLink) {
-            links.forEach((link) => {
-                const isActive = link === activeLink;
-
-                link.classList.toggle("is-active", isActive);
-
-                if (isActive) {
-                    link.setAttribute("aria-current", "location");
-                } else {
-                    link.removeAttribute("aria-current");
-                }
-            });
-        }
-
-        links.forEach((link) => {
-            link.addEventListener("click", (event) => {
-                const sectionId = link.dataset.orderSection;
-                const section = document.getElementById(sectionId);
-
-                if (!section) {
-                    return;
-                }
-
-                event.preventDefault();
-                const sectionUrl = `${window.location.pathname}${window.location.search}#${sectionId}`;
-                window.history.replaceState(null, "", sectionUrl);
-                const sectionTop = Math.max(
-                    0,
-                    section.getBoundingClientRect().top + window.pageYOffset - 84
-                );
-
-                window.scrollTo(0, sectionTop);
-                markActive(link);
-            });
+        $menu.off("click.orderActionsStatus", ".order-show__action-status-item");
+        $menu.on("click.orderActionsStatus", ".order-show__action-status-item", function (e) {
+            e.stopPropagation();
         });
-
-        const initialSection = window.location.hash.slice(1);
-        const initialLink = links.find(
-            (link) => link.dataset.orderSection === initialSection
-        );
-
-        markActive(initialLink || links[0]);
     }
 
     function init() {

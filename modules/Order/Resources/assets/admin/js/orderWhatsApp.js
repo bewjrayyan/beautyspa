@@ -5,7 +5,7 @@ import axios from "axios";
  */
 export function bindOrderWhatsAppSend() {
     const $ = window.jQuery || window.$;
-    const root = document.getElementById("order-whatsapp-actions");
+    const root = document.getElementById("order-actions");
 
     if (!root || !$) {
         return;
@@ -51,6 +51,7 @@ export function bindOrderWhatsAppSend() {
 
             sending = true;
             root.classList.add("order-show__whatsapp--sending");
+            $(root).removeClass("open").find(".dropdown-toggle").attr("aria-expanded", "false");
             buttons.forEach((btn) => {
                 btn.setAttribute("aria-disabled", "true");
             });

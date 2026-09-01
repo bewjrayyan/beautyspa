@@ -28,13 +28,13 @@
                 <main class="order-show__main">
                     @include('order::admin.orders.partials.items_ordered')
 
-                    @if (app('modules')->isEnabled('Loyalty') && ! empty($orderRewardData))
-                        @include('loyalty::admin.orders.partials.order_rewards_breakdown')
-                    @endif
-
                     @include('order::admin.orders.partials.order_and_account_information')
 
                     @include('order::admin.orders.partials.address_information')
+
+                    @if (app('modules')->isEnabled('Loyalty') && ! empty($orderRewardData))
+                        @include('loyalty::admin.orders.partials.order_rewards_breakdown')
+                    @endif
 
                     @if (! empty($treatmentBooking?->activities) && $treatmentBooking->activities->isNotEmpty())
                         <section id="order-activity" class="order-show__section order-show__section--activity">
@@ -52,10 +52,6 @@
                             'canSendOrderWhatsApp' => $canSendOrderWhatsApp,
                             'treatmentBooking' => $treatmentBooking ?? null,
                         ])
-
-                        @if (app('modules')->isEnabled('Loyalty') && ! empty($orderStampData))
-                            @include('loyalty::admin.orders.partials.stamp_information', $orderStampData)
-                        @endif
 
                         @include('order::admin.orders.partials.order_totals')
 

@@ -151,6 +151,24 @@ class PortalController extends Controller
         $todayAppointments = $this->dashboard->todayActiveAppointments($viewerBeauticianId);
         $portalContext = $this->portalContext($request, $beautician);
 
+        $calendarFocusBookingId = $request->integer('booking_id') ?: null;
+        $focusBooking = null;
+
+        if ($calendarFocusBookingId) {
+            $focusBooking = TreatmentBooking::query()
+                ->whereKey($calendarFocusBookingId)
+                ->where('beautician_id', $beautician->id)
+                ->first();
+
+            if (! $focusBooking) {
+                $calendarFocusBookingId = null;
+            }
+        }
+
+        $initialMonth = $request->input('month')
+            ?: ($focusBooking?->appointment_date?->format('Y-m'))
+            ?: now()->format('Y-m');
+
         return view('treatmentreservation::admin.portal.calendar', array_merge([
             'beautician' => $beautician,
             'stats' => $this->dashboard->stats($viewerBeauticianId),
@@ -160,6 +178,9 @@ class PortalController extends Controller
                 ->map(fn (TreatmentBooking $booking) => $booking->toPortalKanbanPayload($viewerBeauticianId))
                 ->values(),
             'activeView' => 'calendar',
+            'calendarFocus' => $request->boolean('focus') || filled($calendarFocusBookingId),
+            'calendarFocusBookingId' => $calendarFocusBookingId,
+            'calendarInitialMonth' => $initialMonth,
             'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
             'beauticianPickerOptions' => Beautician::activeListForCheckout(),
         ], $portalContext));

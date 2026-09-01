@@ -1081,6 +1081,31 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
         background: #f1f5f9;
     }
 
+    .order-show__action-item--whatsapp .order-show__action-icon {
+        color: #15803d;
+        background: rgba(34, 197, 94, 0.12);
+    }
+
+    .order-show__action-status-item {
+        padding: 8px 10px 10px;
+        margin: 2px 0;
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: $order-muted;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .order-show__status-select {
+            width: 100%;
+            min-height: 38px !important;
+        }
+    }
+
     .order-show__action-text {
         display: flex;
         flex-direction: column;
@@ -1116,6 +1141,21 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     gap: 14px;
     position: sticky;
     top: 72px;
+}
+
+.order-show__sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0;
+
+    .order-show__sidebar-block--actions {
+        margin-bottom: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+    }
 }
 
 .order-show__sidebar-controls {
@@ -1177,7 +1217,8 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     color: #94a3b8;
 }
 
-.order-show__sidebar-controls {
+.order-show__sidebar-controls,
+.order-show__sidebar-actions {
     .order-show__whatsapp-label {
         display: none;
     }
@@ -1797,16 +1838,132 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     font-size: 13px;
 }
 
+.order-show__totals-info {
+    td:first-child {
+        font-size: 12px;
+        font-weight: 500;
+        color: $order-muted;
+        vertical-align: top;
+    }
+
+    td:last-child {
+        text-align: right;
+        font-size: 13px;
+        color: $order-text;
+        vertical-align: top;
+    }
+
+    &--payment-method td:last-child {
+        display: grid;
+        gap: 8px;
+        justify-items: end;
+    }
+
+    .order-show__hint {
+        margin-top: 4px;
+        text-align: right;
+    }
+}
+
 .order-show__payment-breakdown {
     border-top: 1px solid $order-border;
     padding: 16px 18px;
     background: #fff;
 
     &--inline {
+        padding: 0;
+
         .order-show__payment-breakdown-inner {
-            max-width: 380px;
-            margin-left: auto;
+            max-width: none;
+            margin-left: 0;
         }
+    }
+}
+
+.order-show__items-footer {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 14px 16px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top: 1px solid $order-hairline;
+
+    &:has(.order-show__items-footer-stamps) {
+        justify-content: space-between;
+    }
+}
+
+.order-show__items-footer-stamps {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 560px;
+    padding: 0;
+
+    &-title {
+        margin: 0 0 2px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: $order-text;
+    }
+
+    &-lead {
+        margin: 0 0 10px;
+        font-size: 11px;
+        line-height: 1.4;
+        color: $order-muted;
+    }
+
+    .order-show-stamp-cards {
+        gap: 10px;
+    }
+
+    .loyalty-stamp-card {
+        max-width: 100%;
+        padding: 12px 14px;
+        border-width: 1px;
+        border-radius: 12px;
+        box-shadow: none;
+        background: #fff;
+    }
+
+    .loyalty-stamp-card__title {
+        font-size: 14px;
+    }
+
+    .loyalty-stamp-card__reward {
+        font-size: 12px;
+    }
+
+    .loyalty-stamp-card__stamps {
+        gap: 6px;
+        margin: 10px 0 8px;
+    }
+
+    .loyalty-stamp-card__stamp {
+        width: 28px;
+        height: 28px;
+
+        i {
+            font-size: 12px;
+        }
+    }
+
+    .loyalty-stamp-card__footer {
+        font-size: 12px;
+    }
+
+    .order-show-stamp-card__admin-meta {
+        gap: 6px 8px;
+        padding: 0;
+        margin-top: 2px;
+    }
+
+    .order-show-stamp-card__award {
+        font-size: 11px;
+        font-weight: 600;
+        color: $order-muted;
     }
 }
 
@@ -1815,11 +1972,6 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     font-size: 13px;
     font-weight: 600;
     color: $order-text;
-}
-
-.order-show__totals-footer--inline {
-    margin-left: 0;
-    margin-right: 0;
 }
 
 .order-show__coupon-code {
@@ -1844,6 +1996,40 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
         font-weight: 700;
         letter-spacing: -0.02em;
         color: #0f172a;
+    }
+
+    &--inline {
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 4px;
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 168px;
+        margin: 0;
+        padding: 14px 16px;
+        border: 1px solid #dbeafe;
+        border-radius: 12px;
+        align-self: center;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+        .order-show__totals-footer-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: $order-muted;
+        }
+
+        .order-show__totals-footer-value {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            color: #0f172a;
+            white-space: nowrap;
+        }
     }
 }
 
@@ -1940,8 +2126,33 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
         grid-template-columns: 1fr;
     }
 
-    .order-show__appt-schedule {
+    .order-show__appt-schedule:not(.order-show__appt-schedule--compact) {
         grid-template-columns: 1fr;
+    }
+
+    .order-show__appt-booking-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .order-show__appt-bookings--multi {
+        grid-template-columns: 1fr;
+    }
+
+    .order-show__items-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .order-show__items-footer-stamps {
+        max-width: none;
+    }
+
+    .order-show__totals-footer--inline {
+        width: 100%;
+        min-width: 0;
+        align-items: flex-start;
+        align-self: stretch;
     }
 }
 
@@ -2174,111 +2385,6 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     }
 }
 
-.order-show__snapshot {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin: 0 24px 20px;
-    overflow: hidden;
-    border: 1px solid $order-hairline;
-    border-radius: 14px;
-    background: #fbfcfe;
-}
-
-.order-show__snapshot-item {
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    gap: 11px;
-    padding: 14px 16px;
-
-    &:not(:last-child) {
-        border-right: 1px solid $order-hairline;
-    }
-}
-
-.order-show__snapshot-icon {
-    display: inline-flex;
-    width: 36px;
-    height: 36px;
-    flex: 0 0 36px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: #eef2ff;
-    color: #4f46e5;
-    font-size: 14px;
-
-    &--commerce { background: #eff6ff; color: #2563eb; }
-    &--payment { background: #ecfdf5; color: #059669; }
-    &--appointment { background: #fff7ed; color: #ea580c; }
-    &--branch { background: #f5f3ff; color: #7c3aed; }
-}
-
-.order-show__snapshot-copy {
-    min-width: 0;
-
-    small,
-    strong {
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    small {
-        margin-bottom: 3px;
-        color: $order-muted;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-    }
-
-    strong {
-        color: #1e293b;
-        font-size: 13px;
-        font-weight: 650;
-    }
-}
-
-.order-show__workspace-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    overflow-x: auto;
-    padding: 0 18px;
-    border-top: 1px solid $order-hairline;
-    background: #fff;
-    border-radius: 0 0 18px 18px;
-    scrollbar-width: thin;
-
-    a {
-        display: inline-flex;
-        min-height: 44px;
-        flex: 0 0 auto;
-        align-items: center;
-        gap: 7px;
-        padding: 0 12px;
-        border-bottom: 2px solid transparent;
-        color: #475569;
-        font-size: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
-
-        &:hover,
-        &:focus,
-        &.is-active,
-        &[aria-current="location"] {
-            border-bottom-color: $order-primary;
-            background: #f8fbff;
-            color: $order-primary;
-            text-decoration: none;
-            outline: none;
-        }
-    }
-}
-
 .order-show__layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(310px, 350px);
@@ -2380,23 +2486,269 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     vertical-align: middle;
 }
 
+.order-show__appt-bookings {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 16px;
+
+    &--multi {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        .order-show__appt-booking {
+            margin-top: 0;
+            height: 100%;
+        }
+
+        .order-show__appt-booking-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+    }
+}
+
+.order-show__appt-booking-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px 20px;
+    align-items: start;
+}
+
+.order-show__appt-booking-col {
+    min-width: 0;
+
+    &--details {
+        .order-show__appt-product-name {
+            display: block;
+            color: #0f172a;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+    }
+
+    &--schedule {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .order-show__appt-statuses {
+            justify-content: flex-start;
+        }
+    }
+}
+
+.order-show__appt-schedule--stacked {
+    grid-template-columns: 1fr;
+    margin-bottom: 0;
+}
+
+.order-show__appt-schedule--compact {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 0;
+
+    .order-show__appt-slot {
+        padding: 8px 10px;
+
+        strong {
+            margin-top: 2px;
+            font-size: 13px;
+            line-height: 1.25;
+        }
+    }
+
+    .order-show__appt-slot-label {
+        font-size: 10px;
+        letter-spacing: 0.02em;
+    }
+}
+
+.order-show__job-sheet-action--compact {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+
+    .btn {
+        justify-content: center;
+        width: 100%;
+    }
+}
+
 .order-show__appt-booking {
     position: relative;
-    margin-top: 18px;
+    margin-top: 0;
     overflow: hidden;
     padding: 16px;
     border: 1px dashed #334155;
     border-radius: 13px;
     background: #fff;
     box-shadow: none;
+    min-width: 0;
 
-    &:first-of-type {
-        margin-top: 16px;
+    &--glass {
+        isolation: isolate;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.62);
+        border-radius: 18px;
+        background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.48) 52%, rgba(236, 245, 255, 0.55) 100%);
+        box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.75) inset,
+            0 10px 28px rgba(15, 23, 42, 0.08),
+            0 2px 6px rgba(0, 104, 225, 0.06);
+        backdrop-filter: blur(16px) saturate(1.35);
+        -webkit-backdrop-filter: blur(16px) saturate(1.35);
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            border-color 0.2s ease;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto auto 0;
+            width: 42%;
+            height: 46%;
+            border-radius: 0 0 80% 0;
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        &:hover {
+            border-color: rgba(255, 255, 255, 0.85);
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.85) inset,
+                0 14px 34px rgba(15, 23, 42, 0.1),
+                0 4px 12px rgba(0, 104, 225, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .order-show__appt-sequence {
+            display: inline-flex;
+            align-items: center;
+            min-height: 22px;
+            margin-bottom: 8px;
+            padding: 2px 9px;
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.55);
+            color: $order-primary;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .order-show__appt-product-name {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: #0f172a;
+        }
+
+        .order-show__appt-selection {
+            margin-top: 10px;
+            padding: 8px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-left: 2px solid rgba($order-primary, 0.45);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.42);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .order-show__appt-beautician {
+            margin-top: 12px;
+            padding: 8px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.38);
+        }
+
+        .order-show__appt-statuses {
+            gap: 8px;
+        }
+
+        .order-show__job-sheet-badge {
+            border-color: rgba(187, 247, 208, 0.8);
+            background: rgba(240, 253, 244, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .order-show__appt-slot {
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .order-show__job-sheet-action--compact {
+            margin-top: 4px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            background: rgba(248, 250, 252, 0.45);
+
+            .btn {
+                border-color: rgba($order-primary, 0.28);
+                background: rgba(255, 255, 255, 0.72);
+                color: $order-primary;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+                &:hover,
+                &:focus {
+                    border-color: $order-primary;
+                    background: $order-primary;
+                    color: #fff;
+                }
+            }
+        }
+
+        .order-show__note-box {
+            margin-top: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.4);
+        }
     }
 }
 
-.order-show__appt-booking + .order-show__appt-booking {
-    margin-top: 18px;
+@media (prefers-reduced-transparency: reduce) {
+    .order-show__appt-booking--glass {
+        background: #ffffff;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+
+        .order-show__appt-sequence,
+        .order-show__appt-selection,
+        .order-show__appt-beautician,
+        .order-show__appt-slot,
+        .order-show__job-sheet-action--compact,
+        .order-show__note-box {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            background: #f8fafc;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .order-show__appt-booking--glass {
+        transition: none;
+
+        &:hover {
+            transform: none;
+        }
+    }
 }
 
 .order-show__appt-booking-head {
@@ -2551,21 +2903,50 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
 }
 
 .order-show__card--appointment {
-    border-color: #d7e2ef;
-    background: #f8fbff;
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(215, 226, 239, 0.9);
+    background:
+        radial-gradient(120% 80% at 0% 0%, rgba(236, 72, 153, 0.08), transparent 42%),
+        radial-gradient(100% 90% at 100% 0%, rgba(0, 104, 225, 0.12), transparent 45%),
+        radial-gradient(90% 70% at 70% 100%, rgba(139, 92, 246, 0.08), transparent 50%),
+        linear-gradient(180deg, #f7fbff 0%, #eef5fc 100%);
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: auto -8% -18% auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.55), transparent 70%);
+        pointer-events: none;
+    }
 
     > .order-show__appt-slot {
+        position: relative;
+        z-index: 1;
         margin-bottom: 2px;
-        border-color: #cfe0f4;
-        background: #fff;
+        border-color: rgba(207, 224, 244, 0.9);
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     }
 
     .order-show__card-head {
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        border-bottom-color: #dce7f3;
+        border-bottom-color: rgba(220, 231, 243, 0.9);
+        background: transparent;
+    }
+
+    .order-show__appt-bookings {
+        position: relative;
+        z-index: 1;
     }
 }
 
@@ -2610,7 +2991,8 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     }
 }
 
-.order-show__sidebar-controls .order-show__actions-toggle {
+.order-show__sidebar-controls .order-show__actions-toggle,
+.order-show__sidebar-actions .order-show__actions-toggle {
     min-height: 44px;
     border-color: $order-primary;
     background: $order-primary;
@@ -3026,7 +3408,6 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
     .order-show__order-id,
     .order-show__customer-badge,
     .order-show__stat-label,
-    .order-show__snapshot-copy small,
     .order-show__card-eyebrow,
     .order-show__items-table thead th,
     .order-show__price-original,
@@ -3104,17 +3485,6 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
         gap: 18px;
     }
 
-    .order-show__snapshot {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .order-show__snapshot-item:nth-child(2) {
-        border-right: none;
-    }
-
-    .order-show__snapshot-item:nth-child(-n + 2) {
-        border-bottom: 1px solid $order-hairline;
-    }
 }
 
 @media screen and (max-width: 991px) {
@@ -3148,30 +3518,7 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
         min-height: 44px;
     }
 
-    .order-show__snapshot {
-        grid-template-columns: 1fr 1fr;
-        margin: 0 14px 16px;
-    }
 
-    .order-show__snapshot-item {
-        align-items: flex-start;
-        padding: 12px;
-    }
-
-    .order-show__snapshot-icon {
-        width: 32px;
-        height: 32px;
-        flex-basis: 32px;
-    }
-
-    .order-show__snapshot-copy strong {
-        font-size: 12px;
-        white-space: normal;
-    }
-
-    .order-show__workspace-nav {
-        padding: 0 8px;
-    }
 
     .order-show__card-head--table {
         padding: 14px;
@@ -3221,8 +3568,7 @@ $order-shadow-card: 0 2px 10px rgba(15, 23, 42, 0.04);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .order-show__back-link,
-    .order-show__workspace-nav a {
+    .order-show__back-link {
         transition: none;
     }
 }
