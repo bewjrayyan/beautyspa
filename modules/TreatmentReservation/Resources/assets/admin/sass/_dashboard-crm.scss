@@ -4290,7 +4290,9 @@ body.tr-crm-drawer-open {
     font-size: 10px;
     font-weight: 800;
     color: #fff;
+    background: var(--tr-beautician-color, #6366f1);
 
+    // Legacy status modifiers (compact calendar now uses beautician accent inline).
     &--pending { background: #ea580c; }
     &--in_progress { background: #6d28d9; }
     &--completed { background: #047857; }

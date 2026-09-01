@@ -760,11 +760,12 @@ class TreatmentReservationsApp {
                 ].filter(Boolean).join(" ");
                 const clickAttrs = canOpen ? ' role="button" tabindex="0"' : '';
 
+                const weekColor = TreatmentReservationsApp.safeCssColor(b.beautician_color) || "#6366f1";
                 colHtml += '<div class="tr-week-card tr-week-card--' + TreatmentReservationsApp.escapeHtml(statusClass)
                     + (clickClass ? ' ' + clickClass : '') + '"'
                     + ' data-booking-id="' + TreatmentReservationsApp.escapeHtml(String(b.id ?? '')) + '"'
                     + clickAttrs
-                    + ' style="top:' + topPx + 'px;height:' + heightPx + 'px">'
+                    + ' style="--tr-beautician-color:' + weekColor + ';top:' + topPx + 'px;height:' + heightPx + 'px;border-left-color:' + weekColor + ';background:color-mix(in srgb, ' + weekColor + ' 14%, #fff);border-color:color-mix(in srgb, ' + weekColor + ' 28%, #e2e8f0)">'
                     + '<strong>' + TreatmentReservationsApp.escapeHtml(b.customer_name || "—") + '</strong>'
                     + '<span class="tr-week-card__treatment">' + TreatmentReservationsApp.escapeHtml(b.treatment_name || "") + '</span>'
                     + '<span class="tr-week-card__time">' + TreatmentReservationsApp.escapeHtml(timeRange) + '</span>'
@@ -1222,24 +1223,36 @@ class TreatmentReservationsApp {
     }
 
     renderCompactDayContent(dayBookings) {
-        const counts = {
-            pending: 0,
-            in_progress: 0,
-            completed: 0,
-            canceled: 0,
-        };
+        const byBeautician = new Map();
 
         dayBookings.forEach((booking) => {
-            const status = booking.status || "pending";
+            const key = String(booking.beautician_id || booking.beautician_name || "unknown");
+            const existing = byBeautician.get(key) || {
+                count: 0,
+                color: "#6366f1",
+                name: "—",
+            };
 
-            if (counts[status] !== undefined) {
-                counts[status] += 1;
+            existing.count += 1;
+
+            if (booking.beautician_color) {
+                existing.color = booking.beautician_color;
             }
+
+            if (booking.beautician_name) {
+                existing.name = booking.beautician_name;
+            }
+
+            byBeautician.set(key, existing);
         });
 
-        return Object.entries(counts)
-            .filter(([, count]) => count > 0)
-            .map(([status, count]) => `<span class="tr-cal-dot tr-cal-dot--${status}" title="${status}">${count}</span>`)
+        return Array.from(byBeautician.values())
+            .map(({ count, color, name }) => {
+                const safeColor = TreatmentReservationsApp.safeCssColor(color) || "#6366f1";
+                const title = TreatmentReservationsApp.escapeHtml(name);
+
+                return `<span class="tr-cal-dot" title="${title}" style="background:${safeColor}">${count}</span>`;
+            })
             .join("");
     }
 

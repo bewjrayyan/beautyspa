@@ -88,7 +88,9 @@ $tr-kanban-status-colors: (
         }
     }
 
-    .tr-cal-event-status-dot--#{$status} {
+    // Status-dot fill on calendar events uses beautician accent (--tr-beautician-color).
+    // Keep modifier classes for the status legend only.
+    .tr-calendar-status-legend .tr-cal-event-status-dot--#{$status} {
         background: map-get($colors, orb);
         border: 2px solid map-get($colors, accent);
     }
@@ -2190,6 +2192,7 @@ $tr-text: #1a202c;
     border-radius: 999px;
     flex-shrink: 0;
     box-sizing: border-box;
+    background: var(--tr-beautician-color, #6366f1);
 }
 
 .tr-cal-event-beautician {

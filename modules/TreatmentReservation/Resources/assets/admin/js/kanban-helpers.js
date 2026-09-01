@@ -492,7 +492,7 @@ export function buildCalendarEventHtml(booking, { showBeautician = true, clickab
         <div${clickAttrs}${dragAttrs} data-booking-id="${escapeHtml(booking.id)}" data-status="${status}" style="--tr-beautician-color:${escapeHtml(color)};border-left-color:${escapeHtml(color)};background:${hexToRgba(color, 0.12)};border-color:${hexToRgba(color, 0.28)}">
             <div class="tr-cal-event-top">
                 <span class="tr-cal-event-time">${time}</span>
-                <span class="tr-cal-event-status-dot tr-cal-event-status-dot--${status}" title="${status.replace("_", " ")}"></span>
+                <span class="tr-cal-event-status-dot" title="${status.replace("_", " ")}" style="background:${escapeHtml(color)};box-shadow:0 0 0 2px ${hexToRgba(color, 0.35)}"></span>
             </div>
             ${beauticianRow}
             <strong class="tr-cal-event-customer">${customer}</strong>
