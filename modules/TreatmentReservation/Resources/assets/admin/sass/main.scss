@@ -3500,7 +3500,7 @@ body.tr-calendar-event-preview-open {
 .tr-calendar-event-preview__checklist-item {
     display: grid;
     grid-template-columns: 34px minmax(0, 1fr) 34px;
-    align-items: center;
+    align-items: start;
     gap: 8px;
 
     .form-control {
@@ -3511,11 +3511,32 @@ body.tr-calendar-event-preview-open {
     }
 }
 
+.tr-calendar-event-preview__checklist-body {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.tr-calendar-event-preview__checklist-stamp {
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    padding: 0 2px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #64748b;
+}
+
+.tr-calendar-event-preview__checklist-item:has(input:checked) .tr-calendar-event-preview__checklist-stamp {
+    color: #4338ca;
+}
+
 .tr-calendar-event-preview__checklist-toggle {
     display: inline-flex !important;
     width: 34px;
     height: 34px;
-    margin: 0 !important;
+    margin: 3px 0 0 !important;
     align-items: center;
     justify-content: center;
     border: 1px solid #dbe3ec;

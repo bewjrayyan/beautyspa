@@ -8,7 +8,155 @@ const schedulingDetailRequests = new Map();
 
 import { openManualBookingEditor } from "./manual-booking.js";
 import flatpickr from "flatpickr";
-import { buildStandardDatepickerOptions } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
+import {
+    buildStandardDatepickerOptions,
+    parseLocalDateTime,
+} from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
+
+/** Local calendar date as Y-m-d (work-log “completed at”, not appointment). */
+function currentWorkLogDateValue(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+/** Local clock time as H:i for work-log pickers. */
+function currentWorkLogTimeValue(date = new Date()) {
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${hours}:${minutes}`;
+}
+
+/**
+ * Prefer a previously saved completion stamp only when it is not the legacy
+ * appointment-slot default. Otherwise use now (when logging completion).
+ */
+function resolveWorkLogPickerValues(booking = {}) {
+    const savedDate = booking.beautician_notes_date || "";
+    const savedTime = booking.beautician_notes_time || "";
+    const appointmentDate = booking.appointment_date_value || "";
+    const appointmentTime = booking.appointment_time_value || "";
+    const isLegacyAppointmentStamp =
+        Boolean(savedDate)
+        && savedDate === appointmentDate
+        && (!savedTime || savedTime === appointmentTime);
+
+    if (savedDate && !isLegacyAppointmentStamp) {
+        return {
+            date: savedDate,
+            time: savedTime || currentWorkLogTimeValue(),
+        };
+    }
+
+    const now = new Date();
+
+    return {
+        date: currentWorkLogDateValue(now),
+        time: currentWorkLogTimeValue(now),
+    };
+}
+
+function syncWorkLogPickers(dateValue, timeValue) {
+    const dateInput = document.getElementById("tr-booking-beautician-notes-date");
+    const timeInput = document.getElementById("tr-booking-beautician-notes-time");
+    const stamp = parseLocalDateTime(`${dateValue} ${timeValue}`);
+
+    if (dateInput?._flatpickr) {
+        dateInput._flatpickr.setDate(dateValue, true);
+    } else if (dateInput) {
+        dateInput.value = dateValue;
+    }
+
+    if (timeInput?._flatpickr) {
+        timeInput._flatpickr.setDate(stamp || timeValue, true);
+    } else if (timeInput) {
+        timeInput.value = timeValue;
+    }
+}
+
+/** Match PHP `d M Y` + Flatpickr `h:i K` (e.g. "01 Sep 2026, 10:43 AM"). */
+function formatWorkLogNoteSchedule(dateValue, timeValue) {
+    if (!dateValue || !timeValue) {
+        return "";
+    }
+
+    const treatmentAt = parseLocalDateTime(`${dateValue} ${timeValue}`);
+
+    if (!treatmentAt) {
+        return "";
+    }
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = String(treatmentAt.getDate()).padStart(2, "0");
+    const month = months[treatmentAt.getMonth()];
+    const year = treatmentAt.getFullYear();
+    let hours = treatmentAt.getHours();
+    const minutes = String(treatmentAt.getMinutes()).padStart(2, "0");
+    const meridiem = hours >= 12 ? "PM" : "AM";
+
+    hours = hours % 12 || 12;
+
+    return `${day} ${month} ${year}, ${hours}:${minutes} ${meridiem}`;
+}
+
+/** Local ISO-8601 with offset so completed_at survives save/reload. */
+function toIsoLocal(date = new Date()) {
+    const pad = (value) => String(value).padStart(2, "0");
+    const offsetMinutes = -date.getTimezoneOffset();
+    const sign = offsetMinutes >= 0 ? "+" : "-";
+    const absolute = Math.abs(offsetMinutes);
+
+    return [
+        `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+        `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`,
+        `${sign}${pad(Math.floor(absolute / 60))}:${pad(absolute % 60)}`,
+    ].join("");
+}
+
+function formatCompletedAtDisplay(value) {
+    if (!value) {
+        return "";
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    return formatWorkLogNoteSchedule(currentWorkLogDateValue(date), currentWorkLogTimeValue(date));
+}
+
+function updateChecklistItemStamp(row, completed, completedAt = null) {
+    if (!row) {
+        return;
+    }
+
+    const stampEl = row.querySelector(".tr-calendar-event-preview__checklist-stamp");
+
+    if (!completed) {
+        delete row.dataset.completedAt;
+
+        if (stampEl) {
+            stampEl.hidden = true;
+            stampEl.textContent = "";
+        }
+
+        return;
+    }
+
+    const iso = completedAt || row.dataset.completedAt || toIsoLocal();
+    row.dataset.completedAt = iso;
+
+    if (stampEl) {
+        stampEl.hidden = false;
+        stampEl.textContent = formatCompletedAtDisplay(iso);
+    }
+}
+
 
 export function setCalendarBookings(bookings) {
     calendarBookingsById.clear();
@@ -71,21 +219,32 @@ export function escapeHtml(value) {
 
 function workLogChecklistItemMarkup(item, labels) {
     const id = item.id || `work-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const completedAt = item.completed && item.completed_at ? String(item.completed_at) : "";
+    const stampText = formatCompletedAtDisplay(completedAt);
+    const completedAtAttr = completedAt ? ` data-completed-at="${escapeHtml(completedAt)}"` : "";
+    const stampAttrs = stampText ? "" : " hidden";
+    const completedAtLabel = labels.completedAt || "Completed at";
 
     return `
-        <li class="tr-calendar-event-preview__checklist-item" data-checklist-id="${escapeHtml(id)}">
+        <li class="tr-calendar-event-preview__checklist-item" data-checklist-id="${escapeHtml(id)}"${completedAtAttr}>
             <label class="tr-calendar-event-preview__checklist-toggle">
                 <input type="checkbox"${item.completed ? " checked" : ""}>
                 <span class="sr-only">${escapeHtml(item.label || labels.itemPlaceholder || "Treatment task")}</span>
             </label>
-            <input
-                type="text"
-                class="form-control tr-calendar-event-preview__checklist-label"
-                maxlength="160"
-                value="${escapeHtml(item.label || "")}"
-                placeholder="${escapeHtml(labels.itemPlaceholder || "Describe a treatment task")}"
-                aria-label="${escapeHtml(labels.itemPlaceholder || "Describe a treatment task")}"
-            >
+            <div class="tr-calendar-event-preview__checklist-body">
+                <input
+                    type="text"
+                    class="form-control tr-calendar-event-preview__checklist-label"
+                    maxlength="160"
+                    value="${escapeHtml(item.label || "")}"
+                    placeholder="${escapeHtml(labels.itemPlaceholder || "Describe a treatment task")}"
+                    aria-label="${escapeHtml(labels.itemPlaceholder || "Describe a treatment task")}"
+                >
+                <span
+                    class="tr-calendar-event-preview__checklist-stamp"${stampAttrs}
+                    aria-label="${escapeHtml(completedAtLabel)}"
+                >${escapeHtml(stampText)}</span>
+            </div>
             <button
                 type="button"
                 class="tr-calendar-event-preview__checklist-remove"
@@ -100,8 +259,9 @@ function workLogEditorMarkup(booking, labels) {
     const workLog = labels.workLog || {};
     const checklist = Array.isArray(booking.beautician_checklist) ? booking.beautician_checklist : [];
     const presets = Array.isArray(workLog.presets) ? workLog.presets : [];
-    const noteDate = booking.beautician_notes_date || booking.appointment_date_value || "";
-    const noteTime = booking.beautician_notes_time || booking.appointment_time_value || "";
+    const workLogStamp = resolveWorkLogPickerValues(booking);
+    const noteDate = workLogStamp.date;
+    const noteTime = workLogStamp.time;
 
     return `
         <div class="tr-calendar-event-preview__notes-editor tr-calendar-event-preview__work-log">
@@ -1497,18 +1657,29 @@ function checklistRows() {
         id: row.dataset.checklistId || "",
         label: row.querySelector(".tr-calendar-event-preview__checklist-label")?.value.trim() || "",
         completed: Boolean(row.querySelector('input[type="checkbox"]')?.checked),
+        completed_at: row.dataset.completedAt || null,
     }));
 }
 
 function checklistPayload() {
     return checklistRows()
-        .map(({ id, label, completed }) => ({ id, label, completed }))
+        .map(({ id, label, completed, completed_at }) => ({
+            id,
+            label,
+            completed,
+            completed_at: completed ? completed_at : null,
+        }))
         .filter((item) => item.label);
 }
 
 /** Full checklist including empty labels — used on save so the server can reject blanks. */
 function checklistSavePayload() {
-    return checklistRows().map(({ id, label, completed }) => ({ id, label, completed }));
+    return checklistRows().map(({ id, label, completed, completed_at }) => ({
+        id,
+        label,
+        completed,
+        completed_at: completed ? completed_at : null,
+    }));
 }
 
 function clearChecklistValidation() {
@@ -1588,29 +1759,40 @@ function generateCustomerNote() {
         return;
     }
 
-    const date = document.getElementById("tr-booking-beautician-notes-date")?.value || "";
-    const time = document.getElementById("tr-booking-beautician-notes-time")?.value || "";
-    const locale = document.documentElement.lang || undefined;
-    let schedule = "";
+    const stampedItems = completedItems.map((item) => {
+        let completedAt = item.completed_at;
+        let stamp = formatCompletedAtDisplay(completedAt);
 
-    if (date && time) {
-        const treatmentAt = new Date(`${date}T${time}:00`);
+        if (!stamp) {
+            completedAt = toIsoLocal(new Date());
+            stamp = formatCompletedAtDisplay(completedAt);
 
-        if (!Number.isNaN(treatmentAt.getTime())) {
-            schedule = treatmentAt.toLocaleString(locale, {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-            });
+            const row = item.id
+                ? document.querySelector(`.tr-calendar-event-preview__checklist-item[data-checklist-id="${CSS.escape(item.id)}"]`)
+                : null;
+            updateChecklistItemStamp(row, true, completedAt);
         }
-    }
 
-    const heading = [workLog.summaryPrefix || "Treatment completed", schedule]
-        .filter(Boolean)
-        .join(" — ");
-    textarea.value = [heading, ...completedItems.map((item) => `• ${item.label}`)].join("\n");
+        return {
+            label: item.label,
+            completed_at: completedAt,
+            line: `• ${item.label} — ${stamp}`,
+        };
+    });
+
+    const lines = stampedItems.map((item) => item.line);
+
+    // Overall work-log stamp follows the latest completed task.
+    const latest = stampedItems
+        .map((item) => new Date(item.completed_at))
+        .filter((date) => !Number.isNaN(date.getTime()))
+        .sort((left, right) => left - right)
+        .at(-1) || new Date();
+
+    syncWorkLogPickers(currentWorkLogDateValue(latest), currentWorkLogTimeValue(latest));
+
+    const heading = workLog.summaryPrefix || "Treatment completed";
+    textarea.value = [heading, ...lines].join("\n");
     textarea.focus();
 }
 
@@ -1848,6 +2030,17 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
     });
 
     document.addEventListener("change", async (event) => {
+        const checklistCheckbox = event.target.closest(
+            ".tr-calendar-event-preview__checklist-toggle input[type=\"checkbox\"]"
+        );
+
+        if (checklistCheckbox) {
+            const row = checklistCheckbox.closest(".tr-calendar-event-preview__checklist-item");
+            updateChecklistItemStamp(row, checklistCheckbox.checked);
+
+            return;
+        }
+
         const select = event.target.closest("[data-preview-status]");
 
         if (!select || !previewOptions.statusUrlTemplate || !window.axios) {

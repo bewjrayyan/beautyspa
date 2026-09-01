@@ -23,6 +23,7 @@
         'customItem' => trans('treatmentreservation::admin.calendar.work_log_custom_item'),
         'itemPlaceholder' => trans('treatmentreservation::admin.calendar.work_log_item_placeholder'),
         'removeItem' => trans('treatmentreservation::admin.calendar.work_log_remove_item'),
+        'completedAt' => trans('treatmentreservation::admin.calendar.work_log_completed_at'),
         'customerNote' => trans('treatmentreservation::admin.calendar.work_log_customer_note'),
         'customerNoteHelp' => trans('treatmentreservation::admin.calendar.work_log_customer_note_help'),
         'generateSummary' => trans('treatmentreservation::admin.calendar.work_log_generate_summary'),

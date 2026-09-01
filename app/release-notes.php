@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.62' => [
+        'date' => '2026-09-01',
+        'en' => [
+            'summary' => 'Work-log notes stamp completion time per checklist item, not appointment slot.',
+            'changes' => [
+                'Generate customer note uses today\'s completion time instead of the appointment schedule date.',
+                'Each completed checklist task keeps its own date and time as the work log is updated through the day.',
+                'Save and reload preserve per-item completed_at stamps in the treatment work log.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Nota work log stamp masa siap setiap item senarai semak, bukan slot temujanji.',
+            'changes' => [
+                'Jana nota pelanggan guna masa siap hari ini, bukan tarikh jadual temujanji.',
+                'Setiap tugasan senarai semak yang selesai menyimpan tarikh dan masa sendiri sepanjang hari.',
+                'Simpan dan muat semula mengekalkan stamp completed_at setiap item dalam log kerja rawatan.',
+            ],
+        ],
+    ],
+
     '4.11.61' => [
         'date' => '2026-09-01',
         'en' => [

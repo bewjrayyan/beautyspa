@@ -396,6 +396,7 @@ class PortalController extends Controller
             'beautician_checklist.*.id' => ['nullable', 'string', 'max:64'],
             'beautician_checklist.*.label' => ['required', 'string', 'max:160'],
             'beautician_checklist.*.completed' => ['required', 'boolean'],
+            'beautician_checklist.*.completed_at' => ['nullable', 'date'],
         ]);
 
         $bookingQuery = TreatmentBooking::query();
@@ -436,13 +437,26 @@ class PortalController extends Controller
                     $completed = filter_var($item['completed'] ?? false, FILTER_VALIDATE_BOOLEAN);
                     $existing = $existingChecklist->get($id);
 
+                    $completedAt = null;
+                    if ($completed) {
+                        if (filled($item['completed_at'] ?? null)) {
+                            try {
+                                $completedAt = \Carbon\Carbon::parse($item['completed_at'])->toIso8601String();
+                            } catch (\Throwable $e) {
+                                $completedAt = null;
+                            }
+                        }
+
+                        $completedAt = $completedAt
+                            ?? (is_array($existing) ? ($existing['completed_at'] ?? null) : null)
+                            ?? now()->toIso8601String();
+                    }
+
                     return [
                         'id' => $id,
                         'label' => trim((string) ($item['label'] ?? '')),
                         'completed' => $completed,
-                        'completed_at' => $completed
-                            ? ($existing['completed_at'] ?? now()->toIso8601String())
-                            : null,
+                        'completed_at' => $completedAt,
                     ];
                 })
                 ->filter(fn (array $item) => $item['label'] !== '')
