@@ -3,6 +3,7 @@
 namespace Modules\Product\Entities;
 
 use Illuminate\Http\Request;
+use Modules\Product\Services\ProductIndexQueryFilter;
 use Spatie\Sitemap\Tags\Url;
 use Illuminate\Support\Carbon;
 use Modules\Support\Eloquent\Model;
@@ -204,6 +205,8 @@ class Product extends Model implements Sitemapable
             ->when($request->has('except'), function ($query) use ($request) {
                 $query->whereNotIn('id', explode(',', $request->except));
             });
+
+        (new ProductIndexQueryFilter())->apply($query, $request);
 
         return new ProductTable($query);
     }

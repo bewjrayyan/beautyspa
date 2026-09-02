@@ -2,6 +2,10 @@
 
 namespace Modules\Product\Http\Controllers\Admin;
 
+use Illuminate\Http\Request;
+use Modules\Brand\Entities\Brand;
+use Modules\Category\Entities\Category;
+use Modules\Tag\Entities\Tag;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
@@ -44,6 +48,36 @@ class ProductController
      * @var array|string
      */
     protected string|array $validation = SaveProductRequest::class;
+
+    public function index(Request $request)
+    {
+        if ($request->has('query')) {
+            return $this->getModel()
+                ->search($request->get('query'))
+                ->query()
+                ->limit($request->get('limit', 10))
+                ->get();
+        }
+
+        $baseQuery = Product::withoutGlobalScope('active');
+
+        return view("{$this->viewPath}.index", [
+            'totalProductsCount' => (clone $baseQuery)->count(),
+            'activeProductsCount' => (clone $baseQuery)->where('is_active', true)->count(),
+            'inactiveProductsCount' => (clone $baseQuery)->where('is_active', false)->count(),
+            'virtualProductsCount' => (clone $baseQuery)->where('is_virtual', true)->count(),
+            'physicalProductsCount' => (clone $baseQuery)->where('is_virtual', false)->whereDoesntHave('variants')->count(),
+            'variableProductsCount' => (clone $baseQuery)->whereHas('variants')->count(),
+            'inStockCount' => (clone $baseQuery)->where('in_stock', true)->count(),
+            'outOfStockCount' => (clone $baseQuery)->where('in_stock', false)->count(),
+            'lowStockCount' => (clone $baseQuery)->where('manage_stock', true)->where('qty', '<=', 5)->count(),
+            'categories' => Category::treeList(),
+            'brands' => Brand::list(),
+            'tags' => Tag::list(),
+        ]);
+    }
+
+
 
 
     /**

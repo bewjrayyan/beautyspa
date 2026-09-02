@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.64' => [
+        'date' => '2026-09-02',
+        'en' => [
+            'summary' => 'Advanced admin product filters with premium catalog toolbar.',
+            'changes' => [
+                'Add quick filters for status, type, and stock on a single wrapping row.',
+                'Add advanced filters for category, brand, tag, price, sale, SKU, and date range.',
+                'Sync filter state with URL and DataTable server-side query via ProductIndexQueryFilter.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Penapis produk admin lanjutan dengan toolbar katalog premium.',
+            'changes' => [
+                'Tambah penapis pantas status, jenis, dan stok dalam satu baris yang boleh wrap.',
+                'Tambah penapis lanjutan kategori, jenama, tag, harga, jualan, SKU, dan julat tarikh.',
+                'Selaraskan keadaan penapis dengan URL dan pertanyaan server DataTable melalui ProductIndexQueryFilter.',
+            ],
+        ],
+    ],
+
     '4.11.63' => [
         'date' => '2026-09-02',
         'en' => [
