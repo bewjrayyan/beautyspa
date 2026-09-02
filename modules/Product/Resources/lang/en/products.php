@@ -10,6 +10,10 @@ return [
     'view_live' => 'View live product',
     'status_enabled' => 'Product has been enabled.',
     'status_disabled' => 'Product has been disabled.',
+    'bulk_status_select_hint' => 'Select at least one product from the table.',
+    'bulk_disable_confirm' => 'Disable :count selected product(s)?',
+    'bulk_status_enabled' => ':count product(s) have been enabled.',
+    'bulk_status_disabled' => ':count product(s) have been disabled.',
 
     'section' => [
         'expand_all' => 'Expand All',

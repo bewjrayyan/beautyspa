@@ -2539,6 +2539,10 @@ body.tr-calendar-event-preview-open {
     background: #f8fafc;
     box-shadow: -16px 0 48px rgba(15, 23, 42, 0.12);
     animation: tr-booking-drawer-in 0.22s ease;
+    --tr-preview-font-size: 11px;
+    --tr-preview-line-height: 1.35;
+    font-size: var(--tr-preview-font-size);
+    line-height: var(--tr-preview-line-height);
 }
 
 .tr-calendar-event-preview__handle {
@@ -2634,17 +2638,19 @@ body.tr-calendar-event-preview-open {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px 12px;
+    gap: 8px 10px;
 }
 
 .tr-calendar-event-preview__head-chips {
-    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    flex: 0 1 auto;
     min-width: 0;
 }
 
 .tr-calendar-event-preview__title {
     margin: 0;
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     font-size: 20px;
     font-weight: 700;
     color: #0f172a;
@@ -3021,6 +3027,7 @@ body.tr-calendar-event-preview-open {
     margin-top: 0;
     padding-top: 0;
     border-top: 0;
+    align-items: center;
 }
 
 .tr-calendar-event-preview__crm-contacts {
@@ -6757,6 +6764,10 @@ body.tr-reschedule-workspace-open {
         background: #f8fafc;
         box-shadow: -22px 0 60px rgba(15, 23, 42, 0.2);
         animation: tr-booking-drawer-in 0.24s ease;
+        --tr-preview-font-size: 11px;
+        --tr-preview-line-height: 1.35;
+        font-size: var(--tr-preview-font-size);
+        line-height: var(--tr-preview-line-height);
     }
 
     &__handle {
@@ -7145,14 +7156,12 @@ body.tr-reschedule-workspace-open {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        --tr-treatment-text-size: 15px;
-        --tr-treatment-text-line: 1.35;
 
         strong {
             color: #0f172a;
-            font-size: var(--tr-treatment-text-size);
+            font-size: inherit;
             font-weight: 700;
-            line-height: var(--tr-treatment-text-line);
+            line-height: inherit;
             letter-spacing: -0.01em;
             overflow-wrap: anywhere;
         }
@@ -7160,8 +7169,8 @@ body.tr-reschedule-workspace-open {
         span,
         small {
             color: #334155;
-            font-size: 14px;
-            line-height: 1.45;
+            font-size: inherit;
+            line-height: inherit;
         }
 
         small .fa {
@@ -7192,18 +7201,18 @@ body.tr-reschedule-workspace-open {
 
     &__treatment-session-label {
         color: #1d4ed8;
-        font-size: 10px;
+        font-size: inherit;
         font-weight: 800;
         letter-spacing: 0.07em;
-        line-height: 1.2;
+        line-height: inherit;
         text-transform: uppercase;
     }
 
     &__treatment-session-value {
         color: #0f172a;
-        font-size: var(--tr-treatment-text-size, 15px);
+        font-size: inherit;
         font-weight: 700;
-        line-height: var(--tr-treatment-text-line, 1.35);
+        line-height: inherit;
         letter-spacing: -0.01em;
         overflow-wrap: anywhere;
     }
@@ -7260,6 +7269,24 @@ body.tr-reschedule-workspace-open {
             }
         }
     }
+
+    &__panel {
+        :where(
+            [class*="tr-calendar-event-preview__"]:not(.tr-calendar-event-preview__close):not(.tr-calendar-event-preview__panel):not(.tr-calendar-event-preview__title)
+        ) {
+            font-size: inherit;
+            line-height: inherit;
+        }
+
+        :where(textarea, select, input:not([type="checkbox"]):not([type="radio"]), .form-control) {
+            font-size: inherit;
+            line-height: inherit;
+        }
+
+        .fa {
+            font-size: 1em;
+        }
+    }
 }
 
 @media (max-width: 767px) {
@@ -7285,6 +7312,7 @@ body.tr-reschedule-workspace-open {
 
             h3 {
                 font-size: 20px;
+                line-height: 1.25;
             }
         }
 
@@ -7376,7 +7404,7 @@ body.tr-reschedule-workspace-open {
             width: 100%;
             min-height: 46px;
             padding: 9px 10px;
-            font-size: 12px;
+            font-size: inherit;
         }
     }
 }

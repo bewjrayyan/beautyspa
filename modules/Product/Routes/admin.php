@@ -53,6 +53,12 @@ Route::post('products/{id}/clone', [
     'middleware' => 'can:admin.products.create',
 ]);
 
+Route::put('products/bulk-status', [
+    'as' => 'admin.products.bulk_status',
+    'uses' => 'ProductController@bulkUpdateStatus',
+    'middleware' => 'can:admin.products.edit',
+]);
+
 Route::put('products/{id}/status', [
     'as' => 'admin.products.status',
     'uses' => 'ProductController@updateStatus',

@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.63' => [
+        'date' => '2026-09-02',
+        'en' => [
+            'summary' => 'Bulk disable products and restore appointment preview drawer title alignment.',
+            'changes' => [
+                'Add bulk Disable action on admin products index for selected rows.',
+                'Restore preview drawer title font size and align CRM chips beside the heading.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Nyahaktif produk secara pukal dan baiki alignment tajuk preview temujanji.',
+            'changes' => [
+                'Tambah tindakan Nyahaktif pukal pada senarai produk admin untuk baris terpilih.',
+                'Pulihkan saiz fon tajuk preview drawer dan align chip CRM di sebelah tajuk.',
+            ],
+        ],
+    ],
+
     '4.11.62' => [
         'date' => '2026-09-01',
         'en' => [

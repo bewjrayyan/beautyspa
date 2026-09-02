@@ -22,6 +22,7 @@
         (function () {
             const config = {
                 createUrl: @json(route('admin.products.create')),
+                bulkStatusUrl: @json(route('admin.products.bulk_status')),
                 createLabel: @json(trans('admin::resource.create', ['resource' => trans('product::products.product')])),
                 editLabel: @json(trans('product::products.table.edit')),
                 cloneLabel: @json(trans('product::products.table.clone')),
@@ -33,6 +34,8 @@
                 cloneSuccess: @json(trans('product::products.clone_success')),
                 statusEnabledMessage: @json(trans('product::products.status_enabled')),
                 statusDisabledMessage: @json(trans('product::products.status_disabled')),
+                bulkSelectHint: @json(trans('product::products.bulk_status_select_hint')),
+                bulkDisableConfirm: @json(trans('product::products.bulk_disable_confirm')),
             };
 
             function initProductsIndex() {
@@ -122,8 +125,59 @@
                         },
                     ],
                 }, function () {
+                    const $length = this.element.closest('.dt-container').find('.dt-length');
+
+                    $('<button type="button" class="btn btn-default btn-bulk-disable"><span>' + config.disableLabel + '</span></button>')
+                        .appendTo($length)
+                        .on('click', function () {
+                            const checked = $productsTableEl.find('.select-row:checked');
+
+                            if (!checked.length) {
+                                if (typeof window.error === 'function') {
+                                    window.error(config.bulkSelectHint);
+                                }
+
+                                return;
+                            }
+
+                            const ids = window.DataTable.getRowIds(checked);
+
+                            if (!confirm(config.bulkDisableConfirm.replace(':count', String(ids.length)))) {
+                                return;
+                            }
+
+                            const $button = $(this);
+
+                            $button.prop('disabled', true);
+
+                            axios
+                                .put(config.bulkStatusUrl, { ids: ids.join(','), is_active: 0 })
+                                .then(function (response) {
+                                    window.DataTable.setSelectedIds('#products-table .table', []);
+                                    window.DataTable.reload('#products-table .table');
+
+                                    if (typeof window.success === 'function') {
+                                        window.success(
+                                            response.data.message || config.statusDisabledMessage
+                                        );
+                                    }
+                                })
+                                .catch(function (err) {
+                                    if (typeof window.error === 'function') {
+                                        window.error(
+                                            err.response && err.response.data && err.response.data.message
+                                                ? err.response.data.message
+                                                : 'Something went wrong.'
+                                        );
+                                    }
+                                })
+                                .finally(function () {
+                                    $button.prop('disabled', false);
+                                });
+                        });
+
                     $('<a href="' + config.createUrl + '" class="btn btn-primary btn-actions btn-create"><span>' + config.createLabel + '</span></a>')
-                        .appendTo(this.element.closest('.dt-container').find('.dt-length'));
+                        .appendTo($length);
                 });
 
                 $productsTableEl.on('draw.dt', closeProductActionsMenu);

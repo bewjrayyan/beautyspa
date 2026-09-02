@@ -137,6 +137,45 @@ class ProductController
     }
 
 
+    
+    public function bulkUpdateStatus(): JsonResponse
+    {
+        $ids = array_values(array_filter(array_map('intval', explode(',', request('ids', '')))));
+
+        if ($ids === []) {
+            return response()->json([
+                'message' => trans('product::products.bulk_status_select_hint'),
+            ], 422);
+        }
+
+        $isActive = filter_var(request('is_active'), FILTER_VALIDATE_BOOLEAN);
+
+        $this->disableSearchSyncing();
+
+        $products = Product::withoutGlobalScope('active')
+            ->whereIn('id', $ids)
+            ->get();
+
+        foreach ($products as $product) {
+            Product::withoutEvents(function () use ($product, $isActive) {
+                $product->update(['is_active' => $isActive]);
+            });
+
+            $this->searchable($product->fresh());
+        }
+
+        $count = $products->count();
+
+        $message = $isActive
+            ? trans('product::products.bulk_status_enabled', ['count' => $count])
+            : trans('product::products.bulk_status_disabled', ['count' => $count]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+        ]);
+    }
+
     public function clone($id, ProductCloneService $productCloneService)
     {
         $entity = $this->getEntity($id);

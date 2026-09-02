@@ -11,6 +11,10 @@ return [
     'view_live' => 'Lihat produk live',
     'status_enabled' => 'Produk telah diaktifkan.',
     'status_disabled' => 'Produk telah dinyahaktifkan.',
+    'bulk_status_select_hint' => 'Pilih sekurang-kurangnya satu produk dari jadual.',
+    'bulk_disable_confirm' => 'Nyahaktifkan :count produk terpilih?',
+    'bulk_status_enabled' => ':count produk telah diaktifkan.',
+    'bulk_status_disabled' => ':count produk telah dinyahaktifkan.',
     'section' => [
 
         'expand_all' => 'Kembangkan Semua',
