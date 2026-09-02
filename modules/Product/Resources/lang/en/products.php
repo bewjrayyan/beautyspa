@@ -56,6 +56,8 @@ return [
         'clear' => 'Clear all',
         'quick_filters' => 'Quick filters',
         'quick_search_placeholder' => 'Search products by name, SKU, or ID…',
+        'section_stats' => 'Overview',
+        'section_filters' => 'Filters',
         'stat_total' => 'Catalog',
         'stat_filtered' => 'Showing',
         'section_catalog' => 'Catalog',

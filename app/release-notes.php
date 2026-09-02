@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.65' => [
+        'date' => '2026-09-02',
+        'en' => [
+            'summary' => 'Refine admin products index stats and filter layout.',
+            'changes' => [
+                'Split catalog stats and product filters into separate overview and filters sections.',
+                'Use flat theme-accent filter chips without shadows for active and hover states.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perhalusi susun atur statistik dan penapis senarai produk admin.',
+            'changes' => [
+                'Pisahkan statistik katalog dan penapis produk ke section ringkasan dan penapis.',
+                'Guna chip penapis flat dengan warna tema tanpa shadow untuk keadaan aktif dan hover.',
+            ],
+        ],
+    ],
+
     '4.11.64' => [
         'date' => '2026-09-02',
         'en' => [

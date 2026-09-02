@@ -83,74 +83,85 @@
     ])->filter()->count() + $advancedFilterCount;
 @endphp
 
-<div class="products-index__toolbar" aria-label="{{ trans('product::products.filters.title') }}">
-    <div class="products-index__toolbar-accent" aria-hidden="true"></div>
+<div class="products-index__layout">
+    <section class="products-index__section products-index__section--stats" aria-label="{{ trans('product::products.filters.section_stats') }}">
+        <header class="products-index__section-head">
+            <h3 class="products-index__section-title">{{ trans('product::products.filters.section_stats') }}</h3>
+        </header>
 
-    <div class="products-index__command-bar">
-        <label class="products-index__search" for="products-quick-search">
-            <i class="fa fa-search products-index__search-icon" aria-hidden="true"></i>
-            <input
-                type="search"
-                id="products-quick-search"
-                class="products-index__search-input"
-                value="{{ $activeSearch }}"
-                maxlength="100"
-                placeholder="{{ trans('product::products.filters.quick_search_placeholder') }}"
-                autocomplete="off"
-            >
-        </label>
-
-        <div class="products-index__command-actions">
-            <button
-                type="button"
-                class="products-index__command-btn products-index__command-btn--ghost"
-                id="products-advanced-toggle"
-                aria-expanded="{{ $hasAdvancedFilters ? 'true' : 'false' }}"
-                aria-controls="products-advanced-panel"
-            >
-                <i class="fa fa-sliders" aria-hidden="true"></i>
-                <span>{{ trans('product::products.filters.advanced') }}</span>
-                @if ($advancedFilterCount > 0)
-                    <span class="products-index__badge" id="products-advanced-badge">{{ $advancedFilterCount }}</span>
-                @else
-                    <span class="products-index__badge" id="products-advanced-badge" hidden>0</span>
-                @endif
-                <i class="fa fa-chevron-down products-index__advanced-chevron" aria-hidden="true"></i>
-            </button>
-
-            <button type="button" id="products-filter-apply" class="products-index__command-btn products-index__command-btn--primary">
-                <i class="fa fa-check" aria-hidden="true"></i>
-                <span>{{ trans('product::products.filters.apply') }}</span>
-            </button>
-
-            <button type="button" id="products-filter-clear" class="products-index__command-btn products-index__command-btn--muted" title="{{ trans('product::products.filters.clear') }}">
-                <i class="fa fa-undo" aria-hidden="true"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="products-index__stats" role="list">
-        <div class="products-index__stat" role="listitem">
-            <span class="products-index__stat-label">{{ trans('product::products.filters.stat_total') }}</span>
-            <strong class="products-index__stat-value">{{ number_format($totalProductsCount) }}</strong>
-        </div>
-        <div class="products-index__stat products-index__stat--active" role="listitem">
-            <span class="products-index__stat-label">{{ trans('product::products.filters.active') }}</span>
-            <strong class="products-index__stat-value">{{ number_format($activeProductsCount) }}</strong>
-        </div>
-        <div class="products-index__stat products-index__stat--inactive" role="listitem">
-            <span class="products-index__stat-label">{{ trans('product::products.filters.inactive') }}</span>
-            <strong class="products-index__stat-value">{{ number_format($inactiveProductsCount) }}</strong>
-        </div>
-        @if ($quickFilterCount > 0)
-            <div class="products-index__stat products-index__stat--filtered" role="listitem">
-                <span class="products-index__stat-label">{{ trans('product::products.filters.stat_filtered') }}</span>
-                <strong class="products-index__stat-value" id="products-filtered-count">—</strong>
+        <div class="products-index__stats" role="list">
+            <div class="products-index__stat" role="listitem">
+                <span class="products-index__stat-label">{{ trans('product::products.filters.stat_total') }}</span>
+                <strong class="products-index__stat-value">{{ number_format($totalProductsCount) }}</strong>
             </div>
-        @endif
-    </div>
+            <div class="products-index__stat products-index__stat--active" role="listitem">
+                <span class="products-index__stat-label">{{ trans('product::products.filters.active') }}</span>
+                <strong class="products-index__stat-value">{{ number_format($activeProductsCount) }}</strong>
+            </div>
+            <div class="products-index__stat products-index__stat--inactive" role="listitem">
+                <span class="products-index__stat-label">{{ trans('product::products.filters.inactive') }}</span>
+                <strong class="products-index__stat-value">{{ number_format($inactiveProductsCount) }}</strong>
+            </div>
+            @if ($quickFilterCount > 0)
+                <div class="products-index__stat products-index__stat--filtered" role="listitem">
+                    <span class="products-index__stat-label">{{ trans('product::products.filters.stat_filtered') }}</span>
+                    <strong class="products-index__stat-value" id="products-filtered-count">—</strong>
+                </div>
+            @endif
+        </div>
+    </section>
 
-    <div class="products-index__filter-strip" role="group" aria-label="{{ trans('product::products.filters.quick_filters') }}">
+    <section class="products-index__section products-index__section--filters" aria-label="{{ trans('product::products.filters.section_filters') }}">
+        <div class="products-index__section-accent" aria-hidden="true"></div>
+
+        <header class="products-index__section-head">
+            <h3 class="products-index__section-title">{{ trans('product::products.filters.section_filters') }}</h3>
+        </header>
+
+        <div class="products-index__command-bar">
+            <label class="products-index__search" for="products-quick-search">
+                <i class="fa fa-search products-index__search-icon" aria-hidden="true"></i>
+                <input
+                    type="search"
+                    id="products-quick-search"
+                    class="products-index__search-input"
+                    value="{{ $activeSearch }}"
+                    maxlength="100"
+                    placeholder="{{ trans('product::products.filters.quick_search_placeholder') }}"
+                    autocomplete="off"
+                >
+            </label>
+
+            <div class="products-index__command-actions">
+                <button
+                    type="button"
+                    class="products-index__command-btn products-index__command-btn--ghost"
+                    id="products-advanced-toggle"
+                    aria-expanded="{{ $hasAdvancedFilters ? 'true' : 'false' }}"
+                    aria-controls="products-advanced-panel"
+                >
+                    <i class="fa fa-sliders" aria-hidden="true"></i>
+                    <span>{{ trans('product::products.filters.advanced') }}</span>
+                    @if ($advancedFilterCount > 0)
+                        <span class="products-index__badge" id="products-advanced-badge">{{ $advancedFilterCount }}</span>
+                    @else
+                        <span class="products-index__badge" id="products-advanced-badge" hidden>0</span>
+                    @endif
+                    <i class="fa fa-chevron-down products-index__advanced-chevron" aria-hidden="true"></i>
+                </button>
+
+                <button type="button" id="products-filter-apply" class="products-index__command-btn products-index__command-btn--primary">
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                    <span>{{ trans('product::products.filters.apply') }}</span>
+                </button>
+
+                <button type="button" id="products-filter-clear" class="products-index__command-btn products-index__command-btn--muted" title="{{ trans('product::products.filters.clear') }}">
+                    <i class="fa fa-undo" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="products-index__filter-strip" role="group" aria-label="{{ trans('product::products.filters.quick_filters') }}">
         <div class="products-index__filter-group" aria-labelledby="products-status-label">
             <span class="products-index__filter-group-label" id="products-status-label">{{ trans('product::products.filters.status') }}</span>
             <div class="products-index__filter-group-chips" id="products-status-filters" role="group" aria-labelledby="products-status-label">
@@ -333,4 +344,5 @@
     <input type="hidden" id="products-filter-search" value="{{ $activeSearch }}">
 
     <div id="products-active-filters" class="products-index__active-filters" hidden></div>
+    </section>
 </div>

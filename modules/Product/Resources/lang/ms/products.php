@@ -57,6 +57,8 @@ return [
         'clear' => 'Kosongkan semua',
         'quick_filters' => 'Penapis pantas',
         'quick_search_placeholder' => 'Cari produk mengikut nama, SKU, atau ID…',
+        'section_stats' => 'Ringkasan',
+        'section_filters' => 'Penapis',
         'stat_total' => 'Katalog',
         'stat_filtered' => 'Dipaparkan',
         'section_catalog' => 'Katalog',
