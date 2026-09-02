@@ -5,7 +5,6 @@
     $kpis = $dashboardData['kpis'] ?? [];
     $pipeline = $dashboardData['pipeline'] ?? [];
     $beauticians = $dashboardData['beauticians'] ?? [];
-    $alerts = $dashboardData['alerts'] ?? [];
     $needsAttention = $dashboardData['needsAttention'] ?? ['total' => 0, 'buckets' => [], 'items' => []];
     $recentActivity = $dashboardData['recentActivity'] ?? [];
     $filterDateLabel = $dashboardData['filterDateLabel'] ?? '';
@@ -244,9 +243,6 @@
                 'dateFilter' => $dateFilter,
                 'crmShowSpecialistToggle' => $crmSpecialistToggleEnabled ?? false,
                 'crmSpecialistProfileUrl' => $crmSpecialistProfileUrl ?? null,
-            ])
-            @include('treatmentreservation::admin.reservations.partials.dashboard.alerts-feed', [
-                'alerts' => $alerts,
             ])
         </aside>
     </div>

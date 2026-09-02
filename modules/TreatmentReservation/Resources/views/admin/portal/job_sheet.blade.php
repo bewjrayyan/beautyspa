@@ -122,6 +122,7 @@
         data-cal-status-completed="{{ trans('treatmentreservation::admin.kanban.completed') }}"
         data-cal-preview-edit-manual="{{ trans('treatmentreservation::admin.manual_booking.edit_title') }}"
         data-cal-preview-schedule-tba="{{ trans('treatmentreservation::admin.tba.schedule') }}"
+        data-cal-preview-tba-badge="{{ trans('treatmentreservation::admin.tba.badge') }}"
         data-tba-schedule-url="{{ route('admin.treatment_reservations.portal.tba.schedule', ['id' => '__ID__']) }}"
         data-tba-slots-url="{{ $portalApiRoutes['tba_slots'] }}"
         data-reschedule-slots-url="{{ $portalApiRoutes['slots'] }}"

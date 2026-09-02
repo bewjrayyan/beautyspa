@@ -69,6 +69,7 @@ class PortalController extends Controller
                 $dateFilter,
                 $urgencyPayload,
                 $customFilterDate,
+                $filters['filter_date_to'] ?? null,
             ),
             'urgency' => $urgencyPayload,
             // CRM workspace uses Needs attention — analytics charts live on reports surfaces.
@@ -479,6 +480,19 @@ class PortalController extends Controller
                     ])],
                 ]);
             }
+        } elseif ($request->has('beautician_checklist')) {
+            $notesAt = collect($checklist)
+                ->filter(fn (array $item) => ($item['completed'] ?? false) && filled($item['completed_at'] ?? null))
+                ->map(function (array $item) {
+                    try {
+                        return Carbon::parse($item['completed_at']);
+                    } catch (\Throwable $e) {
+                        return null;
+                    }
+                })
+                ->filter()
+                ->sortByDesc(fn (Carbon $date) => $date->timestamp)
+                ->first() ?? $booking->beautician_notes_at;
         }
 
         $workLogChanged = $previousNotesAt !== $notesAt?->format('Y-m-d H:i:s')
@@ -864,24 +878,16 @@ class PortalController extends Controller
      */
     private function crmFiltersFromRequest(Request $request): array
     {
-        $rawDateFilter = $request->input('date_filter', 'today');
-        $dateFilter = in_array($rawDateFilter, ['today', 'tomorrow', 'yesterday', 'all', 'custom'], true)
-            ? $rawDateFilter
-            : 'today';
-        $customFilterDate = $request->input('filter_date');
-
-        if ($dateFilter === 'custom') {
-            if (! is_string($customFilterDate) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $customFilterDate)) {
-                $dateFilter = 'today';
-                $customFilterDate = null;
-            }
-        } else {
-            $customFilterDate = null;
-        }
+        $crmDateFilters = $this->dashboard->normalizeCrmDateFilters(
+            (string) $request->input('date_filter', 'today'),
+            $request->input('filter_date'),
+            $request->input('filter_date_to'),
+        );
 
         return [
-            'date_filter' => $dateFilter,
-            'filter_date' => $customFilterDate,
+            'date_filter' => $crmDateFilters['date_filter'],
+            'filter_date' => $crmDateFilters['filter_date'],
+            'filter_date_to' => $crmDateFilters['filter_date_to'],
             'treatment_category_id' => $request->integer('treatment_category_id') ?: null,
             'spa_branch_id' => $request->integer('spa_branch_id') ?: null,
         ];

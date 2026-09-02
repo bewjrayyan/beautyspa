@@ -7,11 +7,7 @@ const previewDetailRequests = new Map();
 const schedulingDetailRequests = new Map();
 
 import { openManualBookingEditor } from "./manual-booking.js";
-import flatpickr from "flatpickr";
-import {
-    buildStandardDatepickerOptions,
-    parseLocalDateTime,
-} from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
+import { parseLocalDateTime } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 
 /** Local calendar date as Y-m-d (work-log “completed at”, not appointment). */
 function currentWorkLogDateValue(date = new Date()) {
@@ -30,51 +26,22 @@ function currentWorkLogTimeValue(date = new Date()) {
     return `${hours}:${minutes}`;
 }
 
-/**
- * Prefer a previously saved completion stamp only when it is not the legacy
- * appointment-slot default. Otherwise use now (when logging completion).
- */
-function resolveWorkLogPickerValues(booking = {}) {
-    const savedDate = booking.beautician_notes_date || "";
-    const savedTime = booking.beautician_notes_time || "";
-    const appointmentDate = booking.appointment_date_value || "";
-    const appointmentTime = booking.appointment_time_value || "";
-    const isLegacyAppointmentStamp =
-        Boolean(savedDate)
-        && savedDate === appointmentDate
-        && (!savedTime || savedTime === appointmentTime);
+/** Latest completed_at from checklist items (for beautician_notes_at on save). */
+function workLogStampFromChecklist(checklist = []) {
+    const latest = checklist
+        .filter((item) => item.completed && item.completed_at)
+        .map((item) => new Date(item.completed_at))
+        .filter((date) => !Number.isNaN(date.getTime()))
+        .sort((left, right) => right - left)[0];
 
-    if (savedDate && !isLegacyAppointmentStamp) {
-        return {
-            date: savedDate,
-            time: savedTime || currentWorkLogTimeValue(),
-        };
+    if (!latest) {
+        return { date: null, time: null };
     }
-
-    const now = new Date();
 
     return {
-        date: currentWorkLogDateValue(now),
-        time: currentWorkLogTimeValue(now),
+        date: currentWorkLogDateValue(latest),
+        time: currentWorkLogTimeValue(latest),
     };
-}
-
-function syncWorkLogPickers(dateValue, timeValue) {
-    const dateInput = document.getElementById("tr-booking-beautician-notes-date");
-    const timeInput = document.getElementById("tr-booking-beautician-notes-time");
-    const stamp = parseLocalDateTime(`${dateValue} ${timeValue}`);
-
-    if (dateInput?._flatpickr) {
-        dateInput._flatpickr.setDate(dateValue, true);
-    } else if (dateInput) {
-        dateInput.value = dateValue;
-    }
-
-    if (timeInput?._flatpickr) {
-        timeInput._flatpickr.setDate(stamp || timeValue, true);
-    } else if (timeInput) {
-        timeInput.value = timeValue;
-    }
 }
 
 /** Match PHP `d M Y` + Flatpickr `h:i K` (e.g. "01 Sep 2026, 10:43 AM"). */
@@ -259,9 +226,6 @@ function workLogEditorMarkup(booking, labels) {
     const workLog = labels.workLog || {};
     const checklist = Array.isArray(booking.beautician_checklist) ? booking.beautician_checklist : [];
     const presets = Array.isArray(workLog.presets) ? workLog.presets : [];
-    const workLogStamp = resolveWorkLogPickerValues(booking);
-    const noteDate = workLogStamp.date;
-    const noteTime = workLogStamp.time;
 
     return `
         <div class="tr-calendar-event-preview__notes-editor tr-calendar-event-preview__work-log">
@@ -269,32 +233,9 @@ function workLogEditorMarkup(booking, labels) {
                 <p>${escapeHtml(workLog.help || "Track treatment tasks and keep the customer note separate.")}</p>
             </div>
 
-            <section class="tr-calendar-event-preview__work-log-step" aria-labelledby="tr-work-log-step-schedule">
-                <div class="tr-calendar-event-preview__work-log-step-head">
-                    <span class="tr-calendar-event-preview__work-log-step-num" aria-hidden="true">1</span>
-                    <strong id="tr-work-log-step-schedule">${escapeHtml(workLog.date || "Treatment date")} · ${escapeHtml(workLog.time || "Treatment time")}</strong>
-                </div>
-                <div class="tr-calendar-event-preview__work-log-schedule">
-                    <label>
-                        <span>${escapeHtml(workLog.date || "Treatment date")}</span>
-                        <span class="tr-calendar-event-preview__picker-control">
-                            <i class="fa fa-calendar" aria-hidden="true"></i>
-                            <input id="tr-booking-beautician-notes-date" class="form-control tr-calendar-event-preview__date-picker" type="text" value="${escapeHtml(noteDate)}" autocomplete="off">
-                        </span>
-                    </label>
-                    <label>
-                        <span>${escapeHtml(workLog.time || "Treatment time")}</span>
-                        <span class="tr-calendar-event-preview__picker-control">
-                            <i class="fa fa-clock-o" aria-hidden="true"></i>
-                            <input id="tr-booking-beautician-notes-time" class="form-control tr-calendar-event-preview__time-picker" type="text" value="${escapeHtml(noteTime)}" autocomplete="off">
-                        </span>
-                    </label>
-                </div>
-            </section>
-
             <section class="tr-calendar-event-preview__work-log-step" aria-labelledby="tr-work-log-step-checklist">
                 <div class="tr-calendar-event-preview__work-log-step-head">
-                    <span class="tr-calendar-event-preview__work-log-step-num" aria-hidden="true">2</span>
+                    <span class="tr-calendar-event-preview__work-log-step-num" aria-hidden="true">1</span>
                     <strong id="tr-work-log-step-checklist">${escapeHtml(workLog.checklist || "Treatment checklist")}</strong>
                     <span class="tr-calendar-event-preview__work-log-step-aside">${escapeHtml(workLog.quickAdd || "Quick add")}</span>
                 </div>
@@ -318,7 +259,7 @@ function workLogEditorMarkup(booking, labels) {
 
             <section class="tr-calendar-event-preview__work-log-step tr-calendar-event-preview__customer-note" aria-labelledby="tr-work-log-step-note">
                 <div class="tr-calendar-event-preview__work-log-step-head">
-                    <span class="tr-calendar-event-preview__work-log-step-num" aria-hidden="true">3</span>
+                    <span class="tr-calendar-event-preview__work-log-step-num" aria-hidden="true">2</span>
                     <strong id="tr-work-log-step-note">${escapeHtml(workLog.customerNote || labels.beauticianNotes || "Customer note")}</strong>
                 </div>
                 <label class="sr-only" for="tr-booking-beautician-notes">${escapeHtml(workLog.customerNote || labels.beauticianNotes || "Customer note")}</label>
@@ -331,55 +272,6 @@ function workLogEditorMarkup(booking, labels) {
             </button>
         </div>
     `;
-}
-
-function destroyWorkLogPickers() {
-    document.getElementById("tr-booking-beautician-notes-date")?._flatpickr?.destroy();
-    document.getElementById("tr-booking-beautician-notes-time")?._flatpickr?.destroy();
-}
-
-function initWorkLogPickers(overlay) {
-    const dateInput = overlay.querySelector("#tr-booking-beautician-notes-date");
-    const timeInput = overlay.querySelector("#tr-booking-beautician-notes-time");
-
-    if (dateInput && !dateInput._flatpickr) {
-        flatpickr(dateInput, buildStandardDatepickerOptions(dateInput, {
-            altFormat: "d M Y",
-            allowInput: false,
-            animate: true,
-            appendTo: document.body,
-            onReady: (_selectedDates, _dateStr, instance) => {
-                instance.calendarContainer.classList.add(
-                    "tr-calendar-event-preview__picker-calendar",
-                    "tr-calendar-event-preview__picker-calendar--date"
-                );
-                instance.altInput?.setAttribute("aria-label", previewLabels.workLog?.date || "Treatment date");
-            },
-        }));
-    }
-
-    if (timeInput && !timeInput._flatpickr) {
-        flatpickr(timeInput, {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: "H:i",
-            altInput: true,
-            altFormat: "h:i K",
-            defaultDate: timeInput.value || null,
-            minuteIncrement: 15,
-            disableMobile: true,
-            allowInput: false,
-            animate: true,
-            appendTo: document.body,
-            onReady: (_selectedDates, _dateStr, instance) => {
-                instance.calendarContainer.classList.add(
-                    "tr-calendar-event-preview__picker-calendar",
-                    "tr-calendar-event-preview__picker-calendar--time"
-                );
-                instance.altInput?.setAttribute("aria-label", previewLabels.workLog?.time || "Treatment time");
-            },
-        });
-    }
 }
 
 export function hexToRgba(hex, alpha) {
@@ -579,14 +471,17 @@ function getCalendarEventPreviewOverlay() {
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
         <div class="tr-calendar-event-preview__backdrop" data-dismiss></div>
-        <div class="tr-calendar-event-preview__panel" role="dialog" aria-modal="true" aria-labelledby="tr-calendar-event-preview-title" aria-describedby="tr-calendar-event-preview-subtitle">
+        <div class="tr-calendar-event-preview__panel" role="dialog" aria-modal="true" aria-labelledby="tr-calendar-event-preview-title" aria-describedby="tr-calendar-event-preview-customer">
             <div class="tr-calendar-event-preview__handle" aria-hidden="true"></div>
             <header class="tr-calendar-event-preview__head">
-                <div class="tr-calendar-event-preview__head-text">
-                    <p class="tr-calendar-event-preview__eyebrow" id="tr-calendar-event-preview-eyebrow"></p>
-                    <h3 class="tr-calendar-event-preview__title" id="tr-calendar-event-preview-title"></h3>
-                    <p class="tr-calendar-event-preview__subtitle" id="tr-calendar-event-preview-subtitle"></p>
+                <div class="tr-calendar-event-preview__head-col tr-calendar-event-preview__head-col--info">
+                    <div class="tr-calendar-event-preview__head-title-row">
+                        <h3 class="tr-calendar-event-preview__title" id="tr-calendar-event-preview-title"></h3>
+                        <div class="tr-calendar-event-preview__head-chips" id="tr-calendar-event-preview-chips"></div>
+                    </div>
+                    <div class="tr-calendar-event-preview__head-customer" id="tr-calendar-event-preview-customer"></div>
                 </div>
+                <div class="tr-calendar-event-preview__head-col tr-calendar-event-preview__head-col--refs" id="tr-calendar-event-preview-refs"></div>
                 <button type="button" class="tr-calendar-event-preview__close" data-dismiss aria-label="Close">
                     <i class="fa fa-times" aria-hidden="true"></i>
                 </button>
@@ -606,23 +501,6 @@ function getCalendarEventPreviewOverlay() {
     return overlay;
 }
 
-
-function customerInitials(name) {
-    const parts = String(name || "")
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
-
-    if (!parts.length) {
-        return "?";
-    }
-
-    if (parts.length === 1) {
-        return parts[0].slice(0, 2).toUpperCase();
-    }
-
-    return `${parts[0][0] || ""}${parts[parts.length - 1][0] || ""}`.toUpperCase();
-}
 
 function previewCrmContactRow({ icon, label, value, href = "", blurred = false }) {
     if (!value) {
@@ -722,6 +600,10 @@ function previewActionButton(className, content, attrs = "") {
     return `<button type="button" class="tr-calendar-event-preview__action-btn ${className}" ${attrs}>${content}</button>`;
 }
 
+function bookingIsTbaSchedule(booking) {
+    return Boolean(booking?.is_tba || booking?.schedule_status === "tba");
+}
+
 function formatDurationMinutes(minutes, labels) {
     const totalMinutes = Math.max(0, Number(minutes) || 0);
 
@@ -774,7 +656,44 @@ function formatDurationBadge(minutes, labels) {
         .replace(":count", String(totalMinutes));
 }
 
-function orderNotesMarkup(notes) {
+function treatmentIndexFromHeading(heading) {
+    const match = String(heading || "").match(/(\d+)\s*$/);
+
+    return match ? Number(match[1]) : null;
+}
+
+function orderBookingRefsForPreview(booking) {
+    if (Array.isArray(booking.order_bookings) && booking.order_bookings.length) {
+        return booking.order_bookings;
+    }
+
+    if (booking.order_id) {
+        return getCalendarBookingsForOrder(booking.order_id).map((entry) => ({
+            id: entry.id,
+            reference_code: entry.reference_code || (entry.id ? `B${entry.id}` : ""),
+        }));
+    }
+
+    return [{
+        id: booking.id,
+        reference_code: booking.reference_code || (booking.id ? `B${booking.id}` : ""),
+    }];
+}
+
+function orderBookingRefForTreatment(booking, heading) {
+    const treatmentIndex = treatmentIndexFromHeading(heading);
+
+    if (! treatmentIndex) {
+        return booking.reference_code || (booking.id ? `B${booking.id}` : "");
+    }
+
+    const refs = orderBookingRefsForPreview(booking);
+    const entry = refs[treatmentIndex - 1];
+
+    return entry?.reference_code || "";
+}
+
+function orderNotesMarkup(notes, booking = {}, labels = {}) {
     const rawNotes = String(notes || "").trim();
 
     if (! rawNotes) {
@@ -804,15 +723,24 @@ function orderNotesMarkup(notes) {
         group.rows.push({ label, value });
     });
 
-    if (groups.length < 2 || unmatched.length) {
+    if (! groups.length || unmatched.length) {
         return `<p class="tr-calendar-event-preview__note-body">${escapeHtml(rawNotes)}</p>`;
     }
 
+    const refTitle = labels.bookingIdTitle || "Treatment reference — quote this when contacting the clinic";
+    const refLabel = labels.bookingId || "Ref";
+
     return `
         <div class="tr-calendar-event-preview__order-note-groups">
-            ${groups.map((group) => `
+            ${groups.map((group) => {
+                const ref = orderBookingRefForTreatment(booking, group.heading);
+
+                return `
                 <section class="tr-calendar-event-preview__order-note-group">
-                    <h5>${escapeHtml(group.heading)}</h5>
+                    <div class="tr-calendar-event-preview__order-note-head">
+                        <span class="tr-calendar-event-preview__order-note-badge">${escapeHtml(group.heading)}</span>
+                        ${ref ? `<span class="tr-calendar-event-preview__order-note-ref" title="${escapeHtml(refTitle)}">${escapeHtml(refLabel)} ${escapeHtml(ref)}</span>` : ""}
+                    </div>
                     <dl>
                         ${group.rows.map((row) => `
                             <div>
@@ -822,7 +750,8 @@ function orderNotesMarkup(notes) {
                         `).join("")}
                     </dl>
                 </section>
-            `).join("")}
+            `;
+            }).join("")}
         </div>
     `;
 }
@@ -841,6 +770,69 @@ function previewNotificationVisibility(booking, options = {}) {
     };
 }
 
+function buildPreviewInsightChips(booking, labels) {
+    const alerts = Array.isArray(booking.inline_alerts) ? booking.inline_alerts : [];
+
+    return [
+        booking.customer_history_label
+            ? `<span class="tr-calendar-event-preview__chip">${escapeHtml(booking.customer_history_label)}</span>`
+            : "",
+        booking.loyalty_tier_name
+            ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--loyalty"><i class="fa fa-star" aria-hidden="true"></i> ${escapeHtml(booking.loyalty_tier_name)}</span>`
+            : "",
+        ...alerts.map((alert) => `
+            <span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--${escapeHtml(alert.level || "info")}">
+                ${escapeHtml(alert.label || "")}
+            </span>
+        `),
+        booking.reminder_sent
+            ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--sent">${escapeHtml(labels.reminderSent || "Reminder sent")}</span>`
+            : (booking.reminder_due
+                ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--due">${escapeHtml(labels.reminderDue || "Due for reminder")}</span>`
+                : ""),
+        booking.beautician_reminder_sent
+            ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--sent">${escapeHtml(labels.beauticianReminderSent || "Beautician reminder sent")}</span>`
+            : "",
+    ].filter(Boolean).join("");
+}
+
+function buildCustomerPreviewMarkup(booking, labels, options = {}) {
+    const blurContact = typeof booking.blur_customer_contact === "boolean"
+        ? booking.blur_customer_contact
+        : (booking.blur_customer_contact === 1 || booking.blur_customer_contact === "1")
+            ? true
+            : !bookingIsOwnForPortal(booking, options.portalBeauticianId || null);
+    const customerName = booking.customer_name || "—";
+    const phoneHref = !blurContact && booking.customer_phone
+        ? `tel:${String(booking.customer_phone).replace(/[^\d+]/g, "")}`
+        : "";
+
+    return `
+        <div class="tr-calendar-event-preview__crm">
+            <div class="tr-calendar-event-preview__crm-head">
+                <div class="tr-calendar-event-preview__crm-identity">
+                    <strong class="tr-calendar-event-preview__crm-name">${escapeHtml(customerName)}</strong>
+                    <div class="tr-calendar-event-preview__crm-contacts">
+                        ${previewCrmContactRow({
+                            icon: "fa-phone",
+                            label: labels.phone || "Phone",
+                            value: booking.customer_phone || "",
+                            href: phoneHref,
+                            blurred: Boolean(blurContact && booking.customer_phone),
+                        })}
+                        ${previewCrmContactRow({
+                            icon: "fa-envelope",
+                            label: labels.email || "Email",
+                            value: booking.customer_email || "",
+                            blurred: Boolean(blurContact && booking.customer_email),
+                        })}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
     const status = calendarStatusClass(booking.status);
     const color = booking.beautician_color || "#6366f1";
@@ -853,16 +845,10 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
     const paymentLabel = (booking.payment_status_label || "").trim();
     const totalFormatted = (booking.total_formatted || "").trim();
     const treatmentSelection = String(booking.treatment_selection || "").trim();
-    const durationSessionLabel = durationLabel
-        ? (labels.durationSession || ":duration session").replace(":duration", durationLabel)
-        : "";
-    const durationBadgeLabel = durationMinutes > 0
-        ? formatDurationBadge(durationMinutes, labels)
-        : "";
-    const treatmentSubtitle = [treatmentSelection, durationSessionLabel].filter(Boolean).join(" · ")
-        || (booking.treatment_subtitle || booking.duration_session_label || "").trim();
+    const isTbaSchedule = bookingIsTbaSchedule(booking);
+    const tbaLabel = labels.tbaBadge || "TBA";
+    const showAppointmentDuration = Boolean(durationLabel) && ! isTbaSchedule;
     const treatmentName = booking.treatment_name || "—";
-    const alerts = Array.isArray(booking.inline_alerts) ? booking.inline_alerts : [];
     const notify = previewNotificationVisibility(booking, options);
     const sectionPrefix = `tr-preview-${escapeHtml(String(booking.id))}`;
 
@@ -901,78 +887,80 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
         : "";
 
     const metaChips = [
-        booking.id ? `<span class="tr-calendar-event-preview__meta-chip" title="${escapeHtml(labels.bookingIdTitle || "Treatment reference — quote this when contacting the clinic")}">${escapeHtml(labels.bookingId || "Ref")} ${escapeHtml(booking.reference_code || `B${booking.id}`)}</span>` : "",
         booking.source_label ? `<span class="tr-calendar-event-preview__meta-chip tr-calendar-event-preview__meta-chip--source">${escapeHtml(booking.source_label)}</span>` : "",
         booking.spa_branch_name ? `<span class="tr-calendar-event-preview__meta-chip tr-calendar-event-preview__meta-chip--branch">${escapeHtml(booking.spa_branch_name)}</span>` : "",
         orderMetaChip,
     ].filter(Boolean).join("");
 
-    const insightChips = [
-        booking.customer_history_label
-            ? `<span class="tr-calendar-event-preview__chip">${escapeHtml(booking.customer_history_label)}</span>`
-            : "",
-        booking.loyalty_tier_name
-            ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--loyalty"><i class="fa fa-star" aria-hidden="true"></i> ${escapeHtml(booking.loyalty_tier_name)}</span>`
-            : "",
-        ...alerts.map((alert) => `
-            <span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--${escapeHtml(alert.level || "info")}">
-                ${escapeHtml(alert.label || "")}
-            </span>
-        `),
-        booking.reminder_sent
-            ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--sent">${escapeHtml(labels.reminderSent || "Reminder sent")}</span>`
-            : (booking.reminder_due
-                ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--due">${escapeHtml(labels.reminderDue || "Due for reminder")}</span>`
-                : ""),
-        booking.beautician_reminder_sent
-            ? `<span class="tr-calendar-event-preview__chip tr-calendar-event-preview__chip--sent">${escapeHtml(labels.beauticianReminderSent || "Beautician reminder sent")}</span>`
-            : "",
-    ].filter(Boolean).join("");
-
-    const scheduleSection = previewSection(labels.sectionSchedule || "Schedule", `
-        <div class="tr-calendar-event-preview__grid tr-calendar-event-preview__grid--3">
-            ${previewField(labels.date, booking.appointment_date || booking.date || "—", { icon: "fa-calendar" })}
-            ${previewField(labels.time, timeRange, { icon: "fa-clock-o" })}
-            ${previewField(labels.duration, durationLabel, { icon: "fa-hourglass-half" })}
-        </div>
-    `, "schedule", `${sectionPrefix}-schedule`);
-
-    const blurContact = typeof booking.blur_customer_contact === "boolean"
-        ? booking.blur_customer_contact
-        : (booking.blur_customer_contact === 1 || booking.blur_customer_contact === "1")
-            ? true
-            : !bookingIsOwnForPortal(booking, options.portalBeauticianId || null);
-
-    const customerName = booking.customer_name || "—";
-    const phoneHref = !blurContact && booking.customer_phone
-        ? `tel:${String(booking.customer_phone).replace(/[^\d+]/g, "")}`
+    const showStaff = Boolean(booking.beautician_name) && !options.hideBeautician;
+    const appointmentDate = isTbaSchedule
+        ? tbaLabel
+        : (booking.appointment_date || booking.date || "—");
+    const appointmentTime = isTbaSchedule
+        ? tbaLabel
+        : (timeRange || "—");
+    const durationBlock = showAppointmentDuration
+        ? `
+            <div class="tr-calendar-event-preview__appointment-duration">
+                <span class="tr-calendar-event-preview__appointment-icon" aria-hidden="true"><i class="fa fa-hourglass-half"></i></span>
+                <div class="tr-calendar-event-preview__appointment-slot-copy">
+                    <span class="tr-calendar-event-preview__appointment-label">${escapeHtml(labels.duration || "Duration")}</span>
+                    <strong>${escapeHtml(durationLabel)}</strong>
+                </div>
+            </div>
+        `
         : "";
-    const customerSection = previewSection(labels.sectionCustomer || "Customer", `
-        <div class="tr-calendar-event-preview__crm">
-            <div class="tr-calendar-event-preview__crm-head">
-                <div class="tr-calendar-event-preview__crm-avatar" aria-hidden="true">${escapeHtml(customerInitials(customerName))}</div>
-                <div class="tr-calendar-event-preview__crm-identity">
-                    <strong class="tr-calendar-event-preview__crm-name">${escapeHtml(customerName)}</strong>
-                    <div class="tr-calendar-event-preview__crm-contacts">
-                        ${previewCrmContactRow({
-                            icon: "fa-phone",
-                            label: labels.phone || "Phone",
-                            value: booking.customer_phone || "",
-                            href: phoneHref,
-                            blurred: Boolean(blurContact && booking.customer_phone),
-                        })}
-                        ${previewCrmContactRow({
-                            icon: "fa-envelope",
-                            label: labels.email || "Email",
-                            value: booking.customer_email || "",
-                            blurred: Boolean(blurContact && booking.customer_email),
-                        })}
+    const staffBlock = showStaff
+        ? `
+            <div class="tr-calendar-event-preview__appointment-specialist">
+                ${beauticianAvatarMarkup(booking, "tr-beautician-avatar--md")}
+                <div class="tr-calendar-event-preview__appointment-specialist-meta">
+                    <strong>${escapeHtml(booking.beautician_name)}</strong>
+                    ${booking.beautician_job_title ? `<span>${escapeHtml(booking.beautician_job_title)}</span>` : ""}
+                    ${Array.isArray(booking.beautician_branches) && booking.beautician_branches.length
+                        ? `<div class="tr-calendar-event-preview__appointment-branches" aria-label="${escapeHtml(labels.branch || "Branch")}">
+                            ${booking.beautician_branches.map((branch) => `
+                                <span class="tr-calendar-event-preview__appointment-branch${branch.is_current ? " is-current" : ""}">
+                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                    ${escapeHtml(branch.name || "")}
+                                </span>
+                            `).join("")}
+                           </div>`
+                        : ""}
+                </div>
+            </div>
+        `
+        : "";
+    const appointmentTop = (showStaff || showAppointmentDuration)
+        ? `
+            <div class="tr-calendar-event-preview__appointment-top">
+                ${staffBlock}
+                ${durationBlock}
+            </div>
+        `
+        : "";
+    const appointmentSection = previewSection(labels.sectionAppointment || "Specialist & schedule", `
+        <div class="tr-calendar-event-preview__appointment">
+            ${appointmentTop}
+            ${(showStaff || showAppointmentDuration) ? '<div class="tr-calendar-event-preview__appointment-divider" aria-hidden="true"></div>' : ""}
+            <div class="tr-calendar-event-preview__appointment-schedule">
+                <div class="tr-calendar-event-preview__appointment-slot">
+                    <span class="tr-calendar-event-preview__appointment-icon" aria-hidden="true"><i class="fa fa-calendar"></i></span>
+                    <div class="tr-calendar-event-preview__appointment-slot-copy">
+                        <span class="tr-calendar-event-preview__appointment-label">${escapeHtml(labels.date || "Date")}</span>
+                        <strong>${escapeHtml(appointmentDate)}</strong>
                     </div>
-                    ${insightChips ? `<div class="tr-calendar-event-preview__chip-row tr-calendar-event-preview__chip-row--crm">${insightChips}</div>` : ""}
+                </div>
+                <div class="tr-calendar-event-preview__appointment-slot">
+                    <span class="tr-calendar-event-preview__appointment-icon" aria-hidden="true"><i class="fa fa-clock-o"></i></span>
+                    <div class="tr-calendar-event-preview__appointment-slot-copy">
+                        <span class="tr-calendar-event-preview__appointment-label">${escapeHtml(labels.time || "Time")}</span>
+                        <strong>${escapeHtml(appointmentTime)}</strong>
+                    </div>
                 </div>
             </div>
         </div>
-    `, "customer", `${sectionPrefix}-customer`);
+    `, "appointment", `${sectionPrefix}-appointment`);
 
     const treatmentMedia = booking.product_image
         ? `<img class="tr-calendar-event-preview__treatment-thumb" src="${escapeHtml(booking.product_image)}" alt="${escapeHtml(treatmentName)}" loading="lazy" decoding="async">`
@@ -982,23 +970,22 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
             ${treatmentMedia}
             <div class="tr-calendar-event-preview__treatment-copy">
                 <strong>${escapeHtml(treatmentName)}</strong>
-                ${(treatmentSelection || durationBadgeLabel) ? `
+                ${treatmentSelection ? `
                     <div class="tr-calendar-event-preview__treatment-meta">
-                        ${treatmentSelection ? `<span>${escapeHtml(treatmentSelection)}</span>` : ""}
-                        ${durationBadgeLabel ? `<span class="tr-calendar-event-preview__duration-badge">${escapeHtml(durationBadgeLabel)}</span>` : ""}
+                        <div class="tr-calendar-event-preview__treatment-session">
+                            <span class="tr-calendar-event-preview__treatment-session-label">${escapeHtml(labels.session || "Session")}</span>
+                            <strong class="tr-calendar-event-preview__treatment-session-value">${escapeHtml(treatmentSelection)}</strong>
+                        </div>
                     </div>
-                ` : (treatmentSubtitle ? `<span>${escapeHtml(treatmentSubtitle)}</span>` : "")}
-                ${booking.beautician_name && !options.hideBeautician
-                    ? `<small><i class="fa fa-user" aria-hidden="true"></i> ${escapeHtml(booking.beautician_name)}</small>`
-                    : ""}
+                ` : ""}
             </div>
         </div>
-        <div class="tr-calendar-event-preview__grid tr-calendar-event-preview__grid--treatment-facts">
-            ${previewField(labels.treatment, treatmentName)}
-            ${previewField(labels.session, treatmentSubtitle)}
+        <div class="tr-calendar-event-preview__treatment-payment">
             ${previewField(labels.category, booking.category_name || "", { full: true })}
-            ${previewField(labels.total, totalFormatted)}
-            ${previewField(labels.payment, paymentLabel)}
+            <div class="tr-calendar-event-preview__treatment-payment-row">
+                ${previewField(labels.total, totalFormatted)}
+                ${previewField(labels.payment, paymentLabel)}
+            </div>
             ${previewReceiptField(
                 labels.paymentReceipt || "Payment receipt",
                 booking.payment_receipt_url,
@@ -1007,32 +994,10 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
         </div>
     `, "treatment", `${sectionPrefix}-treatment`);
 
-    const staffSection = booking.beautician_name && !options.hideBeautician
-        ? previewSection(labels.sectionStaff || "Specialist", `
-            <div class="tr-calendar-event-preview__staff">
-                ${beauticianAvatarMarkup(booking, "tr-beautician-avatar--md")}
-                <div class="tr-calendar-event-preview__staff-text">
-                    <strong>${escapeHtml(booking.beautician_name)}</strong>
-                    ${booking.beautician_job_title ? `<span>${escapeHtml(booking.beautician_job_title)}</span>` : ""}
-                    ${Array.isArray(booking.beautician_branches) && booking.beautician_branches.length
-                        ? `<div class="tr-calendar-event-preview__staff-branches" aria-label="${escapeHtml(labels.branch || "Branch")}">
-                            ${booking.beautician_branches.map((branch) => `
-                                <span class="tr-calendar-event-preview__staff-branch${branch.is_current ? " is-current" : ""}">
-                                    <i class="fa fa-check-circle" aria-hidden="true"></i>
-                                    ${escapeHtml(branch.name || "")}
-                                </span>
-                            `).join("")}
-                           </div>`
-                        : ""}
-                </div>
-            </div>
-        `, "staff", `${sectionPrefix}-staff`)
-        : "";
-
     const orderNotesSection = booking.notes
         ? previewSection(labels.orderNotes || "Order notes", `
             <div class="tr-calendar-event-preview__note">
-                ${orderNotesMarkup(booking.notes)}
+                ${orderNotesMarkup(booking.notes, booking, labels)}
             </div>
         `, "order-notes", `${sectionPrefix}-order-notes`)
         : "";
@@ -1171,9 +1136,7 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 </main>
                 <aside class="tr-calendar-event-preview__column tr-calendar-event-preview__column--summary">
                     ${treatmentSection}
-                    ${staffSection}
-                    ${scheduleSection}
-                    ${customerSection}
+                    ${appointmentSection}
                     ${orderNotesSection}
                     ${beauticianNotesSection}
                     ${activitySection}
@@ -1211,32 +1174,44 @@ export function openCalendarEventPreview(booking, labels, options = {}) {
     calendarEventPreviewLastFocus = document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
-    const eyebrow = overlay.querySelector("#tr-calendar-event-preview-eyebrow");
+    const refs = overlay.querySelector("#tr-calendar-event-preview-refs");
     const title = overlay.querySelector("#tr-calendar-event-preview-title");
-    const subtitle = overlay.querySelector("#tr-calendar-event-preview-subtitle");
-    const timeRange = (booking.appointment_time_range || booking.time || booking.appointment_time || "").trim();
+    const customerHead = overlay.querySelector("#tr-calendar-event-preview-customer");
+    if (refs) {
+        const refTitle = previewLabels.bookingIdTitle || "Treatment reference — quote this when contacting the clinic";
+        const orderChip = booking.order_id
+            ? `<span class="tr-calendar-event-preview__head-ref tr-calendar-event-preview__head-ref--order">${escapeHtml((previewLabels.orderEyebrow || "Order #:order").replace(":order", booking.order_id))}</span>`
+            : "";
+        const bookingChip = booking.id
+            ? `<span class="tr-calendar-event-preview__head-ref tr-calendar-event-preview__head-ref--booking" title="${escapeHtml(refTitle)}">${escapeHtml(previewLabels.bookingId || "Ref")} ${escapeHtml(booking.reference_code || `B${booking.id}`)}</span>`
+            : "";
 
-    if (eyebrow) {
-        eyebrow.textContent = booking.order_id
-            ? (previewLabels.orderEyebrow || "Order #:order").replace(":order", booking.order_id)
-            : `${previewLabels.bookingId || "Ref"} B${booking.id}`;
+        refs.innerHTML = [orderChip, bookingChip].filter(Boolean).join("");
     }
 
     if (title) {
         title.textContent = previewLabels.previewTitle || "Appointment details";
     }
 
-    if (subtitle) {
-        subtitle.textContent = [booking.customer_name, booking.treatment_name, timeRange].filter(Boolean).join(" · ");
+    const titleChips = overlay.querySelector("#tr-calendar-event-preview-chips");
+
+    if (titleChips) {
+        const insightChips = buildPreviewInsightChips(booking, previewLabels);
+
+        titleChips.innerHTML = insightChips
+            ? `<div class="tr-calendar-event-preview__chip-row tr-calendar-event-preview__chip-row--head">${insightChips}</div>`
+            : "";
     }
 
-    destroyWorkLogPickers();
+    if (customerHead) {
+        customerHead.innerHTML = buildCustomerPreviewMarkup(booking, previewLabels, previewOptions);
+    }
+
     overlay.querySelector(".tr-calendar-event-preview__body").innerHTML = buildCalendarEventPreviewHtml(
         booking,
         previewLabels,
         previewOptions
     );
-    initWorkLogPickers(overlay);
     overlay.hidden = false;
     overlay.setAttribute("aria-hidden", "false");
     document.body.classList.add("tr-calendar-event-preview-open");
@@ -1251,7 +1226,6 @@ export function closeCalendarEventPreview(options = {}) {
         return;
     }
 
-    destroyWorkLogPickers();
     overlay.hidden = true;
     overlay.setAttribute("aria-hidden", "true");
     document.body.classList.remove("tr-calendar-event-preview-open");
@@ -1781,16 +1755,6 @@ function generateCustomerNote() {
     });
 
     const lines = stampedItems.map((item) => item.line);
-
-    // Overall work-log stamp follows the latest completed task.
-    const latest = stampedItems
-        .map((item) => new Date(item.completed_at))
-        .filter((date) => !Number.isNaN(date.getTime()))
-        .sort((left, right) => left - right)
-        .at(-1) || new Date();
-
-    syncWorkLogPickers(currentWorkLogDateValue(latest), currentWorkLogTimeValue(latest));
-
     const heading = workLog.summaryPrefix || "Treatment completed";
     textarea.value = [heading, ...lines].join("\n");
     textarea.focus();
@@ -1817,12 +1781,14 @@ async function saveBeauticianNotes(button) {
     try {
         const url = notesUrlTemplate.replace("__ID__", bookingId);
         // POST: many hosts/WAFs block PATCH and surface it as a generic 500.
+        const checklist = checklistSavePayload();
+        const workLogStamp = workLogStampFromChecklist(checklist);
         const response = await window.axios.post(url, {
             beautician_notes: textarea.value,
-            beautician_notes_date: document.getElementById("tr-booking-beautician-notes-date")?.value || null,
-            beautician_notes_time: document.getElementById("tr-booking-beautician-notes-time")?.value || null,
+            beautician_notes_date: workLogStamp.date,
+            beautician_notes_time: workLogStamp.time,
             // Include empty labels so the API rejects them if client validation is skipped.
-            beautician_checklist: checklistSavePayload(),
+            beautician_checklist: checklist,
         });
         const booking = response.data?.booking;
 

@@ -48,11 +48,12 @@ class ReservationDashboardService
         string $dateFilter = 'today',
         ?array $urgency = null,
         ?string $customFilterDate = null,
+        ?string $customFilterDateTo = null,
         ?int $portalViewerBeauticianId = null,
     ): array {
-        $filterDate = $this->resolveFilterDate($dateFilter, $customFilterDate);
-        $dateKpis = $this->dateKpis($beauticianId, $categoryId, $spaBranchId, $filterDate);
-        $pipeline = $this->pipelineForDate($beauticianId, $categoryId, $spaBranchId, $filterDate);
+        $dateRange = $this->resolveFilterDateRange($dateFilter, $customFilterDate, $customFilterDateTo);
+        $dateKpis = $this->dateKpis($beauticianId, $categoryId, $spaBranchId, $dateRange);
+        $pipeline = $this->pipelineForDate($beauticianId, $categoryId, $spaBranchId, $dateRange);
         $tbaBookings = $this->tbaBookings($beauticianId, $categoryId, $spaBranchId);
 
         if ($portalViewerBeauticianId) {
@@ -62,14 +63,15 @@ class ReservationDashboardService
 
         return [
             'dateFilter' => $dateFilter,
-            'filterDateLabel' => $this->filterDateLabel($filterDate),
-            'filterDateValue' => ($filterDate ?? today())->toDateString(),
+            'filterDateLabel' => $this->filterDateLabel($dateRange),
+            'filterDateValue' => ($dateRange[0] ?? today())->toDateString(),
+            'filterDateToValue' => ($dateRange[1] ?? ($dateRange[0] ?? today()))->toDateString(),
             'kpis' => $dateKpis,
             'pipeline' => $pipeline,
             // Kept for BC; reservation ledger panel removed from CRM dashboard.
             'ledger' => [],
             'ledgerCount' => 0,
-            'beauticians' => $this->beauticianRoster($beauticianId, $categoryId, $spaBranchId, $filterDate),
+            'beauticians' => $this->beauticianRoster($beauticianId, $categoryId, $spaBranchId, $dateRange),
             'alerts' => $this->formatAlerts($urgency),
             // Kept for BC with older blades/API consumers; not rendered on CRM dashboard.
             'recentActivity' => [],
@@ -85,20 +87,76 @@ class ReservationDashboardService
 
     public function resolveFilterDate(string $filter, ?string $customDate = null): ?Carbon
     {
-        if ($filter === 'custom' && filled($customDate)) {
+        $range = $this->resolveFilterDateRange($filter, $customDate, $customDate);
+
+        return $range[0] ?? null;
+    }
+
+
+    /**
+     * @return array{0: Carbon, 1: Carbon}|null
+     */
+    public function resolveFilterDateRange(string $filter, ?string $customFrom = null, ?string $customTo = null): ?array
+    {
+        if ($filter === 'custom' && filled($customFrom)) {
             try {
-                return Carbon::parse($customDate)->startOfDay();
+                $from = Carbon::parse($customFrom)->startOfDay();
+                $to = filled($customTo) ? Carbon::parse($customTo)->startOfDay() : $from->copy();
+
+                if ($to->lt($from)) {
+                    [$from, $to] = [$to, $from];
+                }
+
+                return [$from, $to];
             } catch (\Throwable) {
-                return today();
+                return [today(), today()];
             }
         }
 
-        return match ($filter) {
+        $single = match ($filter) {
             'today' => today(),
             'tomorrow' => today()->addDay(),
             'yesterday' => today()->subDay(),
             default => null,
         };
+
+        if ($single === null) {
+            return null;
+        }
+
+        return [$single, $single->copy()];
+    }
+
+
+    /**
+     * @return array{date_filter: string, filter_date: string|null, filter_date_to: string|null}
+     */
+    public function normalizeCrmDateFilters(string $rawFilter, mixed $customFrom, mixed $customTo): array
+    {
+        $dateFilter = in_array($rawFilter, ['today', 'tomorrow', 'yesterday', 'all', 'custom'], true)
+            ? $rawFilter
+            : 'today';
+        $filterDate = is_string($customFrom) ? $customFrom : null;
+        $filterDateTo = is_string($customTo) ? $customTo : null;
+
+        if ($dateFilter === 'custom') {
+            if (! is_string($filterDate) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $filterDate)) {
+                $dateFilter = 'today';
+                $filterDate = null;
+                $filterDateTo = null;
+            } elseif (filled($filterDateTo) && ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $filterDateTo)) {
+                $filterDateTo = null;
+            }
+        } else {
+            $filterDate = null;
+            $filterDateTo = null;
+        }
+
+        return [
+            'date_filter' => $dateFilter,
+            'filter_date' => $filterDate,
+            'filter_date_to' => $filterDateTo,
+        ];
     }
 
 
@@ -109,9 +167,9 @@ class ReservationDashboardService
         ?int $beauticianId,
         ?int $categoryId,
         ?int $spaBranchId,
-        ?Carbon $filterDate,
+        ?array $dateRange,
     ): array {
-        if ($filterDate === null) {
+        if ($dateRange === null) {
             $stats = $this->stats($beauticianId, $categoryId, $spaBranchId);
             $pipelineTotal = $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
                 ->whereIn('status', [
@@ -130,8 +188,8 @@ class ReservationDashboardService
             ];
         }
 
-        $base = $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
-            ->whereDate('appointment_date', $filterDate);
+        $base = $this->filteredBase($beauticianId, $categoryId, $spaBranchId);
+        $this->applyDateRangeFilter($base, $dateRange);
 
         return [
             'today' => (clone $base)->count(),
@@ -154,7 +212,7 @@ class ReservationDashboardService
         ?int $beauticianId,
         ?int $categoryId,
         ?int $spaBranchId,
-        ?Carbon $filterDate,
+        ?array $dateRange,
     ): array {
         $query = $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
             ->with([
@@ -174,12 +232,13 @@ class ReservationDashboardService
                         ->latest();
                 },
             ])
-            ->when($filterDate, fn (Builder $builder) => $builder->whereDate('appointment_date', $filterDate))
+            ->tap(fn (Builder $builder) => $this->applyDateRangeFilter($builder, $dateRange))
             ->whereIn('status', [
                 TreatmentBooking::STATUS_PENDING,
                 TreatmentBooking::STATUS_IN_PROGRESS,
                 TreatmentBooking::STATUS_COMPLETED,
             ])
+            ->orderBy('appointment_date')
             ->orderBy('appointment_time');
 
         $bookings = $query->get()->map(fn (TreatmentBooking $booking) => $this->serializePipelineRow($booking));
@@ -251,10 +310,12 @@ class ReservationDashboardService
         ?int $beauticianId,
         ?int $categoryId,
         ?int $spaBranchId,
-        ?Carbon $filterDate,
+        ?array $dateRange,
         int $limit = 8,
     ): array {
-        $date = ($filterDate ?? today())->toDateString();
+        $from = ($dateRange[0] ?? today())->toDateString();
+        $to = ($dateRange[1] ?? ($dateRange[0] ?? today()))->toDateString();
+        $date = $from;
 
         $query = Beautician::query()
             ->with(['files', 'user'])
@@ -272,20 +333,20 @@ class ReservationDashboardService
             ->limit($limit);
 
         $inProgressIds = $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
-            ->whereDate('appointment_date', $date)
+            ->whereBetween('appointment_date', [$from, $to])
             ->where('status', TreatmentBooking::STATUS_IN_PROGRESS)
             ->whereNotNull('beautician_id')
             ->pluck('beautician_id')
             ->all();
 
         $pendingIds = $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
-            ->whereDate('appointment_date', $date)
+            ->whereBetween('appointment_date', [$from, $to])
             ->where('status', TreatmentBooking::STATUS_PENDING)
             ->whereNotNull('beautician_id')
             ->pluck('beautician_id')
             ->all();
 
-        return $query->get()->map(function (Beautician $beautician) use ($inProgressIds, $pendingIds, $beauticianId, $categoryId, $spaBranchId, $date) {
+        return $query->get()->map(function (Beautician $beautician) use ($inProgressIds, $pendingIds, $beauticianId, $categoryId, $spaBranchId, $date, $from, $to) {
             $availableToday = ! app(BeauticianAvailabilityService::class)->hasCrmDayOff($beautician->id, $date);
 
             $status = ! $availableToday
@@ -295,7 +356,7 @@ class ReservationDashboardService
                     : (in_array($beautician->id, $pendingIds, true) ? 'scheduled' : 'available'));
 
             $sessionCount = $this->filteredBase($beauticianId, $categoryId, $spaBranchId)
-                ->whereDate('appointment_date', $date)
+                ->whereBetween('appointment_date', [$from, $to])
                 ->where('beautician_id', $beautician->id)
                 ->where('status', TreatmentBooking::STATUS_COMPLETED)
                 ->count();
@@ -333,25 +394,49 @@ class ReservationDashboardService
     }
 
 
-    public function filterDateLabel(?Carbon $filterDate): string
+    public function filterDateLabel(?array $dateRange): string
     {
-        if ($filterDate === null) {
+        if ($dateRange === null) {
             return TrLang::trans('admin.crm.date_all');
         }
 
-        if ($filterDate->isToday()) {
-            return TrLang::trans('admin.crm.date_today');
+        [$from, $to] = $dateRange;
+
+        if ($from->isSameDay($to)) {
+            if ($from->isToday()) {
+                return TrLang::trans('admin.crm.date_today');
+            }
+
+            if ($from->isYesterday()) {
+                return TrLang::trans('admin.crm.date_yesterday');
+            }
+
+            if ($from->isTomorrow()) {
+                return TrLang::trans('admin.crm.date_tomorrow');
+            }
+
+            return $from->format('d M Y');
         }
 
-        if ($filterDate->isYesterday()) {
-            return TrLang::trans('admin.crm.date_yesterday');
+        return $from->format('j M Y') . ' – ' . $to->format('j M Y');
+    }
+
+
+    private function applyDateRangeFilter(Builder $query, ?array $dateRange): void
+    {
+        if ($dateRange === null) {
+            return;
         }
 
-        if ($filterDate->isTomorrow()) {
-            return TrLang::trans('admin.crm.date_tomorrow');
+        [$from, $to] = $dateRange;
+
+        if ($from->isSameDay($to)) {
+            $query->whereDate('appointment_date', $from);
+
+            return;
         }
 
-        return $filterDate->format('d M Y');
+        $query->whereBetween('appointment_date', [$from->toDateString(), $to->toDateString()]);
     }
 
 

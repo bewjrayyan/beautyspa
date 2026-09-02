@@ -1607,12 +1607,14 @@ function buildCalendarPreviewLabels(root) {
         actionBeauticianShort: root.dataset.calPreviewActionBeauticianShort || "Remind beautician",
         actionRescheduleShort: root.dataset.calPreviewActionRescheduleShort || "Reschedule",
         scheduleTba: root.dataset.calPreviewScheduleTba || "Schedule slot",
+        tbaBadge: root.dataset.calPreviewTbaBadge || "TBA",
         statusUpdateFailed: root.dataset.calPreviewStatusUpdateFailed || "Failed to update status",
         sectionSchedule: root.dataset.calPreviewSectionSchedule || "Schedule",
         sectionCustomer: root.dataset.calPreviewSectionCustomer || "Customer",
         sectionTreatment: root.dataset.calPreviewSectionTreatment || "Treatment & payment",
         sectionNotes: root.dataset.calPreviewSectionNotes || "Notes",
         sectionStaff: root.dataset.calPreviewSectionStaff || "Specialist",
+        sectionAppointment: root.dataset.calPreviewSectionAppointment || "Specialist & schedule",
         workLog,
     };
 }

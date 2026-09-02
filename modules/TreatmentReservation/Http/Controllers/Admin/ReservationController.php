@@ -53,20 +53,14 @@ class ReservationController extends Controller
         $beauticianId = $request->integer('beautician_id') ?: null;
         $categoryId = $request->integer('treatment_category_id') ?: null;
         $spaBranchId = $request->integer('spa_branch_id') ?: null;
-        $rawDateFilter = $request->input('date_filter', 'today');
-        $dateFilter = in_array($rawDateFilter, ['today', 'tomorrow', 'yesterday', 'all', 'custom'], true)
-            ? $rawDateFilter
-            : 'today';
-        $customFilterDate = $request->input('filter_date');
-
-        if ($dateFilter === 'custom') {
-            if (! is_string($customFilterDate) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $customFilterDate)) {
-                $dateFilter = 'today';
-                $customFilterDate = null;
-            }
-        } else {
-            $customFilterDate = null;
-        }
+        $crmDateFilters = $this->dashboard->normalizeCrmDateFilters(
+            (string) $request->input('date_filter', 'today'),
+            $request->input('filter_date'),
+            $request->input('filter_date_to'),
+        );
+        $dateFilter = $crmDateFilters['date_filter'];
+        $customFilterDate = $crmDateFilters['filter_date'];
+        $customFilterDateTo = $crmDateFilters['filter_date_to'];
         $source = in_array($request->input('source'), ['manual', 'checkout'], true)
             ? $request->input('source')
             : null;
@@ -77,7 +71,7 @@ class ReservationController extends Controller
             'stats' => $this->dashboard->stats($beauticianId, $categoryId, $spaBranchId),
             'todayBookings' => $this->dashboard->todayCount($beauticianId, $categoryId, $spaBranchId),
             'dashboardData' => in_array($view, ['dashboard', 'kanban'], true)
-                ? $this->dashboard->crmPayload($beauticianId, $categoryId, $spaBranchId, $dateFilter, $urgencyPayload, $customFilterDate)
+                ? $this->dashboard->crmPayload($beauticianId, $categoryId, $spaBranchId, $dateFilter, $urgencyPayload, $customFilterDate, $customFilterDateTo)
                 : null,
             'urgency' => in_array($view, ['dashboard', 'kanban'], true) ? $urgencyPayload : null,
             // Analytics charts live on the reports/analytics surfaces — CRM uses Needs attention instead.
@@ -99,6 +93,7 @@ class ReservationController extends Controller
                 'spa_branch_id' => $spaBranchId,
                 'date_filter' => $dateFilter,
                 'filter_date' => $customFilterDate,
+                'filter_date_to' => $customFilterDateTo,
                 'month' => $request->input('month', now()->format('Y-m')),
                 'from' => $reportFrom,
                 'to' => $reportTo,

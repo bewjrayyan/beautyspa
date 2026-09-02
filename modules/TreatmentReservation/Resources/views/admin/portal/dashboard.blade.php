@@ -153,6 +153,7 @@
         data-cal-preview-duration-badge-hour="{{ TrLang::trans('admin.calendar.preview_duration_badge_hour') }}"
         data-cal-preview-duration-badge-hours="{{ TrLang::trans('admin.calendar.preview_duration_badge_hours') }}"
         data-cal-preview-duration-badge-hours-minutes="{{ TrLang::trans('admin.calendar.preview_duration_badge_hours_minutes') }}"
+        data-cal-preview-tba-badge="{{ TrLang::trans('admin.tba.badge') }}"
         data-cal-preview-action-profile-short="{{ TrLang::trans('admin.calendar.preview_action_profile_short') }}"
         data-cal-preview-action-customer-short="{{ TrLang::trans('admin.calendar.preview_action_customer_short') }}"
         data-cal-preview-whatsapp-reminder-customer="{{ TrLang::trans('admin.crm.whatsapp_reminder_customer') }}"

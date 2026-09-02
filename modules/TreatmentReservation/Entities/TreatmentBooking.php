@@ -426,6 +426,7 @@ class TreatmentBooking extends Model
             ->map->toPayload()
             ->values()
             ->all();
+        $payload['order_bookings'] = $this->orderBookingReferences();
 
         return app(BookingCrmInsightService::class)->enrichPayload($this, $payload);
     }
@@ -758,6 +759,32 @@ class TreatmentBooking extends Model
     public function referenceCode(): string
     {
         return 'B' . $this->id;
+    }
+
+
+    /**
+     * @return list<array{id: int, reference_code: string}>
+     */
+    public function orderBookingReferences(): array
+    {
+        if (! $this->order_id) {
+            return [[
+                'id' => $this->id,
+                'reference_code' => $this->referenceCode(),
+            ]];
+        }
+
+        return self::query()
+            ->where('order_id', $this->order_id)
+            ->whereNot('status', self::STATUS_CANCELED)
+            ->orderBy('id')
+            ->get(['id'])
+            ->map(fn (self $booking) => [
+                'id' => $booking->id,
+                'reference_code' => $booking->referenceCode(),
+            ])
+            ->values()
+            ->all();
     }
 
 

@@ -383,7 +383,30 @@ function presetDateForFilter(filter) {
     return `${year}-${month}-${day}`;
 }
 
-function setCrmDatePickerValue(input, dateStr = "") {
+function formatCrmDateYmd(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function crmPickerDefaultDates(pickerInput, fromInput, toInput) {
+    const from = coerceFlatpickrDate(pickerInput?.dataset.dateFrom || fromInput?.value || "");
+    const to = coerceFlatpickrDate(pickerInput?.dataset.dateTo || toInput?.value || "");
+
+    if (from && to) {
+        return from === to ? [from] : [from, to];
+    }
+
+    if (from) {
+        return [from];
+    }
+
+    return undefined;
+}
+
+function setCrmDatePickerValue(input, dateStr = "", dateToStr = "") {
     if (!input) {
         return;
     }
@@ -392,7 +415,8 @@ function setCrmDatePickerValue(input, dateStr = "") {
 
     if (picker) {
         if (dateStr) {
-            picker.setDate(dateStr, false);
+            const dates = dateToStr && dateToStr !== dateStr ? [dateStr, dateToStr] : [dateStr];
+            picker.setDate(dates, false);
         } else {
             picker.clear();
         }
@@ -460,6 +484,7 @@ function initCrmDatePicker() {
     const pickerInput = document.getElementById("tr-crm-date-picker");
     const dateFilterInput = document.getElementById("tr-crm-date-filter");
     const filterDateInput = document.getElementById("tr-crm-filter-date");
+    const filterDateToInput = document.getElementById("tr-crm-filter-date-to");
 
     if (!form || !pickerInput || pickerInput._flatpickr) {
         return;
@@ -467,33 +492,47 @@ function initCrmDatePicker() {
 
     const pickerWrap = pickerInput.closest(".tr-crm-toolbar__date-picker");
 
+    const applyCrmCustomDateRange = (selectedDates) => {
+        if (!selectedDates.length) {
+            return;
+        }
+
+        const fromDate = selectedDates[0];
+        const toDate = selectedDates[1] || selectedDates[0];
+        const fromValue = formatCrmDateYmd(fromDate);
+        const toValue = formatCrmDateYmd(toDate);
+
+        dateFilterInput.value = "custom";
+        filterDateInput.value = fromValue;
+        if (filterDateToInput) {
+            filterDateToInput.value = toValue;
+        }
+        form.querySelectorAll("[data-date-filter]").forEach((pill) => pill.classList.remove("is-active"));
+        pickerWrap?.classList.add("is-active");
+        markCrmFocusPipeline();
+        form.requestSubmit();
+    };
+
     flatpickr(pickerInput, mergeFlatpickrLocale({
-        mode: "single",
+        mode: "range",
         dateFormat: "Y-m-d",
         altInput: true,
         altFormat: "j M Y",
-        altInputClass: "tr-crm-toolbar__date-input",
+        altInputClass: "tr-crm-toolbar__date-input tr-crm-toolbar__date-input--range",
         disableMobile: true,
         animate: true,
         appendTo: document.body,
-        defaultDate: coerceFlatpickrDate(pickerInput.value) || undefined,
+        defaultDate: crmPickerDefaultDates(pickerInput, filterDateInput, filterDateToInput),
         onReady: (_selectedDates, _dateStr, instance) => {
             instance.calendarContainer.classList.add("tr-crm-toolbar-datepicker-calendar");
         },
         onOpen: (_selectedDates, _dateStr, instance) => {
             instance.config.positionElement = instance.altInput || instance.input;
         },
-        onChange: (_selectedDates, dateStr) => {
-            if (!dateStr) {
-                return;
+        onClose: (selectedDates) => {
+            if (selectedDates.length) {
+                applyCrmCustomDateRange(selectedDates);
             }
-
-            dateFilterInput.value = "custom";
-            filterDateInput.value = dateStr;
-            form.querySelectorAll("[data-date-filter]").forEach((pill) => pill.classList.remove("is-active"));
-            pickerWrap?.classList.add("is-active");
-            markCrmFocusPipeline();
-            form.requestSubmit();
         },
     }));
 }
@@ -502,6 +541,7 @@ function initDateFilterPills() {
     const form = document.getElementById("tr-crm-header-form");
     const hiddenInput = document.getElementById("tr-crm-date-filter");
     const filterDateInput = document.getElementById("tr-crm-filter-date");
+    const filterDateToInput = document.getElementById("tr-crm-filter-date-to");
     const pickerInput = document.getElementById("tr-crm-date-picker");
     const pickerWrap = pickerInput?.closest(".tr-crm-toolbar__date-picker");
 
@@ -517,6 +557,9 @@ function initDateFilterPills() {
             if (filterDateInput) {
                 filterDateInput.value = "";
             }
+            if (filterDateToInput) {
+                filterDateToInput.value = "";
+            }
 
             form.querySelectorAll("[data-date-filter]").forEach((pill) => {
                 pill.classList.toggle("is-active", pill === button);
@@ -527,7 +570,8 @@ function initDateFilterPills() {
             if (filter === "all") {
                 setCrmDatePickerValue(pickerInput, "");
             } else {
-                setCrmDatePickerValue(pickerInput, presetDateForFilter(filter));
+                const preset = presetDateForFilter(filter);
+                setCrmDatePickerValue(pickerInput, preset, preset);
             }
 
             markCrmFocusPipeline();

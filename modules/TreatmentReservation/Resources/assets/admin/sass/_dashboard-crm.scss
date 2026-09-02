@@ -3940,6 +3940,11 @@ body.tr-crm-drawer-open {
         color: $crm-muted;
         cursor: pointer;
 
+        &--range {
+            width: 168px;
+            min-width: 148px;
+        }
+
         &::placeholder {
             color: #64748b;
             font-weight: 500;

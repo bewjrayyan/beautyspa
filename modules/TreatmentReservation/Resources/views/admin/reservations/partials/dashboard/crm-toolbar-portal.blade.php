@@ -20,6 +20,7 @@
     <form class="tr-crm-toolbar__filters-form" method="get" action="{{ $crmRoutes['formAction'] ?? '' }}" id="tr-crm-header-form">
         <input type="hidden" name="date_filter" id="tr-crm-date-filter" value="{{ $crmDateFilter }}">
         <input type="hidden" name="filter_date" id="tr-crm-filter-date" value="{{ $filters['filter_date'] ?? '' }}">
+        <input type="hidden" name="filter_date_to" id="tr-crm-filter-date-to" value="{{ $filters['filter_date_to'] ?? '' }}">
         <input type="hidden" name="treatment_category_id" id="tr-crm-hidden-category" value="{{ $filters['treatment_category_id'] ?? '' }}">
         <input type="hidden" name="beautician_id" value="">
 
@@ -130,8 +131,10 @@
                     <input
                         type="text"
                         id="tr-crm-date-picker"
-                        class="tr-crm-toolbar__date-input"
-                        value="{{ $crmPickerDate }}"
+                        class="tr-crm-toolbar__date-input tr-crm-toolbar__date-input--range"
+                        value=""
+                        data-date-from="{{ $filters['filter_date'] ?? '' }}"
+                        data-date-to="{{ $filters['filter_date_to'] ?? '' }}"
                         placeholder="{{ TrLang::trans('admin.crm.date_pick_placeholder') }}"
                         autocomplete="off"
                         aria-label="{{ TrLang::trans('admin.crm.date_pick_aria') }}"
