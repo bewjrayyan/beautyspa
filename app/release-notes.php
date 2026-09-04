@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.68' => [
+        'date' => '2026-09-04',
+        'en' => [
+            'summary' => 'Deliver a responsive mobile workspace for the beautician portal.',
+            'changes' => [
+                'Add consistent mobile navigation across the dashboard, job sheet, calendar, availability, and account pages.',
+                'Refine mobile dashboard metrics, needs-attention cards, and monthly calendar into compact two-column and touch-friendly layouts.',
+                'Replace the cramped weekly calendar grid on mobile with a readable seven-day appointment agenda.',
+                'Modernize payment receipt uploads with a responsive drag-and-drop zone, file preview, keyboard access, and remove action.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Sediakan ruang kerja mobile responsif untuk portal beautician.',
+            'changes' => [
+                'Tambah navigasi mobile yang konsisten pada dashboard, job sheet, kalendar, availability, dan halaman akaun.',
+                'Perhalusi metrik dashboard, kad needs-attention, dan kalendar bulanan mobile menjadi susun atur dua kolum yang kompak serta mesra sentuhan.',
+                'Ganti grid kalendar mingguan mobile yang sempit dengan agenda temujanji tujuh hari yang mudah dibaca.',
+                'Modenkan muat naik resit bayaran dengan dropzone responsif, preview fail, akses papan kekunci, dan tindakan buang.',
+            ],
+        ],
+    ],
+
     '4.11.67' => [
         'date' => '2026-09-04',
         'en' => [

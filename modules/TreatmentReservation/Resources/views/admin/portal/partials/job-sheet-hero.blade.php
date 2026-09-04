@@ -123,3 +123,8 @@
         </div>
     </div>
 </header>
+
+@include('treatmentreservation::admin.portal.partials.mobile-navigation', [
+    'beautician' => $beautician,
+    'activePortalNav' => $activePortalNav,
+])

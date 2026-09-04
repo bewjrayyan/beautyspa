@@ -397,6 +397,56 @@ class FinalAuditRegressionTest extends TestCase
         $this->assertStringNotContainsString('ledger-table', $crmDashboard);
     }
 
+    #[Test]
+    public function beautician_portal_has_consistent_mobile_navigation_on_every_page(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $views = $root . '/modules/TreatmentReservation/Resources/views/admin/portal';
+        $navigation = file_get_contents($views . '/partials/mobile-navigation.blade.php');
+        $hero = file_get_contents($views . '/partials/job-sheet-hero.blade.php');
+        $availability = file_get_contents($views . '/availability.blade.php');
+        $account = file_get_contents($views . '/account.blade.php');
+        $styles = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/sass/_portal-job-sheet.scss');
+        $en = file_get_contents($root . '/modules/TreatmentReservation/Resources/lang/en/admin.php');
+        $ms = file_get_contents($root . '/modules/TreatmentReservation/Resources/lang/ms/admin.php');
+
+        foreach (['dashboard', 'job_sheet', 'calendar', 'availability', 'account'] as $destination) {
+            $this->assertStringContainsString("'{$destination}'", $navigation);
+        }
+
+        $this->assertStringContainsString("request()->routeIs('admin.beauticians.portal*')", $navigation);
+        $this->assertStringContainsString('aria-current="page"', $navigation);
+        $this->assertStringContainsString("partials.mobile-navigation", $hero);
+        $this->assertStringContainsString("'activePortalNav' => 'availability'", $availability);
+        $this->assertStringContainsString("'activePortalNav' => 'account'", $account);
+        $this->assertStringContainsString('.tr-portal-mobile-nav', $styles);
+        $this->assertStringContainsString('env(safe-area-inset-bottom', $styles);
+        $this->assertStringContainsString('min-height: 56px', $styles);
+        $this->assertStringContainsString('@media (max-width: 768px)', $styles);
+        $calendarStyles = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/sass/_dashboard-crm.scss');
+        $this->assertStringContainsString('grid-template-columns: repeat(2, minmax(0, 1fr))', $calendarStyles);
+        $this->assertStringContainsString('.tr-crm-calendar-agenda', $calendarStyles);
+        $this->assertStringContainsString("content: 'H'", $calendarStyles);
+        $this->assertStringContainsString('renderMobileWeekAgenda', file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/main.js'));
+        $this->assertStringContainsString('.tr-week-mobile-agenda', $calendarStyles);
+        $this->assertStringContainsString('window.matchMedia("(max-width: 575px)")', file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/main.js'));
+        $manualBooking = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/manual-booking-modal.blade.php');
+        $manualBookingJs = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/manual-booking-products.js');
+        $manualBookingStyles = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/sass/_manual-booking.scss');
+        $this->assertStringContainsString('tr-manual-booking-receipt__dropzone', $manualBooking);
+        $this->assertStringContainsString('accept="image/jpeg,image/png,image/webp,application/pdf"', $manualBooking);
+        $this->assertStringContainsString('receiptDropzone?.addEventListener("drop"', $manualBookingJs);
+        $this->assertStringContainsString('tr-manual-booking-receipt__remove', $manualBookingJs);
+        $this->assertStringContainsString('&__dropzone', $manualBookingStyles);
+        $this->assertStringContainsString("'receipt_formats'", $en);
+        $this->assertStringContainsString("'receipt_formats'", $ms);
+
+        foreach (['mobile_nav_dashboard', 'mobile_nav_jobs', 'mobile_nav_calendar', 'mobile_nav_availability', 'mobile_nav_account'] as $key) {
+            $this->assertStringContainsString("'{$key}'", $en);
+            $this->assertStringContainsString("'{$key}'", $ms);
+        }
+    }
+
     private function scheduledBooking(int $id, string $date, string $time): TreatmentBooking
     {
         $booking = $this->getMockBuilder(TreatmentBooking::class)->onlyMethods(['save'])->getMock();

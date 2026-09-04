@@ -630,6 +630,11 @@ class TreatmentReservationsApp {
 
         const malaysiaPublicHolidays = this.holidaysByDate || {};
 
+        if (window.matchMedia("(max-width: 575px)").matches) {
+            this.renderMobileWeekAgenda(days, byDate, malaysiaPublicHolidays, locale, today);
+            return;
+        }
+
         // Header row
         let headerHtml = '<div class="tr-week-header"><div class="tr-week-header__time"></div>';
         days.forEach((ds) => {
@@ -784,6 +789,46 @@ class TreatmentReservationsApp {
             + '<div class="tr-week-body__inner">'
             + rowsHtml + overlayHtml
             + '</div></div>';
+    }
+
+    renderMobileWeekAgenda(days, byDate, holidays, locale, today) {
+        const agendaHtml = days.map((dateKey) => {
+            const date = TreatmentReservationsApp.parseLocalDate(dateKey) || new Date(dateKey + "T12:00:00");
+            const bookings = byDate[dateKey] || [];
+            const holiday = holidays[dateKey];
+            const isToday = dateKey === today;
+            const weekday = date.toLocaleDateString(locale, { weekday: "short" });
+            const dateLabel = date.toLocaleDateString(locale, { day: "numeric", month: "short" });
+            const events = bookings.map((booking) => this.renderCalendarEvent(booking)).join("");
+            const holidayLabel = holiday?.label
+                ? TreatmentReservationsApp.escapeHtml(holiday.label)
+                : "";
+
+            return `
+                <section class="tr-week-mobile-day${isToday ? " is-today" : ""}${holiday ? " is-holiday" : ""}">
+                    <header class="tr-week-mobile-day__header">
+                        <span class="tr-week-mobile-day__date${isToday ? " is-today" : ""}">
+                            <strong>${TreatmentReservationsApp.escapeHtml(String(date.getDate()))}</strong>
+                            <span>${TreatmentReservationsApp.escapeHtml(weekday)}</span>
+                        </span>
+                        <span class="tr-week-mobile-day__heading">
+                            <strong>${TreatmentReservationsApp.escapeHtml(dateLabel)}</strong>
+                            ${holidayLabel ? `<small title="${holidayLabel}">${holidayLabel}</small>` : ""}
+                        </span>
+                        <span class="tr-week-mobile-day__count">${bookings.length}</span>
+                    </header>
+                    <div class="tr-week-mobile-day__events">
+                        ${events || `<p class="tr-week-mobile-day__empty">${TreatmentReservationsApp.escapeHtml(this.emptyLabel())}</p>`}
+                    </div>
+                </section>
+            `;
+        }).join("");
+
+        this.weekGrid.innerHTML = `
+            <div class="tr-week-mobile-agenda" role="list">
+                ${agendaHtml}
+            </div>
+        `;
     }
 
     syncMonthInput() {

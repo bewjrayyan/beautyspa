@@ -32,6 +32,8 @@ function initManualBookingProducts(form, catalog = []) {
     const paymentStatusInput = root.querySelector('[name="payment_status"]');
     const receiptInput = root.querySelector('[name="payment_receipt"]');
     const receiptPreview = root.querySelector(".tr-manual-booking-receipt__preview");
+    const receiptRoot = root.querySelector(".tr-manual-booking-receipt");
+    const receiptDropzone = root.querySelector(".tr-manual-booking-receipt__dropzone");
     const defaultPaymentStatus = "deposit";
 
     const getSelectedProduct = () =>
@@ -375,7 +377,17 @@ function initManualBookingProducts(form, catalog = []) {
 
         if (state.receiptFile) {
             receiptPreview.hidden = false;
-            receiptPreview.innerHTML = `<span><i class="fa fa-paperclip"></i> ${escapeHtml(state.receiptFile.name)}</span>`;
+            const fileSize = state.receiptFile.size >= 1048576
+                ? `${(state.receiptFile.size / 1048576).toFixed(1)} MB`
+                : `${Math.max(1, Math.round(state.receiptFile.size / 1024))} KB`;
+            receiptPreview.innerHTML = `
+                <span>
+                    <i class="fa ${state.receiptFile.type === "application/pdf" ? "fa-file-pdf-o" : "fa-file-image-o"}"></i>
+                    <small>${escapeHtml(state.receiptFile.name)} · ${fileSize}</small>
+                </span>
+                <button type="button" class="tr-manual-booking-receipt__remove" aria-label="${escapeHtml(receiptRoot?.dataset.removeFile || "Remove file")}">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </button>`;
 
             return;
         }
@@ -500,9 +512,56 @@ function initManualBookingProducts(form, catalog = []) {
     };
 
     searchInput?.addEventListener("input", (event) => renderProductList(event.target.value));
-    receiptInput?.addEventListener("change", (event) => {
-        state.receiptFile = event.target.files?.[0] || null;
+
+    const setReceiptFile = (file) => {
+        state.receiptFile = file || null;
         renderReceiptPreview();
+    };
+
+    receiptInput?.addEventListener("change", (event) => {
+        setReceiptFile(event.target.files?.[0]);
+    });
+
+    receiptDropzone?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            receiptInput?.click();
+        }
+    });
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+        receiptDropzone?.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            receiptDropzone.classList.add("is-dragging");
+        });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+        receiptDropzone?.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            receiptDropzone.classList.remove("is-dragging");
+        });
+    });
+
+    receiptDropzone?.addEventListener("drop", (event) => {
+        const file = event.dataTransfer?.files?.[0];
+
+        if (file) {
+            setReceiptFile(file);
+        }
+    });
+
+    receiptPreview?.addEventListener("click", (event) => {
+        if (!event.target.closest(".tr-manual-booking-receipt__remove")) {
+            return;
+        }
+
+        state.receiptFile = null;
+        receiptInput.value = "";
+        renderReceiptPreview();
+        receiptDropzone?.focus();
     });
 
     renderProductList();

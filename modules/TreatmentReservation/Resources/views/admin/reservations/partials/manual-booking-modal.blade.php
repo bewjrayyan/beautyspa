@@ -404,17 +404,35 @@
                                         <label for="{{ $modalId }}-payment-receipt">
                                             {{ trans('treatmentreservation::admin.manual_booking.payment_receipt') }}
                                         </label>
-                                        <div class="tr-manual-booking-receipt">
+                                        <div
+                                            class="tr-manual-booking-receipt"
+                                            data-remove-file="{{ trans('treatmentreservation::admin.manual_booking.receipt_remove') }}"
+                                        >
                                             <input
                                                 type="file"
-                                                class="form-control"
+                                                class="tr-manual-booking-receipt__input"
                                                 id="{{ $modalId }}-payment-receipt"
                                                 name="payment_receipt"
-                                                accept="image/*,.pdf"
+                                                accept="image/jpeg,image/png,image/webp,application/pdf"
                                             >
-                                            <p class="help-block tr-manual-booking-receipt__hint">
-                                                {{ trans('treatmentreservation::admin.manual_booking.receipt_help') }}
-                                            </p>
+                                            <label
+                                                for="{{ $modalId }}-payment-receipt"
+                                                class="tr-manual-booking-receipt__dropzone"
+                                                role="button"
+                                                tabindex="0"
+                                            >
+                                                <span class="tr-manual-booking-receipt__icon" aria-hidden="true">
+                                                    <i class="fa fa-cloud-upload"></i>
+                                                </span>
+                                                <span class="tr-manual-booking-receipt__copy">
+                                                    <strong>{{ trans('treatmentreservation::admin.manual_booking.receipt_drop_title') }}</strong>
+                                                    <span>{{ trans('treatmentreservation::admin.manual_booking.receipt_drop_help') }}</span>
+                                                </span>
+                                                <span class="tr-manual-booking-receipt__browse">
+                                                    {{ trans('treatmentreservation::admin.manual_booking.receipt_browse') }}
+                                                </span>
+                                                <small>{{ trans('treatmentreservation::admin.manual_booking.receipt_formats') }}</small>
+                                            </label>
                                             <div class="tr-manual-booking-receipt__preview" hidden></div>
                                         </div>
                                     </div>

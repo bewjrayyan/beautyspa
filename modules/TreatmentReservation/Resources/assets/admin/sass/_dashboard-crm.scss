@@ -2313,7 +2313,69 @@ body.tr-crm-drawer-open {
 
 @media (max-width: 767px) {
     .tr-crm-needs__list {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .tr-crm-needs__item {
+        grid-template-columns: 8px minmax(0, 1fr);
+        grid-template-rows: 1fr;
+        gap: 8px;
+        align-items: start;
+        min-width: 0;
+        min-height: 142px;
+        padding: 11px 10px;
+        border-width: 1.5px;
+        border-radius: 12px;
+    }
+
+    .tr-crm-needs__item-dot {
+        width: 8px;
+        height: 8px;
+        margin-top: 4px;
+    }
+
+    .tr-crm-needs__item-top {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 5px;
+    }
+
+    .tr-crm-needs__item-customer {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .tr-crm-needs__item-reason {
+        max-width: 100%;
+        padding: 3px 6px;
+        font-size: 9px;
+        line-height: 1.2;
+        white-space: normal;
+    }
+
+    .tr-crm-needs__item-treatment,
+    .tr-crm-needs__item-meta {
+        font-size: 10px;
+        line-height: 1.4;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .tr-crm-needs__item-treatment {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .tr-crm-needs__item-open {
+        display: none;
+    }
+
+    .tr-crm-needs__empty {
+        grid-column: 1 / -1;
     }
 }
 
@@ -3593,7 +3655,348 @@ body.tr-crm-drawer-open {
 
 @media (max-width: 575px) {
     .tr-crm-dashboard__kpis {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .tr-crm-kpi {
+        min-width: 0;
+        min-height: 160px;
+        flex-direction: column;
+        gap: 9px;
+        padding: 13px 12px 12px;
+        border-radius: 14px;
+
+        &::before {
+            top: 10px;
+            bottom: 10px;
+        }
+
+        &__icon-wrap {
+            width: 38px;
+            height: 38px;
+            margin-left: 2px;
+            border-radius: 11px;
+            font-size: 15px;
+        }
+
+        &__body {
+            width: 100%;
+            gap: 4px;
+            padding-top: 0;
+        }
+
+        &__label {
+            min-height: 29px;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        &__metric {
+            gap: 4px;
+        }
+
+        &__value {
+            font-size: 1.55rem;
+        }
+
+        &__unit,
+        &__hint {
+            font-size: 11px;
+        }
+
+        &__footer {
+            padding-top: 7px;
+        }
+
+        &__subhint {
+            display: none;
+        }
+    }
+
+    .tr-crm-calendar-agenda {
+        .tr-calendar-meta {
+            gap: 8px;
+            padding: 8px;
+        }
+
+        .tr-calendar-status-legend,
+        .tr-calendar-legend {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .tr-calendar-status-legend,
+        .tr-calendar-legend__inner {
+            justify-content: flex-start;
+            gap: 7px 12px;
+            padding: 9px 10px;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        .tr-calendar-status-legend__label,
+        .tr-calendar-legend__label {
+            flex: 0 0 auto;
+            font-size: 9px;
+        }
+
+        .tr-calendar-status-legend__items,
+        .tr-calendar-legend__items {
+            flex-wrap: nowrap;
+        }
+
+        .tr-calendar-status-legend__item,
+        .tr-calendar-legend__item {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .tr-calendar-board {
+            padding: 10px 8px 12px;
+        }
+
+        .tr-calendar-weekdays {
+            gap: 4px;
+            margin-bottom: 5px;
+            padding: 0;
+
+            span {
+                padding: 5px 0;
+                font-size: 9px;
+                letter-spacing: 0.02em;
+            }
+        }
+
+        .tr-calendar-grid {
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 5px 4px;
+            min-height: 0;
+        }
+
+        .tr-cal-day {
+            min-width: 0;
+            min-height: 54px;
+            height: 54px;
+            gap: 2px;
+            padding: 4px 2px;
+            border-radius: 10px;
+        }
+
+        .tr-cal-day-num {
+            width: 22px;
+            height: 22px;
+            font-size: 10px;
+        }
+
+        .tr-cal-day-events {
+            min-height: 16px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .tr-cal-dot {
+            min-width: 15px;
+            height: 15px;
+            margin: 0;
+            padding: 0 3px;
+            font-size: 8px;
+        }
+
+        .tr-cal-holiday-badge {
+            align-self: center;
+            width: 17px;
+            height: 17px;
+            margin: 0;
+            padding: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            white-space: nowrap;
+
+            &__title {
+                font-size: 0;
+                line-height: 1;
+
+                &::before {
+                    content: 'H';
+                    display: grid;
+                    width: 17px;
+                    height: 17px;
+                    place-items: center;
+                    font-size: 9px;
+                    font-weight: 800;
+                }
+            }
+
+            &__states {
+                display: none;
+            }
+        }
+    }
+
+    .tr-crm-calendar-agenda .tr-calendar--week-view {
+        .tr-calendar-day-view {
+            min-height: 0;
+            padding: 0 8px 12px;
+        }
+
+        .tr-calendar-day-view__header {
+            gap: 10px;
+            padding: 10px 0 12px;
+        }
+
+        .tr-calendar-day-view__title {
+            font-size: 17px;
+            line-height: 1.25;
+        }
+
+        .tr-calendar-day-view__nav {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+        }
+
+        .tr-cal-week-grid {
+            min-height: 0;
+            border: 0;
+            border-radius: 0;
+            overflow: visible;
+            background: transparent;
+        }
+    }
+
+    .tr-week-mobile-agenda {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .tr-week-mobile-day {
+        overflow: hidden;
+        border: 1px solid #dbe3ee;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+
+        &.is-today {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        &.is-holiday {
+            border-color: #fecaca;
+        }
+
+        &__header {
+            display: grid;
+            grid-template-columns: 44px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            min-height: 58px;
+            padding: 8px 10px;
+            border-bottom: 1px solid #eef2f7;
+            background: #f8fafc;
+        }
+
+        &__date {
+            display: flex;
+            width: 42px;
+            height: 42px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            background: #fff;
+            color: #0f172a;
+            box-shadow: inset 0 0 0 1px #e2e8f0;
+
+            strong {
+                font-size: 16px;
+                line-height: 1;
+            }
+
+            span {
+                margin-top: 3px;
+                font-size: 8px;
+                font-weight: 800;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+
+            &.is-today {
+                background: #2563eb;
+                color: #fff;
+                box-shadow: none;
+            }
+        }
+
+        &__heading {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            gap: 2px;
+
+            strong {
+                color: #0f172a;
+                font-size: 12px;
+            }
+
+            small {
+                overflow: hidden;
+                color: #b91c1c;
+                font-size: 9px;
+                font-weight: 700;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        &__count {
+            display: grid;
+            min-width: 26px;
+            height: 26px;
+            place-items: center;
+            padding: 0 7px;
+            border-radius: 999px;
+            background: #e0e7ff;
+            color: #4338ca;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        &__events {
+            display: grid;
+            gap: 8px;
+            padding: 9px;
+
+            .tr-cal-event {
+                min-height: 68px;
+                padding: 9px 10px;
+                border-radius: 10px;
+            }
+        }
+
+        &__empty {
+            margin: 0;
+            padding: 10px;
+            border: 1px dashed #dbe3ee;
+            border-radius: 10px;
+            background: #fafbfd;
+            color: #94a3b8;
+            font-size: 11px;
+            text-align: center;
+        }
     }
 
     .tr-crm-appointment {

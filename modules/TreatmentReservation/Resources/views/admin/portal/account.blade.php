@@ -371,6 +371,11 @@
                 </div>
             </div>
         </div>
+
+        @include('treatmentreservation::admin.portal.partials.mobile-navigation', [
+            'beautician' => $beautician,
+            'activePortalNav' => 'account',
+        ])
     </div>
 @endsection
 
