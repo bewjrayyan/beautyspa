@@ -10,9 +10,19 @@ use Modules\Report\Support\ReportFormatters;
 
 class ReportExportMapper
 {
+    public const MAX_EXPORT_ROWS = 5000;
+    public const MAX_PDF_ROWS = 1000;
+
     public static function build(Report $report, Request $request, string $type): array
     {
-        $rows = $report->report($request)->limit(5000)->get();
+        $maxRows = $request->query('format') === 'pdf' ? self::MAX_PDF_ROWS : self::MAX_EXPORT_ROWS;
+        $rows = $report->report($request)
+            ->limit($maxRows + 1)
+            ->get();
+
+        abort_if($rows->count() > $maxRows, 422, trans('report::admin.export_limit_exceeded', [
+            'count' => number_format($maxRows),
+        ]));
 
         return [
             'title' => trans('report::admin.filters.report_types.' . $type),

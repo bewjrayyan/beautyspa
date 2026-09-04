@@ -14,7 +14,7 @@
         $resetUrl = route('admin.reports.index', ['type' => $request->type]);
     @endphp
 
-    <div class="report-wrapper report-modern {{ $isBookingsLayout ? 'report-modern--bookings' : '' }}">
+    <div class="report-wrapper report-modern {{ $isBookingsLayout ? 'report-modern--bookings' : 'report-modern--sales' }}">
         @if ($isBookingsLayout)
             @include('report::admin.reports.partials.booking_stats')
         @else

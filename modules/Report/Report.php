@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 abstract class Report
 {
+    protected $query;
     protected $filters = ['from', 'to', 'status', 'group'];
     protected $groups = ['years', 'months', 'weeks', 'days'];
     protected $date = 'created_at';
@@ -50,7 +51,13 @@ abstract class Report
     private function filters($request)
     {
         return array_filter($request->query(), function ($value, $name) {
-            return !is_null($value) && in_array($name, $this->filters);
+            if (!in_array($name, $this->filters, true)) {
+                return false;
+            }
+
+            return is_array($value)
+                ? $value !== []
+                : $value !== null && $value !== '';
         }, ARRAY_FILTER_USE_BOTH);
     }
 
@@ -75,7 +82,7 @@ abstract class Report
 
     private function group($group)
     {
-        if (in_array($group, $this->groups)) {
+        if (in_array($group, $this->groups, true)) {
             $this->{"groupBy{$group}"}();
         }
     }

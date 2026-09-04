@@ -7,21 +7,23 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\Report\Exports\ReportArrayExport;
 use Modules\Report\Report;
+use Modules\Report\Support\ReportSpreadsheetSanitizer;
 use Modules\Support\Services\DompdfConfigurator;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportExportService
 {
-    public function export(Report $report, Request $request, string $type, string $format): StreamedResponse|\Illuminate\Http\Response
+    public function export(Report $report, Request $request, string $type, string $format): Response
     {
         $payload = ReportExportMapper::build($report, $request, $type);
         $filename = $this->filename($type, $format);
 
         return match ($format) {
-            'csv' => $this->toCsv($payload, $filename),
-            'xlsx' => $this->toExcel($payload, $filename),
+            'csv' => $this->toCsv($this->sanitizeSpreadsheetPayload($payload), $filename),
+            'xlsx' => $this->toExcel($this->sanitizeSpreadsheetPayload($payload), $filename),
             'pdf' => $this->toPdf($payload, $filename),
-            default => abort(422, 'Unsupported export format.'),
+            default => abort(422, trans('report::admin.unsupported_export_format')),
         };
     }
 
@@ -59,6 +61,17 @@ class ReportExportService
             new ReportArrayExport($payload['headings'], $payload['rows']),
             $filename
         );
+    }
+
+
+    private function sanitizeSpreadsheetPayload(array $payload): array
+    {
+        $payload['rows'] = array_map(
+            static fn (array $row) => ReportSpreadsheetSanitizer::sanitizeRow($row),
+            $payload['rows']
+        );
+
+        return $payload;
     }
 
 

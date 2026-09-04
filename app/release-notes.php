@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.66' => [
+        'date' => '2026-09-04',
+        'en' => [
+            'summary' => 'Modernize report dashboards and harden report filtering and exports.',
+            'changes' => [
+                'Unify sales, coupon, customer, and beautician reporting with clearer SaaS dashboards and readable activity tables.',
+                'Improve report filters, date controls, KPI cards, branch summaries, sales trends, and beautician contribution insights.',
+                'Validate report inputs, remove invalid grouping paths, and keep dashboard metrics aligned with active report filters.',
+                'Protect spreadsheet exports from formula injection, enforce explicit row limits, and fix XLSX response handling.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Modenkan dashboard laporan serta kukuhkan penapisan dan eksport laporan.',
+            'changes' => [
+                'Seragamkan laporan jualan, kupon, pelanggan, dan beautician dengan dashboard SaaS yang lebih jelas serta jadual aktiviti mudah dibaca.',
+                'Perhalusi penapis laporan, kawalan tarikh, kad KPI, ringkasan cawangan, trend jualan, dan insight sumbangan beautician.',
+                'Sahkan input laporan, buang aliran grouping yang tidak sah, dan selaraskan metrik dashboard dengan penapis laporan aktif.',
+                'Lindungi eksport spreadsheet daripada formula injection, kuatkuasakan had baris yang jelas, dan baiki pengendalian respons XLSX.',
+            ],
+        ],
+    ],
+
     '4.11.65' => [
         'date' => '2026-09-02',
         'en' => [

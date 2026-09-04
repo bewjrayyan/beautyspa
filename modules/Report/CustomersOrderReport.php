@@ -11,7 +11,8 @@ class CustomersOrderReport extends Report
     use FiltersBySpaBranch;
     use JoinsOrderReportDetails;
 
-    protected $filters = ['from', 'to', 'status', 'group', 'spa_branch_id'];
+    protected $filters = ['from', 'to', 'status', 'spa_branch_id'];
+    protected $date = 'orders.created_at';
 
     protected function data()
     {
@@ -37,13 +38,13 @@ class CustomersOrderReport extends Report
         return $query
             ->selectRaw('(SELECT COALESCE(SUM(qty), 0) FROM order_products WHERE order_products.order_id = orders.id) as total_products')
             ->addSelect('orders.total')
-            ->when(request()->has('customer_name'), function ($query) {
+            ->when(request()->filled('customer_name'), function ($query) {
                 $query->where(function ($nameQuery) {
                     $nameQuery->where('customer_first_name', 'like', request('customer_name') . '%')
                         ->orWhere('customer_last_name', 'like', request('customer_name') . '%');
                 });
             })
-            ->when(request()->has('customer_email'), function ($query) {
+            ->when(request()->filled('customer_email'), function ($query) {
                 $query->where('customer_email', request('customer_email'));
             })
             ->orderByDesc('orders.created_at');

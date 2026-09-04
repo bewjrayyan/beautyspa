@@ -4,7 +4,6 @@
     @include('report::admin.reports.filters.from')
     @include('report::admin.reports.filters.to')
     @include('report::admin.reports.filters.status')
-    @include('report::admin.reports.filters.group')
     @include('report::admin.reports.filters.spa_branch')
 
     <div class="form-group report-field">

@@ -8,7 +8,7 @@ abstract class BeauticianAwareReport extends Report
 {
     use FiltersBySpaBranch;
 
-    protected $filters = ['from', 'to', 'status', 'group', 'beautician_id', 'spa_branch_id'];
+    protected $filters = ['from', 'to', 'status', 'beautician_id', 'spa_branch_id'];
 
     protected $date = 'orders.created_at';
 

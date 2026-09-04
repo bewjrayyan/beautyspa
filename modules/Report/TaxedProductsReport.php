@@ -25,7 +25,7 @@ class TaxedProductsReport extends Report
     protected function query()
     {
         return TaxClass::select('id')
-            ->when(request()->has('tax_class'), function (Builder $query) {
+            ->when(request()->filled('tax_class'), function (Builder $query) {
                 $query->where('id', request('tax_class'));
             })
             ->withCount('products')

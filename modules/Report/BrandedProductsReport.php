@@ -19,7 +19,7 @@ class BrandedProductsReport extends Report
     protected function query()
     {
         return Brand::select('id')
-            ->when(request()->has('brand'), function (Builder $query) {
+            ->when(request()->filled('brand'), function (Builder $query) {
                 $query->whereTranslationLike('name', request('brand') . '%');
             })
             ->withCount('products')

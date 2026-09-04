@@ -12,7 +12,7 @@ class SearchReport extends Report
     public function query()
     {
         return SearchTerm::orderByDesc('hits')
-            ->when(request()->has('keyword'), function ($query) {
+            ->when(request()->filled('keyword'), function ($query) {
                 $query->where('term', 'LIKE', request('keyword') . '%');
             });
     }

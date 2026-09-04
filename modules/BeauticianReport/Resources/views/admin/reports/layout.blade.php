@@ -47,7 +47,7 @@
                     </div>
 
                     <div class="br-filter-actions">
-                        <button type="submit" class="btn btn-primary" data-loading>
+                        <button type="submit" class="btn btn-primary br-filter-submit">
                             <i class="fa fa-filter"></i> {{ trans('beauticianreport::admin.filter') }}
                         </button>
                     </div>

@@ -26,7 +26,7 @@ class CouponsReport extends Report
             ->selectRaw('COUNT(DISTINCT orders.customer_email) as unique_customers')
             ->selectRaw('SUM(orders.discount) as total')
             ->selectRaw('SUM(orders.total) as orders_total')
-            ->when(request()->has('coupon_code'), function ($query) {
+            ->when(request()->filled('coupon_code'), function ($query) {
                 $query->where('code', request('coupon_code'));
             })
             ->groupBy(['coupons.id', 'coupons.code']);

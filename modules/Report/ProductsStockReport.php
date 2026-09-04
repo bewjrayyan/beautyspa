@@ -6,6 +6,8 @@ use Modules\Product\Entities\Product;
 
 class ProductsStockReport extends Report
 {
+    protected $filters = [];
+
     protected function view()
     {
         return 'report::admin.reports.products_stock_report.index';
@@ -16,11 +18,11 @@ class ProductsStockReport extends Report
     {
         return Product::select('id', 'qty', 'in_stock')
             ->withName()
-            ->when(request()->has('quantity_above'), function ($query) {
+            ->when(request()->filled('quantity_above'), function ($query) {
                 $query->where('manage_stock', true)
                     ->where('qty', '>', request('quantity_above'));
             })
-            ->when(request()->has('quantity_below'), function ($query) {
+            ->when(request()->filled('quantity_below'), function ($query) {
                 $query->where('manage_stock', true)
                     ->where('qty', '<', request('quantity_below'));
             })

@@ -20,7 +20,7 @@ class CategorizedProductsReport extends Report
     {
         return Category::withoutGlobalScope('active')
             ->select('id')
-            ->when(request()->has('category'), function (Builder $query) {
+            ->when(request()->filled('category'), function (Builder $query) {
                 $query->whereTranslationLike('name', request('category') . '%');
             })
             ->withCount('products')

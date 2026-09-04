@@ -1006,7 +1006,7 @@
     "src": "modules/Attribute/Resources/assets/admin/sass/main.scss"
   },
   "modules/BeauticianReport/Resources/assets/admin/js/dashboard.js": {
-    "file": "assets/dashboard-DvZFpN_J-v4.7.72.js",
+    "file": "assets/dashboard-Dl4CLJ6F-v4.7.72.js",
     "name": "dashboard",
     "src": "modules/BeauticianReport/Resources/assets/admin/js/dashboard.js",
     "isEntry": true,
@@ -1016,7 +1016,7 @@
     ]
   },
   "modules/BeauticianReport/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-GEt52539-v4.7.72.css",
+    "file": "assets/main-coNLYp4b-v4.7.72.css",
     "src": "modules/BeauticianReport/Resources/assets/admin/sass/main.scss"
   },
   "modules/Blog/Resources/assets/admin/posts/js/create.js": {
@@ -1282,7 +1282,7 @@
     "isEntry": true
   },
   "modules/Report/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DBVupeI6-v4.7.72.js",
+    "file": "assets/main-CHjSq1db-v4.7.72.js",
     "name": "main",
     "src": "modules/Report/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1292,7 +1292,7 @@
     ]
   },
   "modules/Report/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-hXPRAr7I-v4.7.72.css",
+    "file": "assets/main-DHaYK7a2-v4.7.72.css",
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {

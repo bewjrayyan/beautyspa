@@ -16,14 +16,16 @@ async function initSalesTrendChart() {
             labels: data.labels,
             datasets: [
                 {
-                    label: "Sales",
+                    label: window.BeauticianReportCharts.salesLabel,
                     data: data.amounts,
-                    borderColor: "#4f46e5",
-                    backgroundColor: "rgba(79, 70, 229, 0.12)",
+                    borderColor: "#ab0d58",
+                    backgroundColor: "rgba(171, 13, 88, 0.10)",
                     fill: true,
                     tension: 0.35,
-                    pointRadius: 3,
-                    pointBackgroundColor: "#4f46e5",
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: "#ab0d58",
                 },
             ],
         },
@@ -38,7 +40,7 @@ async function initSalesTrendChart() {
                             const formatted = data.formatted[context.dataIndex] ?? "";
                             const orders = data.orders[context.dataIndex] ?? 0;
 
-                            return [`Sales: ${formatted}`, `Orders: ${orders}`];
+                            return [window.BeauticianReportCharts.salesLabel + ": " + formatted, window.BeauticianReportCharts.ordersLabel + ": " + orders];
                         },
                     },
                 },
@@ -73,15 +75,17 @@ function initSalesByBeauticianChart() {
                 {
                     data: chartData.amounts,
                     backgroundColor: [
-                        "#4f46e5",
-                        "#7c3aed",
-                        "#a855f7",
-                        "#ec4899",
-                        "#f43f5e",
-                        "#f97316",
-                        "#eab308",
-                        "#22c55e",
+                        "#ab0d58",
+                        "#6d4088",
+                        "#d15b76",
+                        "#d79544",
+                        "#3d8b73",
+                        "#3978aa",
+                        "#8e78b2",
+                        "#a19aa4",
                     ],
+                    borderColor: "#ffffff",
+                    borderWidth: 3,
                 },
             ],
         },
@@ -91,6 +95,7 @@ function initSalesByBeauticianChart() {
             plugins: {
                 legend: {
                     position: "bottom",
+                    labels: { usePointStyle: true, pointStyle: "circle", boxWidth: 7, boxHeight: 7, padding: 14 },
                 },
             },
         },

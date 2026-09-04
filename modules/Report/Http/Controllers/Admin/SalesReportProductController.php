@@ -10,9 +10,15 @@ class SalesReportProductController
 {
     public function index(Request $request): JsonResponse
     {
-        $categoryId = $request->get('category_id');
-        $query = trim((string) $request->get('query', ''));
-        $limit = min(max((int) $request->get('limit', 30), 1), 50);
+        $validated = $request->validate([
+            'category_id' => ['nullable', 'integer', 'min:1'],
+            'query' => ['nullable', 'string', 'max:191'],
+            'limit' => ['nullable', 'integer', 'between:1,50'],
+        ]);
+
+        $categoryId = $validated['category_id'] ?? null;
+        $query = trim($validated['query'] ?? '');
+        $limit = $validated['limit'] ?? 30;
 
         if ($query === '') {
             return response()->json([]);
@@ -57,7 +63,11 @@ class SalesReportProductController
 
     public function options(Request $request): JsonResponse
     {
-        $productId = $request->get('product_id');
+        $validated = $request->validate([
+            'product_id' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $productId = $validated['product_id'] ?? null;
 
         if ($productId === null || $productId === '') {
             return response()->json(['groups' => []]);

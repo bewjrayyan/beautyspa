@@ -16,7 +16,7 @@ class ShippingReport extends Report
             ->selectRaw('COUNT(DISTINCT customer_email) as unique_customers')
             ->selectRaw('SUM(shipping_cost) as total')
             ->selectRaw('ROUND(AVG(shipping_cost), 2) as avg_shipping')
-            ->when(request()->has('shipping_method'), function ($query) {
+            ->when(request()->filled('shipping_method'), function ($query) {
                 $query->where('shipping_method', request('shipping_method'));
             })
             ->groupBy('shipping_method');

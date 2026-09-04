@@ -18,7 +18,7 @@ class TaxReport extends Report
             ->selectRaw('MIN(orders.created_at) as start_date')
             ->selectRaw('MAX(orders.created_at) as end_date')
             ->selectRaw('COUNT(*) as total_orders')
-            ->when(request()->has('tax_name'), function ($query) {
+            ->when(request()->filled('tax_name'), function ($query) {
                 $query->whereTranslationLike('name', request('tax_name') . '%');
             })
             ->groupBy('tax_rates.id');

@@ -33,9 +33,9 @@ class ReportServiceProvider extends ServiceProvider
 
             $view->with([
                 'reportLayoutMode' => $isBookingsReport ? 'bookings' : 'full',
-                'reportDashboard' => $isBookingsReport ? [] : $service->overview(),
-                'bookingStats' => $isBookingsReport ? $service->bookingPageStats() : [],
-                'beauticianBookings' => $isBookingsReport ? collect() : $service->beauticianBookings(12),
+                'reportDashboard' => $isBookingsReport ? [] : $service->overview(request()),
+                'bookingStats' => $service->bookingPageStats(request()),
+                'beauticianBookings' => $isBookingsReport ? collect() : $service->beauticianBookings(12, request()),
                 'showBeauticianAnalytics' => Module::isEnabled('Beautician'),
                 'beauticianAnalyticsUrl' => Module::isEnabled('BeauticianReport')
                     ? route('admin.beautician_reports.index')
