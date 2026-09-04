@@ -509,9 +509,14 @@ return [
     'activity' => [
 
         'title' => 'Log aktiviti',
+        'eyebrow' => 'Garis masa rawatan',
+        'subtitle' => 'Rekod kronologi perubahan temujanji dan tindakan pasukan.',
+        'events' => '{1} :count aktiviti|[2,*] :count aktiviti',
         'show' => 'Papar',
         'hide' => 'Sembunyi',
         'system' => 'Sistem',
+        'performed_by' => 'Dilakukan oleh',
+        'note_detail' => 'Butiran nota',
         'status_changed' => 'Status ditukar',
         'notes_updated' => 'Nota beautician dikemas kini',
         'work_log_updated' => 'Log kerja rawatan dikemas kini',

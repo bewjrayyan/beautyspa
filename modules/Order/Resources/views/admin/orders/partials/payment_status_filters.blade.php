@@ -24,12 +24,37 @@
             'label' => $date->translatedFormat('F Y'),
         ];
     });
+
+    $activeFilterCount = collect([
+        $activePaymentStatus,
+        $activePaymentChannel,
+        $activeMonth,
+        ($activeDateFrom !== '' || $activeDateTo !== '') ? 'date-range' : '',
+        $activeSearch,
+    ])->filter()->count();
+
 @endphp
 
 <div class="orders-index__toolbar" aria-label="{{ trans('order::orders.filters_title') }}">
+    <div class="orders-index__filter-head">
+        <div class="orders-index__filter-heading">
+            <span class="orders-index__filter-icon" aria-hidden="true"><i class="fa fa-sliders"></i></span>
+            <span>
+                <strong>{{ trans('order::orders.filters_title') }}</strong>
+                <small>{{ trans('order::orders.filters_description') }}</small>
+            </span>
+        </div>
+        <span class="orders-index__filter-summary {{ $activeFilterCount > 0 ? 'is-active' : '' }}">
+            <i class="fa {{ $activeFilterCount > 0 ? 'fa-filter' : 'fa-list-ul' }}" aria-hidden="true"></i>
+            {{ $activeFilterCount > 0 ? trans('order::orders.filters_active', ['count' => $activeFilterCount]) : trans('order::orders.filters_all_orders') }}
+        </span>
+    </div>
+
+    <div class="orders-index__filter-body">
     <div class="orders-index__filter-row">
-        <span class="orders-index__filter-label" id="orders-channel-label" title="{{ trans('order::orders.filter_payment_channel_help') }}">
-            {{ trans('order::orders.filter_by_payment_channel') }}
+        <span class="orders-index__filter-label" id="orders-channel-label" title="{{ trans('order::orders.filter_payment_channel_help') }}" data-step="01">
+            <strong>{{ trans('order::orders.filter_by_payment_channel') }}</strong>
+            <small>{{ trans('order::orders.filter_channel_hint') }}</small>
         </span>
         <div
             class="orders-index__segment"
@@ -72,8 +97,9 @@
     </div>
 
     <div class="orders-index__filter-row">
-        <span class="orders-index__filter-label" id="orders-status-label" title="{{ trans('order::orders.filter_payment_status_help') }}">
-            {{ trans('order::orders.filter_by_payment_status') }}
+        <span class="orders-index__filter-label" id="orders-status-label" title="{{ trans('order::orders.filter_payment_status_help') }}" data-step="02">
+            <strong>{{ trans('order::orders.filter_by_payment_status') }}</strong>
+            <small>{{ trans('order::orders.filter_status_hint') }}</small>
         </span>
         <div
             class="orders-index__segment orders-index__segment--wrap"
@@ -114,8 +140,9 @@
     </div>
 
     <div class="orders-index__filter-row orders-index__filter-row--meta">
-        <span class="orders-index__filter-label" id="orders-period-label" title="{{ trans('order::orders.filter_date_help') }}">
-            {{ trans('order::orders.filter_by_period') }}
+        <span class="orders-index__filter-label" id="orders-period-label" title="{{ trans('order::orders.filter_date_help') }}" data-step="03">
+            <strong>{{ trans('order::orders.filter_by_period') }}</strong>
+            <small>{{ trans('order::orders.filter_period_hint') }}</small>
         </span>
         <div class="orders-index__meta" role="group" aria-labelledby="orders-period-label">
             <label class="orders-index__field">
@@ -174,13 +201,16 @@
 
             <div class="orders-index__meta-actions">
                 <button type="button" id="orders-filter-apply" class="btn btn-primary btn-sm orders-index__meta-btn">
+                    <i class="fa fa-filter" aria-hidden="true"></i>
                     {{ trans('order::orders.filter_apply') }}
                 </button>
                 <button type="button" id="orders-filter-clear" class="btn btn-default btn-sm orders-index__meta-btn">
+                    <i class="fa fa-undo" aria-hidden="true"></i>
                     {{ trans('order::orders.filter_clear') }}
                 </button>
             </div>
         </div>
+    </div>
     </div>
 
 </div>

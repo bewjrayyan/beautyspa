@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.67' => [
+        'date' => '2026-09-04',
+        'en' => [
+            'summary' => 'Refine admin order filtering and treatment activity history.',
+            'changes' => [
+                'Reorganize order filters into a responsive command panel with clearer channel, payment status, period, and search controls.',
+                'Add an active-filter summary while preserving existing filter URLs and order table behavior.',
+                'Present treatment activity as a chronological timeline with action icons, timestamps, actor details, and readable note callouts.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perhalusi penapisan pesanan admin dan sejarah aktiviti rawatan.',
+            'changes' => [
+                'Susun semula penapis pesanan sebagai panel responsif dengan kawalan saluran, status bayaran, tempoh, dan carian yang lebih jelas.',
+                'Tambah ringkasan penapis aktif sambil mengekalkan URL penapis dan tingkah laku jadual pesanan sedia ada.',
+                'Papar aktiviti rawatan sebagai garis masa kronologi dengan ikon tindakan, masa, pelaksana, dan callout nota yang mudah dibaca.',
+            ],
+        ],
+    ],
+
     '4.11.66' => [
         'date' => '2026-09-04',
         'en' => [
