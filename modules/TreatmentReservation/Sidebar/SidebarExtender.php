@@ -43,6 +43,16 @@ class SidebarExtender extends BaseSidebarExtender
                     );
                 });
 
+                $item->item(trans('treatmentreservation::sidebar.pos_booking'), function (Item $child) {
+                    $child->icon('fa fa-plus-circle');
+                    $child->weight(7);
+                    $child->route('admin.treatment_reservations.pos');
+                    $child->isActiveWhen(route('admin.treatment_reservations.pos', [], false));
+                    $child->authorize(
+                        $this->auth->hasAccess('admin.treatment_reservations.create')
+                    );
+                });
+
                 $item->item(trans('treatmentreservation::sidebar.calendar'), function (Item $child) {
                     $child->weight(10);
                     $child->route('admin.treatment_reservations.index', ['view' => 'calendar']);
@@ -125,6 +135,14 @@ class SidebarExtender extends BaseSidebarExtender
             $item->weight(1);
             $item->route('admin.beauticians.portal.dashboard', $beauticianId);
             $item->authorize(true);
+        });
+
+        $group->item(trans('treatmentreservation::sidebar.pos_booking'), function (Item $item) use ($beauticianId) {
+            $item->icon('fa fa-plus-circle');
+            $item->weight(2);
+            $item->route('admin.treatment_reservations.portal.pos');
+            $item->isActiveWhen(route('admin.treatment_reservations.portal.pos', [], false));
+            $item->authorize($this->auth->hasAccess('admin.treatment_reservations.portal.create'));
         });
 
         $group->item(trans('treatmentreservation::sidebar.my_job_sheet_kanban'), function (Item $item) use ($beauticianId) {

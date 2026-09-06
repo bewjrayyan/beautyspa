@@ -11,4 +11,5 @@ return [
     'holidays' => 'Holidays',
     'my_calendar' => 'Appointment Reservation',
     'my_account' => 'My account',
+    'pos_booking' => 'POS Booking',
 ];

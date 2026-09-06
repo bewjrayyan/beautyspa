@@ -25,13 +25,13 @@ class Authenticate
 
         $url = url()->full();
 
-        if (!$request->isMethod('get')) {
+        if (!$request->isMethod('get') || $request->expectsJson()) {
             $url = url()->previous();
         }
 
         session()->put('url.intended', IntendedUrl::normalize($url));
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->expectsJson()) {
             abort(403, 'Unauthenticated.');
         }
 

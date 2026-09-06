@@ -52,9 +52,8 @@ class AppointmentAvailabilityScenariosTest extends TestCase
     {
         parent::setUp();
 
-        if (! app('modules')->isEnabled('SpaBranch') || ! app('modules')->isEnabled('TreatmentReservation')) {
-            $this->markTestSkipped('Required modules not enabled.');
-        }
+        $this->assertTrue(app('modules')->isEnabled('SpaBranch'), 'SpaBranch module must be enabled.');
+        $this->assertTrue(app('modules')->isEnabled('TreatmentReservation'), 'TreatmentReservation module must be enabled.');
 
         $this->admin = app(AppointmentAvailabilityAdminService::class);
         $this->engine = app(AppointmentAvailabilityService::class);
@@ -89,9 +88,11 @@ class AppointmentAvailabilityScenariosTest extends TestCase
             ->where('slug', 'drip')
             ->first();
 
-        if (! $aura || ! $drip) {
-            $this->markTestSkipped('Aura Curve / Drip products required for scenario tests.');
-        }
+        $this->assertNotNull($aura, 'Aura Curve product fixture is required.');
+        $this->assertNotNull($drip, 'Drip product fixture is required.');
+
+        $aura->update(['is_active' => true]);
+        $drip->update(['is_active' => true]);
 
         $this->productId = (int) $aura->id;
         $this->dripProductId = (int) $drip->id;

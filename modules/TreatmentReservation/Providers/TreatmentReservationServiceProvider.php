@@ -3,6 +3,7 @@
 namespace Modules\TreatmentReservation\Providers;
 
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
@@ -14,6 +15,7 @@ use Modules\TreatmentReservation\Console\SendCustomerFollowUpNotificationsComman
 use Modules\TreatmentReservation\Console\SyncTreatmentBookingsCommand;
 use Modules\TreatmentReservation\Console\SyncTreatmentProductDurationsCommand;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Policies\PosBookingPolicy;
 use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalAccessMiddleware;
 use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalPermissionMiddleware;
 use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalMiddleware;
@@ -47,6 +49,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
 
         Order::observe(OrderTreatmentBookingObserver::class);
         TreatmentBooking::observe(TreatmentBookingObserver::class);
+        Gate::policy(TreatmentBooking::class, PosBookingPolicy::class);
 
         $this->app['events']->listen(
             OrderStatusChanged::class,

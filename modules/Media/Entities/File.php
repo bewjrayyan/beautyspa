@@ -91,7 +91,7 @@ class File extends Model
      */
     public function getPathAttribute($path)
     {
-        if (is_null($path)) {
+        if (is_null($path) || $this->disk === 'private') {
             return null;
         }
 
@@ -122,6 +122,10 @@ class File extends Model
      */
     public function getSrcsetAttribute(): string
     {
+        if ($this->disk === 'private') {
+            return '';
+        }
+
         if (! $this->id) {
             return '';
         }

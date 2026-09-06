@@ -51,7 +51,11 @@ class ManualBookingService
                         $spaBranchId,
                         $date,
                         $time,
-                        $beauticianId
+                        $beauticianId,
+                        null,
+                        null,
+                        $data['_schedule_holds'] ?? [],
+                        isset($data['customer_id']) ? (int) $data['customer_id'] : null,
                     );
                 } else {
                     $this->availability->lockAppointmentsForDate($beauticianId, $date);
@@ -69,12 +73,15 @@ class ManualBookingService
             }
 
             $phone = PhoneNumber::normalize($data['customer_phone'] ?? '') ?: ($data['customer_phone'] ?? null);
-            $receiptFileId = $this->paymentReceipts->store($data['payment_receipt'] ?? null);
+            $receiptFileId = isset($data['_payment_receipt_file_id'])
+                ? (int) $data['_payment_receipt_file_id']
+                : $this->paymentReceipts->store($data['payment_receipt'] ?? null);
 
             $booking = TreatmentBooking::create([
                 'order_id' => null,
                 'source' => $source,
                 'created_by_user_id' => $actor->id,
+                'customer_id' => $data['customer_id'] ?? null,
                 'beautician_id' => $beauticianId,
                 'spa_branch_id' => $spaBranchId ?: null,
                 'treatment_category_id' => $selection['product']->treatment_category_id,
@@ -97,6 +104,9 @@ class ManualBookingService
                 'currency' => currency(),
                 'payment_status' => $data['payment_status'] ?? TreatmentBooking::PAYMENT_DEPOSIT,
                 'payment_receipt_file_id' => $receiptFileId,
+                'pos_request_key' => $data['_pos_request_key'] ?? null,
+                'pos_line_index' => $data['_pos_line_index'] ?? null,
+                'pos_payload_hash' => $data['_pos_payload_hash'] ?? null,
                 'notes' => $data['notes'] ?? null,
             ]);
 
@@ -149,7 +159,10 @@ class ManualBookingService
                         $date,
                         $time,
                         $beauticianId,
-                        $booking->id
+                        $booking->id,
+                        null,
+                        [],
+                        isset($data['customer_id']) ? (int) $data['customer_id'] : (int) $booking->customer_id,
                     );
                 } else {
                     $this->availability->lockAppointmentsForDate($beauticianId, $date);
@@ -174,6 +187,7 @@ class ManualBookingService
 
             $changes = [
                 'beautician_id' => $beauticianId,
+                'customer_id' => $data['customer_id'] ?? $booking->customer_id,
                 'spa_branch_id' => $spaBranchId ?: $booking->spa_branch_id,
                 'treatment_category_id' => $selection['product']->treatment_category_id,
                 'product_id' => $selection['product']->id,

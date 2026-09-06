@@ -10,6 +10,7 @@ use Modules\Media\Eloquent\HasMedia;
 use Modules\User\Entities\User;
 use Modules\User\Support\PhoneNumber;
 use Illuminate\Support\Collection;
+use Modules\TreatmentReservation\Entities\TreatmentBooking;
 
 class Beautician extends Model
 {
@@ -44,6 +45,12 @@ class Beautician extends Model
                 $beautician->phone = PhoneNumber::normalize($beautician->phone);
             }
         });
+    }
+
+
+    public function bookings()
+    {
+        return $this->hasMany(TreatmentBooking::class);
     }
 
 

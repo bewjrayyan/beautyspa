@@ -27,11 +27,23 @@ class MultiTreatmentBookingSchemaTest extends TestCase
         $this->assertNotNull($orderProductUnique);
     }
 
+    public function test_pos_requests_are_idempotent_per_line(): void
+    {
+        $this->assertTrue(Schema::hasColumn("treatment_bookings", "pos_request_key"));
+        $this->assertTrue(Schema::hasColumn("treatment_bookings", "pos_line_index"));
+        $this->assertTrue(Schema::hasColumn("treatment_bookings", "pos_payload_hash"));
+
+        $index = collect(Schema::getIndexes("treatment_bookings"))->first(
+            fn (array $index) => ($index["unique"] ?? false)
+                && ($index["columns"] ?? []) === ["pos_request_key", "pos_line_index"]
+        );
+
+        $this->assertNotNull($index, "POS request key and line index must be unique.");
+    }
+
     public function test_slot_reservations_do_not_unique_order_id(): void
     {
-        if (! Schema::hasTable('treatment_slot_reservations')) {
-            $this->markTestSkipped('slot reservations table missing');
-        }
+        $this->assertTrue(Schema::hasTable('treatment_slot_reservations'), 'slot reservations table is required');
 
         $indexes = collect(Schema::getIndexes('treatment_slot_reservations'));
         $orderIdUnique = $indexes->first(function (array $index) {

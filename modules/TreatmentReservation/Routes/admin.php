@@ -2,6 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('treatment-reservations/pos', [
+    'as' => 'admin.treatment_reservations.pos',
+    'uses' => 'PosController@index',
+    'middleware' => 'can:admin.treatment_reservations.create',
+]);
+
+
+Route::get("treatment-reservations/{booking}/payment-receipt", [
+    "as" => "admin.treatment_reservations.payment_receipt",
+    "uses" => "PaymentReceiptController@show",
+    "middleware" => "can:admin.treatment_reservations.index",
+]);
+
 Route::get('treatment-reservations', [
     'as' => 'admin.treatment_reservations.index',
     'uses' => 'ReservationController@index',
@@ -224,6 +237,18 @@ Route::get('treatment-reservations/portal', function () {
 });
 
 Route::middleware(['beautician.portal'])->group(function () {
+    Route::get('my/pos', [
+        'as' => 'admin.treatment_reservations.portal.pos',
+        'uses' => 'PosController@index',
+        'middleware' => 'can:admin.treatment_reservations.portal.create',
+    ]);
+
+
+    Route::get("my/bookings/{booking}/payment-receipt", [
+        "as" => "admin.treatment_reservations.portal.payment_receipt",
+        "uses" => "PaymentReceiptController@show",
+    ]);
+
     Route::get('my/dashboard', [
         'as' => 'admin.treatment_reservations.portal',
         'uses' => 'PortalController@dashboard',

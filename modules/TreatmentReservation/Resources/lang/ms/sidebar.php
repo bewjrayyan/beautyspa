@@ -11,4 +11,5 @@ return [
     'holidays' => 'Cuti',
     'my_calendar' => 'Tempahan Temujanji',
     'my_account' => 'Akaun saya',
+    'pos_booking' => 'Tempahan POS',
 ];

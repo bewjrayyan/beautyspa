@@ -1,0 +1,10 @@
+.tr-pos-cart-item { display: grid; gap: 8px; }
+.tr-pos-cart-line { padding: 10px; border: 1px solid #e5dff9; border-radius: 12px; background: #faf9ff; }
+.tr-pos-cart-line + .tr-pos-cart-line { margin-top: 8px; }
+.tr-pos-cart-line.is-active { border-color: #b20b63; box-shadow: 0 0 0 2px rgba(178, 11, 99, .08); }
+.tr-pos-cart-line-head { display: flex; align-items: center; gap: 8px; }
+.tr-pos-cart-copy { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.tr-pos-cart-copy strong { overflow: hidden; color: var(--pos-ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.tr-pos-cart-copy span { color: var(--pos-muted); font-size: 11px; }
+.tr-pos-line-variant { display: grid; gap: 5px; margin: 8px 0 0 44px; color: var(--pos-muted); font-size: 10px; font-weight: 800; }
+.tr-pos-line-variant select { width: 100%; min-height: 34px; border: 1px solid var(--pos-border); border-radius: 8px; background: #fff; padding: 0 8px; color: var(--pos-ink); font-size: 11px; }

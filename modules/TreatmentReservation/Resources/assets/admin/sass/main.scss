@@ -6,6 +6,11 @@
 @import "portal-job-sheet";
 @import "beautician-picker";
 @import "manual-booking";
+@import "pos";
+@import "pos-retail";
+@import "pos-rewards";
+@import "pos-lines";
+@import "pos-wizard";
 
 $tr-kanban-status-colors: (
     pending: (

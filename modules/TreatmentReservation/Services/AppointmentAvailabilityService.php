@@ -502,8 +502,9 @@ class AppointmentAvailabilityService
         ?int $excludeBookingId = null,
         ?int $excludeOrderId = null,
         array $holds = [],
+        ?int $customerId = null,
     ): void {
-        $this->lockSlotRows($productId, $spaBranchId, $date, $beauticianId);
+        $this->lockSlotRows($productId, $spaBranchId, $date, $beauticianId, $customerId);
 
         $normalized = $this->beauticianAvailability->normalizeTime($time);
 
@@ -519,6 +520,16 @@ class AppointmentAvailabilityService
             $normalized,
             $duration,
             $holds
+        )) {
+            throw new \InvalidArgumentException(trans('checkout::messages.treatment_schedule_overlap'));
+        }
+
+        if ($customerId && $this->customerHasConflict(
+            $customerId,
+            $date,
+            $normalized,
+            $duration,
+            $excludeBookingId
         )) {
             throw new \InvalidArgumentException(trans('checkout::messages.treatment_schedule_overlap'));
         }
@@ -547,6 +558,7 @@ class AppointmentAvailabilityService
         int $spaBranchId,
         string $date,
         ?int $beauticianId = null,
+        ?int $customerId = null,
     ): void {
         if (DB::transactionLevel() === 0) {
             return;
@@ -557,6 +569,10 @@ class AppointmentAvailabilityService
 
         if ($beauticianId) {
             $lockKeys[] = "beautician:{$beauticianId}:{$date}";
+        }
+
+        if ($customerId) {
+            $lockKeys[] = "customer:{$customerId}:{$date}";
         }
 
         sort($lockKeys);
@@ -594,6 +610,19 @@ class AppointmentAvailabilityService
         if ($beauticianId) {
             $this->beauticianAvailability->lockAppointmentsForDate($beauticianId, $date);
         }
+        if ($customerId) {
+            TreatmentBooking::query()
+                ->where(function ($query) use ($customerId) {
+                    $query->where('customer_id', $customerId)
+                        ->orWhereHas('order', fn ($order) => $order->where('customer_id', $customerId));
+                })
+                ->where('appointment_date', $date)
+                ->whereNotNull('appointment_time')
+                ->whereIn('status', $this->beauticianAvailability->slotBlockingBookingStatuses())
+                ->lockForUpdate()
+                ->get();
+        }
+
     }
 
 
@@ -973,6 +1002,51 @@ class AppointmentAvailabilityService
         );
     }
 
+
+
+    private function customerHasConflict(
+        int $customerId,
+        string $date,
+        string $startTime,
+        int $durationMinutes,
+        ?int $excludeBookingId,
+    ): bool {
+        $startMin = $this->minutesFromTime($startTime);
+        $endMin = $startMin === null ? null : $startMin + max(1, $durationMinutes);
+
+        if ($startMin === null || $endMin === null) {
+            return true;
+        }
+
+        $bookings = TreatmentBooking::query()
+            ->select(['id', 'order_id', 'appointment_time', 'product_id', 'spa_branch_id', 'duration_minutes_snapshot'])
+            ->with(['product.attributes.attribute', 'product.attributes.values.attributeValue'])
+            ->where(function ($query) use ($customerId) {
+                $query->where('customer_id', $customerId)
+                    ->orWhereHas('order', fn ($order) => $order->where('customer_id', $customerId));
+            })
+            ->where('appointment_date', $date)
+            ->whereNotNull('appointment_time')
+            ->whereIn('status', $this->beauticianAvailability->slotBlockingBookingStatuses())
+            ->when($excludeBookingId, fn ($query) => $query->whereKeyNot($excludeBookingId))
+            ->get();
+
+        foreach ($bookings as $booking) {
+            $otherStart = $this->minutesFromTime((string) $booking->appointment_time);
+
+            if ($otherStart === null) {
+                continue;
+            }
+
+            $otherEnd = $otherStart + max(1, $this->durationMinutesForBooking($booking));
+
+            if ($startMin < $otherEnd && $endMin > $otherStart) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private function beauticianOutsideWindowOrBlocked(
         int $beauticianId,

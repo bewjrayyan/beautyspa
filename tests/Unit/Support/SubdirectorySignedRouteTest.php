@@ -23,6 +23,8 @@ class SubdirectorySignedRouteTest extends TestCase
     protected function tearDown(): void
     {
         Facade::setFacadeApplication(null);
+        \AestheticCart\Http\FixSubdirectoryRequest::resetResolvedState();
+        \Illuminate\Foundation\Bootstrap\HandleExceptions::flushState($this);
 
         parent::tearDown();
     }

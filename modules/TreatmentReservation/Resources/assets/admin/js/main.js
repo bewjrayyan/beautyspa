@@ -20,6 +20,7 @@ import { initCustomerProfileDrawer } from "./customer-profile.js";
 import "./portal-account.js";
 import "./portal-availability.js";
 import "./manual-booking.js";
+import "./pos.js";
 import { initAdminPreviewTimer } from "./admin-preview-timer.js";
 
 const TR_KANBAN_STATUS_ACCENT = {

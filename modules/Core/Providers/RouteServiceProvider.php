@@ -76,10 +76,14 @@ class RouteServiceProvider extends ServiceProvider
 
         foreach ($this->app['modules']->allEnabled() as $module) {
             $namespace = "Modules\\{$module->getName()}\\Http\\Controllers";
+            $this->mapApiRoutes("{$module->getPath()}/Routes/api.php", $namespace);
+        }
+
+        foreach ($this->app['modules']->allEnabled() as $module) {
+            $namespace = "Modules\\{$module->getName()}\\Http\\Controllers";
 
             $this->groupPublicRoutes($namespace, function () use ($module) {
                 $this->mapPublicRoutes("{$module->getPath()}/Routes/public.php");
-                $this->mapApiRoutes("{$module->getPath()}/Routes/api.php");
             });
         }
     }
@@ -141,16 +145,18 @@ class RouteServiceProvider extends ServiceProvider
     }
 
 
-    private function mapApiRoutes($path)
+    private function mapApiRoutes(string $path, string $namespace): void
     {
         if (! file_exists($path)) {
             return;
         }
 
         Route::group([
-            'namespace' => 'Api',
+            'namespace' => "{$namespace}\\Api",
             'prefix' => 'api',
-            'middleware' => ['api'],
+            // These module APIs are consumed by the authenticated Blade admin/portal
+            // and therefore use session authentication plus CSRF protection.
+            'middleware' => ['web', 'auth'],
         ], function () use ($path) {
             require $path;
         });

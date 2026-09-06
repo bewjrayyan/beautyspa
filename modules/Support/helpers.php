@@ -325,10 +325,10 @@ if (! function_exists('aestheticcart_app_url_origin')) {
      */
     function aestheticcart_app_url_origin(): ?array
     {
-        $root = \AestheticCart\Http\FixSubdirectoryRequest::resolvedAppUrl();
+        $root = function_exists('config') ? config('app.url') : null;
 
-        if (! $root && function_exists('config')) {
-            $root = config('app.url');
+        if (! $root) {
+            $root = \AestheticCart\Http\FixSubdirectoryRequest::resolvedAppUrl();
         }
 
         if (! is_string($root) || $root === '') {

@@ -82,6 +82,20 @@ class PrivateDocumentAccessTest extends TestCase
         (new OrderPaymentProofController())->show($order, $file);
     }
 
+    #[Test]
+    public function private_media_never_exposes_a_public_path_or_srcset(): void
+    {
+        $file = new File();
+        $file->setRawAttributes([
+            'id' => 99,
+            'disk' => 'private',
+            'path' => 'media/manual-booking-receipts/private.jpg',
+        ], true);
+
+        $this->assertNull($file->path);
+        $this->assertSame('', $file->srcset);
+    }
+
     private function bindFilesystem(FilesystemAdapter $disk): void
     {
         $factory = $this->createMock(FilesystemFactory::class);

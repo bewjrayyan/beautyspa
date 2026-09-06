@@ -49,6 +49,7 @@ class TreatmentBooking extends Model
         'order_product_id',
         'source',
         'created_by_user_id',
+        'customer_id',
         'beautician_id',
         'spa_branch_id',
         'treatment_category_id',
@@ -69,6 +70,9 @@ class TreatmentBooking extends Model
         'currency',
         'payment_status',
         'payment_receipt_file_id',
+        'pos_request_key',
+        'pos_line_index',
+        'pos_payload_hash',
         'notes',
         'beautician_notes',
         'beautician_notes_at',
@@ -79,6 +83,7 @@ class TreatmentBooking extends Model
     protected $casts = [
         'appointment_date' => 'date',
         'duration_minutes_snapshot' => 'integer',
+        'pos_line_index' => 'integer',
         'total' => 'float',
         'product_options' => 'array',
         'product_variations' => 'array',
@@ -334,6 +339,13 @@ class TreatmentBooking extends Model
     {
         return $this->belongsTo(OrderProduct::class);
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(\Modules\User\Entities\User::class, 'customer_id');
+    }
+
+
 
 
     public function createdBy()
@@ -862,7 +874,11 @@ class TreatmentBooking extends Model
             'product_variations' => $this->product_variations ?? [],
             'payment_status' => $this->resolvedPaymentStatus(),
             'payment_is_outstanding' => $this->hasOutstandingPayment(),
-            'payment_receipt_url' => $this->paymentReceipt?->path,
+            'payment_receipt_url' => $this->paymentReceipt
+                ? route(auth()->user()?->isBeauticianOnly()
+                    ? 'admin.treatment_reservations.portal.payment_receipt'
+                    : 'admin.treatment_reservations.payment_receipt', $this)
+                : null,
             'appointment_date_value' => $this->appointment_date?->format('Y-m-d'),
         ];
     }

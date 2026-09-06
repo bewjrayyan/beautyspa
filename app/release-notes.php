@@ -5,6 +5,30 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.69' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Launch a production-hardened Treatment POS booking workspace.',
+            'changes' => [
+                'Add guided per-treatment booking for customer, variant, options, spa branch, beautician, date, and live availability slot selection.',
+                'Prevent overlapping customer and beautician appointments across POS and storefront bookings, including multi-treatment carts.',
+                'Require offline payment receipts, store them privately, and protect authorized receipt access from public URL and srcset exposure.',
+                'Add membership lookup, customer search, idempotent booking submission, status workflow, audit activity, and role-scoped POS APIs.',
+                'Add database hardening and automated regression coverage for availability, security, private media, and POS request integrity.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Lancarkan ruang kerja tempahan Treatment POS yang diperkukuh untuk production.',
+            'changes' => [
+                'Tambah aliran tempahan berpandu bagi setiap rawatan untuk pelanggan, varian, pilihan, cawangan spa, beautician, tarikh, dan slot availability langsung.',
+                'Cegah pertindihan masa pelanggan dan beautician antara tempahan POS dan storefront, termasuk cart berbilang rawatan.',
+                'Wajibkan resit bayaran offline, simpan secara private, dan lindungi akses resit daripada URL awam serta pendedahan srcset.',
+                'Tambah carian membership dan pelanggan, penghantaran tempahan idempotent, aliran status, audit aktiviti, dan API POS mengikut skop peranan.',
+                'Tambah pengukuhan database dan regression test automatik untuk availability, security, private media, dan integriti request POS.',
+            ],
+        ],
+    ],
+
     '4.11.68' => [
         'date' => '2026-09-04',
         'en' => [

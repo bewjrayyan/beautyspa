@@ -7,7 +7,7 @@ use Modules\TreatmentReservation\Entities\TreatmentBookingActivity;
 
 class TreatmentBookingActivityLogger
 {
-    public function logStatusChange(TreatmentBooking $booking, ?string $from, string $to): void
+    public function logStatusChange(TreatmentBooking $booking, ?string $from, string $to, ?int $userId = null): void
     {
         if ($from === $to) {
             return;
@@ -15,7 +15,7 @@ class TreatmentBookingActivityLogger
 
         TreatmentBookingActivity::create([
             'treatment_booking_id' => $booking->id,
-            'user_id' => auth()->id(),
+            'user_id' => $userId ?? auth()->id(),
             'action' => TreatmentBookingActivity::ACTION_STATUS_CHANGED,
             'from_value' => $from,
             'to_value' => $to,

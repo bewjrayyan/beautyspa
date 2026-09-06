@@ -539,6 +539,7 @@ class BookingSyncService
             'order_id' => $order->id,
             'order_product_id' => $orderProduct->id,
             'source' => TreatmentBooking::SOURCE_CHECKOUT,
+            'customer_id' => $order->customer_id,
             'beautician_id' => $beauticianId ? (int) $beauticianId : null,
             'spa_branch_id' => $order->spa_branch_id ?? null,
             'treatment_category_id' => $product->treatment_category_id,

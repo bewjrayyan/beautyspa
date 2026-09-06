@@ -29,16 +29,22 @@ class ManualBookingProductSelectionValidator
         $product = Product::query()
             ->where('is_virtual', true)
             ->where('is_active', true)
-            ->with(['options.values', 'variations.values', 'variants'])
+            ->with([
+                'options.values',
+                'variations.values',
+                'variants' => fn ($query) => $query->where('is_active', true),
+            ])
             ->findOrFail($data['product_id']);
 
         $options = $this->normalizeOptions($data['options'] ?? []);
         $variations = $this->normalizeVariations($data['variations'] ?? []);
 
         $this->validateOptions($product, $options);
-        $this->validateVariations($product, $variations);
+        $variant = $this->resolveVariant($product, $variations, $data['variant_id'] ?? null);
 
-        $variant = $this->resolveVariant($product, $variations);
+        if (empty($data['variant_id'])) {
+            $this->validateVariations($product, $variations);
+        }
 
         if ($product->variants->isNotEmpty() && $variant === null) {
             throw ValidationException::withMessages([
@@ -164,10 +170,14 @@ class ManualBookingProductSelectionValidator
     /**
      * @param array<string, string> $variations
      */
-    private function resolveVariant(Product $product, array $variations): ?ProductVariant
+    private function resolveVariant(Product $product, array $variations, mixed $variantId = null): ?ProductVariant
     {
         if ($product->variants->isEmpty()) {
             return null;
+        }
+
+        if ($variantId !== null && $variantId !== '') {
+            return $product->variants->firstWhere('id', (int) $variantId);
         }
 
         $selectedUids = implode('.', array_values($variations));

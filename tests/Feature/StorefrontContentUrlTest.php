@@ -12,6 +12,9 @@ class StorefrontContentUrlTest extends TestCase
         parent::setUp();
 
         config()->set('app.url', 'https://immaserilaris.com/v2');
+        $_SERVER['REQUEST_URI'] = '/';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        \AestheticCart\Http\FixSubdirectoryRequest::resetResolvedState();
     }
 
     #[Test]

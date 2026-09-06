@@ -5,6 +5,7 @@ namespace Modules\User\Entities;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Loyalty\Entities\LoyaltyWallet;
 use Modules\Order\Entities\Order;
+use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\User\Admin\UserTable;
 use Illuminate\Http\JsonResponse;
 use Modules\Review\Entities\Review;
@@ -328,6 +329,12 @@ class User extends EloquentUser implements AuthenticatableContract
      *
      * @return HasMany
      */
+    public function treatmentBookings()
+    {
+        return $this->hasMany(TreatmentBooking::class, "customer_id");
+    }
+
+
     public function orders()
     {
         return $this->hasMany(Order::class, 'customer_id');

@@ -47,6 +47,12 @@ class FixSubdirectoryRequest
     }
 
 
+    public static function resetResolvedState(): void
+    {
+        self::$resolvedBasePath = null;
+        self::$resolvedAppUrl = null;
+    }
+
     public static function basePath(): string
     {
         if (self::$resolvedBasePath !== null) {
