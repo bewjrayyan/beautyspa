@@ -155,7 +155,11 @@ class Handler extends ExceptionHandler
             return parent::render($request, $e);
         }
 
-        if (CacheHealth::isRedisAuthOrConnectivityFailure($e)) {
+        if (
+            CacheHealth::isRedisAuthOrConnectivityFailure($e)
+            || str_contains(strtolower($e->getMessage()), 'redis')
+            || str_contains(strtolower($e->getMessage()), 'predis')
+        ) {
             CacheHealth::fallbackFromRedis();
 
             if ($request->expectsJson() || $request->ajax() || $request->is('api/*')) {

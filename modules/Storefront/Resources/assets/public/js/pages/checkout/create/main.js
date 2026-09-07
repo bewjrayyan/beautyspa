@@ -117,6 +117,7 @@ Alpine.data(
         errors: new Errors(),
         accountEmailExists: false,
         checkingAccountEmail: false,
+        emailCheckRequestId: 0,
         accountLoginPassword: "",
         accountLoginError: "",
         loggingInToAccount: false,
@@ -900,8 +901,10 @@ Alpine.data(
             const email = String(this.form.customer_email || "").trim();
 
             if (!email || !this.isValidEmail(email)) {
+                this.emailCheckRequestId += 1;
                 this.accountEmailExists = false;
                 this.accountLoginError = "";
+                this.checkingAccountEmail = false;
 
                 return;
             }
@@ -916,28 +919,53 @@ Alpine.data(
 
             if (!this.isValidEmail(email)) {
                 this.accountEmailExists = false;
+                this.checkingAccountEmail = false;
 
                 return;
             }
 
+            const requestId = ++this.emailCheckRequestId;
             this.checkingAccountEmail = true;
             this.accountLoginError = "";
+
+            const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+            const timeoutId = window.setTimeout(() => controller?.abort(), 8000);
 
             try {
                 const { data } = await axios.post(
                     AestheticCart.url("/checkout/check-email"),
-                    { email }
+                    { email },
+                    controller ? { signal: controller.signal, timeout: 8000 } : { timeout: 8000 }
                 );
 
-                this.accountEmailExists = Boolean(data.exists);
+                if (requestId !== this.emailCheckRequestId) {
+                    return;
+                }
+
+                this.accountEmailExists = Boolean(data?.exists);
 
                 if (this.accountEmailExists) {
                     this.form.create_an_account = false;
                 }
             } catch (error) {
+                if (requestId !== this.emailCheckRequestId) {
+                    return;
+                }
+
                 this.accountEmailExists = false;
+
+                if (error?.code !== "ERR_CANCELED") {
+                    notify(
+                        error.response?.data?.message ||
+                            trans("storefront::storefront.something_went_wrong")
+                    );
+                }
             } finally {
-                this.checkingAccountEmail = false;
+                window.clearTimeout(timeoutId);
+
+                if (requestId === this.emailCheckRequestId) {
+                    this.checkingAccountEmail = false;
+                }
             }
         },
 

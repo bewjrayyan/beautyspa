@@ -66,6 +66,15 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by($request->ip());
         });
 
+        RateLimiter::for('checkout-email', function (Request $request) {
+            // Lightweight email probe — fail open if Redis/cache is unavailable.
+            try {
+                return Limit::perMinute(30)->by(strtolower((string) $request->input('email', $request->ip())));
+            } catch (\Throwable) {
+                return Limit::none();
+            }
+        });
+
         RateLimiter::for('checkout', function (Request $request) {
             return Limit::perMinute(8)->by($request->ip());
         });

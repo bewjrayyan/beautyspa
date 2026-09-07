@@ -5,17 +5,19 @@ namespace Modules\Checkout\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 use Cartalyst\Sentinel\Checkpoints\NotActivatedException;
 use Cartalyst\Sentinel\Checkpoints\ThrottlingException;
 use Modules\User\Contracts\Authentication;
 use Modules\User\Entities\User;
 use Modules\User\Http\Requests\LoginRequest;
+use Throwable;
 
 class CheckoutAccountController extends Controller
 {
     public function __construct(protected Authentication $auth)
     {
-        $this->middleware('guest');
+        $this->middleware('guest')->only('login');
     }
 
     /**
@@ -23,13 +25,27 @@ class CheckoutAccountController extends Controller
      */
     public function checkEmail(Request $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'email'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'email' => ['required', 'email', 'max:255'],
+            ]);
 
-        return response()->json([
-            'exists' => User::registered($request->email),
-        ]);
+            $email = strtolower(trim((string) $validated['email']));
+
+            return response()->json([
+                'exists' => User::query()->where('email', $email)->exists(),
+            ]);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            report($e);
+
+            // Degrade gracefully so checkout is never blocked by Redis/cache blips.
+            return response()->json([
+                'exists' => false,
+                'degraded' => true,
+            ]);
+        }
     }
 
     /**

@@ -197,14 +197,36 @@ class CacheHealth
 
     public static function isRedisAuthOrConnectivityFailure(Throwable $e): bool
     {
-        $message = $e->getMessage();
+        $current = $e;
 
-        return str_contains($message, 'NOAUTH')
-            || str_contains($message, 'Authentication required')
-            || str_contains($message, 'invalid password')
-            || str_contains($message, 'WRONGPASS')
-            || str_contains($message, 'Connection refused')
-            || str_contains($message, 'timed out')
-            || str_contains($message, 'read error on connection');
+        while ($current instanceof Throwable) {
+            $message = $current->getMessage();
+            $class = $current::class;
+
+            if (
+                str_contains($message, 'NOAUTH')
+                || str_contains($message, 'Authentication required')
+                || str_contains($message, 'invalid password')
+                || str_contains($message, 'WRONGPASS')
+                || str_contains($message, 'Connection refused')
+                || str_contains($message, 'Connection timed out')
+                || str_contains($message, 'timed out')
+                || str_contains($message, 'read error on connection')
+                || str_contains($message, 'Error while reading')
+                || str_contains($message, 'MISCONF')
+                || str_contains($message, 'LOADING')
+                || str_contains($message, 'OOM command not allowed')
+                || str_contains($message, 'max number of clients')
+                || str_contains($message, 'php_network_getaddresses')
+                || str_starts_with($class, 'Predis\\')
+                || str_contains($class, 'RedisException')
+            ) {
+                return true;
+            }
+
+            $current = $current->getPrevious();
+        }
+
+        return false;
     }
 }

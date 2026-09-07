@@ -8,7 +8,6 @@ Route::post('checkout', 'CheckoutController@store')
     ->name('checkout.store');
 
 Route::post('checkout/check-email', 'CheckoutAccountController@checkEmail')
-    ->middleware('throttle:30,1')
     ->name('checkout.check_email');
 Route::post('checkout/login', 'CheckoutAccountController@login')
     ->middleware('throttle:10,1')
