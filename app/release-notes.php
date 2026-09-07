@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.72' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Fix SweetAlert2 success icons and notification message rendering.',
+            'changes' => [
+                'Restore native SweetAlert2 icon geometry so success/error marks no longer break or spill outside the modal.',
+                'Scope modal CSS variables to the popup, align admin/storefront alerts to a consistent 480px layout, and clip timer/overflow artifacts.',
+                'Coerce API/object flash payloads into readable messages and show session flashes one after another.',
+                'Load SweetAlert styles on auth pages so login notifications match the rest of the app.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki ikon kejayaan SweetAlert2 dan paparan mesej notifikasi.',
+            'changes' => [
+                'Pulihkan geometri ikon SweetAlert2 supaya tanda kejayaan/ralat tidak rosak atau keluar dari modal.',
+                'Scope pembolehubah CSS modal ke popup, seragamkan alert admin/storefront kepada layout 480px, dan potong artifak timer/overflow.',
+                'Tukar payload flash API/objek kepada mesej yang boleh dibaca dan paparkan flash sesi secara berurutan.',
+                'Muatkan gaya SweetAlert pada halaman auth supaya notifikasi log masuk sama seperti seluruh aplikasi.',
+            ],
+        ],
+    ],
+
     '4.11.71' => [
         'date' => '2026-09-07',
         'en' => [
