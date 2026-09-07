@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.74' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Modernize checkout account gate for easier sign-in or guest checkout.',
+            'changes' => [
+                'Redesign Account Details into an email-first gate with clear Sign in, Create account, and Continue as guest paths.',
+                'Add password visibility toggles on checkout login and registration fields.',
+                'Polish signed-in account state with a clearer status badge and supporting copy.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Modenkan pintu akaun checkout untuk log masuk atau checkout tetamu lebih mudah.',
+            'changes' => [
+                'Reka semula Butiran akaun menjadi pintu berasaskan e-mel dengan laluan Log masuk, Cipta akaun, dan Teruskan sebagai tetamu yang jelas.',
+                'Tambah togol nampak kata laluan pada medan log masuk dan pendaftaran checkout.',
+                'Perhalusi keadaan sudah log masuk dengan lencana status dan teks sokongan yang lebih jelas.',
+            ],
+        ],
+    ],
+
     '4.11.73' => [
         'date' => '2026-09-07',
         'en' => [
