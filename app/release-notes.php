@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.71' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Add product shipping classes with accurate Flat Rate costing and a clearer physical-product checkout.',
+            'changes' => [
+                'Add admin Shipping Classes CRUD, permissions, and a required shipping class field on physical products.',
+                'Calculate Flat Rate from class cost × quantity (with safe fallbacks) so physical orders are not undercharged.',
+                'Hide treatment/spa booking UI for physical-only carts and align Shipping Method cards with Payment Method styling.',
+                'Add a Proceed button to jump to Order Summary, plus backfill/grant commands, destroy guards, and resolver unit tests.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah kelas penghantaran produk dengan kos Flat Rate tepat dan checkout produk fizikal yang lebih jelas.',
+            'changes' => [
+                'Tambah CRUD Kelas Penghantaran admin, kebenaran, dan medan kelas wajib pada produk fizikal.',
+                'Kira Flat Rate dari kos kelas × kuantiti (dengan fallback selamat) supaya pesanan fizikal tidak kurang caj.',
+                'Sembunyikan UI tempahan rawatan/spa untuk cart fizikal sahaja dan seragamkan kad Shipping Method dengan Payment Method.',
+                'Tambah butang Proceed ke Order Summary, plus arahan backfill/grant, kawalan padam, dan ujian unit resolver.',
+            ],
+        ],
+    ],
+
     '4.11.70' => [
         'date' => '2026-09-07',
         'en' => [
