@@ -21,32 +21,39 @@
 /* Centered modal (success / confirm) — like classic SweetAlert */
 html body .swal2-popup.ac-swal-modal,
 html body .ac-swal-modal.swal2-popup {
-    --swal2-width: 640px;
-    width: 640px !important;
+    --swal2-width: 480px;
+    --swal2-padding: 24px 20px 18px;
+    --swal2-title-padding: 0;
+    --swal2-html-container-padding: 0;
+    width: 480px !important;
     max-width: calc(100vw - 32px) !important;
-    font-size: 20px !important;
-    padding: 48px 40px 36px !important;
-    border-radius: 8px !important;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18) !important;
+    font-size: 16px !important;
+    padding: 24px 20px 18px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important;
+    overflow: hidden !important;
 
     /*
-     * Do NOT override width/height/border/line-height in px.
-     * SweetAlert2 success/error marks are positioned in em units;
-     * fixed px sizes break the checkmark (thin X / leftover ring).
-     * Scale with --swal2-icon-zoom only.
+     * Keep SweetAlert2 icon geometry intact.
+     * Do NOT force box-sizing/content size in px — that breaks success/error marks
+     * and lets .swal2-success-circular-line-* spill outside the popup.
      */
     .ac-swal-modal__icon,
     .swal2-icon {
-        --swal2-icon-zoom: 1;
-        margin: 0.25em auto 1em !important;
-        box-sizing: content-box !important;
+        --swal2-icon-zoom: 0.85;
+        margin: 0.35em auto 0.85em !important;
+    }
+
+    .swal2-icon.swal2-success {
+        overflow: hidden !important;
+        box-sizing: border-box !important;
     }
 
     .ac-swal-modal__title,
     .swal2-title {
-        margin: 0 0 14px !important;
+        margin: 0 0 8px !important;
         padding: 0 !important;
-        font-size: 32px !important;
+        font-size: 22px !important;
         font-weight: 600 !important;
         line-height: 1.25 !important;
         color: #595959 !important;
@@ -55,9 +62,9 @@ html body .ac-swal-modal.swal2-popup {
 
     .ac-swal-modal__text,
     .swal2-html-container {
-        margin: 0 0 28px !important;
+        margin: 0 0 12px !important;
         padding: 0 !important;
-        font-size: 20px !important;
+        font-size: 16px !important;
         font-weight: 400 !important;
         line-height: 1.5 !important;
         color: #545454 !important;
@@ -66,8 +73,8 @@ html body .ac-swal-modal.swal2-popup {
 
     .ac-swal-modal__actions,
     .swal2-actions {
-        margin: 8px auto 0 !important;
-        gap: 14px !important;
+        margin: 4px auto 0 !important;
+        gap: 8px !important;
     }
 
     .ac-swal-modal__confirm,
@@ -77,10 +84,19 @@ html body .ac-swal-modal.swal2-popup {
         border: 0 !important;
         border-radius: 4px !important;
         font-weight: 600 !important;
-        font-size: 18px !important;
-        padding: 14px 36px !important;
-        min-width: 120px;
+        font-size: 14px !important;
+        padding: 8px 20px !important;
+        min-width: 80px;
         box-shadow: none !important;
+    }
+
+    .swal2-timer-progress-bar-container {
+        position: absolute !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        overflow: hidden !important;
     }
 
     .swal2-timer-progress-bar {
@@ -92,16 +108,9 @@ html body .ac-swal-modal.swal2-popup {
     }
 }
 
-/* Override SweetAlert2 CSS variables for higher specificity */
-:root {
-    --swal2-width: 640px;
-    --swal2-padding: 48px 40px 36px;
-    --swal2-title-padding: 0 !important;
-    --swal2-html-container-padding: 0 !important;
-}
-
 /* Optional corner toast API */
 .ac-swal-toast.swal2-popup.swal2-toast {
+    --swal2-width: 420px;
     width: 420px !important;
     max-width: calc(100vw - 24px) !important;
     padding: 16px 18px !important;
@@ -110,19 +119,23 @@ html body .ac-swal-modal.swal2-popup {
     background: #fff !important;
     border: 1px solid #eef2f7 !important;
     align-items: flex-start !important;
+    overflow: hidden !important;
 
     .swal2-icon {
+        --swal2-icon-zoom: 0.7;
         margin: 0 12px 0 0 !important;
-        width: 2.25em !important;
-        min-width: 2.25em !important;
-        height: 2.25em !important;
+    }
+
+    .swal2-icon.swal2-success {
+        overflow: hidden !important;
+        box-sizing: border-box !important;
     }
 
     .ac-swal-toast__title,
     .swal2-title {
         margin: 0 0 2px !important;
         padding: 0 !important;
-        font-size: 18px !important;
+        font-size: 16px !important;
         font-weight: 700 !important;
         color: #1f2937 !important;
         text-align: left !important;
@@ -132,8 +145,21 @@ html body .ac-swal-modal.swal2-popup {
     .swal2-html-container {
         margin: 0 !important;
         padding: 0 !important;
-        font-size: 16px !important;
+        font-size: 14px !important;
         color: #4b5563 !important;
         text-align: left !important;
+    }
+}
+
+.rtl .ac-swal-toast.swal2-popup.swal2-toast {
+    .swal2-icon {
+        margin: 0 0 0 12px !important;
+    }
+
+    .ac-swal-toast__title,
+    .swal2-title,
+    .ac-swal-toast__text,
+    .swal2-html-container {
+        text-align: right !important;
     }
 }

@@ -105,6 +105,48 @@ function t(key, fallback) {
     return fallback;
 }
 
+
+function coerceMessage(message) {
+    if (message == null) {
+        return "";
+    }
+
+    if (typeof message === "string") {
+        return message.trim();
+    }
+
+    if (typeof message === "number" || typeof message === "boolean") {
+        return String(message);
+    }
+
+    if (typeof message === "object") {
+        if (typeof message.message === "string" && message.message.trim()) {
+            return message.message.trim();
+        }
+
+        if (Array.isArray(message.errors)) {
+            const first = message.errors.find((item) => typeof item === "string" && item.trim());
+            if (first) {
+                return first.trim();
+            }
+        }
+
+        if (message.errors && typeof message.errors === "object") {
+            for (const value of Object.values(message.errors)) {
+                if (typeof value === "string" && value.trim()) {
+                    return value.trim();
+                }
+
+                if (Array.isArray(value) && typeof value[0] === "string" && value[0].trim()) {
+                    return value[0].trim();
+                }
+            }
+        }
+    }
+
+    return "";
+}
+
 function normalizeType(type) {
     const value = String(type || "info").toLowerCase();
 
@@ -137,7 +179,7 @@ function headlineFor(type, options = {}) {
 async function toast(type, message, options = {}) {
     await ensureSwal();
     const icon = normalizeType(type);
-    const text = message == null ? "" : String(message).trim();
+    const text = coerceMessage(message);
 
     if (!text) {
         return Promise.resolve();
@@ -170,7 +212,7 @@ async function toast(type, message, options = {}) {
 async function centered(type, message, options = {}) {
     await ensureSwal();
     const icon = normalizeType(type);
-    const text = message == null ? "" : String(message).trim();
+    const text = coerceMessage(message);
 
     if (!text) {
         return Promise.resolve();
@@ -241,7 +283,7 @@ async function alert(message, options = {}) {
     await ensureSwal();
     const opts = { ...(options || {}) };
     const icon = normalizeType(opts.type || opts.icon || "info");
-    const text = message == null ? "" : String(message);
+    const text = coerceMessage(message) || (message == null ? "" : String(message));
 
     return Modal.fire({
         icon,
@@ -314,11 +356,11 @@ async function bootFlashes(root = document) {
 
     await ensureSwal();
 
-    Object.entries(flashes).forEach(([type, message]) => {
-        if (message) {
-            centered(type, message);
+    for (const [type, message] of Object.entries(flashes)) {
+        if (coerceMessage(message)) {
+            await centered(type, message);
         }
-    });
+    }
 }
 
 export const SweetNotification = {
