@@ -178,7 +178,7 @@
                         class="checkout-account-mode__option"
                         role="tab"
                         :class="{ 'is-active': !form.create_an_account }"
-                        :aria-selected="(!form.create_an_account).toString()"
+                        :aria-selected="String(!form.create_an_account)"
                         @click="form.create_an_account = false"
                     >
                         <span class="checkout-account-mode__icon" aria-hidden="true">
@@ -194,8 +194,8 @@
                         type="button"
                         class="checkout-account-mode__option"
                         role="tab"
-                        :class="{ 'is-active': form.create_an_account }"
-                        :aria-selected="form.create_an_account.toString()"
+                        :class="{ 'is-active': !!form.create_an_account }"
+                        :aria-selected="String(!!form.create_an_account)"
                         @click="form.create_an_account = true"
                     >
                         <span class="checkout-account-mode__icon" aria-hidden="true">

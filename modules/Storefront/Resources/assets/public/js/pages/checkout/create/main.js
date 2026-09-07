@@ -68,6 +68,9 @@ Alpine.data(
         form: {
             customer_email: customerEmail,
             customer_phone: customerPhone,
+            create_an_account: false,
+            password: "",
+            password_confirmation: "",
             billing: {},
             shipping: {},
             billingAddressId: null,

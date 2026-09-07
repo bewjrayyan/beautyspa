@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.75' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Fix checkout account gate Alpine crash for guest/create paths.',
+            'changes' => [
+                'Initialize create_an_account and password fields on the checkout form so guest vs create-account toggles no longer throw.',
+                'Harden account-mode aria-selected bindings against undefined values.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki ranap Alpine pintu akaun checkout untuk laluan tetamu/cipta akaun.',
+            'changes' => [
+                'Mulakan medan create_an_account dan kata laluan pada borang checkout supaya togol tetamu vs cipta akaun tidak lagi ralat.',
+                'Kuatkan pengikatan aria-selected mod akaun terhadap nilai undefined.',
+            ],
+        ],
+    ],
+
     '4.11.74' => [
         'date' => '2026-09-07',
         'en' => [
