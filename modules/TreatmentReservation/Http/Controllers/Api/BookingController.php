@@ -169,11 +169,13 @@ class BookingController
             'beautician_id' => ['nullable', 'integer', Rule::exists('beauticians', 'id')->where('is_active', true)],
             'from' => ['nullable', 'date'],
             'to' => ['nullable', 'date', 'after_or_equal:from'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:60'],
         ]);
 
         $branchId = (int) $data['spa_branch_id'];
         $productId = (int) $data['product_id'];
         $beauticianId = isset($data['beautician_id']) ? (int) $data['beautician_id'] : null;
+        $limit = isset($data['limit']) ? (int) $data['limit'] : null;
 
         if ($beauticianId && ! Beautician::query()->whereKey($beauticianId)
             ->whereHas('spaBranches', fn ($query) => $query->where('spa_branches.id', $branchId))->exists()) {
@@ -202,17 +204,26 @@ class BookingController
                 $beauticianQuery->where('user_id', $request->user()->id);
             }
 
-            $dates = $beauticianQuery->pluck('id')->flatMap(
-                fn ($id) => $availability->availableDates($productId, $branchId, $from, $to, (int) $id)
-            )->unique()->sort()->values();
+            $dates = $availability->availableDatesAcrossBeauticians(
+                $productId,
+                $branchId,
+                $from,
+                $to,
+                $beauticianQuery->pluck('id'),
+                $limit,
+            );
 
             return response()->json(['dates' => $dates, 'date_options' => []]);
         }
 
         $options = $availability->dateOptions($productId, $branchId, $from, $to, $beauticianId);
+        $available = collect($options)->where('status', 'available')->pluck('date')->values();
+        if ($limit !== null) {
+            $available = $available->take($limit)->values();
+        }
 
         return response()->json([
-            'dates' => collect($options)->where('status', 'available')->pluck('date')->values(),
+            'dates' => $available,
             'date_options' => $options,
         ]);
     }
@@ -327,6 +338,8 @@ class BookingController
                 'tier' => $wallet?->tier?->name,
                 'points' => (int) ($wallet?->balance ?? 0),
                 'points_value_rm' => $config->pointsToRm((int) ($wallet?->balance ?? 0)),
+                'point_value_rm' => $config->pointValueRm(),
+                'max_redeem_percent' => $config->maxRedeemPercent(),
                 'stamp_cards' => [
                     'active' => collect($stampData['active_cards'])->map(fn ($card) => [
                         'earned' => (int) ($card->stamps_count ?? 0),

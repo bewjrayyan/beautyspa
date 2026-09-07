@@ -7,6 +7,10 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Modules\Beautician\Entities\Beautician;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\Loyalty\Enums\TransactionType;
+use Modules\Loyalty\Entities\LoyaltyWallet;
+use Modules\Loyalty\Services\LoyaltyRedemptionService;
+use Modules\Loyalty\Services\LoyaltyWalletService;
 use Modules\User\Entities\User;
 
 class PosBookingService
@@ -47,8 +51,14 @@ class PosBookingService
             : TreatmentBooking::SOURCE_ADMIN_MANUAL;
 
         try {
-            return $this->manualBookings->create($payload, $actor, $source)
+            $booking = $this->manualBookings->create($payload, $actor, $source)
                 ->load(['customer', 'beautician', 'product', 'category']);
+
+            if ($directIdempotency) {
+                $this->redeemLoyaltyPoints($data, [$booking], $actor);
+            }
+
+            return $booking;
         } catch (QueryException $exception) {
             if ($directIdempotency) {
                 $existing = $this->existingBatch((string) $data['request_key'], (string) $data['_pos_payload_hash'], $actor, 1);
@@ -108,6 +118,8 @@ class PosBookingService
                         ];
                     }
                 }
+
+                $this->redeemLoyaltyPoints($data, $bookings, $actor);
 
                 return $bookings;
             });
@@ -336,5 +348,61 @@ class PosBookingService
         if (! $booking->isManualBooking()) {
             throw new \InvalidArgumentException('Only POS/manual bookings can be managed through this API.');
         }
+    }
+
+    /**
+     * @param  list<TreatmentBooking>  $bookings
+     */
+    private function redeemLoyaltyPoints(array $data, array $bookings, User $actor): void
+    {
+        $points = (int) ($data['loyalty_points'] ?? 0);
+        if ($points <= 0 || $bookings === [] || ! class_exists(LoyaltyWalletService::class)) {
+            return;
+        }
+
+        if (! app('modules')->isEnabled('Loyalty')) {
+            return;
+        }
+
+        $customerId = (int) ($data['customer_id'] ?? 0);
+        $wallet = LoyaltyWallet::query()->where('user_id', $customerId)->first();
+        if (! $wallet) {
+            throw new \InvalidArgumentException('Loyalty wallet not found for this customer.');
+        }
+
+        $serviceTotal = collect($bookings)->sum(function (TreatmentBooking $booking) {
+            return (float) ($booking->product?->selling_price?->amount() ?? 0);
+        });
+
+        /** @var LoyaltyRedemptionService $redemption */
+        $redemption = app(LoyaltyRedemptionService::class);
+        $quote = $redemption->quote($wallet, max(0, $serviceTotal), $points);
+
+        if ($quote['points'] <= 0) {
+            throw new \InvalidArgumentException('Unable to redeem the requested loyalty points.');
+        }
+
+        /** @var LoyaltyWalletService $wallets */
+        $wallets = app(LoyaltyWalletService::class);
+        $primary = $bookings[0];
+
+        $wallets->debit(
+            $wallet,
+            (int) $quote['points'],
+            TransactionType::REDEEM,
+            'pos_booking',
+            (string) ($data['request_key'] ?? $primary->id),
+            sprintf('POS booking redemption (−RM %0.2f)', $quote['discount_rm']),
+            [
+                'booking_ids' => collect($bookings)->pluck('id')->values()->all(),
+                'discount_rm' => $quote['discount_rm'],
+                'actor_id' => $actor->id,
+            ],
+        );
+
+        $note = trim((string) ($primary->notes ?? ''));
+        $loyaltyNote = sprintf('Loyalty redeemed: %s pts (−RM %0.2f)', number_format($quote['points']), $quote['discount_rm']);
+        $primary->notes = $note === '' ? $loyaltyNote : ($note."\n".$loyaltyNote);
+        $primary->save();
     }
 }

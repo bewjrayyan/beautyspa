@@ -32,6 +32,7 @@ class StorePosBookingRequest extends Request
             'payment_status' => ['required', Rule::in([TreatmentBooking::PAYMENT_FULL_PAID])],
             'payment_receipt' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
             'notes' => ['nullable', 'string', 'max:5000'],
+            'loyalty_points' => ['nullable', 'integer', 'min:1', 'max:1000000'],
             'items' => ['nullable', 'array', 'min:1', 'max:20'],
             'items.*.product_id' => ['required_with:items', 'integer', Rule::exists('products', 'id')->where('is_virtual', true)->where('is_active', true)->whereNull('deleted_at')],
             'items.*.variant_id' => ['nullable', 'integer'],

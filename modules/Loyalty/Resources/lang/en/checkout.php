@@ -14,6 +14,7 @@ return [
     'referral_code_optional' => 'Referral code (optional)',
     'cannot_combine_coupon' => 'Loyalty points cannot be combined with a coupon. Remove the coupon or points first.',
     'no_points_available' => 'You do not have any reward points to redeem yet.',
+    'select_treatment_first' => 'Add a treatment to this booking before redeeming points.',
     'load_max_failed' => 'Could not load the maximum points.',
     'apply_failed' => 'Could not apply points.',
     'enter_points' => 'Enter how many points you would like to use.',

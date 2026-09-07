@@ -1032,6 +1032,38 @@ strong {
         }
     }
 
+    .pos-booking-shortcut {
+        float: right;
+        margin-right: 10px;
+
+        > a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 35px;
+            margin: 0;
+            padding: 6px 12px;
+            border: 1px solid #f3d0e0;
+            border-radius: 30px;
+            background: #fff0f7;
+            color: #b20b63;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 150ms ease-in-out;
+
+            svg {
+                flex: none;
+            }
+
+            &:hover,
+            &:focus {
+                background: #b20b63;
+                border-color: #b20b63;
+                color: #fff;
+            }
+        }
+    }
+
     > li > a {
         padding: 11px 12px;
         transition: 150ms ease-in-out;
@@ -2014,6 +2046,16 @@ select {
                         fill: #b8c7ce;
                     }
                 }
+            }
+        }
+
+        .pos-booking-shortcut {
+            margin-right: 8px;
+
+            > a {
+                min-height: 32px;
+                padding: 5px 10px;
+                font-size: 11px;
             }
         }
 

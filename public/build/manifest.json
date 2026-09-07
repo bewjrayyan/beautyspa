@@ -992,7 +992,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/main.scss": {
-    "file": "assets/main-DmtsBbiu-v4.7.72.css",
+    "file": "assets/main-TyxlFOX9-v4.7.72.css",
     "src": "modules/Admin/Resources/assets/sass/main.scss"
   },
   "modules/Attribute/Resources/assets/admin/js/main.js": {
@@ -1973,7 +1973,7 @@
     "src": "modules/Storefront/Resources/assets/public/sass/pages/checkout/complete/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/checkout/create/main.scss": {
-    "file": "assets/main-DNI5pVlr-v4.7.72.css",
+    "file": "assets/main-VZk1j_YP-v4.7.72.css",
     "src": "modules/Storefront/Resources/assets/public/sass/pages/checkout/create/main.scss"
   },
   "modules/Storefront/Resources/assets/public/sass/pages/compare/main.scss": {
@@ -2114,7 +2114,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-DGTFg0Vp-v4.7.72.js",
+    "file": "assets/main-Cz7Kl4pC-v4.7.72.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -2131,7 +2131,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-yjM589pL-v4.7.72.css",
+    "file": "assets/main-BuYVAS9w-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {

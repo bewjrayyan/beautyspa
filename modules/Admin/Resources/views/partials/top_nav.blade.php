@@ -98,5 +98,27 @@
                 <svg class="fullscreen-two" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14,14H19V16H16V19H14V14M5,14H10V19H8V16H5V14M8,5H10V10H5V8H8V5M19,8V10H14V5H16V8H19Z"/></svg>
             </a>
         </li>
+
+        @php
+            $topNavUser = effective_admin_user() ?? auth()->user();
+            $posBookingRoute = null;
+
+            if ($topNavUser?->isBeauticianOnly() && $topNavUser->hasAccess('admin.treatment_reservations.portal.create')) {
+                $posBookingRoute = route('admin.treatment_reservations.portal.pos');
+            } elseif ($topNavUser?->hasAccess('admin.treatment_reservations.create')) {
+                $posBookingRoute = route('admin.treatment_reservations.pos');
+            }
+        @endphp
+
+        @if ($posBookingRoute)
+            <li class="pos-booking-shortcut">
+                <a href="{{ $posBookingRoute }}" title="{{ trans('treatmentreservation::sidebar.pos_booking') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>{{ trans('treatmentreservation::sidebar.pos_booking') }}</span>
+                </a>
+            </li>
+        @endif
     </ul>
 </nav>

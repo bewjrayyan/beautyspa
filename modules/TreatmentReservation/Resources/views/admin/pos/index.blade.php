@@ -30,50 +30,6 @@
                     </div>
                     <div class="tr-pos-count" data-pos-count>0 treatments</div>
                 </div>
-                <section class="tr-pos-customer-desk" aria-labelledby="tr-pos-customer-title">
-                    <div class="tr-pos-customer-desk__head">
-                        <div><span class="tr-pos-kicker">Customer & payment</span><strong id="tr-pos-customer-title">Start this booking</strong></div>
-                        <div class="tr-pos-offline-badge" aria-label="Payment method: offline only">
-                            <span aria-hidden="true">▣</span>
-                            <div><small>Payment method</small><strong>Offline payment only</strong></div>
-                        </div>
-                    </div>
-                    <div class="tr-pos-customer-desk__grid">
-                        <div class="tr-pos-membership-lookup">
-                            <label class="tr-pos-field-title" for="tr-pos-membership-id">Membership ID</label>
-                            <div class="tr-pos-membership-row">
-                                <input id="tr-pos-membership-id" type="search" data-pos-membership-id placeholder="Enter membership ID" inputmode="numeric" autocomplete="off">
-                                <button type="button" data-pos-membership-lookup>Lookup</button>
-                            </div>
-                            <p class="tr-pos-membership-feedback" data-pos-membership-feedback role="status" aria-live="polite"></p>
-                        </div>
-                        <div>
-                            <label class="tr-pos-input tr-pos-customer-search">
-                                <span class="sr-only">Find customer</span>
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
-                                <input type="search" data-pos-customer-search placeholder="Search name, phone or email" autocomplete="off">
-                            </label>
-                            <div class="tr-pos-customer-results" data-pos-customer-results></div>
-                            <div class="tr-pos-selected-customer" data-pos-selected-customer hidden></div>
-                        </div>
-                    </div>
-                    <label class="tr-pos-receipt-dropzone" data-pos-receipt-dropzone for="tr-pos-payment-receipt">
-                        <input
-                            id="tr-pos-payment-receipt"
-                            type="file"
-                            data-pos-payment-receipt
-                            accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
-                            required
-                        >
-                        <span class="tr-pos-receipt-dropzone__icon" aria-hidden="true">↑</span>
-                        <span class="tr-pos-receipt-dropzone__copy">
-                            <strong data-pos-receipt-title>Upload payment receipt</strong>
-                            <small data-pos-receipt-meta>Required · JPG, PNG, WEBP or PDF · maximum 10 MB</small>
-                        </span>
-                        <span class="tr-pos-receipt-dropzone__action">Choose file</span>
-                    </label>
-                    <div class="tr-pos-rewards" data-pos-rewards hidden></div>
-                </section>
                 <div class="tr-pos-catalog-toolbar">
                     <label class="tr-pos-search">
                         <span class="sr-only">Search treatments</span>
@@ -91,34 +47,158 @@
                 </div>
             </section>
 
-            <aside class="tr-pos-order-panel" aria-labelledby="tr-pos-order-title">
-                <div class="tr-pos-order-head">
-                    <div>
-                        <p class="tr-pos-kicker">New booking</p>
-                        <h2 id="tr-pos-order-title">Booking summary</h2>
+            <div class="tr-pos-side-rail">
+                <section class="tr-pos-customer-desk" aria-labelledby="tr-pos-customer-title" data-pos-customer-desk>
+                    <div class="tr-pos-customer-desk__head">
+                        <div>
+                            <span class="tr-pos-kicker">Customer</span>
+                            <strong id="tr-pos-customer-title">Find or look up member</strong>
+                        </div>
+                        <span class="tr-pos-customer-desk__status" data-pos-customer-status>No member yet</span>
                     </div>
-                    <button class="tr-pos-reset" type="button" data-pos-reset>Clear</button>
-                </div>
 
-                <div class="tr-pos-customer-block tr-pos-customer-block--summary">
-                    <div class="tr-pos-section-label"><span>Customer</span><span class="tr-pos-required">Summary</span></div>
-                    <div class="tr-pos-summary-customer" data-pos-summary-customer>No customer selected.</div>
-                    <div class="tr-pos-summary-rewards" data-pos-summary-rewards hidden></div>
-                </div>
+                    <div class="tr-pos-customer-tools" data-pos-customer-tools>
+                        <div class="tr-pos-membership-lookup">
+                            <label class="tr-pos-field-title" for="tr-pos-membership-id">Membership ID</label>
+                            <div class="tr-pos-membership-row">
+                                <input id="tr-pos-membership-id" type="search" data-pos-membership-id placeholder="e.g. 0000000000000002" inputmode="numeric" autocomplete="off">
+                                <button type="button" data-pos-membership-lookup>Lookup</button>
+                            </div>
+                            <p class="tr-pos-membership-feedback" data-pos-membership-feedback role="status" aria-live="polite"></p>
+                        </div>
 
-                <div class="tr-pos-line-items">
-                    <div class="tr-pos-section-label"><span>Selected treatment</span><span data-pos-item-count>0</span></div>
-                    <div class="tr-pos-empty-cart" data-pos-empty-cart>Select a treatment from the catalog to begin.</div>
-                    <div class="tr-pos-cart-item" data-pos-cart-item hidden></div>
-                </div>
+                        <div class="tr-pos-customer-desk__divider" aria-hidden="true"><span>or search</span></div>
 
-                <div class="tr-pos-summary">
-                    <div><span>Service total</span><strong data-pos-total>MYR 0.00</strong></div>
-                    <div><span>Payment</span><strong class="tr-pos-summary-payment" data-pos-payment-summary>Offline · receipt required</strong></div>
-                </div>
-                <button class="tr-pos-submit" type="button" data-pos-submit disabled><span>Save booking</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg></button>
-                <p class="tr-pos-feedback" data-pos-feedback role="status" aria-live="polite"></p>
-            </aside>
+                        <div class="tr-pos-customer-search-wrap">
+                            <label class="tr-pos-input tr-pos-customer-search">
+                                <span class="sr-only">Find customer</span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+                                <input type="search" data-pos-customer-search placeholder="Search name, phone or email" autocomplete="off">
+                            </label>
+                            <div class="tr-pos-customer-results" data-pos-customer-results></div>
+                        </div>
+                    </div>
+
+                    <div class="tr-pos-selected-customer" data-pos-selected-customer hidden></div>
+                    <div class="tr-pos-rewards" data-pos-rewards hidden></div>
+                </section>
+
+                <aside class="tr-pos-order-panel" aria-labelledby="tr-pos-order-title">
+                    <div class="tr-pos-order-head">
+                        <div>
+                            <p class="tr-pos-kicker">New booking</p>
+                            <h2 id="tr-pos-order-title">Booking summary</h2>
+                        </div>
+                        <button class="tr-pos-reset" type="button" data-pos-reset>Clear</button>
+                    </div>
+
+                    <div class="tr-pos-customer-block tr-pos-customer-block--summary">
+                        <div class="tr-pos-section-label"><span>Customer</span><span class="tr-pos-required">Summary</span></div>
+                        <div class="tr-pos-summary-customer" data-pos-summary-customer>No customer selected.</div>
+                        <div class="tr-pos-summary-rewards" data-pos-summary-rewards hidden></div>
+                    </div>
+
+                    <div class="tr-pos-line-items">
+                        <div class="tr-pos-section-label"><span>Selected treatment</span><span data-pos-item-count>0</span></div>
+                        <div class="tr-pos-empty-cart" data-pos-empty-cart>
+                            <strong>{{ trans('treatmentreservation::admin.pos.empty_cart_title') }}</strong>
+                            <span>{{ trans('treatmentreservation::admin.pos.empty_cart_hint') }}</span>
+                        </div>
+                        <div class="tr-pos-cart-item" data-pos-cart-item hidden></div>
+                    </div>
+
+                    <div class="tr-pos-summary">
+                        <div><span>Service total</span><strong data-pos-total>MYR 0.00</strong></div>
+                        <div data-pos-loyalty-discount-row hidden><span>Points discount</span><strong class="tr-pos-summary-discount" data-pos-loyalty-discount>− MYR 0.00</strong></div>
+                        <div data-pos-payable-row hidden><span>Amount due</span><strong data-pos-payable>MYR 0.00</strong></div>
+                        <div><span>Payment</span><strong class="tr-pos-summary-payment" data-pos-payment-summary>Offline · receipt required</strong></div>
+                    </div>
+
+                    <section class="tr-pos-loyalty-redeem" data-pos-loyalty-redeem hidden aria-labelledby="tr-pos-loyalty-title">
+                        <div class="tr-pos-loyalty-redeem__head">
+                            <span class="tr-pos-loyalty-redeem__icon" aria-hidden="true"><i class="fa fa-star"></i></span>
+                            <strong id="tr-pos-loyalty-title">{{ trans('loyalty::checkout.rewards') }}</strong>
+                        </div>
+                        <p class="tr-pos-loyalty-redeem__balance" data-pos-loyalty-balance></p>
+                        <p class="tr-pos-loyalty-redeem__empty" data-pos-loyalty-empty>{{ trans('loyalty::checkout.select_treatment_first') }}</p>
+                        <div class="tr-pos-loyalty-redeem__form" data-pos-loyalty-form hidden>
+                            <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                class="tr-pos-loyalty-redeem__input"
+                                data-pos-loyalty-points
+                                placeholder="{{ trans('loyalty::checkout.points_to_use') }}"
+                                inputmode="numeric"
+                            >
+                            <div class="tr-pos-loyalty-redeem__actions">
+                                <button type="button" class="tr-pos-loyalty-redeem__max" data-pos-loyalty-max>{{ trans('loyalty::checkout.use_max') }}</button>
+                                <button type="button" class="tr-pos-loyalty-redeem__apply" data-pos-loyalty-apply>{{ trans('loyalty::checkout.apply') }}</button>
+                            </div>
+                            <p class="tr-pos-loyalty-redeem__error" data-pos-loyalty-error role="status" aria-live="polite"></p>
+                        </div>
+                        <div class="tr-pos-loyalty-redeem__applied" data-pos-loyalty-applied hidden>
+                            <span data-pos-loyalty-applied-label></span>
+                            <button type="button" class="tr-pos-loyalty-redeem__remove" data-pos-loyalty-remove>{{ trans('loyalty::checkout.remove') }}</button>
+                        </div>
+                    </section>
+
+                    <section class="tr-pos-payment-upload tr-pos-payment-upload--embedded" aria-labelledby="tr-pos-payment-title">
+                        <div class="tr-pos-payment-upload__head">
+                            <div>
+                                <span class="tr-pos-kicker">Payment</span>
+                                <strong id="tr-pos-payment-title">Upload payment proof</strong>
+                            </div>
+                            <p class="tr-pos-payment-upload__method">Offline payment · receipt required</p>
+                        </div>
+
+                        <div
+                            class="tr-pos-payment-dropzone"
+                            data-pos-receipt-dropzone
+                        >
+                            <input
+                                id="tr-pos-payment-receipt"
+                                class="tr-pos-payment-dropzone__input"
+                                type="file"
+                                data-pos-payment-receipt
+                                accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                                required
+                            >
+
+                            <label class="tr-pos-payment-dropzone__empty" data-pos-receipt-empty for="tr-pos-payment-receipt">
+                                <span class="tr-pos-payment-dropzone__icon" aria-hidden="true">
+                                    <i class="fa fa-cloud-upload"></i>
+                                </span>
+                                <span class="tr-pos-payment-dropzone__copy">
+                                    <span class="tr-pos-payment-dropzone__title">Drop receipt here or browse</span>
+                                    <span class="tr-pos-payment-dropzone__hint">JPG, PNG, WEBP or PDF · maximum 10 MB</span>
+                                    <span class="tr-pos-payment-dropzone__browse">Choose file</span>
+                                </span>
+                            </label>
+
+                            <div class="tr-pos-payment-dropzone__preview" data-pos-receipt-preview hidden>
+                                <div class="tr-pos-payment-dropzone__preview-media">
+                                    <img class="tr-pos-payment-dropzone__preview-image" data-pos-receipt-image alt="" hidden>
+                                    <span class="tr-pos-payment-dropzone__preview-file" data-pos-receipt-file hidden aria-hidden="true">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    </span>
+                                </div>
+                                <div class="tr-pos-payment-dropzone__preview-meta">
+                                    <strong class="tr-pos-payment-dropzone__preview-name" data-pos-receipt-title>Upload payment receipt</strong>
+                                    <span class="tr-pos-payment-dropzone__preview-size" data-pos-receipt-meta></span>
+                                    <div class="tr-pos-payment-dropzone__actions">
+                                        <label class="tr-pos-payment-dropzone__action" for="tr-pos-payment-receipt">Replace</label>
+                                        <button type="button" class="tr-pos-payment-dropzone__action tr-pos-payment-dropzone__action--danger" data-pos-receipt-clear>Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <button class="tr-pos-submit" type="button" data-pos-submit disabled><span>Save booking</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg></button>
+                    <p class="tr-pos-feedback" data-pos-feedback role="status" aria-live="polite"></p>
+                </aside>
+            </div>
         </main>
 
         <div class="tr-pos-wizard" data-pos-wizard hidden>

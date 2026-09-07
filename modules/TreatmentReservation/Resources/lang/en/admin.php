@@ -995,4 +995,8 @@ return [
         ],
     ],
 
+    'pos' => [
+        'empty_cart_title' => 'No treatment selected',
+        'empty_cart_hint' => 'Select a treatment from the catalog to begin this booking.',
+    ],
 ];

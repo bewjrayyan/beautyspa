@@ -149,6 +149,14 @@ class CacheHealth
             'cache.default' => 'array',
             'session.driver' => 'file',
         ]);
+
+        // Drop any already-resolved Redis-backed managers so later code cannot
+        // reuse a connection that failed AUTH / SELECT (NOAUTH).
+        foreach (['cache', 'cache.store', 'session', 'session.store', 'redis'] as $abstract) {
+            if (app()->bound($abstract)) {
+                app()->forgetInstance($abstract);
+            }
+        }
     }
 
     private static function usesRedis(): bool
@@ -166,9 +174,37 @@ class CacheHealth
     private static function isRedisReachable(): bool
     {
         try {
-            return (bool) app('redis')->connection()->ping();
-        } catch (Throwable) {
+            $connection = app('redis')->connection();
+            $pong = $connection->ping();
+
+            // Predis may return true, "+PONG", or a status object.
+            if ($pong === true || $pong === '+PONG' || $pong === 'PONG') {
+                return true;
+            }
+
+            return is_object($pong) && method_exists($pong, '__toString')
+                && str_contains(strtoupper((string) $pong), 'PONG');
+        } catch (Throwable $e) {
+            // NOAUTH / wrong password / refused — treat as unreachable so checkout
+            // can fall back instead of surfacing raw Predis errors to shoppers.
+            if (self::isRedisAuthOrConnectivityFailure($e)) {
+                return false;
+            }
+
             return false;
         }
+    }
+
+    public static function isRedisAuthOrConnectivityFailure(Throwable $e): bool
+    {
+        $message = $e->getMessage();
+
+        return str_contains($message, 'NOAUTH')
+            || str_contains($message, 'Authentication required')
+            || str_contains($message, 'invalid password')
+            || str_contains($message, 'WRONGPASS')
+            || str_contains($message, 'Connection refused')
+            || str_contains($message, 'timed out')
+            || str_contains($message, 'read error on connection');
     }
 }

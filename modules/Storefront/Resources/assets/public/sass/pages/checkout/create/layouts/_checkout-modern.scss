@@ -829,17 +829,17 @@ $checkout-text-muted: #4b5563;
     }
 
     &.payment-option-logos--chip-banner {
-        flex: 0 1 auto;
-        max-width: min(100%, 320px);
+        flex: 0 1 220px;
+        width: min(100%, 220px);
+        max-width: 220px;
         padding: 0;
         background: transparent;
 
         .payment-option-logo--chip-banner {
             display: block;
             width: 100%;
-            max-width: 320px;
-            height: auto;
-            max-height: 48px;
+            max-width: 220px;
+            height: 36px;
             object-fit: contain;
             object-position: right center;
             background: transparent;
@@ -1787,7 +1787,46 @@ $checkout-text-muted: #4b5563;
     }
 
     .payment-option {
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: 22px minmax(0, 1fr);
+        gap: 10px 12px;
+        align-items: start;
+        padding: 14px;
+    }
+
+    .payment-option-radio {
+        grid-column: 1;
+        grid-row: 1;
+        margin-top: 1px;
+    }
+
+    .payment-option-body {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .payment-option-logos,
+    .payment-option-logos.payment-option-logos--chip-banner {
+        grid-column: 2;
+        grid-row: 2;
+        justify-content: flex-start;
+        width: min(100%, 180px);
+        max-width: 180px;
+        margin-top: 2px;
+
+        .payment-option-logo--chip-banner {
+            width: 100%;
+            max-width: 180px;
+            height: 32px;
+            object-position: left center;
+        }
+    }
+
+    .rtl .payment-option-logos,
+    .rtl .payment-option-logos.payment-option-logos--chip-banner {
+        .payment-option-logo--chip-banner {
+            object-position: right center;
+        }
     }
 
     .payment-option-badges {

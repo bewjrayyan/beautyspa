@@ -3,8 +3,10 @@ const root = document.querySelector('[data-tr-pos="1"]');
 if (root) {
     const state = {
         products: [], categories: [{ id: 'all', name: 'All treatments' }], category: 'all', search: '', view: 'grid',
+        catalogPage: 1, catalogPageSize: 20,
         items: [], customer: null, rewards: null, beauticians: [], branches: [], receiptFile: null,
-        wizard: { step: 0, draft: null, editIndex: -1, busy: false, feedback: '', branchDates: [], dates: [], slots: [] },
+        loyalty: { input: '', appliedPoints: 0, appliedDiscount: 0, error: '' },
+        wizard: { step: 0, draft: null, editIndex: -1, busy: false, feedback: '', branchDates: [], dates: [], slots: [], datesAbort: null },
     };
     const steps = ['Variant', 'Branch', 'Beautician', 'Date', 'Time'];
     const q = (selector) => root.querySelector(selector);
@@ -21,6 +23,30 @@ if (root) {
             throw new Error(validationMessage || payload.message || 'Unable to complete request.');
         }
         return payload;
+    };
+    const serviceTotal = () => state.items.reduce((total, line) => total + itemPrice(line), 0);
+    const loyaltyPointValue = () => Number(state.rewards?.point_value_rm || 0.1);
+    const loyaltyMaxPoints = () => {
+        if (!state.rewards) return 0;
+        const balance = Number(state.rewards.points || 0);
+        const percent = Number(state.rewards.max_redeem_percent || 30);
+        const maxByPercent = Math.floor((serviceTotal() * (percent / 100)) / Math.max(loyaltyPointValue(), 0.0001));
+        return Math.max(0, Math.min(balance, maxByPercent));
+    };
+    const loyaltyDiscountFor = (points) => Number((Math.max(0, Number(points) || 0) * loyaltyPointValue()).toFixed(2));
+    const clearLoyalty = () => { state.loyalty = { input: '', appliedPoints: 0, appliedDiscount: 0, error: '' }; };
+    const applyLoyaltyPoints = (requested) => {
+        const points = Math.floor(Number(requested) || 0);
+        const max = loyaltyMaxPoints();
+        if (!state.customer || !state.rewards) { state.loyalty.error = 'Select a member first.'; return false; }
+        if (!state.items.length) { state.loyalty.error = 'Add a treatment before redeeming points.'; return false; }
+        if (points <= 0) { state.loyalty.error = 'Enter how many points you would like to use.'; return false; }
+        if (points > max) { state.loyalty.error = `Maximum redeemable is ${max.toLocaleString()} pts.`; return false; }
+        state.loyalty.appliedPoints = points;
+        state.loyalty.appliedDiscount = loyaltyDiscountFor(points);
+        state.loyalty.input = String(points);
+        state.loyalty.error = '';
+        return true;
     };
     const optionValues = (item) => Object.values(item?.options || {}).flat().map(String);
     const selectedOptionLabels = (item) => (item?.product?.options || []).flatMap((option) => (option.values || []).filter((value) => optionValues(item).includes(String(value.id))).map((value) => value.label));
@@ -44,76 +70,298 @@ if (root) {
         q('[data-pos-categories]').innerHTML = state.categories.map((category) => `<button type="button" class="${String(category.id) === String(state.category) ? 'is-active' : ''}" data-pos-category="${esc(category.id)}" role="tab" aria-selected="${String(category.id) === String(state.category)}">${esc(category.name)}</button>`).join('');
     }
 
-    function renderProducts() {
-        const filtered = state.products.filter((product) => {
+    function filteredProducts() {
+        return state.products.filter((product) => {
             const haystack = `${product.name} ${product.category_name || ''}`.toLowerCase();
             return (state.category === 'all' || String(product.category_id) === String(state.category)) && haystack.includes(state.search.toLowerCase());
         });
+    }
+
+    function resetCatalogPage() {
+        state.catalogPage = 1;
+    }
+
+    function catalogPageWindow(totalPages, current) {
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        }
+
+        const pages = new Set([1, totalPages, current]);
+        for (let page = current - 1; page <= current + 1; page += 1) {
+            if (page > 1 && page < totalPages) pages.add(page);
+        }
+        if (current <= 3) {
+            pages.add(2);
+            pages.add(3);
+            pages.add(4);
+        }
+        if (current >= totalPages - 2) {
+            pages.add(totalPages - 1);
+            pages.add(totalPages - 2);
+            pages.add(totalPages - 3);
+        }
+
+        const sorted = [...pages].sort((a, b) => a - b);
+        const items = [];
+        sorted.forEach((page, index) => {
+            if (index > 0 && page - sorted[index - 1] > 1) items.push('…');
+            items.push(page);
+        });
+        return items;
+    }
+
+    function renderCatalogPagination(totalItems) {
+        const totalPages = Math.max(1, Math.ceil(totalItems / state.catalogPageSize));
+        if (state.catalogPage > totalPages) state.catalogPage = totalPages;
+        if (totalPages <= 1) return '';
+
+        const pages = catalogPageWindow(totalPages, state.catalogPage).map((page) => {
+            if (page === '…') return '<span class="tr-pos-catalog-pager__ellipsis" aria-hidden="true">…</span>';
+            const active = page === state.catalogPage ? ' is-active' : '';
+            return `<button type="button" class="tr-pos-catalog-pager__page${active}" data-pos-catalog-page="${page}" aria-label="Page ${page}" aria-current="${page === state.catalogPage ? 'page' : 'false'}">${page}</button>`;
+        }).join('');
+
+        return `<nav class="tr-pos-catalog-pager" aria-label="Catalog pages">
+            <button type="button" class="tr-pos-catalog-pager__nav" data-pos-catalog-page="${state.catalogPage - 1}" ${state.catalogPage <= 1 ? 'disabled' : ''} aria-label="Previous page">‹</button>
+            ${pages}
+            <button type="button" class="tr-pos-catalog-pager__nav" data-pos-catalog-page="${state.catalogPage + 1}" ${state.catalogPage >= totalPages ? 'disabled' : ''} aria-label="Next page">›</button>
+        </nav>`;
+    }
+
+    function renderProducts() {
+        const filtered = filteredProducts();
+        const totalPages = Math.max(1, Math.ceil(filtered.length / state.catalogPageSize));
+        if (state.catalogPage > totalPages) state.catalogPage = totalPages;
+        if (state.catalogPage < 1) state.catalogPage = 1;
+
+        const start = (state.catalogPage - 1) * state.catalogPageSize;
+        const visible = filtered.slice(start, start + state.catalogPageSize);
         q('[data-pos-count]').textContent = `${filtered.length} treatment${filtered.length === 1 ? '' : 's'}`;
         q('[data-pos-products]').classList.toggle('is-list', state.view === 'list');
-        q('[data-pos-products]').innerHTML = filtered.length ? filtered.map((product) => `<button type="button" class="tr-pos-product-card ${state.items.some((item) => item.product.id === product.id) ? 'is-selected' : ''}" data-pos-product="${product.id}">
+
+        if (!filtered.length) {
+            q('[data-pos-products]').innerHTML = '<div class="tr-pos-empty-state"><strong>No treatments found</strong><span>Try another search or category.</span></div>';
+            return;
+        }
+
+        const cards = visible.map((product) => `<button type="button" class="tr-pos-product-card ${state.items.some((item) => item.product.id === product.id) ? 'is-selected' : ''}" data-pos-product="${product.id}">
             ${product.image ? `<img class="tr-pos-product-image" src="${esc(product.image)}" alt="" loading="lazy" decoding="async">` : `<span class="tr-pos-product-icon" aria-hidden="true">${esc((product.name || 'T').slice(0, 1).toUpperCase())}</span>`}
             <span class="tr-pos-product-copy"><strong>${esc(product.name)}</strong><small>${esc(product.category_name || 'Treatment')} · ${esc(product.duration_minutes || 60)} min</small></span>
             <span class="tr-pos-product-price">${money(product.price)} <i>${plusIcon}</i></span>
-        </button>`).join('') : '<div class="tr-pos-empty-state"><strong>No treatments found</strong><span>Try another search or category.</span></div>';
+        </button>`).join('');
+
+        q('[data-pos-products]').innerHTML = cards + renderCatalogPagination(filtered.length);
     }
 
     function renderOrder() {
         q('[data-pos-item-count]').textContent = `${state.items.length} item${state.items.length === 1 ? '' : 's'}`;
         q('[data-pos-empty-cart]').hidden = state.items.length > 0;
         q('[data-pos-cart-item]').hidden = state.items.length === 0;
-        q('[data-pos-cart-item]').innerHTML = state.items.map((line, index) => `<article class="tr-pos-cart-line">
-            <div class="tr-pos-cart-line-head"><span class="tr-pos-cart-avatar">${esc((line.product.name || 'T').slice(0, 1).toUpperCase())}</span><span class="tr-pos-cart-copy"><strong>${esc(line.product.name)}</strong><span>${esc(variantName(line))}${selectedOptionLabels(line).length ? ` · ${esc(selectedOptionLabels(line).join(', '))}` : ''} · ${money(itemPrice(line))}</span></span><button type="button" class="tr-pos-remove" data-pos-remove-line="${index}" aria-label="Remove treatment">×</button></div>
+        q('[data-pos-cart-item]').innerHTML = state.items.map((line, index) => {
+            const catalogProduct = state.products.find((item) => String(item.id) === String(line.product?.id));
+            const image = line.product?.image || catalogProduct?.image || '';
+            const thumb = image
+                ? `<img class="tr-pos-cart-avatar tr-pos-cart-avatar--image" src="${esc(image)}" alt="" loading="lazy" decoding="async">`
+                : `<span class="tr-pos-cart-avatar">${esc((line.product.name || 'T').slice(0, 1).toUpperCase())}</span>`;
+            return `<article class="tr-pos-cart-line">
+            <div class="tr-pos-cart-line-head">${thumb}<span class="tr-pos-cart-copy"><strong>${esc(line.product.name)}</strong><span>${esc(variantName(line))}${selectedOptionLabels(line).length ? ` · ${esc(selectedOptionLabels(line).join(', '))}` : ''} · ${money(itemPrice(line))}</span></span><button type="button" class="tr-pos-remove" data-pos-remove-line="${index}" aria-label="Remove treatment">×</button></div>
             <div class="tr-pos-cart-line-meta"><span>Spa branch<strong>${esc(branchName(line.spa_branch_id))}</strong></span><span>Beautician<strong>${esc(beauticianName(line.beautician_id))}</strong></span><span>Appointment<strong>${esc(displayDate(line.appointment_date))}</strong></span><span>Time<strong>${esc(line.appointment_time)}</strong></span></div>
             <div class="tr-pos-cart-line-actions"><button type="button" data-pos-edit-line="${index}">Edit appointment</button></div>
-        </article>`).join('');
-        q('[data-pos-total]').textContent = money(state.items.reduce((total, line) => total + itemPrice(line), 0));
+        </article>`;
+        }).join('');
+        const total = serviceTotal();
+        if (state.loyalty.appliedPoints > 0) {
+            const max = loyaltyMaxPoints();
+            if (max <= 0) clearLoyalty();
+            else if (state.loyalty.appliedPoints > max) applyLoyaltyPoints(max);
+        }
+        const payable = Math.max(0, total - Number(state.loyalty.appliedDiscount || 0));
+        q('[data-pos-total]').textContent = money(total);
+        const discountRow = q('[data-pos-loyalty-discount-row]');
+        const payableRow = q('[data-pos-payable-row]');
+        const hasDiscount = Number(state.loyalty.appliedPoints || 0) > 0;
+        discountRow.hidden = !hasDiscount;
+        payableRow.hidden = !hasDiscount;
+        q('[data-pos-loyalty-discount]').textContent = `− ${money(state.loyalty.appliedDiscount)}`;
+        q('[data-pos-payable]').textContent = money(payable);
+        renderLoyaltyRedeem();
         q('[data-pos-submit]').disabled = !(state.items.length && state.customer && state.receiptFile && state.items.every((line) => line.variant_id !== undefined && line.beautician_id && line.spa_branch_id && line.appointment_date && line.appointment_time));
+    }
+
+    function renderLoyaltyRedeem() {
+        const panel = q('[data-pos-loyalty-redeem]');
+        const hasMemberPoints = Boolean(state.customer && state.rewards && Number(state.rewards.points || 0) > 0);
+        panel.hidden = !hasMemberPoints;
+        if (!hasMemberPoints) return;
+
+        const balance = Number(state.rewards.points || 0);
+        const worth = Number(state.rewards.points_value_rm || loyaltyDiscountFor(balance));
+        q('[data-pos-loyalty-balance]').textContent = `Available: ${balance.toLocaleString()} pts (≈ RM ${worth.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
+
+        const form = q('[data-pos-loyalty-form]');
+        const applied = q('[data-pos-loyalty-applied]');
+        const empty = q('[data-pos-loyalty-empty]');
+        const hasItems = state.items.length > 0;
+        const hasApplied = Number(state.loyalty.appliedPoints || 0) > 0;
+
+        empty.hidden = hasItems || hasApplied;
+        form.hidden = !hasItems || hasApplied;
+        applied.hidden = !hasApplied;
+        q('[data-pos-loyalty-points]').value = state.loyalty.input;
+        q('[data-pos-loyalty-error]').textContent = state.loyalty.error || '';
+        if (hasApplied) {
+            q('[data-pos-loyalty-applied-label]').textContent = `${Number(state.loyalty.appliedPoints).toLocaleString()} pts applied (−${money(state.loyalty.appliedDiscount)})`;
+        }
+    }
+
+    let receiptPreviewUrl = null;
+
+    function clearReceiptPreviewUrl() {
+        if (receiptPreviewUrl) {
+            URL.revokeObjectURL(receiptPreviewUrl);
+            receiptPreviewUrl = null;
+        }
+    }
+
+    function formatReceiptSize(bytes) {
+        if (bytes >= 1024 * 1024) {
+            return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+        }
+
+        return `${Math.max(1, Math.round(bytes / 1024))} KB`;
     }
 
     function renderReceipt() {
         const zone = q('[data-pos-receipt-dropzone]');
+        const empty = q('[data-pos-receipt-empty]');
+        const preview = q('[data-pos-receipt-preview]');
+        const image = q('[data-pos-receipt-image]');
+        const fileIcon = q('[data-pos-receipt-file]');
         const title = q('[data-pos-receipt-title]');
         const meta = q('[data-pos-receipt-meta]');
-        zone.classList.toggle('has-file', Boolean(state.receiptFile));
-        title.textContent = state.receiptFile ? state.receiptFile.name : 'Upload payment receipt';
-        meta.textContent = state.receiptFile
-            ? (state.receiptFile.size / 1024 / 1024).toFixed(2) + ' MB · ready to attach'
-            : 'Required · JPG, PNG, WEBP or PDF · maximum 10 MB';
-        q('[data-pos-payment-summary]').textContent = state.receiptFile
+        const hasFile = Boolean(state.receiptFile);
+
+        zone.classList.toggle('has-file', hasFile);
+        empty.hidden = hasFile;
+        preview.hidden = !hasFile;
+
+        clearReceiptPreviewUrl();
+
+        if (hasFile) {
+            const isImage = state.receiptFile.type.startsWith('image/');
+            title.textContent = state.receiptFile.name;
+            meta.textContent = `${formatReceiptSize(state.receiptFile.size)} · ready to attach`;
+            image.hidden = !isImage;
+            fileIcon.hidden = isImage;
+
+            if (isImage) {
+                receiptPreviewUrl = URL.createObjectURL(state.receiptFile);
+                image.src = receiptPreviewUrl;
+                image.alt = state.receiptFile.name;
+            } else {
+                image.removeAttribute('src');
+                image.alt = '';
+            }
+        } else {
+            title.textContent = 'Upload payment receipt';
+            meta.textContent = '';
+            image.hidden = true;
+            fileIcon.hidden = true;
+            image.removeAttribute('src');
+            image.alt = '';
+        }
+
+        q('[data-pos-payment-summary]').textContent = hasFile
             ? 'Offline · receipt attached'
             : 'Offline · receipt required';
         renderOrder();
     }
 
+    function clearReceipt() {
+        state.receiptFile = null;
+        q('[data-pos-payment-receipt]').value = '';
+        q('[data-pos-receipt-dropzone]').classList.remove('has-error');
+        clearReceiptPreviewUrl();
+        renderReceipt();
+    }
+
     function acceptReceipt(file) {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
         const feedback = q('[data-pos-feedback]');
+        const zone = q('[data-pos-receipt-dropzone]');
+
         if (!file || !allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024) {
             state.receiptFile = null;
+            q('[data-pos-payment-receipt]').value = '';
+            zone.classList.add('has-error');
             feedback.textContent = 'Receipt must be a JPG, PNG, WEBP or PDF file up to 10 MB.';
             feedback.className = 'tr-pos-feedback is-error';
             renderReceipt();
             return;
         }
+
         state.receiptFile = file;
+        zone.classList.remove('has-error');
         feedback.textContent = '';
         feedback.className = 'tr-pos-feedback';
         renderReceipt();
     }
 
     function renderSelectedCustomer() {
+        const desk = q('[data-pos-customer-desk]');
+        const tools = q('[data-pos-customer-tools]');
         const target = q('[data-pos-selected-customer]');
-        target.hidden = !state.customer;
-        target.innerHTML = state.customer ? `<span class="tr-pos-customer-avatar">${esc((state.customer.name || 'C').slice(0, 1).toUpperCase())}</span><span><strong>${esc(state.customer.name)}</strong><small>${esc(state.customer.phone || state.customer.email || '')}</small></span><button type="button" data-pos-clear-customer>Change</button>` : '';
-        q('[data-pos-customer-search]').hidden = Boolean(state.customer);
+        const status = q('[data-pos-customer-status]');
+        const title = q('#tr-pos-customer-title');
+        const hasCustomer = Boolean(state.customer);
+
+        desk.classList.toggle('has-customer', hasCustomer);
+        tools.hidden = hasCustomer;
+        target.hidden = !hasCustomer;
+
+        if (hasCustomer) {
+            const membership = state.customer.membership_id || q('[data-pos-membership-id]')?.value?.trim() || '';
+            const contact = state.customer.phone || state.customer.email || '';
+            title.textContent = 'Member selected';
+            status.textContent = 'Ready';
+            status.className = 'tr-pos-customer-desk__status is-ready';
+            target.innerHTML = `
+                <div class="tr-pos-member-card">
+                    <span class="tr-pos-customer-avatar" aria-hidden="true">${esc((state.customer.name || 'C').slice(0, 1).toUpperCase())}</span>
+                    <div class="tr-pos-member-card__copy">
+                        <strong>${esc(state.customer.name)}</strong>
+                        ${contact ? `<span class="tr-pos-member-card__contact">${esc(contact)}</span>` : ''}
+                        ${membership ? `<span class="tr-pos-member-card__id">ID ${esc(membership)}</span>` : ''}
+                    </div>
+                    <button type="button" class="tr-pos-member-card__change" data-pos-clear-customer>Change</button>
+                </div>`;
+        } else {
+            title.textContent = 'Find or look up member';
+            status.textContent = 'No member yet';
+            status.className = 'tr-pos-customer-desk__status';
+            target.innerHTML = '';
+            q('[data-pos-customer-search]').value = '';
+            q('[data-pos-customer-results]').innerHTML = '';
+        }
+
         const rewards = q('[data-pos-rewards]');
         rewards.hidden = !state.rewards;
-        rewards.innerHTML = state.rewards ? `<div class="tr-pos-reward-stat"><strong>${Number(state.rewards.points).toLocaleString()}</strong><span>loyalty points</span></div><div class="tr-pos-reward-stat"><strong>${esc(state.rewards.stamps_active)}</strong><span>active stamps</span></div><div class="tr-pos-reward-meta">${esc(state.rewards.tier || 'Standard member')} · ${esc(state.rewards.stamps_ready)} stamp reward${state.rewards.stamps_ready === 1 ? '' : 's'} ready · Points value ${money(state.rewards.points_value_rm)}</div>` : '';
-        q('[data-pos-summary-customer]').innerHTML = state.customer ? `<strong>${esc(state.customer.name)}</strong><span>${esc(state.customer.phone || state.customer.email || '')}</span>` : 'No customer selected.';
+        rewards.innerHTML = state.rewards ? `
+            <div class="tr-pos-rewards__tier">${esc(state.rewards.tier || 'Standard member')}</div>
+            <div class="tr-pos-rewards__stats">
+                <div class="tr-pos-reward-stat"><strong>${Number(state.rewards.points).toLocaleString()}</strong><span>loyalty points</span></div>
+                <div class="tr-pos-reward-stat"><strong>${esc(state.rewards.stamps_active)}</strong><span>active stamps</span></div>
+            </div>
+            <div class="tr-pos-reward-meta">${esc(state.rewards.stamps_ready)} stamp reward${Number(state.rewards.stamps_ready) === 1 ? '' : 's'} ready · Value ${money(state.rewards.points_value_rm)}</div>` : '';
+
+        q('[data-pos-summary-customer]').innerHTML = hasCustomer
+            ? `<strong>${esc(state.customer.name)}</strong><span>${esc(state.customer.phone || state.customer.email || '')}</span>`
+            : 'No customer selected.';
         const summaryRewards = q('[data-pos-summary-rewards]');
         summaryRewards.hidden = !state.rewards;
-        summaryRewards.textContent = state.rewards ? `${Number(state.rewards.points).toLocaleString()} points · ${state.rewards.stamps_active} active stamps` : '';
+        summaryRewards.textContent = state.rewards
+            ? `${Number(state.rewards.points).toLocaleString()} points · ${state.rewards.stamps_active} active stamps`
+            : '';
     }
 
     function wizardCanContinue() {
@@ -161,7 +409,14 @@ if (root) {
             const options = draft.product.options || [];
             content = wizardIntro('Choose the exact treatment configuration before checking availability.') + `<div class="tr-pos-wizard__grid">${variants.length ? variants.map((variant) => `<button type="button" class="tr-pos-choice ${String(draft.variant_id) === String(variant.id) ? 'is-active' : ''}" data-wizard-variant="${variant.id}"><span class="tr-pos-choice__icon">V</span><span class="tr-pos-choice__copy"><strong>${esc(variant.name || variant.uid)}</strong><small>Product variant</small></span><span class="tr-pos-choice__price">${money(variant.price)}</span></button>`).join('') : `<button type="button" class="tr-pos-choice is-active"><span class="tr-pos-choice__icon">✓</span><span class="tr-pos-choice__copy"><strong>Standard treatment</strong><small>No variant selection required</small></span><span class="tr-pos-choice__price">${money(draft.product.price)}</span></button>`}</div>${renderProductOptions(options, draft)}`;
         } else if (step === 1) {
-            content = wizardIntro('Select a spa branch. Capacity is checked before beauticians are shown.') + `<div class="tr-pos-wizard__grid">${state.branches.map((branch) => `<button type="button" class="tr-pos-choice ${String(draft.spa_branch_id) === String(branch.id) ? 'is-active' : ''}" data-wizard-branch="${branch.id}" ${busy ? 'disabled' : ''}><span class="tr-pos-choice__icon">${esc((branch.name || 'B').slice(0, 1))}</span><span class="tr-pos-choice__copy"><strong>${esc(branch.name)}</strong><small>${String(draft.spa_branch_id) === String(branch.id) && state.wizard.branchDates.length ? `${state.wizard.branchDates.length} available dates found` : 'Check branch availability'}</small></span></button>`).join('') || '<p class="tr-pos-wizard__empty">No active spa branches are available.</p>'}</div>`;
+            content = wizardIntro('Select a spa branch. Capacity is checked before beauticians are shown.') + `<div class="tr-pos-wizard__grid">${state.branches.map((branch) => {
+                const selected = String(draft.spa_branch_id) === String(branch.id);
+                let hint = 'Tap to check availability';
+                if (selected && busy) hint = 'Checking availability…';
+                else if (selected && state.wizard.branchDates.length) hint = `${state.wizard.branchDates.length}+ available dates found`;
+                else if (selected && !busy) hint = 'No dates available in the next 3 weeks';
+                return `<button type="button" class="tr-pos-choice ${selected ? 'is-active' : ''}" data-wizard-branch="${branch.id}" ${busy && selected ? 'disabled' : ''}><span class="tr-pos-choice__icon">${esc((branch.name || 'B').slice(0, 1))}</span><span class="tr-pos-choice__copy"><strong>${esc(branch.name)}</strong><small>${hint}</small></span></button>`;
+            }).join('') || '<p class="tr-pos-wizard__empty">No active spa branches are available.</p>'}</div>`;
         } else if (step === 2) {
             const availableBeauticians = state.beauticians.filter((beautician) => (beautician.spa_branch_ids || []).map(String).includes(String(draft.spa_branch_id)));
             content = wizardIntro(`Available team at ${branchName(draft.spa_branch_id)}. Each selection is checked again.`) + `<div class="tr-pos-wizard__grid">${availableBeauticians.map((beautician) => `<button type="button" class="tr-pos-choice ${String(draft.beautician_id) === String(beautician.id) ? 'is-active' : ''}" data-wizard-beautician="${beautician.id}" ${busy ? 'disabled' : ''}><span class="tr-pos-choice__icon" style="background:${esc(beautician.profile_color || '#f0eeff')}22;color:${esc(beautician.profile_color || '#624bd5')}">${esc((beautician.name || 'B').slice(0, 1))}</span><span class="tr-pos-choice__copy"><strong>${esc(beautician.name)}</strong><small>${esc(beautician.job_title || 'Beautician')}${String(draft.beautician_id) === String(beautician.id) && state.wizard.dates.length ? ` · ${state.wizard.dates.length} dates` : ''}</small></span></button>`).join('') || '<p class="tr-pos-wizard__empty">No active beautician is assigned to this branch.</p>'}</div>`;
@@ -171,7 +426,9 @@ if (root) {
             content = wizardIntro(`${displayDate(draft.appointment_date)} · ${branchName(draft.spa_branch_id)} · ${beauticianName(draft.beautician_id)}`) + `<div class="tr-pos-wizard__slots">${state.wizard.slots.map((slot) => `<button type="button" class="tr-pos-time-choice ${draft.appointment_time === slot ? 'is-active' : ''}" data-wizard-time="${esc(slot)}">${esc(slot)}</button>`).join('') || '<p class="tr-pos-wizard__empty">No available time slots for this date.</p>'}</div>`;
         }
         q('[data-pos-wizard-body]').innerHTML = content;
-        q('[data-pos-wizard-feedback]').textContent = busy ? 'Checking live availability…' : feedback;
+        q('[data-pos-wizard-feedback]').textContent = busy
+            ? (state.wizard.step === 1 ? 'Checking branch availability…' : 'Checking live availability…')
+            : feedback;
         q('[data-pos-wizard-back]').hidden = step === 0;
         const next = q('[data-pos-wizard-next]');
         next.textContent = step === steps.length - 1 ? (state.wizard.editIndex >= 0 ? 'Update appointment' : 'Add to booking') : 'Continue';
@@ -196,36 +453,52 @@ if (root) {
         state.wizard.draft = null;
     }
 
-    async function fetchDates(beauticianId = '') {
+    async function fetchDates(beauticianId = '', options = {}) {
         const draft = state.wizard.draft;
         const from = localToday();
-        const params = new URLSearchParams({ spa_branch_id: draft.spa_branch_id, product_id: draft.product.id, from, to: addDays(from, 60) });
+        const days = beauticianId ? 45 : 21;
+        const params = new URLSearchParams({ spa_branch_id: draft.spa_branch_id, product_id: draft.product.id, from, to: addDays(from, days) });
         if (beauticianId) params.set('beautician_id', beauticianId);
-        const payload = await json(apiUrl(`/bookings/available-dates?${params.toString()}`));
+        else params.set('limit', '12');
+        const payload = await json(apiUrl(`/bookings/available-dates?${params.toString()}`), options);
         return payload.dates || [];
     }
 
     async function chooseBranch(id) {
         const draft = state.wizard.draft;
+        if (state.wizard.datesAbort) state.wizard.datesAbort.abort();
+        const controller = new AbortController();
+        state.wizard.datesAbort = controller;
         draft.spa_branch_id = id; draft.beautician_id = ''; draft.appointment_date = ''; draft.appointment_time = '';
         state.wizard.branchDates = []; state.wizard.dates = []; state.wizard.slots = []; state.wizard.busy = true; state.wizard.feedback = '';
         renderWizard();
         try {
-            state.wizard.branchDates = await fetchDates();
+            state.wizard.branchDates = await fetchDates('', { signal: controller.signal });
             if (!state.wizard.branchDates.length) state.wizard.feedback = 'This treatment has no available appointment dates at the selected branch.';
-        } catch (error) { state.wizard.feedback = error.message; }
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            state.wizard.feedback = error.message;
+        }
+        if (state.wizard.datesAbort === controller) state.wizard.datesAbort = null;
         state.wizard.busy = false; renderWizard();
     }
 
     async function chooseBeautician(id) {
         const draft = state.wizard.draft;
+        if (state.wizard.datesAbort) state.wizard.datesAbort.abort();
+        const controller = new AbortController();
+        state.wizard.datesAbort = controller;
         draft.beautician_id = id; draft.appointment_date = ''; draft.appointment_time = '';
         state.wizard.dates = []; state.wizard.slots = []; state.wizard.busy = true; state.wizard.feedback = '';
         renderWizard();
         try {
-            state.wizard.dates = await fetchDates(id);
+            state.wizard.dates = await fetchDates(id, { signal: controller.signal });
             if (!state.wizard.dates.length) state.wizard.feedback = 'This beautician has no available dates for the selected treatment and branch.';
-        } catch (error) { state.wizard.feedback = error.message; }
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            state.wizard.feedback = error.message;
+        }
+        if (state.wizard.datesAbort === controller) state.wizard.datesAbort = null;
         state.wizard.busy = false; renderWizard();
     }
 
@@ -272,6 +545,7 @@ if (root) {
             formData.append('customer_id', String(state.customer.id));
             formData.append('payment_status', 'full_paid');
             formData.append('payment_receipt', state.receiptFile);
+            if (state.loyalty.appliedPoints > 0) formData.append('loyalty_points', String(state.loyalty.appliedPoints));
             state.items.forEach((line, index) => {
                 const prefix = 'items[' + index + ']';
                 formData.append(prefix + '[product_id]', String(line.product.id));
@@ -288,7 +562,7 @@ if (root) {
             const result = await json(apiUrl('/bookings'), { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: formData });
             const count = Array.isArray(result.data) ? result.data.length : state.items.length;
             feedback.textContent = `${count} booking${count === 1 ? '' : 's'} saved successfully.`; feedback.classList.add('is-success');
-            state.items = []; state.receiptFile = null; state.requestKey = null; q('[data-pos-payment-receipt]').value = ''; renderProducts(); renderReceipt();
+            state.items = []; state.requestKey = null; clearLoyalty(); clearReceipt(); renderProducts(); renderSelectedCustomer();
         } catch (error) { feedback.textContent = error.message; feedback.classList.add('is-error'); renderOrder(); }
         button.classList.remove('is-loading');
     }
@@ -297,7 +571,7 @@ if (root) {
         const catalogNode = q('[data-pos-catalog]');
         state.products = catalogNode ? JSON.parse(catalogNode.textContent || '[]') : [];
         state.categories = [{ id: 'all', name: 'All treatments' }, ...[...new Map(state.products.filter((item) => item.category_id).map((item) => [item.category_id, { id: item.category_id, name: item.category_name || 'Treatments' }])).values()]];
-        renderCategories(); renderProducts(); renderReceipt();
+        renderCategories(); renderProducts(); renderReceipt(); renderOrder();
         try {
             const [beauticians, branches] = await Promise.all([json(apiUrl('/beauticians')), json(apiUrl('/spa-branches'))]);
             state.beauticians = beauticians.data || []; state.branches = branches.data || [];
@@ -307,7 +581,8 @@ if (root) {
     root.addEventListener('click', async (event) => {
         const product = event.target.closest('[data-pos-product]');
         if (product) { const selected = state.products.find((item) => String(item.id) === product.dataset.posProduct); if (selected) openWizard(selected); return; }
-        const category = event.target.closest('[data-pos-category]'); if (category) { state.category = category.dataset.posCategory; renderCategories(); renderProducts(); return; }
+        const category = event.target.closest('[data-pos-category]'); if (category) { state.category = category.dataset.posCategory; resetCatalogPage(); renderCategories(); renderProducts(); return; }
+        const page = event.target.closest('[data-pos-catalog-page]'); if (page && !page.disabled) { state.catalogPage = Number(page.dataset.posCatalogPage); renderProducts(); q('[data-pos-products]')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
         const remove = event.target.closest('[data-pos-remove-line]'); if (remove) { state.items.splice(Number(remove.dataset.posRemoveLine), 1); renderProducts(); renderOrder(); return; }
         const edit = event.target.closest('[data-pos-edit-line]'); if (edit) { const index = Number(edit.dataset.posEditLine); if (state.items[index]) openWizard(state.items[index].product, index); return; }
         if (event.target.closest('[data-pos-wizard-close]')) { closeWizard(); return; }
@@ -319,12 +594,26 @@ if (root) {
         const beautician = event.target.closest('[data-wizard-beautician]'); if (beautician) { await chooseBeautician(beautician.dataset.wizardBeautician); return; }
         const date = event.target.closest('[data-wizard-date]'); if (date) { await chooseDate(date.dataset.wizardDate); return; }
         const time = event.target.closest('[data-wizard-time]'); if (time) { state.wizard.draft.appointment_time = time.dataset.wizardTime; renderWizard(); return; }
-        if (event.target.closest('[data-pos-clear-customer]')) { state.customer = null; state.rewards = null; renderSelectedCustomer(); renderOrder(); return; }
-        if (event.target.closest('[data-pos-reset]')) { state.items = []; state.customer = null; state.rewards = null; state.receiptFile = null; q('[data-pos-payment-receipt]').value = ''; renderProducts(); renderSelectedCustomer(); renderReceipt(); q('[data-pos-feedback]').textContent = ''; return; }
+        if (event.target.closest('[data-pos-clear-customer]')) {
+            state.customer = null;
+            state.rewards = null;
+            clearLoyalty();
+            q('[data-pos-membership-feedback]').textContent = '';
+            q('[data-pos-membership-feedback]').className = 'tr-pos-membership-feedback';
+            renderSelectedCustomer();
+            renderOrder();
+            return;
+        }
+        if (event.target.closest('[data-pos-receipt-clear]')) { clearReceipt(); q('[data-pos-feedback]').textContent = ''; q('[data-pos-feedback]').className = 'tr-pos-feedback'; return; }
+        if (event.target.closest('[data-pos-reset]')) { state.items = []; state.customer = null; state.rewards = null; clearLoyalty(); clearReceipt(); renderProducts(); renderSelectedCustomer(); q('[data-pos-feedback]').textContent = ''; return; }
         if (event.target.closest('[data-pos-submit]')) await submit();
         const view = event.target.closest('[data-pos-view]'); if (view) { state.view = view.dataset.posView; root.querySelectorAll('[data-pos-view]').forEach((item) => item.classList.toggle('is-active', item === view)); renderProducts(); }
     });
-    q('[data-pos-search]').addEventListener('input', (event) => { state.search = event.target.value; renderProducts(); });
+    q('[data-pos-loyalty-points]').addEventListener('input', (event) => { state.loyalty.input = event.target.value; state.loyalty.error = ''; });
+    q('[data-pos-loyalty-max]').addEventListener('click', () => { state.loyalty.input = String(loyaltyMaxPoints()); applyLoyaltyPoints(state.loyalty.input); renderOrder(); });
+    q('[data-pos-loyalty-apply]').addEventListener('click', () => { applyLoyaltyPoints(q('[data-pos-loyalty-points]').value); renderOrder(); });
+    q('[data-pos-loyalty-remove]').addEventListener('click', () => { clearLoyalty(); renderOrder(); });
+        q('[data-pos-search]').addEventListener('input', (event) => { state.search = event.target.value; resetCatalogPage(); renderProducts(); });
     q('[data-pos-payment-receipt]').addEventListener('change', (event) => acceptReceipt(event.target.files?.[0]));
     const receiptZone = q('[data-pos-receipt-dropzone]');
     ['dragenter', 'dragover'].forEach((name) => receiptZone.addEventListener(name, (event) => { event.preventDefault(); receiptZone.classList.add('is-dragging'); }));
@@ -343,10 +632,18 @@ if (root) {
         if (!code) { feedback.textContent = 'Enter a membership ID first.'; feedback.className = 'tr-pos-membership-feedback is-error'; return; }
         feedback.textContent = 'Checking membership…'; feedback.className = 'tr-pos-membership-feedback';
         try {
-            const payload = await json(apiUrl(`/membership-lookup?membership_id=${encodeURIComponent(code)}`)); state.customer = payload.data.customer;
+            const payload = await json(apiUrl(`/membership-lookup?membership_id=${encodeURIComponent(code)}`));
+            state.customer = {
+                ...(payload.data.customer || {}),
+                membership_id: payload.data.membership_id || code,
+            };
             const activeStamps = payload.data.stamp_cards?.active || [];
-            state.rewards = { points: payload.data.points, points_value_rm: payload.data.points_value_rm, tier: payload.data.tier, stamps_ready: payload.data.stamp_cards?.ready_to_redeem || 0, stamps_active: activeStamps.reduce((total, card) => total + Number(card.earned || 0), 0) };
-            feedback.textContent = `Membership ${payload.data.membership_id} found.`; feedback.className = 'tr-pos-membership-feedback is-success'; renderSelectedCustomer(); renderOrder();
+            state.rewards = { points: payload.data.points, points_value_rm: payload.data.points_value_rm, point_value_rm: payload.data.point_value_rm, max_redeem_percent: payload.data.max_redeem_percent, tier: payload.data.tier, stamps_ready: payload.data.stamp_cards?.ready_to_redeem || 0, stamps_active: activeStamps.reduce((total, card) => total + Number(card.earned || 0), 0) };
+            clearLoyalty();
+            feedback.textContent = '';
+            feedback.className = 'tr-pos-membership-feedback';
+            renderSelectedCustomer();
+            renderOrder();
         } catch (error) { state.customer = null; state.rewards = null; renderSelectedCustomer(); renderOrder(); feedback.textContent = error.message; feedback.className = 'tr-pos-membership-feedback is-error'; }
     };
     q('[data-pos-membership-lookup]').addEventListener('click', lookupMembership);

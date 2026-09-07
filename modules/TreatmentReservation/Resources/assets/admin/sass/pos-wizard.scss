@@ -53,22 +53,46 @@
 .tr-pos-cart-line-actions { display: flex; gap: 8px; margin: 10px 0 0 44px; }
 .tr-pos-cart-line-actions button { border: 0; background: transparent; color: var(--pos-purple); font-size: 10px; font-weight: 800; cursor: pointer; }
 body.tr-pos-modal-open { overflow: hidden; }
-.tr-pos-customer-desk { margin-top: 11px; padding: 10px 12px; border: 1px solid #e4def6; border-radius: 12px; background: linear-gradient(135deg,#fffafd,#f8f7ff); }
-.tr-pos-customer-desk__head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 8px; }
-.tr-pos-customer-desk__head>div { display: grid; gap: 3px; }
-.tr-pos-customer-desk__head strong { font-size: 13px; }
-.tr-pos-customer-desk__grid { display: grid; grid-template-columns: minmax(250px,.8fr) minmax(280px,1.2fr); gap: 12px; align-items: start; }
-.tr-pos-customer-desk .tr-pos-membership-lookup { margin: 0; padding: 7px 8px; }
-.tr-pos-customer-desk .tr-pos-membership-row input { height: 34px; }
-.tr-pos-customer-desk .tr-pos-input { min-height: 38px; }
-.tr-pos-customer-desk .tr-pos-membership-feedback { min-height: 0; margin: 3px 0 0; }
+.tr-pos-customer-desk { margin-top: 0; padding: 14px; border: 1px solid #e8e2f6; border-radius: 14px; background: #fff; box-shadow: 0 10px 28px rgba(35,42,68,.06); }
+.tr-pos-customer-desk.has-customer { border-color: #efd1e1; background: linear-gradient(180deg,#fffafc 0%,#fff 42%); }
+.tr-pos-customer-desk__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.tr-pos-customer-desk__head > div { display: grid; gap: 3px; min-width: 0; }
+.tr-pos-customer-desk__head strong { font-size: 14px; letter-spacing: -.02em; }
+.tr-pos-customer-desk__status { flex: none; padding: 5px 9px; border: 1px solid #e2e8f0; border-radius: 999px; background: #f8fafc; color: #64748b; font-size: 10px; font-weight: 800; white-space: nowrap; }
+.tr-pos-customer-desk__status.is-ready { border-color: #bdebd9; background: #effbf5; color: #08784e; }
+.tr-pos-customer-tools { display: grid; gap: 10px; }
+.tr-pos-customer-tools[hidden] { display: none !important; }
+.tr-pos-customer-desk__divider { display: flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.tr-pos-customer-desk__divider::before,
+.tr-pos-customer-desk__divider::after { content: ''; flex: 1; height: 1px; background: #e8edf5; }
+.tr-pos-customer-desk .tr-pos-membership-lookup { margin: 0; padding: 10px; border: 1px solid #e6ebf3; border-radius: 12px; background: #f8fafc; }
+.tr-pos-customer-desk .tr-pos-membership-row input { height: 36px; border-radius: 8px; }
+.tr-pos-customer-desk .tr-pos-membership-row button { min-width: 74px; border-radius: 8px; background: var(--pos-pink,#b20b63); }
+.tr-pos-customer-desk .tr-pos-input { min-height: 40px; border-radius: 10px; background: #fff; }
+.tr-pos-customer-desk .tr-pos-membership-feedback { min-height: 0; margin: 6px 0 0; }
 .tr-pos-customer-desk .tr-pos-membership-feedback:empty { display: none; }
-.tr-pos-customer-desk .tr-pos-rewards { display: flex; align-items: center; gap: 14px; margin-top: 7px; padding: 7px 9px; }
-.tr-pos-customer-desk .tr-pos-reward-meta { flex: 1; padding: 0 0 0 12px; border-top: 0; border-left: 1px solid #e6e1fb; }
+.tr-pos-customer-search-wrap { display: grid; gap: 6px; }
+.tr-pos-selected-customer[hidden],
+.tr-pos-rewards[hidden] { display: none !important; }
+.tr-pos-member-card { display: flex; align-items: center; gap: 10px; padding: 11px; border: 1px solid #efd1e1; border-radius: 12px; background: #fff8fc; }
+.tr-pos-member-card .tr-pos-customer-avatar { width: 40px; height: 40px; border-radius: 12px; background: #ffe1ee; color: var(--pos-pink,#b20b63); font-size: 14px; }
+.tr-pos-member-card__copy { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.tr-pos-member-card__copy strong { overflow: hidden; color: var(--pos-ink,#17213b); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.tr-pos-member-card__contact,
+.tr-pos-member-card__id { overflow: hidden; color: var(--pos-muted,#64748b); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.tr-pos-member-card__id { color: #9d4b74; font-weight: 700; }
+.tr-pos-member-card__change { flex: none; border: 0; background: transparent; color: var(--pos-purple,#6d55df); font-size: 11px; font-weight: 800; cursor: pointer; }
+.tr-pos-customer-desk .tr-pos-rewards { display: grid; gap: 8px; margin-top: 10px; padding: 10px; border: 1px solid #ddd8f6; border-radius: 12px; background: #faf9ff; }
+.tr-pos-rewards__tier { display: inline-flex; align-self: start; padding: 4px 8px; border-radius: 999px; background: #efeaff; color: #5b43ca; font-size: 10px; font-weight: 800; }
+.tr-pos-rewards__stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tr-pos-customer-desk .tr-pos-reward-stat { padding: 8px; border-radius: 10px; background: #fff; }
+.tr-pos-customer-desk .tr-pos-reward-stat strong { color: #5d4bdc; font-size: 16px; line-height: 1.1; }
+.tr-pos-customer-desk .tr-pos-reward-stat span { color: #68758a; font-size: 10px; }
+.tr-pos-customer-desk .tr-pos-reward-meta { padding: 0; border: 0; color: #68758a; font-size: 10px; line-height: 1.4; }
 .tr-pos-payment-field { width: 170px; }
 .tr-pos-summary-customer { display: flex; flex-direction: column; gap: 3px; padding: 11px; border-radius: 12px; background: #f8fafc; color: var(--pos-muted); font-size: 11px; }
 .tr-pos-summary-customer strong { color: var(--pos-ink); font-size: 13px; }
 .tr-pos-summary-rewards { margin-top: 8px; padding: 9px 11px; border: 1px solid #ddd8f6; border-radius: 10px; background: #faf9ff; color: #5b43ca; font-size: 10px; font-weight: 800; }
 .tr-pos-summary-payment { font-size: 12px !important; }
 @media(max-width:640px){.tr-pos-wizard{padding:0;align-items:end}.tr-pos-wizard__dialog{width:100%;max-height:92vh;border-radius:24px 24px 0 0}.tr-pos-wizard__header{padding:18px 18px 14px}.tr-pos-wizard__steps{padding:14px 14px 2px}.tr-pos-wizard__step span{display:none}.tr-pos-wizard__body{padding:18px;min-height:300px}.tr-pos-wizard__grid{grid-template-columns:1fr}.tr-pos-wizard__dates{grid-template-columns:repeat(3,minmax(0,1fr))}.tr-pos-wizard__slots{grid-template-columns:repeat(3,minmax(0,1fr))}.tr-pos-wizard__footer{padding:14px 18px 18px}}
-@media(max-width:780px){.tr-pos-customer-desk__head{align-items:flex-start;flex-direction:column}.tr-pos-payment-field{width:100%}.tr-pos-customer-desk__grid{grid-template-columns:1fr}}
+@media(max-width:780px){.tr-pos-customer-desk__head{align-items:flex-start;flex-wrap:wrap}.tr-pos-payment-field{width:100%}}

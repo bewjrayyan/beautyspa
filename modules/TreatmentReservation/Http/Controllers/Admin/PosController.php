@@ -37,7 +37,7 @@ class PosController extends Controller
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
-                    'image' => $product->base_image?->path,
+                    'image' => $product->base_image->id ? $product->base_image->path : null,
                     'price' => (float) $product->selling_price->amount(),
                     'duration_minutes' => $minutes,
                     'category_id' => $product->treatment_category_id,

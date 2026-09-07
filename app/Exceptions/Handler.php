@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Modules\Sms\Exceptions\SmsException;
+use Modules\Support\Cache\CacheHealth;
 use Modules\TreatmentReservation\Support\TreatmentSlotConflict;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -152,6 +153,18 @@ class Handler extends ExceptionHandler
             || $e instanceof AuthenticationException
         ) {
             return parent::render($request, $e);
+        }
+
+        if (CacheHealth::isRedisAuthOrConnectivityFailure($e)) {
+            CacheHealth::fallbackFromRedis();
+
+            if ($request->expectsJson() || $request->ajax() || $request->is('api/*')) {
+                return response()->json([
+                    'message' => trans('core::messages.something_went_wrong'),
+                ], Response::HTTP_SERVICE_UNAVAILABLE);
+            }
+
+            return $this->renderFriendlyHtmlError($e);
         }
 
         if ($this->shouldRenderFriendlyHtmlError($request)) {

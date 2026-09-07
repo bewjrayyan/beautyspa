@@ -1012,4 +1012,8 @@ return [
         ],
     ],
 
+    'pos' => [
+        'empty_cart_title' => 'Tiada rawatan dipilih',
+        'empty_cart_hint' => 'Pilih rawatan dari katalog untuk mula tempahan ini.',
+    ],
 ];

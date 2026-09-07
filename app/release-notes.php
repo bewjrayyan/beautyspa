@@ -5,6 +5,28 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.70' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Polish Treatment POS booking UX and harden production Redis failures on checkout.',
+            'changes' => [
+                'Improve POS customer desk, receipt upload, catalog pagination, empty-cart messaging, and real product thumbnails in the cart.',
+                'Speed up branch availability lookups and add checkout-style loyalty points redeem in the POS booking summary.',
+                'Add a top-nav POS Booking shortcut and refine POS side-rail layout for faster walk-in booking.',
+                'Handle Redis NOAUTH/connectivity failures with safer cache/session fallback so checkout no longer shows raw Predis errors.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perhalusi UX tempahan Treatment POS dan kukuhkan kegagalan Redis production pada checkout.',
+            'changes' => [
+                'Tingkatkan desk pelanggan POS, muat naik resit, penomboran katalog, mesej cart kosong, dan thumbnail produk sebenar dalam cart.',
+                'Percepat carian availability cawangan dan tambah tebus mata loyalty bergaya checkout dalam ringkasan tempahan POS.',
+                'Tambah pintasan POS Booking pada top-nav dan perhalusi layout side-rail POS untuk tempahan walk-in lebih pantas.',
+                'Tangani kegagalan Redis NOAUTH/sambungan dengan fallback cache/session yang lebih selamat supaya checkout tidak memaparkan ralat Predis mentah.',
+            ],
+        ],
+    ],
+
     '4.11.69' => [
         'date' => '2026-09-07',
         'en' => [

@@ -319,6 +319,64 @@ class AppointmentAvailabilityService
         return $dates;
     }
 
+    /**
+     * Branch-level date scan: day-first across beauticians, with optional early stop.
+     *
+     * Much faster than calling availableDates() once per beautician for the full range.
+     *
+     * @param  iterable<int|string>  $beauticianIds
+     * @return list<string>
+     */
+    public function availableDatesAcrossBeauticians(
+        int $productId,
+        int $spaBranchId,
+        string $from,
+        string $to,
+        iterable $beauticianIds,
+        ?int $limit = null,
+        ?int $excludeBookingId = null,
+        ?int $excludeOrderId = null,
+    ): array {
+        $ids = collect($beauticianIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        $start = Carbon::parse($from)->startOfDay()->max(today()->startOfDay());
+        $end = Carbon::parse($to)->startOfDay()
+            ->min($start->copy()->addDays(self::MAX_DATE_RANGE_DAYS));
+        $dates = [];
+
+        for ($cursor = $start->copy(); $cursor->lte($end); $cursor->addDay()) {
+            $date = $cursor->toDateString();
+
+            foreach ($ids as $beauticianId) {
+                if ($this->availableSlots(
+                    $productId,
+                    $spaBranchId,
+                    $date,
+                    $beauticianId,
+                    $excludeBookingId,
+                    $excludeOrderId,
+                ) !== []) {
+                    $dates[] = $date;
+                    break;
+                }
+            }
+
+            if ($limit !== null && count($dates) >= $limit) {
+                break;
+            }
+        }
+
+        return $dates;
+    }
+
 
     /**
      * Calendar dates in range with DB-backed availability status.
