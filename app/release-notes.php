@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.78' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Harden checkout against Redis/availability outages during booking.',
+            'changes' => [
+                'Skip availability/dates requests for TBA or unset schedule mode to avoid unnecessary 503 noise.',
+                'Degrade availability/dates to an empty calendar instead of failing hard on Redis/server errors.',
+                'Silence generic Something went wrong toasts for transient cart 5xx responses and clarify place-order busy errors.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kuatkan checkout terhadap gangguan Redis/ketersediaan semasa tempahan.',
+            'changes' => [
+                'Langkau permintaan availability/dates untuk mod TBA atau belum dipilih supaya elak hingar 503 yang tak perlu.',
+                'Degrade availability/dates kepada kalendar kosong berbanding gagal keras bila Redis/server ralat.',
+                'Senyapkan toast Something went wrong generik untuk respons cart 5xx sementara dan perjelas ralat place-order sibuk.',
+            ],
+        ],
+    ],
+
     '4.11.77' => [
         'date' => '2026-09-07',
         'en' => [

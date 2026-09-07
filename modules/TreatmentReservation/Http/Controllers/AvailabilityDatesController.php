@@ -6,12 +6,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Cart\Facades\Cart;
 use Modules\Product\Entities\Product;
 use Modules\SpaBranch\Entities\SpaBranch;
+use Modules\Support\Cache\CacheHealth;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityService;
+use Throwable;
 
 class AvailabilityDatesController extends Controller
 {
@@ -63,13 +66,37 @@ class AvailabilityDatesController extends Controller
 
         $beauticianId = isset($data['beautician_id']) ? (int) $data['beautician_id'] : null;
 
-        $dateOptions = $this->availability->dateOptions(
-            $productId,
-            $branchId,
-            $from,
-            $to,
-            $beauticianId,
-        );
+        try {
+            $dateOptions = $this->availability->dateOptions(
+                $productId,
+                $branchId,
+                $from,
+                $to,
+                $beauticianId,
+            );
+        } catch (Throwable $e) {
+            if (
+                CacheHealth::isRedisAuthOrConnectivityFailure($e)
+                || str_contains(strtolower($e->getMessage()), 'redis')
+                || str_contains(strtolower($e->getMessage()), 'predis')
+            ) {
+                CacheHealth::fallbackFromRedis();
+            }
+
+            Log::warning('availability.dates degraded', [
+                'product_id' => $productId,
+                'spa_branch_id' => $branchId,
+                'beautician_id' => $beauticianId,
+                'message' => $e->getMessage(),
+            ]);
+
+            // Keep checkout usable (esp. TBA) when cache/DB blips — empty calendar is better than 503.
+            return response()->json([
+                'dates' => [],
+                'date_options' => [],
+                'degraded' => true,
+            ]);
+        }
 
         $dates = array_values(array_map(
             static fn (array $option) => $option['date'],

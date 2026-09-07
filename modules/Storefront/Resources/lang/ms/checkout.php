@@ -42,6 +42,7 @@ return [
     'special_note_for_delivery' => 'Nota khas untuk penghantaran atau keperluan rawatan…',
     'and_cancellation_policy' => 'dan memahami polisi pembatalan.',
     'place_order_now' => 'Buat pesanan sekarang',
+    'temporarily_unavailable' => 'Checkout sedang sibuk buat sementara. Sila cuba lagi sebentar.',
     'proceed_to_order_summary' => 'Teruskan',
     'payment_method' => 'Kaedah bayaran',
 

@@ -24,6 +24,7 @@
         'storefront::checkout.payment_proof_required',
         'storefront::checkout.payment_proof_invalid_type',
         'storefront::checkout.payment_proof_too_large',
+        'storefront::checkout.temporarily_unavailable',
         'storefront::checkout.shipping_method_free_desc',
         'storefront::checkout.shipping_method_pickup_desc',
         'storefront::checkout.shipping_method_flat_desc',

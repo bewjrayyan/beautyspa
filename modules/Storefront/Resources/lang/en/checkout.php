@@ -42,6 +42,7 @@ return [
     'special_note_for_delivery' => 'Special note for delivery or treatment requirements...',
     'and_cancellation_policy' => 'and understand the cancellation policy.',
     'place_order_now' => 'Place Order Now',
+    'temporarily_unavailable' => 'Checkout is temporarily busy. Please try again in a moment.',
     'proceed_to_order_summary' => 'Proceed',
     'payment_method' => 'Payment Method',
 

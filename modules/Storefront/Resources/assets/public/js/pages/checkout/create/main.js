@@ -861,11 +861,8 @@ Alpine.data(
                             line.schedule_later = "";
                         }
                         this.destroyLineDatePicker(index);
-                        if (line.beautician_id) {
-                            this.prefetchLineAvailableDates(index);
-                            if (this.isLineScheduleNow(line)) {
-                                this.loadLineAvailableDates(index);
-                            }
+                        if (line.beautician_id && this.isLineScheduleNow(line)) {
+                            this.loadLineAvailableDates(index);
                         }
                     });
                 });
@@ -1155,11 +1152,6 @@ Alpine.data(
         bootTreatmentSchedules() {
             this.ensureTreatmentSchedules();
             this.$nextTick(() => {
-                (this.treatmentSchedules || []).forEach((line, index) => {
-                    if (line.beautician_id) {
-                        this.prefetchLineAvailableDates(index);
-                    }
-                });
                 (this.treatmentSchedules || []).forEach((line, index) => {
                     if (this.isLineScheduleNow(line) && line.beautician_id) {
                         this.loadLineAvailableDates(index);
@@ -1676,10 +1668,9 @@ Alpine.data(
 
             this.destroyLineDatePicker(lineIndex);
 
+            // Dates are only needed for "schedule now" — skip TBA / unset mode.
             if (this.isLineScheduleNow(line)) {
                 this.loadLineAvailableDates(lineIndex);
-            } else {
-                this.prefetchLineAvailableDates(lineIndex);
             }
         },
 
@@ -1905,8 +1896,12 @@ Alpine.data(
 
         prefetchLineAvailableDates(lineIndex) {
             const line = this.treatmentSchedules[lineIndex];
+            // Never hit the dates API for TBA or before the customer chooses "schedule now".
+            if (!line || !this.isLineScheduleNow(line)) {
+                return;
+            }
+
             if (
-                !line ||
                 !this.availabilityDatesUrl ||
                 !this.form.spa_branch_id ||
                 !line.product_id ||
@@ -1931,7 +1926,7 @@ Alpine.data(
             const line = this.treatmentSchedules[lineIndex];
             if (
                 !line ||
-                this.isLineScheduleLater(line) ||
+                !this.isLineScheduleNow(line) ||
                 !this.availabilityDatesUrl ||
                 !this.form.spa_branch_id ||
                 !line.product_id ||
@@ -3218,6 +3213,19 @@ Alpine.data(
             this.form.shipping_method = shippingMethodName;
         },
 
+        notifyCheckoutAjaxError(error) {
+            const status = Number(error?.response?.status || 0);
+            // Transient infra (Redis/proxy) — don't scare customers mid-checkout.
+            if (!error?.response || status === 503 || status >= 500) {
+                return;
+            }
+
+            const message = error?.response?.data?.message;
+            if (typeof message === "string" && message.trim()) {
+                notify(message.trim());
+            }
+        },
+
         async updateShippingMethod(shippingMethodName) {
             if (!shippingMethodName) {
                 return;
@@ -3232,7 +3240,7 @@ Alpine.data(
 
                 this.$store.cart.updateCart(response.data);
             } catch (error) {
-                notify(error.response.data.message);
+                this.notifyCheckoutAjaxError(error);
             }
         },
 
@@ -3242,7 +3250,7 @@ Alpine.data(
 
                 this.$store.cart.updateCart(response.data);
             } catch (error) {
-                notify(error.response.data.message);
+                this.notifyCheckoutAjaxError(error);
             }
         },
 
@@ -3530,6 +3538,15 @@ Alpine.data(
 
                     if (response.status === 422) {
                         this.recordValidationErrors(response);
+
+                        return;
+                    }
+
+                    if (response.status === 503 || response.status >= 500) {
+                        notify(
+                            response.data?.message ||
+                                trans("storefront::checkout.temporarily_unavailable")
+                        );
 
                         return;
                     }
