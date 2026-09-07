@@ -87,47 +87,60 @@
                 </div>
 
                 <div class="checkout-account-panel__fields">
-                    <div class="form-group">
-                        <label for="checkout-login-password">
-                            {{ trans('checkout::attributes.password') }}<span>*</span>
-                        </label>
+                    <div class="checkout-account-panel__signin-row">
+                        <div class="form-group checkout-account-panel__password">
+                            <label for="checkout-login-password">
+                                {{ trans('checkout::attributes.password') }}<span>*</span>
+                            </label>
 
-                        <div
-                            class="checkout-password-field"
-                            x-data="{ showPassword: false }"
-                        >
-                            <input
-                                :type="showPassword ? 'text' : 'password'"
-                                id="checkout-login-password"
-                                class="form-control"
-                                autocomplete="current-password"
-                                placeholder="{{ trans('storefront::checkout.account_gate_password_placeholder') }}"
-                                x-model="accountLoginPassword"
-                                @keydown.enter.prevent="loginToAccount()"
+                            <div
+                                class="checkout-password-field"
+                                x-data="{ showPassword: false }"
                             >
+                                <input
+                                    :type="showPassword ? 'text' : 'password'"
+                                    id="checkout-login-password"
+                                    class="form-control"
+                                    autocomplete="current-password"
+                                    placeholder="{{ trans('storefront::checkout.account_gate_password_placeholder') }}"
+                                    x-model="accountLoginPassword"
+                                    @keydown.enter.prevent="loginToAccount()"
+                                >
 
-                            <button
-                                type="button"
-                                class="checkout-password-toggle"
-                                :aria-label="showPassword
-                                    ? '{{ trans('user::auth.hide_password') }}'
-                                    : '{{ trans('user::auth.show_password') }}'"
-                                :title="showPassword
-                                    ? '{{ trans('user::auth.hide_password') }}'
-                                    : '{{ trans('user::auth.show_password') }}'"
-                                @click="showPassword = !showPassword"
-                            >
-                                <i
-                                    class="las"
-                                    :class="showPassword ? 'la-eye-slash' : 'la-eye'"
-                                    aria-hidden="true"
-                                ></i>
-                            </button>
+                                <button
+                                    type="button"
+                                    class="checkout-password-toggle"
+                                    :aria-label="showPassword
+                                        ? '{{ trans('user::auth.hide_password') }}'
+                                        : '{{ trans('user::auth.show_password') }}'"
+                                    :title="showPassword
+                                        ? '{{ trans('user::auth.hide_password') }}'
+                                        : '{{ trans('user::auth.show_password') }}'"
+                                    @click="showPassword = !showPassword"
+                                >
+                                    <i
+                                        class="las"
+                                        :class="showPassword ? 'la-eye-slash' : 'la-eye'"
+                                        aria-hidden="true"
+                                    ></i>
+                                </button>
+                            </div>
+
+                            <template x-if="accountLoginError">
+                                <span class="error-message" x-text="accountLoginError"></span>
+                            </template>
                         </div>
 
-                        <template x-if="accountLoginError">
-                            <span class="error-message" x-text="accountLoginError"></span>
-                        </template>
+                        <button
+                            type="button"
+                            class="btn btn-primary btn-sign-in-checkout checkout-account-panel__cta"
+                            :class="{ 'btn-loading': loggingInToAccount }"
+                            :disabled="loggingInToAccount || !accountLoginPassword"
+                            @click="loginToAccount()"
+                            x-text="loggingInToAccount ? '{{ trans('storefront::checkout.signing_in') }}' : '{{ trans('storefront::checkout.sign_in_to_checkout') }}'"
+                        >
+                            {{ trans('storefront::checkout.sign_in_to_checkout') }}
+                        </button>
                     </div>
 
                     @if (setting('google_recaptcha_enabled'))
@@ -135,17 +148,6 @@
                             @include('storefront::public.partials.google_recaptcha')
                         </div>
                     @endif
-
-                    <button
-                        type="button"
-                        class="btn btn-primary btn-sign-in-checkout checkout-account-panel__cta"
-                        :class="{ 'btn-loading': loggingInToAccount }"
-                        :disabled="loggingInToAccount || !accountLoginPassword"
-                        @click="loginToAccount()"
-                        x-text="loggingInToAccount ? '{{ trans('storefront::checkout.signing_in') }}' : '{{ trans('storefront::checkout.sign_in_to_checkout') }}'"
-                    >
-                        {{ trans('storefront::checkout.sign_in_to_checkout') }}
-                    </button>
 
                     <div class="checkout-account-panel__links">
                         <a href="{{ storefront_route('reset') }}">

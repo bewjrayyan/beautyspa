@@ -5,6 +5,24 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.76' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Place checkout sign-in password and button side by side.',
+            'changes' => [
+                'Lay out the returning-customer password field and Sign in & continue button in one row on wider screens.',
+                'Keep the sign-in controls stacked on small screens for easier tapping.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Letak medan kata laluan dan butang log masuk checkout sebelah menyebelah.',
+            'changes' => [
+                'Susun medan kata laluan pelanggan sedia ada dan butang Sign in & continue dalam satu baris pada skrin lebih lebar.',
+                'Kekalkan kawalan log masuk bertindan pada skrin kecil untuk ketukan lebih mudah.',
+            ],
+        ],
+    ],
+
     '4.11.75' => [
         'date' => '2026-09-07',
         'en' => [
