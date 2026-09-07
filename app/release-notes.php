@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.73' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Fix checkout email check hanging on server/Redis errors.',
+            'changes' => [
+                'Harden checkout/check-email so cache or Redis failures degrade safely instead of returning 500.',
+                'Clear the Checking email spinner with request timeouts and ignore stale responses.',
+                'Broaden Redis exception detection for JSON checkout requests and keep guest JSON probes from hard-redirecting.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki semakan e-mel checkout yang tergantung akibat ralat server/Redis.',
+            'changes' => [
+                'Kukuhkan checkout/check-email supaya kegagalan cache atau Redis merosot dengan selamat dan tidak pulangkan 500.',
+                'Kosongkan spinner Menyemak e-mel dengan had masa permintaan dan abaikan respons lama.',
+                'Perluaskan pengesanan ralat Redis untuk permintaan JSON checkout dan elakkan redirect keras pada probe tetamu JSON.',
+            ],
+        ],
+    ],
+
     '4.11.72' => [
         'date' => '2026-09-07',
         'en' => [
