@@ -329,6 +329,12 @@ class Product extends Model implements Sitemapable
     }
 
 
+    public function requiresShipping(): bool
+    {
+        return ! $this->isVirtualTreatment();
+    }
+
+
     public function treatmentCategory()
     {
         return $this->belongsTo(

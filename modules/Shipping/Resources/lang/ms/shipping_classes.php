@@ -15,6 +15,9 @@ return [
     ],
     'form' => [
         'enable_the_shipping_class' => 'Aktifkan kelas penghantaran ini',
-        'cost_help' => 'Dikenakan mengikut kuantiti untuk produk fizikal yang menggunakan kelas ini (Flat Rate). Tetapkan dengan tepat supaya kos penghantaran tidak undercharge.',
+        'cost_help' => 'Dicas setiap kuantiti untuk produk fizikal yang menggunakan kelas ini (Flat Rate). Tetapkan dengan tepat supaya kos penghantaran tidak kurang caj.',
+    ],
+    'messages' => [
+        'destroy_has_products' => 'Tidak boleh padam kelas penghantaran yang masih diguna produk: :classes. Tukar kelas produk dahulu.',
     ],
 ];

@@ -17,4 +17,7 @@ return [
         'enable_the_shipping_class' => 'Enable this shipping class',
         'cost_help' => 'Charged per quantity for physical products using this class (Flat Rate). Set accurately so shipping is never undercharged.',
     ],
+    'messages' => [
+        'destroy_has_products' => 'Cannot delete shipping class(es) still assigned to products: :classes. Reassign those products first.',
+    ],
 ];

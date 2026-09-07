@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 use Modules\Admin\Ui\Facades\TabManager;
 use Modules\Shipping\Facades\ShippingMethod;
 use Modules\Shipping\Admin\ShippingClassTabs;
+use Modules\Shipping\Console\BackfillProductShippingClassesCommand;
+use Modules\Shipping\Console\GrantShippingClassPermissionsCommand;
 
 class ShippingServiceProvider extends ServiceProvider
 {
@@ -17,6 +19,13 @@ class ShippingServiceProvider extends ServiceProvider
         }
 
         TabManager::register('shipping_classes', ShippingClassTabs::class);
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                BackfillProductShippingClassesCommand::class,
+                GrantShippingClassPermissionsCommand::class,
+            ]);
+        }
 
         $this->registerFreeShipping();
         $this->registerLocalPickup();
