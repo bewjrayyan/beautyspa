@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.77' => [
+        'date' => '2026-09-07',
+        'en' => [
+            'summary' => 'Clarify checkout shipment items and treatment variation details.',
+            'changes' => [
+                'Show which physical products are included under Shipping Method.',
+                'Display selected treatment variations in booking cards and Appointment Details.',
+                'Fix broken shipping markup that pushed Order Summary below the main column.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Perjelas item penghantaran checkout dan butiran variasi rawatan.',
+            'changes' => [
+                'Tunjukkan produk fizikal yang disertakan di bawah Kaedah penghantaran.',
+                'Paparkan variasi rawatan dipilih pada kad tempahan dan Butiran temujanji.',
+                'Baiki markup penghantaran rosak yang menolak Ringkasan pesanan ke bawah kolum utama.',
+            ],
+        ],
+    ],
+
     '4.11.76' => [
         'date' => '2026-09-07',
         'en' => [

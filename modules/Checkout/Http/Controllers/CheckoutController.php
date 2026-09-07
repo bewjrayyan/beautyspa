@@ -354,7 +354,7 @@ class CheckoutController extends Controller
 
 
     /**
-     * @return list<array{cart_item_id: string, product_id: int, name: string}>
+     * @return list<array{cart_item_id: string, product_id: int, name: string, variants: list<array{name: string, value: string}>}>
      */
     private function resolveCartTreatmentItems(): array
     {
@@ -371,9 +371,57 @@ class CheckoutController extends Controller
                 'cart_item_id' => (string) $item->id,
                 'product_id' => (int) $product->id,
                 'name' => (string) ($product->name ?? 'Treatment'),
+                'variants' => $this->resolveCartItemVariantLines($item),
             ];
         }
 
         return $items;
+    }
+
+    /**
+     * @return list<array{name: string, value: string}>
+     */
+    private function resolveCartItemVariantLines($item): array
+    {
+        $lines = [];
+
+        foreach ($item->variations ?? [] as $variation) {
+            $value = $variation->values->first()?->label
+                ?? $variation->value
+                ?? '';
+
+            $name = (string) ($variation->name ?? '');
+            $value = trim((string) $value);
+
+            if ($name === '' && $value === '') {
+                continue;
+            }
+
+            $lines[] = [
+                'name' => $name,
+                'value' => $value,
+            ];
+        }
+
+        foreach ($item->options ?? [] as $option) {
+            $value = collect($option->values ?? [])
+                ->pluck('label')
+                ->filter()
+                ->implode(', ');
+
+            $name = (string) ($option->name ?? '');
+            $value = trim((string) $value);
+
+            if ($name === '' && $value === '') {
+                continue;
+            }
+
+            $lines[] = [
+                'name' => $name,
+                'value' => $value,
+            ];
+        }
+
+        return $lines;
     }
 }

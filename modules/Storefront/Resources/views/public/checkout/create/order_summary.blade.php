@@ -118,6 +118,16 @@
                             :class="{ 'checkout-appointment-summary__group--spaced': lineIndex > 0 }"
                         >
                             <p class="checkout-appointment-summary__product" x-text="`${lineIndex + 1}. ${line.name}`"></p>
+                            <template x-if="lineHasVariants(line)">
+                                <ul class="checkout-appointment-summary__variants list-inline">
+                                    <template x-for="(variant, variantIndex) in lineVariants(line)" :key="`summary-${line.cart_item_id || line.product_id}-variant-${variantIndex}`">
+                                        <li class="checkout-appointment-summary__variant">
+                                            <label x-text="variant.name ? `${variant.name}:` : '{{ trans('storefront::checkout.selected_option') }}:'"></label>
+                                            <span x-text="variant.value || variant.name"></span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
 
                             <div class="checkout-appointment-summary__row">
                                 <label>{{ trans('storefront::checkout.beautician') }}</label>

@@ -210,6 +210,12 @@ Alpine.data(
             return Object.keys(this.cart.availableShippingMethods).length !== 0;
         },
 
+        get shippableCartItems() {
+            return Object.values(this.cart.items || {}).filter(
+                (item) => item?.product && !item.product.is_virtual
+            );
+        },
+
         scrollToOrderSummary() {
             this.$nextTick(() => {
                 const target =
@@ -875,6 +881,16 @@ Alpine.data(
                 this.onCheckoutCartUpdated();
             });
 
+            this.$watch("cartFetched", (fetched) => {
+                if (fetched && this.requiresTreatmentBooking) {
+                    this.syncTreatmentCartItemsFromCart();
+                }
+            });
+
+            if (this.cartFetched && this.requiresTreatmentBooking) {
+                this.syncTreatmentCartItemsFromCart();
+            }
+
             this.$nextTick(() => {
                 bootModernPhoneInputs(this.$el);
             });
@@ -1053,9 +1069,87 @@ Alpine.data(
                     cart_item_id: String(item.id),
                     product_id: Number(item.product.id),
                     name: String(item.product.name || "Treatment"),
+                    variants: this.cartItemVariantLines(item),
                 }));
 
             this.ensureTreatmentSchedules();
+        },
+
+        cartItemVariantLines(item) {
+            const lines = [];
+
+            Object.values(item?.variations || {}).forEach((variation) => {
+                const name = String(variation?.name || "").trim();
+                const value = String(variation?.values?.[0]?.label || "").trim();
+
+                if (!name && !value) {
+                    return;
+                }
+
+                lines.push({ name, value });
+            });
+
+            Object.values(item?.options || {}).forEach((option) => {
+                const name = String(option?.name || "").trim();
+                const value = (option?.values || [])
+                    .map((entry) => entry?.label)
+                    .filter(Boolean)
+                    .join(", ")
+                    .trim();
+
+                if (!name && !value) {
+                    return;
+                }
+
+                lines.push({ name, value });
+            });
+
+            return lines;
+        },
+
+        lineHasVariants(line) {
+            return this.lineVariants(line).length > 0;
+        },
+
+        lineVariants(line) {
+            if (Array.isArray(line?.variants) && line.variants.length > 0) {
+                return line.variants;
+            }
+
+            const cartItem = Object.values(this.cart.items || {}).find(
+                (item) => String(item.id) === String(line?.cart_item_id)
+            );
+
+            return cartItem ? this.cartItemVariantLines(cartItem) : [];
+        },
+
+        lineVariantSummary(line) {
+            const variants = this.lineVariants(line);
+
+            if (!variants.length) {
+                return "";
+            }
+
+            return variants
+                .map((variant) => {
+                    const name = String(variant?.name || "").trim();
+                    const value = String(variant?.value || "").trim();
+
+                    if (name && value) {
+                        return `${name}: ${value}`;
+                    }
+
+                    return value || name;
+                })
+                .filter(Boolean)
+                .join(" · ");
+        },
+
+        lineHeadingText(line, lineIndex = 0) {
+            const base = `${lineIndex + 1}. ${line?.name || "Treatment"}`;
+            const variants = this.lineVariantSummary(line);
+
+            return variants ? `${base} (${variants})` : base;
         },
 
         bootTreatmentSchedules() {
@@ -1093,6 +1187,7 @@ Alpine.data(
                     cart_item_id: "legacy",
                     product_id: this.treatmentProductId,
                     name: "Treatment",
+                    variants: [],
                 });
             }
 
@@ -1111,6 +1206,7 @@ Alpine.data(
                     cart_item_id: String(item.cart_item_id || ""),
                     product_id: Number(item.product_id),
                     name: item.name || "Treatment",
+                    variants: Array.isArray(item.variants) ? item.variants : [],
                     beautician_id: prev?.beautician_id || "",
                     schedule_later: prev?.schedule_later ?? "",
                     appointment_date: prev?.appointment_date || "",
@@ -2722,7 +2818,9 @@ Alpine.data(
                 const lineIndex = match ? Number(match[1]) : null;
                 const line = lineIndex !== null ? this.treatmentSchedules?.[lineIndex] : null;
                 const message = bag[preferredKey][0];
-                const label = line?.name ? `${line.name}: ${message}` : message;
+                const label = line?.name
+                    ? `${this.lineHeadingText(line, lineIndex)}: ${message}`
+                    : message;
 
                 notify(label);
 
@@ -3315,7 +3413,7 @@ Alpine.data(
                 if (!this.lineTimeIsInSchedule(line, time)) {
                     notify(
                         trans("storefront::checkout.appointment_time_not_in_schedule", {
-                            treatment: line.name || "Treatment",
+                            treatment: this.lineHeadingText(line, index) || "Treatment",
                         })
                     );
                     return false;
@@ -3340,7 +3438,7 @@ Alpine.data(
                     }
 
                     notify(trans("storefront::checkout.appointment_time_not_in_schedule", {
-                        treatment: line.name || "Treatment",
+                        treatment: this.lineHeadingText(line, index) || "Treatment",
                     }));
                     return false;
                 }

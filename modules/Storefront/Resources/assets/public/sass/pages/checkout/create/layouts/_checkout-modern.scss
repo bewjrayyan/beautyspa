@@ -1246,6 +1246,78 @@ $checkout-text-muted: #4b5563;
         line-height: 1.45;
         color: #9ca3af;
     }
+
+    .shipping-method-scope {
+        margin-bottom: 14px;
+        padding: 14px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #f9fafb;
+    }
+
+    .shipping-method-scope__header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #374151;
+
+        i {
+            font-size: 16px;
+            color: #f274ac;
+        }
+    }
+
+    .shipping-method-scope__list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .shipping-method-scope__item + .shipping-method-scope__item {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed #e5e7eb;
+    }
+
+    .shipping-method-scope__item-main {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+
+        strong {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+        }
+    }
+
+    .shipping-method-scope__qty {
+        flex-shrink: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .shipping-method-scope__variants {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-top: 4px;
+    }
+
+    .shipping-method-scope__variant {
+        font-size: 12px;
+        color: #6f2948;
+
+        strong {
+            font-weight: 700;
+        }
+    }
+
 }
 
 .shipping-method-form--modern {
@@ -1760,6 +1832,35 @@ $checkout-text-muted: #4b5563;
         font-weight: 600;
         line-height: 1.4;
         color: #6f2948;
+    }
+
+    .checkout-appointment-summary__variants {
+        margin: 0 0 8px;
+        padding: 0 0 0 14px;
+        list-style: none;
+    }
+
+    .checkout-appointment-summary__variant {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 6px;
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.4;
+        color: #6b7280;
+
+        label {
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        span {
+            font-weight: 600;
+            color: #4b5563;
+        }
     }
 
     .checkout-appointment-summary__row {

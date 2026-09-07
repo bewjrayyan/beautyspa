@@ -10,7 +10,12 @@
 .checkout-treatment-card { border: 1px solid #eadfe4; border-radius: 14px; padding: 16px; margin-bottom: 14px; background: #fffafc; }
 .checkout-treatment-card__header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
 .checkout-treatment-card__number { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 28px; height: 28px; font-size: 13px; font-weight: 700; line-height: 1; color: #fff; background: #f274ac; border-radius: 50%; }
-.checkout-treatment-card__title { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: #6f2948; margin: 0; padding-top: 4px; }
+.checkout-treatment-card__title { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: #6f2948; margin: 0; }
+.checkout-treatment-card__identity { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding-top: 2px; }
+.checkout-treatment-card__variants { margin: 0; padding: 0 0 0 2px; list-style: none; }
+.checkout-treatment-card__variant { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 0; font-size: 13px; line-height: 1.4; color: #6b7280; }
+.checkout-treatment-card__variant label { margin: 0; font-weight: 600; color: #6b7280; }
+.checkout-treatment-card__variant span { font-weight: 600; color: #4b5563; }
 .checkout-treatment-card .is-disabled-field { opacity: 0.55; }
 .checkout-treatment-card .is-disabled-field .checkout-input-wrap { pointer-events: auto; cursor: pointer; }
 .checkout-treatment-card .is-disabled-field .form-control:disabled { pointer-events: none; }
@@ -35,9 +40,24 @@
                     <span
                         class="checkout-treatment-card__number"
                         x-text="lineIndex + 1"
-                        :aria-label="`${lineIndex + 1}. ${line.name}`"
+                        :aria-label="lineHeadingText(line, lineIndex)"
                     ></span>
-                    <h5 class="checkout-treatment-card__title" x-text="line.name"></h5>
+                    <div class="checkout-treatment-card__identity">
+                        <h5 class="checkout-treatment-card__title" x-text="line.name"></h5>
+
+                        <ul
+                            class="checkout-treatment-card__variants"
+                            x-cloak
+                            x-show="lineHasVariants(line)"
+                        >
+                            <template x-for="(variant, variantIndex) in lineVariants(line)" :key="`${line.cart_item_id || line.product_id}-variant-${variantIndex}`">
+                                <li class="checkout-treatment-card__variant">
+                                    <label x-text="variant.name ? `${variant.name}:` : '{{ trans('storefront::checkout.selected_option') }}:'"></label>
+                                    <span x-text="variant.value || variant.name"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="form-group checkout-field-beautician">
