@@ -152,6 +152,7 @@ return [
     ],
     'form' => [
 
+        'shipping_class_help' => 'Wajib untuk produk fizikal. Flat Rate = kos kelas × kuantiti.',
         'the_product_won\'t_be_shipped' => 'The product won\'t be shipped',
         'treatment_category_help' => 'Used for calendar color and reservation filters (Facial, Hair, etc.).',
         'enable_the_product' => 'Aktifkan product',

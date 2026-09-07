@@ -34,6 +34,7 @@ class ProductEditResource extends JsonResource
             'media' => $this->filterFiles(['base_image', 'additional_images'])->get()->map->only('id', 'path'),
             'price' => $this->price?->convertToCurrentCurrency()->amount(),
             'tax_class_id' => $this->tax_class_id ?? '',
+            'shipping_class_id' => $this->shipping_class_id ?? '',
             'sku' => $this->sku,
             'manage_stock' => $this->manage_stock,
             'qty' => $this->qty,

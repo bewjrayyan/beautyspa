@@ -5,6 +5,7 @@ namespace Modules\Product\Entities\Concerns;
 use Modules\Tag\Entities\Tag;
 use Modules\Brand\Entities\Brand;
 use Modules\Tax\Entities\TaxClass;
+use Modules\Shipping\Entities\ShippingClass;
 use Modules\Option\Entities\Option;
 use Modules\Review\Entities\Review;
 use Modules\Category\Entities\Category;
@@ -38,6 +39,12 @@ trait EloquentRelations
     public function taxClass(): BelongsTo
     {
         return $this->belongsTo(TaxClass::class)->withDefault();
+    }
+
+
+    public function shippingClass(): BelongsTo
+    {
+        return $this->belongsTo(ShippingClass::class);
     }
 
 

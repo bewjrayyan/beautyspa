@@ -16,6 +16,7 @@ function initialFormData() {
         brand_id: "",
         categories: [],
         tax_class_id: "",
+        shipping_class_id: "",
         tags: [],
         is_virtual: false,
         treatment_category_id: "",

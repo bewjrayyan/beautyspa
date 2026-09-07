@@ -2584,14 +2584,15 @@ select {
 
 .page-form-footer {
     position: fixed;
-    bottom: 0;
+    // Sit above .main-footer (keyboard shortcuts / version bar).
+    bottom: 51px;
     display: flex;
     justify-content: flex-end;
     padding: 10px 20px;
     background: #ffffff;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.18);
     transition: 150ms ease-in-out;
-    z-index: 10;
+    z-index: 1050;
 
     .btn {
         margin-right: 10px;
@@ -2636,6 +2637,11 @@ select {
             background: #0068e1;
         }
     }
+}
+
+// Leave room for both the save bar and the admin version footer.
+body:has(.page-form-footer) .content-wrapper {
+    padding-bottom: 110px;
 }
 
 .ltr {
@@ -2693,6 +2699,10 @@ select {
         background: transparent;
         box-shadow: none;
         z-index: 0;
+    }
+
+    body:has(.page-form-footer) .content-wrapper {
+        padding-bottom: 57px;
     }
 
     .ltr,

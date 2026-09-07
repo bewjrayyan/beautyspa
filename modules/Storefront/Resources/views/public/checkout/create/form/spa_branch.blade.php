@@ -1,4 +1,4 @@
-<template x-if="hasSpaBranches">
+<template x-if="requiresTreatmentBooking && hasSpaBranches">
     <div class="checkout-card checkout-card-branch">
         <div class="checkout-card-header">
             <div class="checkout-card-heading">

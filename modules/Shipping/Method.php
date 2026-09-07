@@ -2,21 +2,54 @@
 
 namespace Modules\Shipping;
 
+use JsonSerializable;
 use Modules\Support\Money;
 use Modules\Cart\Facades\Cart;
+use Modules\Shipping\Services\ShippingCostResolver;
 
-class Method
+class Method implements JsonSerializable
 {
     public $name;
     public $label;
-    public $cost;
+
+    /**
+     * Configured method cost from settings (fallback / pickup fee).
+     *
+     * @var float|int|string
+     */
+    private $configuredCost;
 
 
     public function __construct($name, $label, $cost)
     {
         $this->name = $name;
         $this->label = $label;
-        $this->cost = Money::inDefaultCurrency($cost);
+        $this->configuredCost = $cost;
+    }
+
+
+    public function __get($key)
+    {
+        if ($key === 'cost') {
+            return $this->cost();
+        }
+
+        return null;
+    }
+
+
+    public function __isset($key)
+    {
+        return $key === 'cost';
+    }
+
+
+    public function cost(): Money
+    {
+        return app(ShippingCostResolver::class)->resolveMoney(
+            $this->name,
+            $this->configuredCost
+        );
     }
 
 
@@ -35,5 +68,15 @@ class Method
         $minimumAmount = Money::inDefaultCurrency(setting('free_shipping_min_amount'));
 
         return Cart::subTotal()->greaterThanOrEqual($minimumAmount);
+    }
+
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'name' => $this->name,
+            'label' => $this->label,
+            'cost' => $this->cost(),
+        ];
     }
 }

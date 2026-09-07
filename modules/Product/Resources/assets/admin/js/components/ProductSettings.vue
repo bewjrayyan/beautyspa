@@ -137,6 +137,47 @@
             </div>
         </div>
 
+
+        <div
+            v-if="requiresShipping"
+            class="form-group row"
+        >
+            <label for="shipping-class-id" class="col-sm-12 control-label text-left">
+                {{ trans("product::attributes.shipping_class_id") }} <span class="text-red">*</span>
+            </label>
+
+            <div class="col-sm-12">
+                <select
+                    name="shipping_class_id"
+                    id="shipping-class-id"
+                    class="form-control custom-select-black"
+                    v-model="form.shipping_class_id"
+                >
+                    <option value="">
+                        {{ trans("admin::admin.form.please_select") }}
+                    </option>
+
+                    <option
+                        v-for="(shippingClass, index, key) in shippingClasses"
+                        :key="key"
+                        :value="index"
+                    >
+                        {{ shippingClass }}
+                    </option>
+                </select>
+
+                <span class="help-block text-muted">
+                    {{ trans("product::products.form.shipping_class_help") }}
+                </span>
+
+                <span
+                    class="help-block text-red"
+                    v-if="errors.has('shipping_class_id')"
+                    v-text="errors.get('shipping_class_id')"
+                ></span>
+            </div>
+        </div>
+
         <div
             v-if="form.is_virtual && treatmentCategories.length"
             class="form-group row"
@@ -242,7 +283,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useForm } from "../composables/useForm";
 
 const brands = ref(AestheticCart.data["brands"] ?? {});
@@ -250,10 +291,29 @@ const treatmentCategories = ref(AestheticCart.data["treatment-categories"] ?? []
 const categories = ref(AestheticCart.data["categories"] ?? {});
 const categoriesField = ref(null);
 const taxClasses = AestheticCart.data["tax-classes"] ?? {};
+const shippingClasses = AestheticCart.data["shipping-classes"] ?? {};
+const physicalProductSlugs = AestheticCart.data["physical-product-slugs"] ?? [];
 const tags = ref(AestheticCart.data["tags"] ?? {});
 const tagsField = ref(null);
 
 const { form, shouldResetForm, errors } = useForm();
+
+const requiresShipping = computed(() => {
+    if (physicalProductSlugs.includes(form.slug)) {
+        return true;
+    }
+
+    return !form.is_virtual;
+});
+
+watch(
+    () => form.is_virtual,
+    (isVirtual) => {
+        if (isVirtual && !physicalProductSlugs.includes(form.slug)) {
+            form.shipping_class_id = "";
+        }
+    }
+);
 
 function initCategoriesSelectize() {
     $(categoriesField.value).selectize({

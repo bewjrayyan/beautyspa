@@ -4,6 +4,8 @@
         AestheticCart.data['brands'] = @json($brands);
         AestheticCart.data['categories'] = @json($categories);
         AestheticCart.data['tax-classes'] = @json($taxClasses);
+        AestheticCart.data['shipping-classes'] = @json($shippingClasses ?? []);
+        AestheticCart.data['physical-product-slugs'] = @json(\Modules\Product\Entities\Product::PHYSICAL_PRODUCT_SLUGS);
         AestheticCart.data['tags'] = @json($tags);
         AestheticCart.data['treatment-categories'] = @json($treatmentCategories ?? []);
         AestheticCart.data['attribute-sets'] = @json($attributeSets);
@@ -19,10 +21,12 @@
         AestheticCart.langs['product::attributes.brand_id'] = '{{ trans('product::attributes.brand_id') }}';
         AestheticCart.langs['product::attributes.categories'] = '{{ trans('product::attributes.categories') }}';
         AestheticCart.langs['product::attributes.tax_class_id'] = '{{ trans('product::attributes.tax_class_id') }}';
+        AestheticCart.langs['product::attributes.shipping_class_id'] = '{{ trans('product::attributes.shipping_class_id') }}';
         AestheticCart.langs['product::attributes.tags'] = '{{ trans('product::attributes.tags') }}';
         AestheticCart.langs['product::attributes.is_virtual'] = '{{ trans('product::attributes.is_virtual') }}';
         AestheticCart.langs['product::attributes.treatment_category_id'] = '{{ trans('product::attributes.treatment_category_id') }}';
         AestheticCart.langs['product::products.form.treatment_category_help'] = '{{ trans('product::products.form.treatment_category_help') }}';
+        AestheticCart.langs['product::products.form.shipping_class_help'] = '{{ trans('product::products.form.shipping_class_help') }}';
         AestheticCart.langs['product::products.form.the_product_won\'t_be_shipped'] = "{{ trans('product::products.form.the_product_won\'t_be_shipped') }}";
         AestheticCart.langs['product::attributes.is_active'] = '{{ trans('product::attributes.is_active') }}';
         AestheticCart.langs['product::products.form.enable_the_product'] = '{{ trans('product::products.form.enable_the_product') }}';

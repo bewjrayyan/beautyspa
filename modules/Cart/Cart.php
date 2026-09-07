@@ -62,7 +62,7 @@ class Cart extends DarryldecodeCart implements JsonSerializable
         $options = array_filter($options);
         $variations = [];
 
-        $product = Product::with('files', 'categories', 'taxClass')->findOrFail($productId);
+        $product = Product::with('files', 'categories', 'taxClass', 'shippingClass')->findOrFail($productId);
         $variant = $variantId
             ? ProductVariant::with('files')->find($variantId)
             : null;
@@ -432,7 +432,7 @@ class Cart extends DarryldecodeCart implements JsonSerializable
     public function allItemsAreVirtual()
     {
         return $this->items()->every(function (CartItem $cartItem) {
-            return $cartItem->product->is_virtual;
+            return $cartItem->product->isVirtualTreatment();
         });
     }
 
@@ -440,7 +440,7 @@ class Cart extends DarryldecodeCart implements JsonSerializable
     public function hasVirtualTreatment(): bool
     {
         return $this->items()->contains(function (CartItem $cartItem) {
-            return $cartItem->product->is_virtual;
+            return $cartItem->product->isVirtualTreatment();
         });
     }
 

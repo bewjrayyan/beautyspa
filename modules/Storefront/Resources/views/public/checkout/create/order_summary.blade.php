@@ -1,5 +1,5 @@
 <aside class="order-summary-wrap order-summary-wrap--modern">
-    <div class="order-summary order-summary--modern">
+    <div id="checkout-order-summary" class="order-summary order-summary--modern">
         <div class="order-summary-top">
             <h3 class="order-summary-title">{{ trans('storefront::checkout.order_summary') }}</h3>
             

@@ -67,6 +67,7 @@ class Product extends Model implements Sitemapable
     protected $fillable = [
         'brand_id',
         'tax_class_id',
+        'shipping_class_id',
         'slug',
         'sku',
         'price',
@@ -224,6 +225,7 @@ class Product extends Model implements Sitemapable
             'brand_id',
             'tax_class',
             'tax_class_id',
+        'shipping_class_id',
             'viewed',
             'is_active',
             'created_at',
@@ -231,10 +233,15 @@ class Product extends Model implements Sitemapable
             'deleted_at',
         ];
 
-        return array_except(
+        $data = array_except(
             $this->toArray(),
             $cleanExceptAttributes
         );
+
+        // Storefront cart/checkout: physical SKUs never count as treatment bookings.
+        $data['is_virtual'] = $this->isVirtualTreatment();
+
+        return $data;
     }
 
 
@@ -314,6 +321,10 @@ class Product extends Model implements Sitemapable
 
     public function isVirtualTreatment(): bool
     {
+        if ($this->isPhysicalProduct()) {
+            return false;
+        }
+
         return (bool) $this->is_virtual;
     }
 

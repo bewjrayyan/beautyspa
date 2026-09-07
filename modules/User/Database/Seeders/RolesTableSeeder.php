@@ -162,6 +162,11 @@ class RolesTableSeeder extends Seeder
             'admin.taxes.create' => true,
             'admin.taxes.edit' => true,
             'admin.taxes.destroy' => true,
+            # shipping classes
+            'admin.shipping_classes.index' => true,
+            'admin.shipping_classes.create' => true,
+            'admin.shipping_classes.edit' => true,
+            'admin.shipping_classes.destroy' => true,
             # translations
             'admin.translations.index' => true,
             'admin.translations.edit' => true,

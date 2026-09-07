@@ -151,6 +151,7 @@ return [
     ],
 
     'form' => [
+        'shipping_class_help' => 'Required for physical products. Flat Rate shipping = class cost × quantity.',
         'the_product_won\'t_be_shipped' => 'The product won\'t be shipped',
         'treatment_category_help' => 'Used for calendar color and reservation filters (Facial, Hair, etc.).',
         'enable_the_product' => 'Enable the product',

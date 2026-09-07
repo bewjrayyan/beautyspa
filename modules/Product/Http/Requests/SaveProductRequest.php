@@ -47,6 +47,10 @@ class SaveProductRequest extends Request
             $this->merge(['short_description' => clean_html($this->input('short_description'))]);
         }
 
+        if ($this->has('is_virtual') && ! $this->productRequiresShipping()) {
+            $this->merge(['shipping_class_id' => null]);
+        }
+
         if (! $this->has('price')) {
             return;
         }
@@ -116,6 +120,11 @@ class SaveProductRequest extends Request
                 'description' => 'required',
                 'brand_id' => ['nullable', Rule::exists('brands', 'id')],
                 'tax_class_id' => ['nullable', Rule::exists('tax_classes', 'id')],
+                'shipping_class_id' => [
+                    Rule::requiredIf(fn () => $this->productRequiresShipping()),
+                    'nullable',
+                    Rule::exists('shipping_classes', 'id'),
+                ],
                 'price' => [
                     Rule::requiredIf(fn () => ! $this->hasFilledVariants()),
                     'nullable',
@@ -142,6 +151,19 @@ class SaveProductRequest extends Request
         );
     }
 
+
+
+
+    private function productRequiresShipping(): bool
+    {
+        $slug = (string) $this->input('slug', '');
+
+        if (in_array($slug, Product::PHYSICAL_PRODUCT_SLUGS, true)) {
+            return true;
+        }
+
+        return ! filter_var($this->input('is_virtual'), FILTER_VALIDATE_BOOLEAN);
+    }
 
     public function getInventoryRules(): array
     {

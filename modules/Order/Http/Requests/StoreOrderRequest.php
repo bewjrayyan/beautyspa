@@ -34,7 +34,7 @@ class StoreOrderRequest extends Request
     public function prepareForValidation()
     {
         $treatmentItems = Cart::items()->filter(
-            fn ($item) => (bool) ($item->product?->is_virtual ?? false)
+            fn ($item) => (bool) ($item->product?->isVirtualTreatment())
         );
 
         if ($treatmentItems->contains(fn ($item) => (int) $item->qty !== 1)) {
@@ -193,7 +193,7 @@ class StoreOrderRequest extends Request
 
         return [
             'treatment_bookings' => ['required', 'array', 'min:1', function (string $attribute, mixed $value, \Closure $fail): void {
-                $virtualCount = Cart::items()->filter(fn ($item) => (bool) ($item->product?->is_virtual ?? false))->count();
+                $virtualCount = Cart::items()->filter(fn ($item) => (bool) ($item->product?->isVirtualTreatment()))->count();
                 if (! is_array($value) || count($value) !== $virtualCount) {
                     $fail(trans('checkout::messages.treatment_bookings_count_mismatch'));
                 }
@@ -336,7 +336,7 @@ class StoreOrderRequest extends Request
     private function resolveCartTreatmentProductId(): ?int
     {
         foreach (Cart::items() as $item) {
-            if ($item->product && ($item->product->is_virtual ?? false)) {
+            if ($item->product && $item->product->isVirtualTreatment()) {
                 return (int) $item->product->id;
             }
         }
@@ -347,6 +347,10 @@ class StoreOrderRequest extends Request
 
     private function spaBranchRules(): array
     {
+        if (! Cart::hasVirtualTreatment()) {
+            return [];
+        }
+
         if (! app('modules')->isEnabled('SpaBranch')) {
             return [];
         }

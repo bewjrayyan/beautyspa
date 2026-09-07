@@ -206,8 +206,91 @@ Alpine.data(
             return Object.keys(this.cart.availableShippingMethods).length !== 0;
         },
 
+        scrollToOrderSummary() {
+            this.$nextTick(() => {
+                const target =
+                    document.getElementById("checkout-order-summary")
+                    ?? document.querySelector(".order-summary--modern")
+                    ?? document.querySelector(".checkout-sidebar");
+
+                target?.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        },
+
+        shippingMethodIcon(name) {
+            const map = {
+                free_shipping: "las la-gift",
+                local_pickup: "las la-store",
+                flat_rate: "las la-truck",
+            };
+
+            return map[name] || "las la-shipping-fast";
+        },
+
+        shippingMethodDescription(name) {
+            const map = {
+                free_shipping: "storefront::checkout.shipping_method_free_desc",
+                local_pickup: "storefront::checkout.shipping_method_pickup_desc",
+                flat_rate: "storefront::checkout.shipping_method_flat_desc",
+            };
+
+            return trans(map[name] || "storefront::checkout.shipping_method_default_desc");
+        },
+
         get hasFreeShipping() {
             return this.cart.coupon?.free_shipping ?? false;
+        },
+
+        get shippingDestinationAddress() {
+            if (!this.form.ship_to_a_different_address) {
+                return null;
+            }
+
+            if (!this.form.newShippingAddress && this.form.shippingAddressId) {
+                return this.resolveSavedAddress(this.form.shippingAddressId);
+            }
+
+            if (this.isCompleteAddress(this.form.shipping)) {
+                return this.form.shipping;
+            }
+
+            return null;
+        },
+
+        get shippingDestinationSummary() {
+            const address = this.shippingDestinationAddress;
+
+            if (!address) {
+                return null;
+            }
+
+            const fullName =
+                address.full_name ||
+                [address.first_name, address.last_name].filter(Boolean).join(" ").trim();
+
+            const cityLine = [
+                address.city,
+                address.state_name || address.state,
+                address.zip,
+            ]
+                .filter((part) => String(part || "").trim() !== "")
+                .join(", ");
+
+            const country =
+                address.country_name ||
+                this.countries?.[address.country] ||
+                address.country ||
+                "";
+
+            return {
+                fullName,
+                lines: [
+                    address.address_1,
+                    address.address_2,
+                    cityLine,
+                    country,
+                ].filter((line) => String(line || "").trim() !== ""),
+            };
         },
 
         get chipPaymentFee() {
@@ -2398,7 +2481,7 @@ Alpine.data(
                 payload.appointment_time = first.appointment_time || null;
             }
 
-            if (this.hasSpaBranches) {
+            if (this.requiresTreatmentBooking && this.hasSpaBranches) {
                 payload.spa_branch_id = this.form.spa_branch_id || null;
             }
 

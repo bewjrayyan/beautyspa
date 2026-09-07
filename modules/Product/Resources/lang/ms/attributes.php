@@ -8,6 +8,7 @@ return [
     'short_description' => 'Short Penerangan',
     'brand_id' => 'Jenama',
     'categories' => 'Kategori',
+    'shipping_class_id' => 'Kelas Penghantaran',
     'tax_class_id' => 'Cukai Class',
     'tags' => 'Tag',
     'is_virtual' => 'Virtual/Rawatan',

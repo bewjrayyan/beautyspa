@@ -27,6 +27,17 @@
                         <div class="checkout-card checkout-card-payment">
                             @include('storefront::public.checkout.create.payment')
                             @include('storefront::public.checkout.create.shipping')
+
+                            <div class="checkout-payment-proceed">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary checkout-payment-proceed__btn"
+                                    @click="scrollToOrderSummary"
+                                >
+                                    {{ trans('storefront::checkout.proceed_to_order_summary') }}
+                                    <i class="las la-arrow-right" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 

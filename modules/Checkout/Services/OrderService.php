@@ -418,7 +418,7 @@ class OrderService
         foreach (Cart::items() as $item) {
             $product = $item->product ?? null;
 
-            if ($product && ($product->is_virtual ?? false)) {
+            if ($product && $product->isVirtualTreatment()) {
                 return (int) $product->id;
             }
         }

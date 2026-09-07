@@ -7,6 +7,7 @@ return [
     'short_description' => 'Short Description',
     'brand_id' => 'Brand',
     'categories' => 'Categories',
+    'shipping_class_id' => 'Shipping Class',
     'tax_class_id' => 'Tax Class',
     'tags' => 'Tags',
     'is_virtual' => 'Virtual/Treatment',
