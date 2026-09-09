@@ -659,7 +659,7 @@ return [
             'ewallet' => 'Peratus yang ditanggung pelanggan. Yuran e-wallet CHIP berbeza mengikut penyedia — 1.5% ialah titik permulaan biasa.',
             'fpx' => '',
         ],
-        'chip_whitelist_help' => 'Pilihan. Kod kaedah CHIP dipisahkan koma daripada GET /payment_methods/. Kosongkan untuk lalai (fpx, card, razer_tng, duitnow_qr, razer_atome).',
+        'chip_whitelist_help' => 'Pilihan. Kod kaedah CHIP dipisahkan koma daripada GET /payment_methods/ (cth. visa, mastercard — bukan label “card”). Kosongkan untuk lalai (fpx, visa/mastercard, razer_tng, duitnow_qr, razer_atome).',
         'chip_whitelist_placeholder' => [
             'fpx' => 'fpx',
             'card' => 'visa, mastercard',

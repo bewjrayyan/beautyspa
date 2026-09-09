@@ -72,7 +72,8 @@ class ChipPaymentMethodConfig
                 'surcharge_type' => 'percent',
                 'percent_setting' => 'chip_card_surcharge_percent',
                 'whitelist_setting' => 'chip_card_whitelist',
-                'default_whitelist' => ['card'],
+                // CHIP Collect rejects the label code "card"; use network codes from GET /payment_methods/.
+                'default_whitelist' => ['visa', 'mastercard'],
                 'default_surcharge' => 0,
                 'default_surcharge_percent' => 2.0,
             ],

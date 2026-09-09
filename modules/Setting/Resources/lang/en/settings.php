@@ -649,7 +649,7 @@ return [
             'ewallet' => 'Percentage passed to the customer. CHIP e-wallet fees vary by provider — 1.5% is a common starting point.',
             'fpx' => '',
         ],
-        'chip_whitelist_help' => 'Optional. Comma-separated CHIP method codes from GET /payment_methods/. Leave empty to use defaults (fpx, card, razer_tng, duitnow_qr, razer_atome).',
+        'chip_whitelist_help' => 'Optional. Comma-separated CHIP method codes from GET /payment_methods/ (e.g. visa, mastercard — not the label “card”). Leave empty to use defaults (fpx, visa/mastercard, razer_tng, duitnow_qr, razer_atome).',
         'chip_whitelist_placeholder' => [
             'fpx' => 'fpx',
             'card' => 'visa, mastercard',

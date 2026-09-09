@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.79' => [
+        'date' => '2026-09-09',
+        'en' => [
+            'summary' => 'Fix CHIP card checkout rejecting invalid whitelist code “card”.',
+            'changes' => [
+                'Default card whitelist now uses visa/mastercard network codes CHIP accepts.',
+                'Legacy admin value “card” is expanded to real card methods from the CHIP API.',
+                'Clarify Settings help and docs so “card” is not used as a CHIP method code.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki checkout kad CHIP yang menolak kod whitelist “card” yang tidak sah.',
+            'changes' => [
+                'Whitelist kad lalai kini guna kod rangkaian visa/mastercard yang CHIP terima.',
+                'Nilai admin legasi “card” dikembangkan kepada kaedah kad sebenar daripada API CHIP.',
+                'Perjelas bantuan Settings dan docs supaya “card” tidak digunakan sebagai kod kaedah CHIP.',
+            ],
+        ],
+    ],
+
     '4.11.78' => [
         'date' => '2026-09-07',
         'en' => [

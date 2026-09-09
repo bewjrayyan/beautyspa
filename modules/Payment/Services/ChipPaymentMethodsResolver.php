@@ -26,6 +26,10 @@ class ChipPaymentMethodsResolver
         $configured = $this->parseWhitelistSetting((string) setting($config['whitelist_setting']));
 
         if ($configured !== []) {
+            if ($gatewayKey === ChipPaymentMethodConfig::METHOD_CARD) {
+                return $this->normalizeCardWhitelist($configured);
+            }
+
             return $configured;
         }
 
@@ -51,6 +55,42 @@ class ChipPaymentMethodsResolver
     public function surchargeSubunit(string $gatewayKey, ?Order $order = null, ?int $amountSubunit = null): int
     {
         return $this->fees->forGateway($gatewayKey, $order, $amountSubunit);
+    }
+
+    /**
+     * Expand legacy/invalid CHIP label "card" into real network codes.
+     *
+     * @param  list<string>  $configured
+     * @return list<string>
+     */
+    private function normalizeCardWhitelist(array $configured): array
+    {
+        $expanded = [];
+        $needsCardExpand = false;
+
+        foreach ($configured as $code) {
+            if ($code === 'card') {
+                $needsCardExpand = true;
+
+                continue;
+            }
+
+            $expanded[] = $code;
+        }
+
+        if (! $needsCardExpand) {
+            return $expanded;
+        }
+
+        foreach ($this->resolveCardMethods() as $code) {
+            if ($code === 'card') {
+                continue;
+            }
+
+            $expanded[] = $code;
+        }
+
+        return array_values(array_unique($expanded));
     }
 
     /**
