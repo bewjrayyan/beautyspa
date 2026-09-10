@@ -1292,7 +1292,7 @@
     ]
   },
   "modules/Report/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-j2Bm56ff-v4.7.72.css",
+    "file": "assets/main-DHaYK7a2-v4.7.72.css",
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
@@ -2758,6 +2758,12 @@
   "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff2": {
     "file": "assets/la-solid-900-TjMEgv3Q-v4.7.72.woff2",
     "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff2"
+  },
+  "public/modules/lead/central/app.js": {
+    "file": "assets/app-B-22bm4d-v4.7.72.js",
+    "name": "app",
+    "src": "public/modules/lead/central/app.js",
+    "isEntry": true
   },
   "resources/images/installer-bg.png": {
     "file": "assets/installer-bg-MmihlEQe-v4.7.72.png",
