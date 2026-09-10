@@ -4,8 +4,10 @@ namespace Modules\TreatmentReservation\Services;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Modules\Setting\Support\WhatsAppMessageTemplate;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Mail\AppointmentCheckinReminder;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
 use Modules\User\Services\OneSenderWhatsAppService;
 
@@ -13,36 +15,57 @@ class CustomerAppointmentReminderService
 {
     public function sendDueReminders(): int
     {
-        if (! setting('whatsapp_customer_reminder_enabled', true)) {
-            return 0;
-        }
-
-        $leadMinutes = max(15, (int) setting('whatsapp_customer_reminder_minutes', 120));
+        $leadMinutes = max(15, min(1440, (int) setting('whatsapp_customer_reminder_minutes', 1440)));
         $windowEnd = now()->addMinutes($leadMinutes);
+        $whatsappEnabled = (bool) setting('whatsapp_customer_reminder_enabled', true)
+            && OneSenderWhatsAppService::isConfigured();
         $sent = 0;
 
         TreatmentBooking::query()
-            ->with(['beautician', 'product'])
+            ->with(['beautician.spaBranches', 'product', 'order'])
             ->whereNotNull('appointment_date')
             ->whereNotNull('appointment_time')
-            ->whereNotNull('customer_phone')
-            ->where('customer_phone', '!=', '')
-            ->whereNull('customer_reminder_sent_at')
-            ->whereIn('status', [
-                TreatmentBooking::STATUS_PENDING,
-                TreatmentBooking::STATUS_IN_PROGRESS,
-            ])
+            ->where('status', TreatmentBooking::STATUS_PENDING)
+            ->where(function ($query) use ($whatsappEnabled) {
+                $query->where(function ($emailQuery) {
+                    $emailQuery->whereNotNull('customer_email')
+                        ->where('customer_email', '!=', '')
+                        ->whereNull('customer_email_reminder_sent_at');
+                });
+
+                if ($whatsappEnabled) {
+                    $query->orWhere(function ($whatsappQuery) {
+                        $whatsappQuery->whereNotNull('customer_phone')
+                            ->where('customer_phone', '!=', '')
+                            ->whereNull('customer_reminder_sent_at');
+                    });
+                }
+            })
             ->whereDate('appointment_date', '>=', today())
             ->whereDate('appointment_date', '<=', $windowEnd->toDateString())
             ->orderBy('appointment_date')
             ->orderBy('appointment_time')
-            ->chunkById(50, function ($bookings) use ($windowEnd, &$sent) {
+            ->chunkById(50, function ($bookings) use ($windowEnd, $whatsappEnabled, &$sent) {
                 foreach ($bookings as $booking) {
                     if (! $this->startsWithinWindow($booking, $windowEnd)) {
                         continue;
                     }
 
-                    if ($this->deliverReminder($booking)) {
+                    $delivered = false;
+
+                    if ($whatsappEnabled && ! $booking->customer_reminder_sent_at) {
+                        try {
+                            $delivered = $this->deliverReminder($booking) || $delivered;
+                        } catch (\Throwable) {
+                            // Email must still be attempted if WhatsApp delivery fails.
+                        }
+                    }
+
+                    if (! $booking->customer_email_reminder_sent_at) {
+                        $delivered = $this->deliverEmailReminder($booking) || $delivered;
+                    }
+
+                    if ($delivered) {
                         $sent++;
                     }
                 }
@@ -97,6 +120,15 @@ class CustomerAppointmentReminderService
     }
 
 
+    public function canSendEmailReminder(TreatmentBooking $booking): bool
+    {
+        return filter_var(trim((string) $booking->customer_email), FILTER_VALIDATE_EMAIL) !== false
+            && (bool) $booking->appointment_date
+            && filled($booking->appointment_time)
+            && $booking->status === TreatmentBooking::STATUS_PENDING;
+    }
+
+
     /**
      * @return array<string, mixed>
      */
@@ -123,7 +155,7 @@ class CustomerAppointmentReminderService
             return false;
         }
 
-        $leadMinutes = max(15, (int) setting('whatsapp_customer_reminder_minutes', 120));
+        $leadMinutes = max(15, min(1440, (int) setting('whatsapp_customer_reminder_minutes', 1440)));
         $windowEnd = now()->addMinutes($leadMinutes);
 
         return $this->startsWithinWindow($booking, $windowEnd);
@@ -205,6 +237,55 @@ class CustomerAppointmentReminderService
     }
 
 
+    private function deliverEmailReminder(TreatmentBooking $booking): bool
+    {
+        $email = trim((string) $booking->customer_email);
+
+        if (! $this->canSendEmailReminder($booking) || ! $this->claimEmailReminder($booking)) {
+            return false;
+        }
+
+        try {
+            $locale = trim((string) ($booking->order?->locale ?: app()->getLocale()));
+            $mailable = (new AppointmentCheckinReminder(
+                $booking,
+                app(BookingCheckinPassService::class)->url($booking),
+            ))->locale($locale !== '' ? $locale : app()->getLocale());
+
+            Mail::to($email)->send($mailable);
+            app(TreatmentBookingActivityLogger::class)->logEmailReminderSent($booking);
+
+            return true;
+        } catch (\Throwable $exception) {
+            $this->releaseEmailReminderClaim($booking);
+            Log::error('Customer appointment email reminder failed', [
+                'booking_id' => $booking->id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+
+    private function claimEmailReminder(TreatmentBooking $booking): bool
+    {
+        return TreatmentBooking::query()
+            ->whereKey($booking->id)
+            ->whereNull('customer_email_reminder_sent_at')
+            ->where('status', TreatmentBooking::STATUS_PENDING)
+            ->update(['customer_email_reminder_sent_at' => now()]) === 1;
+    }
+
+
+    private function releaseEmailReminderClaim(TreatmentBooking $booking): void
+    {
+        TreatmentBooking::query()
+            ->whereKey($booking->id)
+            ->update(['customer_email_reminder_sent_at' => null]);
+    }
+
+
     private function buildMessage(TreatmentBooking $booking): string
     {
         $store = setting('store_name');
@@ -214,15 +295,20 @@ class CustomerAppointmentReminderService
         $time = $booking->displayAppointmentTime() ?: '—';
         $beautician = $booking->beautician?->name;
         $trackingUrl = $this->trackingUrl($booking);
+        $checkinUrl = $booking->status === TreatmentBooking::STATUS_PENDING
+            ? app(BookingCheckinPassService::class)->url($booking)
+            : null;
 
         $reference = $booking->referenceCode();
         $extraLines = implode("\n", array_filter([
             "Rujukan: {$reference}",
             $beautician ? "Beautician: {$beautician}" : null,
             $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : null,
+            $checkinUrl ? "Pas ketibaan: {$checkinUrl}" : null,
         ]));
         $beauticianLine = $beautician ? "Beautician: {$beautician}" : '';
         $trackingLine = $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : '';
+        $checkinLine = $checkinUrl ? "Pas ketibaan: {$checkinUrl}" : '';
 
         $message = WhatsAppMessageTemplate::render('whatsapp_customer_reminder_message', [
             'store' => $store,
@@ -233,9 +319,11 @@ class CustomerAppointmentReminderService
             'reference' => $reference,
             'beautician' => $beautician ?: '—',
             'tracking_url' => $trackingUrl ?: '',
+            'checkin_url' => $checkinUrl ?: '',
             'extra_lines' => $extraLines,
             'beautician_line' => $beauticianLine,
             'tracking_line' => $trackingLine,
+            'checkin_line' => $checkinLine,
         ], implode("\n", array_filter([
             "⏰ *Peringatan Temujanji — {$store}*",
             '',
@@ -247,13 +335,15 @@ class CustomerAppointmentReminderService
             "Rujukan: {$reference}",
             $beautician ? "Beautician: {$beautician}" : null,
             $trackingUrl ? "Jejak pesanan: {$trackingUrl}" : null,
+            $checkinUrl ? "Pas ketibaan: {$checkinUrl}" : null,
             '',
             'Sila hadir tepat pada masa. Terima kasih!',
         ])));
 
-        return $this->ensureReferenceLine($message, $reference);
-    }
+        $message = $this->ensureReferenceLine($message, $reference);
 
+        return $this->ensureCheckinLine($message, $checkinUrl);
+    }
 
 
     private function ensureReferenceLine(string $message, string $reference): string
@@ -263,6 +353,16 @@ class CustomerAppointmentReminderService
         }
 
         return rtrim($message) . "\nRujukan: {$reference}";
+    }
+
+
+    private function ensureCheckinLine(string $message, ?string $checkinUrl): string
+    {
+        if (! $checkinUrl || str_contains($message, $checkinUrl)) {
+            return $message;
+        }
+
+        return rtrim($message)."\nPas ketibaan: {$checkinUrl}";
     }
 
 

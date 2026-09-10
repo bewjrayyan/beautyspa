@@ -19,6 +19,7 @@ class LeadWorkspaceAuthorizationContractTest extends TestCase
             'admin.leads.customers.index' => 'can:admin.leads.index',
             'admin.leads.wallet.index' => 'can:admin.leads.index',
             'admin.leads.checkin.index' => 'can:admin.leads.index',
+            'admin.leads.checkin.confirm' => 'can:admin.leads.edit',
             'admin.leads.clearance.index' => 'can:admin.leads.index',
             'admin.leads.workspace.index' => 'can:admin.leads.index',
             'admin.leads.workspace.store' => 'can:admin.leads.create',
@@ -44,6 +45,10 @@ class LeadWorkspaceAuthorizationContractTest extends TestCase
         $this->assertMatchesRegularExpression('#leads/central/\{view\?\}$#', $central->uri());
         $this->assertArrayHasKey('view', $central->wheres);
         $this->assertStringContainsString('sales', (string) $central->wheres['view']);
+
+        $pass = Route::getRoutes()->getByName('treatment_reservations.checkin.pass');
+        $this->assertNotNull($pass);
+        $this->assertContains('signed', $pass->gatherMiddleware());
     }
 
     #[Test]

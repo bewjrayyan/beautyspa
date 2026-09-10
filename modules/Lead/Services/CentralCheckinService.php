@@ -10,13 +10,21 @@ use Illuminate\Database\Eloquent\Builder;
 use Modules\Beautician\Entities\Beautician;
 use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Services\BookingCheckinPassService;
 
 /**
  * Live check-in board derived from treatment bookings.
- * checked-in ≈ status in_progress; waiting ≈ pending for the selected day/pipeline.
+ * Arrival and treatment are separate states: checked_in_at records arrival,
+ * while status in_progress records that the treatment session has started.
  */
 final class CentralCheckinService
 {
+    public function __construct(
+        private readonly BookingCheckinPassService $checkinPasses,
+    ) {
+    }
+
+
     /**
      * @param  array{
      *     q?:string|null,
@@ -62,7 +70,10 @@ final class CentralCheckinService
         // Apply the same date/scope/search/assignment filters as the list, excluding its tab.
         $base = $this->baseQuery(array_replace($filters, ['status' => 'all']));
         $counts = (clone $base)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
-        $waiting = (int) ($counts[TreatmentBooking::STATUS_PENDING] ?? 0);
+        $waiting = (clone $base)
+            ->where('status', TreatmentBooking::STATUS_PENDING)
+            ->whereNotNull('checked_in_at')
+            ->count();
         $inTreatment = (int) ($counts[TreatmentBooking::STATUS_IN_PROGRESS] ?? 0);
         $completed = (int) ($counts[TreatmentBooking::STATUS_COMPLETED] ?? 0);
         $unpaid = $waitTotal = $waitCount = 0;
@@ -72,7 +83,7 @@ final class CentralCheckinService
             if ($booking->hasOutstandingPayment()) {
                 $unpaid++;
             }
-            if ($booking->status === TreatmentBooking::STATUS_PENDING && ($mins = $this->waitingMinutes($booking)) !== null) {
+            if ($booking->status === TreatmentBooking::STATUS_PENDING && $booking->checked_in_at && ($mins = $this->waitingMinutes($booking)) !== null) {
                 $waitTotal += $mins;
                 $waitCount++;
             }
@@ -156,7 +167,7 @@ final class CentralCheckinService
         $payment = $booking->resolvedPaymentStatus();
         $paid = ! $booking->hasOutstandingPayment();
         $wait = $this->waitingMinutes($booking);
-        $started = $booking->sessionStartedAt();
+        $checkedIn = $booking->checked_in_at;
         $beau = trim((string) (($booking->beautician?->first_name ?? '').' '.($booking->beautician?->last_name ?? '')));
 
         return [
@@ -182,10 +193,13 @@ final class CentralCheckinService
             'payment_label' => $booking->paymentStatusLabel(),
             'payment_ok' => $paid,
             'order_id' => $booking->order_id ? (int) $booking->order_id : null,
+            'checkin_pass_url' => $this->checkinPasses->url($booking),
+            'arrival_state' => $booking->checked_in_at ? 'waiting' : 'booked',
+            'arrival_label' => $booking->checked_in_at ? trans('lead::central.checkin.arrival_waiting') : trans('lead::central.checkin.arrival_booked'),
             'waiting_mins' => $wait,
             'waiting_label' => $wait === null ? '—' : trans('lead::central.checkin.mins', ['count' => $wait]),
-            'checked_in_at' => optional($started)?->toDateTimeString(),
-            'checked_in_label' => optional($started)?->format('H:i') ?: '—',
+            'checked_in_at' => optional($checkedIn)?->toDateTimeString(),
+            'checked_in_label' => optional($checkedIn)?->format('H:i') ?: '—',
             'clearance' => $this->clearanceState($booking),
             'clearance_label' => $this->clearanceLabel($booking),
         ];
@@ -241,12 +255,16 @@ final class CentralCheckinService
 
         $status = (string) ($filters['status'] ?? 'live');
         if ($status === 'live') {
-            $query->whereIn('status', [
-                TreatmentBooking::STATUS_PENDING,
-                TreatmentBooking::STATUS_IN_PROGRESS,
-            ]);
+            $query->where(function (Builder $live): void {
+                $live->where('status', TreatmentBooking::STATUS_IN_PROGRESS)
+                    ->orWhere(function (Builder $waiting): void {
+                        $waiting->where('status', TreatmentBooking::STATUS_PENDING)
+                            ->whereNotNull('checked_in_at');
+                    });
+            });
         } elseif ($status === 'waiting') {
-            $query->where('status', TreatmentBooking::STATUS_PENDING);
+            $query->where('status', TreatmentBooking::STATUS_PENDING)
+                ->whereNotNull('checked_in_at');
         } elseif ($status === 'in_progress') {
             $query->where('status', TreatmentBooking::STATUS_IN_PROGRESS);
         } elseif ($status === 'completed') {
@@ -293,23 +311,11 @@ final class CentralCheckinService
             return null;
         }
 
-        $date = $booking->appointment_date;
-        if (! $date) {
+        if (! $booking->checked_in_at) {
             return null;
         }
 
-        try {
-            $time = (string) ($booking->appointment_time ?: '00:00');
-            $start = Carbon::parse($date->format('Y-m-d').' '.$time);
-        } catch (\Throwable) {
-            return null;
-        }
-
-        if ($start->isFuture()) {
-            return 0;
-        }
-
-        return max(0, (int) $start->diffInMinutes(now()));
+        return max(0, (int) $booking->checked_in_at->diffInMinutes(now()));
     }
 
     private function resolveDate(mixed $value): Carbon

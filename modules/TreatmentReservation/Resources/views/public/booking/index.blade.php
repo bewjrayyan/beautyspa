@@ -79,6 +79,7 @@
 @endpush
 
 @push('scripts')
+    <script src="{{ asset('modules/lead/central/qrcode.js') }}?v={{ @filemtime(public_path('modules/lead/central/qrcode.js')) ?: time() }}"></script>
     <script>
         (function () {
             const csrf = window.AestheticCart?.csrfToken || '';
@@ -89,6 +90,20 @@
                 reschedule: (id) => AestheticCart.url(`/my-appointments/${id}/reschedule`),
             };
             let phone = '';
+
+            document.querySelectorAll('[data-checkin-pass]').forEach((canvas) => {
+                const payload = canvas.dataset.checkinPass || '';
+                if (! payload || ! window.QRCentral) {
+                    return;
+                }
+
+                try {
+                    window.QRCentral.render(canvas, payload, { size: 200 });
+                } catch (error) {
+                    console.error('Could not render check-in pass QR', error);
+                    canvas.hidden = true;
+                }
+            });
 
             const jsonRequest = (url, options = {}) => fetch(url, {
                 credentials: 'same-origin',

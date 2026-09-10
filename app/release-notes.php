@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.83' => [
+        'date' => '2026-09-10',
+        'en' => [
+            'summary' => 'Deliver secure customer arrival QR check-in with one-day email and WhatsApp reminders.',
+            'changes' => [
+                'Customers receive a signed arrival pass with a scannable QR code in their appointment account and reminder links.',
+                'Reception can scan or enter the arrival pass, verify the appointment, and confirm check-in without starting treatment.',
+                'Check-In now distinguishes waiting customers from live arrivals and records idempotent arrival activity.',
+                'Pending appointments are reminded 24 hours ahead through independent email and WhatsApp channels with duplicate-send protection.',
+                'Rescheduling resets both reminder channels so the updated appointment receives a fresh reminder.',
+                'Add signed-link expiry, permission, CSRF and rate-limit protection plus rebuilt customer appointment assets.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Sediakan check-in QR ketibaan pelanggan yang selamat bersama peringatan e-mel dan WhatsApp sehari awal.',
+            'changes' => [
+                'Pelanggan menerima pas ketibaan bertandatangan dengan kod QR boleh imbas dalam akaun temujanji dan pautan peringatan.',
+                'Receptionist boleh mengimbas atau memasukkan pas ketibaan, menyemak temujanji dan mengesahkan check-in tanpa memulakan rawatan.',
+                'Check-In kini membezakan pelanggan menunggu daripada ketibaan live serta merekod aktiviti ketibaan secara idempotent.',
+                'Temujanji pending menerima peringatan 24 jam lebih awal melalui saluran e-mel dan WhatsApp berasingan dengan perlindungan penghantaran berganda.',
+                'Jadual semula mengosongkan rekod kedua-dua saluran supaya temujanji terkini menerima peringatan baharu.',
+                'Tambah perlindungan tamat tempoh pautan bertandatangan, permission, CSRF dan rate limit serta bina semula aset temujanji pelanggan.',
+            ],
+        ],
+    ],
+
     '4.11.80' => [
         'date' => '2026-09-10',
         'en' => [

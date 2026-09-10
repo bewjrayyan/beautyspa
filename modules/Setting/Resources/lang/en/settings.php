@@ -165,7 +165,7 @@ return [
         'preview_document_title' => 'PDF receipt',
         'template_hints' => [
             'welcome' => 'Placeholders: :first_name, :store',
-            'customer_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :reference, :beautician, :tracking_url, :extra_lines (legacy: :beautician_line, :tracking_line)',
+            'customer_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :reference, :beautician, :tracking_url, :checkin_url, :extra_lines (legacy: :beautician_line, :tracking_line, :checkin_line)',
             'customer_completed' => 'Placeholders: :store, :customer, :treatment',
             'customer_followup' => 'Placeholders: :store, :customer, :treatment, :date',
             'new_order_admin' => 'Placeholders: :store, :order_id, :customer, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary',
@@ -392,7 +392,7 @@ return [
         'send_welcome_sms_after_registration' => 'Send welcome SMS after registration',
         'send_welcome_whatsapp_after_registration' => 'Send welcome WhatsApp message after registration',
         'send_appointment_reminder_to_customer' => 'Send appointment reminder to customer before scheduled treatment time',
-        'customer_reminder_minutes_help' => 'How many minutes before the appointment to send the customer reminder (minimum 15). Requires customer phone on the booking and Order Tracking URL for order links. Runs every 15 minutes via scheduler.',
+        'customer_reminder_minutes_help' => 'How many minutes before the appointment to send customer reminders (recommended: 1440 for one day). Email uses the booking email; WhatsApp requires the booking phone and OneSender. Runs every 15 minutes via scheduler.',
         'send_completed_thankyou_to_customer' => 'Send thank-you WhatsApp when treatment is marked completed (currently disabled in code)',
         'customer_completed_message_help' => 'Automatic thank-you on job sheet complete is turned off to prevent duplicate messages. This toggle is kept for a future release. Placeholders: :store, :customer, :treatment.',
         'send_followup_to_customer' => 'Send follow-up WhatsApp (scheduled, not on completion)',

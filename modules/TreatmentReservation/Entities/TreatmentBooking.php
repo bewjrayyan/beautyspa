@@ -63,6 +63,8 @@ class TreatmentBooking extends Model
         'customer_email',
         'appointment_date',
         'appointment_time',
+        'checked_in_at',
+        'customer_email_reminder_sent_at',
         'duration_minutes_snapshot',
         'schedule_status',
         'status',
@@ -82,6 +84,7 @@ class TreatmentBooking extends Model
 
     protected $casts = [
         'appointment_date' => 'date',
+        'checked_in_at' => 'datetime',
         'duration_minutes_snapshot' => 'integer',
         'pos_line_index' => 'integer',
         'total' => 'float',
@@ -90,6 +93,7 @@ class TreatmentBooking extends Model
         'deleted_at' => 'datetime',
         'reminder_sent_at' => 'datetime',
         'customer_reminder_sent_at' => 'datetime',
+        'customer_email_reminder_sent_at' => 'datetime',
         'completed_notification_sent_at' => 'datetime',
         'followup_sent_at' => 'datetime',
         'beautician_notes_at' => 'datetime',
@@ -951,7 +955,13 @@ class TreatmentBooking extends Model
 
         $this->loadMissing('beautician.spaBranches');
 
-        $names = $this->beautician?->spaBranches
+        $branches = $this->beautician?->spaBranches;
+
+        if (! $branches) {
+            return null;
+        }
+
+        $names = $branches
             ->pluck('name')
             ->filter(fn ($name) => filled(trim((string) $name)))
             ->values();

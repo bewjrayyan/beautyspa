@@ -49,7 +49,7 @@ return [
         'Terima kasih!',
     ])),
     'whatsapp_customer_reminder_enabled' => filter_var(env('WHATSAPP_CUSTOMER_REMINDER_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
-    'whatsapp_customer_reminder_minutes' => (int) env('WHATSAPP_CUSTOMER_REMINDER_MINUTES', 60),
+    'whatsapp_customer_reminder_minutes' => (int) env('WHATSAPP_CUSTOMER_REMINDER_MINUTES', 1440),
     'whatsapp_customer_reminder_message' => env('WHATSAPP_CUSTOMER_REMINDER_MESSAGE', implode("\n", [
         '⏰ *Peringatan Temujanji — :store*',
         '',

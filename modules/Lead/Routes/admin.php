@@ -38,6 +38,12 @@ Route::get('leads/checkin', [
     'middleware' => ['can:admin.leads.index', 'throttle:60,1'],
 ]);
 
+Route::post('leads/checkin/{booking}/confirm', [
+    'as' => 'admin.leads.checkin.confirm',
+    'uses' => 'CentralCheckinController@confirm',
+    'middleware' => ['can:admin.leads.edit', 'throttle:30,1'],
+])->whereNumber('booking');
+
 Route::get('leads/clearance', [
     'as' => 'admin.leads.clearance.index',
     'uses' => 'CentralClearanceController@index',

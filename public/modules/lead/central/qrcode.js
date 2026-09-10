@@ -56,13 +56,13 @@
     [1,  16,  [[16, 10, 1]]],
     [2,  28,  [[28, 16, 1]]],
     [3,  44,  [[44, 26, 1]]],
-    [4,  64,  [[64, 36, 1]]],
+    [4,  64,  [[32, 18, 2]]],
     [5,  86,  [[43, 24, 2]]],
-    [6, 108,  [[54, 32, 2]]],
-    [7, 124,  [[62, 36, 2]]],
-    [8, 154,  [[77, 44, 2]]],
-    [9, 182,  [[91, 55, 2]]],
-    [10, 216, [[108, 65, 2]]]
+    [6, 108,  [[27, 16, 4]]],
+    [7, 124,  [[31, 18, 4]]],
+    [8, 154,  [[38, 22, 2], [39, 22, 2]]],
+    [9, 182,  [[36, 22, 3], [37, 22, 2]]],
+    [10, 216, [[43, 26, 4], [44, 26, 1]]]
   ];
   var ALIGN = {
     1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34],
@@ -175,22 +175,22 @@
   /* Format info placement: two 15-bit copies around the finder patterns.
    * ISO/IEC 18004 section 7.9 — correct bit→module mapping for ECC level M. */
   function writeFormat(m, size, mask) {
-    var fmt = bchFormat(1, mask), i, bit;   /* 1 = ECC_M */
-    /* Copy 1 (near top-left finder): horizontal bits 0-7, vertical bits 8-14 */
-    var c1 = [
-      [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],   /* bits 0-7 */
-      [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]            /* bits 8-14 */
-    ];
-    /* Copy 2 (bottom-left + top-right): vertical bits 0-6, horizontal bits 7-14 */
-    var c2 = [
-      [size-1,8],[size-2,8],[size-3,8],[size-4,8],[size-5,8],[size-6,8],[size-7,8],  /* bits 0-6 */
-      [8,size-8],[8,size-7],[8,size-6],[8,size-5],[8,size-4],[8,size-3],[8,size-2],[8,size-1]  /* bits 7-14 */
-    ];
+    var fmt = bchFormat(0, mask), i, bit;   /* 0 = ECC_M */
     for (i = 0; i < 15; i++) {
-      bit = ((fmt >>> i) & 1) ? 1 : 0;
-      m[c1[i][0] * size + c1[i][1]] = bit;
-      m[c2[i][0] * size + c2[i][1]] = bit;
+      bit = (fmt >>> i) & 1;
+
+      /* Vertical copy: top-left then bottom-left. */
+      if (i < 6) m[i * size + 8] = bit;
+      else if (i < 8) m[(i + 1) * size + 8] = bit;
+      else m[(size - 15 + i) * size + 8] = bit;
+
+      /* Horizontal copy: top-right then top-left. */
+      if (i < 8) m[8 * size + (size - i - 1)] = bit;
+      else if (i === 8) m[8 * size + 7] = bit;
+      else m[8 * size + (15 - i - 1)] = bit;
     }
+
+    m[(size - 8) * size + 8] = 1;          /* fixed dark module */
   }
 /* Mask penalty score (ISO/IEC 18004 8.8.2). */
   function penalty(m, size) {
@@ -351,8 +351,8 @@ for (var right = size - 1; right >= 1; right -= 2) { /* collect data positions *
   function drawToCanvas(canvas, matrix, opts) {
     opts = opts || {};
     var size = matrix.size;
-    var module = opts.module || Math.max(2, Math.floor((opts.size || 176) / size));
     var quiet = opts.quiet === undefined ? 4 : opts.quiet;
+    var module = opts.module || Math.max(2, Math.floor((opts.size || 200) / (size + quiet * 2)));
     var dim = (size + quiet * 2) * module;
     canvas.width = dim;
     canvas.height = dim;

@@ -85,6 +85,8 @@ class RescheduleTreatmentBookingService
             $locked->update([
                 'appointment_date' => $date,
                 'appointment_time' => $normalizedTime,
+                'customer_reminder_sent_at' => null,
+                'customer_email_reminder_sent_at' => null,
                 'duration_minutes_snapshot' => $productId && $branchId
                     ? $this->availability->resolveDurationMinutes($productId, $branchId)
                     : $locked->duration_minutes_snapshot,

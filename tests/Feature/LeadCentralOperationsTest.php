@@ -3,11 +3,20 @@
 namespace Tests\Feature;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
+use Modules\Lead\Http\Controllers\Admin\CentralCheckinController;
 use Modules\Lead\Services\CentralCheckinService;
 use Modules\Lead\Services\CentralClearanceService;
 use Modules\Lead\Services\CentralWalletService;
+use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\Setting\Repositories\SettingRepository;
+use Modules\TreatmentReservation\Mail\AppointmentCheckinReminder;
+use Modules\TreatmentReservation\Services\BookingCheckinPassService;
+use Modules\TreatmentReservation\Services\CustomerAppointmentReminderService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -33,11 +42,20 @@ class LeadCentralOperationsTest extends TestCase
                 $table->string($column)->nullable();
             }
             $table->date('appointment_date');
+            $table->dateTime('checked_in_at')->nullable();
+            $table->dateTime('customer_reminder_sent_at')->nullable();
+            $table->dateTime('customer_email_reminder_sent_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
         Schema::create('treatment_booking_activities', function (Blueprint $table): void {
-            $table->id(); $table->integer('treatment_booking_id'); $table->string('action'); $table->string('to_value'); $table->timestamps();
+            $table->id();
+            $table->integer('treatment_booking_id');
+            $table->integer('user_id')->nullable();
+            $table->string('action');
+            $table->string('from_value')->nullable();
+            $table->string('to_value')->nullable();
+            $table->timestamps();
         });
         Schema::create('orders', function (Blueprint $table): void {
             $table->id();
@@ -49,6 +67,7 @@ class LeadCentralOperationsTest extends TestCase
 
     protected function tearDown(): void
     {
+        URL::forceRootUrl(null);
         $this->travelBack();
         DB::purge('lead_operations_test');
         parent::tearDown();
@@ -61,6 +80,54 @@ class LeadCentralOperationsTest extends TestCase
             'appointment_date' => '2026-09-09', 'appointment_time' => '10:00',
             'customer_first_name' => 'Fixture', 'updated_at' => now(), 'created_at' => now(),
         ], $attributes));
+    }
+
+    #[Test]
+    public function automatic_reminder_emails_the_secure_checkin_pass_one_day_before_appointment(): void
+    {
+        Mail::fake();
+        URL::forceRootUrl('http://localhost');
+        $originalSettings = app('setting');
+        app()->instance('setting', new SettingRepository(collect([
+            'store_name' => 'Test Spa',
+            'whatsapp_customer_reminder_enabled' => false,
+            'whatsapp_customer_reminder_minutes' => 1440,
+        ])));
+
+        try {
+            $bookingId = $this->booking([
+                'appointment_date' => '2026-09-10',
+                'appointment_time' => '12:00',
+                'customer_email' => 'customer@example.test',
+            ]);
+
+            $booking = TreatmentBooking::findOrFail($bookingId);
+            $service = app(CustomerAppointmentReminderService::class);
+            $messageBuilder = new \ReflectionMethod($service, 'buildMessage');
+            $checkinUrl = app(BookingCheckinPassService::class)->url($booking);
+            $whatsAppMessage = $messageBuilder->invoke($service, $booking);
+
+            $this->assertStringContainsString($booking->referenceCode(), $whatsAppMessage);
+            $this->assertStringContainsString($checkinUrl, $whatsAppMessage);
+            $this->assertSame(1, $service->sendDueReminders());
+
+            Mail::assertSent(AppointmentCheckinReminder::class, function (AppointmentCheckinReminder $mail) use ($bookingId): bool {
+                $html = $mail->render();
+
+                return $mail->hasTo('customer@example.test')
+                    && URL::hasValidSignature(Request::create($mail->checkinUrl))
+                    && str_contains($html, 'B'.$bookingId)
+                    && str_contains($html, e($mail->checkinUrl));
+            });
+            $this->assertNotNull(DB::table('treatment_bookings')->where('id', $bookingId)->value('customer_email_reminder_sent_at'));
+            $this->assertNull(DB::table('treatment_bookings')->where('id', $bookingId)->value('customer_reminder_sent_at'));
+            $this->assertSame(1, DB::table('treatment_booking_activities')->where('action', 'email_reminder_sent')->count());
+
+            $this->assertSame(0, $service->sendDueReminders());
+            Mail::assertSentCount(1);
+        } finally {
+            app()->instance('setting', $originalSettings);
+        }
     }
 
     #[Test]
@@ -99,19 +166,61 @@ class LeadCentralOperationsTest extends TestCase
     #[Test]
     public function checkin_tabs_and_summaries_use_the_same_date_and_search_scope(): void
     {
-        $this->booking(['customer_first_name' => 'Selected']);
+        $this->booking(['customer_first_name' => 'Selected', 'checked_in_at' => now()->subMinutes(10)]);
         $this->booking(['customer_first_name' => 'Selected', 'status' => 'completed']);
         $this->booking(['customer_first_name' => 'Elsewhere']);
-        $this->booking(['customer_first_name' => 'Selected', 'appointment_date' => '2026-09-10']);
+        $this->booking(['customer_first_name' => 'Selected', 'appointment_date' => '2026-09-10', 'checked_in_at' => now()]);
         $service = app(CentralCheckinService::class);
         $filters = ['date' => '2026-09-09', 'scope' => 'day', 'q' => 'Selected'];
+        $this->assertSame(1, $service->paginate($filters + ['status' => 'live'])->total());
         $this->assertSame(2, $service->paginate($filters + ['status' => 'all'])->total());
+        $this->assertSame(1, $service->paginate($filters + ['status' => 'waiting'])->total());
         $this->assertSame(1, $service->paginate($filters + ['status' => 'completed'])->total());
         $summary = $service->summary($filters);
         $this->assertSame(1, $summary['live']);
         $this->assertSame(1, $summary['waiting']);
         $this->assertSame(1, $summary['completed']);
         $this->assertSame(2, $service->summary(array_replace($filters, ['scope' => 'pipeline']))['waiting']);
+    }
+
+    #[Test]
+    public function confirming_arrival_is_idempotent_and_does_not_start_treatment(): void
+    {
+        $bookingId = $this->booking();
+        $request = Request::create('/admin/leads/checkin/'.$bookingId.'/confirm', 'POST', [], [], [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        $first = app(CentralCheckinController::class)->confirm($request, $bookingId);
+        $second = app(CentralCheckinController::class)->confirm($request, $bookingId);
+
+        $this->assertSame(200, $first->getStatusCode());
+        $this->assertSame(200, $second->getStatusCode());
+        $this->assertSame('pending', DB::table('treatment_bookings')->where('id', $bookingId)->value('status'));
+        $this->assertNotNull(DB::table('treatment_bookings')->where('id', $bookingId)->value('checked_in_at'));
+        $this->assertSame(1, DB::table('treatment_booking_activities')->where('action', 'checked_in')->count());
+    }
+
+    #[Test]
+    public function arrival_pass_is_signed_and_arrival_rejects_another_date(): void
+    {
+        $bookingId = $this->booking(['appointment_date' => '2026-09-10']);
+        $booking = TreatmentBooking::findOrFail($bookingId);
+        URL::forceRootUrl('http://localhost');
+        $url = app(BookingCheckinPassService::class)->url($booking);
+
+        $this->assertTrue(URL::hasValidSignature(Request::create($url)));
+        $this->get($url)->assertOk();
+        $this->get($url.'&tampered=1')->assertForbidden();
+
+
+        $request = Request::create('/admin/leads/checkin/'.$bookingId.'/confirm', 'POST', [], [], [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+        $response = app(CentralCheckinController::class)->confirm($request, $bookingId);
+
+        $this->assertSame(422, $response->getStatusCode());
+        $this->assertNull(DB::table('treatment_bookings')->where('id', $bookingId)->value('checked_in_at'));
     }
 
     #[Test]

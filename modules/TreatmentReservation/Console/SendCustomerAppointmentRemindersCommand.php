@@ -9,7 +9,7 @@ class SendCustomerAppointmentRemindersCommand extends Command
 {
     protected $signature = 'treatment-reservations:send-customer-appointment-reminders';
 
-    protected $description = 'Send WhatsApp reminders to customers before upcoming treatment appointments';
+    protected $description = 'Send email and WhatsApp reminders before upcoming customer appointments';
 
 
     public function handle(CustomerAppointmentReminderService $service): int

@@ -7,6 +7,17 @@ use Modules\TreatmentReservation\Entities\TreatmentBookingActivity;
 
 class TreatmentBookingActivityLogger
 {
+    public function logCheckin(TreatmentBooking $booking, ?int $userId = null): void
+    {
+        TreatmentBookingActivity::create([
+            'treatment_booking_id' => $booking->id,
+            'user_id' => $userId ?? auth()->id(),
+            'action' => TreatmentBookingActivity::ACTION_CHECKED_IN,
+            'to_value' => $booking->checked_in_at?->toDateTimeString(),
+        ]);
+    }
+
+
     public function logStatusChange(TreatmentBooking $booking, ?string $from, string $to, ?int $userId = null): void
     {
         if ($from === $to) {
@@ -68,6 +79,17 @@ class TreatmentBookingActivityLogger
             'user_id' => auth()->id(),
             'action' => TreatmentBookingActivity::ACTION_REMINDER_SENT,
             'to_value' => $booking->customer_phone,
+        ]);
+    }
+
+
+    public function logEmailReminderSent(TreatmentBooking $booking): void
+    {
+        TreatmentBookingActivity::create([
+            'treatment_booking_id' => $booking->id,
+            'user_id' => auth()->id(),
+            'action' => TreatmentBookingActivity::ACTION_EMAIL_REMINDER_SENT,
+            'to_value' => $booking->customer_email,
         ]);
     }
 

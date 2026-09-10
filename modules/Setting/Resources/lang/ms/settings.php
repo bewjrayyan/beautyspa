@@ -167,7 +167,7 @@ return [
         'preview_document_title' => 'Resit PDF',
         'template_hints' => [
             'welcome' => 'Placeholder: :first_name, :store',
-            'customer_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :reference, :beautician, :tracking_url, :extra_lines (lama: :beautician_line, :tracking_line)',
+            'customer_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :reference, :beautician, :tracking_url, :checkin_url, :extra_lines (lama: :beautician_line, :tracking_line, :checkin_line)',
             'customer_completed' => 'Placeholder: :store, :customer, :treatment',
             'customer_followup' => 'Placeholder: :store, :customer, :treatment, :date',
             'new_order_admin' => 'Placeholder: :store, :order_id, :customer, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary',
@@ -401,7 +401,7 @@ return [
         'send_welcome_sms_after_registration' => 'Hantar SMS alu-aluan selepas pendaftaran',
         'send_welcome_whatsapp_after_registration' => 'Hantar mesej WhatsApp alu-aluan selepas pendaftaran',
         'send_appointment_reminder_to_customer' => 'Hantar peringatan temujanji kepada pelanggan sebelum masa rawatan',
-        'customer_reminder_minutes_help' => 'Berapa minit sebelum temujanji untuk hantar peringatan pelanggan (minimum 15). Perlukan nombor telefon pelanggan pada tempahan. URL Jejak Pesanan digunakan untuk pautan pesanan. Dijalankan setiap 15 minit melalui scheduler.',
+        'customer_reminder_minutes_help' => 'Berapa minit sebelum temujanji untuk menghantar peringatan pelanggan (disyorkan: 1440 untuk satu hari). E-mel menggunakan e-mel tempahan; WhatsApp memerlukan nombor telefon dan OneSender. Scheduler berjalan setiap 15 minit.',
         'send_completed_thankyou_to_customer' => 'Hantar WhatsApp terima kasih apabila rawatan selesai (dimatikan dalam kod)',
         'customer_completed_message_help' => 'WhatsApp terima kasih automatik apabila job sheet selesai dimatikan untuk elak mesej berulang. Toggle ini disimpan untuk kelak. Placeholder: :store, :customer, :treatment.',
         'send_followup_to_customer' => 'Hantar WhatsApp susulan (berjadual, bukan bila selesai)',

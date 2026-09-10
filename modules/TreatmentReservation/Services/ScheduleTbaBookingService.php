@@ -72,6 +72,8 @@ class ScheduleTbaBookingService
                 'spa_branch_id' => $spaBranchId ?: $booking->spa_branch_id,
                 'appointment_date' => $date,
                 'appointment_time' => $normalizedTime,
+                'customer_reminder_sent_at' => null,
+                'customer_email_reminder_sent_at' => null,
                 'duration_minutes_snapshot' => $productId && $spaBranchId
                     ? $this->availability->resolveDurationMinutes($productId, $spaBranchId)
                     : $booking->duration_minutes_snapshot,

@@ -149,6 +149,29 @@
                                     </div>
                                 </div>
 
+                                @if ($booking->status === \Modules\TreatmentReservation\Entities\TreatmentBooking::STATUS_PENDING && ! $isTba)
+                                    <details class="account-checkin-pass"{{ $booking->checked_in_at ? ' open' : '' }}>
+                                        <summary>
+                                            <i class="las la-qrcode" aria-hidden="true"></i>
+                                            {{ trans('treatmentreservation::public.checkin_pass') }}
+                                        </summary>
+                                        <div class="account-checkin-pass__body">
+                                            @if ($booking->checked_in_at)
+                                                <p class="account-checkin-pass__confirmed">
+                                                    <i class="las la-check-circle" aria-hidden="true"></i>
+                                                    {{ trans('treatmentreservation::public.checkin_pass_confirmed', ['time' => $booking->checked_in_at->format('g:i A')]) }}
+                                                </p>
+                                            @else
+                                                <canvas data-checkin-pass="{{ $checkinPassUrls[$booking->id] ?? '' }}" aria-label="{{ trans('treatmentreservation::public.checkin_pass') }}"></canvas>
+                                                <p>{{ trans('treatmentreservation::public.checkin_pass_hint') }}</p>
+                                                <a class="btn btn-default btn-sm" href="{{ $checkinPassUrls[$booking->id] ?? '#' }}">
+                                                    {{ trans('treatmentreservation::public.checkin_pass_open') }}
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </details>
+                                @endif
+
                                 <div class="account-appointment-card__actions">
                                     <button
                                         type="button"

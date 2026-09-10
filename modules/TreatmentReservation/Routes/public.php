@@ -11,6 +11,17 @@ Route::get('my-appointments', [
     'uses' => 'BookingSelfServiceController@index',
 ]);
 
+Route::get('appointment-check-in/{booking}', [
+    'as' => 'treatment_reservations.checkin.pass',
+    'uses' => 'CheckinPassController@show',
+])->middleware(['signed', 'throttle:60,1'])
+    ->withoutMiddleware([
+        'fix_subdirectory_localized_redirect',
+        'localize',
+        'locale_session_redirect',
+        'localization_redirect',
+    ]);
+
 Route::post('my-appointments/send-otp', [
     'as' => 'treatment_reservations.booking.send_otp',
     'uses' => 'BookingSelfServiceController@sendOtp',

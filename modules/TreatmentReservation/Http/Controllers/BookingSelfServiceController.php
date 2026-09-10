@@ -9,6 +9,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Services\BookingCheckinPassService;
 use Modules\TreatmentReservation\Services\BookingLookupOtpService;
 use Modules\TreatmentReservation\Services\BookingSelfService;
 use Modules\User\Entities\User;
@@ -18,6 +19,7 @@ class BookingSelfServiceController extends Controller
     public function __construct(
         private BookingLookupOtpService $otp,
         private BookingSelfService $selfService,
+        private BookingCheckinPassService $checkinPasses,
     ) {
     }
 
@@ -63,6 +65,9 @@ class BookingSelfServiceController extends Controller
             'usingAccountAccess' => $customer !== null,
             'bookings' => $bookings,
             'bookingGroups' => $bookingGroups,
+            'checkinPassUrls' => $bookings->mapWithKeys(fn (TreatmentBooking $booking) => [
+                $booking->id => $this->checkinPasses->url($booking),
+            ]),
         ]);
     }
 

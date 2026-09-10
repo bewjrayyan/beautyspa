@@ -92,6 +92,7 @@ let checkinsLoading = false;
 let checkinRequest = 0, checkinLoadError = false;
 let checkinSearchTimer = null;
 let checkinMeta = {current_page:1,last_page:1,total:0};
+let checkinScannerStream = null, checkinScannerFrame = 0;
 let liveClearances = [];
 let liveClearanceSummary = {waiting:0,blocked:0,in_treatment:0,done_today:0,queue:0};
 let liveClearanceFilters = {states:[],beauticians:[],branches:[]};
@@ -2290,6 +2291,7 @@ function checkin(){
       </div>
       <div class="page-actions">
         <button type="button" class="btn" id="cinRefresh">${escapeHtml(t('checkin.refresh'))}</button>
+        ${boot.canConfirmCheckin ? `<button type="button" class="btn primary" id="cinScan">${escapeHtml(t('checkin.scan'))}</button>` : ''}
         ${boot.canViewTreatments && boot.treatmentReservationsUrl ? `<a class="btn primary" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_crm'))}</a>` : ''}
       </div>
     </div>
@@ -2327,6 +2329,7 @@ function checkin(){
     </section>
   </div>`;
   const refreshBtn = $('#cinRefresh'); if(refreshBtn) refreshBtn.onclick = () => refreshCheckins();
+  const scanBtn = $('#cinScan'); if(scanBtn) scanBtn.onclick = openCheckinScanner;
   bindCheckinFilters();
   refreshCheckins();
 }
@@ -2439,11 +2442,98 @@ function renderCheckinTable(){
   $$('[data-cin-view]').forEach(b => b.onclick = () => reviewCheckin(b.dataset.cinView));
   bindCentralPager('cin',page=>{state.checkinPage=page;return refreshCheckins();});
 }
+
+function isCheckinPassUrl(value){
+  try{
+    const candidate = new URL(String(value||'').trim(), window.location.origin);
+    const base = new URL(boot.checkinPassBaseUrl, window.location.origin);
+    return candidate.origin === base.origin &&
+      candidate.pathname.startsWith(base.pathname.replace(/\/$/,'') + '/') &&
+      candidate.searchParams.has('expires') && candidate.searchParams.has('signature');
+  }catch(error){ return false; }
+}
+
+function stopCheckinScanner(){
+  cancelAnimationFrame(checkinScannerFrame);
+  checkinScannerFrame = 0;
+  if(checkinScannerStream){
+    checkinScannerStream.getTracks().forEach(track=>track.stop());
+    checkinScannerStream = null;
+  }
+  const video = $('#cinScannerVideo');
+  if(video) video.srcObject = null;
+}
+
+function openCheckinScanner(){
+  const body = `<div class="cin-scanner">
+    <p class="cin-scanner__hint">${escapeHtml(t('checkin.scanner_hint'))}</p>
+    <div class="cin-scanner__viewport"><video id="cinScannerVideo" playsinline muted aria-label="${escapeHtml(t('checkin.scanner_title'))}"></video><div class="cin-scanner__guide" aria-hidden="true"></div></div>
+    <p class="cin-scanner__status" id="cinScannerStatus" aria-live="polite"></p>
+    <button type="button" class="btn primary" id="cinScannerStart">${escapeHtml(t('checkin.scanner_start'))}</button>
+    <label class="lead-field cin-scanner__manual"><span class="lead-field__label">${escapeHtml(t('checkin.scanner_manual_label'))}</span>
+      <input class="lead-field__control" id="cinScannerInput" type="url" inputmode="url" autocomplete="off" placeholder="${escapeHtml(t('checkin.scanner_manual_placeholder'))}">
+    </label>
+  </div>`;
+  const foot = `<button type="button" class="btn primary" id="cinScannerOpen">${escapeHtml(t('checkin.scanner_open'))}</button><button type="button" class="btn" data-action-drawer-close>${escapeHtml(t('checkin.close'))}</button>`;
+  openActionDrawer(t('checkin.scanner_title'), t('checkin.scanner_hint'), body, foot, t('nav.checkin'));
+  $('#cinScannerStart').onclick = startCheckinScanner;
+  $('#cinScannerOpen').onclick = () => openScannedCheckinPass($('#cinScannerInput').value);
+  $('#cinScannerInput').onkeydown = event => { if(event.key === 'Enter'){ event.preventDefault(); openScannedCheckinPass(event.currentTarget.value); } };
+}
+
+function openScannedCheckinPass(value){
+  if(!isCheckinPassUrl(value)){
+    const status = $('#cinScannerStatus');
+    if(status) status.textContent = t('checkin.scanner_invalid');
+    return;
+  }
+  stopCheckinScanner();
+  window.location.assign(String(value).trim());
+}
+
+async function startCheckinScanner(){
+  const status = $('#cinScannerStatus');
+  const button = $('#cinScannerStart');
+  if(!('BarcodeDetector' in window) || !navigator.mediaDevices?.getUserMedia){
+    status.textContent = t('checkin.scanner_unsupported');
+    return;
+  }
+  button.disabled = true;
+  status.textContent = t('common.loading');
+  try{
+    const supported = BarcodeDetector.getSupportedFormats ? await BarcodeDetector.getSupportedFormats() : ['qr_code'];
+    if(!supported.includes('qr_code')) throw new Error('QR format is unavailable');
+    const detector = new BarcodeDetector({formats:['qr_code']});
+    checkinScannerStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    const video = $('#cinScannerVideo');
+    video.srcObject = checkinScannerStream;
+    await video.play();
+    button.textContent = t('checkin.scanner_stop');
+    button.disabled = false;
+    button.onclick = () => { stopCheckinScanner(); button.textContent=t('checkin.scanner_start'); button.onclick=startCheckinScanner; };
+    status.textContent = t('checkin.scanner_hint');
+    const scan = async () => {
+      if(!checkinScannerStream || !video.isConnected) return;
+      try{
+        const codes = await detector.detect(video);
+        if(codes[0]?.rawValue){ openScannedCheckinPass(codes[0].rawValue); return; }
+      }catch(error){ console.error(error); }
+      checkinScannerFrame = requestAnimationFrame(scan);
+    };
+    scan();
+  }catch(error){
+    console.error(error);
+    stopCheckinScanner();
+    button.disabled = false;
+    status.textContent = t('checkin.scanner_unsupported');
+  }
+}
+
 function reviewCheckin(id){
   const c = liveCheckins.find(x => Number(x.id) === Number(id)); if(!c) return;
   const orderUrl = c.order_id && boot.orderShowUrlTemplate ? leadUrl(boot.orderShowUrlTemplate, c.order_id) : '';
   const stage = c.status || 'pending';
-  const checkedIn = ['in_progress','completed'].includes(stage);
+  const checkedIn = Boolean(c.checked_in_at);
   const steps = [
     {label:t('checkin.step_booked'), state: stage==='pending' ? 'active' : 'done', time:''},
     {label:t('checkin.step_checked_in'), state: checkedIn ? 'done' : '', time: checkedIn && c.checked_in_label && c.checked_in_label !== '—' ? c.checked_in_label : ''},
@@ -2481,7 +2571,7 @@ function reviewCheckin(id){
         <div class="pay-id">${escapeHtml(c.code||'')}</div>
         <strong style="display:block;margin-top:6px;font-size:16px">${escapeHtml(c.name||'')}</strong>
         <div class="pay-method">${escapeHtml(c.date_label||'')} ${escapeHtml(c.time||'')} · ${escapeHtml(c.branch_name||c.branch||'—')}</div>
-        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${statusBadge(c.status_label)}${statusBadge(c.clearance_label)}</div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${statusBadge(c.status_label)}${statusBadge(c.arrival_label)}</div>
       </div>
     </div>
     ${contact}${qrCard}${timeline}${kv}
@@ -2494,7 +2584,7 @@ function reviewCheckin(id){
   openActionDrawer(t('checkin.title'), c.code+' · '+c.name, body, foot, t('nav.checkin'));
   const canvas = $('#cinQrCanvas');
   if(canvas && window.QRCentral){
-    try{ QRCentral.render(canvas, c.code ? 'CHKIN:'+c.code : t('checkin.qr_title')); }
+    try{ QRCentral.render(canvas, c.checkin_pass_url || ''); }
     catch(err){ console.error(err); canvas.closest('.cin-preview__qr-box')?.classList.add('hidden'); }
   }
   const copy = $('#cinCopyCode');
@@ -3794,6 +3884,7 @@ function openActionDrawer(title,sub,body,foot,eyebrow=''){
 function closeActionDrawer(){
   const drawer=$('#actionDrawer');
   if(!drawer.classList.contains('show')) return;
+  stopCheckinScanner();
   drawer.classList.remove('show');
   drawer.setAttribute('aria-hidden','true');
   drawer.inert=true;

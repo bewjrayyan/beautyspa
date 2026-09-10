@@ -227,6 +227,8 @@ class BookingSelfService
             $lockedBooking->update([
                 'appointment_date' => $date,
                 'appointment_time' => $normalizedTime,
+                'customer_reminder_sent_at' => null,
+                'customer_email_reminder_sent_at' => null,
                 'schedule_status' => null,
             ]);
 
