@@ -179,6 +179,7 @@
     };
   </script>
   <script src="{{ asset('modules/lead/central/trade-charts.js') }}"></script>
+  <script src="{{ asset('modules/lead/central/qrcode.js') }}?v={{ @filemtime(public_path('modules/lead/central/qrcode.js')) ?: time() }}"></script>
   <script src="{{ asset('modules/lead/central/app.js') }}?v={{ @filemtime(public_path('modules/lead/central/app.js')) ?: time() }}"></script>
 </body>
 </html>

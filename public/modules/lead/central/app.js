@@ -323,6 +323,26 @@ function dailyLeadHero(){
     </div>
   </section>`;
 }
+const AVATAR_TONES=[
+  ['#1d4ed8','#60a5fa'],
+  ['#9a3412','#f59e0b'],
+  ['#065f46','#34d399'],
+  ['#6d28d9','#a78bfa'],
+  ['#be123c','#fb7185'],
+  ['#0e7490','#22d3ee'],
+  ['#a16207','#facc15'],
+];
+function beauTone(name){
+  const s=String(name||'');
+  let h=0;
+  for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0;
+  const p=AVATAR_TONES[Math.abs(h)%AVATAR_TONES.length];
+  return `linear-gradient(145deg, ${p[0]}, ${p[1]})`;
+}
+function beauInitials(name){
+  const parts=String(name||'').trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0]||'')+(parts[1]?.[0]||'')).toUpperCase();
+}
 function dailyLeadBoard(){
   const m = liveMetrics || {};
   const periodKey = !!(m.period && m.period.key);
@@ -332,21 +352,42 @@ function dailyLeadBoard(){
   const perTarget = Math.round((Number((m.targets&&m.targets.leads)||0)||0) / beauCount);
   const ranked=[...rows].sort((a,b)=>b.leads-a.leads);
   const dateLabel = m.period && m.period.label ? escapeHtml(m.period.label) : t('common.this_month');
+  const totalLeads = ranked.reduce((sum,r)=>sum+(Number(r.leads)||0),0);
+  const medallions=['🥇','🥈','🥉'];
   const rowsHtml=ranked.map((r,i)=>{
-    const leads=r.leads||0;
+    const leads=Number(r.leads)||0;
     const target=Number(r.target) || perTarget;
     const pct=target>0?Math.round((leads/target)*100):0;
+    const share=totalLeads>0?Math.max(4,Math.round((leads/totalLeads)*100)):0;
     const tone=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-    return `<tr class="daily-row ${tone?`daily-row--${tone}`:''}">
-      <td><span class="rank ${i<3?'rank--top':''}>${i+1}</span></td>
-      <td><div class="person-cell"><div class="mini-avatar">${r.name?.[0]||''}</div><div><strong>${r.name||''}</strong><small>${t('daily.target_month',{count:target})}</small></div></div></td>
-      <td><strong class="daily-num">${leads.toLocaleString()}</strong></td>
-      <td>${periodKey ? escapeHtml(String(m.period.label || t('daily.col_month'))) : t('daily.col_month')}</td>
-      <td>${target}</td>
+    const achStatus=pct>=100?'is-hit':pct>=75?'is-close':'is-low';
+    const name=escapeHtml(String(r.name||''));
+    const rankInner=i<3
+      ? `<span class="rank rank--medal rank--${tone}" title="${t('daily.rank_title',{n:i+1})}">${medallions[i]}</span>`
+      : `<span class="rank">${i+1}</span>`;
+    return `<tr class="daily-row${tone?` daily-row--${tone}`:''}">
+      <td class="daily-rank-cell">${rankInner}</td>
+      <td>
+        <div class="person-cell">
+          <div class="mini-avatar leader-avatar${tone?` mini-avatar--${tone}`:''}" style="background:${beauTone(r.name)}">${beauInitials(r.name)}</div>
+          <div class="person-cell__text">
+            <strong>${name}${i===0?` <span class="leader-tag">${t('daily.leader')}</span>`:''}</strong>
+            <small>${t('daily.target_month',{count:target})}<i class="daily-dot"></i>${dateLabel}</small>
+          </div>
+        </div>
+      </td>
+      <td class="daily-num-cell"><strong class="daily-num" title="${leads.toLocaleString()} ${t('daily.leads')}">${leads.toLocaleString()}</strong></td>
+      <td>
+        <div class="share-cell">
+          <div class="share-cell__track"><span style="width:${Math.min(100,share)}%"></span></div>
+          <strong>${share}%</strong>
+        </div>
+      </td>
+      <td><span class="daily-target">${target}</span></td>
       <td>
         <div class="achieve">
-          <strong>${pct}%</strong>
-          <div class="progress achieve__bar"><span style="width:${Math.min(100,pct)}%"></span></div>
+          <strong class="achieve__pct ${achStatus}">${pct}%</strong>
+          <div class="progress achieve__bar"><span class="achieve__fill ${achStatus}" style="width:${Math.min(100,pct)}%"></span></div>
         </div>
       </td>
     </tr>`;
@@ -368,7 +409,7 @@ function dailyLeadBoard(){
               <th>${t('daily.col_rank')}</th>
               <th>${t('daily.col_beautician')}</th>
               <th>${t(periodKey?'daily.col_leads':'daily.col_today')}</th>
-              <th>${t('daily.col_month')}</th>
+              <th>${t('daily.col_share')}</th>
               <th>${t('daily.col_target')}</th>
               <th>${t('daily.col_ach')}</th>
             </tr>
@@ -2401,24 +2442,82 @@ function renderCheckinTable(){
 function reviewCheckin(id){
   const c = liveCheckins.find(x => Number(x.id) === Number(id)); if(!c) return;
   const orderUrl = c.order_id && boot.orderShowUrlTemplate ? leadUrl(boot.orderShowUrlTemplate, c.order_id) : '';
-  const body = `<div class="pay-review">
-    <div class="pay-review__hero"><div class="pay-review__avatar">${escapeHtml(c.initial||'?')}</div>
-      <div style="min-width:0;flex:1"><div class="pay-id">${escapeHtml(c.code||'')}</div>
-        <strong style="display:block;margin-top:6px;font-size:16px">${escapeHtml(c.name||'')}</strong>
-        <div class="pay-method">${escapeHtml(c.phone||'—')} · ${escapeHtml(c.date_label||'')} ${escapeHtml(c.time||'')}</div>
-        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${statusBadge(c.status_label)}${statusBadge(c.clearance_label)}</div>
-      </div></div>
-    <div class="pay-review__grid">
-      <div class="pay-review__card"><label>${escapeHtml(t('checkin.col_treatment'))}</label><strong>${escapeHtml(c.treatment||'—')}</strong></div>
-      <div class="pay-review__card"><label>${escapeHtml(t('checkin.col_beautician'))}</label><strong>${escapeHtml(c.beautician||'—')}</strong></div>
-      <div class="pay-review__card"><label>${escapeHtml(t('checkin.col_branch'))}</label><strong>${escapeHtml(c.branch_name||c.branch||'—')}</strong></div>
-      <div class="pay-review__card"><label>${escapeHtml(t('checkin.col_payment'))}</label><strong>${escapeHtml(c.payment_label||'—')}</strong></div>
+  const stage = c.status || 'pending';
+  const checkedIn = ['in_progress','completed'].includes(stage);
+  const steps = [
+    {label:t('checkin.step_booked'), state: stage==='pending' ? 'active' : 'done', time:''},
+    {label:t('checkin.step_checked_in'), state: checkedIn ? 'done' : '', time: checkedIn && c.checked_in_label && c.checked_in_label !== '—' ? c.checked_in_label : ''},
+    {label:t('checkin.step_treatment'), state: stage==='in_progress' ? 'active' : (stage==='completed' ? 'done' : ''), time:''},
+    {label:t('checkin.step_completed'), state: stage==='completed' ? 'active done' : '', time:''},
+  ];
+  const timeline = `<div class="cin-preview__block cin-timeline"><div class="journey-section__title">${escapeHtml(t('checkin.timeline'))}</div>
+    <div class="timeline">${steps.map(s=>`<div class="timeline-step ${s.state}"><div class="timeline-dot">${s.state.includes('done')?'✓':s.state.includes('active')?'●':''}</div><span>${escapeHtml(s.label)}${s.time?` <em>· ${escapeHtml(s.time)}</em>`:''}</span></div>`).join('')}</div></div>`;
+  const contact = `${c.phone||c.email ? `<div class="cin-preview__contact">
+    ${c.phone?`<a href="tel:${escapeHtml(c.phone)}"><span aria-hidden="true">📞</span>${escapeHtml(c.phone)}</a>`:''}
+    ${c.email?`<a href="mailto:${escapeHtml(c.email)}"><span aria-hidden="true">✉️</span>${escapeHtml(c.email)}</a>`:''}
+  </div>`:''}`;
+  const qrCard = `<div class="cin-preview__block cin-preview__qr">
+    <div class="journey-section__title">${escapeHtml(t('checkin.qr_title'))}</div>
+    <div class="cin-preview__qr-box"><canvas id="cinQrCanvas" role="img" aria-label="${escapeHtml(t('checkin.qr_title'))}"></canvas></div>
+    <div class="cin-preview__qr-code">${escapeHtml(c.code||'')}</div>
+    <p class="cin-preview__qr-hint">${escapeHtml(t('checkin.qr_hint'))}</p>
+    <button type="button" class="btn small soft" id="cinCopyCode">${escapeHtml(t('checkin.copy_code'))}</button>
+  </div>`;
+  const kv = `<div class="cin-preview__block"><div class="journey-section__title">${escapeHtml(t('checkin.details'))}</div>
+    <div class="journey-kv">
+      <div><span>${escapeHtml(t('checkin.col_treatment'))}</span><strong>${escapeHtml(c.treatment||'—')}</strong></div>
+      <div><span>${escapeHtml(t('checkin.col_beautician'))}</span><strong>${escapeHtml(c.beautician||'—')}</strong></div>
+      <div><span>${escapeHtml(t('checkin.col_branch'))}</span><strong>${escapeHtml(c.branch_name||c.branch||'—')}</strong></div>
+      <div><span>${escapeHtml(t('checkin.col_payment'))}</span><strong>${escapeHtml(c.payment_label||'—')}</strong></div>
+      <div><span>${escapeHtml(t('checkin.col_date'))}</span><strong>${escapeHtml((c.date_label||'')+' '+(c.time||''))}</strong></div>
+      <div><span>${escapeHtml(t('checkin.col_checked_in'))}</span><strong>${escapeHtml(c.checked_in_label||'—')}</strong></div>
+      <div><span>${escapeHtml(t('checkin.col_wait'))}</span><strong>${escapeHtml(c.waiting_label||'—')}</strong></div>
+      <div><span>${escapeHtml(t('checkin.col_clearance'))}</span><strong>${escapeHtml(c.clearance_label||'—')}</strong></div>
     </div></div>`;
+  const body = `<div class="pay-review cin-preview">
+    <div class="pay-review__hero pay-review__hero--cin">
+      <div class="pay-review__avatar cin-avatar" aria-hidden="true">${escapeHtml(c.initial||'?')}</div>
+      <div style="min-width:0;flex:1">
+        <div class="pay-id">${escapeHtml(c.code||'')}</div>
+        <strong style="display:block;margin-top:6px;font-size:16px">${escapeHtml(c.name||'')}</strong>
+        <div class="pay-method">${escapeHtml(c.date_label||'')} ${escapeHtml(c.time||'')} · ${escapeHtml(c.branch_name||c.branch||'—')}</div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${statusBadge(c.status_label)}${statusBadge(c.clearance_label)}</div>
+      </div>
+    </div>
+    ${contact}${qrCard}${timeline}${kv}
+  </div>`;
   const foot = [
     orderUrl && boot.canViewOrder ? `<a class="btn primary" href="${escapeHtml(orderUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_order'))}</a>` : '',
+    boot.canViewTreatments && boot.treatmentReservationsUrl ? `<a class="btn" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_crm'))}</a>` : '',
     `<button type="button" class="btn" data-action-drawer-close>${escapeHtml(t('checkin.close'))}</button>`,
   ].filter(Boolean).join('');
   openActionDrawer(t('checkin.title'), c.code+' · '+c.name, body, foot, t('nav.checkin'));
+  const canvas = $('#cinQrCanvas');
+  if(canvas && window.QRCentral){
+    try{ QRCentral.render(canvas, c.code ? 'CHKIN:'+c.code : t('checkin.qr_title')); }
+    catch(err){ console.error(err); canvas.closest('.cin-preview__qr-box')?.classList.add('hidden'); }
+  }
+  const copy = $('#cinCopyCode');
+  if(copy) copy.onclick = () => copyToClipboard(c.code || '', t('checkin.copied'));
+}
+function copyToClipboard(text, okMsg){
+  const done = () => showToast(okMsg);
+  if(!text){ showToast(t('checkin.copy_missing')); return; }
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text, done));
+  }else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly','');
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand('copy'); done(); }
+  catch(e){ showToast(t('checkin.copy_missing')); }
+  document.body.removeChild(ta);
 }
 
 function clearance(){
