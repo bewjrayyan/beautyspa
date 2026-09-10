@@ -27,6 +27,7 @@ use Modules\TreatmentReservation\Observers\OrderTreatmentBookingObserver;
 use Modules\TreatmentReservation\Observers\TreatmentBookingObserver;
 use Modules\TreatmentReservation\Services\AdminPortalPreview;
 use Modules\TreatmentReservation\Services\UpcomingJobUrgencyService;
+use Modules\TreatmentReservation\Support\CustomerVisitLabel;
 use Nwidart\Modules\Facades\Module;
 
 class TreatmentReservationServiceProvider extends ServiceProvider
@@ -113,8 +114,11 @@ class TreatmentReservationServiceProvider extends ServiceProvider
                 ->orderBy('id')
                 ->get();
 
+            $order->setRelation('treatmentBookings', $bookings);
+
             $view->with('treatmentBookings', $bookings);
             $view->with('treatmentBooking', $bookings->first());
+            $view->with('customerVisitLabel', CustomerVisitLabel::forOrder($order));
         });
 
         Order::resolveRelationUsing('treatmentBookings', function (Order $order) {

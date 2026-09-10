@@ -1,6 +1,5 @@
 <?php
 
 return [
-
     'reports' => 'Laporan',
 ];

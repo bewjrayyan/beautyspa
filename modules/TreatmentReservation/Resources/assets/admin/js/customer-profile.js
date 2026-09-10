@@ -156,6 +156,12 @@ function renderProfile(profile, labels) {
         insights.push(`<span class="tr-crm-customer-profile__insight">${escapeHtml(profile.customer_history_label)}</span>`);
     }
 
+    if (profile.purchase_count_label) {
+        insights.push(`<span class="tr-crm-customer-profile__insight tr-crm-customer-profile__insight--purchases">${escapeHtml(profile.purchase_count_label)}</span>`);
+    } else if (Number(profile.purchase_count) > 0) {
+        insights.push(`<span class="tr-crm-customer-profile__insight tr-crm-customer-profile__insight--purchases">${escapeHtml(String(profile.purchase_count))}</span>`);
+    }
+
     if (profile.loyalty_tier_name) {
         insights.push(`<span class="tr-crm-customer-profile__insight tr-crm-customer-profile__insight--loyalty"><i class="fa fa-star" aria-hidden="true"></i> ${escapeHtml(profile.loyalty_tier_name)}</span>`);
     }

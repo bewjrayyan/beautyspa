@@ -1174,7 +1174,7 @@
     "src": "modules/Option/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-BtkLCeF2-v4.7.72.js",
+    "file": "assets/main-BryMPkwE-v4.7.72.js",
     "name": "main",
     "src": "modules/Order/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -1183,7 +1183,7 @@
     ]
   },
   "modules/Order/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-fAVIdvEi-v4.7.72.css",
+    "file": "assets/main-B_aM4Pb0-v4.7.72.css",
     "src": "modules/Order/Resources/assets/admin/sass/main.scss"
   },
   "modules/Order/Resources/assets/admin/sass/print.scss": {
@@ -1292,7 +1292,7 @@
     ]
   },
   "modules/Report/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-DHaYK7a2-v4.7.72.css",
+    "file": "assets/main-j2Bm56ff-v4.7.72.css",
     "src": "modules/Report/Resources/assets/admin/sass/main.scss"
   },
   "modules/Setting/Resources/assets/admin/js/main.js": {
@@ -2114,7 +2114,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-Cz7Kl4pC-v4.7.72.js",
+    "file": "assets/main-C5AJsFnc-v4.7.72.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -2131,7 +2131,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-BuYVAS9w-v4.7.72.css",
+    "file": "assets/main-2II_aFpA-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {

@@ -1,0 +1,9 @@
+{
+    "name": "Lead",
+    "alias": "lead",
+    "description": "Central Management dashboard for IMMA lead and operations overview.",
+    "priority": 95,
+    "providers": [
+        "Modules\\Lead\\Providers\\LeadServiceProvider"
+    ]
+}

@@ -37,10 +37,24 @@ import { bindOrderWhatsAppSend } from "./orderWhatsApp";
             return;
         }
 
-        $badge.text(text);
+        const $label = $badge.children("span").last();
+
+        if ($label.length) {
+            $label.text(text);
+        } else {
+            $badge.text(text);
+        }
 
         if (statusValue !== null && statusValue !== undefined) {
             $badge.attr("data-status", statusValue);
+        }
+
+        const titleTemplate = $badge.attr("data-title-template");
+
+        if (titleTemplate) {
+            $badge.attr("title", titleTemplate.split("__STATUS__").join(text));
+        } else {
+            $badge.attr("title", text);
         }
     }
 

@@ -3,6 +3,7 @@
 namespace Modules\TreatmentReservation\Services;
 
 use Modules\Loyalty\Entities\LoyaltyWallet;
+use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Support\CustomerVisitLabel;
 use Modules\TreatmentReservation\Support\TreatmentReservationLang as TrLang;
@@ -79,12 +80,18 @@ class CustomerCrmProfileService
 
         $customerEmail = $displayBooking?->customer_email ?: $user?->email;
 
+        $purchaseCount = $this->purchaseCount($user, $customerEmail, $normalizedPhone);
+
         return [
             'customer_name' => $customerName,
             'customer_phone' => $displayBooking?->customer_phone ?: $normalizedPhone,
             'customer_email' => $customerEmail,
             'customer_avatar_url' => $viewerBeauticianId ? null : $user?->avatarUrl(),
             'visit_count' => $stats['visit_count'],
+            'purchase_count' => $purchaseCount,
+            'purchase_count_label' => trans_choice('treatmentreservation::admin.crm.customer_purchase_count', $purchaseCount, [
+                'count' => $purchaseCount,
+            ]),
             'last_treatment' => $stats['last_treatment'],
             'last_visit_date' => $stats['last_visit_date'],
             'customer_history_label' => $contextBooking
@@ -116,6 +123,8 @@ class CustomerCrmProfileService
             'customer_email' => $booking->customer_email,
             'customer_avatar_url' => null,
             'visit_count' => 0,
+            'purchase_count' => 0,
+            'purchase_count_label' => trans_choice('treatmentreservation::admin.crm.customer_purchase_count', 0, ['count' => 0]),
             'last_treatment' => null,
             'last_visit_date' => null,
             'customer_history_label' => CustomerVisitLabel::forBooking($booking, 0),
@@ -280,5 +289,33 @@ class CustomerCrmProfileService
             ->first();
 
         return $wallet?->tier?->translatedName();
+    }
+
+
+    private function purchaseCount(?User $user, ?string $email, string $normalizedPhone): int
+    {
+        $phoneVariants = PhoneNumber::variants($normalizedPhone);
+
+        if (! $user && ! filled($email) && $phoneVariants === []) {
+            return 0;
+        }
+
+        return Order::query()
+            ->withTrashed()
+            ->withoutCanceledOrders()
+            ->where(function ($query) use ($user, $email, $phoneVariants) {
+                if ($user) {
+                    $query->orWhere('customer_id', $user->id);
+                }
+
+                if (filled($email)) {
+                    $query->orWhere('customer_email', $email);
+                }
+
+                if ($phoneVariants !== []) {
+                    $query->orWhereIn('customer_phone', $phoneVariants);
+                }
+            })
+            ->count();
     }
 }

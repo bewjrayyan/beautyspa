@@ -45,5 +45,6 @@
     "Loyalty": true,
     "SpecialGift": true,
     "SpaBranch": true,
-    "WhatsappBirthdayReminder": true
+    "WhatsappBirthdayReminder": true,
+    "Lead": true
 }

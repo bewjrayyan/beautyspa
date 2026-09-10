@@ -160,6 +160,7 @@ return [
         'customer_visits' => ':count lawatan selesai',
         'customer_visit_ordinal' => ':ordinal visit',
         'customer_visit_ordinal_ms' => 'Lawatan ke-:number',
+        'customer_purchase_count' => '{0} Belum beli|{1} Beli :count kali|[2,*] Beli :count kali',
         'alert_unassigned' => 'Tiada pakar ditugaskan',
         'alert_payment_due' => 'Bayaran tertunggak',
         'payment_chip' => 'Bayaran: :status',

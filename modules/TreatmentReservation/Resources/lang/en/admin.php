@@ -154,6 +154,7 @@ return [
         'customer_visits' => ':count completed visits',
         'customer_visit_ordinal' => ':ordinal visit',
         'customer_visit_ordinal_ms' => 'Lawatan ke-:number',
+        'customer_purchase_count' => '{0} No purchases|{1} Bought :count time|[2,*] Bought :count times',
         'alert_unassigned' => 'No specialist assigned',
         'alert_payment_due' => 'Payment due',
         'payment_chip' => 'Payment: :status',

@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.80' => [
+        'date' => '2026-09-10',
+        'en' => [
+            'summary' => 'Add the Lead Central Management module with a fully live operations overview.',
+            'changes' => [
+                'New Lead workspace: leads management, import, wallet, customer view and reporting.',
+                'Central dashboard now renders real-time data for all KPIs, targets, leaderboards and operations (check-in, clearance, payments) — no hardcoded numbers.',
+                'Payment verification checklist and evidence review flows with expiring signed receipt previews.',
+                'Order admin header adds customer segment, purchase count/ordinal, birthday meta and status pipeline; returning-customer detection now includes phone.',
+                'Treatment reservation CRM shows customer visit labels and purchase history on orders.',
+                'New admin.leads.* permissions granted to admin roles; rebuilt admin front-end assets.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah modul Lead Central Management dengan paparan operasi yang sepenuhnya live.',
+            'changes' => [
+                'Ruang kerja Lead baharu: pengurusan lead, import, wallet, paparan pelanggan dan pelaporan.',
+                'Dashboard pusat kini paparkan data masa nyata untuk semua KPI, sasaran, senarai pendahulu dan operasi (check-in, clearance, bayaran) — tiada lagi nombor statik.',
+                'Senarai semak pengesahan bayaran dan aliran semakan bukti dengan pratonton resit bertandatangan yang tamat tempoh.',
+                'Header pesanan admin menambah segmen pelanggan, kiraan/kekerapan pembelian, meta hari jadi dan saluran status; pengesanan pelanggan berulang kini termasuk telefon.',
+                'CRM tempahan rawatan menunjukkan label lawatan pelanggan dan sejarah pembelian pada pesanan.',
+                'Kebenaran admin.leads.* baharu diberikan kepada peranan admin; aset front-end admin dibina semula.',
+            ],
+        ],
+    ],
+
     '4.11.79' => [
         'date' => '2026-09-09',
         'en' => [

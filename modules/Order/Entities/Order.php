@@ -640,11 +640,15 @@ class Order extends Model
 
     public function isReturningCustomer(): bool
     {
-        if (! $this->customer_id && ! filled($this->customer_email)) {
+        if (! $this->customer_id && ! filled($this->customer_email) && ! filled($this->customer_phone)) {
             return false;
         }
 
-        return $this->priorOrdersQuery()->exists();
+        if ($this->priorOrdersQuery()->exists()) {
+            return true;
+        }
+
+        return $this->customerPurchaseCount() > 1;
     }
 
 
@@ -663,6 +667,56 @@ class Order extends Model
         return $this->isReturningCustomer()
             ? trans('order::orders.returning_customer')
             : trans('order::orders.new_customer');
+    }
+
+
+    /**
+     * Lifetime non-canceled purchases for this customer (includes the current order when active).
+     */
+    public function customerPurchaseCount(): int
+    {
+        return (int) $this->customerLifetimeOrdersQuery()->count();
+    }
+
+
+    public function customerPurchaseCountLabel(): string
+    {
+        $count = $this->customerPurchaseCount();
+
+        return trans_choice('order::orders.customer_purchase_count', $count, [
+            'count' => $count,
+        ]);
+    }
+
+
+    /**
+     * 1-based purchase number for this order among the customer's non-canceled orders.
+     */
+    public function customerPurchaseOrdinal(): int
+    {
+        if ($this->status === self::CANCELED) {
+            return max(1, $this->customerPurchaseCount());
+        }
+
+        $earlier = $this->customerLifetimeOrdersQuery()
+            ->where(function ($query) {
+                $query->where('created_at', '<', $this->created_at)
+                    ->orWhere(function ($sameMoment) {
+                        $sameMoment->where('created_at', $this->created_at)
+                            ->where('id', '<', $this->id);
+                    });
+            })
+            ->count();
+
+        return max(1, $earlier + 1);
+    }
+
+
+    public function customerPurchaseOrdinalLabel(): string
+    {
+        return trans('order::orders.customer_purchase_ordinal', [
+            'number' => $this->customerPurchaseOrdinal(),
+        ]);
     }
 
 
@@ -907,6 +961,38 @@ class Order extends Model
         }
 
         return $query->whereRaw('0 = 1');
+    }
+
+
+    /**
+     * All non-canceled orders attributed to this customer (id, email, and/or phone).
+     */
+    protected function customerLifetimeOrdersQuery()
+    {
+        $query = static::query()
+            ->withTrashed()
+            ->withoutCanceledOrders();
+
+        $phone = PhoneNumber::normalize((string) $this->customer_phone);
+        $phoneVariants = $phone !== '' ? PhoneNumber::variants($phone) : [];
+
+        if (! $this->customer_id && ! filled($this->customer_email) && $phoneVariants === []) {
+            return $query->whereKey($this->id);
+        }
+
+        return $query->where(function ($customerQuery) use ($phoneVariants) {
+            if ($this->customer_id) {
+                $customerQuery->orWhere('customer_id', $this->customer_id);
+            }
+
+            if (filled($this->customer_email)) {
+                $customerQuery->orWhere('customer_email', $this->customer_email);
+            }
+
+            if ($phoneVariants !== []) {
+                $customerQuery->orWhereIn('customer_phone', $phoneVariants);
+            }
+        });
     }
 
 

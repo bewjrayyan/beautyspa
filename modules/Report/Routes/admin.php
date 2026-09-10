@@ -8,6 +8,7 @@ Route::get('reports', [
     'middleware' => 'can:admin.reports.index',
 ]);
 
+
 Route::get('reports/export', [
     'as' => 'admin.reports.export',
     'uses' => 'ReportController@export',

@@ -20,6 +20,7 @@ class SidebarExtender extends BaseSidebarExtender
                     $this->auth->hasAccess('admin.reports.index')
                 );
             });
+
         });
     }
 }

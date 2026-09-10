@@ -40,6 +40,11 @@ class AdminAccountLegacyPermissions
             'admin.translations.index', 'admin.translations.edit',
             'admin.sliders.index', 'admin.sliders.create', 'admin.sliders.edit', 'admin.sliders.destroy',
             'admin.reports.index',
+            'admin.leads.index',
+            'admin.leads.show',
+            'admin.leads.create',
+            'admin.leads.edit',
+            'admin.leads.destroy',
             'admin.settings.edit',
             'admin.storefront.edit',
         ];

@@ -5164,6 +5164,12 @@ body.tr-crm-drawer-open {
             border-color: #fde68a;
             color: #b45309;
         }
+
+        &--purchases {
+            background: #fff7ed;
+            border-color: #fed7aa;
+            color: #c2410c;
+        }
     }
 
     &__alerts {
@@ -5675,6 +5681,11 @@ body.tr-crm-customer-profile-open {
         &--loyalty {
             background: #fef3c7;
             color: #b45309;
+        }
+
+        &--purchases {
+            background: #ffedd5;
+            color: #c2410c;
         }
     }
 

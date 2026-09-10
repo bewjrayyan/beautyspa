@@ -31,6 +31,9 @@ npm-debug.log
 yarn-error.log
 *.log
 
+#AI tool caches (not part of the app source tree)
+modules/*/graphify-out/
+
 #Local / vendor bundle (not part of the app source tree)
 /codecanyon-fleetcart-laravel-ecommerce-system-v4.7.11/
 /php-pear/

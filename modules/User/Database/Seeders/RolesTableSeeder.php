@@ -177,6 +177,11 @@ class RolesTableSeeder extends Seeder
             'admin.sliders.destroy' => true,
             # reports
             'admin.reports.index' => true,
+            'admin.leads.index' => true,
+            'admin.leads.show' => true,
+            'admin.leads.create' => true,
+            'admin.leads.edit' => true,
+            'admin.leads.destroy' => true,
             # settings
             'admin.settings.edit' => true,
             'admin.operations.view' => true,
