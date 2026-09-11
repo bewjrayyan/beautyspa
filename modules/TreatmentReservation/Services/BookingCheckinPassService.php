@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\TreatmentReservation\Services;
 
-use Illuminate\Support\Facades\URL;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 
 final class BookingCheckinPassService
@@ -19,10 +18,12 @@ final class BookingCheckinPassService
             $expiresAt = now()->addMinutes(15);
         }
 
-        return URL::temporarySignedRoute(
+        $relative = aestheticcart_subdirectory_safe_temporary_signed_route(
             'treatment_reservations.checkin.pass',
             $expiresAt,
             ['booking' => $booking->getKey()]
         );
+
+        return aestheticcart_absolute_from_relative_path($relative);
     }
 }

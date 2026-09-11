@@ -48,7 +48,7 @@ class LeadWorkspaceAuthorizationContractTest extends TestCase
 
         $pass = Route::getRoutes()->getByName('treatment_reservations.checkin.pass');
         $this->assertNotNull($pass);
-        $this->assertContains('signed', $pass->gatherMiddleware());
+        $this->assertContains('signed.subdirectory:relative', $pass->gatherMiddleware());
     }
 
     #[Test]

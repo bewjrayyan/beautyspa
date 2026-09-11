@@ -55,6 +55,20 @@ class ValidateSubdirectoryRelativeSignature extends ValidateSignature
 
         $legacyRequest = Request::create($legacyUri, $request->method());
 
-        return $legacyRequest->hasValidSignatureWhileIgnoring($ignore, false);
+        if ($legacyRequest->hasValidSignatureWhileIgnoring($ignore, false)) {
+            return true;
+        }
+
+        $root = rtrim((string) (FixSubdirectoryRequest::resolvedAppUrl() ?: config('app.url')), '/');
+
+        if ($root === '') {
+            return false;
+        }
+
+        $absoluteUri = $root.'/'.ltrim($request->path(), '/')
+            .($queryString ? '?'.$queryString : '');
+
+        return Request::create($absoluteUri, $request->method())
+            ->hasValidSignatureWhileIgnoring($ignore, true);
     }
 }

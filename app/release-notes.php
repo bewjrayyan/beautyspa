@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.85' => [
+        'date' => '2026-09-11',
+        'en' => [
+            'summary' => 'Fix signed arrival QR passes on subdirectory installations.',
+            'changes' => [
+                'Generate new arrival passes with subdirectory-safe relative signatures.',
+                'Keep existing unexpired absolute signed pass links working after the install base is stripped.',
+                'Preserve the full install path inside the rendered QR code while rejecting expired, missing or modified signatures.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki pas QR ketibaan bertandatangan untuk pemasangan dalam subdirektori.',
+            'changes' => [
+                'Jana pas ketibaan baharu dengan signature relatif yang selamat untuk subdirektori.',
+                'Kekalkan pautan pas bertandatangan mutlak sedia ada yang belum tamat selepas laluan asas pemasangan dibuang.',
+                'Kekalkan laluan pemasangan penuh dalam kod QR sambil menolak signature yang tamat, tiada atau diubah.',
+            ],
+        ],
+    ],
+
     '4.11.84' => [
         'date' => '2026-09-11',
         'en' => [

@@ -19,7 +19,7 @@ final class CheckinPassController extends Controller
         return view('treatmentreservation::public.booking.checkin-pass', [
             'booking' => $booking,
             'canConfirm' => $user?->hasAccess('admin.leads.edit') ?? false,
-            'checkinUrl' => $request->fullUrl(),
+            'checkinUrl' => aestheticcart_apply_install_base_url($request->fullUrl()),
         ]);
     }
 }

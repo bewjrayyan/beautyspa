@@ -14,7 +14,7 @@ Route::get('my-appointments', [
 Route::get('appointment-check-in/{booking}', [
     'as' => 'treatment_reservations.checkin.pass',
     'uses' => 'CheckinPassController@show',
-])->middleware(['signed', 'throttle:60,1'])
+])->middleware(['signed.subdirectory:relative', 'throttle:60,1'])
     ->withoutMiddleware([
         'fix_subdirectory_localized_redirect',
         'localize',

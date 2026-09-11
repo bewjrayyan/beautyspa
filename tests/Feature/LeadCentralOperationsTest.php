@@ -118,7 +118,9 @@ class LeadCentralOperationsTest extends TestCase
                 $html = $mail->render();
 
                 return $mail->hasTo('customer@example.test')
-                    && URL::hasValidSignature(Request::create($mail->checkinUrl))
+                    && Request::create(
+                        aestheticcart_strip_install_base_from_url($mail->checkinUrl)
+                    )->hasValidSignature(absolute: false)
                     && str_contains($html, 'B'.$bookingId)
                     && str_contains($html, e($mail->checkinUrl));
             });
@@ -290,12 +292,13 @@ class LeadCentralOperationsTest extends TestCase
         URL::forceRootUrl('http://localhost');
         $url = app(BookingCheckinPassService::class)->url($booking);
 
-        $this->assertTrue(URL::hasValidSignature(Request::create($url)));
-        $this->get($url)
+        $internalUrl = aestheticcart_strip_install_base_from_url($url);
+        $this->assertTrue(Request::create($internalUrl)->hasValidSignature(absolute: false));
+        $this->get($internalUrl)
             ->assertOk()
             ->assertSee('data-checkin-pass=', false)
             ->assertSee('modules/lead/central/qrcode.js', false);
-        $this->get($url.'&tampered=1')->assertForbidden();
+        $this->get($internalUrl.'&tampered=1')->assertForbidden();
 
 
         $request = Request::create('/admin/leads/checkin/'.$bookingId.'/confirm', 'POST', [], [], [], [
