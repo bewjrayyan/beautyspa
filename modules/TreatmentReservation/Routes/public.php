@@ -42,20 +42,6 @@ Route::patch('my-appointments/{id}/cancel', [
     'uses' => 'BookingSelfServiceController@cancel',
 ]);
 
-Route::patch('my-appointments/{id}/reschedule', [
-    'as' => 'treatment_reservations.booking.reschedule',
-    'uses' => 'BookingSelfServiceController@reschedule',
-]);
-
-Route::get('my-appointments/{id}/slots', [
-    'as' => 'treatment_reservations.booking.slots',
-    'uses' => 'BookingSelfServiceController@availableSlots',
-]);
-
-Route::get('my-appointments/{id}/dates', [
-    'as' => 'treatment_reservations.booking.dates',
-    'uses' => 'BookingSelfServiceController@availableDates',
-])->middleware('throttle:30,1');
 
 // Legacy /my-booking URLs (bookmarks, old links)
 Route::get('my-booking', fn () => redirect()->route('treatment_reservations.booking.lookup', [], 301));
@@ -64,10 +50,6 @@ Route::post('my-booking/send-otp', 'BookingSelfServiceController@sendOtp')->midd
 Route::post('my-booking/verify-otp', 'BookingSelfServiceController@verifyOtp')->middleware('throttle:10,1');
 Route::post('my-booking/logout', 'BookingSelfServiceController@logout');
 Route::patch('my-booking/{id}/cancel', 'BookingSelfServiceController@cancel');
-Route::patch('my-booking/{id}/reschedule', 'BookingSelfServiceController@reschedule');
-Route::get('my-booking/{id}/slots', 'BookingSelfServiceController@availableSlots');
-Route::get('my-booking/{id}/dates', 'BookingSelfServiceController@availableDates')->middleware('throttle:30,1');
-
 Route::get('availability/beautician/{beautician}/slots', [
     'as' => 'treatment_reservations.availability.slots',
     'uses' => 'AvailabilitySlotsController',

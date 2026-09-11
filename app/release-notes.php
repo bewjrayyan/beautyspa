@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.86' => [
+        'date' => '2026-09-11',
+        'en' => [
+            'summary' => 'Simplify customer appointment rescheduling and arrival QR access.',
+            'changes' => [
+                'Replace customer self-rescheduling with a prefilled WhatsApp conversation to the assigned beautician.',
+                'Remove customer-facing reschedule availability endpoints while preserving appointment cancellation.',
+                'Present appointment details in a compact responsive layout with a simple arrival QR panel and clear pass action.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Permudahkan jadual semula temujanji pelanggan dan akses QR ketibaan.',
+            'changes' => [
+                'Gantikan jadual semula kendiri pelanggan dengan perbualan WhatsApp siap diisi kepada beautician yang ditugaskan.',
+                'Buang endpoint ketersediaan jadual semula untuk pelanggan sambil mengekalkan pembatalan temujanji.',
+                'Paparkan maklumat temujanji dalam susun atur responsif yang ringkas bersama panel QR ketibaan dan tindakan pas yang jelas.',
+            ],
+        ],
+    ],
+
     '4.11.85' => [
         'date' => '2026-09-11',
         'en' => [

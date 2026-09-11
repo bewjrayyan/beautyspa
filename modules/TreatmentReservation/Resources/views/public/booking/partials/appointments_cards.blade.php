@@ -86,6 +86,8 @@
                             <div class="account-appointment-card__number" aria-hidden="true">{{ $loop->iteration }}</div>
 
                             <div class="account-appointment-card__content">
+                                <div class="account-appointment-card__layout{{ $booking->status === \Modules\TreatmentReservation\Entities\TreatmentBooking::STATUS_PENDING && ! $isTba ? ' has-arrival-pass' : '' }}">
+                                    <div class="account-appointment-card__main">
                                 <div class="account-appointment-card__top">
                                     <div>
                                         <span class="account-appointment-card__label">
@@ -149,48 +151,50 @@
                                     </div>
                                 </div>
 
-                                @if ($booking->status === \Modules\TreatmentReservation\Entities\TreatmentBooking::STATUS_PENDING && ! $isTba)
-                                    <details class="account-checkin-pass"{{ $booking->checked_in_at ? ' open' : '' }}>
-                                        <summary>
-                                            <i class="las la-qrcode" aria-hidden="true"></i>
-                                            {{ trans('treatmentreservation::public.checkin_pass') }}
-                                        </summary>
-                                        <div class="account-checkin-pass__body">
-                                            @if ($booking->checked_in_at)
-                                                <p class="account-checkin-pass__confirmed">
-                                                    <i class="las la-check-circle" aria-hidden="true"></i>
-                                                    {{ trans('treatmentreservation::public.checkin_pass_confirmed', ['time' => $booking->checked_in_at->format('g:i A')]) }}
-                                                </p>
-                                            @else
-                                                <canvas data-checkin-pass="{{ $checkinPassUrls[$booking->id] ?? '' }}" aria-label="{{ trans('treatmentreservation::public.checkin_pass') }}"></canvas>
-                                                <p>{{ trans('treatmentreservation::public.checkin_pass_hint') }}</p>
-                                                <a class="btn btn-default btn-sm" href="{{ $checkinPassUrls[$booking->id] ?? '#' }}">
-                                                    {{ trans('treatmentreservation::public.checkin_pass_open') }}
-                                                </a>
-                                            @endif
-                                        </div>
-                                    </details>
-                                @endif
-
                                 <div class="account-appointment-card__actions">
-                                    <button
-                                        type="button"
-                                        class="btn btn-default btn-sm js-reschedule-toggle"
-                                        aria-expanded="false"
-                                        aria-controls="reschedule-form-{{ $booking->id }}"
-                                    >
-                                        <i class="las la-calendar-alt" aria-hidden="true"></i>
-                                        {{ $isTba
-                                            ? trans('treatmentreservation::public.schedule_appointment')
-                                            : trans('treatmentreservation::public.reschedule') }}
-                                    </button>
+                                    @if ($rescheduleWhatsAppUrls[$booking->id] ?? null)
+                                        <a
+                                            class="btn btn-default btn-sm account-appointment-card__whatsapp"
+                                            href="{{ $rescheduleWhatsAppUrls[$booking->id] }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <i class="lab la-whatsapp" aria-hidden="true"></i>
+                                            {{ trans('treatmentreservation::public.reschedule_via_whatsapp') }}
+                                        </a>
+                                    @else
+                                        <span class="account-appointment-card__whatsapp-unavailable">
+                                            <i class="lab la-whatsapp" aria-hidden="true"></i>
+                                            {{ trans('treatmentreservation::public.beautician_whatsapp_unavailable') }}
+                                        </span>
+                                    @endif
                                     <button type="button" class="btn btn-danger btn-sm js-cancel-booking">
                                         <i class="las la-times-circle" aria-hidden="true"></i>
                                         {{ trans('treatmentreservation::public.cancel') }}
                                     </button>
                                 </div>
+                                    </div>
 
-                                @include('treatmentreservation::public.booking.partials.reschedule_form', ['booking' => $booking])
+                                    @if ($booking->status === \Modules\TreatmentReservation\Entities\TreatmentBooking::STATUS_PENDING && ! $isTba)
+                                        <aside class="account-appointment-card__arrival" aria-label="{{ trans('treatmentreservation::public.checkin_pass') }}">
+                                            <span class="account-appointment-card__arrival-label">
+                                                <i class="las la-qrcode" aria-hidden="true"></i>
+                                                {{ trans('treatmentreservation::public.checkin_pass') }}
+                                            </span>
+                                            @if ($booking->checked_in_at)
+                                                <p class="account-appointment-card__arrival-confirmed">
+                                                    <i class="las la-check-circle" aria-hidden="true"></i>
+                                                    {{ trans('treatmentreservation::public.checkin_pass_confirmed', ['time' => $booking->checked_in_at->format('g:i A')]) }}
+                                                </p>
+                                            @else
+                                                <canvas data-checkin-pass="{{ $checkinPassUrls[$booking->id] ?? '' }}" aria-label="{{ trans('treatmentreservation::public.checkin_pass') }}"></canvas>
+                                                <a class="btn btn-default btn-sm account-appointment-card__arrival-button" href="{{ $checkinPassUrls[$booking->id] ?? '#' }}">
+                                                    {{ trans('treatmentreservation::public.checkin_pass_open') }}
+                                                </a>
+                                            @endif
+                                        </aside>
+                                    @endif
+                                </div>
                             </div>
                         </article>
                     </li>

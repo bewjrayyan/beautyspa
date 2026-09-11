@@ -429,8 +429,8 @@
 .account-appointment-card {
     display: grid;
     grid-template-columns: 34px minmax(0, 1fr);
-    gap: 12px;
-    padding: 18px;
+    gap: 10px;
+    padding: 14px;
     background: var(--color-white);
 }
 
@@ -457,7 +457,7 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
 
 .account-appointment-card__ref {
@@ -501,12 +501,12 @@
 .account-appointment-card__details {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
     margin: 0;
 
     > div {
         min-width: 0;
-        padding: 9px 10px;
+        padding: 8px 9px;
         background: #fafbfc;
         border: 1px solid #eef1f4;
         border-radius: 9px;
@@ -540,9 +540,9 @@
 .account-appointment-card__beautician-note {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    margin-top: 14px;
-    padding: 14px 16px;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px 12px;
     border: 1px solid var(--color-primary-alpha-15, rgba(242, 116, 172, 0.18));
     border-radius: 12px;
     background: var(--color-primary-alpha-5, #fff8fb);
@@ -553,8 +553,8 @@
 
     p {
         margin: 3px 0 0;
-        font-size: 14px;
-        line-height: 1.6;
+        font-size: 12px;
+        line-height: 1.45;
         color: #334155;
         white-space: pre-line;
         overflow-wrap: anywhere;
@@ -573,11 +573,11 @@
 
 .account-appointment-card__beautician-note-icon {
     display: inline-flex;
-    flex: 0 0 36px;
+    flex: 0 0 32px;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 10px;
     color: var(--color-primary);
     background: var(--color-primary-alpha-10, rgba(242, 116, 172, 0.1));
@@ -611,74 +611,97 @@
     }
 }
 
-.account-checkin-pass {
-    margin-top: 14px;
-    border: 1px dashed #bfd3ea;
-    border-radius: 14px;
-    background: #f8fbff;
+.account-appointment-card__layout {
+    min-width: 0;
 
-    summary {
-        display: flex;
-        min-height: 44px;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 14px;
-        color: #174b70;
-        font-size: 13px;
-        font-weight: 750;
-        cursor: pointer;
-
-        i {
-            color: #087cb8;
-            font-size: 19px;
-        }
+    &.has-arrival-pass {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 186px;
+        gap: 14px;
+        align-items: stretch;
     }
 }
 
-.account-checkin-pass__body {
-    padding: 4px 14px 16px;
-    text-align: center;
+.account-appointment-card__main {
+    min-width: 0;
+}
+
+.account-appointment-card__arrival {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px;
+    border: 1px dashed #bfd3ea;
+    border-radius: 10px;
+    background: #f8fbff;
 
     canvas {
         display: block;
-        width: auto;
-        height: auto;
+        width: 132px;
+        height: 132px;
         max-width: 100%;
-        margin: 4px auto 10px;
+        padding: 6px;
+        border: 1px solid #d9e5f2;
+        border-radius: 10px;
+        background: #fff;
         image-rendering: pixelated;
     }
+}
 
-    p {
-        max-width: 420px;
-        margin: 0 auto 12px;
-        color: #526079;
-        font-size: 13px;
-        line-height: 1.55;
-    }
+.account-appointment-card__arrival-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #174b70;
+    font-size: 11px;
+    font-weight: 750;
+    text-align: center;
 
-    .account-checkin-pass__confirmed {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 7px;
-        padding: 12px;
-        border-radius: 10px;
-        background: #eaf8f1;
-        color: #08784e;
-        font-weight: 700;
+    i {
+        color: #087cb8;
+        font-size: 17px;
     }
+}
+
+.account-appointment-card__arrival-button {
+    width: 100%;
+    min-height: 40px !important;
+    padding-right: 8px;
+    padding-left: 8px;
+    white-space: normal;
+}
+
+.account-appointment-card__arrival-confirmed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    border-radius: 9px;
+    background: #eaf8f1;
+    color: #08784e;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
 }
 
 .account-appointment-card__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: 10px;
+    padding-top: 10px;
     border-top: 1px dashed var(--border-color);
 
     .btn {
-        min-height: 38px;
+        min-height: 44px;
     }
 
     .btn-danger,
@@ -692,6 +715,38 @@
             color: inherit;
         }
     }
+}
+
+.account-appointment-card__whatsapp {
+    color: #08784e !important;
+    border-color: #86efac !important;
+    background: #f0fdf4 !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+        color: #065f46 !important;
+        border-color: #4ade80 !important;
+        background: #dcfce7 !important;
+    }
+
+    i {
+        color: #16a34a;
+        font-size: 17px;
+    }
+}
+
+.account-appointment-card__whatsapp-unavailable {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+    color: var(--color-gray);
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .account-appointment-card__status {
@@ -896,6 +951,10 @@
         padding: 14px 16px 18px;
     }
 
+    .account-appointment-card__layout.has-arrival-pass {
+        grid-template-columns: minmax(0, 1fr) 166px;
+    }
+
     .account-appointment-card__details {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -930,6 +989,18 @@
     .account-appointments-toolbar {
         width: 100%;
         justify-content: space-between;
+    }
+
+    .account-appointment-card__layout.has-arrival-pass {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .account-appointment-card__arrival {
+        padding: 14px;
+    }
+
+    .account-appointment-card__arrival-button {
+        max-width: 260px;
     }
 }
 
@@ -968,10 +1039,10 @@
     }
 
     .account-appointment-card__beautician-note {
-        padding: 14px;
+        padding: 12px;
 
         p {
-            font-size: 16px;
+            font-size: 13px;
         }
     }
 
