@@ -91,6 +91,8 @@ class ProductCloneService
                 $clone->translateOrNew($locale)->short_description = $translation->short_description;
             }
 
+            // Model events are disabled, so the creating hook cannot generate a unique slug.
+            $clone->setSlug($source->slug . '-copy');
             $clone->save();
 
             return $clone;

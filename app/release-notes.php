@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.88' => [
+        'date' => '2026-09-11',
+        'en' => [
+            'summary' => 'Fix unique slug generation when cloning products.',
+            'changes' => [
+                'Set explicit slug copy suffix when cloning products with model events disabled.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Baiki penjanaan slug unik apabila menyalin produk.',
+            'changes' => [
+                'Tetapkan akhiran slug salinan secara eksplisit semasa menyalin produk apabila model events dilumpuhkan.',
+            ],
+        ],
+    ],
+
     '4.11.87' => [
         'date' => '2026-09-11',
         'en' => [
