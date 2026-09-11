@@ -1,0 +1,1 @@
+import{centered as r}from"./SweetNotification-CjK4L3tW-v4.7.72.js";function d(e,t={}){const o=t.type||"default",{type:i,position:p,...n}=t;return r(o,e,{duration:t.duration??5e3,...n})}export{d as t};

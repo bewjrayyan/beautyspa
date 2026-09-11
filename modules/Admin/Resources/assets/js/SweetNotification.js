@@ -220,6 +220,7 @@ function centered(type, message, options = {}) {
         toast: false,
         position: "center",
         backdrop: true,
+        heightAuto: false,
         target: "body",
     });
 }
@@ -273,6 +274,7 @@ function alert(message, options = {}) {
         toast: false,
         position: "center",
         backdrop: true,
+        heightAuto: false,
         target: "body",
     });
 }
@@ -300,6 +302,7 @@ function confirm(message, options = {}) {
         toast: false,
         position: "center",
         backdrop: true,
+        heightAuto: false,
         target: "body",
         timer: undefined,
         timerProgressBar: false,
@@ -310,10 +313,10 @@ function confirmDelete(message, options = {}) {
     return confirm(message, options);
 }
 
-function bootFlashes(root = document) {
+async function bootFlashes(root = document) {
     const el = root.querySelector("#sweet-notification-flashes");
 
-    if (!el) {
+    if (!el || el.dataset.sweetNotificationBooted === "true") {
         return;
     }
 
@@ -325,13 +328,13 @@ function bootFlashes(root = document) {
         return;
     }
 
-    (async () => {
-        for (const [type, message] of Object.entries(flashes)) {
-            if (coerceMessage(message)) {
-                await centered(type, message);
-            }
+    el.dataset.sweetNotificationBooted = "true";
+
+    for (const [type, message] of Object.entries(flashes)) {
+        if (coerceMessage(message)) {
+            await centered(type, message);
         }
-    })();
+    }
 }
 
 export const SweetNotification = {

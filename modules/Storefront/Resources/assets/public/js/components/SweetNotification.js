@@ -243,6 +243,7 @@ async function centered(type, message, options = {}) {
         toast: false,
         position: "center",
         backdrop: true,
+        heightAuto: false,
         target: "body",
     });
 }
@@ -297,6 +298,7 @@ async function alert(message, options = {}) {
         toast: false,
         position: "center",
         backdrop: true,
+        heightAuto: false,
         target: "body",
     });
 }
@@ -325,6 +327,7 @@ async function confirm(message, options = {}) {
         toast: false,
         position: "center",
         backdrop: true,
+        heightAuto: false,
         target: "body",
         timer: undefined,
         timerProgressBar: false,
@@ -338,7 +341,7 @@ function confirmDelete(message, options = {}) {
 async function bootFlashes(root = document) {
     const el = root.querySelector("#sweet-notification-flashes");
 
-    if (!el) {
+    if (!el || el.dataset.sweetNotificationBooted === "true") {
         return;
     }
 
@@ -349,6 +352,8 @@ async function bootFlashes(root = document) {
     } catch (e) {
         return;
     }
+
+    el.dataset.sweetNotificationBooted = "true";
 
     if (!Object.values(flashes).some(Boolean)) {
         return;

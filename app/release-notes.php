@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.87' => [
+        'date' => '2026-09-11',
+        'en' => [
+            'summary' => 'Standardize SweetAlert notifications across admin and storefront pages.',
+            'changes' => [
+                'Display admin save feedback as a centered SweetAlert modal instead of a misplaced side toast.',
+                'Make alerts responsive, accessible and reliably layered above editors, pickers and other overlays.',
+                'Prevent duplicate flash alerts and keep confirmation handling stable on isolated product and blog editors.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Selaraskan notifikasi SweetAlert pada halaman admin dan storefront.',
+            'changes' => [
+                'Paparkan maklum balas simpan admin sebagai modal SweetAlert di tengah dan bukan toast sisi yang tersasar.',
+                'Jadikan alert responsif, mudah diakses dan sentiasa berada di atas editor, pemilih serta overlay lain.',
+                'Cegah flash alert berganda dan stabilkan pengendalian pengesahan pada editor produk dan blog berasingan.',
+            ],
+        ],
+    ],
+
     '4.11.86' => [
         'date' => '2026-09-11',
         'en' => [

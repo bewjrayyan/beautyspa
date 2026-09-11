@@ -4,7 +4,7 @@ import "./AestheticCart";
 import "./jquery.keypressAction";
 import "./vendors/axios";
 
-import Admin from "./Admin";
+import Admin, { bindConfirmationModal } from "./Admin";
 import Form from "./Form";
 import DataTable from "./DataTable";
 import {
@@ -18,10 +18,10 @@ import {
 } from "./functions";
 import SweetNotification, { bootFlashes } from "./SweetNotification";
 
-const regex =
-    /^\/[a-z]{2}\/admin\/(products|blog\/posts)\/(create|(\d+)\/edit)$/;
+const isolatedEditorPattern = /(?:^|\/)admin\/(products|blog\/posts)\/(create|\d+\/edit)\/?$/;
+const isIsolatedEditor = isolatedEditorPattern.test(window.location.pathname);
 
-if (!window.location.pathname.match(regex)) {
+if (!isIsolatedEditor) {
     window.admin = new Admin();
 }
 
@@ -46,8 +46,16 @@ window.success = success;
 window.warning = warning;
 window.error = error;
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => bootFlashes());
-} else {
+function bootAdminNotifications() {
     bootFlashes();
+
+    if (isIsolatedEditor) {
+        bindConfirmationModal();
+    }
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootAdminNotifications, { once: true });
+} else {
+    bootAdminNotifications();
 }

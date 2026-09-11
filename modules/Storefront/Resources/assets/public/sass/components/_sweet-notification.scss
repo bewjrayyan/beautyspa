@@ -1,93 +1,114 @@
-/* AestheticCart SweetNotification — centered SweetAlert + optional toast */
+/* AestheticCart SweetNotification — centered modal + optional toast */
+
+:root {
+    --ac-swal-z-index: 110000;
+}
 
 .swal2-container {
-    z-index: 20050 !important;
+    z-index: var(--ac-swal-z-index) !important;
+    padding: 16px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    font-family: var(--base-font-family, "Plus Jakarta Sans", sans-serif);
 }
 
 .swal2-container.swal2-backdrop-show {
     background: rgba(34, 41, 47, 0.5) !important;
 }
 
-/* Keep corner toasts undimmed if used explicitly */
 .swal2-container.swal2-top-end,
 .swal2-container.swal2-top,
 .swal2-container.swal2-top-start,
 .swal2-container.swal2-bottom-end,
 .swal2-container.swal2-bottom,
 .swal2-container.swal2-bottom-start {
+    padding: 12px !important;
     background: transparent !important;
+    pointer-events: none;
+
+    > .swal2-popup {
+        pointer-events: auto;
+    }
 }
 
-/* Centered modal (success / confirm) — like classic SweetAlert */
 html body .swal2-popup.ac-swal-modal,
 html body .ac-swal-modal.swal2-popup {
     --swal2-width: 480px;
     --swal2-padding: 24px 20px 18px;
     --swal2-title-padding: 0;
     --swal2-html-container-padding: 0;
-    width: 480px !important;
+    width: min(480px, calc(100vw - 32px)) !important;
     max-width: calc(100vw - 32px) !important;
-    font-size: 16px !important;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
     padding: 24px 20px 18px !important;
-    border-radius: 6px !important;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important;
-    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.2) !important;
+    font-size: 16px !important;
 
-    /*
-     * Keep SweetAlert2 icon geometry intact.
-     * Do NOT force box-sizing/content size in px — that breaks success/error marks
-     * and lets .swal2-success-circular-line-* spill outside the popup.
-     */
+    /* Preserve SweetAlert2 icon geometry and animation. */
     .ac-swal-modal__icon,
     .swal2-icon {
         --swal2-icon-zoom: 0.85;
+        flex: 0 0 auto;
         margin: 0.35em auto 0.85em !important;
-    }
-
-    .swal2-icon.swal2-success {
-        overflow: hidden !important;
-        box-sizing: border-box !important;
     }
 
     .ac-swal-modal__title,
     .swal2-title {
         margin: 0 0 8px !important;
         padding: 0 !important;
+        color: #344054 !important;
         font-size: 22px !important;
         font-weight: 600 !important;
         line-height: 1.25 !important;
-        color: #595959 !important;
         text-align: center !important;
+        overflow-wrap: anywhere;
     }
 
     .ac-swal-modal__text,
     .swal2-html-container {
         margin: 0 0 12px !important;
         padding: 0 !important;
-        font-size: 16px !important;
+        color: #667085 !important;
+        font-size: 15px !important;
         font-weight: 400 !important;
         line-height: 1.5 !important;
-        color: #545454 !important;
         text-align: center !important;
+        overflow-wrap: anywhere;
     }
 
     .ac-swal-modal__actions,
     .swal2-actions {
-        margin: 4px auto 0 !important;
+        width: 100%;
+        margin: 6px auto 0 !important;
         gap: 8px !important;
+        flex-wrap: wrap;
     }
 
     .ac-swal-modal__confirm,
     .ac-swal-modal__cancel,
     .swal2-confirm,
     .swal2-cancel {
+        min-width: 92px;
+        min-height: 42px;
+        margin: 0 !important;
+        padding: 9px 20px !important;
         border: 0 !important;
-        border-radius: 4px !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        padding: 8px 20px !important;
-        min-width: 80px;
+        border-radius: 6px !important;
         box-shadow: none !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }
+
+    .swal2-confirm:focus-visible,
+    .swal2-cancel:focus-visible {
+        outline: 3px solid rgba(40, 199, 111, 0.28) !important;
+        outline-offset: 2px;
     }
 
     .swal2-timer-progress-bar-container {
@@ -97,6 +118,7 @@ html body .ac-swal-modal.swal2-popup {
         left: 0 !important;
         width: 100% !important;
         overflow: hidden !important;
+        border-radius: 0 0 12px 12px;
     }
 
     .swal2-timer-progress-bar {
@@ -108,46 +130,54 @@ html body .ac-swal-modal.swal2-popup {
     }
 }
 
-/* Optional corner toast API */
 .ac-swal-toast.swal2-popup.swal2-toast {
     --swal2-width: 420px;
-    width: 420px !important;
+    width: min(420px, calc(100vw - 24px)) !important;
     max-width: calc(100vw - 24px) !important;
     padding: 16px 18px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16) !important;
-    background: #fff !important;
     border: 1px solid #eef2f7 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16) !important;
     align-items: flex-start !important;
-    overflow: hidden !important;
+    pointer-events: auto;
 
     .swal2-icon {
         --swal2-icon-zoom: 0.7;
+        flex: 0 0 auto;
         margin: 0 12px 0 0 !important;
-    }
-
-    .swal2-icon.swal2-success {
-        overflow: hidden !important;
-        box-sizing: border-box !important;
     }
 
     .ac-swal-toast__title,
     .swal2-title {
         margin: 0 0 2px !important;
         padding: 0 !important;
+        color: #1f2937 !important;
         font-size: 16px !important;
         font-weight: 700 !important;
-        color: #1f2937 !important;
         text-align: left !important;
+        overflow-wrap: anywhere;
     }
 
     .ac-swal-toast__text,
     .swal2-html-container {
         margin: 0 !important;
         padding: 0 !important;
-        font-size: 14px !important;
         color: #4b5563 !important;
+        font-size: 14px !important;
         text-align: left !important;
+        overflow-wrap: anywhere;
+    }
+
+    .ac-swal-toast__close:focus-visible,
+    .swal2-close:focus-visible {
+        outline: 2px solid rgba(40, 199, 111, 0.35) !important;
+        outline-offset: 1px;
+    }
+
+    .swal2-timer-progress-bar-container {
+        overflow: hidden !important;
+        border-radius: 0 0 12px 12px;
     }
 }
 
@@ -161,5 +191,43 @@ html body .ac-swal-modal.swal2-popup {
     .ac-swal-toast__text,
     .swal2-html-container {
         text-align: right !important;
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .swal2-container {
+        padding: 10px !important;
+    }
+
+    html body .swal2-popup.ac-swal-modal,
+    html body .ac-swal-modal.swal2-popup {
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+        max-height: calc(100vh - 20px);
+        max-height: calc(100dvh - 20px);
+        padding: 20px 16px 16px !important;
+
+        .ac-swal-modal__title,
+        .swal2-title {
+            font-size: 20px !important;
+        }
+
+        .ac-swal-modal__actions,
+        .swal2-actions {
+            flex-direction: column-reverse;
+        }
+
+        .ac-swal-modal__confirm,
+        .ac-swal-modal__cancel,
+        .swal2-confirm,
+        .swal2-cancel {
+            width: 100%;
+        }
+    }
+
+    .ac-swal-toast.swal2-popup.swal2-toast {
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+        padding: 14px !important;
     }
 }
