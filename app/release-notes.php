@@ -5,6 +5,22 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.89' => [
+        'date' => '2026-09-11',
+        'en' => [
+            'summary' => 'Add RoyalLift and AuraCurve aesthetic treatment posters with variants.',
+            'changes' => [
+                'Add AestheticTreatmentPosterSeeder with full RoyalLift and AuraCurve virtual treatment poster variants and prices.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tambah poster rawatan estetika RoyalLift dan AuraCurve beserta varian.',
+            'changes' => [
+                'Tambah AestheticTreatmentPosterSeeder beserta varian poster rawatan virtual RoyalLift dan AuraCurve serta harga.',
+            ],
+        ],
+    ],
+
     '4.11.88' => [
         'date' => '2026-09-11',
         'en' => [
