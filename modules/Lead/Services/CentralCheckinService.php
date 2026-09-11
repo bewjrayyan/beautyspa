@@ -287,7 +287,13 @@ final class CentralCheckinService
 
         $branchId = $this->positiveIntOrNull($filters['branch'] ?? null);
         if ($branchId !== null) {
-            $query->where('spa_branch_id', $branchId);
+            $query->where(function (Builder $branch) use ($branchId): void {
+                $branch->where('spa_branch_id', $branchId)
+                    ->orWhere(function (Builder $fallback) use ($branchId): void {
+                        $fallback->whereNull('spa_branch_id')
+                            ->whereHas('order', fn (Builder $order): Builder => $order->where('spa_branch_id', $branchId));
+                    });
+            });
         }
 
         $beauticianId = $this->positiveIntOrNull($filters['beautician'] ?? null);

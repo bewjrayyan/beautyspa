@@ -53,7 +53,9 @@ class Kernel extends ConsoleKernel
 
         if (app('modules')->isEnabled('TreatmentReservation')) {
             $schedule->command('treatment-reservations:send-appointment-reminders')->everyFifteenMinutes();
-            $schedule->command('treatment-reservations:send-customer-appointment-reminders')->everyFifteenMinutes();
+            $schedule->command('treatment-reservations:send-customer-appointment-reminders')
+                ->everyFifteenMinutes()
+                ->withoutOverlapping(10);
             $schedule->command('treatment-reservations:send-customer-followups')->dailyAt('10:00');
         }
 

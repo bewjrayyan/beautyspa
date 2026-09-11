@@ -14,9 +14,12 @@ use Modules\Lead\Services\CentralClearanceService;
 use Modules\Lead\Services\CentralWalletService;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\Setting\Repositories\SettingRepository;
+use Modules\Support\Http\Middleware\SecurityHeaders;
 use Modules\TreatmentReservation\Mail\AppointmentCheckinReminder;
 use Modules\TreatmentReservation\Services\BookingCheckinPassService;
 use Modules\TreatmentReservation\Services\CustomerAppointmentReminderService;
+use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
+use Modules\User\Services\OneSenderWhatsAppService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -131,6 +134,84 @@ class LeadCentralOperationsTest extends TestCase
     }
 
     #[Test]
+    public function a_delivered_email_is_not_retried_when_activity_logging_fails(): void
+    {
+        Mail::fake();
+        $originalSettings = app('setting');
+        app()->instance('setting', new SettingRepository(collect([
+            'store_name' => 'Test Spa',
+            'whatsapp_customer_reminder_enabled' => false,
+            'whatsapp_customer_reminder_minutes' => 1440,
+        ])));
+        $logger = new class extends TreatmentBookingActivityLogger {
+            public function logEmailReminderSent(TreatmentBooking $booking): void
+            {
+                throw new \RuntimeException('audit unavailable');
+            }
+        };
+        app()->instance(TreatmentBookingActivityLogger::class, $logger);
+
+        try {
+            $bookingId = $this->booking([
+                'appointment_date' => '2026-09-10',
+                'appointment_time' => '12:00',
+                'customer_email' => 'customer@example.test',
+            ]);
+            $service = app(CustomerAppointmentReminderService::class);
+
+            $this->assertSame(1, $service->sendDueReminders());
+            $this->assertNotNull(DB::table('treatment_bookings')->where('id', $bookingId)->value('customer_email_reminder_sent_at'));
+            $this->assertSame(0, $service->sendDueReminders());
+            Mail::assertSentCount(1);
+        } finally {
+            app()->instance('setting', $originalSettings);
+        }
+    }
+
+    #[Test]
+    public function an_explicit_whatsapp_resend_uses_a_fresh_dedupe_key(): void
+    {
+        $originalWhatsapp = app(OneSenderWhatsAppService::class);
+        $whatsapp = new class extends OneSenderWhatsAppService {
+            /** @var array<int, array<string, mixed>> */
+            public array $contexts = [];
+
+            public function sendNotification(string $phone, string $message, array $context = []): bool
+            {
+                $this->contexts[] = $context;
+
+                return true;
+            }
+        };
+        app()->instance(OneSenderWhatsAppService::class, $whatsapp);
+
+        try {
+            $booking = TreatmentBooking::findOrFail($this->booking([
+                'appointment_date' => '2026-09-10',
+                'appointment_time' => '12:00',
+                'customer_phone' => '60123456789',
+            ]));
+            $service = app(CustomerAppointmentReminderService::class);
+            $deliver = new \ReflectionMethod($service, 'deliverReminder');
+
+            $this->assertTrue($deliver->invoke($service, $booking, true));
+            TreatmentBooking::query()->whereKey($booking->id)->update(['customer_reminder_sent_at' => null]);
+            $this->travel(1)->seconds();
+            $this->assertTrue($deliver->invoke($service, $booking->fresh(), true));
+
+            $this->assertCount(2, $whatsapp->contexts);
+            $this->assertNotSame(
+                $whatsapp->contexts[0]['dedupe_key'],
+                $whatsapp->contexts[1]['dedupe_key'],
+            );
+            $this->assertStringContainsString(':manual:', $whatsapp->contexts[0]['dedupe_key']);
+            $this->assertNotNull($booking->fresh()->customer_reminder_sent_at);
+        } finally {
+            app()->instance(OneSenderWhatsAppService::class, $originalWhatsapp);
+        }
+    }
+
+    #[Test]
     public function clearance_paginates_beyond_500_and_counts_the_full_queue(): void
     {
         for ($i = 0; $i < 505; $i++) {
@@ -210,7 +291,10 @@ class LeadCentralOperationsTest extends TestCase
         $url = app(BookingCheckinPassService::class)->url($booking);
 
         $this->assertTrue(URL::hasValidSignature(Request::create($url)));
-        $this->get($url)->assertOk();
+        $this->get($url)
+            ->assertOk()
+            ->assertSee('data-checkin-pass=', false)
+            ->assertSee('modules/lead/central/qrcode.js', false);
         $this->get($url.'&tampered=1')->assertForbidden();
 
 
@@ -221,6 +305,43 @@ class LeadCentralOperationsTest extends TestCase
 
         $this->assertSame(422, $response->getStatusCode());
         $this->assertNull(DB::table('treatment_bookings')->where('id', $bookingId)->value('checked_in_at'));
+    }
+
+    #[Test]
+    public function camera_is_allowed_only_for_the_lead_central_workspace(): void
+    {
+        $middleware = app(SecurityHeaders::class);
+        $central = $middleware->handle(
+            Request::create('/admin/leads/central/checkin'),
+            fn () => response('ok')
+        );
+        $otherAdmin = $middleware->handle(
+            Request::create('/admin/orders'),
+            fn () => response('ok')
+        );
+
+        $this->assertStringStartsWith('camera=(self)', (string) $central->headers->get('Permissions-Policy'));
+        $this->assertStringStartsWith('camera=()', (string) $otherAdmin->headers->get('Permissions-Policy'));
+    }
+
+    #[Test]
+    public function checkin_branch_filter_uses_the_order_branch_for_legacy_bookings(): void
+    {
+        DB::table('orders')->insert(['id' => 30, 'payment_status' => 'paid', 'spa_branch_id' => 7]);
+        $bookingId = $this->booking([
+            'source' => 'checkout',
+            'order_id' => 30,
+            'spa_branch_id' => null,
+            'checked_in_at' => now(),
+        ]);
+
+        $items = collect(app(CentralCheckinService::class)->paginate([
+            'date' => '2026-09-09',
+            'status' => 'waiting',
+            'branch' => 7,
+        ])->items());
+
+        $this->assertSame([$bookingId], $items->pluck('id')->all());
     }
 
     #[Test]

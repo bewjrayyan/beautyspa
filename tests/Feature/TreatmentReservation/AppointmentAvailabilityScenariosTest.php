@@ -22,6 +22,7 @@ use Modules\TreatmentReservation\Services\AppointmentAvailabilityAdminService;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityService;
 use Modules\TreatmentReservation\Services\BookingSelfService;
 use Modules\TreatmentReservation\Services\BeauticianIcalFeedService;
+use Modules\TreatmentReservation\Services\ManualBookingService;
 use Modules\TreatmentReservation\Services\RescheduleTreatmentBookingService;
 use Modules\User\Entities\User;
 use Modules\User\Entities\OneSenderOutboundMessage;
@@ -402,7 +403,12 @@ class AppointmentAvailabilityScenariosTest extends TestCase
             '12:00',
             $beauticianId,
         );
-        $booking->update(['source' => TreatmentBooking::SOURCE_CHECKOUT]);
+        $booking->update([
+            'source' => TreatmentBooking::SOURCE_CHECKOUT,
+            'checked_in_at' => now(),
+            'customer_reminder_sent_at' => now(),
+            'customer_email_reminder_sent_at' => now(),
+        ]);
 
         $result = app(RescheduleTreatmentBookingService::class)->reschedule(
             $booking,
@@ -415,8 +421,56 @@ class AppointmentAvailabilityScenariosTest extends TestCase
         $this->assertSame($friday, $result['booking']->appointment_date?->toDateString());
         $this->assertSame('18:00', substr((string) $result['booking']->getRawOriginal('appointment_time'), 0, 5));
         $this->assertSame($beauticianId, (int) $result['booking']->beautician_id);
+        $this->assertNull($result['booking']->checked_in_at);
+        $this->assertNull($result['booking']->customer_reminder_sent_at);
+        $this->assertNull($result['booking']->customer_email_reminder_sent_at);
         $this->assertFalse($result['customer_notified']);
         $this->assertFalse($result['beautician_notified']);
+    }
+
+    #[Test]
+    public function manual_booking_schedule_change_rearms_arrival_and_customer_reminders(): void
+    {
+        $friday = Carbon::parse('next friday')->toDateString();
+        $beauticianId = $this->ensureBeauticianWithFridayHours();
+        Beautician::query()->findOrFail($beauticianId)->spaBranches()->syncWithoutDetaching([$this->hq->id]);
+        $variantId = Product::query()->findOrFail($this->dripProductId)
+            ->variants()->where('is_active', true)->value('id');
+        $this->assertNotNull($variantId);
+        $booking = $this->makeBooking(
+            $this->dripProductId,
+            (int) $this->hq->id,
+            $friday,
+            '12:00',
+            $beauticianId,
+        );
+        $booking->update([
+            'checked_in_at' => now(),
+            'customer_reminder_sent_at' => now(),
+            'customer_email_reminder_sent_at' => now(),
+            'customer_email' => 'customer@example.test',
+        ]);
+
+        $updated = app(ManualBookingService::class)->update($booking, [
+            'beautician_id' => $beauticianId,
+            'spa_branch_id' => (int) $this->hq->id,
+            'product_id' => $this->dripProductId,
+            'variant_id' => (int) $variantId,
+            'customer_first_name' => 'Test',
+            'customer_last_name' => 'Customer',
+            'customer_phone' => $booking->customer_phone,
+            'customer_email' => 'customer@example.test',
+            'appointment_date' => $friday,
+            'appointment_time' => '18:00',
+            'payment_status' => $booking->payment_status,
+            'options' => [],
+            'variations' => [],
+        ], User::query()->firstOrFail());
+
+        $this->assertSame('18:00', substr((string) $updated->getRawOriginal('appointment_time'), 0, 5));
+        $this->assertNull($updated->checked_in_at);
+        $this->assertNull($updated->customer_reminder_sent_at);
+        $this->assertNull($updated->customer_email_reminder_sent_at);
     }
 
     #[Test]

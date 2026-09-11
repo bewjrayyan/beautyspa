@@ -185,6 +185,20 @@ class ManualBookingService
                 $booking->payment_receipt_file_id
             );
 
+            $currentDate = $booking->appointment_date?->format('Y-m-d');
+            $currentTime = $this->availability->normalizeTime((string) $booking->appointment_time);
+            $effectiveBranchId = $spaBranchId ?: (int) ($booking->spa_branch_id ?? 0);
+            $appointmentChanged = $currentDate !== ($scheduleLater ? null : $date)
+                || $currentTime !== $normalizedTime
+                || (int) $booking->beautician_id !== $beauticianId
+                || (int) ($booking->spa_branch_id ?? 0) !== $effectiveBranchId
+                || (int) $booking->product_id !== (int) $selection['product']->id;
+            $phoneChanged = trim((string) $booking->customer_phone) !== trim((string) $phone);
+            $emailChanged = strcasecmp(
+                trim((string) $booking->customer_email),
+                trim((string) ($data['customer_email'] ?? ''))
+            ) !== 0;
+
             $changes = [
                 'beautician_id' => $beauticianId,
                 'customer_id' => $data['customer_id'] ?? $booking->customer_id,
@@ -210,6 +224,21 @@ class ManualBookingService
                 'payment_receipt_file_id' => $receiptFileId,
                 'notes' => $data['notes'] ?? null,
             ];
+
+            if ($appointmentChanged) {
+                if ($booking->status === TreatmentBooking::STATUS_PENDING) {
+                    $changes['checked_in_at'] = null;
+                }
+                $changes['customer_reminder_sent_at'] = null;
+                $changes['customer_email_reminder_sent_at'] = null;
+            } else {
+                if ($phoneChanged) {
+                    $changes['customer_reminder_sent_at'] = null;
+                }
+                if ($emailChanged) {
+                    $changes['customer_email_reminder_sent_at'] = null;
+                }
+            }
 
             $booking->update($changes);
 

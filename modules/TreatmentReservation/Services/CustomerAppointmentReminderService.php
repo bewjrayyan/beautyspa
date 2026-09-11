@@ -188,7 +188,14 @@ class CustomerAppointmentReminderService
                 $this->buildMessage($booking),
                 [
                     'source' => 'treatment.booking.reminder',
-                    'dedupe_key' => 'booking:' . $booking->id . ':reminder:' . now()->format('YmdHi'),
+                    'dedupe_key' => implode(':', [
+                        'booking',
+                        $booking->id,
+                        'reminder',
+                        $booking->appointment_date?->format('Ymd') ?: 'date',
+                        str_replace(':', '', (string) $booking->appointment_time),
+                        ...($logActivity ? ['manual', now()->format('YmdHis.u')] : []),
+                    ]),
                     'immediate' => $logActivity,
                 ]
             );
@@ -200,7 +207,14 @@ class CustomerAppointmentReminderService
             }
 
             if ($logActivity) {
-                app(TreatmentBookingActivityLogger::class)->logReminderSent($booking);
+                try {
+                    app(TreatmentBookingActivityLogger::class)->logReminderSent($booking);
+                } catch (\Throwable $exception) {
+                    Log::warning('WhatsApp reminder delivered but activity logging failed', [
+                        'booking_id' => $booking->id,
+                        'message' => $exception->getMessage(),
+                    ]);
+                }
             }
 
             return true;
@@ -253,7 +267,15 @@ class CustomerAppointmentReminderService
             ))->locale($locale !== '' ? $locale : app()->getLocale());
 
             Mail::to($email)->send($mailable);
-            app(TreatmentBookingActivityLogger::class)->logEmailReminderSent($booking);
+
+            try {
+                app(TreatmentBookingActivityLogger::class)->logEmailReminderSent($booking);
+            } catch (\Throwable $exception) {
+                Log::warning('Email reminder delivered but activity logging failed', [
+                    'booking_id' => $booking->id,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
 
             return true;
         } catch (\Throwable $exception) {

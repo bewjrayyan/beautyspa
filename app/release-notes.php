@@ -5,6 +5,32 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.84' => [
+        'date' => '2026-09-11',
+        'en' => [
+            'summary' => 'Harden arrival QR check-in and appointment reminder reliability for production.',
+            'changes' => [
+                'Render a scannable signed QR code on the customer arrival pass and allow camera access only inside Lead Central.',
+                'Keep reception check-in separate from treatment start while supporting legacy bookings through their order branch.',
+                'Reset arrival and email/WhatsApp reminder state whenever an appointment schedule changes.',
+                'Prevent overlapping reminder scheduler runs and preserve delivery claims when activity logging is temporarily unavailable.',
+                'Keep automatic WhatsApp delivery idempotent while allowing an explicit manual resend to use a fresh deduplication key.',
+                'Upgrade Laravel Excel to the patched release that prevents export paths from escaping the configured filesystem disk.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kukuhkan check-in QR ketibaan dan kebolehpercayaan peringatan temujanji untuk production.',
+            'changes' => [
+                'Paparkan kod QR bertandatangan yang boleh diimbas pada pas ketibaan pelanggan dan benarkan kamera hanya dalam Lead Central.',
+                'Kekalkan check-in receptionist berasingan daripada permulaan rawatan sambil menyokong booking lama melalui cawangan pesanan.',
+                'Kosongkan semula status ketibaan serta peringatan e-mel/WhatsApp apabila jadual temujanji berubah.',
+                'Cegah proses scheduler peringatan bertindih dan kekalkan rekod penghantaran apabila log aktiviti tergendala sementara.',
+                'Kekalkan WhatsApp automatik secara idempotent sambil membenarkan resend manual menggunakan kunci deduplikasi baharu.',
+                'Naik taraf Laravel Excel kepada release tampalan yang menghalang laluan eksport keluar daripada disk fail yang dikonfigurasi.',
+            ],
+        ],
+    ],
+
     '4.11.83' => [
         'date' => '2026-09-10',
         'en' => [

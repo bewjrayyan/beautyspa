@@ -22,6 +22,7 @@ class SecurityHeaders
 
         $isAdmin = $this->isAdminRequest($request);
         $allowSameOriginIframe = $this->allowsSameOriginIframe($request);
+        $cameraPolicy = $this->allowsCamera($request) ? 'camera=(self)' : 'camera=()';
 
         $response->headers->set('X-Content-Type-Options', 'nosniff', false);
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin', false);
@@ -32,7 +33,7 @@ class SecurityHeaders
         );
         $response->headers->set(
             'Permissions-Policy',
-            'camera=(), microphone=(), geolocation=(), payment=(self)',
+            $cameraPolicy.', microphone=(), geolocation=(), payment=(self)',
             false
         );
 
@@ -117,6 +118,12 @@ class SecurityHeaders
     private function allowsSameOriginIframe(Request $request): bool
     {
         return $request->is('admin/file-manager*');
+    }
+
+    private function allowsCamera(Request $request): bool
+    {
+        return $request->routeIs('admin.leads.central')
+            || $request->is('admin/leads/central', 'admin/leads/central/*');
     }
 
     private function buildContentSecurityPolicy(bool $isAdmin, bool $allowSameOriginIframe = false): string
