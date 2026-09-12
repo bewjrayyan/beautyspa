@@ -1,0 +1,103 @@
+{
+  "treatments": [
+    {
+      "id": 1,
+      "name": "GLOW RESTORE",
+      "type": "Aesthetic Treatment",
+      "category": "Skin Booster",
+      "price": 610,
+      "currency": "RM",
+      "description": "Aesthetic treatment for skin glow restoration"
+    },
+    {
+      "id": 2,
+      "name": "CRYSTAL GLOW",
+      "type": "Aesthetic Treatment",
+      "category": "Skin Booster",
+      "price": 610,
+      "currency": "RM",
+      "description": "Aesthetic treatment with crystal formulation"
+    },
+    {
+      "id": 3,
+      "name": "EYE LUXE",
+      "type": "Aesthetic Treatment",
+      "category": "Skin Booster",
+      "price": 2670,
+      "currency": "RM",
+      "description": "Specialized eye area treatment"
+    },
+    {
+      "id": 4,
+      "name": "HYDRA LUXE",
+      "type": "Aesthetic Treatment",
+      "category": "Skin Booster",
+      "price": 3630,
+      "currency": "RM",
+      "description": "Hydrating luxury treatment"
+    },
+    {
+      "id": 5,
+      "name": "SKIN REVIVAL",
+      "type": "Aesthetic Treatment",
+      "category": "Skin Booster",
+      "price": 5400,
+      "currency": "RM",
+      "description": "Intensive skin revival treatment"
+    },
+    {
+      "id": 6,
+      "name": "SMOOTH GLOW",
+      "type": "Aesthetic Treatment",
+      "category": "Skin Booster",
+      "price": 1699,
+      "currency": "RM",
+      "description": "Smooth and glowing skin treatment"
+    },
+    {
+      "id": 7,
+      "name": "K-GLOW",
+      "type": "Aesthetic Treatment",
+      "category": "Skin Booster",
+      "price": 2670,
+      "currency": "RM",
+      "description": "Korean-inspired glow treatment"
+    },
+    {
+      "id": 8,
+      "name": "BABY SKIN",
+      "type": "Aesthetic Treatment",
+      "category": "Skin Booster",
+      "price": 4599,
+      "currency": "RM",
+      "description": "Treatment for soft, baby-like skin"
+    },
+    {
+      "id": 9,
+      "name": "AURA FACE SCULPT",
+      "type": "Aesthetic Treatment",
+      "category": "Face Sculpting",
+      "price": 4399,
+      "currency": "RM",
+      "description": "Face sculpting treatment for enhanced facial features"
+    },
+    {
+      "id": 10,
+      "name": "LUMIERE LIPS SCULPT",
+      "type": "Aesthetic Treatment",
+      "category": "Lip Enhancement",
+      "price": 5499,
+      "currency": "RM",
+      "description": "Lip sculpting treatment with luminous effect"
+    },
+    {
+      "id": 11,
+      "name": "RINASCITA THERAPY",
+      "type": "Aesthetic Treatment",
+      "category": "Rejuvenation",
+      "price": 5499,
+      "currency": "RM",
+      "description": "Rejuvenation therapy for overall skin renewal"
+    }
+  ]
+}
