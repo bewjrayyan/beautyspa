@@ -3,20 +3,12 @@
 namespace Modules\Order\Listeners;
 
 use Exception;
-use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Services\BankTransferPaymentProofWhatsAppNotifier;
 
-class SendBankTransferPaymentProofWhatsApp implements ShouldQueueAfterCommit
+class SendBankTransferPaymentProofWhatsApp implements ShouldHandleEventsAfterCommit
 {
-    use InteractsWithQueue;
-
-    public int $tries = 3;
-
-    /** @var list<int> */
-    public array $backoff = [15, 60, 180];
-
     public function __construct(
         private readonly BankTransferPaymentProofWhatsAppNotifier $notifier,
     ) {

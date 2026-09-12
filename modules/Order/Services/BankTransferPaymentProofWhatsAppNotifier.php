@@ -12,6 +12,8 @@ class BankTransferPaymentProofWhatsAppNotifier
     public function __construct(
         private readonly OneSenderWhatsAppService $oneSender,
         private readonly BankTransferPaymentProofWhatsAppMessage $messages,
+        private readonly OrderPaymentProofPublicUrlService $proofUrls,
+        private readonly OrderWhatsAppPdfService $pdf,
     ) {
     }
 
@@ -40,14 +42,14 @@ class BankTransferPaymentProofWhatsAppNotifier
 
         $groupId = trim((string) setting('bank_transfer_payment_proof_whatsapp_group_id', ''));
         $caption = $this->messages->build($order);
-        $context = [
+        $proofContext = [
             'source' => 'order.bank_transfer.payment_proof',
             'dedupe_key' => 'order:' . $order->id . ':payment_proof_group',
-            'immediate' => false,
+            'immediate' => true,
         ];
 
         try {
-            $fileUrl = app(OrderPaymentProofPublicUrlService::class)->whatsAppMediaUrl($proof, $order);
+            $fileUrl = $this->proofUrls->whatsAppMediaUrl($proof, $order);
         } catch (\Throwable $exception) {
             report($exception);
 
@@ -55,16 +57,32 @@ class BankTransferPaymentProofWhatsAppNotifier
         }
 
         $sent = $this->isImageProof($proof)
-            ? $this->oneSender->sendImageToGroup($groupId, $fileUrl, $caption, $context)
+            ? $this->oneSender->sendImageToGroup($groupId, $fileUrl, $caption, $proofContext)
             : $this->oneSender->sendDocumentToGroup(
                 $groupId,
                 $fileUrl,
                 $proof->filename ?: ('payment-proof-' . $order->id . '.' . $proof->extension),
                 $caption,
-                $context
+                $proofContext
             );
 
         if (! $sent) {
+            report(new \RuntimeException(trans('order::whatsapp.send_failed')));
+        }
+
+        $receiptSent = $this->oneSender->sendDocumentToGroup(
+            $groupId,
+            $this->pdf->receiptPublicUrl($order),
+            sprintf('receipt-%d.pdf', $order->id),
+            null,
+            [
+                'source' => 'order.bank_transfer.payment_proof.receipt',
+                'dedupe_key' => 'order:' . $order->id . ':payment_proof_group_receipt',
+                'immediate' => true,
+            ]
+        );
+
+        if (! $receiptSent) {
             report(new \RuntimeException(trans('order::whatsapp.send_failed')));
         }
     }

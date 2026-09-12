@@ -76,14 +76,12 @@ class OperationalSecurityContractTest extends TestCase
     }
 
     #[Test]
-    public function order_notification_listeners_are_queued_after_commit(): void
+    public function order_notification_listeners_run_after_commit_with_critical_group_messages_not_queue_dependent(): void
     {
         $listeners = [
             \Modules\Order\Listeners\SendOrderStatusChangedEmail::class,
             \Modules\Order\Listeners\SendOrderStatusChangedSms::class,
-            \Modules\Order\Listeners\SendCompletedOrderGroupWhatsApp::class,
             \Modules\Order\Listeners\SendCompletedOrderBeauticianWhatsApp::class,
-            \Modules\Order\Listeners\SendBankTransferPaymentProofWhatsApp::class,
             \Modules\Checkout\Listeners\SendNewOrderSms::class,
             \Modules\Loyalty\Listeners\ProcessLoyaltyOnOrderStatusChanged::class,
             \Modules\Loyalty\Listeners\AwardStampsOnOrderPlaced::class,
@@ -94,6 +92,18 @@ class OperationalSecurityContractTest extends TestCase
             $this->assertTrue(
                 is_subclass_of($listener, \Illuminate\Contracts\Queue\ShouldQueueAfterCommit::class),
                 $listener.' must implement ShouldQueueAfterCommit'
+            );
+        }
+
+        $criticalGroupListeners = [
+            \Modules\Order\Listeners\SendCompletedOrderGroupWhatsApp::class,
+            \Modules\Order\Listeners\SendBankTransferPaymentProofWhatsApp::class,
+        ];
+
+        foreach ($criticalGroupListeners as $listener) {
+            $this->assertTrue(
+                is_subclass_of($listener, \Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit::class),
+                $listener.' must run after commit without requiring a queue worker'
             );
         }
     }

@@ -475,7 +475,7 @@ return [
         'onesender_outbound_delay_help' => 'Seconds to wait after queueing before send (0–3600). Default 30 seconds.',
         'whatsapp_otp_api_help' => 'Configure OneSender to send OTP codes via WhatsApp. API documentation:',
         'whatsapp_group_staff_name_help' => 'Used only as a fallback header when the completed order has no beautician selected at checkout. Manage beauticians under Products → Beauticians.',
-        'bank_transfer_payment_proof_whatsapp_help' => 'When a customer pays by bank transfer, the uploaded payment proof is sent to this WhatsApp group immediately after checkout.',
+        'bank_transfer_payment_proof_whatsapp_help' => 'When a customer pays by bank transfer, the uploaded payment proof and receipt PDF are sent to this WhatsApp group immediately after checkout.',
         'bank_transfer_payment_proof_whatsapp_message_help' => 'Placeholders: :store, :order_id, :customer, :email, :phone, :total, :admin_url',
         'enable_bank_transfer_payment_proof_whatsapp' => 'Send bank transfer payment proof to WhatsApp group',
         'google_excel_document_settings' => 'Google API Credentials',

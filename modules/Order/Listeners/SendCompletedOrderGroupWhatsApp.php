@@ -3,22 +3,14 @@
 namespace Modules\Order\Listeners;
 
 use Exception;
-use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\Order\Services\CompletedOrderGroupWhatsAppMessage;
 use Modules\User\Services\OneSenderWhatsAppService;
 
-class SendCompletedOrderGroupWhatsApp implements ShouldQueueAfterCommit
+class SendCompletedOrderGroupWhatsApp implements ShouldHandleEventsAfterCommit
 {
-    use InteractsWithQueue;
-
-    public int $tries = 3;
-
-    /** @var list<int> */
-    public array $backoff = [15, 60, 180];
-
     public function __construct(
         private readonly CompletedOrderGroupWhatsAppMessage $messageBuilder,
         private readonly OneSenderWhatsAppService $oneSender,
@@ -49,7 +41,7 @@ class SendCompletedOrderGroupWhatsApp implements ShouldQueueAfterCommit
         }
 
         try {
-            $this->oneSender->sendToGroup(
+            $sent = $this->oneSender->sendToGroup(
                 $groupId,
                 $this->messageBuilder->build($event->order),
                 [
@@ -58,10 +50,12 @@ class SendCompletedOrderGroupWhatsApp implements ShouldQueueAfterCommit
                     'immediate' => true,
                 ]
             );
+
+            if (! $sent) {
+                report(new \RuntimeException(trans('order::whatsapp.send_failed')));
+            }
         } catch (Exception $exception) {
             report($exception);
-
-            throw $exception;
         }
     }
 }

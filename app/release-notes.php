@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.90' => [
+        'date' => '2026-09-12',
+        'en' => [
+            'summary' => 'Deliver payment proof notifications with receipt PDFs reliably.',
+            'changes' => [
+                'Send bank transfer payment proof and receipt PDF directly to the configured WhatsApp group after checkout.',
+                'Run critical payment-proof and completed-order group listeners after commit without depending on a queue worker.',
+                'Add regression coverage for immediate group delivery and separate attachment deduplication.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Hantar notifikasi bukti bayaran bersama resit PDF dengan lebih andal.',
+            'changes' => [
+                'Hantar bukti bayaran pemindahan bank dan resit PDF terus ke kumpulan WhatsApp yang ditetapkan selepas checkout.',
+                'Jalankan listener kumpulan bukti bayaran dan pesanan selesai selepas commit tanpa bergantung pada queue worker.',
+                'Tambah ujian regresi untuk penghantaran kumpulan serta-merta dan deduplikasi lampiran berasingan.',
+            ],
+        ],
+    ],
+
     '4.11.89' => [
         'date' => '2026-09-11',
         'en' => [
