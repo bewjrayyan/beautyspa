@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.92' => [
+        'date' => '2026-09-12',
+        'en' => [
+            'summary' => 'Harden WhatsApp order notifications for reliable production delivery.',
+            'changes' => [
+                'Deliver order WhatsApp notifications after commit without depending on a Laravel queue worker, while retaining an automatic outbound-queue fallback.',
+                'Defer paused messages without consuming retries and cancel expired media or obsolete text notifications before they can be sent late.',
+                'Validate WhatsApp group IDs, preserve administrator-disabled notification settings, and add production checks for HTTPS, scheduler, queue and OneSender health.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kukuhkan notifikasi pesanan WhatsApp untuk penghantaran production yang andal.',
+            'changes' => [
+                'Hantar notifikasi pesanan WhatsApp selepas commit tanpa bergantung pada Laravel queue worker, sambil mengekalkan fallback queue keluar secara automatik.',
+                'Tangguhkan mesej yang dijeda tanpa menggunakan retry dan batalkan media tamat tempoh atau mesej teks lapuk sebelum dihantar lewat.',
+                'Sahkan ID kumpulan WhatsApp, kekalkan tetapan notifikasi yang dimatikan admin, serta tambah semakan production untuk HTTPS, scheduler, queue dan kesihatan OneSender.',
+            ],
+        ],
+    ],
+
     '4.11.90' => [
         'date' => '2026-09-12',
         'en' => [

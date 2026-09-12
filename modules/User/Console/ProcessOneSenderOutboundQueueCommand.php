@@ -25,8 +25,10 @@ class ProcessOneSenderOutboundQueueCommand extends Command
 
             $this->info("Processed {$processed} queued message(s).");
         } catch (Throwable $e) {
-            // Transient MySQL outages should not fail the whole schedule run.
-            $this->warn('onesender:process-outbound-queue skipped: '.$e->getMessage());
+            report($e);
+            $this->error('onesender:process-outbound-queue failed: '.$e->getMessage());
+
+            return self::FAILURE;
         }
 
         return self::SUCCESS;

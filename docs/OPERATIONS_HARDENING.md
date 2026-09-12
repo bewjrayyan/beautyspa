@@ -26,6 +26,8 @@ php artisan queue:failed
 
 Set `QUEUE_HEALTH_MONITOR_ENABLED=true` only after log alert delivery is configured. The scheduler checks every ten minutes. Investigate failures before running `queue:retry`; retries can repeat external effects if the underlying operation is not idempotent.
 
+OneSender automatically cancels queued image/document messages after 75 minutes and text messages after 24 hours. This prevents expired signed media links or obsolete order updates from being sent after a long worker outage. Run `php scripts/verify-production-deploy.php` after deployment; it fails when the public HTTPS URL, scheduler heartbeat, queue age, or OneSender processing state is unsafe.
+
 ## CSP report-only rollout
 
 Start with:

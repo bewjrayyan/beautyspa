@@ -90,9 +90,11 @@ class BankTransferPaymentProofWhatsAppNotifierTest extends TestCase
         $this->assertSame('https://example.test/payment-proof.webp', $oneSender->messages[0]['imageUrl']);
         $this->assertSame('Payment proof', $oneSender->messages[0]['caption']);
         $this->assertTrue($oneSender->messages[0]['context']['immediate']);
+        $this->assertTrue($oneSender->messages[0]['context']['fallback_to_queue']);
         $this->assertSame('https://example.test/receipt.pdf', $oneSender->messages[1]['documentUrl']);
         $this->assertSame('receipt-77.pdf', $oneSender->messages[1]['filename']);
         $this->assertTrue($oneSender->messages[1]['context']['immediate']);
+        $this->assertTrue($oneSender->messages[1]['context']['fallback_to_queue']);
         $this->assertNotSame(
             $oneSender->messages[0]['context']['dedupe_key'],
             $oneSender->messages[1]['context']['dedupe_key'],

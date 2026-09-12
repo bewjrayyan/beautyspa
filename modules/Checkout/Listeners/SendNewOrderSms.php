@@ -2,23 +2,15 @@
 
 namespace Modules\Checkout\Listeners;
 
-use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Modules\Checkout\Events\OrderPlaced;
 use Modules\Order\Entities\Order;
 use Modules\Order\Services\OrderWhatsAppMessageBuilder;
 use Modules\Order\Services\OrderWhatsAppPdfService;
 use Modules\User\Services\OneSenderWhatsAppService;
 
-class SendNewOrderSms implements ShouldQueueAfterCommit
+class SendNewOrderSms implements ShouldHandleEventsAfterCommit
 {
-    use InteractsWithQueue;
-
-    public int $tries = 3;
-
-    /** @var list<int> */
-    public array $backoff = [15, 60, 180];
-
     public function __construct(
         private readonly OrderWhatsAppMessageBuilder $messageBuilder,
         private readonly OrderWhatsAppPdfService $pdf,
@@ -41,6 +33,8 @@ class SendNewOrderSms implements ShouldQueueAfterCommit
         $this->oneSender->notifyAdmins($this->adminMessage($order), [
             'source' => 'checkout.order_placed.admin',
             'dedupe_key' => "order:{$order->id}:placed:admin",
+            'immediate' => true,
+            'fallback_to_queue' => true,
         ]);
     }
 
@@ -55,16 +49,22 @@ class SendNewOrderSms implements ShouldQueueAfterCommit
             return;
         }
 
-        $this->oneSender->sendDocument(
-            $order->customer_phone,
-            $this->pdf->receiptPublicUrl($order),
-            sprintf('receipt-%d.pdf', $order->id),
-            $this->customerMessage($order),
-            [
-                'source' => 'checkout.order_placed.customer',
-                'dedupe_key' => "order:{$order->id}:placed:customer",
-            ]
-        );
+        try {
+            $this->oneSender->sendDocument(
+                $order->customer_phone,
+                $this->pdf->receiptPublicUrl($order),
+                sprintf('receipt-%d.pdf', $order->id),
+                $this->customerMessage($order),
+                [
+                    'source' => 'checkout.order_placed.customer',
+                    'dedupe_key' => "order:{$order->id}:placed:customer",
+                    'immediate' => true,
+                    'fallback_to_queue' => true,
+                ]
+            );
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 
     private function customerMessage(Order $order): string

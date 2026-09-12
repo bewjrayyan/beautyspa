@@ -10,6 +10,10 @@ use Modules\User\Jobs\ProcessOneSenderOutboundMessage;
 
 class OneSenderOutboundQueueService
 {
+    private const MEDIA_MAX_AGE_MINUTES = 75;
+
+    private const TEXT_MAX_AGE_HOURS = 24;
+
     public function isEnabled(): bool
     {
         return SettingValues::isTruthy('onesender_outbound_queue_enabled', true);
@@ -114,6 +118,7 @@ class OneSenderOutboundQueueService
 
     public function processDueBatch(int $limit = 50): int
     {
+        $this->expireStale();
         $this->reclaimStuckProcessing();
 
         $processed = 0;
@@ -131,6 +136,32 @@ class OneSenderOutboundQueueService
         }
 
         return $processed;
+    }
+
+
+    public function expireStale(): int
+    {
+        return OneSenderOutboundMessage::query()
+            ->whereIn('status', [
+                OneSenderOutboundMessage::STATUS_PENDING,
+                OneSenderOutboundMessage::STATUS_PROCESSING,
+            ])
+            ->where(function ($query): void {
+                $query->where(function ($media): void {
+                    $media->whereIn('message_type', ['image', 'document'])
+                        ->where('created_at', '<=', now()->subMinutes(self::MEDIA_MAX_AGE_MINUTES));
+                })->orWhere(function ($text): void {
+                    $text->where('message_type', 'text')
+                        ->where('created_at', '<=', now()->subHours(self::TEXT_MAX_AGE_HOURS));
+                });
+            })
+            ->update([
+                'status' => OneSenderOutboundMessage::STATUS_CANCELLED,
+                'processing_at' => null,
+                'cancelled_at' => now(),
+                'active_dedupe_key' => null,
+                'error_message' => 'Expired before delivery; message was not sent.',
+            ]);
     }
 
 
@@ -228,6 +259,22 @@ class OneSenderOutboundQueueService
             'error_message' => null,
             'active_dedupe_key' => null,
         ]);
+    }
+
+
+    public function defer(
+        OneSenderOutboundMessage $message,
+        string $reason,
+        int $delaySeconds = 60,
+    ): void {
+        $message->update([
+            'status' => OneSenderOutboundMessage::STATUS_PENDING,
+            'processing_at' => null,
+            'scheduled_at' => now()->addSeconds(max(15, $delaySeconds)),
+            'error_message' => mb_substr($reason, 0, 2000),
+        ]);
+
+        $this->dispatchProcessingJob($message->fresh());
     }
 
 

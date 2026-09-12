@@ -24,7 +24,7 @@ class WhatsAppNotificationDefaults
             $applied[] = $key;
         }
 
-        return array_merge($applied, self::applyRecommendedToggles());
+        return $applied;
     }
 
 
@@ -96,7 +96,7 @@ class WhatsAppNotificationDefaults
     }
 
     /**
-     * Enable notification toggles that are still off (0/false), using config defaults.
+     * Apply recommended notification toggles only when they do not exist yet.
      */
     public static function applyRecommendedToggles(): array
     {
@@ -122,7 +122,7 @@ class WhatsAppNotificationDefaults
                 continue;
             }
 
-            if (! self::isFalsy(Setting::has($key) ? Setting::get($key) : null)) {
+            if (Setting::has($key)) {
                 continue;
             }
 
@@ -130,23 +130,12 @@ class WhatsAppNotificationDefaults
             $applied[] = $key;
         }
 
-        $statuses = Setting::has('sms_order_statuses') ? Setting::get('sms_order_statuses') : null;
-
-        if (! is_array($statuses) || count($statuses) < 2) {
+        if (! Setting::has('sms_order_statuses')) {
             Setting::set('sms_order_statuses', $defaults['sms_order_statuses'] ?? []);
             $applied[] = 'sms_order_statuses';
         }
 
         return $applied;
-    }
-
-    protected static function isFalsy(mixed $value): bool
-    {
-        return $value === null
-            || $value === ''
-            || $value === false
-            || $value === 0
-            || $value === '0';
     }
 
     protected static function shouldApply(string $key, mixed $default): bool
@@ -155,24 +144,6 @@ class WhatsAppNotificationDefaults
             return false;
         }
 
-        if (! Setting::has($key)) {
-            return true;
-        }
-
-        $current = Setting::get($key);
-
-        if ($current === null) {
-            return true;
-        }
-
-        if (is_string($current) && trim($current) === '') {
-            return true;
-        }
-
-        if (is_array($current) && $current === []) {
-            return true;
-        }
-
-        return false;
+        return ! Setting::has($key);
     }
 }

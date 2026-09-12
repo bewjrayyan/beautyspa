@@ -2,20 +2,12 @@
 
 namespace Modules\Order\Listeners;
 
-use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\Order\Services\OrderStatusWhatsAppNotifier;
 
-class SendOrderStatusChangedSms implements ShouldQueueAfterCommit
+class SendOrderStatusChangedSms implements ShouldHandleEventsAfterCommit
 {
-    use InteractsWithQueue;
-
-    public int $tries = 3;
-
-    /** @var list<int> */
-    public array $backoff = [15, 60, 180];
-
     public function __construct(
         private readonly OrderStatusWhatsAppNotifier $notifier,
     ) {}

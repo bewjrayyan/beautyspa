@@ -48,6 +48,7 @@ class SendCompletedOrderGroupWhatsApp implements ShouldHandleEventsAfterCommit
                     'source' => 'order.completed.group',
                     'dedupe_key' => 'order:'.$event->order->id.':group',
                     'immediate' => true,
+                    'fallback_to_queue' => true,
                 ]
             );
 

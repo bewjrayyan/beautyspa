@@ -46,6 +46,7 @@ class BankTransferPaymentProofWhatsAppNotifier
             'source' => 'order.bank_transfer.payment_proof',
             'dedupe_key' => 'order:' . $order->id . ':payment_proof_group',
             'immediate' => true,
+            'fallback_to_queue' => true,
         ];
 
         try {
@@ -79,6 +80,7 @@ class BankTransferPaymentProofWhatsAppNotifier
                 'source' => 'order.bank_transfer.payment_proof.receipt',
                 'dedupe_key' => 'order:' . $order->id . ':payment_proof_group_receipt',
                 'immediate' => true,
+                'fallback_to_queue' => true,
             ]
         );
 

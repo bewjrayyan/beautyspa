@@ -48,7 +48,7 @@ class OneSenderWhatsAppService
 
 
     /**
-     * @param  array{source?: string, dedupe_key?: string, immediate?: bool}  $context
+     * @param  array{source?: string, dedupe_key?: string, immediate?: bool, fallback_to_queue?: bool}  $context
      *
      * @return bool True when the message was accepted by OneSender; false when skipped (still logged).
      *
@@ -238,7 +238,7 @@ class OneSenderWhatsAppService
     {
         $groupId = trim($groupId);
 
-        if ($groupId === '' || ! str_contains($groupId, '@g.us')) {
+        if (! $this->isValidGroupId($groupId)) {
             throw new Exception(trans('order::messages.invalid_whatsapp_group_id'));
         }
 
@@ -282,7 +282,7 @@ class OneSenderWhatsAppService
         $groupId = trim($groupId);
         $imageUrl = trim($imageUrl);
 
-        if ($groupId === '' || ! str_contains($groupId, '@g.us') || $imageUrl === '') {
+        if (! $this->isValidGroupId($groupId) || $imageUrl === '') {
             throw new Exception(trans('order::messages.invalid_whatsapp_group_id'));
         }
 
@@ -326,7 +326,7 @@ class OneSenderWhatsAppService
         $documentUrl = trim($documentUrl);
         $filename = trim($filename);
 
-        if ($groupId === '' || ! str_contains($groupId, '@g.us')) {
+        if (! $this->isValidGroupId($groupId)) {
             throw new Exception(trans('order::messages.invalid_whatsapp_group_id'));
         }
 
@@ -477,6 +477,18 @@ class OneSenderWhatsAppService
         }
 
         if ($logger->isSendingPaused()) {
+            if ($this->shouldFallbackToQueue($context, $queue)) {
+                return $this->enqueueFallback(
+                    $queue,
+                    $recipient,
+                    $recipientType,
+                    $messageType,
+                    $fingerprint,
+                    $payload,
+                    $context,
+                );
+            }
+
             $logger->recordSkipped(
                 $recipient,
                 $recipientType,
@@ -489,7 +501,39 @@ class OneSenderWhatsAppService
             return false;
         }
 
-        return $this->deliverPayloadNow($recipient, $recipientType, $messageType, $fingerprint, $payload, $context);
+        try {
+            return $this->deliverPayloadNow(
+                $recipient,
+                $recipientType,
+                $messageType,
+                $fingerprint,
+                $payload,
+                $context,
+            );
+        } catch (Exception $exception) {
+            if (! $this->shouldFallbackToQueue($context, $queue)) {
+                throw $exception;
+            }
+
+            try {
+                return $this->enqueueFallback(
+                    $queue,
+                    $recipient,
+                    $recipientType,
+                    $messageType,
+                    $fingerprint,
+                    $payload,
+                    $context,
+                );
+            } catch (\Throwable $queueException) {
+                Log::error('OneSender fallback queue failed', [
+                    'source' => $context['source'] ?? null,
+                    'error' => $queueException->getMessage(),
+                ]);
+
+                throw $exception;
+            }
+        }
     }
 
 
@@ -532,15 +576,7 @@ class OneSenderWhatsAppService
         }
 
         if ($logger->isSendingPaused()) {
-            $logger->recordSkipped(
-                $queued->recipient,
-                $queued->recipient_type,
-                $queued->message_type,
-                $fingerprint,
-                OneSenderMessageLog::STATUS_SKIPPED_PAUSED,
-                $context
-            );
-            $queueService->markFailed($queued, 'Outbound WhatsApp is paused.');
+            $queueService->defer($queued, 'Outbound WhatsApp is paused.');
 
             return;
         }
@@ -661,6 +697,41 @@ class OneSenderWhatsAppService
         }
 
         return mb_substr($caption, 0, self::DOCUMENT_CAPTION_MAX_LENGTH - 1).'…';
+    }
+
+
+    private function isValidGroupId(string $groupId): bool
+    {
+        return preg_match('/^\d+@g\.us$/', $groupId) === 1;
+    }
+
+
+    private function shouldFallbackToQueue(
+        array $context,
+        OneSenderOutboundQueueService $queue,
+    ): bool {
+        return ! empty($context['immediate'])
+            && ! empty($context['fallback_to_queue'])
+            && $queue->isEnabled();
+    }
+
+
+    private function enqueueFallback(
+        OneSenderOutboundQueueService $queue,
+        string $recipient,
+        string $recipientType,
+        string $messageType,
+        string $fingerprint,
+        array $payload,
+        array $context,
+    ): bool {
+        if ($queue->isDuplicateInQueue($recipient, $fingerprint, $context)) {
+            return true;
+        }
+
+        $queue->enqueue($recipient, $recipientType, $messageType, $fingerprint, $payload, $context);
+
+        return true;
     }
 
 

@@ -53,10 +53,13 @@ class OrderStatusWhatsAppNotifier
         }
 
         // Order status: only for statuses selected in Settings → WhatsApp order statuses.
-        $allowed = setting('sms_order_statuses', []);
+        $allowed = setting(
+            'sms_order_statuses',
+            config('setting.whatsapp_notifications.sms_order_statuses', [])
+        );
 
-        if (! is_array($allowed) || $allowed === []) {
-            return true;
+        if (! is_array($allowed)) {
+            return false;
         }
 
         $status = $newValue ?: $order->status;
@@ -109,6 +112,7 @@ class OrderStatusWhatsAppNotifier
                     $newValue ?: $order->status
                 ),
                 'immediate' => true,
+                'fallback_to_queue' => true,
             ]);
         } catch (\Throwable $exception) {
             Log::warning('Order status WhatsApp to customer failed', [
@@ -177,6 +181,7 @@ class OrderStatusWhatsAppNotifier
                     $newValue ?: $order->status
                 ),
                 'immediate' => true,
+                'fallback_to_queue' => true,
             ]);
         } catch (\Throwable $exception) {
             Log::warning('Order status WhatsApp to beautician failed', [

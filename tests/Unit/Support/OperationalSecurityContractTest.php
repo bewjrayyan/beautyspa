@@ -78,33 +78,52 @@ class OperationalSecurityContractTest extends TestCase
     #[Test]
     public function order_notification_listeners_run_after_commit_with_critical_group_messages_not_queue_dependent(): void
     {
-        $listeners = [
+        $queuedListeners = [
             \Modules\Order\Listeners\SendOrderStatusChangedEmail::class,
-            \Modules\Order\Listeners\SendOrderStatusChangedSms::class,
-            \Modules\Order\Listeners\SendCompletedOrderBeauticianWhatsApp::class,
-            \Modules\Checkout\Listeners\SendNewOrderSms::class,
             \Modules\Loyalty\Listeners\ProcessLoyaltyOnOrderStatusChanged::class,
             \Modules\Loyalty\Listeners\AwardStampsOnOrderPlaced::class,
             \Modules\TreatmentReservation\Listeners\SyncTreatmentBookingFromOrder::class,
         ];
 
-        foreach ($listeners as $listener) {
+        foreach ($queuedListeners as $listener) {
             $this->assertTrue(
                 is_subclass_of($listener, \Illuminate\Contracts\Queue\ShouldQueueAfterCommit::class),
                 $listener.' must implement ShouldQueueAfterCommit'
             );
         }
 
-        $criticalGroupListeners = [
+        $directWhatsAppListeners = [
+            \Modules\Checkout\Listeners\SendNewOrderSms::class,
+            \Modules\Order\Listeners\SendOrderStatusChangedSms::class,
             \Modules\Order\Listeners\SendCompletedOrderGroupWhatsApp::class,
+            \Modules\Order\Listeners\SendCompletedOrderBeauticianWhatsApp::class,
             \Modules\Order\Listeners\SendBankTransferPaymentProofWhatsApp::class,
         ];
 
-        foreach ($criticalGroupListeners as $listener) {
+        foreach ($directWhatsAppListeners as $listener) {
             $this->assertTrue(
                 is_subclass_of($listener, \Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit::class),
                 $listener.' must run after commit without requiring a queue worker'
             );
         }
+    }
+
+    #[Test]
+    public function whatsapp_delivery_keeps_retry_and_configuration_guards(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $service = file_get_contents($root.'/modules/User/Services/OneSenderWhatsAppService.php');
+        $queue = file_get_contents($root.'/modules/User/Services/OneSenderOutboundQueueService.php');
+        $settings = file_get_contents($root.'/modules/Setting/Support/WhatsAppNotificationDefaults.php');
+        $request = file_get_contents($root.'/modules/Setting/Http/Requests/UpdateSettingRequest.php');
+
+        $this->assertStringContainsString("'fallback_to_queue'", $service);
+        $this->assertStringContainsString('$queueService->defer($queued', $service);
+        $this->assertStringContainsString('public function defer(', $queue);
+        $this->assertStringContainsString('public function expireStale()', $queue);
+        $this->assertStringContainsString('$this->expireStale();', $queue);
+        $this->assertStringContainsString('return ! Setting::has($key);', $settings);
+        $this->assertStringContainsString("'required_if:whatsapp_completed_group_enabled,1'", $request);
+        $this->assertStringContainsString("'required_if:bank_transfer_payment_proof_whatsapp_enabled,1'", $request);
     }
 }

@@ -3,21 +3,13 @@
 namespace Modules\Order\Listeners;
 
 use Exception;
-use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Modules\Order\Entities\Order;
 use Modules\Order\Events\OrderStatusChanged;
 use Modules\Order\Services\SendOrderBeauticianNotification;
 
-class SendCompletedOrderBeauticianWhatsApp implements ShouldQueueAfterCommit
+class SendCompletedOrderBeauticianWhatsApp implements ShouldHandleEventsAfterCommit
 {
-    use InteractsWithQueue;
-
-    public int $tries = 3;
-
-    /** @var list<int> */
-    public array $backoff = [15, 60, 180];
-
     public function __construct(
         private readonly SendOrderBeauticianNotification $notification,
     ) {
@@ -44,8 +36,6 @@ class SendCompletedOrderBeauticianWhatsApp implements ShouldQueueAfterCommit
             $this->notification->send($event->order);
         } catch (Exception $exception) {
             report($exception);
-
-            throw $exception;
         }
     }
 }

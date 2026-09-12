@@ -39,6 +39,7 @@ class SendOrderBeauticianNotification
                 'source' => 'order.completed.beautician',
                 'dedupe_key' => 'order:' . $order->id . ':beautician',
                 'immediate' => true,
+                'fallback_to_queue' => true,
             ]
         );
 

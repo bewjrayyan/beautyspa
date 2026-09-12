@@ -65,7 +65,9 @@ class Kernel extends ConsoleKernel
                 ->withoutOverlapping();
         }
 
-        $schedule->command('onesender:process-outbound-queue')->everyMinute();
+        $schedule->command('onesender:process-outbound-queue')
+            ->everyMinute()
+            ->withoutOverlapping(5);
 
         if (app('modules')->isEnabled('GoogleIntegration')) {
             $schedule->command('google-sheets:retry-failed --limit=100')->hourly();

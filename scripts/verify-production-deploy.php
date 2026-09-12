@@ -43,6 +43,33 @@ if (is_file($envPath)) {
 }
 
 $queueDriver = $env['QUEUE_DRIVER'] ?? 'sync';
+$appEnvironment = strtolower($env['APP_ENV'] ?? '');
+$appDebug = filter_var($env['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN);
+$appUrl = $env['APP_URL'] ?? '';
+$appHost = strtolower((string) parse_url($appUrl, PHP_URL_HOST));
+$appScheme = strtolower((string) parse_url($appUrl, PHP_URL_SCHEME));
+$appKey = $env['APP_KEY'] ?? '';
+$appHostIsPrivateIp = filter_var($appHost, FILTER_VALIDATE_IP)
+    && ! filter_var($appHost, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+
+if ($appEnvironment !== 'production') {
+    $errors[] = 'APP_ENV must be production.';
+}
+
+if ($appDebug) {
+    $errors[] = 'APP_DEBUG must be false.';
+}
+
+if ($appScheme !== 'https'
+    || $appHost === ''
+    || $appHostIsPrivateIp
+    || in_array($appHost, ['localhost', '127.0.0.1', '::1'], true)) {
+    $errors[] = 'APP_URL must be a public HTTPS URL so OneSender can download receipt and payment-proof files.';
+}
+
+if ($appKey === '' || str_contains($appKey, 'GENERATE_WITH')) {
+    $errors[] = 'APP_KEY is missing or still contains the template placeholder.';
+}
 
 if ($queueDriver === 'sync') {
     $errors[] = 'QUEUE_DRIVER=sync — background jobs (Google Sheets, queued mail) run inline. Set QUEUE_DRIVER=database on production and run a queue worker.';
@@ -63,11 +90,46 @@ if (in_array($queueDriver, ['database', 'redis'], true)) {
         $pdo = null;
     }
 
-    if ($pdo instanceof PDO) {
+    if (! $pdo instanceof PDO) {
+        $errors[] = 'Production database connection failed.';
+    } else {
         $stmt = $pdo->query("SHOW TABLES LIKE 'jobs'");
 
         if ($stmt === false || $stmt->rowCount() === 0) {
             $errors[] = 'Table jobs is missing. Run: php artisan migrate --force';
+        } else {
+            $oldestJob = $pdo->query('SELECT MIN(created_at) FROM jobs')->fetchColumn();
+
+            if ($oldestJob !== false && $oldestJob !== null && (time() - (int) $oldestJob) > 600) {
+                $errors[] = 'Queue contains jobs older than 10 minutes. Verify Supervisor before enabling production traffic.';
+            }
+        }
+
+        $heartbeatTable = $pdo->query("SHOW TABLES LIKE 'operation_heartbeats'");
+
+        if ($heartbeatTable === false || $heartbeatTable->rowCount() === 0) {
+            $errors[] = 'Table operation_heartbeats is missing. Run: php artisan migrate --force';
+        } else {
+            $heartbeat = $pdo->query("SELECT last_seen_at FROM operation_heartbeats WHERE name = 'scheduler' LIMIT 1")->fetchColumn();
+            $heartbeatTimestamp = is_string($heartbeat) ? strtotime($heartbeat) : false;
+
+            if ($heartbeatTimestamp === false || (time() - $heartbeatTimestamp) > 180) {
+                $errors[] = 'Laravel scheduler heartbeat is stale. Install the required one-minute cron entry.';
+            }
+        }
+
+        $oneSenderTable = $pdo->query("SHOW TABLES LIKE 'onesender_outbound_queue'");
+
+        if ($oneSenderTable === false || $oneSenderTable->rowCount() === 0) {
+            $errors[] = 'Table onesender_outbound_queue is missing. Run: php artisan migrate --force';
+        } else {
+            $stuck = (int) $pdo->query(
+                "SELECT COUNT(*) FROM onesender_outbound_queue WHERE status = 'processing' AND processing_at <= DATE_SUB(NOW(), INTERVAL 10 MINUTE)"
+            )->fetchColumn();
+
+            if ($stuck > 0) {
+                $errors[] = "{$stuck} OneSender message(s) are stuck in processing. Run the scheduler, then review the outgoing queue before launch.";
+            }
         }
     }
 }
