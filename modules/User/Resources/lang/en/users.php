@@ -24,7 +24,7 @@ return [
         'address_title' => 'Address',
         'address_lead' => 'Default shipping or billing address for your account and orders.',
         'admin_access_title' => 'Access & roles',
-        'admin_access_lead' => 'Assign roles and control whether this account is activated.',
+        'admin_access_lead' => 'Assign roles that control which admin areas this user can access.',
         'account_info_title' => 'Account information',
         'account_info_lead' => 'Read-only details about your account.',
         'account_info_lead_admin' => 'Read-only details about this user account.',

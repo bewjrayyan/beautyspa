@@ -24,7 +24,7 @@ return [
         'address_title' => 'Alamat',
         'address_lead' => 'Alamat penghantaran atau bil lalai untuk akaun dan pesanan.',
         'admin_access_title' => 'Akses & peranan',
-        'admin_access_lead' => 'Tetapkan peranan dan sama ada akaun ini diaktifkan.',
+        'admin_access_lead' => 'Tetapkan peranan yang mengawal bahagian pentadbir yang boleh diakses pengguna ini.',
         'account_info_title' => 'Maklumat akaun',
         'account_info_lead' => 'Butiran akaun anda (baca sahaja).',
         'account_info_lead_admin' => 'Butiran akaun pengguna ini (baca sahaja).',

@@ -164,25 +164,6 @@
                 <div class="admin-profile-access__roles admin-profile-form">
                     {{ Form::select('roles', trans('user::attributes.users.roles'), $errors, $roles ?? [], $accountUser, ['multiple' => true, 'required' => true, 'class' => 'selectize prevent-creation']) }}
                 </div>
-
-                <div class="admin-profile-access__status admin-profile-form">
-                    <div class="admin-profile-status-card">
-                        <div class="admin-profile-status-card__copy">
-                            <span class="admin-profile-status-card__title">
-                                {{ trans('user::users.edit_page.status_card_title') }}
-                            </span>
-                            <p class="admin-profile-status-card__lead">
-                                {{ trans('user::users.edit_page.status_card_lead') }}
-                            </p>
-                        </div>
-                        <div class="admin-profile-status-card__control">
-                            {{ Form::checkbox('activated', trans('user::attributes.users.activated'), trans('user::users.form.activated'), $errors, $accountUser, [
-                                'disabled' => $accountUser->id === $currentUser->id,
-                                'checked' => old('activated', $isCreate ? true : $accountUser->isActivated()),
-                            ]) }}
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     @endif

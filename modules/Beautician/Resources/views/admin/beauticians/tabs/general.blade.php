@@ -204,8 +204,9 @@
         @endif
     </header>
 
-    <div class="bp-form-groups">
-        <div class="bp-card bp-card--basic">
+    <div class="bp-content-layout">
+        <main class="bp-content-main">
+            <div class="bp-card bp-card--basic">
             <div class="bp-card-header">
                 <h3>{{ trans('beautician::beauticians.form.sections.basic') }}</h3>
                 <p>{{ trans('beautician::beauticians.form.sections.basic_help') }}</p>
@@ -259,9 +260,13 @@
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
 
-        <div class="bp-card bp-card--booking">
+            @include('beautician::admin.beauticians.partials.schedule')
+        </main>
+
+        <aside class="bp-content-sidebar">
+            <div class="bp-card bp-card--booking">
             <div class="bp-card-header">
                 <h3>{{ trans('beautician::beauticians.form.sections.booking') }}</h3>
                 <p>{{ trans('beautician::beauticians.form.sections.booking_help') }}</p>
@@ -343,9 +348,9 @@
                 ]) }}
                 <p class="bp-field-hint">{{ trans('beautician::beauticians.form.sort_order_help') }}</p>
             </div>
-        </div>
+            </div>
 
-        <div class="bp-card bp-card--portal">
+            <div class="bp-card bp-card--portal">
             <div class="bp-card-header">
                 <h3>{{ trans('beautician::beauticians.form.sections.portal') }}</h3>
                 <p>{{ trans('beautician::beauticians.form.sections.portal_help') }}</p>
@@ -566,16 +571,15 @@
                     </div>
                 </details>
             </div>
-        </div>
+            </div>
 
-        @include('beautician::admin.beauticians.partials.schedule')
-    </div>
-
-    <div class="bp-form-actions">
-        <span class="bp-form-actions__hint">{{ trans('beautician::beauticians.form.save_all_changes_help') }}</span>
-        <button type="submit" class="btn btn-primary" data-loading>
-            {{ $beautician->exists ? trans('beautician::beauticians.form.save_all_changes') : trans('beautician::beauticians.form.create_beautician') }}
-        </button>
+            <div class="bp-form-actions bp-form-actions--sidebar">
+                <span class="bp-form-actions__hint">{{ trans('beautician::beauticians.form.save_all_changes_help') }}</span>
+                <button type="submit" class="btn btn-primary" data-loading>
+                    {{ $beautician->exists ? trans('beautician::beauticians.form.save_all_changes') : trans('beautician::beauticians.form.create_beautician') }}
+                </button>
+            </div>
+        </aside>
     </div>
 </div>
 
@@ -615,34 +619,37 @@
             margin: -10px 0 10px;
         }
 
-        .beautician-profile-page .bp-form-groups {
+        .beautician-profile-page .bp-content-layout {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 20px;
+            grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+            gap: 24px;
             width: 100%;
             max-width: none;
-            align-items: stretch;
+            align-items: start;
         }
 
-        .beautician-profile-page .bp-form-groups > .bp-card {
+        .beautician-profile-page .bp-content-main,
+        .beautician-profile-page .bp-content-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        .beautician-profile-page .bp-content-layout .bp-card {
             min-width: 0;
             margin-bottom: 0;
         }
 
-        .beautician-profile-page .bp-card--basic,
-        .beautician-profile-page .bp-card-schedule {
-            grid-column: 1 / -1;
-        }
-
         .beautician-profile-page .bp-card--booking,
         .beautician-profile-page .bp-card--portal {
-            height: 100%;
+            height: auto;
         }
 
         .beautician-profile-page .bp-basic-layout {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 280px;
-            gap: 28px;
+            grid-template-columns: minmax(0, 1fr) minmax(200px, 240px);
+            gap: 24px;
             align-items: stretch;
         }
 
@@ -730,11 +737,11 @@
             margin-right: 0;
         }
 
-        .beautician-profile-page .bp-form-groups .bp-card-header {
+        .beautician-profile-page .bp-content-layout .bp-card-header {
             padding: 18px 20px 0;
         }
 
-        .beautician-profile-page .bp-form-groups .bp-card-body {
+        .beautician-profile-page .bp-content-layout .bp-card-body {
             padding: 16px 20px 20px;
         }
 
@@ -1305,6 +1312,25 @@
             border-top: 1px solid var(--bp-border);
         }
 
+        .bp-form-actions--sidebar {
+            align-items: stretch;
+            flex-direction: column;
+            margin-top: 0;
+            padding: 18px;
+            border: 1px solid var(--bp-border);
+            border-radius: var(--bp-card-radius);
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .bp-form-actions--sidebar .bp-form-actions__hint {
+            max-width: none;
+        }
+
+        .bp-form-actions--sidebar .btn-primary {
+            width: 100%;
+        }
+
         .bp-form-actions__hint {
             margin: 0;
             max-width: 720px;
@@ -1768,13 +1794,18 @@
         }
 
         @@media (max-width: 1199px) {
-            .beautician-profile-page .bp-form-groups {
+            .beautician-profile-page .bp-content-layout {
                 grid-template-columns: 1fr;
             }
 
-            .beautician-profile-page .bp-card--basic,
-            .beautician-profile-page .bp-card-schedule {
-                grid-column: auto;
+            .beautician-profile-page .bp-content-sidebar {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                align-items: start;
+            }
+
+            .beautician-profile-page .bp-form-actions--sidebar {
+                grid-column: 1 / -1;
             }
         }
 
@@ -1839,6 +1870,14 @@
         @@media (max-width: 767px) {
             .beautician-profile-page .bp-basic-fields {
                 grid-template-columns: 1fr;
+            }
+
+            .beautician-profile-page .bp-content-sidebar {
+                grid-template-columns: 1fr;
+            }
+
+            .beautician-profile-page .bp-form-actions--sidebar {
+                grid-column: auto;
             }
 
             .beautician-profile-page .bp-card--booking,

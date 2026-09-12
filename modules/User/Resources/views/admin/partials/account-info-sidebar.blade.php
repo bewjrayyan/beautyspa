@@ -63,3 +63,24 @@
         @endif
     </dl>
 </aside>
+
+@if ($showAdminFields)
+    <aside class="admin-profile-activation-sidebar">
+        <div class="admin-profile-status-card">
+            <div class="admin-profile-status-card__copy">
+                <span class="admin-profile-status-card__title">
+                    {{ trans('user::users.edit_page.status_card_title') }}
+                </span>
+                <p class="admin-profile-status-card__lead">
+                    {{ trans('user::users.edit_page.status_card_lead') }}
+                </p>
+            </div>
+            <div class="admin-profile-status-card__control admin-profile-form">
+                {{ Form::checkbox('activated', trans('user::attributes.users.activated'), trans('user::users.form.activated'), $errors, $accountUser, [
+                    'disabled' => $accountUser->id === $currentUser->id,
+                    'checked' => old('activated', $accountUser->isActivated()),
+                ]) }}
+            </div>
+        </div>
+    </aside>
+@endif
