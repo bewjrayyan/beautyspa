@@ -94,7 +94,10 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4" /></svg>
             <span>{{ trans('lead::central.export_pdf.button') }}</span>
           </button>
-          <button type="button" class="icon-btn notification" aria-label="Notifications">♢<span class="notif-dot">3</span></button>
+          <div class="notification-wrap">
+            <button type="button" class="icon-btn notification" id="notificationButton" aria-label="Notifications" aria-expanded="false">♢<span class="notif-dot" id="notificationCount" hidden>0</span></button>
+            <div class="notification-menu" id="notificationMenu" hidden role="menu" aria-label="Notifications"></div>
+          </div>
         </div>
       </header>
       <div class="trade-ticker" id="tradeTicker" aria-live="off"></div>
@@ -180,7 +183,7 @@
       csrf: @json(csrf_token()),
     };
   </script>
-  <script src="{{ asset('modules/lead/central/trade-charts.js') }}"></script>
+  <script src="{{ asset('modules/lead/central/trade-charts.js') }}?v={{ @filemtime(public_path('modules/lead/central/trade-charts.js')) ?: time() }}"></script>
   <script src="{{ asset('modules/lead/central/qrcode.js') }}?v={{ @filemtime(public_path('modules/lead/central/qrcode.js')) ?: time() }}"></script>
   <script src="{{ asset('modules/lead/central/app.js') }}?v={{ @filemtime(public_path('modules/lead/central/app.js')) ?: time() }}"></script>
 </body>

@@ -31,6 +31,12 @@ class ProductTable extends AdminTable
 
                 return "<div class='product-name-with-status'><span class='product-table-name'>" . e($product->name) . "</span>{$status}</div>";
             })
+            ->addColumn('category', function (Product $product) {
+                return $product->categories
+                    ->pluck('name')
+                    ->filter()
+                    ->implode(', ') ?: '—';
+            })
             ->editColumn('thumbnail', function ($product) {
                 return view('admin::partials.table.image', [
                     'file' => ($product->variant && $product->variant->base_image->id) ? $product->variant->base_image : $product->base_image,

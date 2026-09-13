@@ -519,6 +519,7 @@
                         { data: 'checkbox', orderable: false, searchable: false, width: '3%' },
                         { data: 'thumbnail', orderable: false, searchable: false, width: '10%' },
                         { data: 'name', name: 'translations.name', class: 'name', orderable: false, defaultContent: '' },
+                        { data: 'category', orderable: false, searchable: false, className: 'category', defaultContent: '—' },
                         { data: 'price', searchable: false, orderable: false, className: 'price' },
                         { data: 'in_stock', name: 'in_stock', searchable: false },
                         { data: 'updated', name: 'updated_at' },

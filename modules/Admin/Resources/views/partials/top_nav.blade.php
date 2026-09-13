@@ -102,11 +102,16 @@
         @php
             $topNavUser = effective_admin_user() ?? auth()->user();
             $posBookingRoute = null;
+            $centralManagementRoute = null;
 
             if ($topNavUser?->isBeauticianOnly() && $topNavUser->hasAccess('admin.treatment_reservations.portal.create')) {
                 $posBookingRoute = route('admin.treatment_reservations.portal.pos');
             } elseif ($topNavUser?->hasAccess('admin.treatment_reservations.create')) {
                 $posBookingRoute = route('admin.treatment_reservations.pos');
+            }
+
+            if ($topNavUser?->hasAccess('admin.leads.index')) {
+                $centralManagementRoute = route('admin.leads.central');
             }
         @endphp
 
@@ -117,6 +122,17 @@
                         <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                     <span>{{ trans('treatmentreservation::sidebar.pos_booking') }}</span>
+                </a>
+            </li>
+        @endif
+
+        @if ($centralManagementRoute)
+            <li class="pos-booking-shortcut">
+                <a href="{{ $centralManagementRoute }}" title="{{ trans('lead::sidebar.central_management') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M4 19V5m0 14h16M8 16v-5m4 5V7m4 9v-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{{ trans('lead::sidebar.central_management') }}</span>
                 </a>
             </li>
         @endif

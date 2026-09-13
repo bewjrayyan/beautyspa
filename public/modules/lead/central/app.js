@@ -185,6 +185,7 @@ async function refreshMetrics(){
     liveMetrics = json.metrics;
     metricsScope = scope;
     boot.metrics = liveMetrics;
+    renderNotifications();
     if(state.view==='overview') overview();
     if(state.view==='sales') sales();
   }catch(err){
@@ -350,7 +351,7 @@ function dailyLeadBoard(){
   const rows = Array.isArray(m.beauticians) ? m.beauticians : [];
   const beauTotal = Array.isArray(m.beauticians) ? m.beauticians.length : 0;
   const beauCount = Math.max(1, Number(m.beautician_count) || beauTotal || 1);
-  const perTarget = Math.round((Number((m.targets&&m.targets.leads)||0)||0) / beauCount);
+  const perTarget = Number((m.targets&&m.targets.beautician_leads)||0) || 112;
   const ranked=[...rows].sort((a,b)=>b.leads-a.leads);
   const dateLabel = m.period && m.period.label ? escapeHtml(m.period.label) : t('common.this_month');
   const totalLeads = ranked.reduce((sum,r)=>sum+(Number(r.leads)||0),0);
@@ -554,8 +555,8 @@ function companyTargetBoard(){
   const buyerGoal = Number(tg.buyers) || 0;
   const avgGoal = Number(tg.avg_sale) || 0;
   const salesGoal = Number(tg.sales) || 0;
-  const perLeads = Math.round(leadGoal / beauCount);
-  const perBuyers = Math.round((leadGoal * convGoal / 100) / beauCount);
+  const perLeads = Number(tg.beautician_leads) || 112;
+  const perBuyers = Math.round((perLeads * convGoal) / 100);
   const perSales = Math.round(perBuyers * avgGoal);
   const compactMoney=(n)=>{
     const v=Number(n||0);
@@ -3834,6 +3835,7 @@ function changeCentralScope(){
 }
 
 function navigate(view, opts={}){
+  closeNotifications();
   const target = CENTRAL_VIEWS.includes(view) ? view : 'overview';
   closeDrawer();
   closeActionDrawer();
@@ -3910,6 +3912,38 @@ function closeDrawer(){
   if(walletDrawerTrigger?.isConnected) walletDrawerTrigger.focus({preventScroll:true});
   walletDrawerTrigger=null;
 }
+function notificationItems(){
+  const m=liveMetrics||{};
+  const items=[];
+  const payments=Number(m.ops?.payments?.queue||0);
+  const clearance=Number(m.ops?.clearance?.queue||0);
+  const leads=Number(m.kpis?.new_buyers||m.kpis?.unique_leads||0);
+  if(payments>0) items.push({icon:'₿',title:'Payments need review',detail:`${fmtInt(payments)} payment${payments===1?'':'s'} in queue`,view:'payments'});
+  if(clearance>0) items.push({icon:'✓',title:'Clearance queue needs attention',detail:`${fmtInt(clearance)} customer${clearance===1?'':'s'} waiting`,view:'clearance'});
+  if(leads>0) items.push({icon:'♙',title:'New leads captured',detail:`${fmtInt(leads)} unique lead${leads===1?'':'s'} in ${escapeHtml(m.period?.label||'selected period')}`,view:'leads'});
+  return items;
+}
+function renderNotifications(){
+  const button=$('#notificationButton'), menu=$('#notificationMenu'), badge=$('#notificationCount');
+  if(!button||!menu||!badge)return;
+  const items=notificationItems();
+  badge.textContent=String(items.length); badge.hidden=items.length===0;
+  menu.innerHTML=`<div class="notification-menu__head"><span>Notifications</span><small>${items.length?`${items.length} active`:'All clear'}</small></div>`+
+    (items.length?items.map(item=>`<button type="button" class="notification-menu__item" role="menuitem" data-notification-view="${item.view}"><span class="notification-menu__icon">${item.icon}</span><span><strong>${item.title}</strong><small>${item.detail}</small></span></button>`).join(''):'<div class="notification-menu__empty">No outstanding items right now.</div>');
+}
+function toggleNotifications(force=null){
+  const button=$('#notificationButton'), menu=$('#notificationMenu');
+  if(!button||!menu)return;
+  const open=force===null?menu.hidden:!force;
+  if(!menu.hidden===open)return;
+  renderNotifications(); menu.hidden=!open; button.setAttribute('aria-expanded',String(open));
+}
+function closeNotifications(){
+  const button=$('#notificationButton'), menu=$('#notificationMenu');
+  if(!button||!menu||menu.hidden)return;
+  menu.hidden=true;
+  button.setAttribute('aria-expanded','false');
+}
 function showToast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(showToast._t);showToast._t=setTimeout(()=>t.classList.remove('show'),2300)}
 window.showToast=showToast;window.navigate=navigate;window.$=$;
 
@@ -3974,6 +4008,10 @@ window.addEventListener('beforeprint',prepareCentralPrint);
 window.addEventListener('afterprint',finishCentralPrint);
 
 $('#menuToggle').onclick=()=>$('#sidebar').classList.toggle('open');
+$('#notificationButton').onclick=()=>toggleNotifications();
+$('#notificationMenu').onclick=e=>{const item=e.target.closest('[data-notification-view]');if(!item)return;closeNotifications();navigate(item.dataset.notificationView);};
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.notification-wrap'))closeNotifications();},true);
+renderNotifications();
 $('#drawerClose').onclick=closeDrawer;$('#drawerBackdrop').onclick=closeDrawer;$('#actionDrawerClose').onclick=closeActionDrawer;$('#actionDrawerBackdrop').onclick=closeActionDrawer;
 $('#branchScope').onchange=changeCentralScope;
 $('#periodScope').onchange=changeCentralScope;

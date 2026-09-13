@@ -77,6 +77,7 @@ return [
 
         'thumbnail' => 'Imej kecil',
         'name' => 'Nama',
+        'category' => 'Kategori',
         'price' => 'Harga',
         'stock' => 'Ketersediaan',
         'virtual_treatment' => 'Virtual/Rawatan',

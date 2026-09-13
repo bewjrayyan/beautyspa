@@ -733,13 +733,12 @@
     --pi-ink: #1c1917;
     --pi-muted: #78716c;
     --pi-border: rgba(28, 25, 23, 0.08);
-    --pi-shadow: 0 10px 30px rgba(28, 25, 23, 0.06);
     --pi-accent: var(--admin-sidebar-accent, #475aff);
     --pi-accent-soft: color-mix(in srgb, var(--pi-accent) 12%, #ffffff);
     --pi-accent-ring: color-mix(in srgb, var(--pi-accent) 28%, transparent);
 
     border: 0;
-    box-shadow: var(--pi-shadow);
+    box-shadow: none;
     border-radius: 16px;
     overflow: hidden;
     background: var(--pi-surface);
@@ -778,8 +777,8 @@
         padding: 14px 16px 16px;
         border: 1px solid var(--pi-border);
         border-radius: 14px;
-        background: linear-gradient(180deg, #fff 0%, var(--pi-canvas) 100%);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        background: var(--pi-surface);
+        box-shadow: none;
     }
 
     &__section-head {
@@ -835,12 +834,11 @@
         border: 1px solid var(--pi-border);
         border-radius: 12px;
         background: #fff;
-        box-shadow: inset 0 1px 2px rgba(28, 25, 23, 0.04);
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        transition: border-color 0.15s ease, background 0.15s ease;
 
         &:focus-within {
             border-color: var(--pi-rose-ring);
-            box-shadow: 0 0 0 4px var(--pi-rose-soft);
+            background: #fffafb;
         }
     }
 
@@ -887,7 +885,7 @@
         font-weight: 600;
         line-height: 1;
         cursor: pointer;
-        transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+        transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
 
         &:hover {
             border-color: rgba(190, 24, 93, 0.22);
@@ -905,12 +903,11 @@
 
         &--primary {
             border-color: transparent;
-            background: linear-gradient(135deg, #be185d 0%, #db2777 100%);
+            background: var(--pi-rose);
             color: #fff;
-            box-shadow: 0 8px 20px rgba(190, 24, 93, 0.22);
 
             &:hover {
-                background: linear-gradient(135deg, #9d174d 0%, #be185d 100%);
+                background: #9d174d;
                 color: #fff;
             }
         }
@@ -977,17 +974,17 @@
 
         &--active {
             border-color: rgba(22, 163, 74, 0.18);
-            background: linear-gradient(180deg, #fff 0%, #f0fdf4 100%);
+            background: #f0fdf4;
         }
 
         &--inactive {
             border-color: rgba(148, 163, 184, 0.28);
-            background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+            background: #f8fafc;
         }
 
         &--filtered {
             border-color: var(--pi-rose-ring);
-            background: linear-gradient(180deg, #fff 0%, var(--pi-blush) 100%);
+            background: var(--pi-blush);
         }
     }
 
@@ -1094,7 +1091,7 @@
             }
 
             .products-index__chip-dot {
-                box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+                outline: 2px solid rgba(255, 255, 255, 0.55);
             }
         }
 
@@ -1134,7 +1131,7 @@
         border: 1px solid var(--pi-border);
         border-radius: 14px;
         background: #fff;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        box-shadow: none;
 
         &.is-open {
             display: block;
@@ -1202,13 +1199,13 @@
         background: #fafaf9;
         color: var(--pi-ink);
         font-size: 13px;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        transition: border-color 0.15s ease, background 0.15s ease;
 
         &:focus {
             border-color: var(--pi-rose-ring);
             background: #fff;
             outline: none;
-            box-shadow: 0 0 0 4px var(--pi-rose-soft);
+            background: #fff;
         }
     }
 
@@ -1231,7 +1228,7 @@
         padding: 12px;
         border: 1px solid #e7e5e4;
         border-radius: 12px;
-        background: linear-gradient(180deg, #fff 0%, #fafaf9 100%);
+        background: #fafaf9;
         cursor: pointer;
 
         input {

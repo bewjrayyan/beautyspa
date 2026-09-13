@@ -264,7 +264,7 @@
     const ax = axisStyle();
     const base = chartBase();
     const weeks = Math.ceil(days.length / 7);
-    const data = days.map((d, i) => [i % 7, Math.floor(i / 7), d.v, d.d]);
+    const data = days.map((d, i) => [i % 7, Math.floor(i / 7), Number(d.v) || 0, d.d]);
     const max = Math.max(...days.map((d) => d.v), 1);
     return mount(el, {
       ...base,
@@ -278,16 +278,19 @@
       },
       xAxis: { type: 'category', data: t('trade.weekdays').split('|'), ...ax, splitArea: { show: false }, splitLine: { show: false } },
       yAxis: { type: 'category', data: Array.from({ length: weeks }, (_, i) => 'W' + (i + 1)), ...ax, splitArea: { show: false }, splitLine: { show: false } },
-      visualMap: {
-        min: 0, max, calculable: false, orient: 'horizontal', left: 'center', bottom: 0, itemWidth: 10, itemHeight: 80,
-        inRange: { color: ['#f8fafc', '#bae6fd', CYAN, '#0369a1'] },
-        textStyle: { color: MUTED, fontSize: 10 }
-      },
       series: [{
         type: 'heatmap',
         data,
-        label: { show: false },
-        emphasis: { itemStyle: { shadowBlur: 8, shadowColor: CYAN } }
+        itemStyle: {
+          borderColor: '#ffffff',
+          borderWidth: 2,
+          color: (params) => {
+            const intensity = Math.min(1, (Number(params.data[2]) || 0) / max);
+            return intensity > 0 ? `rgba(2, 132, 199, ${0.18 + (intensity * 0.72)})` : '#eef2f7';
+          }
+        },
+        label: { show: true, color: MUTED, fontSize: 9, formatter: (p) => p.data[2] > 0 ? p.data[2] : '' },
+        emphasis: { itemStyle: { shadowBlur: 8, shadowColor: CYAN, borderColor: CYAN } }
       }]
     }, false);
   }

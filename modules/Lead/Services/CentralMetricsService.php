@@ -23,6 +23,8 @@ final class CentralMetricsService
 
     public const TARGET_LEADS = 1000;
 
+    public const TARGET_BEAUTICIAN_LEADS = 112;
+
     public const TARGET_CONV_PCT = 40.0;
 
     public const TARGET_SALES = 1_000_000.0;
@@ -66,6 +68,7 @@ final class CentralMetricsService
 
         $targets = [
             'leads' => self::TARGET_LEADS,
+            'beautician_leads' => self::TARGET_BEAUTICIAN_LEADS,
             'conv_pct' => self::TARGET_CONV_PCT,
             'sales' => self::TARGET_SALES,
             'avg_sale' => self::TARGET_AVG_SALE,
@@ -108,7 +111,7 @@ final class CentralMetricsService
             // Sales waterfall stays order-based; lead funnel is in workspace.
             'waterfall' => $this->salesPipelineWaterfall($from, $to, $branchId),
             'beauticians' => $beauticians,
-            'beautician_count' => max(1, Beautician::query()->where('is_active', true)->count()),
+            'beautician_count' => Beautician::query()->where('is_active', true)->count(),
             'branches' => $branches,
             'ops' => [
                 'checkin' => $this->checkins->summary([
@@ -489,6 +492,16 @@ final class CentralMetricsService
     {
         $nameSql = Beautician::sqlFullName();
 
+        $activeBeauticians = Beautician::query()
+            ->where('is_active', true)
+            ->selectRaw('id')
+            ->selectRaw("{$nameSql} as name")
+            ->orderBy('position')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get()
+            ->keyBy('id');
+
         $salesRows = Order::query()
             ->paid()
             ->whereBetween('orders.created_at', [$from, $to])
@@ -509,27 +522,34 @@ final class CentralMetricsService
         $convertedByBeautician = $this->convertedLeadsByBeautician($from, $to, $branchId);
 
         $out = [];
-        foreach ($salesRows as $id => $row) {
-            $buyers = (int) $row->buyers;
-            $sales = (float) $row->sales;
+        foreach ($activeBeauticians as $id => $beautician) {
+            $salesRow = $salesRows->get($id);
+            $buyers = (int) ($salesRow->buyers ?? 0);
+            $sales = (float) ($salesRow->sales ?? 0);
             $leads = (int) ($leadsByBeautician[(int) $id] ?? 0);
             $converted = (int) ($convertedByBeautician[(int) $id] ?? 0);
             $conv = $leads > 0 ? round(($converted / $leads) * 100, 1) : 0.0;
             $out[] = [
                 'id' => (int) $id,
-                'name' => (string) $row->name,
+                'name' => (string) $beautician->name,
                 'leads' => $leads,
+                'target' => self::TARGET_BEAUTICIAN_LEADS,
                 'buyers' => $buyers,
                 'converted' => $converted,
                 'conv' => $conv,
                 'sales' => round($sales, 2),
-                'orders' => (int) $row->order_count,
+                'orders' => (int) ($salesRow->order_count ?? 0),
                 'avg' => $buyers > 0 ? round($sales / $buyers, 2) : 0.0,
                 'follow' => 0,
                 'lost' => 0,
                 'performance' => $this->performanceLabel($conv, $sales),
             ];
         }
+
+        usort($out, static function (array $left, array $right): int {
+            return [$right['leads'], $right['converted'], $right['sales'], $left['name']]
+                <=> [$left['leads'], $left['converted'], $left['sales'], $right['name']];
+        });
 
         return $out;
     }

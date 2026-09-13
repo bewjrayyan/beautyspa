@@ -76,41 +76,9 @@
         $activeSearch !== '',
     ])->filter()->count();
 
-    $quickFilterCount = collect([
-        $activeStatus !== '',
-        $activeType !== '',
-        $activeStock !== '',
-    ])->filter()->count() + $advancedFilterCount;
 @endphp
 
 <div class="products-index__layout">
-    <section class="products-index__section products-index__section--stats" aria-label="{{ trans('product::products.filters.section_stats') }}">
-        <header class="products-index__section-head">
-            <h3 class="products-index__section-title">{{ trans('product::products.filters.section_stats') }}</h3>
-        </header>
-
-        <div class="products-index__stats" role="list">
-            <div class="products-index__stat" role="listitem">
-                <span class="products-index__stat-label">{{ trans('product::products.filters.stat_total') }}</span>
-                <strong class="products-index__stat-value">{{ number_format($totalProductsCount) }}</strong>
-            </div>
-            <div class="products-index__stat products-index__stat--active" role="listitem">
-                <span class="products-index__stat-label">{{ trans('product::products.filters.active') }}</span>
-                <strong class="products-index__stat-value">{{ number_format($activeProductsCount) }}</strong>
-            </div>
-            <div class="products-index__stat products-index__stat--inactive" role="listitem">
-                <span class="products-index__stat-label">{{ trans('product::products.filters.inactive') }}</span>
-                <strong class="products-index__stat-value">{{ number_format($inactiveProductsCount) }}</strong>
-            </div>
-            @if ($quickFilterCount > 0)
-                <div class="products-index__stat products-index__stat--filtered" role="listitem">
-                    <span class="products-index__stat-label">{{ trans('product::products.filters.stat_filtered') }}</span>
-                    <strong class="products-index__stat-value" id="products-filtered-count">—</strong>
-                </div>
-            @endif
-        </div>
-    </section>
-
     <section class="products-index__section products-index__section--filters" aria-label="{{ trans('product::products.filters.section_filters') }}">
         <div class="products-index__section-accent" aria-hidden="true"></div>
 

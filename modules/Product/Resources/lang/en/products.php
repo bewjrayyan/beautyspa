@@ -76,6 +76,7 @@ return [
     'table' => [
         'thumbnail' => 'Thumbnail',
         'name' => 'Name',
+        'category' => 'Category',
         'price' => 'Price',
         'stock' => 'Availability',
         'virtual_treatment' => 'Virtual/Treatment',

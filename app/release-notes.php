@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.93' => [
+        'date' => '2026-09-13',
+        'en' => [
+            'summary' => 'Refresh the Products catalog experience with category visibility and cleaner filters.',
+            'changes' => [
+                'Remove the redundant catalog overview block from the Products index.',
+                'Replace gradient and shadow-heavy filter styling with a flatter SaaS interface.',
+                'Add product categories to the table with eager loading for efficient rendering.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Segarkan pengalaman katalog Produk dengan kategori dan penapis yang lebih kemas.',
+            'changes' => [
+                'Buang blok ringkasan katalog yang berulang dari indeks Produk.',
+                'Gantikan gaya penapis bergradient dan banyak bayang dengan antara muka SaaS yang rata.',
+                'Tambah kategori produk pada jadual dengan eager loading untuk paparan yang lebih cekap.',
+            ],
+        ],
+    ],
+
     '4.11.92' => [
         'date' => '2026-09-12',
         'en' => [

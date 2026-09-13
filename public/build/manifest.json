@@ -1272,7 +1272,7 @@
     ]
   },
   "modules/Product/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-CMZuIU-e-v4.7.72.css",
+    "file": "assets/main-kJhYYNcX-v4.7.72.css",
     "src": "modules/Product/Resources/assets/admin/sass/main.scss"
   },
   "modules/Report/Resources/assets/admin/js/bookings.js": {
@@ -2760,7 +2760,7 @@
     "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff2"
   },
   "public/modules/lead/central/app.js": {
-    "file": "assets/app-CAcu2oPS-v4.7.72.js",
+    "file": "assets/app-CWOu7PDJ-v4.7.72.js",
     "name": "app",
     "src": "public/modules/lead/central/app.js",
     "isEntry": true

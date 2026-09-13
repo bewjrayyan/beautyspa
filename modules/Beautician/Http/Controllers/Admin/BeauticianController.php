@@ -12,6 +12,8 @@ use Modules\TreatmentReservation\Services\ReservationDashboardService;
 use Modules\User\Entities\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class BeauticianController
 {
@@ -24,6 +26,55 @@ class BeauticianController
     protected $viewPath = 'beautician::admin.beauticians';
 
     protected $validation = SaveBeauticianRequest::class;
+
+
+    public function destroy(?string $ids = null)
+    {
+        $idList = array_values(array_filter(array_map('intval', explode(',', (string) $ids))));
+
+        if ($idList === []) {
+            return back();
+        }
+
+        $archivedIds = collect();
+        foreach (['orders', 'leads', 'treatment_bookings'] as $table) {
+            if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'beautician_id')) {
+                continue;
+            }
+
+            $query = DB::table($table)->whereIn('beautician_id', $idList);
+            if (Schema::hasColumn($table, 'deleted_at')) {
+                $query->whereNull('deleted_at');
+            }
+
+            $archivedIds = $archivedIds->merge($query->distinct()->pluck('beautician_id'));
+        }
+
+        $archivedIds = $archivedIds->map(fn ($id) => (int) $id)->unique()->values();
+        $deleteIds = collect($idList)->diff($archivedIds)->values();
+
+        DB::transaction(function () use ($archivedIds, $deleteIds): void {
+            if ($archivedIds->isNotEmpty()) {
+                Beautician::withoutGlobalScopes()
+                    ->whereIn('id', $archivedIds)
+                    ->update(['is_active' => false, 'updated_at' => now()]);
+            }
+
+            if ($deleteIds->isNotEmpty()) {
+                Beautician::withoutGlobalScopes()
+                    ->whereIn('id', $deleteIds)
+                    ->delete();
+            }
+        });
+
+        $message = trans('admin::messages.resource_deleted', ['resource' => $this->getLabel()]);
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->route('admin.beauticians.index')->withSuccess($message);
+    }
 
 
     public function edit($id)

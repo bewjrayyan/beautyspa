@@ -21,9 +21,9 @@ class ShippingClassController
     protected $validation = SaveShippingClassRequest::class;
 
 
-    public function destroy(string $ids)
+    public function destroy(?string $ids = null)
     {
-        $idList = array_values(array_filter(array_map('intval', explode(',', $ids))));
+        $idList = array_values(array_filter(array_map('intval', explode(',', (string) $ids))));
 
         if ($idList === []) {
             return back();
