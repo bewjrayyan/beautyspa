@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.98' => [
+        'date' => '2026-09-13',
+        'en' => [
+            'summary' => 'Polish the customer rewards sidebar and strengthen SEO production coverage.',
+            'changes' => [
+                'Replace the cramped rewards statistics grid with a clean label-and-value list that removes empty cells and improves readability.',
+                'Tighten the compact membership card spacing so cardholder, points, membership date, and reward details remain visible across screen sizes.',
+                'Add regression coverage proving product metadata still renders when SEO Tools container aliases are unavailable in production.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kemaskan sidebar ganjaran pelanggan dan kukuhkan liputan production SEO.',
+            'changes' => [
+                'Gantikan grid statistik ganjaran yang sempit dengan senarai label dan nilai yang kemas untuk menghapuskan ruang kosong serta meningkatkan kebolehbacaan.',
+                'Rapatkan jarak kad keahlian kompak supaya butiran pemegang kad, mata, tarikh keahlian dan ganjaran kekal kelihatan pada semua saiz skrin.',
+                'Tambah liputan regresi yang membuktikan metadata produk masih dijana apabila alias container SEO Tools tidak tersedia di production.',
+            ],
+        ],
+    ],
+
     '4.11.97' => [
         'date' => '2026-09-13',
         'en' => [

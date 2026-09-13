@@ -17,21 +17,21 @@
     </div>
 
     <ul class="account-loyalty-sidebar__list account-loyalty-membership__stats">
-        <li>
+        <li class="account-loyalty-membership__stat account-loyalty-membership__stat--tier">
             <span class="account-loyalty-sidebar__label">{{ trans('loyalty::account.current_tier') }}</span>
             <span class="account-loyalty-sidebar__value">{{ $wallet->tier?->translatedName() ?? '—' }}</span>
         </li>
-        <li>
+        <li class="account-loyalty-membership__stat account-loyalty-membership__stat--points">
             <span class="account-loyalty-sidebar__label">{{ trans('loyalty::account.points_balance') }}</span>
             <span class="account-loyalty-sidebar__value account-loyalty-membership__points">
                 {{ number_format($wallet->balance) }}
             </span>
         </li>
-        <li>
+        <li class="account-loyalty-membership__stat">
             <span class="account-loyalty-sidebar__label">{{ trans('loyalty::account.worth') }}</span>
             <span class="account-loyalty-sidebar__value">RM {{ number_format($balanceRm, 2) }}</span>
         </li>
-        <li>
+        <li class="account-loyalty-membership__stat account-loyalty-membership__stat--rate">
             <span class="account-loyalty-sidebar__label">{{ trans('loyalty::account.earn_rate') }}</span>
             <span class="account-loyalty-sidebar__value">
                 {{ trans('loyalty::account.earn_rate_value', [

@@ -289,24 +289,90 @@ $loyalty-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 
 
 .account-loyalty-sidebar__card--membership {
+    padding: 18px;
+    border-color: rgba(242, 116, 172, 0.24);
+    background: linear-gradient(180deg, rgba(242, 116, 172, 0.08) 0%, $loyalty-surface 34%);
+
     .account-loyalty-sidebar__title i {
         color: #d97706;
     }
 }
 
 .account-loyalty-membership__card-wrap {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+
+    .loyalty-membership-card {
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        box-shadow:
+            0 6px 14px rgba(15, 23, 42, 0.12),
+            0 18px 28px rgba(15, 23, 42, 0.1);
+    }
 }
 
 .account-loyalty-membership__stats {
-    margin-bottom: 0;
-    padding-top: 2px;
-    border-top: 1px solid $loyalty-border;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid $loyalty-border;
+    border-radius: 12px;
+
+    > li.account-loyalty-membership__stat {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(96px, auto);
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        margin: 0;
+        padding: 11px 12px;
+        background: $loyalty-surface;
+        border-bottom: 1px solid $loyalty-border;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+    }
+
+    .account-loyalty-sidebar__label {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.35;
+        letter-spacing: 0.01em;
+        text-transform: none;
+    }
+
+    .account-loyalty-sidebar__value {
+        min-width: 0;
+        max-width: 154px;
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+}
+
+.account-loyalty-membership__stat--tier {
+    .account-loyalty-sidebar__value {
+        justify-self: end;
+        padding: 3px 9px;
+        font-size: 12px;
+        line-height: 1.35;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 999px;
+    }
+}
+
+.account-loyalty-membership__stat--rate {
+    .account-loyalty-sidebar__value {
+        font-size: 13px;
+        line-height: 1.4;
+    }
 }
 
 .account-loyalty-membership__points {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 800;
+    line-height: 1;
     color: $loyalty-pink;
 }
 

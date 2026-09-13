@@ -229,6 +229,12 @@
             background: var(--color-white);
             border: none;
         }
+
+        &--membership {
+            padding: 16px;
+            border: 1px solid rgba(242, 116, 172, 0.2);
+            background: linear-gradient(180deg, rgba(242, 116, 172, 0.07) 0%, var(--color-white) 34%);
+        }
     }
 
     .account-loyalty-sidebar__title {
@@ -238,6 +244,19 @@
         i {
             font-size: 18px;
         }
+    }
+
+    .account-loyalty-membership__card-wrap {
+        margin-bottom: 12px;
+    }
+
+    .account-loyalty-membership__stats > li.account-loyalty-membership__stat {
+        grid-template-columns: minmax(0, 1fr) minmax(88px, auto);
+        padding: 10px 12px;
+    }
+
+    .account-loyalty-membership__points {
+        font-size: 17px;
     }
 
     .account-loyalty-sidebar__code {

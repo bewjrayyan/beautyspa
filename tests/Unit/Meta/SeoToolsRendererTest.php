@@ -69,7 +69,27 @@ class SeoToolsRendererTest extends TestCase
     }
 
 
-    public function test_rendering_does_not_require_seotools_package_or_container_aliases(): void
+    public function test_rendering_does_not_require_seotools_container_aliases(): void
+    {
+        foreach (['seotools.metatags', 'seotools.opengraph', 'seotools.twitter'] as $alias) {
+            $this->app->offsetUnset($alias);
+            $this->assertFalse($this->app->bound($alias));
+        }
+
+        $html = app(SeoToolsRenderer::class)->render(new OpenGraph(
+            title: 'Container-safe product',
+            description: 'Metadata renders without package container aliases.',
+            url: 'https://example.com/products/container-safe',
+            siteName: 'Store',
+        ));
+
+        $this->assertStringContainsString('<title>Container-safe product</title>', $html);
+        $this->assertStringContainsString('property="og:title" content="Container-safe product"', $html);
+        $this->assertStringContainsString('name="twitter:title" content="Container-safe product"', $html);
+    }
+
+
+    public function test_rendering_falls_back_when_seotools_package_is_unavailable(): void
     {
         $renderer = new class extends SeoToolsRenderer
         {

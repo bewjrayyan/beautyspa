@@ -287,12 +287,38 @@
     }
 
     .loyalty-membership-card--front {
-        padding: 16px 16px 14px;
+        padding: 14px 16px 12px;
+    }
+
+    .loyalty-membership-card__chip-row {
+        margin-top: 7px;
+    }
+
+    .loyalty-membership-card__chip {
+        width: 36px;
+        height: 27px;
     }
 
     .loyalty-membership-card__number {
+        margin-top: 8px;
         font-size: 14px;
         letter-spacing: 0.12em;
+    }
+
+    .loyalty-membership-card__holder-row {
+        margin-top: 7px;
+    }
+
+    .loyalty-membership-card__footer {
+        margin-top: 5px;
+    }
+
+    .loyalty-membership-card__valid-value {
+        font-size: 11px;
+    }
+
+    .loyalty-membership-card__network-mark {
+        font-size: 10px;
     }
 
     .loyalty-membership-card__points-value {
