@@ -37,7 +37,13 @@ function initialFormData() {
         qty: null,
         in_stock: 1,
         slug: null,
-        meta: {},
+        meta: {
+            meta_title: "",
+            meta_description: "",
+            og_image_id: null,
+            og_image_path: null,
+            meta_robots: "index, follow",
+        },
         short_description: null,
         new_from: null,
         new_to: null,
@@ -85,6 +91,7 @@ export function useForm() {
             variant.position = variantPosition.value++;
             variant.is_open = false;
             variant.is_selected = false;
+            variant.media = (variant.media ?? []).slice(0, 1);
         });
     }
 

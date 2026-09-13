@@ -720,6 +720,167 @@
     }
 }
 
+.product-seo-image {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    img {
+        width: 160px;
+        max-width: 100%;
+        aspect-ratio: 1200 / 630;
+        object-fit: cover;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+    }
+}
+
+.product-social-preview {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+
+    &__header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+
+        h6 {
+            margin: 2px 0 0;
+            color: #1f2937;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+    }
+
+    &__eyebrow {
+        color: #0f766e;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    &__platforms {
+        display: inline-flex;
+        gap: 5px;
+
+        span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border: 1px solid #e5e7eb;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #475569;
+            font-size: 12px;
+        }
+    }
+
+    &__card {
+        overflow: hidden;
+        border: 1px solid #dbe2ea;
+        border-radius: 10px;
+        background: #ffffff;
+    }
+
+    &__media {
+        aspect-ratio: 1200 / 630;
+        background: #f3f4f6;
+
+        img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &__placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        color: #64748b;
+        text-align: center;
+
+        i {
+            color: #94a3b8;
+            font-size: 24px;
+        }
+
+        span {
+            max-width: 220px;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+    }
+
+    &__content {
+        padding: 12px 14px 14px;
+
+        strong,
+        p {
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+        }
+
+        strong {
+            margin-top: 4px;
+            color: #172033;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.4;
+            -webkit-line-clamp: 2;
+        }
+
+        p {
+            margin: 5px 0 0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+            -webkit-line-clamp: 2;
+        }
+    }
+
+    &__domain {
+        display: block;
+        overflow: hidden;
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    &__hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin: 10px 0 0;
+        color: #64748b;
+        font-size: 11px;
+        line-height: 1.45;
+
+        i {
+            margin-top: 2px;
+            color: #0f766e;
+        }
+    }
+}
+
 
 
 // Products index — spa catalog filter shell (marketplace-grade)

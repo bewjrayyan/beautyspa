@@ -19,6 +19,7 @@ export function useDraggableSections() {
         return {
             "product-form-left-sections": [
                 "attributes",
+                "settings",
                 "variations",
                 "variants",
                 "options",
@@ -28,7 +29,6 @@ export function useDraggableSections() {
                 "media",
                 "pricing",
                 "loyalty",
-                "settings",
                 "inventory",
                 "seo",
                 "additional",
@@ -36,16 +36,22 @@ export function useDraggableSections() {
         }[key];
     }
 
-    function mergeRightColumnSections(stored) {
+    function mergeLeftColumnSections(stored) {
         if (!stored.includes("settings")) {
-            const pricingIndex = stored.indexOf("pricing");
+            const variationsIndex = stored.indexOf("variations");
 
-            if (pricingIndex !== -1) {
-                stored.splice(pricingIndex + 1, 0, "settings");
+            if (variationsIndex !== -1) {
+                stored.splice(variationsIndex, 0, "settings");
             } else {
-                stored.push("settings");
+                stored.unshift("settings");
             }
         }
+
+        return stored;
+    }
+
+    function mergeRightColumnSections(stored) {
+        stored = stored.filter((section) => section !== "settings");
 
         if (
             AestheticCart.data?.loyaltyEnabled &&
@@ -72,6 +78,10 @@ export function useDraggableSections() {
         }
 
         stored = stored.filter((section) => section !== "consultation");
+
+        if (key === "product-form-left-sections") {
+            return mergeLeftColumnSections(stored);
+        }
 
         if (key === "product-form-right-sections") {
             return mergeRightColumnSections(stored);

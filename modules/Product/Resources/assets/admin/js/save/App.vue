@@ -31,6 +31,10 @@
                                 <Attributes />
                             </template>
 
+                            <template v-else-if="section === 'settings'">
+                                <ProductSettings />
+                            </template>
+
                             <template v-else-if="section === 'variations'">
                                 <Variations />
                             </template>
@@ -49,6 +53,8 @@
                         </div>
                     </template>
                 </draggable>
+
+                <LinkedProducts />
             </div>
 
             <div class="product-form-right-column col-lg-4 col-md-12">
@@ -82,11 +88,7 @@
                                 <ProductLoyalty />
                             </template>
 
-                            <template v-if="section === 'settings'">
-                                <ProductSettings />
-                            </template>
-
-                            <template v-else-if="section === 'inventory'">
+                            <template v-if="section === 'inventory'">
                                 <Inventory />
                             </template>
 
@@ -100,8 +102,6 @@
                         </div>
                     </template>
                 </draggable>
-
-                <LinkedProducts />
             </div>
         </div>
 

@@ -64,7 +64,7 @@ export default class {
         this.data.variants = this.data.variants.reduce(
             (accumulator, variant) => {
                 variant.position = variantPosition.value++;
-                variant.media = variant.media.map(({ id }) => id);
+                variant.media = variant.media.slice(0, 1).map(({ id }) => id);
                 variant.special_price_start = normalizeScheduleDate(
                     variant.special_price_start,
                 );
@@ -126,6 +126,10 @@ export default class {
             }, {});
     }
 
+    transformMeta() {
+        delete this.data.meta?.og_image_path;
+    }
+
     transform(data) {
         this.data = JSON.parse(JSON.stringify(data));
 
@@ -156,6 +160,7 @@ export default class {
         this.transformVariations();
         this.transformVariants();
         this.transformOptions();
+        this.transformMeta();
 
         return this.data;
     }

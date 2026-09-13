@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ locale() }}">
+<html lang="{{ locale() }}" prefix="og: https://ogp.me/ns#">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -10,21 +10,25 @@
             <link rel="apple-touch-icon" href="{{ $faviconTouch ?: $favicon }}">
         @endif
 
-        <title>
-            @hasSection('title')
-                @yield('title') - {{ setting('store_name') }}
-            @else
-                @if (setting('store_tagline'))
-                    {{ setting('store_tagline') }} -
-                @endif
+        @if (! empty($seoToolsMeta ?? null))
+            {!! $seoToolsMeta !!}
+        @else
+            <title>
+                @hasSection('title')
+                    @yield('title') - {{ setting('store_name') }}
+                @else
+                    @if (setting('store_tagline'))
+                        {{ setting('store_tagline') }} -
+                    @endif
 
-                {{ setting('store_name') }}
-            @endif
-        </title>
+                    {{ setting('store_name') }}
+                @endif
+            </title>
+        @endif
 
         @stack('meta')
 
-        @if (empty($seoMetaRendered ?? null) && ! empty($openGraph))
+        @if (empty($seoToolsMeta ?? null) && empty($seoMetaRendered ?? null) && ! empty($openGraph))
             @include('meta::public.open_graph', ['openGraph' => $openGraph])
         @endif
 

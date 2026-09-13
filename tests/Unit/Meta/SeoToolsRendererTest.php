@@ -1,0 +1,70 @@
+<?php
+
+namespace Tests\Unit\Meta;
+
+use Modules\Meta\Support\OpenGraph;
+use Modules\Meta\Support\SeoToolsRenderer;
+use Tests\TestCase;
+
+class SeoToolsRendererTest extends TestCase
+{
+    public function test_it_generates_complete_product_metadata_without_json_ld_duplicates(): void
+    {
+        $metadata = new OpenGraph(
+            title: 'RoyalLift',
+            description: 'Premium aesthetic treatment.',
+            url: 'https://example.com/products/royallift',
+            type: 'product',
+            image: 'https://example.com/images/royallift.webp',
+            imageAlt: 'RoyalLift treatment',
+            siteName: 'IMMA Seri Laris',
+            priceAmount: '6050.00',
+            priceCurrency: 'MYR',
+        );
+
+        $html = app(SeoToolsRenderer::class)->render(
+            metadata: $metadata,
+            robots: 'noindex, follow',
+            documentTitle: 'RoyalLift | IMMA Seri Laris',
+            productProperties: [
+                'brand' => 'IMMA Seri Laris',
+                'availability' => 'in stock',
+                'condition' => 'new',
+            ],
+        );
+
+        $this->assertStringContainsString('<title>RoyalLift | IMMA Seri Laris</title>', $html);
+        $this->assertStringContainsString('name="robots" content="noindex, follow"', $html);
+        $this->assertStringContainsString('rel="canonical" href="https://example.com/products/royallift"', $html);
+        $this->assertStringContainsString('property="og:type" content="product"', $html);
+        $this->assertStringContainsString('property="product:price:amount" content="6050.00"', $html);
+        $this->assertStringContainsString('name="twitter:card" content="summary_large_image"', $html);
+        $this->assertStringNotContainsString('application/ld+json', $html);
+        $this->assertSame(1, substr_count($html, '<title>'));
+    }
+
+
+    public function test_rendering_does_not_leak_metadata_between_products(): void
+    {
+        $renderer = app(SeoToolsRenderer::class);
+
+        $renderer->render(new OpenGraph(
+            title: 'First product',
+            description: 'First description',
+            url: 'https://example.com/products/first',
+            image: 'https://example.com/first.jpg',
+            siteName: 'Store',
+        ));
+
+        $html = $renderer->render(new OpenGraph(
+            title: 'Second product',
+            description: 'Second description',
+            url: 'https://example.com/products/second',
+            siteName: 'Store',
+        ));
+
+        $this->assertStringContainsString('Second product', $html);
+        $this->assertStringNotContainsString('First product', $html);
+        $this->assertStringNotContainsString('first.jpg', $html);
+    }
+}

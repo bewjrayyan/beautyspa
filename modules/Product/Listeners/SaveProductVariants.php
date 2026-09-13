@@ -111,13 +111,8 @@ class SaveProductVariants
 
         $files = [
             'base_image' => [$baseImage->id],
+            'additional_images' => [],
         ];
-
-        $additionalImages = $product->filterFiles('additional_images')->pluck('files.id')->all();
-
-        if ($additionalImages !== []) {
-            $files['additional_images'] = $additionalImages;
-        }
 
         $defaultVariant->syncFiles($files);
     }

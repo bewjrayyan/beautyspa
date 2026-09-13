@@ -307,6 +307,10 @@
 
                                                 <template #footer>
                                                     <div
+                                                        v-if="
+                                                            variant.media
+                                                                .length === 0
+                                                        "
                                                         class="media-grid-item media-picker disabled"
                                                         @click="
                                                             addVariantMedia(
@@ -979,13 +983,10 @@ function changeVariantStatus(variantUid) {
 }
 
 function addVariantMedia(index) {
-    const picker = new MediaPicker({ type: "image", multiple: true });
+    const picker = new MediaPicker({ type: "image" });
 
     picker.on("select", ({ id, path }) => {
-        form.variants[index].media.push({
-            id: +id,
-            path,
-        });
+        form.variants[index].media = [{ id: +id, path }];
     });
 }
 

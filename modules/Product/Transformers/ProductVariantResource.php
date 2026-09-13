@@ -22,7 +22,12 @@ class ProductVariantResource extends JsonResource
             'uids' => $this->uids,
             'name' => $this->name,
             'position' => $this->position,
-            'media' => $this->files->map->only('id', 'path'),
+            'media' => $this->files
+                ->where('pivot.zone', 'base_image')
+                ->take(1)
+                ->map
+                ->only('id', 'path')
+                ->values(),
             'manage_stock' => $this->manage_stock,
             'qty' => $this->qty,
             'in_stock' => $this->in_stock,

@@ -109,7 +109,9 @@ export function useVariants() {
             return;
         }
 
-        defaultVariant.media = form.media.map((file) => ({ ...file }));
+        defaultVariant.media = form.media
+            .slice(0, 1)
+            .map((file) => ({ ...file }));
     }
 
     function setVariantsLength() {

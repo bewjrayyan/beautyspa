@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.94' => [
+        'date' => '2026-09-13',
+        'en' => [
+            'summary' => 'Improve product management with production-ready SEO and safer variant media handling.',
+            'changes' => [
+                'Add editable search metadata, indexing controls, social share images, and a live social preview to the product editor.',
+                'Rebalance the product editor by moving Product Settings and Linked Products into the main content column.',
+                'Limit each variant to one image, close the media picker after selection, and enforce the same rule during validation and persistence.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Tingkatkan pengurusan produk dengan SEO sedia production dan pengendalian imej varian yang lebih selamat.',
+            'changes' => [
+                'Tambah metadata carian, kawalan pengindeksan, imej kongsi sosial dan pratonton sosial langsung pada editor produk.',
+                'Seimbangkan editor produk dengan memindahkan Tetapan Produk dan Produk Berkaitan ke kolum kandungan utama.',
+                'Hadkan setiap varian kepada satu imej, tutup pemilih media selepas pilihan dan kuatkuasakan peraturan yang sama semasa validasi serta penyimpanan.',
+            ],
+        ],
+    ],
+
     '4.11.93' => [
         'date' => '2026-09-13',
         'en' => [

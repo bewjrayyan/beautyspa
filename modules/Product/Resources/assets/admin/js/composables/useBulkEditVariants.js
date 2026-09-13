@@ -41,7 +41,9 @@ function clearVariantsSpecialPriceErrors(errors, uid) {
 }
 
 function updateVariantsField(variant, { key, value }, errors) {
-    variant[key] = value;
+    variant[key] = Array.isArray(value)
+        ? value.map((item) => ({ ...item }))
+        : value;
 
     errors.clear(`variants.${variant.uid}.${key}`);
 }

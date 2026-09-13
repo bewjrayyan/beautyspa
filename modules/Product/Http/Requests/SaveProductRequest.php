@@ -146,6 +146,10 @@ class SaveProductRequest extends Request
                 'is_active' => 'required|boolean',
                 'loyalty_bonus_points' => 'nullable|integer|min:0|max:9999999',
                 'loyalty_earn_multiplier' => 'nullable|numeric|min:0|max:100',
+                'meta.meta_title' => 'nullable|string|max:70',
+                'meta.meta_description' => 'nullable|string|max:320',
+                'meta.og_image_id' => 'nullable|integer|exists:files,id',
+                'meta.meta_robots' => ['nullable', Rule::in(['index, follow', 'noindex, follow'])],
             ],
             $this->getInventoryRules()
         );
@@ -205,6 +209,8 @@ class SaveProductRequest extends Request
         return [
             'variants.*.name' => 'required',
             'variants.*.sku' => 'nullable',
+            'variants.*.media' => 'nullable|array|max:1',
+            'variants.*.media.*' => 'integer|exists:files,id',
             'variants.*.price' => 'required_if:variants.*.is_active,true|nullable|numeric|min:0|max:99999999999999',
             'variants.*.special_price' => 'nullable|numeric|min:0|max:99999999999999',
             'variants.*.special_price_type' => ['nullable', Rule::in(['fixed', 'percent'])],

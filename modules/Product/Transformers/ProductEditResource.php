@@ -18,6 +18,9 @@ class ProductEditResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $metaTranslation = $this->meta?->translate(locale(), false);
+        $ogImage = $metaTranslation?->ogImage;
+
         return [
             'id' => $this->id,
             'slug' => $this->slug,
@@ -49,8 +52,11 @@ class ProductEditResource extends JsonResource
             'special_price_start' => $this->special_price_start,
             'special_price_end' => $this->special_price_end,
             'meta' => [
-                'meta_title' => $this->meta->meta_title,
-                'meta_description' => $this->meta->meta_description,
+                'meta_title' => $metaTranslation?->meta_title,
+                'meta_description' => $metaTranslation?->meta_description,
+                'og_image_id' => $metaTranslation?->og_image_id,
+                'og_image_path' => $ogImage?->path,
+                'meta_robots' => $metaTranslation?->meta_robots ?: 'index, follow',
             ],
             'downloads' => $this->filterFiles('downloads')->get()->map->only('id', 'filename'),
             'is_virtual' => $this->is_virtual,

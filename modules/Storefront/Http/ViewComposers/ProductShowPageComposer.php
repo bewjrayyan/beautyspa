@@ -10,11 +10,17 @@ use Modules\Storefront\Banner;
 use Modules\Storefront\Feature;
 use Illuminate\Support\Collection;
 use Modules\Media\Entities\File;
+use Modules\Meta\Support\SeoToolsRenderer;
 use Modules\Product\Entities\Product;
 use Spatie\SchemaOrg\ItemAvailability;
 
 class ProductShowPageComposer
 {
+    public function __construct(private SeoToolsRenderer $seoToolsRenderer)
+    {
+    }
+
+
     /**
      * Bind data to the view.
      *
@@ -25,14 +31,40 @@ class ProductShowPageComposer
     public function compose(View $view)
     {
         $product = $view->getData()['product'];
+        $openGraph = $this->openGraph($product);
 
         $view->with([
             'features' => Feature::all(),
             'banner' => Banner::getProductPageBanner(),
             'productSchemaMarkup' => $this->schemaMarkup($product),
             'categoryBreadcrumb' => $this->getCategoryBreadCrumb($product->categories->nest()),
-            'openGraph' => $this->openGraph($product),
+            'openGraph' => $openGraph,
+            'seoToolsMeta' => $this->seoToolsMeta($product, $openGraph),
         ]);
+    }
+
+
+    private function seoToolsMeta(Product $product, OpenGraph $openGraph): string
+    {
+        $translation = $product->meta?->translate(locale(), false);
+        $storeName = trim((string) setting('store_name', config('app.name')));
+        $documentTitle = trim((string) ($translation?->meta_title ?: $product->name));
+
+        if (! $translation?->meta_title && $storeName !== '') {
+            $documentTitle .= ' - '.$storeName;
+        }
+
+        return $this->seoToolsRenderer->render(
+            metadata: $openGraph,
+            robots: (string) ($translation?->meta_robots ?: 'index, follow'),
+            documentTitle: $documentTitle,
+            productProperties: [
+                'brand' => $product->brand->name,
+                'availability' => $product->isInStock() ? 'in stock' : 'out of stock',
+                'condition' => 'new',
+                'retailer_item_id' => $product->sku,
+            ],
+        );
     }
 
 

@@ -340,10 +340,7 @@ class ProductVariant extends Model
 
         return [
             'base_image' => $media->first(),
-            'additional_images' =>
-                $media->except(
-                    $media->keys()->first()
-                )->toArray(),
+            'additional_images' => [],
         ];
     }
 

@@ -202,6 +202,7 @@
 
                         <template #footer>
                             <div
+                                v-if="bulkEditVariants.media.length === 0"
                                 class="media-grid-item media-picker disabled"
                                 @click="addBulkEditVariantsMedia"
                             >
@@ -657,13 +658,10 @@ function changeBulkEditVariantsField(fieldName) {
 }
 
 function addBulkEditVariantsMedia() {
-    const picker = new MediaPicker({ type: "image", multiple: true });
+    const picker = new MediaPicker({ type: "image" });
 
     picker.on("select", ({ id, path }) => {
-        bulkEditVariants.media.push({
-            id: +id,
-            path,
-        });
+        bulkEditVariants.media = [{ id: +id, path }];
     });
 }
 
