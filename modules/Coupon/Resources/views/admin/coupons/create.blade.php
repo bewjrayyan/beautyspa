@@ -19,6 +19,19 @@
 
 @section('content')
     <div class="coupon-admin coupon-form-page coupon-form-page--compact">
+        <header class="coupon-builder-header">
+            <div class="coupon-builder-header__icon" aria-hidden="true"><i class="fa fa-ticket"></i></div>
+            <div class="coupon-builder-header__copy">
+                <span>{{ trans('coupon::coupons.form.builder_eyebrow') }}</span>
+                <h1>{{ trans('coupon::coupons.form.create_title') }}</h1>
+                <p>{{ trans('coupon::coupons.form.create_lead') }}</p>
+            </div>
+            <a href="{{ route('admin.coupons.index') }}" class="coupon-builder-header__back">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                {{ trans('coupon::coupons.form.back_to_list') }}
+            </a>
+        </header>
+
         <div class="coupon-form-page__shell">
             <div class="coupon-form-page__main">
                 <form method="POST" action="{{ route('admin.coupons.store') }}" class="form-horizontal coupon-form" id="coupon-create-form" novalidate>

@@ -3,17 +3,24 @@
         <ul class="coupon-form-tabs__list" role="tablist">
             @foreach ($navTabs as $tab)
                 <li
-                    class="coupon-form-tabs__item {{ $tab['active'] ? 'coupon-form-tabs__item--active' : '' }} {{ $tab['hasError'] ? 'coupon-form-tabs__item--error' : '' }}"
+                    class="coupon-form-tabs__item {{ $tab['active'] ? 'active coupon-form-tabs__item--active' : '' }} {{ $tab['hasError'] ? 'coupon-form-tabs__item--error' : '' }}"
                     role="presentation"
                 >
                     <a
-                        href="{{ $formUrl }}?tab={{ $tab['name'] }}"
+                        href="#tab-{{ $tab['name'] }}"
                         class="coupon-form-tabs__link"
                         role="tab"
+                        data-toggle="tab"
+                        data-tab-name="{{ $tab['name'] }}"
+                        aria-controls="tab-{{ $tab['name'] }}"
                         aria-selected="{{ $tab['active'] ? 'true' : 'false' }}"
+                        aria-expanded="{{ $tab['active'] ? 'true' : 'false' }}"
                     >
-                        <i class="fa {{ $tab['icon'] }}" aria-hidden="true"></i>
-                        {{ $tab['label'] }}
+                        <span class="coupon-form-tabs__step">{{ $tab['step'] }}</span>
+                        <span class="coupon-form-tabs__copy">
+                            <strong>{{ $tab['label'] }}</strong>
+                            <small>{{ $tab['description'] }}</small>
+                        </span>
                         @if ($tab['hasError'])
                             <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
                         @endif
@@ -29,6 +36,10 @@
         </div>
 
         <div class="coupon-form-layout__footer">
+            <p class="coupon-form-layout__save-note">
+                <i class="fa fa-shield" aria-hidden="true"></i>
+                {{ trans('coupon::coupons.form.save_note') }}
+            </p>
             @include('admin::form.footer', ['buttonOffset' => $buttonOffset])
         </div>
     </div>

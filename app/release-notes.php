@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.96' => [
+        'date' => '2026-09-13',
+        'en' => [
+            'summary' => 'Refresh the coupon builder with a guided promotion workspace.',
+            'changes' => [
+                'Restyle the coupon form as a stepped promo builder with a live preview sidebar and configuration readiness checklist.',
+                'Focus validation feedback on the first tab with errors, and add validation rules for code format, percent cap, date range, spend bounds, per-customer limits, and scope overlap.',
+                'Make coupon code lookup case-insensitive so customers can redeem codes regardless of letter casing.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Segarkan pembina kupon dengan ruang promosi berpandu.',
+            'changes' => [
+                'Susun semula borang kupon sebagai pembina promo berperingkat dengan sidebar pratonton langsung dan senarai semak kesediaan konfigurasi.',
+                'Fokus maklum balas pengesahan pada tab pertama yang mempunyai ralat, dan tambah peraturan pengesahan untuk format kod, had peratus, julat tarikh, had perbelanjaan, had setiap pelanggan, dan pertindihan skop.',
+                'Jadikan carian kod kupon tidak sensitif huruf supaya pelanggan boleh menebus kod tanpa mengira huruf besar atau kecil.',
+            ],
+        ],
+    ],
+
     '4.11.95' => [
         'date' => '2026-09-13',
         'en' => [

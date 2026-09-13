@@ -27,16 +27,12 @@ class CouponTabs extends Tabs
     public function render($data = [])
     {
         $this->activateTabFromQuery();
-
-        $coupon = $data['coupon'] ?? null;
+        $this->activateTabFromErrors();
 
         return view('coupon::admin.coupons.form_wrapper', [
             'navTabs' => $this->sortedNavTabs(),
             'contents' => $this->contents($data),
             'buttonOffset' => $this->buttonOffset,
-            'formUrl' => $coupon?->exists
-                ? route('admin.coupons.edit', $coupon)
-                : route('admin.coupons.create'),
         ]);
     }
 
@@ -46,13 +42,18 @@ class CouponTabs extends Tabs
         $errors = request()->session()->get('errors') ?: new \Illuminate\Support\ViewErrorBag;
         $items = [];
 
+        $step = 0;
+
         foreach (array_keys($this->groups) as $groupName) {
             $sorted = collect($this->tabs[$groupName] ?? [])->sortBy(fn (Tab $tab) => $tab->getWeight());
 
             foreach ($sorted as $tab) {
+                $step++;
                 $items[] = [
                     'name' => $tab->name,
                     'label' => $tab->label,
+                    'step' => $step,
+                    'description' => trans('coupon::coupons.tabs.descriptions.' . $tab->name),
                     'active' => $tab->active,
                     'hasError' => $errors->hasAny($tab->getFields()),
                     'icon' => match ($tab->name) {
@@ -129,7 +130,41 @@ class CouponTabs extends Tabs
             return;
         }
 
-        foreach ($this->groups as $groupName => $group) {
+        $this->activateTab($requested);
+    }
+
+
+    private function activateTabFromErrors(): void
+    {
+        if (request()->filled('tab')) {
+            return;
+        }
+
+        $errors = request()->session()->get('errors');
+
+        if (! $errors || ! $errors->any()) {
+            return;
+        }
+
+        foreach (array_keys($this->groups) as $groupName) {
+            $sorted = collect($this->tabs[$groupName] ?? [])->sortBy(fn (Tab $tab) => $tab->getWeight());
+
+            foreach ($sorted as $tab) {
+                if (! $errors->hasAny($tab->getFields())) {
+                    continue;
+                }
+
+                $this->activateTab($tab->name);
+
+                return;
+            }
+        }
+    }
+
+
+    private function activateTab(string $requested): void
+    {
+        foreach (array_keys($this->groups) as $groupName) {
             $this->groups[$groupName]['active'] = false;
         }
 

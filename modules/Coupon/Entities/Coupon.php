@@ -72,7 +72,7 @@ class Coupon extends Model
 
     public static function findByCode($code)
     {
-        return self::where(DB::raw('BINARY `code`'), $code)->first();
+        return self::where(DB::raw('UPPER(`code`)'), mb_strtoupper(trim((string) $code)))->first();
     }
 
 
