@@ -5,24 +5,19 @@ namespace Modules\Meta\Support;
 use Artesaos\SEOTools\OpenGraph as SeoOpenGraph;
 use Artesaos\SEOTools\SEOMeta;
 use Artesaos\SEOTools\TwitterCards;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Config\Repository as ConfigRepository;
 
 class SeoToolsRenderer
 {
-    public function __construct(private Container $container)
-    {
-    }
-
-
     public function render(
         OpenGraph $metadata,
         string $robots = 'index, follow',
         ?string $documentTitle = null,
         array $productProperties = [],
     ): string {
-        $metaTags = clone $this->container->make('seotools.metatags');
-        $openGraph = clone $this->container->make('seotools.opengraph');
-        $twitter = clone $this->container->make('seotools.twitter');
+        $metaTags = new SEOMeta(new ConfigRepository(config('seotools.meta', [])));
+        $openGraph = new SeoOpenGraph(config('seotools.opengraph', []));
+        $twitter = new TwitterCards(config('seotools.twitter.defaults', []));
 
         $this->configureMetaTags($metaTags, $metadata, $robots, $documentTitle);
         $this->configureOpenGraph($openGraph, $metadata, $productProperties);
