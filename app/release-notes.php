@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.97' => [
+        'date' => '2026-09-13',
+        'en' => [
+            'summary' => 'Prevent storefront outages when SEO Tools package discovery is unavailable.',
+            'changes' => [
+                'Remove the hard SEO Tools provider registration that could stop the application during production bootstrap when vendor dependencies are stale.',
+                'Render complete native title, canonical, robots, Open Graph, product, and Twitter metadata when the SEO Tools package is unavailable.',
+                'Keep the package-backed renderer when available and add regression coverage for both production paths.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Cegah gangguan storefront apabila penemuan pakej SEO Tools tidak tersedia.',
+            'changes' => [
+                'Buang pendaftaran keras provider SEO Tools yang boleh menghentikan aplikasi semasa bootstrap production apabila dependency vendor tidak terkini.',
+                'Jana metadata title, canonical, robots, Open Graph, produk dan Twitter secara dalaman apabila pakej SEO Tools tidak tersedia.',
+                'Kekalkan renderer berasaskan pakej apabila tersedia dan tambah ujian regresi untuk kedua-dua laluan production.',
+            ],
+        ],
+    ],
+
     '4.11.96' => [
         'date' => '2026-09-13',
         'en' => [

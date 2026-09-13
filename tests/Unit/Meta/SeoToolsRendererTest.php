@@ -69,17 +69,29 @@ class SeoToolsRendererTest extends TestCase
     }
 
 
-    public function test_rendering_does_not_require_seotools_container_aliases(): void
+    public function test_rendering_does_not_require_seotools_package_or_container_aliases(): void
     {
-        $html = (new SeoToolsRenderer())->render(new OpenGraph(
+        $renderer = new class extends SeoToolsRenderer
+        {
+            protected function packageAvailable(): bool
+            {
+                return false;
+            }
+        };
+
+        $html = $renderer->render(new OpenGraph(
             title: 'Production-safe product',
             description: 'Metadata remains available when package discovery cache is stale.',
             url: 'https://example.com/products/production-safe',
+            type: 'product',
+            priceAmount: '80.00',
+            priceCurrency: 'MYR',
             siteName: 'Store',
         ));
 
         $this->assertStringContainsString('<title>Production-safe product</title>', $html);
         $this->assertStringContainsString('property="og:title" content="Production-safe product"', $html);
+        $this->assertStringContainsString('property="product:price:amount" content="80.00"', $html);
         $this->assertStringContainsString('name="twitter:title" content="Production-safe product"', $html);
     }
 }
