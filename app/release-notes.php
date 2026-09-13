@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.95' => [
+        'date' => '2026-09-13',
+        'en' => [
+            'summary' => 'Refresh the loyalty member profile with a polished, production-ready SaaS interface.',
+            'changes' => [
+                'Rebuild the member overview with a light premium hero, integrated KPI strip, clearer actions, and responsive hierarchy.',
+                'Rebalance membership details, purchase analytics, charts, orders, and transaction panels into a denser SaaS layout.',
+                'Add a compact glassmorphic points adjustment form and improve the Gold membership card back for readable contrast.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Segarkan profil ahli loyalty dengan antara muka SaaS premium yang sedia production.',
+            'changes' => [
+                'Bina semula ringkasan ahli dengan hero cerah premium, jalur KPI bersepadu, tindakan lebih jelas dan hierarchy responsif.',
+                'Seimbangkan butiran keahlian, analytics pembelian, carta, pesanan dan transaksi dalam layout SaaS yang lebih padat.',
+                'Tambah borang pelarasan mata glassmorphism yang kompak dan tingkatkan kontras bahagian belakang kad keahlian Gold.',
+            ],
+        ],
+    ],
+
     '4.11.94' => [
         'date' => '2026-09-13',
         'en' => [

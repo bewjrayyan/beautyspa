@@ -17,90 +17,101 @@
     @endphp
 
     <div class="loyalty-member-show">
-        <header class="loyalty-member-hero">
-            <div class="loyalty-member-hero__main">
-                @if ($user)
-                    <div class="loyalty-member-hero__avatar">
-                        @include('user::admin.partials.avatar', [
-                            'user' => $user,
-                            'class' => 'profile-first-letter',
-                        ])
-                    </div>
-                    <div>
-                        <h1 class="loyalty-member-hero__name">{{ $user->full_name }}</h1>
-                        <p class="loyalty-member-hero__email">{{ $user->email }}</p>
-                        <div class="loyalty-member-hero__meta">
-                            @if ($member->tier)
-                                <span class="loyalty-member-hero__tier">
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    {{ $member->tier->translatedName() }}
-                                </span>
-                            @endif
-                            <span class="loyalty-member-hero__wallet-id">
-                                {{ trans('loyalty::members.show.wallet_id', ['id' => $member->id]) }}
-                            </span>
+        <section class="loyalty-member-overview" aria-labelledby="loyalty-member-name">
+            <header class="loyalty-member-hero">
+                <div class="loyalty-member-hero__main">
+                    @if ($user)
+                        <div class="loyalty-member-hero__avatar">
+                            @include('user::admin.partials.avatar', [
+                                'user' => $user,
+                                'class' => 'profile-first-letter',
+                            ])
                         </div>
-                    </div>
-                @else
-                    <div>
-                        <h1 class="loyalty-member-hero__name">{{ trans('loyalty::members.member') }}</h1>
-                        <p class="loyalty-member-hero__email text-muted">{{ trans('loyalty::members.show.no_customer') }}</p>
-                    </div>
-                @endif
-            </div>
+                        <div class="loyalty-member-hero__identity">
+                            <span class="loyalty-member-hero__eyebrow">
+                                <i class="fa fa-diamond" aria-hidden="true"></i>
+                                {{ trans('loyalty::members.member') }}
+                            </span>
+                            <h1 class="loyalty-member-hero__name" id="loyalty-member-name">{{ $user->full_name }}</h1>
+                            <p class="loyalty-member-hero__email">{{ $user->email }}</p>
+                            <div class="loyalty-member-hero__meta">
+                                @if ($member->tier)
+                                    <span class="loyalty-member-hero__tier">
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        {{ $member->tier->translatedName() }}
+                                    </span>
+                                @endif
+                                <span class="loyalty-member-hero__wallet-id">
+                                    <i class="fa fa-credit-card" aria-hidden="true"></i>
+                                    {{ trans('loyalty::members.show.wallet_id', ['id' => $member->id]) }}
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        <div class="loyalty-member-hero__identity">
+                            <span class="loyalty-member-hero__eyebrow">
+                                <i class="fa fa-diamond" aria-hidden="true"></i>
+                                {{ trans('loyalty::members.member') }}
+                            </span>
+                            <h1 class="loyalty-member-hero__name" id="loyalty-member-name">{{ trans('loyalty::members.member') }}</h1>
+                            <p class="loyalty-member-hero__email">{{ trans('loyalty::members.show.no_customer') }}</p>
+                        </div>
+                    @endif
+                </div>
 
-            <div class="loyalty-member-hero__actions">
-                @if ($user && auth()->user()?->hasAccess('admin.users.edit'))
-                    <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-default btn-sm loyalty-member-hero__link">
-                        <i class="fa fa-user" aria-hidden="true"></i>
-                        {{ trans('loyalty::members.show.view_customer') }}
+                <div class="loyalty-member-hero__actions">
+                    @if ($user && auth()->user()?->hasAccess('admin.users.edit'))
+                        <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm loyalty-member-hero__link loyalty-member-hero__link--primary">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                            {{ trans('loyalty::members.show.view_customer') }}
+                        </a>
+                    @endif
+                    <a href="{{ route('admin.loyalty.members.index') }}" class="btn btn-sm loyalty-member-hero__link">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        {{ trans('loyalty::members.show.back') }}
                     </a>
-                @endif
-                <a href="{{ route('admin.loyalty.members.index') }}" class="btn btn-default btn-sm loyalty-member-hero__link">
-                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                    {{ trans('loyalty::members.show.back') }}
-                </a>
-            </div>
-        </header>
+                </div>
+            </header>
 
-        <div class="loyalty-member-stats">
-            <div class="loyalty-member-stats__stat">
-                <span class="loyalty-member-stats__icon loyalty-member-stats__icon--spend">
-                    <i class="fa fa-money" aria-hidden="true"></i>
-                </span>
-                <div>
-                    <span class="loyalty-member-stats__label">{{ trans('loyalty::members.table.lifetime_spend') }}</span>
-                    <strong class="loyalty-member-stats__value">{{ $currencySymbol }} {{ number_format($member->lifetime_spend, 2) }}</strong>
+            <div class="loyalty-member-stats">
+                <div class="loyalty-member-stats__stat">
+                    <span class="loyalty-member-stats__icon loyalty-member-stats__icon--spend">
+                        <i class="fa fa-money" aria-hidden="true"></i>
+                    </span>
+                    <div>
+                        <span class="loyalty-member-stats__label">{{ trans('loyalty::members.table.lifetime_spend') }}</span>
+                        <strong class="loyalty-member-stats__value">{{ $currencySymbol }} {{ number_format($member->lifetime_spend, 2) }}</strong>
+                    </div>
+                </div>
+                <div class="loyalty-member-stats__stat">
+                    <span class="loyalty-member-stats__icon loyalty-member-stats__icon--earned">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </span>
+                    <div>
+                        <span class="loyalty-member-stats__label">{{ trans('loyalty::members.show.total_earned') }}</span>
+                        <strong class="loyalty-member-stats__value">{{ number_format($stats['earned']) }}</strong>
+                    </div>
+                </div>
+                <div class="loyalty-member-stats__stat">
+                    <span class="loyalty-member-stats__icon loyalty-member-stats__icon--redeemed">
+                        <i class="fa fa-minus-circle" aria-hidden="true"></i>
+                    </span>
+                    <div>
+                        <span class="loyalty-member-stats__label">{{ trans('loyalty::members.show.total_redeemed') }}</span>
+                        <strong class="loyalty-member-stats__value">{{ number_format($stats['redeemed']) }}</strong>
+                    </div>
+                </div>
+                <div class="loyalty-member-stats__stat">
+                    <span class="loyalty-member-stats__icon loyalty-member-stats__icon--count">
+                        <i class="fa fa-list" aria-hidden="true"></i>
+                    </span>
+                    <div>
+                        <span class="loyalty-member-stats__label">{{ trans('loyalty::members.show.tx_count') }}</span>
+                        <strong class="loyalty-member-stats__value">{{ number_format($stats['count']) }}</strong>
+                    </div>
                 </div>
             </div>
-            <div class="loyalty-member-stats__stat">
-                <span class="loyalty-member-stats__icon loyalty-member-stats__icon--earned">
-                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                </span>
-                <div>
-                    <span class="loyalty-member-stats__label">{{ trans('loyalty::members.show.total_earned') }}</span>
-                    <strong class="loyalty-member-stats__value">{{ number_format($stats['earned']) }}</strong>
-                </div>
-            </div>
-            <div class="loyalty-member-stats__stat">
-                <span class="loyalty-member-stats__icon loyalty-member-stats__icon--redeemed">
-                    <i class="fa fa-minus-circle" aria-hidden="true"></i>
-                </span>
-                <div>
-                    <span class="loyalty-member-stats__label">{{ trans('loyalty::members.show.total_redeemed') }}</span>
-                    <strong class="loyalty-member-stats__value">{{ number_format($stats['redeemed']) }}</strong>
-                </div>
-            </div>
-            <div class="loyalty-member-stats__stat">
-                <span class="loyalty-member-stats__icon loyalty-member-stats__icon--count">
-                    <i class="fa fa-list" aria-hidden="true"></i>
-                </span>
-                <div>
-                    <span class="loyalty-member-stats__label">{{ trans('loyalty::members.show.tx_count') }}</span>
-                    <strong class="loyalty-member-stats__value">{{ number_format($stats['count']) }}</strong>
-                </div>
-            </div>
-        </div>
+        </section>
 
         <div class="loyalty-member-layout">
             <aside class="loyalty-member-layout__sidebar">
@@ -164,7 +175,7 @@
                         </div>
                         <form method="POST" action="{{ route('admin.loyalty.members.adjust', $member) }}">
                             {{ csrf_field() }}
-                            <div class="loyalty-member-card__body">
+                            <div class="loyalty-member-card__body loyalty-member-adjust__fields">
                                 <div class="form-group">
                                     <label for="points">{{ trans('loyalty::members.adjust.points') }}</label>
                                     <input
