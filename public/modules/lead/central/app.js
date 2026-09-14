@@ -56,7 +56,7 @@ let liveMetrics = boot.metrics || null;
 let metricsScope = liveMetrics ? JSON.stringify([state.branch,state.period]) : null;
 let metricsRequest = 0;
 let liveLeads = [];
-let liveLeadSummary = {raw:0,unique:0,duplicates:0,existing:0,converted:0,conversion_pct:0};
+let liveLeadSummary = {raw:0,unique:0,duplicates:0,existing:0,converted:0,conversion_pct:0,all_time:{raw:0,unique:0,duplicates:0,existing:0,converted:0,conversion_pct:0}};
 let liveLeadFilters = {statuses:[],beauticians:[],branches:[],months:[]};
 let leadsLoading = false;
 let leadSearchTimer = null;
@@ -273,6 +273,33 @@ function kpi(icon,label,value,trend,target,color='blue',pct=null,full='',sparkId
     </div>
     ${sparkId?`<div class="kpi-spark" id="${safeSpark}"></div>`:''}
     ${pct!==null?`<div class="progress kpi-card__bar"><span style="width:${Math.min(100,pct)}%"></span></div>`:''}
+  </div>`;
+}
+function leadKpiIcon(kind){
+  const icons={
+    database:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>',
+    new:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="4"/><path d="M3 20c.7-4 2.7-6 6-6 2.1 0 3.7.8 4.8 2.3M18 8v6M15 11h6"/></svg>',
+    repeated:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9a5 5 0 0 0-5 5v1"/><path d="m17 4 3 3-3 3M4 17h9a5 5 0 0 0 5-5v-1"/><path d="m7 20-3-3 3-3"/></svg>',
+    customers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c.5-4 2.5-6 6-6s5.5 2 6 6M16 5.5a3 3 0 0 1 0 5.8M17 14c2.4.5 3.7 2.4 4 5"/></svg>',
+    conversion:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18 10 12l4 3 6-8"/><path d="M15 7h5v5"/><circle cx="6" cy="6" r="2"/></svg>'
+  };
+  return icons[kind]||icons.database;
+}
+function leadKpi(icon,label,value,unit,badge,detail,color='blue'){
+  return `<div class="kpi-card kpi-card--${color} lead-kpi-card lead-kpi-card--${color}">
+    <div class="lead-kpi-card__glow" aria-hidden="true"></div>
+    <div class="kpi-card__head">
+      <div class="kpi-card__icon" aria-hidden="true">${icon}</div>
+      <div class="kpi-label">${escapeHtml(label)}</div>
+    </div>
+    <div class="lead-kpi__value">
+      <strong>${escapeHtml(value)}</strong>
+      <span>${escapeHtml(unit)}</span>
+    </div>
+    <div class="kpi-card__foot">
+      <span class="kpi-trend kpi-trend--flat">${escapeHtml(badge)}</span>
+      <span class="kpi-target lead-kpi__detail">${escapeHtml(detail)}</span>
+    </div>
   </div>`;
 }
 
@@ -1059,15 +1086,18 @@ function leads(){
 function renderLeadKpis(){
   const mount=$('#leadKpiMount'); if(!mount) return;
   const s=liveLeadSummary||{};
+  const all=s.all_time||s;
   const raw=Number(s.raw||0), uniq=Number(s.unique||0), dup=Number(s.duplicates||0), exist=Number(s.existing||0), conv=Number(s.converted||0), pct=Number(s.conversion_pct||0);
-  const clean=raw>0?((uniq/raw)*100).toFixed(1):'0.0';
-  const dupPct=raw>0?((dup/raw)*100).toFixed(1):'0.0';
+  const allRaw=Number(all.raw||0), allUniq=Number(all.unique||0), allDup=Number(all.duplicates||0), allExist=Number(all.existing||0), allConv=Number(all.converted||0), allPct=Number(all.conversion_pct||0);
+  const allClean=allRaw>0?((allUniq/allRaw)*100).toFixed(1):'0.0';
+  const allDupPct=allRaw>0?((allDup/allRaw)*100).toFixed(1):'0.0';
+  const period=leadMonthLabel(state.leadMonth);
   mount.innerHTML = `
-    ${kpi('▤',t('workspace.raw_leads'),fmtInt(raw),'—','—','blue')}
-    ${kpi('♙',t('workspace.unique_leads'),fmtInt(uniq),t('workspace.clean_rate',{pct:clean}),'—','green')}
-    ${kpi('⧉',t('workspace.duplicates'),fmtInt(dup),t('workspace.of_raw',{pct:dupPct}),'—','rose')}
-    ${kpi('♧',t('workspace.existing'),fmtInt(exist),t('workspace.matched_phone'),'—','purple')}
-    ${kpi('%',t('workspace.conversion'),fmtPct(pct),t('workspace.converted_customers',{count:fmtInt(conv)}),t('workspace.target_conv'),'green')}
+    ${leadKpi(leadKpiIcon('database'),t('workspace.total_leads_database'),fmtInt(allRaw),t('workspace.unit_lead_records'),t('workspace.all_time'),t('workspace.period_added',{period,count:fmtInt(raw)}),'blue')}
+    ${leadKpi(leadKpiIcon('new'),t('workspace.new_leads'),fmtInt(uniq),t('workspace.unit_new_leads'),period,t('workspace.all_time_unique',{count:fmtInt(allUniq),pct:allClean}),'green')}
+    ${leadKpi(leadKpiIcon('repeated'),t('workspace.repeated_leads'),fmtInt(allDup),t('workspace.unit_repeated_records'),t('workspace.all_time'),t('workspace.period_repeated',{period,count:fmtInt(dup),pct:allDupPct}),'rose')}
+    ${leadKpi(leadKpiIcon('customers'),t('workspace.existing_customers'),fmtInt(allExist),t('workspace.unit_registered_customers'),t('workspace.matched_phone'),t('workspace.period_matched',{period,count:fmtInt(exist)}),'purple')}
+    ${leadKpi(leadKpiIcon('conversion'),t('workspace.conversion'),fmtPct(allPct),t('workspace.unit_conversion_rate'),t('workspace.all_time'),t('workspace.period_conversion',{period,pct:fmtPct(pct),count:fmtInt(conv),total:fmtInt(allConv)}),'teal')}
   `;
 }
 function bindLeadFilters(){

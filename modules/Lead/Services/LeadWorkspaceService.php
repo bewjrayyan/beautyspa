@@ -6,6 +6,7 @@ namespace Modules\Lead\Services;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Modules\Beautician\Entities\Beautician;
@@ -58,26 +59,47 @@ final class LeadWorkspaceService
      *     duplicates:int,
      *     existing:int,
      *     converted:int,
-     *     conversion_pct:float
+     *     conversion_pct:float,
+     *     all_time:array{raw:int,unique:int,duplicates:int,existing:int,converted:int,conversion_pct:float}
      * }
      */
     public function summary(?int $branchId = null, ?string $month = null): array
     {
-        $base = Lead::query();
+        $allTime = Lead::query();
         if ($branchId !== null) {
-            $base->where('spa_branch_id', $branchId);
+            $allTime->where('spa_branch_id', $branchId);
         }
 
+        $period = clone $allTime;
         [$from, $to] = $this->resolveMonthRange($month);
         if ($from !== null && $to !== null) {
-            $base->whereBetween('created_at', [$from, $to]);
+            $period->whereBetween('created_at', [$from, $to]);
         }
 
-        $raw = (clone $base)->count();
-        $duplicates = (clone $base)->where('is_duplicate', true)->count();
+        return [
+            ...$this->summarizeQuery($period),
+            'all_time' => $this->summarizeQuery($allTime),
+        ];
+    }
+
+    /**
+     * @return array{raw:int,unique:int,duplicates:int,existing:int,converted:int,conversion_pct:float}
+     */
+    private function summarizeQuery(Builder $query): array
+    {
+        $totals = (clone $query)
+            ->toBase()
+            ->selectRaw('COUNT(*) as raw_count')
+            ->selectRaw('SUM(CASE WHEN is_duplicate = 1 THEN 1 ELSE 0 END) as duplicate_count')
+            ->selectRaw('SUM(CASE WHEN is_existing_customer = 1 THEN 1 ELSE 0 END) as existing_count')
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as converted_count', [Lead::STATUS_CONVERTED])
+            ->first();
+
+        $raw = (int) ($totals->raw_count ?? 0);
+        $duplicates = (int) ($totals->duplicate_count ?? 0);
         $unique = max(0, $raw - $duplicates);
-        $existing = (clone $base)->where('is_existing_customer', true)->count();
-        $converted = (clone $base)->where('status', Lead::STATUS_CONVERTED)->count();
+        $existing = (int) ($totals->existing_count ?? 0);
+        $converted = (int) ($totals->converted_count ?? 0);
         $conversionPct = $unique > 0 ? round(($converted / $unique) * 100, 1) : 0.0;
 
         return [

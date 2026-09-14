@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.101' => [
+        'date' => '2026-09-14',
+        'en' => [
+            'summary' => 'Clarify lead performance with all-time and monthly KPI comparisons.',
+            'changes' => [
+                'Show all-time lead totals alongside the selected month so database growth is immediately visible.',
+                'Separate new leads, repeated lead records, existing registered customers, and conversion with explicit number labels and descriptions.',
+                'Refresh the KPI cards with subtle pastel gradients, consistent SVG icons, stronger hierarchy, and responsive layouts.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Jelaskan prestasi lead melalui perbandingan KPI sepanjang masa dan bulanan.',
+            'changes' => [
+                'Paparkan jumlah lead sepanjang masa bersama bulan yang dipilih supaya pertumbuhan database terus kelihatan.',
+                'Bezakan lead baru, rekod lead berulang, pelanggan berdaftar sedia ada dan conversion melalui label nombor serta penerangan yang jelas.',
+                'Segarkan kad KPI dengan gradient pastel lembut, ikon SVG konsisten, hierarchy lebih kukuh dan layout responsif.',
+            ],
+        ],
+    ],
+
     '4.11.100' => [
         'date' => '2026-09-14',
         'en' => [

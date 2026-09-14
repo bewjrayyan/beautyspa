@@ -111,6 +111,27 @@ class LeadCentralAuditRegressionTest extends TestCase
     }
 
     #[Test]
+    public function lead_kpis_return_selected_month_and_all_time_totals(): void
+    {
+        DB::table('leads')->insert([
+            ['name' => 'August lead', 'phone' => '60120000001', 'status' => Lead::STATUS_NEW, 'source' => 'manual', 'is_duplicate' => false, 'is_existing_customer' => false, 'created_at' => '2026-08-10 09:00:00'],
+            ['name' => 'September existing', 'phone' => '60120000002', 'status' => Lead::STATUS_CONVERTED, 'source' => 'manual', 'is_duplicate' => false, 'is_existing_customer' => true, 'created_at' => '2026-09-10 09:00:00'],
+            ['name' => 'September duplicate', 'phone' => '60120000002', 'status' => Lead::STATUS_NEW, 'source' => 'manual', 'is_duplicate' => true, 'is_existing_customer' => false, 'created_at' => '2026-09-11 09:00:00'],
+        ]);
+
+        $summary = app(LeadWorkspaceService::class)->summary(null, '2026-09');
+
+        $this->assertSame(2, $summary['raw']);
+        $this->assertSame(1, $summary['unique']);
+        $this->assertSame(1, $summary['existing']);
+        $this->assertSame(100.0, $summary['conversion_pct']);
+        $this->assertSame(3, $summary['all_time']['raw']);
+        $this->assertSame(2, $summary['all_time']['unique']);
+        $this->assertSame(1, $summary['all_time']['existing']);
+        $this->assertSame(50.0, $summary['all_time']['conversion_pct']);
+    }
+
+    #[Test]
     public function lead_directory_uses_page_size_controls_without_an_inner_scrollbar(): void
     {
         $script = file_get_contents(public_path('modules/lead/central/app.js'));
@@ -123,6 +144,11 @@ class LeadCentralAuditRegressionTest extends TestCase
         $this->assertStringContainsString("['created_at',t('workspace.bulk_update_date')]", $script);
         $this->assertStringContainsString('id="leadBulkValue" type="date"', $script);
         $this->assertStringContainsString('.lead-bulk-date{appearance:auto', $styles);
+        $this->assertStringContainsString('const all=s.all_time||s', $script);
+        $this->assertStringContainsString("leadKpi(leadKpiIcon('database'),t('workspace.total_leads_database')", $script);
+        $this->assertStringContainsString("t('workspace.unit_lead_records')", $script);
+        $this->assertStringContainsString("leadKpi(leadKpiIcon('customers'),t('workspace.existing_customers')", $script);
+        $this->assertStringContainsString('.lead-kpi-card--teal{--lead-kpi-accent:#0891b2', $styles);
     }
 
     #[Test]
