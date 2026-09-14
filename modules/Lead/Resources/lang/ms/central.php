@@ -197,6 +197,7 @@ return [
         'bulk_action' => 'Tindakan pukal',
         'bulk_choose_action' => 'Pilih tindakan',
         'bulk_update_status' => 'Kemas kini status',
+        'bulk_update_source' => 'Kemas kini sumber',
         'bulk_update_date' => 'Kemas kini tarikh lead',
         'bulk_assign_beautician' => 'Tetapkan beautician',
         'bulk_assign_branch' => 'Tetapkan cawangan',

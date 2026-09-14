@@ -61,6 +61,7 @@ final class LeadWorkspaceController
             ],
             'filters' => [
                 'statuses' => $this->workspace->statusOptions(),
+                'sources' => $this->workspace->sourceOptions(),
                 'beauticians' => $this->workspace->beauticianOptions(),
                 'branches' => $this->workspace->branchOptions(),
                 'months' => $this->workspace->monthOptions(12),
@@ -78,6 +79,7 @@ final class LeadWorkspaceController
             'data' => $this->workspace->toArray($lead),
             'filters' => [
                 'statuses' => $this->workspace->statusOptions(),
+                'sources' => $this->workspace->sourceOptions(),
                 'beauticians' => $this->workspace->beauticianOptions(),
                 'branches' => $this->workspace->branchOptions(),
             ],

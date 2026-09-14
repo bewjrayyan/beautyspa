@@ -197,6 +197,7 @@ return [
         'bulk_action' => 'Bulk action',
         'bulk_choose_action' => 'Choose action',
         'bulk_update_status' => 'Update status',
+        'bulk_update_source' => 'Update source',
         'bulk_update_date' => 'Update lead date',
         'bulk_assign_beautician' => 'Assign beautician',
         'bulk_assign_branch' => 'Assign branch',

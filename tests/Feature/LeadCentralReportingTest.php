@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Modules\Lead\Services\CentralMetricsService;
 use Modules\Lead\Services\CentralReportingService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -17,7 +18,10 @@ class LeadCentralReportingTest extends TestCase
         parent::setUp();
         config(['database.connections.lead_report_test' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]);
         DB::setDefaultConnection('lead_report_test');
-        Schema::create('beauticians', function (Blueprint $t): void { $t->id(); $t->string('first_name'); $t->string('last_name'); });
+        Schema::create('beauticians', function (Blueprint $t): void {
+            $t->id(); $t->string('first_name'); $t->string('last_name');
+            $t->boolean('is_active')->default(true); $t->integer('position')->default(0);
+        });
         Schema::create('spa_branches', function (Blueprint $t): void { $t->id(); $t->string('name'); });
         Schema::create('leads', function (Blueprint $t): void {
             $t->id(); $t->integer('beautician_id')->nullable(); $t->integer('spa_branch_id')->nullable();
@@ -25,6 +29,7 @@ class LeadCentralReportingTest extends TestCase
         });
         Schema::create('orders', function (Blueprint $t): void {
             $t->id(); $t->integer('beautician_id')->nullable(); $t->integer('spa_branch_id')->nullable();
+            $t->string('customer_phone')->nullable();
             $t->string('payment_status'); $t->decimal('total', 12, 2); $t->timestamps(); $t->softDeletes();
         });
         DB::table('beauticians')->insert([['id'=>1,'first_name'=>'Leads only','last_name'=>''],['id'=>2,'first_name'=>'Sales only','last_name'=>''],['id'=>3,'first_name'=>'No records','last_name'=>'']]);
@@ -64,6 +69,40 @@ class LeadCentralReportingTest extends TestCase
         $this->assertSame(2,$branch['meta']['summary']['leads']);
         $this->assertSame(0.0,$branch['meta']['summary']['revenue']);
         $this->assertSame(0,$service->performance('beauticians',Carbon::parse('2026-08-01'),Carbon::parse('2026-08-31'),null)['meta']['summary']['leads']);
+    }
+
+    #[Test]
+    public function sales_attribution_shows_beautician_names_and_reconciles_unassigned_records(): void
+    {
+        DB::table('beauticians')->where('id', 3)->update(['is_active' => false]);
+        DB::table('leads')->insert([
+            ['beautician_id' => 1, 'spa_branch_id' => 1, 'status' => 'converted', 'is_duplicate' => false, 'created_at' => '2026-09-09'],
+            ['beautician_id' => 3, 'spa_branch_id' => 1, 'status' => 'new', 'is_duplicate' => false, 'created_at' => '2026-09-09'],
+            ['beautician_id' => null, 'spa_branch_id' => 1, 'status' => 'new', 'is_duplicate' => false, 'created_at' => '2026-09-09'],
+            ['beautician_id' => null, 'spa_branch_id' => 1, 'status' => 'new', 'is_duplicate' => true, 'created_at' => '2026-09-09'],
+        ]);
+        DB::table('orders')->insert([
+            ['beautician_id' => 2, 'spa_branch_id' => 1, 'customer_phone' => '60111111111', 'payment_status' => 'paid', 'total' => 300, 'created_at' => '2026-09-09'],
+            ['beautician_id' => null, 'spa_branch_id' => 1, 'customer_phone' => '60122222222', 'payment_status' => 'paid', 'total' => 50, 'created_at' => '2026-09-09'],
+        ]);
+
+        $method = new \ReflectionMethod(CentralMetricsService::class, 'beauticianRows');
+        $rows = collect($method->invoke(
+            app(CentralMetricsService::class),
+            Carbon::parse('2026-09-01'),
+            Carbon::parse('2026-09-30')->endOfDay(),
+            null,
+        ));
+        $named = $rows->whereNotNull('id')->keyBy('id');
+        $unassigned = $rows->firstWhere('id', null);
+
+        $this->assertSame('Leads only', $named[1]['name']);
+        $this->assertSame('Sales only', $named[2]['name']);
+        $this->assertSame('No records', $named[3]['name']);
+        $this->assertSame(1, $unassigned['leads']);
+        $this->assertSame(50.0, $unassigned['sales']);
+        $this->assertSame(3, $rows->sum('leads'));
+        $this->assertSame(350.0, $rows->sum('sales'));
     }
 
     #[Test]

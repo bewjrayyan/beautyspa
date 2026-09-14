@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.102' => [
+        'date' => '2026-09-14',
+        'en' => [
+            'summary' => 'Make lead ownership visible and easier to correct in bulk.',
+            'changes' => [
+                'Restore beautician names in Sales Overview attribution and retain historical results for inactive staff with period records.',
+                'Reconcile attribution with explicit unassigned lead and paid-order rows so dashboard totals no longer hide missing ownership.',
+                'Add a validated bulk source action using standard channels plus source values already stored in the lead database.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Jadikan pemilikan lead jelas dan lebih mudah dibetulkan secara pukal.',
+            'changes' => [
+                'Pulihkan nama beautician dalam atribusi Sales Overview dan kekalkan keputusan sejarah untuk staf tidak aktif yang mempunyai rekod tempoh tersebut.',
+                'Selaraskan atribusi melalui baris lead dan pesanan berbayar belum ditugaskan supaya jumlah dashboard tidak lagi menyembunyikan pemilikan yang tiada.',
+                'Tambah tindakan pukal sumber yang divalidasi menggunakan saluran standard serta nilai sumber sedia ada dalam database lead.',
+            ],
+        ],
+    ],
+
     '4.11.101' => [
         'date' => '2026-09-14',
         'en' => [

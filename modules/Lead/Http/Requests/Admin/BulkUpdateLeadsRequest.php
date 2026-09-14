@@ -30,9 +30,10 @@ class BulkUpdateLeadsRequest extends FormRequest
                 'distinct',
                 Rule::exists('leads', 'id')->whereNull('deleted_at'),
             ],
-            'field' => ['required', 'string', Rule::in(['status', 'created_at', 'beautician_id', 'spa_branch_id'])],
+            'field' => ['required', 'string', Rule::in(['status', 'source', 'created_at', 'beautician_id', 'spa_branch_id'])],
             'value' => match ($field) {
                 'status' => ['required', 'string', Rule::in(Lead::statuses())],
+                'source' => ['required', 'string', 'max:64'],
                 'created_at' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
                 'beautician_id' => ['nullable', 'integer', Rule::exists('beauticians', 'id')],
                 'spa_branch_id' => ['nullable', 'integer', Rule::exists('spa_branches', 'id')],

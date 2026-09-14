@@ -218,12 +218,19 @@ final class LeadWorkspaceService
      */
     public function bulkUpdate(array $ids, string $field, mixed $value): int
     {
-        if (! in_array($field, ['status', 'created_at', 'beautician_id', 'spa_branch_id'], true)) {
+        if (! in_array($field, ['status', 'source', 'created_at', 'beautician_id', 'spa_branch_id'], true)) {
             throw new InvalidArgumentException('Unsupported lead bulk-update field.');
         }
 
         if ($field === 'status' && ! in_array($value, Lead::statuses(), true)) {
             throw new InvalidArgumentException('Unsupported lead status.');
+        }
+
+        if ($field === 'source') {
+            $value = trim((string) $value);
+            if ($value === '' || mb_strlen($value) > 64) {
+                throw new InvalidArgumentException('Unsupported lead source.');
+            }
         }
 
         $selectedDate = null;
@@ -382,6 +389,36 @@ final class LeadWorkspaceService
             ->map(fn (string $key) => [
                 'value' => $key,
                 'label' => (new Lead(['status' => $key]))->status_label,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{value:string,label:string}>
+     */
+    public function sourceOptions(): array
+    {
+        $defaults = collect(['manual', 'import', 'TikTok', 'WhatsApp', 'Facebook']);
+        $stored = Lead::query()
+            ->whereNotNull('source')
+            ->where('source', '!=', '')
+            ->distinct()
+            ->orderBy('source')
+            ->pluck('source');
+
+        return $defaults
+            ->merge($stored)
+            ->map(fn ($source) => trim((string) $source))
+            ->filter()
+            ->unique(fn (string $source) => mb_strtolower($source))
+            ->map(fn (string $source) => [
+                'value' => $source,
+                'label' => match ($source) {
+                    'manual' => 'Manual',
+                    'import' => 'Import',
+                    default => $source,
+                },
             ])
             ->values()
             ->all();

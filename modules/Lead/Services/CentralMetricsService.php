@@ -490,39 +490,48 @@ final class CentralMetricsService
      */
     private function beauticianRows(Carbon $from, Carbon $to, ?int $branchId): array
     {
-        $nameSql = Beautician::sqlFullName();
-
-        $activeBeauticians = Beautician::query()
-            ->where('is_active', true)
-            ->selectRaw('id')
-            ->selectRaw("{$nameSql} as name")
-            ->orderBy('position')
-            ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get()
-            ->keyBy('id');
-
         $salesRows = Order::query()
             ->paid()
             ->whereBetween('orders.created_at', [$from, $to])
             ->when($branchId !== null, fn ($q) => $q->where('orders.spa_branch_id', $branchId))
             ->whereNotNull('orders.beautician_id')
-            ->join('beauticians', 'orders.beautician_id', '=', 'beauticians.id')
             ->selectRaw('orders.beautician_id as id')
-            ->selectRaw("{$nameSql} as name")
             ->selectRaw('SUM(orders.total) as sales')
             ->selectRaw('COUNT(*) as order_count')
             ->selectRaw("COUNT(DISTINCT NULLIF(orders.customer_phone, '')) as buyers")
-            ->groupBy('orders.beautician_id', 'beauticians.first_name', 'beauticians.last_name')
+            ->groupBy('orders.beautician_id')
             ->orderByDesc('sales')
             ->get()
             ->keyBy('id');
 
         $leadsByBeautician = $this->uniqueLeadsByBeautician($from, $to, $branchId);
         $convertedByBeautician = $this->convertedLeadsByBeautician($from, $to, $branchId);
+        $attributedIds = collect(array_keys($leadsByBeautician))
+            ->merge(array_keys($convertedByBeautician))
+            ->merge($salesRows->keys())
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values();
+
+        // Keep active staff visible, while retaining historical attribution for
+        // inactive staff who still have records in the selected period.
+        $beauticians = Beautician::query()
+            ->without(['files', 'user'])
+            ->where(function ($query) use ($attributedIds): void {
+                $query->where('is_active', true);
+                if ($attributedIds->isNotEmpty()) {
+                    $query->orWhereIn('id', $attributedIds->all());
+                }
+            })
+            ->orderBy('position')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name'])
+            ->keyBy('id');
 
         $out = [];
-        foreach ($activeBeauticians as $id => $beautician) {
+        foreach ($beauticians as $id => $beautician) {
             $salesRow = $salesRows->get($id);
             $buyers = (int) ($salesRow->buyers ?? 0);
             $sales = (float) ($salesRow->sales ?? 0);
@@ -546,12 +555,75 @@ final class CentralMetricsService
             ];
         }
 
+        $unassignedLeads = $this->unassignedLeadCount($from, $to, $branchId);
+        $unassignedConverted = $this->unassignedConvertedLeadCount($from, $to, $branchId);
+        $unassignedSales = $this->unassignedSalesRow($from, $to, $branchId);
+
+        if ($unassignedLeads > 0 || $unassignedConverted > 0 || $unassignedSales !== null) {
+            $buyers = (int) ($unassignedSales?->buyers ?? 0);
+            $sales = (float) ($unassignedSales?->sales ?? 0);
+            $conv = $unassignedLeads > 0
+                ? round(($unassignedConverted / $unassignedLeads) * 100, 1)
+                : 0.0;
+            $out[] = [
+                'id' => null,
+                'name' => trans('lead::central.reporting.unassigned'),
+                'leads' => $unassignedLeads,
+                'target' => self::TARGET_BEAUTICIAN_LEADS,
+                'buyers' => $buyers,
+                'converted' => $unassignedConverted,
+                'conv' => $conv,
+                'sales' => round($sales, 2),
+                'orders' => (int) ($unassignedSales?->order_count ?? 0),
+                'avg' => $buyers > 0 ? round($sales / $buyers, 2) : 0.0,
+                'follow' => 0,
+                'lost' => 0,
+                'performance' => $this->performanceLabel($conv, $sales),
+            ];
+        }
+
         usort($out, static function (array $left, array $right): int {
             return [$right['leads'], $right['converted'], $right['sales'], $left['name']]
                 <=> [$left['leads'], $left['converted'], $left['sales'], $right['name']];
         });
 
         return $out;
+    }
+
+    private function unassignedLeadCount(Carbon $from, Carbon $to, ?int $branchId): int
+    {
+        return (int) Lead::query()
+            ->whereBetween('created_at', [$from, $to])
+            ->where('is_duplicate', false)
+            ->whereNull('beautician_id')
+            ->when($branchId !== null, fn ($q) => $q->where('spa_branch_id', $branchId))
+            ->count();
+    }
+
+    private function unassignedConvertedLeadCount(Carbon $from, Carbon $to, ?int $branchId): int
+    {
+        return (int) Lead::query()
+            ->whereBetween('created_at', [$from, $to])
+            ->where('is_duplicate', false)
+            ->where('status', Lead::STATUS_CONVERTED)
+            ->whereNull('beautician_id')
+            ->when($branchId !== null, fn ($q) => $q->where('spa_branch_id', $branchId))
+            ->count();
+    }
+
+    private function unassignedSalesRow(Carbon $from, Carbon $to, ?int $branchId): ?object
+    {
+        $row = Order::query()
+            ->paid()
+            ->whereBetween('orders.created_at', [$from, $to])
+            ->when($branchId !== null, fn ($q) => $q->where('orders.spa_branch_id', $branchId))
+            ->whereNull('orders.beautician_id')
+            ->selectRaw('SUM(orders.total) as sales')
+            ->selectRaw('COUNT(*) as order_count')
+            ->selectRaw("COUNT(DISTINCT NULLIF(orders.customer_phone, '')) as buyers")
+            ->first();
+
+        return (int) ($row?->order_count ?? 0) > 0 ? $row : null;
     }
 
     /**
@@ -926,7 +998,10 @@ final class CentralMetricsService
             ];
         }
 
-        $topBeautician = $beauticians[0] ?? null;
+        $topBeautician = collect($beauticians)
+            ->filter(fn ($row) => ($row['id'] ?? null) !== null)
+            ->sortByDesc(fn ($row) => (float) ($row['sales'] ?? 0))
+            ->first();
         if (is_array($topBeautician) && (float) ($topBeautician['sales'] ?? 0) > 0) {
             $out[] = [
                 'tone' => 'info',

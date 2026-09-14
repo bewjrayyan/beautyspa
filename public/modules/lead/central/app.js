@@ -57,7 +57,7 @@ let metricsScope = liveMetrics ? JSON.stringify([state.branch,state.period]) : n
 let metricsRequest = 0;
 let liveLeads = [];
 let liveLeadSummary = {raw:0,unique:0,duplicates:0,existing:0,converted:0,conversion_pct:0,all_time:{raw:0,unique:0,duplicates:0,existing:0,converted:0,conversion_pct:0}};
-let liveLeadFilters = {statuses:[],beauticians:[],branches:[],months:[]};
+let liveLeadFilters = {statuses:[],sources:[],beauticians:[],branches:[],months:[]};
 let leadsLoading = false;
 let leadSearchTimer = null;
 let editingLeadId = null;
@@ -1208,6 +1208,9 @@ function leadBulkValueOptions(action){
   if(action==='status'){
     return (liveLeadFilters.statuses||[]).map(option=>`<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join('');
   }
+  if(action==='source'){
+    return (liveLeadFilters.sources||[]).map(option=>`<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join('');
+  }
   if(action==='beautician_id'){
     return `<option value="__none__">${escapeHtml(t('workspace.bulk_unassigned'))}</option>${(liveLeadFilters.beauticians||[]).map(option=>`<option value="${escapeHtml(option.id)}">${escapeHtml(option.name)}</option>`).join('')}`;
   }
@@ -1222,14 +1225,14 @@ function renderLeadBulkBar(){
   if(!count){bar.hidden=true;bar.innerHTML='';leadBulkAction='';leadBulkValue='';return;}
   const actions=[];
   if(boot.canEditLead){
-    actions.push(['status',t('workspace.bulk_update_status')],['created_at',t('workspace.bulk_update_date')],['beautician_id',t('workspace.bulk_assign_beautician')],['spa_branch_id',t('workspace.bulk_assign_branch')]);
+    actions.push(['status',t('workspace.bulk_update_status')],['source',t('workspace.bulk_update_source')],['created_at',t('workspace.bulk_update_date')],['beautician_id',t('workspace.bulk_assign_beautician')],['spa_branch_id',t('workspace.bulk_assign_branch')]);
   }
   if(boot.canDeleteLead)actions.push(['delete',t('workspace.bulk_delete')]);
   if(!actions.some(([value])=>value===leadBulkAction)){
     leadBulkAction='';
     leadBulkValue='';
   }
-  const needsValue=['status','created_at','beautician_id','spa_branch_id'].includes(leadBulkAction);
+  const needsValue=['status','source','created_at','beautician_id','spa_branch_id'].includes(leadBulkAction);
   bar.hidden=false;
   bar.innerHTML=`
     <div class="lead-bulk-bar__summary"><strong>${escapeHtml(t('workspace.bulk_selected',{count:fmtInt(count)}))}</strong></div>

@@ -142,6 +142,8 @@ class LeadCentralAuditRegressionTest extends TestCase
         $this->assertStringContainsString('.lead-table-wrap{border-radius:0;max-height:none;overflow:visible', $styles);
         $this->assertStringContainsString('.lead-table{width:100%;min-width:0;table-layout:fixed', $styles);
         $this->assertStringContainsString("['created_at',t('workspace.bulk_update_date')]", $script);
+        $this->assertStringContainsString("['source',t('workspace.bulk_update_source')]", $script);
+        $this->assertStringContainsString("if(action==='source')", $script);
         $this->assertStringContainsString('id="leadBulkValue" type="date"', $script);
         $this->assertStringContainsString('.lead-bulk-date{appearance:auto', $styles);
         $this->assertStringContainsString('const all=s.all_time||s', $script);
@@ -165,15 +167,19 @@ class LeadCentralAuditRegressionTest extends TestCase
 
         $service = app(LeadWorkspaceService::class);
         $updated = $service->bulkUpdate([1, 2], 'status', Lead::STATUS_FOLLOW_UP);
+        $sourceUpdated = $service->bulkUpdate([1, 3], 'source', 'WhatsApp');
         $dateUpdated = $service->bulkUpdate([1], 'created_at', '2026-09-10');
         $deleted = $service->bulkDelete([2]);
 
         $this->assertSame(2, $updated);
+        $this->assertSame(2, $sourceUpdated);
         $this->assertSame(1, $dateUpdated);
         $this->assertSame('2026-09-10', Lead::findOrFail(1)->created_at?->format('Y-m-d'));
         $this->assertSame(Lead::STATUS_FOLLOW_UP, Lead::findOrFail(1)->status);
         $this->assertNotNull(Lead::findOrFail(1)->last_followed_up_at);
         $this->assertSame(Lead::STATUS_NEW, Lead::findOrFail(3)->status);
+        $this->assertSame('WhatsApp', Lead::findOrFail(1)->source);
+        $this->assertSame('WhatsApp', Lead::findOrFail(3)->source);
         $this->assertSame(1, $deleted);
         $this->assertSoftDeleted('leads', ['id' => 2]);
     }
@@ -203,6 +209,11 @@ class LeadCentralAuditRegressionTest extends TestCase
             'field' => 'status',
             'value' => Lead::STATUS_FOLLOW_UP,
         ]);
+        $validSourceRequest = BulkUpdateLeadsRequest::create('/', 'PATCH', [
+            'ids' => [1],
+            'field' => 'source',
+            'value' => 'TikTok',
+        ]);
         $clearAssignmentRequest = BulkUpdateLeadsRequest::create('/', 'PATCH', [
             'ids' => [1],
             'field' => 'beautician_id',
@@ -222,6 +233,10 @@ class LeadCentralAuditRegressionTest extends TestCase
         $this->assertFalse(Validator::make(
             $validStatusRequest->all(),
             $validStatusRequest->rules(),
+        )->fails());
+        $this->assertFalse(Validator::make(
+            $validSourceRequest->all(),
+            $validSourceRequest->rules(),
         )->fails());
         $this->assertFalse(Validator::make(
             $clearAssignmentRequest->all(),
