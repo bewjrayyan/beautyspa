@@ -36,7 +36,7 @@ let state = {
   view:'overview',
   branch: String(($('#branchScope')&&$('#branchScope').value)||'all'),
   period: String(($('#periodScope')&&$('#periodScope').value)||(boot.metrics&&boot.metrics.period&&boot.metrics.period.key)||''),
-  leadSearch:'', leadStatus:'all', leadBeautician:'all', leadBranch:'all', leadPage:1,
+  leadSearch:'', leadStatus:'all', leadBeautician:'all', leadBranch:'all', leadPage:1, leadPerPage:10,
   leadMonth: (function(){
     const d=new Date();
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
@@ -61,6 +61,9 @@ let liveLeadFilters = {statuses:[],beauticians:[],branches:[],months:[]};
 let leadsLoading = false;
 let leadSearchTimer = null;
 let editingLeadId = null;
+let selectedLeadIds = new Set();
+let leadBulkAction = '';
+let leadBulkValue = '';
 let liveFollowUps = [];
 let liveFollowSummary = {queue:0,overdue:0,due_today:0,no_response:0,lost:0};
 let liveFollowFilters = {buckets:[],beauticians:[],branches:[],statuses:[]};
@@ -124,7 +127,11 @@ async function refreshLeads(){
   if(state.leadBeautician && state.leadBeautician!=='all') qs.set('beautician', state.leadBeautician);
   if(state.leadMonth && state.leadMonth!=='all') qs.set('month', state.leadMonth);
   qs.set('page', String(state.leadPage||1));
-  qs.set('per_page', '50');
+  qs.set('per_page', String(state.leadPerPage||10));
+  selectedLeadIds.clear();
+  leadBulkAction='';
+  leadBulkValue='';
+  renderLeadBulkBar();
   leadsLoading = true;
   renderLeadTable();
   try{
@@ -135,6 +142,9 @@ async function refreshLeads(){
     if(!res.ok) throw new Error('leads '+res.status);
     const json = await res.json();
     leadPageMeta=json.meta||{};
+    if([10,50,100,200].includes(Number(leadPageMeta.per_page))){
+      state.leadPerPage=Number(leadPageMeta.per_page);
+    }
     liveLeads = Array.isArray(json.data) ? json.data : [];
     liveLeadSummary = (json.meta && json.meta.summary) || liveLeadSummary;
     liveLeadFilters = json.filters || liveLeadFilters;
@@ -877,6 +887,10 @@ function currentMonthKey(){
   const d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 }
+function currentDateKey(){
+  const d=new Date();
+  return currentMonthKey()+'-'+String(d.getDate()).padStart(2,'0');
+}
 function leadMonthActions(){
   const parts=leadMonthParts(state.leadMonth) || leadMonthParts(currentMonthKey());
   const year=state.leadCalYear || parts.y;
@@ -1032,6 +1046,7 @@ function leads(){
       </div>
     </div>
     <div class="lead-panel__chips" id="leadActiveFilters" hidden></div>
+    <div class="lead-bulk-bar" id="leadBulkBar" hidden aria-live="polite"></div>
     <div class="lead-panel__body" id="leadTableMount"></div>
   </section>`;
   renderLeadKpis();
@@ -1102,7 +1117,7 @@ function leadFilterChipLabel(kind, value){
 }
 function updateLeadFilterChrome(){
   const countEl=$('#leadResultCount');
-  const n=Array.isArray(liveLeads)?liveLeads.length:(liveLeadSummary&&liveLeadSummary.unique!=null?Number(liveLeadSummary.unique):0);
+  const n=Number(leadPageMeta.total ?? (Array.isArray(liveLeads)?liveLeads.length:0));
   if(countEl){
     countEl.textContent = n===1 ? t('workspace.results_count_one') : t('workspace.results_count',{count:fmtInt(n)});
   }
@@ -1159,6 +1174,125 @@ function updateLeadFilterChrome(){
     };
   }
 }
+function leadBulkValueOptions(action){
+  if(action==='status'){
+    return (liveLeadFilters.statuses||[]).map(option=>`<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join('');
+  }
+  if(action==='beautician_id'){
+    return `<option value="__none__">${escapeHtml(t('workspace.bulk_unassigned'))}</option>${(liveLeadFilters.beauticians||[]).map(option=>`<option value="${escapeHtml(option.id)}">${escapeHtml(option.name)}</option>`).join('')}`;
+  }
+  if(action==='spa_branch_id'){
+    return `<option value="__none__">${escapeHtml(t('workspace.bulk_unassigned'))}</option>${(liveLeadFilters.branches||boot.branches||[]).map(option=>`<option value="${escapeHtml(option.id)}">${escapeHtml(option.name)}</option>`).join('')}`;
+  }
+  return '';
+}
+function renderLeadBulkBar(){
+  const bar=$('#leadBulkBar');if(!bar)return;
+  const count=selectedLeadIds.size;
+  if(!count){bar.hidden=true;bar.innerHTML='';leadBulkAction='';leadBulkValue='';return;}
+  const actions=[];
+  if(boot.canEditLead){
+    actions.push(['status',t('workspace.bulk_update_status')],['created_at',t('workspace.bulk_update_date')],['beautician_id',t('workspace.bulk_assign_beautician')],['spa_branch_id',t('workspace.bulk_assign_branch')]);
+  }
+  if(boot.canDeleteLead)actions.push(['delete',t('workspace.bulk_delete')]);
+  if(!actions.some(([value])=>value===leadBulkAction)){
+    leadBulkAction='';
+    leadBulkValue='';
+  }
+  const needsValue=['status','created_at','beautician_id','spa_branch_id'].includes(leadBulkAction);
+  bar.hidden=false;
+  bar.innerHTML=`
+    <div class="lead-bulk-bar__summary"><strong>${escapeHtml(t('workspace.bulk_selected',{count:fmtInt(count)}))}</strong></div>
+    <div class="lead-bulk-bar__controls">
+      <label class="sr-only" for="leadBulkAction">${escapeHtml(t('workspace.bulk_action'))}</label>
+      <select class="lead-bulk-control" id="leadBulkAction">
+        <option value="">${escapeHtml(t('workspace.bulk_choose_action'))}</option>
+        ${actions.map(([value,label])=>`<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join('')}
+      </select>
+      ${leadBulkAction==='created_at'?`<label class="sr-only" for="leadBulkValue">${escapeHtml(t('workspace.bulk_choose_date'))}</label>
+      <input class="lead-bulk-control lead-bulk-date" id="leadBulkValue" type="date" max="${currentDateKey()}" value="${escapeHtml(leadBulkValue)}" aria-label="${escapeHtml(t('workspace.bulk_choose_date'))}">`:(needsValue?`<label class="sr-only" for="leadBulkValue">${escapeHtml(t('workspace.bulk_choose_value'))}</label>
+      <select class="lead-bulk-control" id="leadBulkValue">
+        <option value="">${escapeHtml(t('workspace.bulk_choose_value'))}</option>
+        ${leadBulkValueOptions(leadBulkAction)}
+      </select>`:'')}
+      <button type="button" class="btn ${leadBulkAction==='delete'?'danger':'primary'} lead-bulk-apply" id="leadBulkApply" ${!leadBulkAction||(needsValue&&!leadBulkValue)?'disabled':''}>${escapeHtml(t('workspace.bulk_apply'))}</button>
+      <button type="button" class="btn lead-bulk-clear" id="leadBulkClear">${escapeHtml(t('workspace.bulk_clear'))}</button>
+    </div>`;
+  const actionControl=$('#leadBulkAction');
+  actionControl.value=leadBulkAction;
+  actionControl.onchange=e=>{leadBulkAction=e.target.value;leadBulkValue='';renderLeadBulkBar();};
+  const valueControl=$('#leadBulkValue');
+  if(valueControl){
+    valueControl.value=leadBulkValue;
+    valueControl.onchange=e=>{leadBulkValue=e.target.value;renderLeadBulkBar();};
+  }
+  $('#leadBulkApply').onclick=applyLeadBulkAction;
+  $('#leadBulkClear').onclick=()=>{selectedLeadIds.clear();leadBulkAction='';leadBulkValue='';syncLeadSelectionUi();};
+}
+function syncLeadSelectionUi(){
+  const visibleIds=liveLeads.map(lead=>String(lead.id));
+  const selectedVisible=visibleIds.filter(id=>selectedLeadIds.has(id)).length;
+  const selectAll=$('#leadSelectAll');
+  if(selectAll){
+    selectAll.checked=visibleIds.length>0&&selectedVisible===visibleIds.length;
+    selectAll.indeterminate=selectedVisible>0&&selectedVisible<visibleIds.length;
+  }
+  $$('[data-lead-select]').forEach(input=>{
+    const selected=selectedLeadIds.has(String(input.value));
+    input.checked=selected;
+    input.closest('tr')?.classList.toggle('is-selected',selected);
+  });
+  renderLeadBulkBar();
+}
+async function submitLeadBulkUpdate(field,value,button){
+  const url=boot.leadBulkUpdateUrl||'';
+  if(!url){showToast(t('workspace.bulk_update_error'));return;}
+  button.disabled=true;
+  try{
+    const res=await fetch(url,{method:'PATCH',headers:apiHeaders(true),credentials:'same-origin',body:JSON.stringify({ids:[...selectedLeadIds].map(Number),field,value})});
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){showToast(body.message||t('workspace.bulk_update_error'));return;}
+    showToast(body.message||t('workspace.bulk_updated',{count:selectedLeadIds.size}));
+    await refreshLeads();
+  }catch(err){console.error(err);showToast(t('workspace.bulk_update_error'));}
+  finally{if(button.isConnected)button.disabled=false;}
+}
+async function submitLeadBulkDelete(button){
+  const url=boot.leadBulkDeleteUrl||'';
+  if(!url){showToast(t('workspace.bulk_delete_error'));return;}
+  button.disabled=true;
+  try{
+    const res=await fetch(url,{method:'DELETE',headers:apiHeaders(true),credentials:'same-origin',body:JSON.stringify({ids:[...selectedLeadIds].map(Number)})});
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){showToast(body.message||t('workspace.bulk_delete_error'));return;}
+    if(Number(body.deleted||0)>=liveLeads.length&&state.leadPage>1)state.leadPage--;
+    closeActionDrawer();
+    showToast(body.message||t('workspace.bulk_deleted',{count:selectedLeadIds.size}));
+    await refreshLeads();
+  }catch(err){console.error(err);showToast(t('workspace.bulk_delete_error'));}
+  finally{if(button.isConnected)button.disabled=false;}
+}
+function applyLeadBulkAction(){
+  const count=selectedLeadIds.size;
+  if(!count){showToast(t('workspace.bulk_nothing_selected'));return;}
+  const action=leadBulkAction;
+  const button=$('#leadBulkApply');
+  if(!action||!button)return;
+  if(action==='delete'){
+    openActionDrawer(
+      t('workspace.bulk_delete'),
+      t('workspace.bulk_delete_confirm',{count:fmtInt(count)}),
+      '',
+      `<button type="button" class="btn" data-action-drawer-close>${escapeHtml(t('workspace.cancel'))}</button><button type="button" class="btn danger" id="confirmBulkDeleteLead">${escapeHtml(t('workspace.bulk_delete'))}</button>`,
+      t('workspace.bulk_action')
+    );
+    $('#confirmBulkDeleteLead').onclick=e=>submitLeadBulkDelete(e.currentTarget);
+    return;
+  }
+  if(!leadBulkValue){$('#leadBulkValue')?.focus();return;}
+  const value=leadBulkValue==='__none__'?null:(['beautician_id','spa_branch_id'].includes(action)?Number(leadBulkValue):leadBulkValue);
+  submitLeadBulkUpdate(action,value,button);
+}
 function renderLeadTable(){
   const mount=$('#leadTableMount'); if(!mount)return;
   updateLeadFilterChrome();
@@ -1178,11 +1312,13 @@ function renderLeadTable(){
     if($('#emptyAddLeadBtn')) $('#emptyAddLeadBtn').onclick=openAddLeadDrawer;
     return;
   }
+  const canBulk=!!(boot.canEditLead||boot.canDeleteLead);
   mount.innerHTML = `<div class="table-wrap lead-table-wrap"><table class="data-table lead-table"><thead><tr>
-    <th>${escapeHtml(t('workspace.col_lead_id'))}</th><th>${escapeHtml(t('workspace.col_date'))}</th><th>${escapeHtml(t('workspace.col_customer'))}</th>
-    <th>${escapeHtml(t('workspace.col_phone'))}</th><th>${escapeHtml(t('workspace.col_email'))}</th><th>${escapeHtml(t('workspace.col_source'))}</th>
-    <th>${escapeHtml(t('workspace.col_beautician'))}</th><th>${escapeHtml(t('workspace.col_branch'))}</th><th>${escapeHtml(t('workspace.col_status'))}</th>
-    <th>${escapeHtml(t('workspace.col_payment'))}</th><th class="is-num">${escapeHtml(t('workspace.col_sales'))}</th><th title="${escapeHtml(t('workspace.col_last_fu'))}">${escapeHtml(t('workspace.col_last_fu'))}</th>
+    ${canBulk?`<th class="lead-table__select"><input class="lead-select-box" type="checkbox" id="leadSelectAll" aria-label="${escapeHtml(t('workspace.bulk_select_all'))}"></th>`:''}
+    <th class="lead-col--id">${escapeHtml(t('workspace.col_lead_id'))}</th><th class="lead-col--date">${escapeHtml(t('workspace.col_date'))}</th><th class="lead-col--customer">${escapeHtml(t('workspace.col_customer'))}</th>
+    <th class="lead-col--phone">${escapeHtml(t('workspace.col_phone'))}</th><th class="lead-col--email">${escapeHtml(t('workspace.col_email'))}</th><th class="lead-col--source">${escapeHtml(t('workspace.col_source'))}</th>
+    <th class="lead-col--beautician">${escapeHtml(t('workspace.col_beautician'))}</th><th class="lead-col--branch">${escapeHtml(t('workspace.col_branch'))}</th><th>${escapeHtml(t('workspace.col_status'))}</th>
+    <th class="lead-col--payment">${escapeHtml(t('workspace.col_payment'))}</th><th class="is-num lead-col--sales">${escapeHtml(t('workspace.col_sales'))}</th><th class="lead-col--follow-up" title="${escapeHtml(t('workspace.col_last_fu'))}">${escapeHtml(t('workspace.col_last_fu'))}</th>
     <th class="lead-table__actions"><span class="sr-only">${escapeHtml(t('workspace.col_action'))}</span></th>
   </tr></thead><tbody>${rows.map(l=>{
     const name=String(l.name||'');
@@ -1196,8 +1332,9 @@ function renderLeadTable(){
     const last=String(l.last||'').trim();
     const salesNum=Number(l.sales||0);
     return `<tr>
-      <td><span class="lead-code">${escapeHtml(l.code||l.id)}</span></td>
-      <td><span class="lead-date">${escapeHtml(l.date||'—')}</span></td>
+      ${canBulk?`<td class="lead-table__select"><input class="lead-select-box" type="checkbox" value="${escapeHtml(l.id)}" data-lead-select aria-label="${escapeHtml(t('workspace.bulk_select_lead',{name:name||l.code||l.id}))}"></td>`:''}
+      <td class="lead-col--id"><span class="lead-code">${escapeHtml(l.code||l.id)}</span></td>
+      <td class="lead-col--date"><span class="lead-date">${escapeHtml(l.date||'—')}</span></td>
       <td>
         <div class="person-cell person-cell--lead">
           <div class="mini-avatar" aria-hidden="true">${initial}</div>
@@ -1208,14 +1345,14 @@ function renderLeadTable(){
         </div>
       </td>
       <td><span class="lead-mono">${escapeHtml(l.phone||'—')}</span></td>
-      <td>${email?`<span class="lead-email" title="${escapeHtml(email)}">${escapeHtml(email)}</span>`:`<span class="lead-muted">—</span>`}</td>
-      <td>${source?`<span class="lead-tag">${escapeHtml(source)}</span>`:`<span class="lead-muted">—</span>`}</td>
-      <td>${beautician?escapeHtml(beautician):`<span class="lead-muted">—</span>`}</td>
-      <td>${branch?`<span class="lead-branch">${escapeHtml(branch)}</span>`:`<span class="lead-muted">—</span>`}</td>
+      <td class="lead-col--email">${email?`<span class="lead-email" title="${escapeHtml(email)}">${escapeHtml(email)}</span>`:`<span class="lead-muted">—</span>`}</td>
+      <td class="lead-col--source">${source?`<span class="lead-tag">${escapeHtml(source)}</span>`:`<span class="lead-muted">—</span>`}</td>
+      <td class="lead-col--beautician">${beautician?escapeHtml(beautician):`<span class="lead-muted">—</span>`}</td>
+      <td class="lead-col--branch">${branch?`<span class="lead-branch">${escapeHtml(branch)}</span>`:`<span class="lead-muted">—</span>`}</td>
       <td>${statusBadge(l.status)}</td>
-      <td>${statusBadge(l.payment)}</td>
+      <td class="lead-col--payment">${statusBadge(l.payment)}</td>
       <td class="is-num"><span class="lead-money${salesNum?'':' is-zero'}">${salesNum?money(salesNum):'RM0'}</span></td>
-      <td><span class="lead-date">${last?escapeHtml(last):'—'}</span></td>
+      <td class="lead-col--follow-up"><span class="lead-date">${last?escapeHtml(last):'—'}</span></td>
       <td class="lead-table__actions">
         <div class="lead-menu">
           <button type="button" class="lead-menu__btn" data-lead-menu aria-haspopup="menu" aria-expanded="false" aria-label="${escapeHtml(t('workspace.row_actions'))}">
@@ -1230,8 +1367,29 @@ function renderLeadTable(){
       </td>
     </tr>`;
   }).join('')}</tbody></table></div>`;
-  mount.insertAdjacentHTML('beforeend',centralPager('leads',leadPageMeta));
+  const pageSizes=[10,50,100,200];
+  mount.insertAdjacentHTML('beforeend',`<div class="lead-pagination-bar">
+    <label class="lead-page-size" for="leadPerPage">
+      <span>${escapeHtml(t('workspace.rows_per_page'))}</span>
+      <select id="leadPerPage" class="lead-page-size__select">
+        ${pageSizes.map(size=>`<option value="${size}" ${Number(state.leadPerPage)===size?'selected':''}>${size}</option>`).join('')}
+      </select>
+    </label>
+    ${centralPager('leads',leadPageMeta)}
+  </div>`);
+  const pageSize=$('#leadPerPage',mount);
+  if(pageSize) pageSize.onchange=()=>{state.leadPerPage=Number(pageSize.value)||10;state.leadPage=1;pageSize.disabled=true;refreshLeads();};
   bindCentralPager('leads',page=>{state.leadPage=page;return refreshLeads();});
+  const selectAll=$('#leadSelectAll',mount);
+  if(selectAll)selectAll.onchange=()=>{
+    liveLeads.forEach(lead=>selectAll.checked?selectedLeadIds.add(String(lead.id)):selectedLeadIds.delete(String(lead.id)));
+    syncLeadSelectionUi();
+  };
+  $$('[data-lead-select]',mount).forEach(input=>input.onchange=()=>{
+    input.checked?selectedLeadIds.add(String(input.value)):selectedLeadIds.delete(String(input.value));
+    syncLeadSelectionUi();
+  });
+  syncLeadSelectionUi();
   bindLeadRowMenus(mount);
   $$('[data-lead-id]',mount).forEach(b=>b.onclick=()=>{ closeAllLeadMenus(); openLead(b.dataset.leadId); });
   $$('[data-lead-edit]',mount).forEach(b=>b.onclick=()=>{ closeAllLeadMenus(); openEditLeadDrawer(b.dataset.leadEdit); });

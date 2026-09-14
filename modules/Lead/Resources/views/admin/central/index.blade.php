@@ -160,6 +160,8 @@
       loyaltyMemberShowUrlTemplate: @json($loyaltyMemberShowUrlTemplate),
       treatmentReservationsUrl: @json($treatmentReservationsUrl),
       leadStoreUrl: @json($leadStoreUrl),
+      leadBulkUpdateUrl: @json($leadBulkUpdateUrl),
+      leadBulkDeleteUrl: @json($leadBulkDeleteUrl),
       leadShowUrlTemplate: @json($leadShowUrlTemplate),
       leadStatusUrlTemplate: @json($leadStatusUrlTemplate),
       leadUpdateUrlTemplate: @json($leadUpdateUrlTemplate),

@@ -68,6 +68,18 @@ Route::post('leads/workspace', [
     'middleware' => ['can:admin.leads.create', 'throttle:30,1'],
 ]);
 
+Route::patch('leads/workspace/bulk', [
+    'as' => 'admin.leads.workspace.bulk-update',
+    'uses' => 'LeadWorkspaceController@bulkUpdate',
+    'middleware' => ['can:admin.leads.edit', 'throttle:30,1'],
+]);
+
+Route::delete('leads/workspace/bulk', [
+    'as' => 'admin.leads.workspace.bulk-delete',
+    'uses' => 'LeadWorkspaceController@bulkDelete',
+    'middleware' => ['can:admin.leads.destroy', 'throttle:20,1'],
+]);
+
 Route::get('leads/workspace/{id}', [
     'as' => 'admin.leads.workspace.show',
     'uses' => 'LeadWorkspaceController@show',

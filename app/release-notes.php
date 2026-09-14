@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.100' => [
+        'date' => '2026-09-14',
+        'en' => [
+            'summary' => 'Make the central lead directory faster to scan and safer to manage in bulk.',
+            'changes' => [
+                'Remove the inner table scrollbar and add 10, 50, 100, and 200 row page-size options with responsive column handling.',
+                'Add permission-aware bulk actions for status, lead date, beautician, branch, and deletion, including a native calendar picker and explicit delete confirmation.',
+                'Harden bulk requests with field allowlists, record validation, transaction locking, throttling, soft deletion, and regression coverage.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Jadikan direktori lead pusat lebih pantas diimbas dan lebih selamat diurus secara pukal.',
+            'changes' => [
+                'Buang scrollbar dalaman jadual dan tambah pilihan 10, 50, 100 dan 200 rekod setiap halaman dengan pengendalian kolum responsif.',
+                'Tambah tindakan pukal mengikut permission untuk status, tarikh lead, beautician, cawangan dan pemadaman, termasuk kalendar native serta pengesahan padam yang jelas.',
+                'Kukuhkan permintaan pukal dengan senarai medan dibenarkan, validasi rekod, transaction locking, throttling, soft deletion dan liputan regresi.',
+            ],
+        ],
+    ],
+
     '4.11.99' => [
         'date' => '2026-09-14',
         'en' => [

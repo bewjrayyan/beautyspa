@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
 use Modules\Lead\Entities\Lead;
+use Modules\Lead\Http\Requests\Admin\BulkUpdateLeadsRequest;
 use Modules\Lead\Services\CentralWalletService;
 use Modules\Lead\Services\LeadWorkspaceService;
 use Modules\Loyalty\Entities\LoyaltyStampWallet;
@@ -20,12 +22,28 @@ class LeadCentralAuditRegressionTest extends TestCase
         parent::setUp();
         config(['database.connections.lead_audit_test' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]);
         DB::setDefaultConnection('lead_audit_test');
-        Schema::create('users', function (Blueprint $t): void { $t->id(); $t->string('phone')->nullable(); });
+        Schema::create('users', function (Blueprint $t): void {
+            $t->id();
+            $t->string('first_name')->nullable();
+            $t->string('last_name')->nullable();
+            $t->string('phone')->nullable();
+        });
+        Schema::create('spa_branches', function (Blueprint $t): void {
+            $t->id();
+            $t->string('name')->nullable();
+            $t->string('code')->nullable();
+        });
+        Schema::create('beauticians', function (Blueprint $t): void {
+            $t->id();
+            $t->string('first_name')->nullable();
+            $t->string('last_name')->nullable();
+        });
         Schema::create('leads', function (Blueprint $t): void {
             $t->id();
             foreach (['name', 'phone', 'email', 'source', 'status'] as $column) $t->string($column)->nullable();
             foreach (['spa_branch_id', 'beautician_id', 'customer_id'] as $column) $t->integer($column)->nullable();
             $t->boolean('is_duplicate')->default(false); $t->boolean('is_existing_customer')->default(false);
+            $t->timestamp('last_followed_up_at')->nullable();
             $t->timestamps(); $t->softDeletes();
         });
     }
@@ -67,6 +85,145 @@ class LeadCentralAuditRegressionTest extends TestCase
         Lead::withoutEvents(fn () => $service->update(Lead::findOrFail(2), ['name' => 'Fixture', 'phone' => '60123456789']));
         $this->assertTrue(Lead::find(2)->is_duplicate);
         $this->assertSame(1, $service->summary()['unique']);
+    }
+
+    #[Test]
+    public function lead_directory_supports_only_the_requested_page_sizes(): void
+    {
+        foreach (range(1, 205) as $index) {
+            DB::table('leads')->insert([
+                'name' => "Lead {$index}",
+                'phone' => "6012{$index}",
+                'status' => 'new',
+                'source' => 'manual',
+            ]);
+        }
+
+        $service = app(LeadWorkspaceService::class);
+        $largestPage = $service->paginate(['per_page' => 200]);
+        $invalidPage = $service->paginate(['per_page' => 999]);
+
+        $this->assertSame(200, $largestPage->perPage());
+        $this->assertCount(200, $largestPage->items());
+        $this->assertSame(205, $largestPage->total());
+        $this->assertSame(10, $invalidPage->perPage());
+        $this->assertCount(10, $invalidPage->items());
+    }
+
+    #[Test]
+    public function lead_directory_uses_page_size_controls_without_an_inner_scrollbar(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+
+        $this->assertStringContainsString('const pageSizes=[10,50,100,200]', $script);
+        $this->assertStringContainsString("qs.set('per_page', String(state.leadPerPage||10))", $script);
+        $this->assertStringContainsString('.lead-table-wrap{border-radius:0;max-height:none;overflow:visible', $styles);
+        $this->assertStringContainsString('.lead-table{width:100%;min-width:0;table-layout:fixed', $styles);
+        $this->assertStringContainsString("['created_at',t('workspace.bulk_update_date')]", $script);
+        $this->assertStringContainsString('id="leadBulkValue" type="date"', $script);
+        $this->assertStringContainsString('.lead-bulk-date{appearance:auto', $styles);
+    }
+
+    #[Test]
+    public function bulk_actions_update_and_soft_delete_only_selected_leads(): void
+    {
+        foreach (range(1, 3) as $index) {
+            DB::table('leads')->insert([
+                'name' => "Bulk {$index}",
+                'phone' => "6019000{$index}",
+                'status' => Lead::STATUS_NEW,
+                'source' => 'manual',
+            ]);
+        }
+
+        $service = app(LeadWorkspaceService::class);
+        $updated = $service->bulkUpdate([1, 2], 'status', Lead::STATUS_FOLLOW_UP);
+        $dateUpdated = $service->bulkUpdate([1], 'created_at', '2026-09-10');
+        $deleted = $service->bulkDelete([2]);
+
+        $this->assertSame(2, $updated);
+        $this->assertSame(1, $dateUpdated);
+        $this->assertSame('2026-09-10', Lead::findOrFail(1)->created_at?->format('Y-m-d'));
+        $this->assertSame(Lead::STATUS_FOLLOW_UP, Lead::findOrFail(1)->status);
+        $this->assertNotNull(Lead::findOrFail(1)->last_followed_up_at);
+        $this->assertSame(Lead::STATUS_NEW, Lead::findOrFail(3)->status);
+        $this->assertSame(1, $deleted);
+        $this->assertSoftDeleted('leads', ['id' => 2]);
+    }
+
+    #[Test]
+    public function bulk_update_request_rejects_unapproved_fields(): void
+    {
+        DB::table('leads')->insert([
+            'name' => 'Validated lead',
+            'phone' => '60195550000',
+            'status' => Lead::STATUS_NEW,
+            'source' => 'manual',
+        ]);
+
+        $request = BulkUpdateLeadsRequest::create('/', 'PATCH', [
+            'ids' => [1],
+            'field' => 'phone',
+            'value' => '60123456789',
+        ]);
+        $validator = Validator::make($request->all(), $request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('field', $validator->errors()->toArray());
+
+        $validStatusRequest = BulkUpdateLeadsRequest::create('/', 'PATCH', [
+            'ids' => [1],
+            'field' => 'status',
+            'value' => Lead::STATUS_FOLLOW_UP,
+        ]);
+        $clearAssignmentRequest = BulkUpdateLeadsRequest::create('/', 'PATCH', [
+            'ids' => [1],
+            'field' => 'beautician_id',
+            'value' => null,
+        ]);
+        $validDateRequest = BulkUpdateLeadsRequest::create('/', 'PATCH', [
+            'ids' => [1],
+            'field' => 'created_at',
+            'value' => now()->toDateString(),
+        ]);
+        $futureDateRequest = BulkUpdateLeadsRequest::create('/', 'PATCH', [
+            'ids' => [1],
+            'field' => 'created_at',
+            'value' => now()->addDay()->toDateString(),
+        ]);
+
+        $this->assertFalse(Validator::make(
+            $validStatusRequest->all(),
+            $validStatusRequest->rules(),
+        )->fails());
+        $this->assertFalse(Validator::make(
+            $clearAssignmentRequest->all(),
+            $clearAssignmentRequest->rules(),
+        )->fails());
+        $this->assertFalse(Validator::make(
+            $validDateRequest->all(),
+            $validDateRequest->rules(),
+        )->fails());
+        $this->assertTrue(Validator::make(
+            $futureDateRequest->all(),
+            $futureDateRequest->rules(),
+        )->fails());
+    }
+
+    #[Test]
+    public function lead_directory_exposes_permission_aware_bulk_controls(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $view = file_get_contents(base_path('modules/Lead/Resources/views/admin/central/index.blade.php'));
+
+        $this->assertStringContainsString('boot.canEditLead||boot.canDeleteLead', $script);
+        $this->assertStringContainsString('data-lead-select', $script);
+        $this->assertStringContainsString("let leadBulkAction = ''", $script);
+        $this->assertStringContainsString('actionControl.value=leadBulkAction', $script);
+        $this->assertStringContainsString('leadBulkValueOptions(leadBulkAction)', $script);
+        $this->assertStringContainsString('leadBulkUpdateUrl: @json($leadBulkUpdateUrl)', $view);
+        $this->assertStringContainsString('leadBulkDeleteUrl: @json($leadBulkDeleteUrl)', $view);
     }
 
     #[Test]

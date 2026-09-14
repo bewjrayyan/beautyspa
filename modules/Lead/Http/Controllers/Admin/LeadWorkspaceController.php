@@ -7,6 +7,8 @@ namespace Modules\Lead\Http\Controllers\Admin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Lead\Entities\Lead;
+use Modules\Lead\Http\Requests\Admin\BulkDeleteLeadsRequest;
+use Modules\Lead\Http\Requests\Admin\BulkUpdateLeadsRequest;
 use Modules\Lead\Http\Requests\Admin\StoreLeadRequest;
 use Modules\Lead\Http\Requests\Admin\UpdateLeadRequest;
 use Modules\Lead\Http\Requests\Admin\UpdateLeadStatusRequest;
@@ -39,7 +41,7 @@ final class LeadWorkspaceController
             'branch' => $branchFilter,
             'beautician' => $request->query('beautician', $request->query('beautician_id')),
             'month' => $monthKey,
-            'per_page' => (int) $request->query('per_page', 25),
+            'per_page' => (int) $request->query('per_page', 10),
         ]);
 
         $data = collect($paginator->items())
@@ -121,6 +123,31 @@ final class LeadWorkspaceController
 
         return response()->json([
             'message' => trans('lead::central.workspace.deleted'),
+        ]);
+    }
+
+    public function bulkUpdate(BulkUpdateLeadsRequest $request): JsonResponse
+    {
+        $payload = $request->payload();
+        $updated = $this->workspace->bulkUpdate(
+            $payload['ids'],
+            $payload['field'],
+            $payload['value'],
+        );
+
+        return response()->json([
+            'message' => trans('lead::central.workspace.bulk_updated', ['count' => $updated]),
+            'updated' => $updated,
+        ]);
+    }
+
+    public function bulkDelete(BulkDeleteLeadsRequest $request): JsonResponse
+    {
+        $deleted = $this->workspace->bulkDelete($request->ids());
+
+        return response()->json([
+            'message' => trans('lead::central.workspace.bulk_deleted', ['count' => $deleted]),
+            'deleted' => $deleted,
         ]);
     }
 

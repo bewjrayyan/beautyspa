@@ -23,6 +23,8 @@ class LeadWorkspaceAuthorizationContractTest extends TestCase
             'admin.leads.clearance.index' => 'can:admin.leads.index',
             'admin.leads.workspace.index' => 'can:admin.leads.index',
             'admin.leads.workspace.store' => 'can:admin.leads.create',
+            'admin.leads.workspace.bulk-update' => 'can:admin.leads.edit',
+            'admin.leads.workspace.bulk-delete' => 'can:admin.leads.destroy',
             'admin.leads.workspace.show' => 'can:admin.leads.show',
             'admin.leads.workspace.status' => 'can:admin.leads.edit',
             'admin.leads.workspace.update' => 'can:admin.leads.edit',

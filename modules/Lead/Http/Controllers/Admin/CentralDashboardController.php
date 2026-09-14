@@ -87,6 +87,8 @@ final class CentralDashboardController
             'loyaltyMemberShowUrlTemplate' => url('admin/loyalty/members/__ID__'),
             'treatmentReservationsUrl' => route('admin.treatment_reservations.index'),
             'leadStoreUrl' => route('admin.leads.workspace.store'),
+            'leadBulkUpdateUrl' => route('admin.leads.workspace.bulk-update'),
+            'leadBulkDeleteUrl' => route('admin.leads.workspace.bulk-delete'),
             'leadShowUrlTemplate' => url('admin/leads/workspace/__ID__'),
             'leadStatusUrlTemplate' => url('admin/leads/workspace/__ID__/status'),
             'leadUpdateUrlTemplate' => url('admin/leads/workspace/__ID__'),

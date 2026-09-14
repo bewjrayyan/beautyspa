@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Modules\Lead\Services;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 use Modules\Beautician\Entities\Beautician;
 use Modules\Lead\Entities\Lead;
 use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\User\Entities\User;
 use Modules\User\Support\PhoneNumber;
+use RuntimeException;
 
 final class LeadWorkspaceService
 {
@@ -18,7 +22,10 @@ final class LeadWorkspaceService
      */
     public function paginate(array $filters = []): LengthAwarePaginator
     {
-        $perPage = max(1, min(100, (int) ($filters['per_page'] ?? 25)));
+        $requestedPerPage = (int) ($filters['per_page'] ?? 10);
+        $perPage = in_array($requestedPerPage, [10, 50, 100, 200], true)
+            ? $requestedPerPage
+            : 10;
 
         $query = Lead::query()
             ->with(['spaBranch:id,name,code', 'beautician:id,first_name,last_name', 'customer:id,first_name,last_name,phone'])
@@ -182,6 +189,101 @@ final class LeadWorkspaceService
     public function delete(Lead $lead): void
     {
         $lead->delete();
+    }
+
+    /**
+     * @param  list<int>  $ids
+     */
+    public function bulkUpdate(array $ids, string $field, mixed $value): int
+    {
+        if (! in_array($field, ['status', 'created_at', 'beautician_id', 'spa_branch_id'], true)) {
+            throw new InvalidArgumentException('Unsupported lead bulk-update field.');
+        }
+
+        if ($field === 'status' && ! in_array($value, Lead::statuses(), true)) {
+            throw new InvalidArgumentException('Unsupported lead status.');
+        }
+
+        $selectedDate = null;
+        if ($field === 'created_at') {
+            $selectedDate = CarbonImmutable::createFromFormat('!Y-m-d', (string) $value);
+
+            if (
+                $selectedDate === false
+                || $selectedDate->format('Y-m-d') !== $value
+                || $selectedDate->isAfter(today())
+            ) {
+                throw new InvalidArgumentException('Unsupported lead date.');
+            }
+        }
+
+        return DB::transaction(function () use ($ids, $field, $value, $selectedDate): int {
+            $leads = Lead::query()
+                ->whereKey($this->normalizeBulkIds($ids))
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($leads as $lead) {
+                if ($field === 'created_at' && $selectedDate !== null) {
+                    $original = $lead->created_at ?? now();
+                    $lead->created_at = $original->copy()->setDate(
+                        $selectedDate->year,
+                        $selectedDate->month,
+                        $selectedDate->day,
+                    );
+                } else {
+                    $lead->setAttribute($field, $value);
+                }
+
+                if ($field === 'status' && $value === Lead::STATUS_FOLLOW_UP) {
+                    $lead->last_followed_up_at = now();
+                }
+
+                if (! $lead->save()) {
+                    throw new RuntimeException('A selected lead could not be updated.');
+                }
+            }
+
+            return $leads->count();
+        });
+    }
+
+    /**
+     * @param  list<int>  $ids
+     */
+    public function bulkDelete(array $ids): int
+    {
+        return DB::transaction(function () use ($ids): int {
+            $leads = Lead::query()
+                ->whereKey($this->normalizeBulkIds($ids))
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($leads as $lead) {
+                if (! $lead->delete()) {
+                    throw new RuntimeException('A selected lead could not be deleted.');
+                }
+            }
+
+            return $leads->count();
+        });
+    }
+
+    /**
+     * @param  list<int>  $ids
+     * @return list<int>
+     */
+    private function normalizeBulkIds(array $ids): array
+    {
+        return collect($ids)
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->filter(static fn (int $id): bool => $id > 0)
+            ->unique()
+            ->take(200)
+            ->values()
+            ->all();
     }
 
     public function refreshMatchFlags(Lead $lead): Lead
