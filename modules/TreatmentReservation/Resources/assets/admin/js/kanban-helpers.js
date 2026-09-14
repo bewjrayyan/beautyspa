@@ -1066,18 +1066,18 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 `data-send-customer-reminder data-booking-id="${escapeHtml(String(booking.id))}" data-resend="${booking.reminder_sent ? "1" : "0"}" aria-label="${escapeHtml(booking.reminder_sent ? (labels.resendReminder || "Resend reminder") : (labels.whatsappReminderCustomer || "WhatsApp reminder · Customer"))}" title="${escapeHtml(booking.reminder_sent ? (labels.resendReminder || "Resend reminder") : (labels.whatsappReminderCustomer || "WhatsApp reminder · Customer"))}"`
             )
             : "",
-        options.consultationUrlTemplate && booking.status !== "canceled"
-            ? previewActionButton(
-                "tr-calendar-event-preview__consultation tr-calendar-event-preview__action-btn--primary",
-                `<i class="fa fa-file-text-o" aria-hidden="true"></i><span>${escapeHtml(labels.actionConsultationShort || "Consultation")}</span>`,
-                `data-send-consultation data-booking-id="${escapeHtml(String(booking.id))}" aria-label="${escapeHtml(labels.consultation || "Send consultation form")}" title="${escapeHtml(labels.consultation || "Send consultation form")}"`
-            )
-            : "",
         notify.beauticianReminder
             ? previewActionButton(
                 "tr-calendar-event-preview__whatsapp-reminder-beautician tr-calendar-event-preview__action-btn--success",
                 `<i class="fa fa-whatsapp" aria-hidden="true"></i><span>${escapeHtml(labels.actionBeauticianShort || "Beautician")}</span>`,
                 `data-send-beautician-reminder data-booking-id="${escapeHtml(String(booking.id))}" data-resend="${booking.beautician_reminder_sent ? "1" : "0"}" aria-label="${escapeHtml(booking.beautician_reminder_sent ? (labels.resendBeauticianReminder || "Resend beautician reminder") : (labels.whatsappReminderBeautician || "WhatsApp reminder · Beautician"))}" title="${escapeHtml(booking.beautician_reminder_sent ? (labels.resendBeauticianReminder || "Resend beautician reminder") : (labels.whatsappReminderBeautician || "WhatsApp reminder · Beautician"))}"`
+            )
+            : "",
+        options.consultationUrlTemplate && booking.status !== "canceled"
+            ? previewActionButton(
+                "tr-calendar-event-preview__consultation tr-calendar-event-preview__action-btn--primary",
+                `<i class="fa fa-file-text-o" aria-hidden="true"></i><span>${escapeHtml(labels.actionConsultationShort || "Consultation")}</span>`,
+                `data-send-consultation data-booking-id="${escapeHtml(String(booking.id))}" aria-label="${escapeHtml(labels.consultation || "Send consultation form")}" title="${escapeHtml(labels.consultation || "Send consultation form")}"`
             )
             : "",
         options.portalGenericWhatsApp && !notify.customerReminder && String(booking.customer_phone || "").trim()

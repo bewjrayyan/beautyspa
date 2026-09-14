@@ -184,6 +184,8 @@ return [
         'beautician_reminder_failed' => 'Gagal hantar peringatan beautician',
         'beautician_reminder_disabled' => 'Peringatan beautician dimatikan dalam tetapan',
         'beautician_reminder_not_eligible' => 'Tempahan ini tidak layak untuk peringatan beautician',
+        'beautician_tba_reminder_disabled' => 'Peringatan TBA beautician dimatikan dalam tetapan',
+        'beautician_tba_reminder_not_eligible' => 'Tempahan TBA ini tidak layak untuk peringatan beautician',
         'beautician_reminder_sent_label' => 'Peringatan beautician dihantar',
         'profile_title' => 'Profil pelanggan',
         'profile_eyebrow' => 'Pelanggan CRM',

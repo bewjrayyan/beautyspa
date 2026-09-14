@@ -10,6 +10,7 @@ use Modules\Order\Events\OrderStatusChanged;
 use Modules\TreatmentReservation\Console\GrantManualBookingPermissionsCommand;
 use Modules\TreatmentReservation\Console\SeedAppointmentAvailabilityCommand;
 use Modules\TreatmentReservation\Console\SendBeauticianAppointmentRemindersCommand;
+use Modules\TreatmentReservation\Console\SendBeauticianTbaRemindersCommand;
 use Modules\TreatmentReservation\Console\SendCustomerAppointmentRemindersCommand;
 use Modules\TreatmentReservation\Console\SendCustomerFollowUpNotificationsCommand;
 use Modules\TreatmentReservation\Console\SyncTreatmentBookingsCommand;
@@ -133,6 +134,7 @@ class TreatmentReservationServiceProvider extends ServiceProvider
             $this->commands([
                 SyncTreatmentBookingsCommand::class,
                 SendBeauticianAppointmentRemindersCommand::class,
+                SendBeauticianTbaRemindersCommand::class,
                 SendCustomerAppointmentRemindersCommand::class,
                 SendCustomerFollowUpNotificationsCommand::class,
                 GrantManualBookingPermissionsCommand::class,

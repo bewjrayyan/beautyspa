@@ -203,6 +203,12 @@ return [
     'whatsapp_beautician_new_booking_enabled' => filter_var(env('WHATSAPP_BEAUTICIAN_NEW_BOOKING_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
     'whatsapp_beautician_reminder_enabled' => filter_var(env('WHATSAPP_BEAUTICIAN_REMINDER_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
     'whatsapp_beautician_reminder_minutes' => (int) env('WHATSAPP_BEAUTICIAN_REMINDER_MINUTES', 60),
+    'whatsapp_beautician_tba_reminder_enabled' => filter_var(
+        env('WHATSAPP_BEAUTICIAN_TBA_REMINDER_ENABLED', true),
+        FILTER_VALIDATE_BOOLEAN
+    ),
+    'whatsapp_beautician_tba_reminder_time' => env('WHATSAPP_BEAUTICIAN_TBA_REMINDER_TIME', '09:00'),
+    'whatsapp_beautician_tba_reminder_repeat_days' => (int) env('WHATSAPP_BEAUTICIAN_TBA_REMINDER_REPEAT_DAYS', 1),
     'whatsapp_beautician_new_booking_message' => env('WHATSAPP_BEAUTICIAN_NEW_BOOKING_MESSAGE', implode("\n", [
         '📅 *Tempahan Baharu — :store*',
         '',
@@ -224,5 +230,17 @@ return [
         'Rujukan: :reference',
         '',
         'Buka job sheet: :portal_url',
+    ])),
+    'whatsapp_beautician_tba_reminder_message' => env('WHATSAPP_BEAUTICIAN_TBA_REMINDER_MESSAGE', implode("\n", [
+        '📅 *Temujanji TBA Belum Dijadualkan — :store*',
+        '',
+        'Hai :beautician,',
+        '',
+        'Order #:order_id untuk :customer masih belum mempunyai tarikh dan masa temujanji.',
+        'Rawatan: :treatment',
+        'Rujukan: :reference',
+        '',
+        'Sila masuk ke portal anda dan jadualkan slot temujanji secepat mungkin.',
+        'Portal: :portal_url',
     ])),
 ];

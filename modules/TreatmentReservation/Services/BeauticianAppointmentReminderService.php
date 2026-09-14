@@ -22,7 +22,7 @@ class BeauticianAppointmentReminderService
         $sent = 0;
 
         TreatmentBooking::query()
-            ->with(['beautician', 'product'])
+            ->with(['beautician.user', 'product'])
             ->whereNotNull('beautician_id')
             ->whereNotNull('appointment_date')
             ->whereNotNull('appointment_time')
@@ -53,6 +53,10 @@ class BeauticianAppointmentReminderService
 
     public function sendManualReminder(TreatmentBooking $booking, bool $resend = false): bool
     {
+        if ($booking->isTbaSchedule()) {
+            return app(BeauticianTbaReminderService::class)->sendManualReminder($booking, $resend);
+        }
+
         if (! setting('whatsapp_beautician_reminder_enabled', true)) {
             throw new \InvalidArgumentException(TrLang::trans('admin.crm.beautician_reminder_disabled'));
         }
@@ -79,18 +83,24 @@ class BeauticianAppointmentReminderService
 
     public function canSendReminder(TreatmentBooking $booking): bool
     {
-        $booking->loadMissing('beautician');
+        if ($booking->isTbaSchedule()) {
+            return app(BeauticianTbaReminderService::class)->canSendReminder($booking);
+        }
 
-        $phone = trim((string) $booking->beautician?->phone);
+        $booking->loadMissing('beautician.user');
 
-        if ($phone === ''
+        $phone = trim((string) ($booking->beautician?->phone ?: $booking->beautician?->user?->phone));
+
+        if (
+            $phone === ''
             || ! $booking->beautician_id
             || ! $booking->appointment_date
             || ! $booking->appointment_time
             || ! in_array($booking->status, [
                 TreatmentBooking::STATUS_PENDING,
                 TreatmentBooking::STATUS_IN_PROGRESS,
-            ], true)) {
+            ], true)
+        ) {
             return false;
         }
 
@@ -104,6 +114,10 @@ class BeauticianAppointmentReminderService
      */
     public function reminderMeta(TreatmentBooking $booking): array
     {
+        if ($booking->isTbaSchedule()) {
+            return app(BeauticianTbaReminderService::class)->reminderMeta($booking);
+        }
+
         $sentAt = $booking->reminder_sent_at;
 
         return [
@@ -132,9 +146,9 @@ class BeauticianAppointmentReminderService
 
     private function deliverReminder(TreatmentBooking $booking, bool $logActivity = false): bool
     {
-        $booking->loadMissing('beautician');
+        $booking->loadMissing('beautician.user');
 
-        $phone = trim((string) $booking->beautician?->phone);
+        $phone = trim((string) ($booking->beautician?->phone ?: $booking->beautician?->user?->phone));
 
         if ($phone === '' || ! $this->claimReminder($booking)) {
             return false;

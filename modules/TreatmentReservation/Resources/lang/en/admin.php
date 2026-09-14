@@ -178,6 +178,8 @@ return [
         'beautician_reminder_failed' => 'Failed to send beautician reminder',
         'beautician_reminder_disabled' => 'Beautician reminders are disabled in settings',
         'beautician_reminder_not_eligible' => 'This booking cannot send a beautician reminder',
+        'beautician_tba_reminder_disabled' => 'TBA beautician reminders are disabled in settings',
+        'beautician_tba_reminder_not_eligible' => 'This TBA booking cannot send a beautician reminder',
         'beautician_reminder_sent_label' => 'Beautician reminder sent',
         'profile_title' => 'Customer profile',
         'profile_eyebrow' => 'CRM customer',

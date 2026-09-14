@@ -92,6 +92,7 @@ class TreatmentBooking extends Model
         'product_variations' => 'array',
         'deleted_at' => 'datetime',
         'reminder_sent_at' => 'datetime',
+        'tba_reminder_sent_at' => 'datetime',
         'customer_reminder_sent_at' => 'datetime',
         'customer_email_reminder_sent_at' => 'datetime',
         'completed_notification_sent_at' => 'datetime',
@@ -840,7 +841,9 @@ class TreatmentBooking extends Model
             'beautician_color' => $this->beautician?->profile_color ?: '#6366f1',
             'beautician_avatar' => $this->beautician?->displayAvatarUrl(),
             'beautician_initial' => $this->beautician?->initials ?? '?',
-            'beautician_phone_available' => filled(trim((string) ($this->beautician?->phone ?? ''))),
+            'beautician_phone_available' => filled(trim((string) (
+                $this->beautician?->phone ?: $this->beautician?->user?->phone
+            ))),
             'beautician_branches' => $this->beauticianBranchPayload(),
             'category_name' => $this->category?->name,
             'category_color' => $this->category?->color ?? '#6366f1',

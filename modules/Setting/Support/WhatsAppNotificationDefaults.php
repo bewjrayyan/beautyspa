@@ -46,6 +46,7 @@ class WhatsAppNotificationDefaults
             'whatsapp_completed_beautician_message',
             'whatsapp_beautician_new_booking_message',
             'whatsapp_beautician_reminder_message',
+            'whatsapp_beautician_tba_reminder_message',
         ];
     }
 
@@ -115,6 +116,7 @@ class WhatsAppNotificationDefaults
             'whatsapp_status_notify_beautician_enabled',
             'whatsapp_beautician_new_booking_enabled',
             'whatsapp_beautician_reminder_enabled',
+            'whatsapp_beautician_tba_reminder_enabled',
         ];
 
         foreach ($toggleKeys as $key) {

@@ -318,6 +318,32 @@
                     'hint' => trans('setting::settings.sms.template_hints.beautician_reminder'),
                 ])
             @endcomponent
+
+            @component('setting::admin.settings.partials.wa-notification-item', [
+                'enabledName' => 'whatsapp_beautician_tba_reminder_enabled',
+                'enabledLabel' => trans('setting::settings.form.send_tba_reminder_to_beautician'),
+                'hint' => trans('setting::settings.form.beautician_tba_reminder_help'),
+            ])
+                <div class="wa-settings__fields-grid">
+                    {{ Form::text('whatsapp_beautician_tba_reminder_time', trans('setting::attributes.whatsapp_beautician_tba_reminder_time'), $errors, $settings, [
+                        'placeholder' => (string) config('setting.whatsapp_notifications.whatsapp_beautician_tba_reminder_time'),
+                        'pattern' => '[0-2][0-9]:[0-5][0-9]',
+                        'inputmode' => 'numeric',
+                    ]) }}
+                    {{ Form::number('whatsapp_beautician_tba_reminder_repeat_days', trans('setting::attributes.whatsapp_beautician_tba_reminder_repeat_days'), $errors, $settings, [
+                        'min' => 1,
+                        'max' => 30,
+                        'step' => 1,
+                        'placeholder' => (string) config('setting.whatsapp_notifications.whatsapp_beautician_tba_reminder_repeat_days'),
+                    ]) }}
+                    <p class="help-block text-muted wa-settings__full-width">{{ trans('setting::settings.form.beautician_tba_reminder_schedule_help') }}</p>
+                </div>
+                @include('setting::admin.settings.partials.wa-message-template', [
+                    'messageName' => 'whatsapp_beautician_tba_reminder_message',
+                    'rows' => 10,
+                    'hint' => trans('setting::settings.sms.template_hints.beautician_tba_reminder'),
+                ])
+            @endcomponent
             </div>
         @endcomponent
 

@@ -178,6 +178,7 @@ return [
             'completed_beautician' => 'Placeholder: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
             'beautician_new_booking' => 'Placeholder: :store, :customer, :treatment, :date, :time, :reference, :portal_url',
             'beautician_reminder' => 'Placeholder: :store, :customer, :treatment, :date, :time, :reference, :portal_url',
+            'beautician_tba_reminder' => 'Placeholder: :store, :beautician, :customer, :treatment, :order_id, :reference, :portal_url',
         ],
         'badges' => [
             'auto_off' => 'Hantar automatik dimatikan dalam kod',
@@ -420,6 +421,9 @@ return [
         'send_new_booking_to_beautician' => 'Hantar WhatsApp kepada beautician apabila tempahan rawatan baharu ditugaskan',
         'send_appointment_reminder_to_beautician' => 'Hantar peringatan temujanji kepada beautician sebelum masa yang ditetapkan',
         'beautician_reminder_minutes_help' => 'Berapa minit sebelum temujanji untuk hantar peringatan (minimum 15). Dijalankan setiap 15 minit melalui scheduler.',
+        'send_tba_reminder_to_beautician' => 'Ingatkan beautician selagi temujanji TBA yang ditugaskan masih tiada tarikh dan masa',
+        'beautician_tba_reminder_help' => 'Hanya temujanji aktif berstatus pending dan mempunyai beautician akan disertakan. Peringatan berhenti selepas temujanji dijadualkan.',
+        'beautician_tba_reminder_schedule_help' => 'Scheduler menyemak setiap 15 minit. Mesej dihantar pada atau selepas waktu harian, kemudian hanya diulang selepas bilangan hari yang dipilih.',
         'send_new_order_notification_to_customer' => 'Hantar notifikasi pesanan baharu kepada pelanggan',
         'send_new_order_notification_to_admin' => 'Hantar notifikasi pesanan baharu kepada pentadbir',
         'mail_encryption_protocols' => [

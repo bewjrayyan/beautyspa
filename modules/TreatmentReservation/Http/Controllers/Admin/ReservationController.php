@@ -678,11 +678,17 @@ class ReservationController extends Controller
         ]);
 
         $booking = TreatmentBooking::query()
-            ->with(['beautician', 'product'])
+            ->with(['beautician.user', 'product'])
             ->findOrFail($id);
 
         try {
-            $reminders->sendManualReminder($booking, $request->boolean('resend'));
+            $sent = $reminders->sendManualReminder($booking, $request->boolean('resend'));
+
+            if (! $sent) {
+                return response()->json([
+                    'message' => trans('treatmentreservation::admin.crm.beautician_reminder_failed'),
+                ], 422);
+            }
         } catch (\InvalidArgumentException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         } catch (\Throwable $exception) {

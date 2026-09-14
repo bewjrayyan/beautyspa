@@ -235,6 +235,10 @@ class UpdateSettingRequest extends Request
             'whatsapp_beautician_new_booking_enabled' => 'required|boolean',
             'whatsapp_beautician_reminder_enabled' => 'required|boolean',
             'whatsapp_beautician_reminder_minutes' => 'nullable|integer|min:15|max:1440',
+            'whatsapp_beautician_tba_reminder_enabled' => 'required|boolean',
+            'whatsapp_beautician_tba_reminder_time' => 'required|date_format:H:i',
+            'whatsapp_beautician_tba_reminder_repeat_days' => 'required|integer|min:1|max:30',
+            'whatsapp_beautician_tba_reminder_message' => 'nullable|string|max:8000',
 
             'wabr_enabled' => 'nullable|boolean',
             'wabr_message_template' => 'nullable|string|max:2000',

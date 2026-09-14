@@ -176,6 +176,7 @@ return [
             'completed_beautician' => 'Placeholders: :store, :staff, :customer, :order_id, :email, :phone, :order_date, :beautician, :appointment_date, :appointment_time, :treatments, :payment_summary, :tracking_url',
             'beautician_new_booking' => 'Placeholders: :store, :customer, :treatment, :date, :time, :reference, :portal_url',
             'beautician_reminder' => 'Placeholders: :store, :customer, :treatment, :date, :time, :reference, :portal_url',
+            'beautician_tba_reminder' => 'Placeholders: :store, :beautician, :customer, :treatment, :order_id, :reference, :portal_url',
         ],
         'badges' => [
             'auto_off' => 'Auto-send off in code',
@@ -411,6 +412,9 @@ return [
         'send_new_booking_to_beautician' => 'WhatsApp beautician when a new treatment booking is assigned to them',
         'send_appointment_reminder_to_beautician' => 'Send appointment reminder to beautician before scheduled time',
         'beautician_reminder_minutes_help' => 'How many minutes before the appointment to send the reminder (minimum 15). Runs every 15 minutes via scheduler.',
+        'send_tba_reminder_to_beautician' => 'Remind beautician while an assigned TBA appointment still has no date and time',
+        'beautician_tba_reminder_help' => 'Only active pending appointments with an assigned beautician are included. Scheduling the appointment stops further reminders.',
+        'beautician_tba_reminder_schedule_help' => 'The scheduler checks every 15 minutes. Messages are sent at or after the daily send time, then repeated only after the selected number of days.',
         'send_new_order_notification_to_customer' => 'Send new order notification to the customer',
         'send_new_order_notification_to_admin' => 'Send new order notification to the admin',
         'mail_encryption_protocols' => [

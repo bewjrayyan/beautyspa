@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.99' => [
+        'date' => '2026-09-14',
+        'en' => [
+            'summary' => 'Keep TBA appointments moving with configurable beautician WhatsApp reminders.',
+            'changes' => [
+                'Send scheduled OneSender reminders to assigned beauticians when an appointment still has no confirmed date or time.',
+                'Add settings for the reminder template, daily send time, and repeat interval, with duplicate-send protection for each cycle.',
+                'Add a manual Remind beautician action beside Remind customer and support the beautician portal user phone when no direct number is stored.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pastikan temujanji TBA disusuli melalui peringatan WhatsApp beautician yang boleh ditetapkan.',
+            'changes' => [
+                'Hantar peringatan OneSender berjadual kepada beautician yang ditugaskan apabila tarikh atau masa temujanji masih belum disahkan.',
+                'Tambah tetapan templat peringatan, masa penghantaran harian dan sela ulangan, berserta perlindungan penghantaran berganda bagi setiap kitaran.',
+                'Tambah tindakan manual Ingatkan beautician di sebelah Ingatkan pelanggan dan gunakan nombor telefon pengguna portal apabila nombor terus beautician tiada.',
+            ],
+        ],
+    ],
+
     '4.11.98' => [
         'date' => '2026-09-13',
         'en' => [

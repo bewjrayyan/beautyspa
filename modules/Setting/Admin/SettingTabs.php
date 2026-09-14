@@ -351,6 +351,9 @@ class SettingTabs extends Tabs
                 'whatsapp_beautician_new_booking_enabled',
                 'whatsapp_beautician_reminder_enabled',
                 'whatsapp_beautician_reminder_minutes',
+                'whatsapp_beautician_tba_reminder_enabled',
+                'whatsapp_beautician_tba_reminder_time',
+                'whatsapp_beautician_tba_reminder_repeat_days',
                 'welcome_sms',
                 'whatsapp_welcome_message',
                 'whatsapp_customer_reminder_enabled',
@@ -372,6 +375,7 @@ class SettingTabs extends Tabs
                 'whatsapp_completed_beautician_message',
                 'whatsapp_beautician_new_booking_message',
                 'whatsapp_beautician_reminder_message',
+                'whatsapp_beautician_tba_reminder_message',
             ];
 
             if (Module::isEnabled('WhatsappBirthdayReminder')) {
