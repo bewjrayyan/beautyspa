@@ -2760,7 +2760,7 @@
     "src": "node_modules/line-awesome/dist/line-awesome/fonts/la-solid-900.woff2"
   },
   "public/modules/lead/central/app.js": {
-    "file": "assets/app-CWOu7PDJ-v4.7.72.js",
+    "file": "assets/app-C5hg-Pi8-v4.7.72.js",
     "name": "app",
     "src": "public/modules/lead/central/app.js",
     "isEntry": true

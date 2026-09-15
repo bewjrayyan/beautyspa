@@ -29,6 +29,7 @@ final class CentralWalletService
 
         return $this->baseQuery($filters)
             ->with(['user', 'tier:id,name', 'transactions' => static fn ($q) => $q->limit(5)])
+            ->withCount('transactions')
             ->orderByDesc('balance')
             ->orderByDesc('id')
             ->paginate($perPage)
@@ -137,7 +138,7 @@ final class CentralWalletService
         return [
             'id' => (int) $wallet->id,
             'customer_id' => (int) ($wallet->user_id ?: 0),
-            'code' => 'WAL-'.$wallet->id,
+            'code' => 'MEM-'.$wallet->id,
             'name' => $name,
             'phone' => (string) ($user?->phone ?: ''),
             'email' => (string) ($user?->email ?: ''),
@@ -147,6 +148,11 @@ final class CentralWalletService
             'lifetime_spend' => round((float) $wallet->lifetime_spend, 2),
             'tier' => $wallet->tier?->name ?: null,
             'tier_id' => $wallet->tier_id ? (int) $wallet->tier_id : null,
+            'member_since' => optional($wallet->created_at)?->toDateString(),
+            'member_since_label' => optional($wallet->created_at)?->format('d M Y') ?: '—',
+            'tier_since_label' => optional($wallet->tier_assigned_at)?->format('d M Y') ?: '—',
+            'activity_count' => (int) ($wallet->transactions_count ?? $wallet->transactions?->count() ?? 0),
+            'last_activity_label' => (string) (($recent[0]['created_label'] ?? null) ?: '—'),
             'stamp_ready' => $stampReady,
             'stamp_active' => $activeStamps,
             'segment' => ((int) $wallet->balance) > 0 ? 'active' : 'zero',

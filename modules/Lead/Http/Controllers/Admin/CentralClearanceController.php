@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\Lead\Http\Controllers\Admin;
 
+use DomainException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Modules\Lead\Services\CentralClearanceService;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 
@@ -49,6 +51,31 @@ final class CentralClearanceController
                 'beauticians' => $this->clearances->beauticianOptions(),
                 'branches' => $this->clearances->branchOptions(),
             ],
+        ]);
+    }
+
+    public function updateStatus(Request $request, int $booking): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', Rule::in([
+                TreatmentBooking::STATUS_IN_PROGRESS,
+                TreatmentBooking::STATUS_COMPLETED,
+            ])],
+        ]);
+
+        try {
+            $updated = $this->clearances->transition(
+                $booking,
+                $validated['status'],
+                $request->user()?->getAuthIdentifier() ? (int) $request->user()->getAuthIdentifier() : null,
+            );
+        } catch (DomainException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => trans('lead::central.clearance.status_updated'),
+            'data' => $this->clearances->toArray($updated),
         ]);
     }
 }

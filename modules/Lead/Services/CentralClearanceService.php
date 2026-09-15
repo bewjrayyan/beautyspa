@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Modules\Lead\Services;
 
+use DomainException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use Illuminate\Support\Facades\DB;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
+use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
 
 /**
  * HQ clearance desk: paid+pending = waiting; unpaid active = blocked; in_progress = in treatment.
@@ -16,6 +20,8 @@ final class CentralClearanceService
 {
     public function __construct(
         private readonly CentralCheckinService $checkin,
+        private readonly TreatmentBookingActivityLogger $activities,
+        private readonly BookingJobSheetOrderSync $orderSync,
     ) {
     }
 
@@ -137,7 +143,61 @@ final class CentralClearanceService
      */
     public function toArray(TreatmentBooking $booking): array
     {
-        return $this->checkin->toArray($booking);
+        $payload = $this->checkin->toArray($booking);
+        $state = (string) $payload['clearance'];
+
+        $payload['available_actions'] = match ($state) {
+            'waiting' => ['start_treatment'],
+            'blocked' => ['resolve_payment'],
+            'in_treatment' => ['complete_treatment'],
+            default => [],
+        };
+
+        return $payload;
+    }
+
+    public function transition(int $bookingId, string $nextStatus, ?int $actorId = null): TreatmentBooking
+    {
+        return DB::transaction(function () use ($bookingId, $nextStatus, $actorId): TreatmentBooking {
+            /** @var TreatmentBooking $booking */
+            $booking = TreatmentBooking::query()
+                ->with('order')
+                ->lockForUpdate()
+                ->findOrFail($bookingId);
+
+            if ($booking->status === $nextStatus) {
+                return $booking;
+            }
+
+            $expected = match ($booking->status) {
+                TreatmentBooking::STATUS_PENDING => TreatmentBooking::STATUS_IN_PROGRESS,
+                TreatmentBooking::STATUS_IN_PROGRESS => TreatmentBooking::STATUS_COMPLETED,
+                default => null,
+            };
+
+            if ($expected !== $nextStatus) {
+                throw new DomainException(trans('lead::central.clearance.transition_invalid'));
+            }
+
+            if ($nextStatus === TreatmentBooking::STATUS_IN_PROGRESS) {
+                if (! $booking->checked_in_at) {
+                    throw new DomainException(trans('lead::central.clearance.checkin_required'));
+                }
+                if ($booking->requiresScheduleBeforeStart()) {
+                    throw new DomainException(trans('lead::central.clearance.schedule_required'));
+                }
+                if ($booking->hasOutstandingPayment()) {
+                    throw new DomainException(trans('lead::central.clearance.payment_required'));
+                }
+            }
+
+            $previous = (string) $booking->status;
+            $booking->forceFill(['status' => $nextStatus])->save();
+            $this->activities->logStatusChange($booking, $previous, $nextStatus, $actorId);
+            $this->orderSync->syncOrderStatus($booking, $nextStatus);
+
+            return $booking->fresh(['product', 'beautician', 'order', 'customer']);
+        });
     }
 
     public function beauticianOptions(): array
@@ -169,10 +229,13 @@ final class CentralClearanceService
         } elseif ($state === 'in_treatment') {
             $query->where('status', TreatmentBooking::STATUS_IN_PROGRESS);
         } else {
-            $query->whereIn('status', [
-                TreatmentBooking::STATUS_PENDING,
-                TreatmentBooking::STATUS_IN_PROGRESS,
-            ]);
+            $query->where(function (Builder $active): void {
+                $active->where('status', TreatmentBooking::STATUS_IN_PROGRESS)
+                    ->orWhere(function (Builder $arrived): void {
+                        $arrived->where('status', TreatmentBooking::STATUS_PENDING)
+                            ->whereNotNull('checked_in_at');
+                    });
+            });
         }
 
         $q = trim((string) ($filters['q'] ?? ''));

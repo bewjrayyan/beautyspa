@@ -58,6 +58,7 @@ final class CentralCheckinService
      * @param  array<string, mixed>  $filters
      * @return array{
      *     live:int,
+     *     scheduled:int,
      *     waiting:int,
      *     in_treatment:int,
      *     completed:int,
@@ -70,6 +71,10 @@ final class CentralCheckinService
         // Apply the same date/scope/search/assignment filters as the list, excluding its tab.
         $base = $this->baseQuery(array_replace($filters, ['status' => 'all']));
         $counts = (clone $base)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
+        $scheduled = (clone $base)
+            ->where('status', TreatmentBooking::STATUS_PENDING)
+            ->whereNull('checked_in_at')
+            ->count();
         $waiting = (clone $base)
             ->where('status', TreatmentBooking::STATUS_PENDING)
             ->whereNotNull('checked_in_at')
@@ -78,12 +83,12 @@ final class CentralCheckinService
         $completed = (int) ($counts[TreatmentBooking::STATUS_COMPLETED] ?? 0);
         $unpaid = $waitTotal = $waitCount = 0;
 
-        foreach ((clone $base)->whereIn('status', [TreatmentBooking::STATUS_PENDING, TreatmentBooking::STATUS_IN_PROGRESS])
+        foreach ((clone $base)->where('status', TreatmentBooking::STATUS_PENDING)->whereNotNull('checked_in_at')
             ->with('order')->orderBy('id')->lazy(200) as $booking) {
             if ($booking->hasOutstandingPayment()) {
                 $unpaid++;
             }
-            if ($booking->status === TreatmentBooking::STATUS_PENDING && $booking->checked_in_at && ($mins = $this->waitingMinutes($booking)) !== null) {
+            if (($mins = $this->waitingMinutes($booking)) !== null) {
                 $waitTotal += $mins;
                 $waitCount++;
             }
@@ -91,6 +96,7 @@ final class CentralCheckinService
 
         return [
             'live' => $waiting + $inTreatment,
+            'scheduled' => $scheduled,
             'waiting' => $waiting,
             'in_treatment' => $inTreatment,
             'completed' => $completed,
@@ -106,6 +112,7 @@ final class CentralCheckinService
     {
         return [
             ['value' => 'live', 'label' => trans('lead::central.checkin.tab_live')],
+            ['value' => 'booked', 'label' => trans('lead::central.checkin.tab_booked')],
             ['value' => 'waiting', 'label' => trans('lead::central.checkin.tab_waiting')],
             ['value' => 'in_progress', 'label' => trans('lead::central.checkin.tab_treatment')],
             ['value' => 'completed', 'label' => trans('lead::central.checkin.tab_completed')],
@@ -170,7 +177,7 @@ final class CentralCheckinService
         $checkedIn = $booking->checked_in_at;
         $beau = trim((string) (($booking->beautician?->first_name ?? '').' '.($booking->beautician?->last_name ?? '')));
 
-        return [
+        $payload = [
             'id' => (int) $booking->id,
             'code' => $booking->referenceCode(),
             'customer_id' => $booking->customer_id ? (int) $booking->customer_id : null,
@@ -203,6 +210,18 @@ final class CentralCheckinService
             'clearance' => $this->clearanceState($booking),
             'clearance_label' => $this->clearanceLabel($booking),
         ];
+
+        $payload['available_actions'] = match (true) {
+            $booking->status === TreatmentBooking::STATUS_PENDING
+                && ! $booking->checked_in_at
+                && $booking->appointment_date?->isToday() => ['confirm_arrival'],
+            $booking->status === TreatmentBooking::STATUS_PENDING
+                && (bool) $booking->checked_in_at => ['open_clearance'],
+            $booking->status === TreatmentBooking::STATUS_IN_PROGRESS => ['open_crm'],
+            default => [],
+        };
+
+        return $payload;
     }
 
     public function clearanceState(TreatmentBooking $booking): string
@@ -262,6 +281,9 @@ final class CentralCheckinService
                             ->whereNotNull('checked_in_at');
                     });
             });
+        } elseif ($status === 'booked') {
+            $query->where('status', TreatmentBooking::STATUS_PENDING)
+                ->whereNull('checked_in_at');
         } elseif ($status === 'waiting') {
             $query->where('status', TreatmentBooking::STATUS_PENDING)
                 ->whereNotNull('checked_in_at');

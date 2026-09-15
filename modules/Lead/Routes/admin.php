@@ -50,6 +50,12 @@ Route::get('leads/clearance', [
     'middleware' => ['can:admin.leads.index', 'throttle:60,1'],
 ]);
 
+Route::patch('leads/clearance/{booking}/status', [
+    'as' => 'admin.leads.clearance.status',
+    'uses' => 'CentralClearanceController@updateStatus',
+    'middleware' => ['can:admin.treatment_reservations.edit', 'throttle:30,1'],
+])->whereNumber('booking');
+
 Route::get('leads/central/{view?}', [
     'as' => 'admin.leads.central',
     'uses' => 'CentralDashboardController',

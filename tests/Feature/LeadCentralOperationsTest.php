@@ -217,9 +217,9 @@ class LeadCentralOperationsTest extends TestCase
     public function clearance_paginates_beyond_500_and_counts_the_full_queue(): void
     {
         for ($i = 0; $i < 505; $i++) {
-            $this->booking();
+            $this->booking(['checked_in_at' => now()]);
         }
-        $this->booking(['payment_status' => 'deposit']);
+        $this->booking(['payment_status' => 'deposit', 'checked_in_at' => now()]);
         $this->booking(['status' => 'in_progress']);
         $this->booking(['status' => 'canceled']);
         $service = app(CentralClearanceService::class);
@@ -238,12 +238,61 @@ class LeadCentralOperationsTest extends TestCase
     {
         DB::table('orders')->insert(['id' => 1, 'payment_status' => 'pending']);
         DB::table('orders')->insert(['id' => 2, 'payment_status' => 'paid']);
-        $ready = $this->booking(['source' => 'checkout', 'order_id' => 2, 'payment_status' => 'pending']);
-        $blocked = $this->booking(['source' => 'checkout', 'order_id' => 1, 'payment_status' => 'paid']);
-        $manual = $this->booking(['payment_status' => 'paid']);
+        $ready = $this->booking(['source' => 'checkout', 'order_id' => 2, 'payment_status' => 'pending', 'checked_in_at' => now()]);
+        $blocked = $this->booking(['source' => 'checkout', 'order_id' => 1, 'payment_status' => 'paid', 'checked_in_at' => now()]);
+        $manual = $this->booking(['payment_status' => 'paid', 'checked_in_at' => now()]);
         $service = app(CentralClearanceService::class);
         $this->assertEqualsCanonicalizing([$ready, $manual], collect($service->paginate(['state' => 'waiting'])->items())->pluck('id')->all());
         $this->assertSame([$blocked], collect($service->paginate(['state' => 'blocked'])->items())->pluck('id')->all());
+    }
+
+    #[Test]
+    public function clearance_queue_starts_only_after_customer_checkin(): void
+    {
+        $notArrived = $this->booking();
+        $arrived = $this->booking(['checked_in_at' => now()]);
+        $service = app(CentralClearanceService::class);
+
+        $this->assertSame([$arrived], collect($service->paginate(['state' => 'waiting'])->items())->pluck('id')->all());
+        $this->assertSame(1, $service->summary()['queue']);
+        $this->assertNotContains($notArrived, collect($service->paginate(['state' => 'all_queue'])->items())->pluck('id')->all());
+    }
+
+    #[Test]
+    public function clearance_enforces_audited_forward_only_treatment_transitions(): void
+    {
+        $service = app(CentralClearanceService::class);
+        $bookingId = $this->booking(['checked_in_at' => now()]);
+
+        $started = $service->transition($bookingId, TreatmentBooking::STATUS_IN_PROGRESS);
+        $this->assertSame(TreatmentBooking::STATUS_IN_PROGRESS, $started->status);
+        $this->assertSame(1, DB::table('treatment_booking_activities')->where('action', 'status_changed')->count());
+
+        $service->transition($bookingId, TreatmentBooking::STATUS_IN_PROGRESS);
+        $this->assertSame(1, DB::table('treatment_booking_activities')->where('action', 'status_changed')->count());
+
+        $completed = $service->transition($bookingId, TreatmentBooking::STATUS_COMPLETED);
+        $this->assertSame(TreatmentBooking::STATUS_COMPLETED, $completed->status);
+        $this->assertSame(2, DB::table('treatment_booking_activities')->where('action', 'status_changed')->count());
+    }
+
+    #[Test]
+    public function clearance_rejects_starting_before_checkin_or_payment_clearance(): void
+    {
+        $service = app(CentralClearanceService::class);
+        $notArrived = $this->booking();
+        $blocked = $this->booking(['checked_in_at' => now(), 'payment_status' => 'deposit']);
+
+        foreach ([$notArrived, $blocked] as $bookingId) {
+            try {
+                $service->transition($bookingId, TreatmentBooking::STATUS_IN_PROGRESS);
+                $this->fail('Unsafe treatment start was accepted.');
+            } catch (\DomainException) {
+                $this->assertSame(TreatmentBooking::STATUS_PENDING, TreatmentBooking::findOrFail($bookingId)->status);
+            }
+        }
+
+        $this->assertSame(0, DB::table('treatment_booking_activities')->count());
     }
 
     #[Test]
@@ -261,9 +310,43 @@ class LeadCentralOperationsTest extends TestCase
         $this->assertSame(1, $service->paginate($filters + ['status' => 'completed'])->total());
         $summary = $service->summary($filters);
         $this->assertSame(1, $summary['live']);
+        $this->assertSame(0, $summary['scheduled']);
         $this->assertSame(1, $summary['waiting']);
         $this->assertSame(1, $summary['completed']);
         $this->assertSame(2, $service->summary(array_replace($filters, ['scope' => 'pipeline']))['waiting']);
+    }
+
+    #[Test]
+    public function checkin_exposes_not_arrived_bookings_without_mixing_arrival_and_treatment_states(): void
+    {
+        $todayBooked = $this->booking(['customer_first_name' => 'Today booked']);
+        $todayArrived = $this->booking(['customer_first_name' => 'Today arrived', 'checked_in_at' => now()]);
+        $futureBooked = $this->booking(['customer_first_name' => 'Future booked', 'appointment_date' => '2026-09-10']);
+        $inTreatment = $this->booking(['customer_first_name' => 'In treatment', 'status' => 'in_progress']);
+        $service = app(CentralCheckinService::class);
+
+        $dayFilters = ['date' => '2026-09-09', 'scope' => 'day'];
+        $this->assertSame([$todayBooked], collect($service->paginate($dayFilters + ['status' => 'booked'])->items())->pluck('id')->all());
+        $this->assertSame(1, $service->summary($dayFilters)['scheduled']);
+        $this->assertEqualsCanonicalizing(
+            [$todayBooked, $futureBooked],
+            collect($service->paginate(['scope' => 'pipeline', 'status' => 'booked'])->items())->pluck('id')->all(),
+        );
+
+        $actionFor = function (int $bookingId) use ($service): array {
+            $booking = TreatmentBooking::findOrFail($bookingId);
+            $booking->setRelation('product', null);
+            $booking->setRelation('beautician', null);
+            $booking->setRelation('order', null);
+            $booking->setRelation('customer', null);
+
+            return $service->toArray($booking)['available_actions'];
+        };
+
+        $this->assertSame(['confirm_arrival'], $actionFor($todayBooked));
+        $this->assertSame(['open_clearance'], $actionFor($todayArrived));
+        $this->assertSame([], $actionFor($futureBooked));
+        $this->assertSame(['open_crm'], $actionFor($inTreatment));
     }
 
     #[Test]
@@ -401,6 +484,7 @@ class LeadCentralOperationsTest extends TestCase
         foreach ($wallets as $wallet) {
             $this->assertTrue($wallet->relationLoaded('transactions'));
             $this->assertCount(5, $wallet->transactions);
+            $this->assertSame(7, $wallet->transactions_count);
         }
         Schema::drop('loyalty_stamp_wallets');
         $this->assertSame(0, $service->summary()['stamp_ready']);

@@ -43,7 +43,7 @@ class LeadCentralReportingTest extends TestCase
     }
 
     #[Test]
-    public function includes_lead_only_zero_and_unassigned_groups_without_counting_unpaid_sales(): void
+    public function beautician_report_includes_real_staff_only_without_counting_unpaid_sales(): void
     {
         foreach ([['beautician_id'=>1,'spa_branch_id'=>1,'status'=>'converted'],['beautician_id'=>1,'spa_branch_id'=>1,'status'=>'follow_up'],['beautician_id'=>null,'spa_branch_id'=>null,'status'=>'new']] as $row) {
             DB::table('leads')->insert($row+['created_at'=>'2026-09-09','is_duplicate'=>false]);
@@ -56,14 +56,14 @@ class LeadCentralReportingTest extends TestCase
         $from=Carbon::parse('2026-09-01'); $to=Carbon::parse('2026-09-30')->endOfDay();
         $report=$service->performance('beauticians',$from,$to,null);
         $rows=collect($report['data'])->keyBy('id');
-        $this->assertCount(4,$rows);
+        $this->assertCount(3,$rows);
         $this->assertSame(2,$rows[1]['leads']);
         $this->assertSame(50.0,$rows[1]['conversion']);
         $this->assertSame(300.0,$rows[2]['revenue']);
         $this->assertSame(150.0,$rows[2]['average_order']);
         $this->assertSame(0,$rows[3]['leads']);
-        $this->assertSame(1,$rows[0]['leads']);
-        $this->assertSame(3,$report['meta']['summary']['leads']);
+        $this->assertFalse($rows->has(0));
+        $this->assertSame(2,$report['meta']['summary']['leads']);
         $branch=$service->performance('branches',$from,$to,1);
         $this->assertCount(1,$branch['data']);
         $this->assertSame(2,$branch['meta']['summary']['leads']);
@@ -72,18 +72,20 @@ class LeadCentralReportingTest extends TestCase
     }
 
     #[Test]
-    public function sales_attribution_shows_beautician_names_and_reconciles_unassigned_records(): void
+    public function sales_attribution_shows_only_real_beautician_names(): void
     {
         DB::table('beauticians')->where('id', 3)->update(['is_active' => false]);
         DB::table('leads')->insert([
             ['beautician_id' => 1, 'spa_branch_id' => 1, 'status' => 'converted', 'is_duplicate' => false, 'created_at' => '2026-09-09'],
             ['beautician_id' => 3, 'spa_branch_id' => 1, 'status' => 'new', 'is_duplicate' => false, 'created_at' => '2026-09-09'],
             ['beautician_id' => null, 'spa_branch_id' => 1, 'status' => 'new', 'is_duplicate' => false, 'created_at' => '2026-09-09'],
+            ['beautician_id' => 999, 'spa_branch_id' => 1, 'status' => 'new', 'is_duplicate' => false, 'created_at' => '2026-09-09'],
             ['beautician_id' => null, 'spa_branch_id' => 1, 'status' => 'new', 'is_duplicate' => true, 'created_at' => '2026-09-09'],
         ]);
         DB::table('orders')->insert([
             ['beautician_id' => 2, 'spa_branch_id' => 1, 'customer_phone' => '60111111111', 'payment_status' => 'paid', 'total' => 300, 'created_at' => '2026-09-09'],
             ['beautician_id' => null, 'spa_branch_id' => 1, 'customer_phone' => '60122222222', 'payment_status' => 'paid', 'total' => 50, 'created_at' => '2026-09-09'],
+            ['beautician_id' => 999, 'spa_branch_id' => 1, 'customer_phone' => '60133333333', 'payment_status' => 'paid', 'total' => 75, 'created_at' => '2026-09-09'],
         ]);
 
         $method = new \ReflectionMethod(CentralMetricsService::class, 'beauticianRows');
@@ -94,15 +96,22 @@ class LeadCentralReportingTest extends TestCase
             null,
         ));
         $named = $rows->whereNotNull('id')->keyBy('id');
-        $unassigned = $rows->firstWhere('id', null);
-
         $this->assertSame('Leads only', $named[1]['name']);
         $this->assertSame('Sales only', $named[2]['name']);
         $this->assertSame('No records', $named[3]['name']);
-        $this->assertSame(1, $unassigned['leads']);
-        $this->assertSame(50.0, $unassigned['sales']);
-        $this->assertSame(3, $rows->sum('leads'));
-        $this->assertSame(350.0, $rows->sum('sales'));
+        $this->assertCount(3, $rows);
+        $this->assertFalse($rows->contains(fn (array $row): bool => $row['id'] === null || $row['id'] === 999));
+        $this->assertSame(2, $rows->sum('leads'));
+        $this->assertSame(300.0, $rows->sum('sales'));
+
+        $reportRows = collect(app(CentralReportingService::class)->performance(
+            'beauticians',
+            Carbon::parse('2026-09-01'),
+            Carbon::parse('2026-09-30')->endOfDay(),
+            null,
+        )['data']);
+        $this->assertCount(3, $reportRows);
+        $this->assertFalse($reportRows->contains(fn (array $row): bool => $row['id'] === 0 || $row['id'] === 999));
     }
 
     #[Test]

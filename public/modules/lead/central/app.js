@@ -89,7 +89,7 @@ let walletRequest = 0, walletLoadError = false;
 let walletSearchTimer = null;
 let walletMeta = {current_page:1,last_page:1,total:0};
 let liveCheckins = [];
-let liveCheckinSummary = {live:0,waiting:0,in_treatment:0,completed:0,unpaid:0,avg_wait_mins:0};
+let liveCheckinSummary = {live:0,scheduled:0,waiting:0,in_treatment:0,completed:0,unpaid:0,avg_wait_mins:0};
 let liveCheckinFilters = {statuses:[],beauticians:[],branches:[]};
 let checkinsLoading = false;
 let checkinRequest = 0, checkinLoadError = false;
@@ -745,7 +745,7 @@ function overview(){
     </section>
   </div>
   <div class="trade-grid trade-grid--2">
-    ${tradePane('trade.scatter_title','trade.scatter_sub','tradeScatter')}
+    ${tradePane('trade.conversion_title','trade.conversion_sub','tradeConversion')}
     ${tradePane('trade.heatmap_title','trade.heatmap_sub','tradeHeatmap')}
   </div>
 
@@ -830,7 +830,7 @@ function overview(){
         equityTarget: (m.equity&&m.equity.target_path)||[],
         equityLabels: (m.equity&&m.equity.labels)||[],
         waterfall: (m.waterfall||m.status_mix||[]).map(s=>({name:String(s.name||''), value:s.value})),
-        beauticians: (m.beauticians||[]).map(b=>({name:String(b.name||''), leads:b.leads||0, conv:b.conv||0, sales:b.sales||0})),
+        beauticians: (m.beauticians||[]).map(b=>({name:String(b.name||''), leads:b.leads||0, converted:b.converted||0, conv:b.conv||0, sales:b.sales||0})),
         heatmap: m.heatmap||[],
         sparks: m.sparks||[]
       });
@@ -2484,9 +2484,15 @@ function checkin(){
       <div class="page-actions">
         <button type="button" class="btn" id="cinRefresh">${escapeHtml(t('checkin.refresh'))}</button>
         ${boot.canConfirmCheckin ? `<button type="button" class="btn primary" id="cinScan">${escapeHtml(t('checkin.scan'))}</button>` : ''}
-        ${boot.canViewTreatments && boot.treatmentReservationsUrl ? `<a class="btn primary" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_crm'))}</a>` : ''}
+        ${boot.canViewTreatments && boot.treatmentReservationsUrl ? `<a class="btn" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_crm'))}</a>` : ''}
       </div>
     </div>
+    <section class="clearance-flow checkin-flow" aria-labelledby="checkinFlowTitle">
+      <div class="clearance-flow__copy"><span class="clearance-flow__eyebrow">CRM</span><h2 id="checkinFlowTitle">${escapeHtml(t('checkin.workflow_title'))}</h2><p>${escapeHtml(t('checkin.workflow_hint'))}</p></div>
+      <ol class="clearance-flow__steps">
+        ${[t('checkin.step_booked'),t('checkin.step_checked_in'),t('checkin.step_clearance'),t('checkin.step_treatment')].map((label,index)=>`<li><span aria-hidden="true">${index+1}</span><strong>${escapeHtml(label)}</strong></li>`).join('')}
+      </ol>
+    </section>
     <div class="pay-metrics" id="cinMetrics"></div>
     <section class="lead-panel card">
       <div class="lead-panel__head">
@@ -2507,7 +2513,7 @@ function checkin(){
             </select>
           </label>
           <label class="lead-field"><span class="lead-field__label">${escapeHtml(t('checkin.filter_date'))}</span>
-            <input class="lead-field__control" id="cinDate" type="date" value="${escapeHtml(state.checkinDate||'')}" />
+            <input class="lead-field__control" id="cinDate" type="date" value="${escapeHtml(state.checkinDate||'')}"${state.checkinScope==='pipeline'?' disabled':''} />
           </label>
           <label class="lead-field"><span class="lead-field__label">${escapeHtml(t('checkin.filter_beautician'))}</span>
             <select class="lead-field__control" id="cinBeautician"></select>
@@ -2528,7 +2534,7 @@ function checkin(){
 function bindCheckinFilters(){
   const search = $('#cinSearch');
   if(search){ search.oninput = () => { clearTimeout(checkinSearchTimer); checkinSearchTimer = setTimeout(() => { state.checkinSearch = search.value.trim(); state.checkinPage = 1; refreshCheckins(); }, 320); }; }
-  const scope = $('#cinScope'); if(scope) scope.onchange = () => { state.checkinScope = scope.value; if(scope.value === 'pipeline') state.checkinStatus = 'live'; state.checkinPage = 1; refreshCheckins(); };
+  const scope = $('#cinScope'); if(scope) scope.onchange = () => { state.checkinScope = scope.value; if(scope.value === 'pipeline') state.checkinStatus = 'live'; const date=$('#cinDate'); if(date)date.disabled=scope.value==='pipeline'; state.checkinPage = 1; refreshCheckins(); };
   const date = $('#cinDate'); if(date) date.onchange = () => { state.checkinDate = date.value; state.checkinScope = 'day'; $('#cinScope').value = 'day'; state.checkinPage = 1; refreshCheckins(); };
   const beau = $('#cinBeautician'); if(beau) beau.onchange = () => { state.checkinBeautician = beau.value; state.checkinPage = 1; refreshCheckins(); };
   const branch = $('#cinBranch'); if(branch) branch.onchange = () => { state.checkinBranch = branch.value; state.checkinPage = 1; refreshCheckins(); };
@@ -2555,7 +2561,7 @@ async function refreshCheckins(){
     const json = await res.json();
     if(requestId !== checkinRequest) return;
     liveCheckins = Array.isArray(json.data) ? json.data : [];
-    liveCheckinSummary = Object.assign({live:0,waiting:0,in_treatment:0,completed:0,unpaid:0,avg_wait_mins:0}, (json.meta && json.meta.summary) || {});
+    liveCheckinSummary = Object.assign({live:0,scheduled:0,waiting:0,in_treatment:0,completed:0,unpaid:0,avg_wait_mins:0}, (json.meta && json.meta.summary) || {});
     liveCheckinFilters = Object.assign({statuses:[],beauticians:[],branches:[]}, json.filters || {});
     checkinMeta = { current_page:(json.meta&&json.meta.current_page)||1, last_page:(json.meta&&json.meta.last_page)||1, total:(json.meta&&json.meta.total)||0 };
   }catch(err){ if(requestId !== checkinRequest) return; checkinLoadError = true; console.error(err); liveCheckins=[]; showToast(t('checkin.load_error')); }
@@ -2567,16 +2573,17 @@ function renderCheckinMetrics(){
   el.setAttribute('aria-busy', String(checkinsLoading));
   const metric = value => checkinsLoading || checkinLoadError ? '—' : fmtInt(value);
   el.innerHTML = `
-    <div class="pay-metric"><span>${escapeHtml(t('checkin.stat_live'))}</span><strong>${metric(s.live)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('checkin.stat_waiting'))}</span><strong>${metric(s.waiting)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('checkin.stat_treatment'))}</span><strong>${metric(s.in_treatment)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('checkin.stat_completed'))}</span><strong>${metric(s.completed)}</strong></div>`;
+    <div class="pay-metric checkin-metric checkin-metric--scheduled"><span>${escapeHtml(t('checkin.stat_scheduled'))}</span><strong>${metric(s.scheduled)}</strong></div>
+    <div class="pay-metric checkin-metric checkin-metric--waiting"><span>${escapeHtml(t('checkin.stat_waiting'))}</span><strong>${metric(s.waiting)}</strong><small>${escapeHtml(t('checkin.stat_waiting_meta',{minutes:metric(s.avg_wait_mins),unpaid:metric(s.unpaid)}))}</small></div>
+    <div class="pay-metric checkin-metric checkin-metric--treatment"><span>${escapeHtml(t('checkin.stat_treatment'))}</span><strong>${metric(s.in_treatment)}</strong></div>
+    <div class="pay-metric checkin-metric checkin-metric--done"><span>${escapeHtml(t('checkin.stat_completed'))}</span><strong>${metric(s.completed)}</strong></div>`;
 }
 function renderCheckinTabs(){
   const mount = $('#cinTabs'); if(!mount) return;
   const s = liveCheckinSummary;
   const tabs = [
     ['live', t('checkin.tab_live'), s.live],
+    ['booked', t('checkin.tab_booked'), s.scheduled],
     ['waiting', t('checkin.tab_waiting'), s.waiting],
     ['in_progress', t('checkin.tab_treatment'), s.in_treatment],
     ['completed', t('checkin.tab_completed'), s.completed],
@@ -2611,28 +2618,80 @@ function renderCheckinTable(){
   if(checkinLoadError){ mount.innerHTML = `<div class="pay-empty" role="alert"><strong>${escapeHtml(t('checkin.load_error'))}</strong><button type="button" class="btn" id="cinRetry">${escapeHtml(t('checkin.refresh'))}</button></div>`; $('#cinRetry').onclick = () => refreshCheckins(); return; }
   if(checkinsLoading){ mount.innerHTML = `<div class="pay-empty" role="status">${escapeHtml(t('checkin.loading'))}</div>`; return; }
   if(!liveCheckins.length){ mount.innerHTML = `<div class="pay-empty"><strong>${escapeHtml(t('checkin.empty'))}</strong>${escapeHtml(t('checkin.empty_hint'))}</div>`; return; }
-  const rows = liveCheckins.map(c => `<tr>
+  const rows = liveCheckins.map(c => `<tr data-checkin-status="${escapeHtml(c.status||'pending')}" data-arrival-state="${c.checked_in_at?'arrived':'booked'}">
     <td><div class="person-cell person-cell--lead"><div class="mini-avatar">${escapeHtml(c.initial||'?')}</div><div class="person-cell__text"><strong>${escapeHtml(c.name||'')}</strong><small>${escapeHtml(c.code||'')} · ${escapeHtml(c.phone||'')}</small></div></div></td>
-    <td>${escapeHtml(c.date_label||'')} · ${escapeHtml(c.time||'')}</td>
-    <td>${escapeHtml(c.branch_name||c.branch||'—')}</td>
-    <td>${escapeHtml(c.beautician||'—')}</td>
+    <td><strong>${escapeHtml(c.date_label||'')}</strong><small class="checkin-cell-meta">${escapeHtml(c.time||'—')}</small></td>
+    <td><strong>${escapeHtml(c.branch_name||c.branch||'—')}</strong><small class="checkin-cell-meta">${escapeHtml(c.beautician||'—')}</small></td>
     <td>${escapeHtml(c.treatment||'—')}</td>
-    <td>${statusBadge(c.payment_label)}</td>
-    <td>${statusBadge(c.clearance_label)}</td>
-    <td>${escapeHtml(c.waiting_label||'—')}</td>
-    <td>${statusBadge(c.status_label)}</td>
-    <td><button type="button" class="btn small soft" data-cin-view="${c.id}">${escapeHtml(t('checkin.view'))}</button></td>
+    <td><div class="checkin-status-stack">${statusBadge(c.payment_label)}${statusBadge(c.clearance_label)}</div></td>
+    <td><div class="checkin-status-stack">${statusBadge(c.arrival_label)}<small>${escapeHtml(c.waiting_label||'—')}</small></div></td>
+    <td><div class="checkin-row-actions">${checkinPrimaryAction(c,true)}<button type="button" class="btn small soft" data-cin-view="${c.id}">${escapeHtml(t('checkin.view'))}</button></div></td>
   </tr>`).join('');
   mount.innerHTML = `<div class="table-wrap"><table class="data-table"><thead><tr>
     <th>${escapeHtml(t('checkin.col_customer'))}</th><th>${escapeHtml(t('checkin.col_time'))}</th>
-    <th>${escapeHtml(t('checkin.col_branch'))}</th><th>${escapeHtml(t('checkin.col_beautician'))}</th>
-    <th>${escapeHtml(t('checkin.col_treatment'))}</th><th>${escapeHtml(t('checkin.col_payment'))}</th>
-    <th>${escapeHtml(t('checkin.col_clearance'))}</th><th>${escapeHtml(t('checkin.col_wait'))}</th>
+    <th>${escapeHtml(t('checkin.col_branch'))} / ${escapeHtml(t('checkin.col_beautician'))}</th>
+    <th>${escapeHtml(t('checkin.col_treatment'))}</th><th>${escapeHtml(t('checkin.col_payment'))} / ${escapeHtml(t('checkin.col_clearance'))}</th>
     <th>${escapeHtml(t('checkin.col_status'))}</th><th>${escapeHtml(t('checkin.col_action'))}</th>
   </tr></thead><tbody>${rows}</tbody></table></div>
   ${centralPager('cin',checkinMeta)}`;
-  $$('[data-cin-view]').forEach(b => b.onclick = () => reviewCheckin(b.dataset.cinView));
+  $$('[data-cin-view]',mount).forEach(b => b.onclick = () => reviewCheckin(b.dataset.cinView));
+  bindCheckinActions(mount);
   bindCentralPager('cin',page=>{state.checkinPage=page;return refreshCheckins();});
+}
+
+function checkinPrimaryAction(c,compact=false){
+  const actions=Array.isArray(c.available_actions)?c.available_actions:[];
+  const cls=compact?'btn small':'btn';
+  if(actions.includes('confirm_arrival') && boot.canConfirmCheckin){
+    return `<button type="button" class="${cls} primary" data-cin-confirm="${c.id}">${escapeHtml(t('checkin.confirm_arrival'))}</button>`;
+  }
+  if(actions.includes('open_clearance')){
+    return `<button type="button" class="${cls} primary" data-cin-clearance="${c.id}">${escapeHtml(t('checkin.go_clearance'))}</button>`;
+  }
+  if(actions.includes('open_crm') && boot.canViewTreatments && boot.treatmentReservationsUrl){
+    return `<a class="${cls} primary" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_crm'))}</a>`;
+  }
+  return '';
+}
+function checkinActionHelp(c){
+  if(c.status==='completed') return t('checkin.action_help_completed');
+  if(c.status==='in_progress') return t('checkin.action_help_treatment');
+  return t(c.checked_in_at?'checkin.action_help_waiting':'checkin.action_help_booked');
+}
+function bindCheckinActions(scope=document){
+  $$('[data-cin-confirm]',scope).forEach(button=>button.onclick=()=>confirmCheckinArrival(button.dataset.cinConfirm));
+  $$('[data-cin-clearance]',scope).forEach(button=>button.onclick=()=>{
+    const c=liveCheckins.find(item=>Number(item.id)===Number(button.dataset.cinClearance));
+    if(c) state.clearanceSearch=String(c.phone||c.code||c.name||'').trim();
+    closeActionDrawer();
+    navigate('clearance');
+  });
+}
+function confirmCheckinArrival(id){
+  const c=liveCheckins.find(item=>Number(item.id)===Number(id)); if(!c)return;
+  openActionDrawer(
+    t('checkin.confirm_title'),
+    `${c.code} · ${c.name}`,
+    `<div class="checkin-confirm"><div class="clearance-confirm__icon">${clearanceStepIcon(true)}</div><p>${escapeHtml(t('checkin.confirm_body'))}</p></div>`,
+    `<button type="button" class="btn" data-action-drawer-close>${escapeHtml(t('checkin.cancel'))}</button><button type="button" class="btn primary" id="confirmCheckinArrival">${escapeHtml(t('checkin.confirm_action'))}</button>`,
+    t('checkin.workflow_title')
+  );
+  $('#confirmCheckinArrival').onclick=event=>submitCheckinArrival(c,event.currentTarget);
+}
+async function submitCheckinArrival(c,button){
+  const url=leadUrl(boot.checkinConfirmUrlTemplate,c.id);
+  if(!url||!boot.canConfirmCheckin){showToast(t('checkin.confirm_error'));return;}
+  button.disabled=true;
+  button.setAttribute('aria-busy','true');
+  try{
+    const res=await fetch(url,{method:'POST',headers:apiHeaders(true),credentials:'same-origin',body:JSON.stringify({})});
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){showToast(body.message||t('checkin.confirm_error'));return;}
+    closeActionDrawer();
+    showToast(body.message||t('checkin.checkin_confirmed',{code:c.code}));
+    await refreshCheckins();
+  }catch(err){console.error(err);showToast(t('checkin.confirm_error'));}
+  finally{if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy');}}
 }
 
 function isCheckinPassUrl(value){
@@ -2724,27 +2783,29 @@ async function startCheckinScanner(){
 function reviewCheckin(id){
   const c = liveCheckins.find(x => Number(x.id) === Number(id)); if(!c) return;
   const orderUrl = c.order_id && boot.orderShowUrlTemplate ? leadUrl(boot.orderShowUrlTemplate, c.order_id) : '';
+  const customerUrl = c.customer_id && boot.userEditUrlTemplate ? leadUrl(boot.userEditUrlTemplate, c.customer_id) : '';
   const stage = c.status || 'pending';
   const checkedIn = Boolean(c.checked_in_at);
   const steps = [
-    {label:t('checkin.step_booked'), state: stage==='pending' ? 'active' : 'done', time:''},
+    {label:t('checkin.step_booked'), state: checkedIn || stage!=='pending' ? 'done' : 'active', time:''},
     {label:t('checkin.step_checked_in'), state: checkedIn ? 'done' : '', time: checkedIn && c.checked_in_label && c.checked_in_label !== '—' ? c.checked_in_label : ''},
+    {label:t('checkin.step_clearance'), state: checkedIn && stage==='pending' ? 'active' : (['in_progress','completed'].includes(stage) ? 'done' : ''), time:''},
     {label:t('checkin.step_treatment'), state: stage==='in_progress' ? 'active' : (stage==='completed' ? 'done' : ''), time:''},
     {label:t('checkin.step_completed'), state: stage==='completed' ? 'active done' : '', time:''},
   ];
   const timeline = `<div class="cin-preview__block cin-timeline"><div class="journey-section__title">${escapeHtml(t('checkin.timeline'))}</div>
-    <div class="timeline">${steps.map(s=>`<div class="timeline-step ${s.state}"><div class="timeline-dot">${s.state.includes('done')?'✓':s.state.includes('active')?'●':''}</div><span>${escapeHtml(s.label)}${s.time?` <em>· ${escapeHtml(s.time)}</em>`:''}</span></div>`).join('')}</div></div>`;
+    <div class="timeline">${steps.map(s=>`<div class="timeline-step ${s.state}"><div class="timeline-dot">${clearanceStepIcon(s.state.includes('done'))}</div><span>${escapeHtml(s.label)}${s.time?` <em>· ${escapeHtml(s.time)}</em>`:''}</span></div>`).join('')}</div></div>`;
   const contact = `${c.phone||c.email ? `<div class="cin-preview__contact">
-    ${c.phone?`<a href="tel:${escapeHtml(c.phone)}"><span aria-hidden="true">📞</span>${escapeHtml(c.phone)}</a>`:''}
-    ${c.email?`<a href="mailto:${escapeHtml(c.email)}"><span aria-hidden="true">✉️</span>${escapeHtml(c.email)}</a>`:''}
+    ${c.phone?`<a href="tel:${escapeHtml(c.phone)}"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5.2 2.8 7.5 6 6 7.5c1.2 2.4 2.1 3.3 4.5 4.5l1.5-1.5 3.2 2.3c.5.4.7 1 .5 1.6-.4 1-1.4 1.7-2.5 1.6C7.8 15.6 4.4 12.2 4 6.8c-.1-1.1.6-2.1 1.6-2.5.6-.2 1.2 0 1.6.5Z"/></svg>${escapeHtml(c.phone)}</a>`:''}
+    ${c.email?`<a href="mailto:${escapeHtml(c.email)}"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="m3.5 6 6.5 5 6.5-5"/></svg>${escapeHtml(c.email)}</a>`:''}
   </div>`:''}`;
-  const qrCard = `<div class="cin-preview__block cin-preview__qr">
+  const qrCard = c.checkin_pass_url ? `<div class="cin-preview__block cin-preview__qr">
     <div class="journey-section__title">${escapeHtml(t('checkin.qr_title'))}</div>
     <div class="cin-preview__qr-box"><canvas id="cinQrCanvas" role="img" aria-label="${escapeHtml(t('checkin.qr_title'))}"></canvas></div>
     <div class="cin-preview__qr-code">${escapeHtml(c.code||'')}</div>
     <p class="cin-preview__qr-hint">${escapeHtml(t('checkin.qr_hint'))}</p>
-    <button type="button" class="btn small soft" id="cinCopyCode">${escapeHtml(t('checkin.copy_code'))}</button>
-  </div>`;
+    <div class="cin-preview__qr-actions"><button type="button" class="btn small soft" id="cinCopyCode">${escapeHtml(t('checkin.copy_code'))}</button><a class="btn small" href="${escapeHtml(c.checkin_pass_url)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.view_checkin_pass'))}</a></div>
+  </div>` : '';
   const kv = `<div class="cin-preview__block"><div class="journey-section__title">${escapeHtml(t('checkin.details'))}</div>
     <div class="journey-kv">
       <div><span>${escapeHtml(t('checkin.col_treatment'))}</span><strong>${escapeHtml(c.treatment||'—')}</strong></div>
@@ -2766,14 +2827,17 @@ function reviewCheckin(id){
         <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${statusBadge(c.status_label)}${statusBadge(c.arrival_label)}</div>
       </div>
     </div>
-    ${contact}${qrCard}${timeline}${kv}
+    ${contact}<div class="checkin-decision checkin-decision--${escapeHtml(stage==='pending'?(checkedIn?'waiting':'booked'):stage)}"><strong>${escapeHtml(c.arrival_label||c.status_label||'')}</strong><p>${escapeHtml(checkinActionHelp(c))}</p></div>${timeline}${kv}${qrCard}
   </div>`;
   const foot = [
-    orderUrl && boot.canViewOrder ? `<a class="btn primary" href="${escapeHtml(orderUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_order'))}</a>` : '',
-    boot.canViewTreatments && boot.treatmentReservationsUrl ? `<a class="btn" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_crm'))}</a>` : '',
+    checkinPrimaryAction(c),
+    customerUrl && boot.canViewUser ? `<a class="btn" href="${escapeHtml(customerUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_customer'))}</a>` : '',
+    orderUrl && boot.canViewOrder ? `<a class="btn" href="${escapeHtml(orderUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_order'))}</a>` : '',
+    !(Array.isArray(c.available_actions)&&c.available_actions.includes('open_crm')) && boot.canViewTreatments && boot.treatmentReservationsUrl ? `<a class="btn" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('checkin.open_crm'))}</a>` : '',
     `<button type="button" class="btn" data-action-drawer-close>${escapeHtml(t('checkin.close'))}</button>`,
   ].filter(Boolean).join('');
   openActionDrawer(t('checkin.title'), c.code+' · '+c.name, body, foot, t('nav.checkin'));
+  bindCheckinActions($('#actionDrawer'));
   const canvas = $('#cinQrCanvas');
   if(canvas && window.QRCentral){
     try{ QRCentral.render(canvas, c.checkin_pass_url || ''); }
@@ -2815,6 +2879,12 @@ function clearance(){
         ${boot.canViewTreatments && boot.treatmentReservationsUrl ? `<a class="btn primary" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('clearance.open_crm'))}</a>` : ''}
       </div>
     </div>
+    <section class="clearance-flow" aria-labelledby="clearanceFlowTitle">
+      <div class="clearance-flow__copy"><span class="clearance-flow__eyebrow">CRM</span><h2 id="clearanceFlowTitle">${escapeHtml(t('clearance.workflow_title'))}</h2><p>${escapeHtml(t('clearance.workflow_hint'))}</p></div>
+      <ol class="clearance-flow__steps">
+        ${[t('clearance.step_arrival'),t('clearance.step_payment'),t('clearance.step_treatment'),t('clearance.step_complete')].map((label,index)=>`<li><span aria-hidden="true">${index+1}</span><strong>${escapeHtml(label)}</strong></li>`).join('')}
+      </ol>
+    </section>
     <div class="pay-metrics" id="clrMetrics"></div>
     <section class="lead-panel card">
       <div class="lead-panel__head">
@@ -2882,10 +2952,10 @@ function renderClearanceMetrics(){
   el.setAttribute('aria-busy', String(clearancesLoading));
   const metric = value => clearancesLoading || clearanceLoadError ? '—' : fmtInt(value);
   el.innerHTML = `
-    <div class="pay-metric"><span>${escapeHtml(t('clearance.stat_waiting'))}</span><strong>${metric(s.waiting)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('clearance.stat_blocked'))}</span><strong>${metric(s.blocked)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('clearance.stat_treatment'))}</span><strong>${metric(s.in_treatment)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('clearance.stat_done'))}</span><strong>${metric(s.done_today)}</strong></div>`;
+    <div class="pay-metric clearance-metric clearance-metric--waiting"><span>${escapeHtml(t('clearance.stat_waiting'))}</span><strong>${metric(s.waiting)}</strong></div>
+    <div class="pay-metric clearance-metric clearance-metric--blocked"><span>${escapeHtml(t('clearance.stat_blocked'))}</span><strong>${metric(s.blocked)}</strong></div>
+    <div class="pay-metric clearance-metric clearance-metric--treatment"><span>${escapeHtml(t('clearance.stat_treatment'))}</span><strong>${metric(s.in_treatment)}</strong></div>
+    <div class="pay-metric clearance-metric clearance-metric--done"><span>${escapeHtml(t('clearance.stat_done'))}</span><strong>${metric(s.done_today)}</strong></div>`;
 }
 function renderClearanceTabs(){
   const mount = $('#clrTabs'); if(!mount) return;
@@ -2925,14 +2995,14 @@ function renderClearanceTable(){
   if(clearanceLoadError){ mount.innerHTML = `<div class="pay-empty" role="alert"><strong>${escapeHtml(t('clearance.load_error'))}</strong><button type="button" class="btn" id="clrRetry">${escapeHtml(t('clearance.refresh'))}</button></div>`; $('#clrRetry').onclick = () => refreshClearances(); return; }
   if(clearancesLoading){ mount.innerHTML = `<div class="pay-empty" role="status">${escapeHtml(t('clearance.loading'))}</div>`; return; }
   if(!liveClearances.length){ mount.innerHTML = `<div class="pay-empty"><strong>${escapeHtml(t('clearance.empty'))}</strong>${escapeHtml(t('clearance.empty_hint'))}</div>`; return; }
-  const rows = liveClearances.map(c => `<tr>
+  const rows = liveClearances.map(c => `<tr data-clearance-state="${escapeHtml(c.clearance||'other')}">
     <td><div class="person-cell person-cell--lead"><div class="mini-avatar">${escapeHtml(c.initial||'?')}</div><div class="person-cell__text"><strong>${escapeHtml(c.name||'')}</strong><small>${escapeHtml(c.code||'')} · ${escapeHtml(c.phone||'')}</small></div></div></td>
-    <td>${escapeHtml(c.date_label||'')} · ${escapeHtml(c.time||'')}</td>
+    <td><strong>${escapeHtml(c.date_label||'')}</strong><small class="clearance-wait">${escapeHtml(c.checked_in_at?t('clearance.arrival_waiting',{time:c.waiting_label||'—'}):(c.time||'—'))}</small></td>
     <td>${escapeHtml(c.branch_name||c.branch||'—')}</td>
     <td>${escapeHtml(c.treatment||'—')}</td>
     <td>${statusBadge(c.payment_label)}</td>
     <td>${statusBadge(c.clearance_label)}</td>
-    <td><button type="button" class="btn small soft" data-clr-view="${c.id}">${escapeHtml(t('clearance.view'))}</button></td>
+    <td><div class="clearance-row-actions">${clearancePrimaryAction(c,true)}<button type="button" class="btn small soft" data-clr-view="${c.id}">${escapeHtml(t('clearance.view'))}</button></div></td>
   </tr>`).join('');
   mount.innerHTML = `<div class="table-wrap"><table class="data-table"><thead><tr>
     <th>${escapeHtml(t('clearance.col_customer'))}</th><th>${escapeHtml(t('clearance.col_time'))}</th>
@@ -2941,12 +3011,77 @@ function renderClearanceTable(){
     <th>${escapeHtml(t('clearance.col_action'))}</th>
   </tr></thead><tbody>${rows}</tbody></table></div>
   ${centralPager('clr',clearanceMeta)}`;
-  $$('[data-clr-view]').forEach(b => b.onclick = () => reviewClearance(b.dataset.clrView));
+  $$('[data-clr-view]',mount).forEach(b => b.onclick = () => reviewClearance(b.dataset.clrView));
+  bindClearanceActions(mount);
   bindCentralPager('clr',page=>{state.clearancePage=page;return refreshClearances();});
+}
+function clearancePrimaryAction(c,compact=false){
+  const actions=Array.isArray(c.available_actions)?c.available_actions:[];
+  const cls=compact?'btn small':'btn';
+  if(actions.includes('start_treatment') && boot.canEditTreatments){
+    return `<button type="button" class="${cls} primary" data-clr-status="in_progress" data-clr-id="${c.id}">${escapeHtml(t('clearance.start_treatment'))}</button>`;
+  }
+  if(actions.includes('complete_treatment') && boot.canEditTreatments){
+    return `<button type="button" class="${cls} success" data-clr-status="completed" data-clr-id="${c.id}">${escapeHtml(t('clearance.complete_treatment'))}</button>`;
+  }
+  if(actions.includes('resolve_payment')){
+    if(c.order_id){
+      return `<button type="button" class="${cls} danger" data-clr-payment="${c.id}">${escapeHtml(t('clearance.resolve_payment'))}</button>`;
+    }
+    if(boot.canViewTreatments && boot.treatmentReservationsUrl){
+      return `<a class="${cls} danger" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('clearance.resolve_payment'))}</a>`;
+    }
+  }
+  return '';
+}
+function clearanceActionHelp(c){
+  return t(`clearance.action_help_${({waiting:'waiting',blocked:'blocked',in_treatment:'treatment',done:'done'})[c.clearance]||'done'}`);
+}
+function clearanceStepIcon(done){
+  return done
+    ? '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="6"/></svg>';
+}
+function bindClearanceActions(scope=document){
+  $$('[data-clr-status]',scope).forEach(button=>button.onclick=()=>confirmClearanceTransition(button.dataset.clrId,button.dataset.clrStatus));
+  $$('[data-clr-payment]',scope).forEach(button=>button.onclick=()=>{
+    const c=liveClearances.find(item=>Number(item.id)===Number(button.dataset.clrPayment));
+    if(c) state.paymentSearch=String(c.phone||c.name||c.code||'').trim();
+    closeActionDrawer();
+    navigate('payments');
+  });
+}
+function confirmClearanceTransition(id,status){
+  const c=liveClearances.find(item=>Number(item.id)===Number(id)); if(!c)return;
+  const starting=status==='in_progress';
+  openActionDrawer(
+    t(starting?'clearance.start_confirm_title':'clearance.complete_confirm_title'),
+    `${c.code} · ${c.name}`,
+    `<div class="clearance-confirm"><div class="clearance-confirm__icon">${clearanceStepIcon(true)}</div><p>${escapeHtml(t(starting?'clearance.start_confirm_body':'clearance.complete_confirm_body'))}</p></div>`,
+    `<button type="button" class="btn" data-action-drawer-close>${escapeHtml(t('clearance.cancel'))}</button><button type="button" class="btn ${starting?'primary':'success'}" id="confirmClearanceStatus">${escapeHtml(t('clearance.confirm_action'))}</button>`,
+    t('clearance.workflow_title')
+  );
+  $('#confirmClearanceStatus').onclick=e=>updateClearanceStatus(c,status,e.currentTarget);
+}
+async function updateClearanceStatus(c,status,button){
+  const url=leadUrl(boot.clearanceStatusUrlTemplate,c.id);
+  if(!url||!boot.canEditTreatments){showToast(t('clearance.update_error'));return;}
+  button.disabled=true;
+  button.setAttribute('aria-busy','true');
+  try{
+    const res=await fetch(url,{method:'PATCH',headers:apiHeaders(true),credentials:'same-origin',body:JSON.stringify({status})});
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){showToast(body.message||t('clearance.update_error'));return;}
+    closeActionDrawer();
+    showToast(body.message||t('clearance.status_updated'));
+    await refreshClearances();
+  }catch(err){console.error(err);showToast(t('clearance.update_error'));}
+  finally{if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy');}}
 }
 function reviewClearance(id){
   const c = liveClearances.find(x => Number(x.id) === Number(id)); if(!c) return;
   const orderUrl = c.order_id && boot.orderShowUrlTemplate ? leadUrl(boot.orderShowUrlTemplate, c.order_id) : '';
+  const customerUrl = c.customer_id && boot.userEditUrlTemplate ? leadUrl(boot.userEditUrlTemplate, c.customer_id) : '';
   const body = `<div class="pay-review">
     <div class="pay-review__hero"><div class="pay-review__avatar">${escapeHtml(c.initial||'?')}</div>
       <div style="min-width:0;flex:1"><div class="pay-id">${escapeHtml(c.code||'')}</div>
@@ -2958,14 +3093,26 @@ function reviewClearance(id){
       <div class="pay-review__card"><label>${escapeHtml(t('clearance.col_time'))}</label><strong>${escapeHtml((c.date_label||'')+' '+(c.time||''))}</strong></div>
       <div class="pay-review__card"><label>${escapeHtml(t('clearance.col_branch'))}</label><strong>${escapeHtml(c.branch_name||c.branch||'—')}</strong></div>
       <div class="pay-review__card"><label>${escapeHtml(t('checkin.col_beautician'))}</label><strong>${escapeHtml(c.beautician||'—')}</strong></div>
-    </div></div>`;
+    </div>
+    <div class="clearance-decision clearance-decision--${escapeHtml(c.clearance||'other')}"><strong>${escapeHtml(c.clearance_label||'')}</strong><p>${escapeHtml(clearanceActionHelp(c))}</p></div>
+    <div class="journey-section"><div class="journey-section__title">${escapeHtml(t('clearance.workflow_title'))}</div><ol class="clearance-checklist">
+      ${[
+        [t('clearance.step_arrival'),Boolean(c.checked_in_at)||['in_treatment','done'].includes(c.clearance)],
+        [t('clearance.step_payment'),Boolean(c.payment_ok)||['in_treatment','done'].includes(c.clearance)],
+        [t('clearance.step_treatment'),['in_treatment','done'].includes(c.clearance)],
+        [t('clearance.step_complete'),c.clearance==='done'],
+      ].map(([label,done])=>`<li class="${done?'is-done':''}"><span>${clearanceStepIcon(done)}</span><strong>${escapeHtml(label)}</strong></li>`).join('')}
+    </ol></div></div>`;
   const foot = [
-    orderUrl && boot.canViewOrder ? `<a class="btn primary" href="${escapeHtml(orderUrl)}" target="_blank" rel="noopener">${escapeHtml(t('clearance.open_order'))}</a>` : '',
+    clearancePrimaryAction(c),
+    c.checkin_pass_url ? `<a class="btn" href="${escapeHtml(c.checkin_pass_url)}" target="_blank" rel="noopener">${escapeHtml(t('clearance.view_checkin_pass'))}</a>` : '',
+    customerUrl && boot.canViewUser ? `<a class="btn" href="${escapeHtml(customerUrl)}" target="_blank" rel="noopener">${escapeHtml(t('clearance.open_customer'))}</a>` : '',
+    orderUrl && boot.canViewOrder ? `<a class="btn" href="${escapeHtml(orderUrl)}" target="_blank" rel="noopener">${escapeHtml(t('clearance.open_order'))}</a>` : '',
     boot.canViewTreatments && boot.treatmentReservationsUrl ? `<a class="btn" href="${escapeHtml(boot.treatmentReservationsUrl)}" target="_blank" rel="noopener">${escapeHtml(t('clearance.open_crm'))}</a>` : '',
     `<button type="button" class="btn" data-action-drawer-close>${escapeHtml(t('clearance.close'))}</button>`,
   ].filter(Boolean).join('');
   openActionDrawer(t('clearance.title'), c.code+' · '+c.name, body, foot, t('nav.clearance'));
-  setTimeout(() => { $$('#actionDrawerFoot [data-jump]').forEach(b => b.onclick = () => { closeActionDrawer(); navigate(b.dataset.jump); }); }, 0);
+  setTimeout(() => bindClearanceActions($('#actionDrawerFoot')), 0);
 }
 
 function wallet(){
@@ -2973,13 +3120,19 @@ function wallet(){
     <div class="page-head">
       <div>
         <h1 class="page-title">${escapeHtml(t('wallet.title'))}</h1>
-        <div class="page-subtitle">${escapeHtml(t('wallet.subtitle'))}</div>
+        <div class="page-subtitle">${escapeHtml(t('wallet.subtitle'))} <span class="loyalty-scope-badge">${escapeHtml(t('wallet.scope_badge'))}</span></div>
       </div>
       <div class="page-actions">
         <button type="button" class="btn" id="walRefresh">${escapeHtml(t('wallet.refresh'))}</button>
         ${boot.canViewLoyalty && boot.loyaltyMembersUrl ? `<a class="btn primary" href="${escapeHtml(boot.loyaltyMembersUrl)}" target="_blank" rel="noopener">${escapeHtml(t('wallet.open_loyalty'))}</a>` : ''}
       </div>
     </div>
+    <section class="clearance-flow loyalty-flow" aria-labelledby="loyaltyFlowTitle">
+      <div class="clearance-flow__copy"><span class="clearance-flow__eyebrow">LOYALTY</span><h2 id="loyaltyFlowTitle">${escapeHtml(t('wallet.workflow_title'))}</h2><p>${escapeHtml(t('wallet.workflow_hint'))}</p></div>
+      <ol class="clearance-flow__steps">
+        ${[t('wallet.step_enrolled'),t('wallet.step_earn'),t('wallet.step_tier'),t('wallet.step_redeem')].map((label,index)=>`<li><span aria-hidden="true">${index+1}</span><strong>${escapeHtml(label)}</strong></li>`).join('')}
+      </ol>
+    </section>
     <div class="pay-metrics" id="walMetrics"></div>
     <section class="lead-panel card">
       <div class="lead-panel__head">
@@ -2992,7 +3145,7 @@ function wallet(){
           <span class="lead-search__icon" aria-hidden="true">⌕</span>
           <input class="lead-search__input" id="walSearch" aria-label="${escapeHtml(t('wallet.search_placeholder'))}" type="search" autocomplete="off" placeholder="${escapeHtml(t('wallet.search_placeholder'))}" value="${escapeHtml(state.walletSearch||'')}" />
         </label>
-        <div class="lead-filter-grid" style="grid-template-columns:minmax(0,1fr)">
+        <div class="lead-filter-grid loyalty-filter-grid">
           <label class="lead-field"><span class="lead-field__label">${escapeHtml(t('wallet.filter_tier'))}</span>
             <select class="lead-field__control" id="walTier"></select>
           </label>
@@ -3041,10 +3194,10 @@ function renderWalletMetrics(){
   el.setAttribute('aria-busy', String(walletsLoading));
   const metric = value => walletsLoading || walletLoadError ? '—' : fmtInt(value);
   el.innerHTML = `
-    <div class="pay-metric"><span>${escapeHtml(t('wallet.stat_members'))}</span><strong>${metric(s.members)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('wallet.stat_balance'))}</span><strong>${metric(s.with_balance)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('wallet.stat_points'))}</span><strong>${metric(s.points_outstanding)}</strong></div>
-    <div class="pay-metric"><span>${escapeHtml(t('wallet.stat_stamp'))}</span><strong>${metric(s.stamp_ready)}</strong></div>`;
+    <div class="pay-metric loyalty-metric loyalty-metric--members"><span>${escapeHtml(t('wallet.stat_members'))}</span><strong>${metric(s.members)}</strong></div>
+    <div class="pay-metric loyalty-metric loyalty-metric--active"><span>${escapeHtml(t('wallet.stat_balance'))}</span><strong>${metric(s.with_balance)}</strong></div>
+    <div class="pay-metric loyalty-metric loyalty-metric--points"><span>${escapeHtml(t('wallet.stat_points'))}</span><strong>${metric(s.points_outstanding)}</strong></div>
+    <div class="pay-metric loyalty-metric loyalty-metric--rewards"><span>${escapeHtml(t('wallet.stat_stamp'))}</span><strong>${metric(s.stamp_ready)}</strong></div>`;
 }
 function renderWalletTabs(){
   const mount = $('#walTabs'); if(!mount) return;
@@ -3081,25 +3234,33 @@ function renderWalletTable(){
     const avatar = w.avatar_url
       ? `<div class="mini-avatar mini-avatar--photo"><img src="${escapeHtml(w.avatar_url)}" alt=""></div>`
       : `<div class="mini-avatar">${escapeHtml(w.initial||'?')}</div>`;
-    const stamp = w.stamp_ready ? statusBadge(t('wallet.chip_stamp',{count:w.stamp_ready})) : '';
-    return `<tr>
-      <td><strong>${escapeHtml(w.code||'')}</strong></td>
-      <td><div class="person-cell person-cell--lead">${avatar}<div class="person-cell__text"><strong>${escapeHtml(w.name||'')}</strong><small>${escapeHtml(w.phone||w.email||'')}</small></div></div></td>
-      <td>${w.tier ? statusBadge(w.tier) : '—'}</td>
+    const stamp = w.stamp_ready ? statusBadge(t('wallet.chip_stamp',{count:w.stamp_ready})) : statusBadge(t('wallet.stamp_summary',{active:fmtInt(w.stamp_active||0),ready:0}));
+    const memberUrl = boot.canShowLoyaltyMember && boot.loyaltyMemberShowUrlTemplate ? leadUrl(boot.loyaltyMemberShowUrlTemplate,w.id) : '';
+    return `<tr data-membership-segment="${escapeHtml(w.segment||'zero')}">
+      <td><div class="person-cell person-cell--lead">${avatar}<div class="person-cell__text"><strong>${escapeHtml(w.name||'')}</strong><small>${escapeHtml(w.code||'')} · ${escapeHtml(w.phone||w.email||'—')}</small></div></div></td>
+      <td><div class="loyalty-tier-cell">${w.tier ? statusBadge(w.tier) : '—'}<small>${escapeHtml(t('wallet.tier_since'))}: ${escapeHtml(w.tier_since_label||'—')}</small></div></td>
       <td class="is-num"><strong>${fmtInt(w.balance)}</strong></td>
       <td class="is-num">${money(w.lifetime_spend)}</td>
-      <td>${stamp || fmtInt(w.stamp_active||0)}</td>
-      <td><button type="button" class="btn small soft" data-wal-view="${w.id}">${escapeHtml(t('wallet.view'))}</button></td>
+      <td><div class="loyalty-reward-cell">${stamp}<small>${escapeHtml(t('wallet.stamp_summary',{active:fmtInt(w.stamp_active||0),ready:fmtInt(w.stamp_ready||0)}))}</small></div></td>
+      <td><div class="loyalty-activity-cell"><strong>${escapeHtml(t('wallet.activity_summary',{count:fmtInt(w.activity_count||0)}))}</strong><small>${escapeHtml(w.last_activity_label||'—')}</small></div></td>
+      <td class="lead-table__actions"><div class="lead-menu loyalty-action-menu">
+        <button type="button" class="lead-menu__btn" data-lead-menu aria-haspopup="menu" aria-expanded="false" aria-label="${escapeHtml(t('wallet.row_actions',{name:w.name||t('wallet.guest')}))}"><span class="lead-menu__dots" aria-hidden="true"></span></button>
+        <div class="lead-menu__panel" role="menu" hidden>
+          ${memberUrl?`<a class="lead-menu__item" role="menuitem" href="${escapeHtml(memberUrl)}" target="_blank" rel="noopener">${escapeHtml(t('wallet.open_member'))}</a>`:''}
+          <button type="button" class="lead-menu__item" role="menuitem" data-wal-view="${w.id}">${escapeHtml(t('wallet.view'))}</button>
+        </div>
+      </div></td>
     </tr>`;
   }).join('');
   mount.innerHTML = `<div class="table-wrap"><table class="data-table"><thead><tr>
-    <th>${escapeHtml(t('wallet.col_id'))}</th><th>${escapeHtml(t('wallet.col_customer'))}</th>
-    <th>${escapeHtml(t('wallet.col_tier'))}</th><th class="is-num">${escapeHtml(t('wallet.col_balance'))}</th>
+    <th>${escapeHtml(t('wallet.col_customer'))}</th><th>${escapeHtml(t('wallet.col_tier'))}</th><th class="is-num">${escapeHtml(t('wallet.col_balance'))}</th>
     <th class="is-num">${escapeHtml(t('wallet.col_spend'))}</th><th>${escapeHtml(t('wallet.col_stamps'))}</th>
-    <th>${escapeHtml(t('wallet.col_action'))}</th>
+    <th>${escapeHtml(t('wallet.col_activity'))}</th><th>${escapeHtml(t('wallet.col_action'))}</th>
   </tr></thead><tbody>${rows}</tbody></table></div>
   ${centralPager('wal',walletMeta)}`;
-  $$('[data-wal-view]').forEach(b => b.onclick = () => reviewWallet(b.dataset.walView));
+  bindLeadRowMenus(mount);
+  $$('.loyalty-action-menu a[role="menuitem"]',mount).forEach(link => link.onclick = () => closeAllLeadMenus());
+  $$('[data-wal-view]',mount).forEach(b => b.onclick = () => { closeAllLeadMenus(); reviewWallet(b.dataset.walView); });
   bindCentralPager('wal',page=>{state.walletPage=page;return refreshWallets();});
 }
 let walletDrawerTrigger = null;
@@ -3136,11 +3297,14 @@ function reviewWallet(id){
       <h3>${escapeHtml(w.name||'')}</h3>
       <p>${escapeHtml(w.phone||'—')}</p><p>${escapeHtml(w.email||'—')}</p>
       <div class="wallet-detail__badges">${w.tier?statusBadge(w.tier):''}${statusBadge(w.segment_label)}</div>
+      <p>${escapeHtml(t('wallet.member_since'))}: ${escapeHtml(w.member_since_label||'—')} · ${escapeHtml(t('wallet.tier_since'))}: ${escapeHtml(w.tier_since_label||'—')}</p>
     </div></section>
     <section class="wallet-detail__balance"><span>${escapeHtml(t('wallet.col_balance'))}</span><strong>${fmtInt(w.balance)}</strong></section>
     <div class="wallet-detail__metrics">
       <section><span>${escapeHtml(t('wallet.col_spend'))}</span><strong>${money(w.lifetime_spend)}</strong></section>
       <section><span>${escapeHtml(t('wallet.col_stamps'))}</span><strong>${escapeHtml(t('wallet.stamp_summary', {active:fmtInt(w.stamp_active),ready:fmtInt(w.stamp_ready)}))}</strong></section>
+      <section><span>${escapeHtml(t('wallet.col_activity'))}</span><strong>${escapeHtml(t('wallet.activity_summary',{count:fmtInt(w.activity_count||0)}))}</strong></section>
+      <section><span>${escapeHtml(t('wallet.last_activity'))}</span><strong>${escapeHtml(w.last_activity_label||'—')}</strong></section>
     </div>
     <section class="wallet-detail__history"><h3>${escapeHtml(t('wallet.detail_recent'))}</h3>${recent}</section>
   </div>`;
@@ -3195,7 +3359,7 @@ function reporting(view){
       ${view!=='audit'?`<label class="lead-field"><span class="lead-field__label">${escapeHtml(t('reporting.sort'))}</span><select id="reportSort" class="lead-field__control">${['revenue','leads','conversion','orders'].map(k=>`<option value="${k}"${filter.sort===k?' selected':''}>${escapeHtml(t('reporting.'+k))}</option>`).join('')}</select></label>`:''}</div>
       <div id="reportTable" class="lead-panel__body pay-table" aria-live="polite"></div>
     </section>
-    <p class="report-note">${escapeHtml(t('reporting.'+(view==='audit'?'audit_note':'methodology')))}</p>
+    <p class="report-note">${escapeHtml(t('reporting.'+(view==='audit'?'audit_note':view==='beauticians'?'methodology_beauticians':'methodology_branches')))}</p>
   </div>`;
   $('#reportRefresh').onclick=()=>refreshReporting();
   $('#reportSearch').oninput=e=>{
@@ -4032,14 +4196,21 @@ function navigate(view, opts={}){
   closeActionDrawer();
   if(window.IMMA_TRADE && target!=='overview') IMMA_TRADE.dispose();
   state.view=target;
+  const membershipGlobal=target==='wallet';
+  for(const scope of [$('#branchScope'),$('#periodScope')]){
+    scope.disabled=membershipGlobal;
+    scope.title=membershipGlobal?t('wallet.scope_hint'):'';
+  }
   syncUrl(target, opts);
   $$('.nav-item[data-view]').forEach(n=>n.classList.toggle('active',n.dataset.view===target));
   $('#crumbCurrent').textContent=({overview:t('common.overview_crumb'),leads:t('nav.leads'),import:t('nav.import'),imports:t('nav.imports'),payments:t('nav.payments'),wallet:t('nav.wallet'),checkin:t('nav.checkin'),clearance:t('nav.clearance'),beauticians:t('nav.beauticians'),branches:t('nav.branches'),audit:t('nav.audit'),followup:t('nav.followup'),sales:t('nav.sales'),customers:t('nav.customers')})[target]||target;
-  if(['overview','sales'].includes(target) && metricsScope!==JSON.stringify([state.branch,state.period])){
+  const metricsStale=metricsScope!==JSON.stringify([state.branch,state.period]);
+  if(['overview','sales'].includes(target) && metricsStale){
     root.innerHTML=`<section class="card"><div class="pay-empty" role="status">${escapeHtml(t('overview.loading'))}</div></section>`;
     refreshMetrics();
   }else{
     ({overview,leads,import:importView,imports,followup,sales,payments,customers,wallet,checkin,clearance,beauticians,branches,audit}[target]||(()=>generic(t('nav.'+target),t('operations.not_ready'))))();
+    if(metricsStale) refreshMetrics();
   }
   if(!opts.silent) window.scrollTo({top:0,behavior:'smooth'});
   if(innerWidth<1000)$('#sidebar').classList.remove('open');
@@ -4103,24 +4274,88 @@ function closeDrawer(){
   if(walletDrawerTrigger?.isConnected) walletDrawerTrigger.focus({preventScroll:true});
   walletDrawerTrigger=null;
 }
-function notificationItems(){
+let notificationDismissalsMemory={};
+function notificationStorageKey(){
+  return String(boot.notificationStorageKey||'imma-central.notifications.v1.guest');
+}
+function notificationScope(){
+  return `${state.branch||'all'}|${state.period||''}`;
+}
+function notificationSignature(item){
+  return `${notificationScope()}|${item.id}|${item.count}`;
+}
+function readNotificationDismissals(){
+  try{
+    const value=JSON.parse(localStorage.getItem(notificationStorageKey())||'{}');
+    return value && typeof value==='object' && !Array.isArray(value) ? value : {};
+  }catch(_){
+    return {...notificationDismissalsMemory};
+  }
+}
+function writeNotificationDismissals(value){
+  const cutoff=Date.now()-(90*24*60*60*1000);
+  const entries=Object.entries(value)
+    .filter(([,timestamp])=>Number(timestamp)>=cutoff)
+    .sort((a,b)=>Number(a[1])-Number(b[1]))
+    .slice(-100);
+  notificationDismissalsMemory=Object.fromEntries(entries);
+  try{localStorage.setItem(notificationStorageKey(),JSON.stringify(notificationDismissalsMemory));}catch(_){}
+}
+function notificationIcon(kind){
+  const icons={
+    payments:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>',
+    clearance:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>',
+    leads:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M3 20c.7-4 2.7-6 6-6 2.1 0 3.7.8 4.8 2.3M18 8v6M15 11h6"/></svg>'
+  };
+  return icons[kind]||icons.leads;
+}
+function notificationCandidates(){
   const m=liveMetrics||{};
   const items=[];
   const payments=Number(m.ops?.payments?.queue||0);
   const clearance=Number(m.ops?.clearance?.queue||0);
   const leads=Number(m.kpis?.new_buyers||m.kpis?.unique_leads||0);
-  if(payments>0) items.push({icon:'₿',title:'Payments need review',detail:`${fmtInt(payments)} payment${payments===1?'':'s'} in queue`,view:'payments'});
-  if(clearance>0) items.push({icon:'✓',title:'Clearance queue needs attention',detail:`${fmtInt(clearance)} customer${clearance===1?'':'s'} waiting`,view:'clearance'});
-  if(leads>0) items.push({icon:'♙',title:'New leads captured',detail:`${fmtInt(leads)} unique lead${leads===1?'':'s'} in ${escapeHtml(m.period?.label||'selected period')}`,view:'leads'});
+  if(payments>0) items.push({id:'payments',count:payments,icon:notificationIcon('payments'),title:t('notifications.payment_title'),detail:t('notifications.payment_detail',{count:fmtInt(payments)}),view:'payments'});
+  if(clearance>0) items.push({id:'clearance',count:clearance,icon:notificationIcon('clearance'),title:t('notifications.clearance_title'),detail:t('notifications.clearance_detail',{count:fmtInt(clearance)}),view:'clearance'});
+  if(leads>0) items.push({id:'leads',count:leads,icon:notificationIcon('leads'),title:t('notifications.leads_title'),detail:t('notifications.leads_detail',{count:fmtInt(leads),period:m.period?.label||t('notifications.selected_period')}),view:'leads'});
   return items;
+}
+function notificationItems(){
+  const dismissed=readNotificationDismissals();
+  return notificationCandidates().filter(item=>!dismissed[notificationSignature(item)]);
+}
+function dismissNotificationItems(items){
+  const dismissed=readNotificationDismissals();
+  const now=Date.now();
+  items.forEach(item=>{dismissed[notificationSignature(item)]=now;});
+  writeNotificationDismissals(dismissed);
 }
 function renderNotifications(){
   const button=$('#notificationButton'), menu=$('#notificationMenu'), badge=$('#notificationCount');
   if(!button||!menu||!badge)return;
+  const candidates=notificationCandidates();
   const items=notificationItems();
   badge.textContent=String(items.length); badge.hidden=items.length===0;
-  menu.innerHTML=`<div class="notification-menu__head"><span>Notifications</span><small>${items.length?`${items.length} active`:'All clear'}</small></div>`+
-    (items.length?items.map(item=>`<button type="button" class="notification-menu__item" role="menuitem" data-notification-view="${item.view}"><span class="notification-menu__icon">${item.icon}</span><span><strong>${item.title}</strong><small>${item.detail}</small></span></button>`).join(''):'<div class="notification-menu__empty">No outstanding items right now.</div>');
+  button.setAttribute('aria-label',items.length?t('notifications.button_count',{count:fmtInt(items.length)}):t('notifications.button'));
+  const status=items.length?t('notifications.active_count',{count:fmtInt(items.length)}):(candidates.length?t('notifications.cleared'):t('notifications.all_clear'));
+  const empty=candidates.length?t('notifications.cleared_hint'):t('notifications.empty');
+  menu.innerHTML=`<div class="notification-menu__head"><div class="notification-menu__title"><span id="notificationMenuTitle">${escapeHtml(t('notifications.title'))}</span><small>${escapeHtml(status)}</small></div>${items.length?`<button type="button" class="notification-menu__clear" data-clear-notifications>${escapeHtml(t('notifications.clear'))}</button>`:''}</div>`+
+    (items.length?items.map(item=>`<button type="button" class="notification-menu__item" data-notification-view="${escapeHtml(item.view)}"><span class="notification-menu__icon">${item.icon}</span><span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.detail)}</small></span></button>`).join('')+`<p class="notification-menu__note">${escapeHtml(t('notifications.clear_note'))}</p>`:`<div class="notification-menu__empty">${escapeHtml(empty)}</div>`);
+}
+function requestClearNotifications(){
+  const items=notificationItems();
+  if(!items.length)return;
+  closeNotifications();
+  const body=`<div class="notification-clear-summary"><strong>${escapeHtml(t('notifications.clear_summary',{count:fmtInt(items.length)}))}</strong><p>${escapeHtml(t('notifications.clear_note'))}</p></div>`;
+  const foot=`<button type="button" class="btn" data-action-drawer-close>${escapeHtml(t('notifications.cancel'))}</button><button type="button" class="btn danger" id="notificationClearConfirm">${escapeHtml(t('notifications.confirm_clear'))}</button>`;
+  openActionDrawer(t('notifications.clear_title'),t('notifications.clear_subtitle'),body,foot,t('notifications.title'));
+  $('#notificationClearConfirm').onclick=()=>{
+    dismissNotificationItems(items);
+    closeActionDrawer();
+    renderNotifications();
+    $('#notificationButton')?.focus({preventScroll:true});
+    showToast(t('notifications.clear_success'));
+  };
 }
 function toggleNotifications(force=null){
   const button=$('#notificationButton'), menu=$('#notificationMenu');
@@ -4200,7 +4435,11 @@ window.addEventListener('afterprint',finishCentralPrint);
 
 $('#menuToggle').onclick=()=>$('#sidebar').classList.toggle('open');
 $('#notificationButton').onclick=()=>toggleNotifications();
-$('#notificationMenu').onclick=e=>{const item=e.target.closest('[data-notification-view]');if(!item)return;closeNotifications();navigate(item.dataset.notificationView);};
+$('#notificationMenu').onclick=e=>{
+  if(e.target.closest('[data-clear-notifications]')){requestClearNotifications();return;}
+  const item=e.target.closest('[data-notification-view]');if(!item)return;closeNotifications();navigate(item.dataset.notificationView);
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#notificationMenu').hidden){e.preventDefault();closeNotifications();$('#notificationButton').focus({preventScroll:true});}});
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.notification-wrap'))closeNotifications();},true);
 renderNotifications();
 $('#drawerClose').onclick=closeDrawer;$('#drawerBackdrop').onclick=closeDrawer;$('#actionDrawerClose').onclick=closeActionDrawer;$('#actionDrawerBackdrop').onclick=closeActionDrawer;

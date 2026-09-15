@@ -5,6 +5,26 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.103' => [
+        'date' => '2026-09-15',
+        'en' => [
+            'summary' => 'Polish Central Management workflows and loyalty member actions for production use.',
+            'changes' => [
+                'Add state-aware clearance and check-in workflows with safer transitions, focused actions, and responsive operational views.',
+                'Improve lead reporting, beautician attribution, KPI context, notifications, and bulk management with clearer production logic.',
+                'Reframe Wallet as Loyalty Membership and replace wide row buttons with a compact accessible overflow action menu.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kemas kini aliran Central Management dan tindakan ahli loyalty untuk penggunaan production.',
+            'changes' => [
+                'Tambah aliran clearance dan check-in berasaskan status dengan transisi lebih selamat, tindakan fokus dan paparan operasi responsif.',
+                'Perbaiki laporan lead, atribusi beautician, konteks KPI, notifikasi dan pengurusan pukal mengikut logik production yang lebih jelas.',
+                'Tukar Wallet kepada Loyalty Membership dan gantikan butang baris yang lebar dengan menu tindakan overflow yang padat serta boleh diakses.',
+            ],
+        ],
+    ],
+
     '4.11.102' => [
         'date' => '2026-09-14',
         'en' => [

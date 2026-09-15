@@ -555,75 +555,12 @@ final class CentralMetricsService
             ];
         }
 
-        $unassignedLeads = $this->unassignedLeadCount($from, $to, $branchId);
-        $unassignedConverted = $this->unassignedConvertedLeadCount($from, $to, $branchId);
-        $unassignedSales = $this->unassignedSalesRow($from, $to, $branchId);
-
-        if ($unassignedLeads > 0 || $unassignedConverted > 0 || $unassignedSales !== null) {
-            $buyers = (int) ($unassignedSales?->buyers ?? 0);
-            $sales = (float) ($unassignedSales?->sales ?? 0);
-            $conv = $unassignedLeads > 0
-                ? round(($unassignedConverted / $unassignedLeads) * 100, 1)
-                : 0.0;
-            $out[] = [
-                'id' => null,
-                'name' => trans('lead::central.reporting.unassigned'),
-                'leads' => $unassignedLeads,
-                'target' => self::TARGET_BEAUTICIAN_LEADS,
-                'buyers' => $buyers,
-                'converted' => $unassignedConverted,
-                'conv' => $conv,
-                'sales' => round($sales, 2),
-                'orders' => (int) ($unassignedSales?->order_count ?? 0),
-                'avg' => $buyers > 0 ? round($sales / $buyers, 2) : 0.0,
-                'follow' => 0,
-                'lost' => 0,
-                'performance' => $this->performanceLabel($conv, $sales),
-            ];
-        }
-
         usort($out, static function (array $left, array $right): int {
             return [$right['leads'], $right['converted'], $right['sales'], $left['name']]
                 <=> [$left['leads'], $left['converted'], $left['sales'], $right['name']];
         });
 
         return $out;
-    }
-
-    private function unassignedLeadCount(Carbon $from, Carbon $to, ?int $branchId): int
-    {
-        return (int) Lead::query()
-            ->whereBetween('created_at', [$from, $to])
-            ->where('is_duplicate', false)
-            ->whereNull('beautician_id')
-            ->when($branchId !== null, fn ($q) => $q->where('spa_branch_id', $branchId))
-            ->count();
-    }
-
-    private function unassignedConvertedLeadCount(Carbon $from, Carbon $to, ?int $branchId): int
-    {
-        return (int) Lead::query()
-            ->whereBetween('created_at', [$from, $to])
-            ->where('is_duplicate', false)
-            ->where('status', Lead::STATUS_CONVERTED)
-            ->whereNull('beautician_id')
-            ->when($branchId !== null, fn ($q) => $q->where('spa_branch_id', $branchId))
-            ->count();
-    }
-
-    private function unassignedSalesRow(Carbon $from, Carbon $to, ?int $branchId): ?object
-    {
-        $row = Order::query()
-            ->paid()
-            ->whereBetween('orders.created_at', [$from, $to])
-            ->when($branchId !== null, fn ($q) => $q->where('orders.spa_branch_id', $branchId))
-            ->whereNull('orders.beautician_id')
-            ->selectRaw('SUM(orders.total) as sales')
-            ->selectRaw('COUNT(*) as order_count')
-            ->selectRaw("COUNT(DISTINCT NULLIF(orders.customer_phone, '')) as buyers")
-            ->first();
-
-        return (int) ($row?->order_count ?? 0) > 0 ? $row : null;
     }
 
     /**

@@ -154,6 +154,80 @@ class LeadCentralAuditRegressionTest extends TestCase
     }
 
     #[Test]
+    public function overview_uses_ranked_conversion_bars_with_complete_beautician_metrics(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $charts = file_get_contents(public_path('modules/lead/central/trade-charts.js'));
+
+        $this->assertStringContainsString("tradePane('trade.conversion_title','trade.conversion_sub','tradeConversion')", $script);
+        $this->assertStringContainsString('converted:b.converted||0', $script);
+        $this->assertStringContainsString('function conversionBars(el, rows)', $charts);
+        $this->assertStringContainsString("conversionBars(document.getElementById('tradeConversion')", $charts);
+        $this->assertStringContainsString("name: t('trade.converted_customers')", $charts);
+        $this->assertStringNotContainsString("type: 'scatter'", $charts);
+        $this->assertStringContainsString("view==='beauticians'?'methodology_beauticians':'methodology_branches'", $script);
+    }
+
+    #[Test]
+    public function notification_center_supports_scoped_confirmed_message_clearing(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $view = file_get_contents(base_path('modules/Lead/Resources/views/admin/central/index.blade.php'));
+        $controller = file_get_contents(base_path('modules/Lead/Http/Controllers/Admin/CentralDashboardController.php'));
+
+        $this->assertStringContainsString('function notificationSignature(item)', $script);
+        $this->assertStringContainsString('`${notificationScope()}|${item.id}|${item.count}`', $script);
+        $this->assertStringContainsString('function requestClearNotifications()', $script);
+        $this->assertStringContainsString("openActionDrawer(t('notifications.clear_title')", $script);
+        $this->assertStringContainsString('dismissNotificationItems(items)', $script);
+        $this->assertStringContainsString('data-clear-notifications', $script);
+        $this->assertStringContainsString('if(metricsStale) refreshMetrics()', $script);
+        $this->assertStringContainsString('aria-haspopup="dialog"', $view);
+        $this->assertStringContainsString('notificationStorageKey: @json($notificationStorageKey)', $view);
+        $this->assertStringContainsString('id="toast" role="status" aria-live="polite"', $view);
+        $this->assertStringContainsString('imma-central.notifications.v1.', $controller);
+        $this->assertStringContainsString('.notification-menu__clear:focus-visible', $styles);
+        $this->assertStringContainsString('@media(max-width:420px){.notification-menu{position:fixed', $styles);
+    }
+
+    #[Test]
+    public function clearance_exposes_permission_aware_crm_actions_and_a_responsive_flow(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $view = file_get_contents(base_path('modules/Lead/Resources/views/admin/central/index.blade.php'));
+        $routes = file_get_contents(base_path('modules/Lead/Routes/admin.php'));
+
+        $this->assertStringContainsString('function clearancePrimaryAction(c,compact=false)', $script);
+        $this->assertStringContainsString("actions.includes('start_treatment') && boot.canEditTreatments", $script);
+        $this->assertStringContainsString('function confirmClearanceTransition(id,status)', $script);
+        $this->assertStringContainsString("method:'PATCH',headers:apiHeaders(true)", $script);
+        $this->assertStringContainsString('clearanceStatusUrlTemplate: @json($clearanceStatusUrlTemplate)', $view);
+        $this->assertStringContainsString('canEditTreatments: @json($canEditTreatments)', $view);
+        $this->assertStringContainsString("'middleware' => ['can:admin.treatment_reservations.edit', 'throttle:30,1']", $routes);
+        $this->assertStringContainsString('.clearance-flow{display:grid', $styles);
+        $this->assertStringContainsString('.clr-shell .pay-table tr{display:grid', $styles);
+    }
+
+    #[Test]
+    public function checkin_exposes_state_aware_arrival_actions_and_a_responsive_flow(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $view = file_get_contents(base_path('modules/Lead/Resources/views/admin/central/index.blade.php'));
+
+        $this->assertStringContainsString('function checkinPrimaryAction(c,compact=false)', $script);
+        $this->assertStringContainsString("actions.includes('confirm_arrival') && boot.canConfirmCheckin", $script);
+        $this->assertStringContainsString('function confirmCheckinArrival(id)', $script);
+        $this->assertStringContainsString("method:'POST',headers:apiHeaders(true)", $script);
+        $this->assertStringContainsString("['booked', t('checkin.tab_booked'), s.scheduled]", $script);
+        $this->assertStringContainsString('checkinConfirmUrlTemplate: @json($checkinConfirmUrlTemplate)', $view);
+        $this->assertStringContainsString('.checkin-flow{background:linear-gradient', $styles);
+        $this->assertStringContainsString('.cin-shell .pay-table tr{display:grid', $styles);
+    }
+
+    #[Test]
     public function bulk_actions_update_and_soft_delete_only_selected_leads(): void
     {
         foreach (range(1, 3) as $index) {
@@ -285,9 +359,34 @@ class LeadCentralAuditRegressionTest extends TestCase
             public function avatarUrl(): ?string { return null; }
         };
         $wallet = new LoyaltyWallet(['user_id' => 1, 'balance' => 0]);
+        $wallet->setAttribute('transactions_count', 7);
         $wallet->setRelation('user', $user)->setRelation('tier', null)->setRelation('transactions', collect());
         $payload = app(CentralWalletService::class)->toArray($wallet);
         $this->assertSame(1, $payload['stamp_active']);
         $this->assertSame(LoyaltyStampWallet::all()->filter(fn ($stamp) => $stamp->isActive())->count(), $payload['stamp_active']);
+        $this->assertSame('MEM-', substr($payload['code'], 0, 4));
+        $this->assertSame(7, $payload['activity_count']);
+    }
+
+    #[Test]
+    public function loyalty_membership_workspace_exposes_lifecycle_context_and_responsive_member_actions(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString('class="clearance-flow loyalty-flow"', $script);
+        $this->assertStringContainsString("t('wallet.step_enrolled')", $script);
+        $this->assertStringContainsString('boot.canShowLoyaltyMember && boot.loyaltyMemberShowUrlTemplate', $script);
+        $this->assertStringContainsString("t('wallet.activity_summary'", $script);
+        $this->assertStringContainsString('class="lead-menu loyalty-action-menu"', $script);
+        $this->assertStringContainsString("closeAllLeadMenus(); reviewWallet", $script);
+        $this->assertStringNotContainsString('class="loyalty-row-actions"', $script);
+        $this->assertStringContainsString('.loyalty-metric--members{', $styles);
+        $this->assertStringContainsString('.loyalty-action-menu .lead-menu__panel{min-width:190px}', $styles);
+        $this->assertStringContainsString('.wal-shell .pay-table tr{display:grid', $styles);
+        $this->assertStringContainsString("'title' => 'Loyalty Membership'", $english);
+        $this->assertStringContainsString("'title' => 'Keahlian Loyalty'", $malay);
     }
 }

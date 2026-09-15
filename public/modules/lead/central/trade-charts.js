@@ -212,50 +212,110 @@
     }, false);
   }
 
-  function scatter(el, points) {
-    // points: {name, leads, conv, sales}[]
+  function conversionBars(el, rows) {
+    // rows: {name, leads, converted, conv, sales}[]
     const ax = axisStyle();
     const base = chartBase();
-    const data = points.map((p) => ({
-      value: [p.leads, p.conv, p.sales / 1000, p.name],
-      name: p.name
-    }));
+    const data = rows
+      .map((row) => ({
+        name: String(row.name || ''),
+        leads: Number(row.leads) || 0,
+        converted: Number(row.converted) || 0,
+        conv: Number(row.conv) || 0,
+        sales: Number(row.sales) || 0
+      }))
+      .filter((row) => row.leads > 0 || row.converted > 0 || row.sales > 0)
+      .sort((left, right) => right.leads - left.leads || right.converted - left.converted || right.sales - left.sales);
+
+    if (el) el.style.height = `${Math.max(240, 86 + (data.length * 38))}px`;
+
+    if (!data.length) {
+      return mount(el, {
+        ...base,
+        xAxis: { show: false },
+        yAxis: { show: false },
+        graphic: [{
+          type: 'text', left: 'center', top: 'middle',
+          style: { text: t('trade.no_beautician_activity'), fill: MUTED, fontSize: 12, fontFamily: 'Poppins, system-ui, sans-serif' }
+        }]
+      }, false);
+    }
+
+    const names = data.map((row) => row.name);
+    const byName = new Map(data.map((row) => [row.name, row]));
+
     return mount(el, {
       ...base,
-      grid: { left: 48, right: 20, top: 28, bottom: 40 },
+      aria: {
+        enabled: true,
+        decal: { show: true }
+      },
+      grid: { left: 132, right: 76, top: 42, bottom: 20 },
+      legend: {
+        top: 0,
+        left: 128,
+        itemWidth: 12,
+        itemHeight: 8,
+        textStyle: { color: MUTED, fontSize: 11 }
+      },
       tooltip: {
-        trigger: 'item',
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
         backgroundColor: 'rgba(255,255,255,.96)',
         borderColor: '#e2e8f0',
         textStyle: { color: TEXT },
         formatter: (p) => {
-          const v = p.data.value;
-          return `<strong>${v[3]}</strong><br/>${t('trade.ticker_leads')} ${v[0]} · ${t('trade.ticker_conv')} ${v[1]}%<br/>${t('trade.ticker_sales')} RM${(v[2] * 1000).toLocaleString('en-MY')}`;
+          const row = byName.get(p[0]?.axisValue) || data[0];
+          return `<strong>${escapeHtml(row.name)}</strong><br/>${escapeHtml(t('trade.unique_leads'))}: ${row.leads}<br/>${escapeHtml(t('trade.converted_customers'))}: ${row.converted} (${row.conv.toFixed(1)}%)<br/>${escapeHtml(t('trade.paid_sales'))}: RM${row.sales.toLocaleString('en-MY')}`;
         }
       },
-      xAxis: { type: 'value', name: t('trade.ticker_leads'), nameTextStyle: { color: MUTED }, ...ax, splitLine: { lineStyle: { color: GRID, type: 'dashed' } } },
       yAxis: {
-        type: 'value', name: t('trade.ticker_conv'), nameTextStyle: { color: MUTED }, ...ax,
-        markLine: undefined
-      },
-      series: [{
-        type: 'scatter',
-        data,
-        symbolSize: (val) => Math.max(14, Math.min(48, val[2] / 2.2)),
-        itemStyle: {
-          color: (p) => (p.value[1] >= 40 ? EMERALD : p.value[1] >= 35 ? AMBER : ROSE),
-          shadowBlur: 10,
-          shadowColor: 'rgba(34,211,238,.25)'
+        type: 'category',
+        inverse: true,
+        data: names,
+        ...ax,
+        axisLine: { show: false },
+        axisLabel: {
+          color: TEXT,
+          fontSize: 11,
+          width: 112,
+          overflow: 'truncate',
+          formatter: (value) => value
         },
-        label: { show: true, formatter: (p) => p.data.name, position: 'top', color: MUTED, fontSize: 10 },
-        markLine: {
-          silent: true,
-          symbol: 'none',
-          data: [{ yAxis: 40 }],
-          lineStyle: { color: AMBER, type: 'dashed' },
-          label: { formatter: '40%', color: AMBER, fontSize: 10 }
+        splitLine: { show: false }
+      },
+      xAxis: {
+        type: 'value',
+        minInterval: 1,
+        ...ax,
+        axisLabel: { color: MUTED, fontSize: 10 },
+        splitLine: { lineStyle: { color: GRID, type: 'dashed' } }
+      },
+      series: [
+        {
+          name: t('trade.unique_leads'),
+          type: 'bar',
+          barMaxWidth: 13,
+          data: data.map((row) => row.leads),
+          itemStyle: { color: CYAN, borderRadius: [0, 6, 6, 0] },
+          label: { show: true, position: 'right', color: CYAN, fontSize: 10, fontWeight: 700 }
+        },
+        {
+          name: t('trade.converted_customers'),
+          type: 'bar',
+          barMaxWidth: 13,
+          data: data.map((row) => ({ value: row.converted, conv: row.conv })),
+          itemStyle: { color: EMERALD, borderRadius: [0, 6, 6, 0] },
+          label: {
+            show: true,
+            position: 'right',
+            color: EMERALD,
+            fontSize: 10,
+            fontWeight: 700,
+            formatter: (params) => `${params.value} · ${Number(params.data.conv || 0).toFixed(1)}%`
+          }
         }
-      }]
+      ]
     }, false);
   }
 
@@ -359,7 +419,7 @@
       { name: 'Treat', value: 385 }
     ]);
 
-    scatter(document.getElementById('tradeScatter'), p.scatter || (p.beauticians || []));
+    conversionBars(document.getElementById('tradeConversion'), p.beauticians || []);
 
     heatmap(document.getElementById('tradeHeatmap'), p.heatmap || demoDays(28));
 

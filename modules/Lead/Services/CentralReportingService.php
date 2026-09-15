@@ -19,6 +19,7 @@ final class CentralReportingService
         $leads = Lead::query()->where('is_duplicate', false)
             ->whereBetween('created_at', [$from, $to])
             ->when($branchId !== null, fn ($q) => $q->where('spa_branch_id', $branchId))
+            ->when($view === 'beauticians', fn ($q) => $q->whereNotNull('beautician_id'))
             ->selectRaw("{$column} as group_id, COUNT(*) as leads")
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as converted', [Lead::STATUS_CONVERTED])
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as follow_up', [Lead::STATUS_FOLLOW_UP])
@@ -26,6 +27,7 @@ final class CentralReportingService
             ->groupBy($column)->get()->keyBy(fn ($r) => (string) ($r->group_id ?? 0));
         $sales = Order::query()->paid()->whereBetween('created_at', [$from, $to])
             ->when($branchId !== null, fn ($q) => $q->where('spa_branch_id', $branchId))
+            ->when($view === 'beauticians', fn ($q) => $q->whereNotNull('beautician_id'))
             ->selectRaw("{$column} as group_id, COUNT(*) as orders, SUM(total) as revenue")
             ->groupBy($column)->get()->keyBy(fn ($r) => (string) ($r->group_id ?? 0));
         if ($view === 'beauticians') {
@@ -38,9 +40,11 @@ final class CentralReportingService
         } else {
             $names = SpaBranch::query()->when($branchId !== null, fn ($q) => $q->whereKey($branchId))->pluck('name', 'id');
         }
-        foreach ($leads->keys()->merge($sales->keys())->unique() as $id) {
-            if (! $names->has($id)) {
-                $names->put($id, (int) $id === 0 ? trans('lead::central.reporting.unassigned') : '#'.$id);
+        if ($view !== 'beauticians') {
+            foreach ($leads->keys()->merge($sales->keys())->unique() as $id) {
+                if (! $names->has($id)) {
+                    $names->put($id, (int) $id === 0 ? trans('lead::central.reporting.unassigned') : '#'.$id);
+                }
             }
         }
         $rows = $names->map(function ($name, $id) use ($leads, $sales): array {

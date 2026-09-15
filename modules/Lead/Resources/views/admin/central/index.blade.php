@@ -95,8 +95,11 @@
             <span>{{ trans('lead::central.export_pdf.button') }}</span>
           </button>
           <div class="notification-wrap">
-            <button type="button" class="icon-btn notification" id="notificationButton" aria-label="Notifications" aria-expanded="false">♢<span class="notif-dot" id="notificationCount" hidden>0</span></button>
-            <div class="notification-menu" id="notificationMenu" hidden role="menu" aria-label="Notifications"></div>
+            <button type="button" class="icon-btn notification" id="notificationButton" aria-label="{{ trans('lead::central.notifications.button') }}" aria-haspopup="dialog" aria-controls="notificationMenu" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+              <span class="notif-dot" id="notificationCount" hidden aria-hidden="true">0</span>
+            </button>
+            <div class="notification-menu" id="notificationMenu" hidden role="dialog" aria-labelledby="notificationMenuTitle"></div>
           </div>
         </div>
       </header>
@@ -132,7 +135,7 @@
     <div class="action-drawer__footer" id="actionDrawerFoot"></div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script>
     window.IMMA_CENTRAL = {
@@ -140,6 +143,7 @@
       basePath: @json(rtrim(parse_url($centralBaseUrl, PHP_URL_PATH) ?: '/admin/leads/central', '/')),
       initialView: @json($initialView),
       locale: @json(app()->getLocale()),
+      notificationStorageKey: @json($notificationStorageKey),
       i18n: @json(trans('lead::central')),
       reportingUrl: @json($reportingUrl),
       metricsUrl: @json($metricsUrl),
@@ -150,8 +154,10 @@
       today: @json(now()->toDateString()),
       walletUrl: @json($walletUrl),
       checkinUrl: @json($checkinUrl),
+      checkinConfirmUrlTemplate: @json($checkinConfirmUrlTemplate),
       checkinPassBaseUrl: @json($checkinPassBaseUrl),
       clearanceUrl: @json($clearanceUrl),
+      clearanceStatusUrlTemplate: @json($clearanceStatusUrlTemplate),
       ordersIndexUrl: @json($ordersIndexUrl),
       orderShowUrlTemplate: @json($orderShowUrlTemplate),
       orderPaymentStatusUrlTemplate: @json($orderPaymentStatusUrlTemplate),
@@ -180,6 +186,7 @@
       canShowLoyaltyMember: @json($canShowLoyaltyMember),
       canViewLoyalty: @json($canViewLoyalty),
       canViewTreatments: @json($canViewTreatments),
+      canEditTreatments: @json($canEditTreatments),
       metrics: @json($metrics),
       branches: @json($branches),
       csrf: @json(csrf_token()),
