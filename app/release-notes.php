@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.104' => [
+        'date' => '2026-09-15',
+        'en' => [
+            'summary' => 'Refine Central Management KPI workspaces and harden lead dashboard rendering.',
+            'changes' => [
+                'Unify Lead, Follow-Up, and Sales KPI workspaces with clear scopes, action context, responsive gradient cards, and accessible SVG visual hierarchy.',
+                'Improve operational customer, loyalty, reporting, payment, check-in, and clearance views with compact action menus and lifecycle-focused workflow context.',
+                'Fix the Central Sales period-label runtime error that could leave the page blank and add regression coverage for lead, follow-up, and sales workspace rendering.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kemaskan ruang kerja KPI Central Management dan kukuhkan rendering dashboard lead.',
+            'changes' => [
+                'Selaraskan ruang kerja KPI Lead, Susulan dan Jualan dengan skop jelas, konteks tindakan, kad gradient responsif dan hierarki SVG yang boleh diakses.',
+                'Perbaiki paparan operasi pelanggan, loyalty, laporan, bayaran, check-in dan clearance melalui menu tindakan padat serta konteks aliran lifecycle.',
+                'Baiki ralat runtime label tempoh Central Sales yang boleh menyebabkan halaman kosong dan tambah liputan regresi bagi rendering ruang kerja lead, susulan dan jualan.',
+            ],
+        ],
+    ],
     '4.11.103' => [
         'date' => '2026-09-15',
         'en' => [

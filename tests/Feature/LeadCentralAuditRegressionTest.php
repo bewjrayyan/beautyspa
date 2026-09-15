@@ -389,4 +389,189 @@ class LeadCentralAuditRegressionTest extends TestCase
         $this->assertStringContainsString("'title' => 'Loyalty Membership'", $english);
         $this->assertStringContainsString("'title' => 'Keahlian Loyalty'", $malay);
     }
+
+    #[Test]
+    public function customer_workspace_exposes_lifecycle_context_and_compact_crm_actions(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString('class="clearance-flow customer-flow"', $script);
+        $this->assertStringContainsString('class="pay-metric customer-metric customer-metric--total"', $script);
+        $this->assertStringContainsString('data-customer-segment=', $script);
+        $this->assertStringContainsString('data-customer-payments=', $script);
+        $this->assertStringContainsString('class="lead-menu customer-action-menu"', $script);
+        $this->assertStringContainsString('bindLeadRowMenus(mount);', $script);
+        $this->assertStringContainsString('.customer-action-menu .lead-menu__panel{min-width:180px}', $styles);
+        $this->assertStringContainsString('.customer-metric--sales{', $styles);
+        $this->assertStringContainsString('.cus-shell .pay-table tr{display:grid', $styles);
+        $this->assertStringContainsString("'workflow_title' => 'Customer lifecycle'", $english);
+        $this->assertStringContainsString("'workflow_title' => 'Kitar hayat pelanggan'", $malay);
+    }
+
+    #[Test]
+    public function beautician_report_exposes_operational_flow_and_row_actions(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString('beautician-report-shell', $script);
+        $this->assertStringContainsString("+'_workflow_title'))", $script);
+        $this->assertStringContainsString('data-report-leads=', $script);
+        $this->assertStringContainsString('lead-menu ${view===\'beauticians\'?\'beautician\':\'branch\'}-action-menu', $script);
+        $this->assertStringContainsString('.beautician-metric--0{', $styles);
+        $this->assertStringContainsString('.beautician-report-shell .report-table tr{display:grid', $styles);
+        $this->assertStringContainsString("'beautician_workflow_title' => 'Beautician performance loop'", $english);
+        $this->assertStringContainsString("'beautician_workflow_title' => 'Kitaran prestasi beautician'", $malay);
+    }
+
+    #[Test]
+    public function branch_report_exposes_operational_flow_and_row_actions(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString("view==='beauticians'?'beautician-report-shell':view==='branches'?'branch-report-shell'", $script);
+        $this->assertStringContainsString("+'_workflow_title'))", $script);
+        $this->assertStringContainsString('data-report-scope="${view}"', $script);
+        $this->assertStringContainsString('.branch-metric--0{', $styles);
+        $this->assertStringContainsString('.branch-report-shell .report-table tr{display:grid', $styles);
+        $this->assertStringContainsString("'branch_workflow_title' => 'Branch performance loop'", $english);
+        $this->assertStringContainsString("'branch_workflow_title' => 'Kitaran prestasi cawangan'", $malay);
+    }
+
+    #[Test]
+    public function audit_report_exposes_import_control_flow_and_responsive_records(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString("view==='audit'?'audit-report-shell'", $script);
+        $this->assertStringContainsString("view==='beauticians'?'beautician':view==='branches'?'branch':'audit'", $script);
+        $this->assertStringContainsString('.audit-metric--0{', $styles);
+        $this->assertStringContainsString('.audit-report-shell .report-table tr{display:grid', $styles);
+        $this->assertStringContainsString("'audit_workflow_title' => 'Import control loop'", $english);
+        $this->assertStringContainsString("'audit_workflow_title' => 'Kitaran kawalan import'", $malay);
+    }
+
+    #[Test]
+    public function payment_workspace_exposes_control_flow_and_state_cards(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString('class="clearance-flow payment-flow"', $script);
+        $this->assertStringContainsString('data-payment-status=', $script);
+        $this->assertStringContainsString('class="pay-metric payment-metric payment-metric--queue"', $script);
+        $this->assertStringContainsString('.payment-metric--paid{', $styles);
+        $this->assertStringContainsString('.pay-shell .pay-table tr{display:grid', $styles);
+        $this->assertStringContainsString("'workflow_title' => 'Payment control loop'", $english);
+        $this->assertStringContainsString("'workflow_title' => 'Kitaran kawalan bayaran'", $malay);
+    }
+
+    #[Test]
+    public function sales_workspace_exposes_revenue_growth_flow(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString('class="clearance-flow sales-flow"', $script);
+        $this->assertStringContainsString("t('sales.workflow_title')", $script);
+        $this->assertStringContainsString('.sales-flow .clearance-flow__steps{grid-template-columns:repeat(3', $styles);
+        $this->assertStringContainsString("'workflow_title' => 'Revenue growth loop'", $english);
+        $this->assertStringContainsString("'workflow_title' => 'Kitaran pertumbuhan hasil'", $malay);
+    }
+
+    #[Test]
+    public function sales_marketing_pulse_explains_insight_statuses(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString("t('sales.insights_hint')", $script);
+        $this->assertStringContainsString('sales-insights__legend', $script);
+        $this->assertStringContainsString('sales-insight__status', $script);
+        $this->assertStringContainsString('.sales-insights__legend', $styles);
+        $this->assertStringContainsString("'insights_hint' => 'Decision cues from this period'", $english);
+        $this->assertStringContainsString("'insights_hint' => 'Petunjuk keputusan untuk tempoh ini'", $malay);
+    }
+
+    #[Test]
+    public function lead_workspace_stats_expose_database_and_period_context(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString('class="lead-kpi-section"', $script);
+        $this->assertStringContainsString('id="leadKpiTitle"', $script);
+        $this->assertStringContainsString("t('workspace.kpi_scope'", $script);
+        $this->assertStringContainsString('.lead-kpi-section__scope{', $styles);
+        $this->assertStringContainsString("'kpi_heading' => 'Lead database health'", $english);
+        $this->assertStringContainsString("'kpi_heading' => 'Kesihatan database lead'", $malay);
+    }
+
+    #[Test]
+    public function lead_table_renders_loaded_rows_without_an_undefined_payment_variable(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+
+        $this->assertStringContainsString('data-payment-status="${escapeHtml(l.payment_status||\'pending\')}"', $script);
+        $this->assertStringNotContainsString('data-payment-status="${escapeHtml(p.payment_status||\'pending\')}"', $script);
+    }
+
+    #[Test]
+    public function follow_up_workspace_uses_the_lead_workspace_action_first_stat_hierarchy(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString('class="follow-kpi-section"', $script);
+        $this->assertStringContainsString('id="followKpiTitle"', $script);
+        $this->assertStringContainsString("leadKpi(leadKpiIcon('overdue')", $script);
+        $this->assertStringContainsString("leadKpi(leadKpiIcon('no_response')", $script);
+        $this->assertStringContainsString('.follow-kpi-section__scope{', $styles);
+        $this->assertStringContainsString('#followKpiMount .lead-kpi-card{min-height:164px}', $styles);
+        $this->assertStringContainsString("'kpi_heading' => 'Follow-up queue health'", $english);
+        $this->assertStringContainsString("'kpi_heading' => 'Kesihatan barisan susulan'", $malay);
+    }
+
+    #[Test]
+    public function sales_workspace_uses_the_lead_workspace_revenue_stat_hierarchy(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+        $malay = file_get_contents(base_path('modules/Lead/Resources/lang/ms/central.php'));
+
+        $this->assertStringContainsString('class="sales-kpi-section"', $script);
+        $this->assertStringContainsString('id="salesKpiTitle"', $script);
+        $this->assertStringContainsString("leadKpi(leadKpiIcon('revenue')", $script);
+        $this->assertStringContainsString("leadKpi(leadKpiIcon('target')", $script);
+        $this->assertStringContainsString('.sales-kpi-section__scope{', $styles);
+        $this->assertStringContainsString('#salesKpiMount .lead-kpi-card{min-height:164px}', $styles);
+        $this->assertStringContainsString("'kpi_heading' => 'Sales performance at a glance'", $english);
+        $this->assertStringContainsString("'kpi_heading' => 'Prestasi jualan sepintas lalu'", $malay);
+        $this->assertGreaterThan(
+            strpos($script, 'function sales(){'),
+            strpos($script, 'const salesPeriodLabel = String(')
+        );
+    }
 }

@@ -281,7 +281,16 @@ function leadKpiIcon(kind){
     new:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="4"/><path d="M3 20c.7-4 2.7-6 6-6 2.1 0 3.7.8 4.8 2.3M18 8v6M15 11h6"/></svg>',
     repeated:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9a5 5 0 0 0-5 5v1"/><path d="m17 4 3 3-3 3M4 17h9a5 5 0 0 0 5-5v-1"/><path d="m7 20-3-3 3-3"/></svg>',
     customers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c.5-4 2.5-6 6-6s5.5 2 6 6M16 5.5a3 3 0 0 1 0 5.8M17 14c2.4.5 3.7 2.4 4 5"/></svg>',
-    conversion:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18 10 12l4 3 6-8"/><path d="M15 7h5v5"/><circle cx="6" cy="6" r="2"/></svg>'
+    conversion:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18 10 12l4 3 6-8"/><path d="M15 7h5v5"/><circle cx="6" cy="6" r="2"/></svg>',
+    queue:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H4z"/><path d="M4 13h4l2 3h4l2-3h4"/></svg>',
+    overdue:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2M12 4V2M6.4 5.1 5 3.7"/></svg>',
+    today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8.5 15l2.2 2.2 4.8-5"/></svg>',
+    no_response:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 18h10a4 4 0 0 0 4-4V8a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v9l2-2z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg>',
+    lost:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11a8 8 0 1 1-2.3-5.7"/><path d="M20 4v7h-7"/><path d="m8 12 2.5 2.5L16 9"/></svg>',
+    revenue:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>',
+    orders:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18H6z"/><path d="M9 3v4h6V3M9 12h6M9 16h4"/></svg>',
+    average:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19 10 5l6 14M6 14h8M19 5v14M17 9h4"/></svg>',
+    target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m15 9 5-5"/></svg>'
   };
   return icons[kind]||icons.database;
 }
@@ -1039,8 +1048,14 @@ function leads(){
   const canCreate = !!(boot.canCreateLead);
   const actions = leadMonthActions();
   root.innerHTML = `${pageHead(t('workspace.title'),t('workspace.subtitle'),actions)}
-  <div class="grid kpi-grid" id="leadKpiMount"></div>
-  <p class="card-subtitle" style="margin:8px 2px 0">${escapeHtml(t('workspace.kpi_note'))}</p>
+  <section class="lead-kpi-section" aria-labelledby="leadKpiTitle">
+    <div class="lead-kpi-section__head">
+      <div><span class="lead-kpi-section__eyebrow">${escapeHtml(t('workspace.kpi_eyebrow'))}</span><h2 id="leadKpiTitle">${escapeHtml(t('workspace.kpi_heading'))}</h2></div>
+      <span class="lead-kpi-section__scope">${escapeHtml(t('workspace.kpi_scope',{period:leadMonthLabel(state.leadMonth)}))}</span>
+    </div>
+    <div class="grid kpi-grid" id="leadKpiMount"></div>
+    <p class="card-subtitle">${escapeHtml(t('workspace.kpi_note'))}</p>
+  </section>
   <section class="lead-panel card" style="margin-top:14px">
     <div class="lead-panel__head">
       <div class="lead-panel__intro">
@@ -1364,7 +1379,7 @@ function renderLeadTable(){
     const branch=String(l.branch||'').trim();
     const last=String(l.last||'').trim();
     const salesNum=Number(l.sales||0);
-    return `<tr>
+    return `<tr data-payment-status="${escapeHtml(l.payment_status||'pending')}">
       ${canBulk?`<td class="lead-table__select"><input class="lead-select-box" type="checkbox" value="${escapeHtml(l.id)}" data-lead-select aria-label="${escapeHtml(t('workspace.bulk_select_lead',{name:name||l.code||l.id}))}"></td>`:''}
       <td class="lead-col--id"><span class="lead-code">${escapeHtml(l.code||l.id)}</span></td>
       <td class="lead-col--date"><span class="lead-date">${escapeHtml(l.date||'—')}</span></td>
@@ -2088,6 +2103,10 @@ function payments(){
       </div>
     </div>
     ${customerChip}
+    <section class="clearance-flow payment-flow" aria-labelledby="paymentFlowTitle">
+      <div class="clearance-flow__copy"><span class="clearance-flow__eyebrow">CONTROL</span><h2 id="paymentFlowTitle">${escapeHtml(t('payments.workflow_title'))}</h2><p>${escapeHtml(t('payments.workflow_hint'))}</p></div>
+      <ol class="clearance-flow__steps">${[t('payments.step_booked'),t('payments.step_verify'),t('payments.step_paid')].map((label,index)=>`<li><span aria-hidden="true">${index+1}</span><strong>${escapeHtml(label)}</strong></li>`).join('')}</ol>
+    </section>
     <div class="pay-metrics" id="payHeroStats"></div>
     <section class="lead-panel card">
       <div class="lead-panel__head">
@@ -2244,10 +2263,10 @@ function renderPaymentHero(){
   const stats = $('#payHeroStats');
   if(stats){
     stats.innerHTML = `
-      <div class="pay-metric"><span>${escapeHtml(t('payments.stat_queue'))}</span><strong>${fmtInt(s.queue)}</strong></div>
-      <div class="pay-metric"><span>${escapeHtml(t('payments.stat_paid'))}</span><strong>${money(s.paid_amount)}</strong></div>
-      <div class="pay-metric"><span>${escapeHtml(t('payments.stat_today'))}</span><strong>${fmtInt(s.paid_today)}</strong></div>
-      <div class="pay-metric"><span>${escapeHtml(t('payments.stat_hold'))}</span><strong>${fmtInt(s.hold)}</strong></div>
+      <div class="pay-metric payment-metric payment-metric--queue"><span>${escapeHtml(t('payments.stat_queue'))}</span><strong>${fmtInt(s.queue)}</strong></div>
+      <div class="pay-metric payment-metric payment-metric--paid"><span>${escapeHtml(t('payments.stat_paid'))}</span><strong>${money(s.paid_amount)}</strong></div>
+      <div class="pay-metric payment-metric payment-metric--today"><span>${escapeHtml(t('payments.stat_today'))}</span><strong>${fmtInt(s.paid_today)}</strong></div>
+      <div class="pay-metric payment-metric payment-metric--hold"><span>${escapeHtml(t('payments.stat_hold'))}</span><strong>${fmtInt(s.hold)}</strong></div>
     `;
   }
 }
@@ -3350,9 +3369,10 @@ function branches(){ reporting('branches'); }
 function audit(){ reporting('audit'); }
 function reporting(view){
   const filter=reportState[view];
-  root.innerHTML=`<div class="report-shell">
+  root.innerHTML=`<div class="report-shell ${view==='beauticians'?'beautician-report-shell':view==='branches'?'branch-report-shell':view==='audit'?'audit-report-shell':''}">
     <div class="page-head"><div><h1 class="page-title">${escapeHtml(t('nav.'+view))}</h1><p class="page-subtitle">${escapeHtml(t('reporting.'+(view==='audit'?'audit_subtitle':'subtitle')))}</p></div>
       <button type="button" class="btn" id="reportRefresh">${escapeHtml(t('reporting.refresh'))}</button></div>
+    ${view==='beauticians'||view==='branches'||view==='audit'?`<section class="clearance-flow ${view==='beauticians'?'beautician-flow':view==='branches'?'branch-flow':'audit-flow'}" aria-labelledby="${view}FlowTitle"><div class="clearance-flow__copy"><span class="clearance-flow__eyebrow">${view==='audit'?'CONTROL':'CRM'}</span><h2 id="${view}FlowTitle">${escapeHtml(t('reporting.'+(view==='beauticians'?'beautician':view==='branches'?'branch':'audit')+'_workflow_title'))}</h2><p>${escapeHtml(t('reporting.'+(view==='beauticians'?'beautician':view==='branches'?'branch':'audit')+'_workflow_hint'))}</p></div><ol class="clearance-flow__steps">${[1,2,3].map((step,index)=>`<li><span aria-hidden="true">${index+1}</span><strong>${escapeHtml(t('reporting.'+(view==='beauticians'?'beautician':view==='branches'?'branch':'audit')+'_step_'+step))}</strong></li>`).join('')}</ol></section>`:''}
     <div class="pay-metrics" id="reportMetrics" aria-live="polite"></div>
     <section class="lead-panel card"><div class="lead-panel__head"><div><h2 class="card-title">${escapeHtml(t('reporting.'+(view==='audit'?'recorded_imports':'performance')))}</h2><p class="lead-panel__sub" id="reportPeriod"></p></div><span class="lead-panel__count" id="reportCount">—</span></div>
       <div class="lead-panel__filters report-filters"><label class="lead-field"><span class="lead-field__label">${escapeHtml(t('reporting.search'))}</span><input class="lead-field__control" type="search" id="reportSearch" maxlength="150" value="${escapeHtml(filter.q)}" placeholder="${escapeHtml(t('reporting.'+(view==='audit'?'search_batch':'search_name')))}"></label>
@@ -3394,7 +3414,7 @@ async function refreshReporting(){
     reportPayload=payload;
     const summary=payload.meta.summary;
     const keys=view==='audit'?['batches','imported','duplicates','invalid']:['leads','converted','orders','revenue'];
-    $('#reportMetrics').innerHTML=keys.map(key=>`<div class="pay-metric"><span>${escapeHtml(t('reporting.'+key))}</span><strong>${key==='revenue'?money(summary[key]):fmtInt(summary[key])}</strong></div>`).join('');
+    $('#reportMetrics').innerHTML=keys.map((key,index)=>`<div class="pay-metric ${view==='beauticians'?'beautician-metric beautician-metric--'+index:view==='branches'?'branch-metric branch-metric--'+index:view==='audit'?'audit-metric audit-metric--'+index:''}"><span>${escapeHtml(t('reporting.'+key))}</span><strong>${key==='revenue'?money(summary[key]):fmtInt(summary[key])}</strong></div>`).join('');
     $('#reportPeriod').textContent=payload.meta.period;
     renderReportRows(view);
   }catch(err){
@@ -3418,10 +3438,16 @@ function renderReportRows(view){
   $('#reportCount').textContent=t('reporting.results',{count:fmtInt(total)});
   const keys=view==='audit'?['code','date','actor','branch','method','status','raw','imported','duplicates','invalid']:['name','leads','converted','conversion','follow_up','lost','orders','revenue','average_order'];
   const textKeys=['code','date','actor','branch','method','status','name'];
-  mount.innerHTML=rows.length?`<div class="table-wrap report-table-wrap"><table class="data-table report-table"><thead><tr>${keys.map(key=>`<th${textKeys.includes(key)?'':' class="is-num"'}>${escapeHtml(t('reporting.'+key))}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${keys.map(key=>{
+  const actionHead=view==='beauticians'||view==='branches'?`<th>${escapeHtml(t('reporting.actions'))}</th>`:'';
+  mount.innerHTML=rows.length?`<div class="table-wrap report-table-wrap"><table class="data-table report-table"><thead><tr>${keys.map(key=>`<th${textKeys.includes(key)?'':' class="is-num"'}>${escapeHtml(t('reporting.'+key))}</th>`).join('')}${actionHead}</tr></thead><tbody>${rows.map(row=>`<tr>${keys.map(key=>{
     let value=textKeys.includes(key)?escapeHtml(key==='status'?t('reporting.status_'+row[key]):row[key]):key==='conversion'?Number(row.leads)>0?Number(row[key]).toFixed(1)+'%':'—':['revenue','average_order'].includes(key)?money(row[key]):fmtInt(row[key]);
     return `<td${textKeys.includes(key)?'':' class="is-num"'}>${['name','code'].includes(key)?`<strong>${value}</strong>`:value}</td>`;
-  }).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="pay-empty"><strong>${escapeHtml(t('reporting.empty'))}</strong>${escapeHtml(t('reporting.empty_hint'))}</div>`;
+  }).join('')}${view==='beauticians'||view==='branches'?`<td class="lead-table__actions"><div class="lead-menu ${view==='beauticians'?'beautician':'branch'}-action-menu"><button type="button" class="lead-menu__btn" data-lead-menu aria-haspopup="menu" aria-expanded="false" aria-label="${escapeHtml(t('reporting.row_actions',{name:row.name||''}))}"><span class="lead-menu__dots" aria-hidden="true"></span></button><div class="lead-menu__panel" role="menu" hidden><button type="button" class="lead-menu__item" role="menuitem" data-report-leads="${row.id}" data-report-scope="${view}">${escapeHtml(t('reporting.view_leads'))}</button></div></div></td>`:''}</tr>`).join('')}</tbody></table></div>`:`<div class="pay-empty"><strong>${escapeHtml(t('reporting.empty'))}</strong>${escapeHtml(t('reporting.empty_hint'))}</div>`;
+  if(view==='beauticians'||view==='branches'){
+    bindLeadRowMenus(mount);
+    $$('[data-report-leads]',mount).forEach(btn=>btn.onclick=()=>{closeAllLeadMenus();if(btn.dataset.reportScope==='branches')state.leadBranch=btn.dataset.reportLeads;else state.leadBeautician=btn.dataset.reportLeads;closeActionDrawer();navigate('leads');});
+    $$('.beautician-action-menu a[role="menuitem"],.branch-action-menu a[role="menuitem"]',mount).forEach(link=>link.onclick=()=>closeAllLeadMenus());
+  }
   mount.insertAdjacentHTML('beforeend',centralPager('report',pageMeta));
   bindCentralPager('report',page=>{filter.page=page;if(view==='audit')return refreshReporting();renderReportRows(view);});
 }
@@ -3430,7 +3456,14 @@ function generic(title,subtitle){root.innerHTML=`${pageHead(escapeHtml(title),es
 
 function followup(){
   root.innerHTML = `${pageHead(t('followup.title'),t('followup.subtitle'),`<button type="button" class="btn" data-jump="leads">${escapeHtml(t('followup.open_workspace'))}</button>`)}
-  <div class="grid kpi-grid" id="followKpiMount"></div>
+  <section class="follow-kpi-section" aria-labelledby="followKpiTitle">
+    <div class="follow-kpi-section__head">
+      <div><span class="follow-kpi-section__eyebrow">${escapeHtml(t('followup.kpi_eyebrow'))}</span><h2 id="followKpiTitle">${escapeHtml(t('followup.kpi_heading'))}</h2></div>
+      <span class="follow-kpi-section__scope">${escapeHtml(t('followup.kpi_scope'))}</span>
+    </div>
+    <div class="grid kpi-grid" id="followKpiMount"></div>
+    <p class="card-subtitle">${escapeHtml(t('followup.kpi_note'))}</p>
+  </section>
   <section class="lead-panel card" style="margin-top:14px">
     <div class="lead-panel__head">
       <div class="lead-panel__intro">
@@ -3541,11 +3574,11 @@ function renderFollowKpis(){
   const mount=$('#followKpiMount'); if(!mount) return;
   const s=liveFollowSummary||{};
   mount.innerHTML = `
-    ${kpi('↻',t('followup.kpi_queue'),fmtInt(s.queue),t('followup.kpi_queue_meta'),'—','blue')}
-    ${kpi('⏱',t('followup.kpi_overdue'),fmtInt(s.overdue),t('followup.kpi_overdue_meta'),'—','rose')}
-    ${kpi('✓',t('followup.kpi_due_today'),fmtInt(s.due_today),t('followup.kpi_due_meta'),'—','green')}
-    ${kpi('⌀',t('followup.kpi_no_response'),fmtInt(s.no_response),t('followup.kpi_no_response_meta'),'—','purple')}
-    ${kpi('✕',t('followup.kpi_lost'),fmtInt(s.lost),t('followup.kpi_lost_meta'),'—','rose')}
+    ${leadKpi(leadKpiIcon('queue'),t('followup.kpi_queue'),fmtInt(s.queue),t('followup.kpi_unit'),t('followup.kpi_queue_meta'),t('followup.kpi_queue_detail'),'blue')}
+    ${leadKpi(leadKpiIcon('overdue'),t('followup.kpi_overdue'),fmtInt(s.overdue),t('followup.kpi_unit'),t('followup.kpi_overdue_meta'),t('followup.kpi_overdue_detail'),'rose')}
+    ${leadKpi(leadKpiIcon('today'),t('followup.kpi_due_today'),fmtInt(s.due_today),t('followup.kpi_unit'),t('followup.kpi_due_meta'),t('followup.kpi_due_detail'),'green')}
+    ${leadKpi(leadKpiIcon('no_response'),t('followup.kpi_no_response'),fmtInt(s.no_response),t('followup.kpi_unit'),t('followup.kpi_no_response_meta'),t('followup.kpi_no_response_detail'),'purple')}
+    ${leadKpi(leadKpiIcon('lost'),t('followup.kpi_lost'),fmtInt(s.lost),t('followup.kpi_unit'),t('followup.kpi_lost_meta'),t('followup.kpi_lost_detail'),'teal')}
   `;
 }
 function renderFollowTable(){
@@ -3640,6 +3673,7 @@ function sales(){
   const salesTarget = Number(targets.sales || 0);
   const salesActual = Number(k.sales || 0);
   const salesDeltaRm = salesActual - salesTarget;
+  const salesPeriodLabel = String((m.period && m.period.label) || t('common.this_month'));
   const periodLabel = escapeHtml((m.period && m.period.label) || t('common.this_month'));
   const insights = Array.isArray(m.sales_insights) ? m.sales_insights : [];
   const waterfall = Array.isArray(m.waterfall) ? m.waterfall : [];
@@ -3652,27 +3686,38 @@ function sales(){
      <button type="button" class="btn" data-jump="payments">${escapeHtml(t('sales.open_payments'))}</button>
      <button type="button" class="btn primary" data-jump="leads">${escapeHtml(t('sales.open_leads'))}</button>`
   )}
+  <section class="clearance-flow sales-flow" aria-labelledby="salesFlowTitle">
+    <div class="clearance-flow__copy"><span class="clearance-flow__eyebrow">CRM</span><h2 id="salesFlowTitle">${escapeHtml(t('sales.workflow_title'))}</h2><p>${escapeHtml(t('sales.workflow_hint'))}</p></div>
+    <ol class="clearance-flow__steps">${[t('sales.step_leads'),t('sales.step_customer'),t('sales.step_revenue')].map((label,index)=>`<li><span aria-hidden="true">${index+1}</span><strong>${escapeHtml(label)}</strong></li>`).join('')}</ol>
+  </section>
+  <section class="sales-kpi-section" aria-labelledby="salesKpiTitle">
+    <div class="sales-kpi-section__head">
+      <div><span class="sales-kpi-section__eyebrow">${escapeHtml(t('sales.kpi_eyebrow'))}</span><h2 id="salesKpiTitle">${escapeHtml(t('sales.kpi_heading'))}</h2></div>
+      <span class="sales-kpi-section__scope">${escapeHtml(t('sales.kpi_scope',{period:salesPeriodLabel}))}</span>
+    </div>
+    <div class="grid kpi-grid" id="salesKpiMount">
+      ${leadKpi(leadKpiIcon('revenue'),t('sales.kpi_sales'),fmtMoney(k.sales),t('sales.kpi_unit_revenue'),deltaTrend(vs.sales,'%'),targetHint(t('sales.kpi_sales'), fmtMoney(salesTarget)),'rose')}
+      ${leadKpi(leadKpiIcon('orders'),t('sales.kpi_orders'),fmtInt(k.orders||0),t('sales.kpi_unit_orders'),deltaTrend(vs.orders||0,'%'),t('sales.kpi_orders_detail'),'blue')}
+      ${leadKpi(leadKpiIcon('customers'),t('sales.kpi_customers'),fmtInt(k.buyers),t('sales.kpi_unit_customers'),deltaTrend(vs.buyers,'%'),targetHint(t('sales.kpi_customers'), fmtInt(targets.buyers||0)),'green')}
+      ${leadKpi(leadKpiIcon('average'),t('sales.kpi_avg'),fmtMoney(k.avg_sale),t('sales.kpi_unit_revenue'),deltaTrend(vs.avg_sale,'%'),targetHint(t('sales.kpi_avg'), fmtMoney(targets.avg_sale||0)),'purple')}
+      ${leadKpi(leadKpiIcon('target'),t('sales.kpi_target'),fmtPct(salesPct),t('sales.of_target'),salesDeltaRm>=0?'+ '+fmtMoney(Math.abs(salesDeltaRm)):'− '+fmtMoney(Math.abs(salesDeltaRm)),t('sales.kpi_target_detail',{target:fmtMoney(salesTarget),actual:fmtMoney(salesActual)}),'teal')}
+    </div>
+    <p class="card-subtitle">${escapeHtml(t('sales.kpi_note'))}</p>
+  </section>
   <section class="sales-insights card">
     <div class="sales-insights__head">
       <div>
         <div class="journey-section__title">${escapeHtml(t('sales.insights'))}</div>
-        <p class="card-subtitle" style="margin:0">${periodLabel}</p>
+        <p class="card-subtitle" style="margin:0">${escapeHtml(t('sales.insights_hint'))} · ${periodLabel}</p>
       </div>
+      <span class="sales-insights__legend"><i class="is-ok"></i>${escapeHtml(t('sales.insight_positive'))}<i class="is-warn"></i>${escapeHtml(t('sales.insight_attention'))}</span>
     </div>
     <div class="sales-insights__grid">
       ${insights.length
-        ? insights.map(i=>`<article class="sales-insight sales-insight--${escapeHtml(i.tone||'info')}"><strong>${escapeHtml(i.title||'')}</strong><p>${escapeHtml(i.body||'')}</p></article>`).join('')
+        ? insights.map(i=>`<article class="sales-insight sales-insight--${escapeHtml(i.tone||'info')}"><span class="sales-insight__status">${escapeHtml(i.tone==='ok'?t('sales.insight_positive'):i.tone==='warn'?t('sales.insight_attention'):t('sales.insight_info'))}</span><strong>${escapeHtml(i.title||'')}</strong><p>${escapeHtml(i.body||'')}</p></article>`).join('')
         : `<article class="sales-insight sales-insight--info"><strong>${escapeHtml(t('sales.title'))}</strong><p>${escapeHtml(t('sales.subtitle'))}</p></article>`}
     </div>
   </section>
-
-  <div class="grid kpi-grid" style="margin-top:12px">
-    ${kpi('◫',t('sales.kpi_sales'),fmtMoney(k.sales),deltaTrend(vs.sales,'%'),targetHint(t('sales.kpi_sales'), fmtMoney(salesTarget)),'rose',Math.min(100, salesPct),'','')}
-    ${kpi('▣',t('sales.kpi_orders'),fmtInt(k.orders||0),deltaTrend(vs.orders||0,'%'),'—','blue')}
-    ${kpi('♙',t('sales.kpi_customers'),fmtInt(k.buyers),deltaTrend(vs.buyers,'%'),targetHint(t('sales.kpi_customers'), fmtInt(targets.buyers||0)),'green')}
-    ${kpi('▥',t('sales.kpi_avg'),fmtMoney(k.avg_sale),deltaTrend(vs.avg_sale,'%'),targetHint(t('sales.kpi_avg'), fmtMoney(targets.avg_sale||0)),'purple')}
-    ${kpi('%',t('sales.kpi_target'),fmtPct(salesPct),salesDeltaRm>=0?'↑ '+fmtMoney(Math.abs(salesDeltaRm)):('↓ '+fmtMoney(Math.abs(salesDeltaRm))),t('sales.of_target'),'green',Math.min(100, salesPct))}
-  </div>
 
   <div class="grid split-60" style="margin-top:12px">
     <section class="card sales-card">
@@ -3800,6 +3845,12 @@ function customers(){
         ${boot.canViewUser && usersUrl ? `<a class="btn primary" href="${escapeHtml(usersUrl)}" target="_blank" rel="noopener">${escapeHtml(t('customers.open_users'))}</a>` : ''}
       </div>
     </div>
+    <section class="clearance-flow customer-flow" aria-labelledby="customerFlowTitle">
+      <div class="clearance-flow__copy"><span class="clearance-flow__eyebrow">CRM</span><h2 id="customerFlowTitle">${escapeHtml(t('customers.workflow_title'))}</h2><p>${escapeHtml(t('customers.workflow_hint'))}</p></div>
+      <ol class="clearance-flow__steps">
+        ${[t('customers.step_identify'),t('customers.step_engage'),t('customers.step_retain')].map((label,index)=>`<li><span aria-hidden="true">${index+1}</span><strong>${escapeHtml(label)}</strong></li>`).join('')}
+      </ol>
+    </section>
     <div class="pay-metrics" id="cusMetrics"></div>
     <section class="lead-panel card">
       <div class="lead-panel__head">
@@ -3905,10 +3956,10 @@ function renderCustomerHero(){
   const metrics = $('#cusMetrics');
   if(metrics){
     metrics.innerHTML = `
-      <div class="pay-metric"><span>${escapeHtml(t('customers.stat_total'))}</span><strong>${fmtInt(s.total)}</strong></div>
-      <div class="pay-metric"><span>${escapeHtml(t('customers.stat_buyers'))}</span><strong>${fmtInt(s.buyers)}</strong></div>
-      <div class="pay-metric"><span>${escapeHtml(t('customers.stat_new'))}</span><strong>${fmtInt(s.new_buyers)}</strong></div>
-      <div class="pay-metric"><span>${escapeHtml(t('customers.stat_sales'))}</span><strong>${money(s.period_sales)}</strong></div>
+      <div class="pay-metric customer-metric customer-metric--total"><span>${escapeHtml(t('customers.stat_total'))}</span><strong>${fmtInt(s.total)}</strong></div>
+      <div class="pay-metric customer-metric customer-metric--buyers"><span>${escapeHtml(t('customers.stat_buyers'))}</span><strong>${fmtInt(s.buyers)}</strong></div>
+      <div class="pay-metric customer-metric customer-metric--new"><span>${escapeHtml(t('customers.stat_new'))}</span><strong>${fmtInt(s.new_buyers)}</strong></div>
+      <div class="pay-metric customer-metric customer-metric--sales"><span>${escapeHtml(t('customers.stat_sales'))}</span><strong>${money(s.period_sales)}</strong></div>
     `;
   }
 }
@@ -3980,7 +4031,8 @@ function renderCustomerTable(){
     const avatar = c.avatar_url
       ? `<div class="mini-avatar mini-avatar--photo"><img src="${escapeHtml(c.avatar_url)}" alt=""></div>`
       : `<div class="mini-avatar">${escapeHtml(c.initial||'?')}</div>`;
-    return `<tr>
+    const profileUrl = boot.canViewUser && boot.userEditUrlTemplate ? leadUrl(boot.userEditUrlTemplate, c.id) : '';
+    return `<tr data-customer-segment="${escapeHtml(c.segment||'registered')}">
       <td><span class="pay-id">${escapeHtml(c.code||('CUS-'+c.id))}</span></td>
       <td><div class="person-cell">${avatar}<div><strong>${escapeHtml(c.name||'')}</strong><small>${escapeHtml(c.phone||c.email||'')}</small></div></div></td>
       <td>${escapeHtml(c.branch||'—')}</td>
@@ -3988,7 +4040,14 @@ function renderCustomerTable(){
       <td><div class="pay-amount">${money(c.paid_sales)}</div><div class="pay-method">${money(c.period_sales)} ${escapeHtml(t('customers.detail_period').toLowerCase())}</div></td>
       <td>${escapeHtml(c.last_order_label||'—')}</td>
       <td><div class="pay-chips">${chips}</div></td>
-      <td><button type="button" class="pay-review-btn" data-customer="${c.id}">${escapeHtml(t('customers.view'))}</button></td>
+      <td class="lead-table__actions"><div class="lead-menu customer-action-menu">
+        <button type="button" class="lead-menu__btn" data-lead-menu aria-haspopup="menu" aria-expanded="false" aria-label="${escapeHtml(t('customers.row_actions',{name:c.name||t('customers.guest')}))}"><span class="lead-menu__dots" aria-hidden="true"></span></button>
+        <div class="lead-menu__panel" role="menu" hidden>
+          <button type="button" class="lead-menu__item" role="menuitem" data-customer="${c.id}">${escapeHtml(t('customers.view'))}</button>
+          <button type="button" class="lead-menu__item" role="menuitem" data-customer-payments="${c.id}" data-customer-name="${escapeHtml(c.name||'')}" data-customer-phone="${escapeHtml(c.phone||'')}" data-customer-email="${escapeHtml(c.email||'')}">${escapeHtml(t('customers.open_payments'))}</button>
+          ${profileUrl ? `<a class="lead-menu__item" role="menuitem" href="${escapeHtml(profileUrl)}" target="_blank" rel="noopener">${escapeHtml(t('customers.open_profile'))}</a>` : ''}
+        </div>
+      </div></td>
     </tr>`;
   }).join('');
   const pager = centralPager('cus',customerMeta);
@@ -4002,7 +4061,13 @@ function renderCustomerTable(){
     <th>${escapeHtml(t('customers.col_segment'))}</th>
     <th>${escapeHtml(t('customers.col_action'))}</th>
   </tr></thead><tbody>${rows}</tbody></table></div>${pager}`;
-  $$('[data-customer]', mount).forEach(b => b.onclick = () => reviewCustomer(Number(b.dataset.customer)));
+  bindLeadRowMenus(mount);
+  $$('[data-customer]', mount).forEach(b => b.onclick = () => { closeAllLeadMenus(); reviewCustomer(Number(b.dataset.customer)); });
+  $$('[data-customer-payments]', mount).forEach(b => b.onclick = () => {
+    closeAllLeadMenus();
+    jumpToCustomerPayments({id:b.dataset.customerPayments,name:b.dataset.customerName,phone:b.dataset.customerPhone,email:b.dataset.customerEmail});
+  });
+  $$('.customer-action-menu a[role="menuitem"]',mount).forEach(link => link.onclick = () => closeAllLeadMenus());
   bindCentralPager('cus',page=>{state.customerPage=page;return refreshCustomers();});
 }
 
