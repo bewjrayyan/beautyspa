@@ -154,6 +154,24 @@ class LeadCentralAuditRegressionTest extends TestCase
     }
 
     #[Test]
+    public function lead_editor_drawer_groups_crm_fields_and_protects_unsaved_changes(): void
+    {
+        $script = file_get_contents(public_path('modules/lead/central/app.js'));
+        $styles = file_get_contents(public_path('modules/lead/central/styles.css'));
+        $english = file_get_contents(base_path('modules/Lead/Resources/lang/en/central.php'));
+
+        $this->assertStringContainsString('function leadFormFields(l={}, isEdit=false)', $script);
+        $this->assertStringContainsString('class="lead-editor__profile"', $script);
+        $this->assertStringContainsString('id="leadEditorForm"', $script);
+        $this->assertStringContainsString('for="mName"', $script);
+        $this->assertStringContainsString("window.confirm(t('workspace.discard_changes'))", $script);
+        $this->assertStringContainsString("button.textContent=t('workspace.saving')", $script);
+        $this->assertStringContainsString('.lead-editor__profile{display:grid', $styles);
+        $this->assertStringContainsString('.lead-editor__grid{display:grid', $styles);
+        $this->assertStringContainsString("'discard_changes' => 'Discard unsaved changes?'", $english);
+    }
+
+    #[Test]
     public function overview_uses_ranked_conversion_bars_with_complete_beautician_metrics(): void
     {
         $script = file_get_contents(public_path('modules/lead/central/app.js'));

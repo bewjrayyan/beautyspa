@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.105' => [
+        'date' => '2026-09-15',
+        'en' => [
+            'summary' => 'Refine the Lead Workspace editor into a clearer, safer CRM workflow.',
+            'changes' => [
+                'Redesign the Edit Lead drawer with a lead identity summary and focused Contact, Qualification, and Ownership sections.',
+                'Add accessible field labels, inline form errors, saving feedback, responsive layout, and unsaved-change protection.',
+                'Add regression coverage for the CRM lead editor contract and publish the updated Central Management asset.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Kemaskan editor Lead Workspace menjadi aliran CRM yang lebih jelas dan selamat.',
+            'changes' => [
+                'Reka semula drawer Sunting Lead dengan ringkasan identiti lead serta seksyen Maklumat Hubungan, Kelayakan dan Pemilikan yang fokus.',
+                'Tambah label field yang boleh diakses, ralat borang inline, maklum balas semasa menyimpan, susun atur responsif dan perlindungan perubahan belum disimpan.',
+                'Tambah liputan regresi untuk kontrak editor lead CRM dan terbitkan asset Central Management yang dikemas kini.',
+            ],
+        ],
+    ],
     '4.11.104' => [
         'date' => '2026-09-15',
         'en' => [

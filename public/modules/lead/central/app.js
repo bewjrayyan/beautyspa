@@ -1532,7 +1532,7 @@ function openAddLeadDrawer(){
   openActionDrawer(
     t('workspace.manual_entry'),
     t('workspace.manual_sub'),
-    leadFormFields({}),
+    leadFormFields({}, false),
     `<button class="btn" type="button" data-action-drawer-close>${escapeHtml(t('workspace.cancel'))}</button><button class="btn primary" type="button" id="saveLead">${escapeHtml(t('workspace.save'))}</button>`,
     t('workspace.title')
   );
@@ -1544,35 +1544,54 @@ function openEditLeadDrawer(id){
   openActionDrawer(
     t('workspace.edit_entry'),
     t('workspace.edit_sub'),
-    leadFormFields(l),
-    `<button class="btn" type="button" data-action-drawer-close>${escapeHtml(t('workspace.cancel'))}</button><button class="btn primary" type="button" id="saveLead">${escapeHtml(t('workspace.save'))}</button>`,
+    leadFormFields(l, true),
+    `<button class="btn" type="button" data-action-drawer-close>${escapeHtml(t('workspace.cancel'))}</button><button class="btn primary" type="button" id="saveLead">${escapeHtml(t('workspace.save_changes'))}</button>`,
     t('workspace.title')
   );
 }
-function leadFormFields(l={}){
+function leadFormFields(l={}, isEdit=false){
   const statuses=(liveLeadFilters.statuses||[]).map(s=>`<option value="${escapeHtml(s.value)}" ${String(l.status_key||'')===String(s.value)?'selected':''}>${escapeHtml(s.label)}</option>`).join('');
   const branches=[{id:'',name:'—'}, ...((liveLeadFilters.branches)||[])].map(b=>`<option value="${escapeHtml(b.id)}" ${String(l.branch_id||'')===String(b.id)?'selected':''}>${escapeHtml(b.name)}</option>`).join('');
   const beauticians=[{id:'',name:'—'}, ...((liveLeadFilters.beauticians)||[])].map(b=>`<option value="${escapeHtml(b.id)}" ${String(l.beautician_id||'')===String(b.id)?'selected':''}>${escapeHtml(b.name)}</option>`).join('');
   const source=String(l.source||'manual');
-  return `<div class="detail-grid">
-      <div><label class="kpi-label">${escapeHtml(t('workspace.name'))}</label><input class="search" style="width:100%" id="mName" autocomplete="name" value="${escapeHtml(l.name||'')}"></div>
-      <div><label class="kpi-label">${escapeHtml(t('workspace.phone'))}</label><input class="search" style="width:100%" id="mPhone" autocomplete="tel" value="${escapeHtml(l.phone||'')}"></div>
-      <div style="grid-column:1/-1"><label class="kpi-label">${escapeHtml(t('workspace.email'))}</label><input class="search" style="width:100%" id="mEmail" autocomplete="email" value="${escapeHtml(l.email||'')}"></div>
-      <div><label class="kpi-label">${escapeHtml(t('workspace.source'))}</label>
-        <select class="control" style="width:100%" id="mSource">
-          ${['manual','TikTok','WhatsApp','Facebook','import'].map(s=>`<option value="${s}" ${source===s?'selected':''}>${s}</option>`).join('')}
-        </select>
+  const initial=escapeHtml((String(l.name||'?')[0]||'?').toUpperCase());
+  const leadContext=isEdit?`<section class="lead-editor__profile" aria-label="${escapeHtml(t('workspace.lead_profile'))}">
+      <span class="lead-editor__avatar" aria-hidden="true">${initial}</span>
+      <div><strong>${escapeHtml(l.name||'—')}</strong><span>${escapeHtml(l.code||l.id||'—')} · ${escapeHtml(t('workspace.lead_created',{date:l.date||'—'}))}</span></div>
+      <div class="lead-editor__status">${statusBadge(l.status)}</div>
+    </section>`:'';
+  return `<form class="lead-editor" id="leadEditorForm" novalidate>
+    ${leadContext}
+    <div class="lead-editor__error" id="leadFormError" role="alert" hidden></div>
+    <section class="lead-editor__section" aria-labelledby="leadContactTitle">
+      <div class="lead-editor__section-head"><h4 id="leadContactTitle">${escapeHtml(t('workspace.contact_details'))}</h4><p>${escapeHtml(t('workspace.contact_hint'))}</p></div>
+      <div class="lead-editor__grid">
+        <div class="lead-editor__field"><label for="mName">${escapeHtml(t('workspace.name'))}</label><input class="search" id="mName" autocomplete="name" required value="${escapeHtml(l.name||'')}"></div>
+        <div class="lead-editor__field"><label for="mPhone">${escapeHtml(t('workspace.phone'))}</label><input class="search" id="mPhone" type="tel" inputmode="tel" autocomplete="tel" required value="${escapeHtml(l.phone||'')}"></div>
+        <div class="lead-editor__field lead-editor__field--full"><label for="mEmail">${escapeHtml(t('workspace.email'))}</label><input class="search" id="mEmail" type="email" inputmode="email" autocomplete="email" value="${escapeHtml(l.email||'')}"></div>
       </div>
-      <div><label class="kpi-label">${escapeHtml(t('workspace.col_status'))}</label>
-        <select class="control" style="width:100%" id="mStatus">${statuses||`<option value="new">NEW</option>`}</select>
+    </section>
+    <section class="lead-editor__section" aria-labelledby="leadQualificationTitle">
+      <div class="lead-editor__section-head"><h4 id="leadQualificationTitle">${escapeHtml(t('workspace.qualification'))}</h4><p>${escapeHtml(t('workspace.qualification_hint'))}</p></div>
+      <div class="lead-editor__grid">
+        <div class="lead-editor__field"><label for="mSource">${escapeHtml(t('workspace.source'))}</label><select class="control" id="mSource">${['manual','TikTok','WhatsApp','Facebook','import'].map(s=>`<option value="${s}" ${source===s?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="lead-editor__field"><label for="mStatus">${escapeHtml(t('workspace.col_status'))}</label><select class="control" id="mStatus">${statuses||`<option value="new">NEW</option>`}</select></div>
       </div>
-      <div><label class="kpi-label">${escapeHtml(t('workspace.col_branch'))}</label>
-        <select class="control" style="width:100%" id="mBranch">${branches}</select>
+    </section>
+    <section class="lead-editor__section" aria-labelledby="leadOwnershipTitle">
+      <div class="lead-editor__section-head"><h4 id="leadOwnershipTitle">${escapeHtml(t('workspace.ownership'))}</h4><p>${escapeHtml(t('workspace.ownership_hint'))}</p></div>
+      <div class="lead-editor__grid">
+        <div class="lead-editor__field"><label for="mBranch">${escapeHtml(t('workspace.col_branch'))}</label><select class="control" id="mBranch">${branches}</select></div>
+        <div class="lead-editor__field"><label for="mBeautician">${escapeHtml(t('workspace.col_beautician'))}</label><select class="control" id="mBeautician">${beauticians}</select></div>
       </div>
-      <div><label class="kpi-label">${escapeHtml(t('workspace.col_beautician'))}</label>
-        <select class="control" style="width:100%" id="mBeautician">${beauticians}</select>
-      </div>
-    </div>`;
+    </section>
+  </form>`;
+}
+function setLeadFormError(message=''){
+  const error=$('#leadFormError');
+  if(!error) return;
+  error.hidden=!message;
+  error.textContent=message;
 }
 async function saveLeadFromDrawer(){
   const isEdit=editingLeadId!=null;
@@ -1587,7 +1606,17 @@ async function saveLeadFromDrawer(){
     spa_branch_id: $('#mBranch')?.value ? Number($('#mBranch').value) : null,
     beautician_id: $('#mBeautician')?.value ? Number($('#mBeautician').value) : null
   };
-  if(!payload.name || !payload.phone){ showToast(t('workspace.save_error')); return; }
+  if(!payload.name || !payload.phone){
+    const message=t('workspace.required_details');
+    setLeadFormError(message);
+    showToast(message);
+    $('#mName')?.focus({preventScroll:true});
+    return;
+  }
+  setLeadFormError('');
+  const button=$('#saveLead');
+  const originalLabel=button?.textContent;
+  if(button){button.disabled=true;button.setAttribute('aria-busy','true');button.textContent=t('workspace.saving');}
   try{
     const res=await fetch(url,{
       method:isEdit?'PUT':'POST',
@@ -1598,8 +1627,9 @@ async function saveLeadFromDrawer(){
     const body=await res.json().catch(()=>({}));
     if(!res.ok){
       const msg=(body && (body.message||Object.values(body.errors||{})[0]?.[0]))|| (isEdit?t('workspace.update_error'):t('workspace.save_error'));
-      showToast(msg); return;
+      setLeadFormError(msg); showToast(msg); return;
     }
+    actionDrawerDirty=false;
     closeActionDrawer();
     editingLeadId=null;
     showToast(body.message|| (isEdit?t('workspace.updated'):t('workspace.saved')));
@@ -1607,7 +1637,10 @@ async function saveLeadFromDrawer(){
     await refreshLeads();
   }catch(err){
     console.error(err);
-    showToast(isEdit?t('workspace.update_error'):t('workspace.save_error'));
+    const message=isEdit?t('workspace.update_error'):t('workspace.save_error');
+    setLeadFormError(message); showToast(message);
+  }finally{
+    if(button){button.disabled=false;button.removeAttribute('aria-busy');button.textContent=originalLabel||t('workspace.save');}
   }
 }
 function deleteLead(id){
@@ -4288,6 +4321,7 @@ function bindJump(){
 }
 let actionDrawerTrigger=null;
 let actionDrawerScroll='';
+let actionDrawerDirty=false;
 function openActionDrawer(title,sub,body,foot,eyebrow=''){
   closeDrawer();
   closeActionDrawer();
@@ -4308,11 +4342,19 @@ function openActionDrawer(title,sub,body,foot,eyebrow=''){
   $('#actionDrawerClose').focus({preventScroll:true});
   const save=$('#saveLead');
   if(save) save.onclick=()=>saveLeadFromDrawer();
+  const leadForm=$('#leadEditorForm');
+  if(leadForm){
+    actionDrawerDirty=false;
+    leadForm.addEventListener('submit',e=>{e.preventDefault();saveLeadFromDrawer();});
+    leadForm.addEventListener('input',()=>{actionDrawerDirty=true;setLeadFormError('');});
+    leadForm.addEventListener('change',()=>{actionDrawerDirty=true;setLeadFormError('');});
+  }
   $$('[data-action-drawer-close]',$('#actionDrawer')).forEach(x=>x.onclick=closeActionDrawer);
 }
 function closeActionDrawer(){
   const drawer=$('#actionDrawer');
   if(!drawer.classList.contains('show')) return;
+  if(actionDrawerDirty && !window.confirm(t('workspace.discard_changes'))) return false;
   stopCheckinScanner();
   drawer.classList.remove('show');
   drawer.setAttribute('aria-hidden','true');
@@ -4322,6 +4364,8 @@ function closeActionDrawer(){
   document.body.style.overflow=actionDrawerScroll;
   if(actionDrawerTrigger?.isConnected) actionDrawerTrigger.focus({preventScroll:true});
   actionDrawerTrigger=null;
+  actionDrawerDirty=false;
+  return true;
 }
 function closeDrawer(){
   const drawer=$('#leadDrawer');
