@@ -5,26 +5,6 @@
     </div>
 
     <nav class="tr-portal-quick-actions__list">
-        @if (empty($adminPortalPreview))
-            @hasAccess('admin.treatment_reservations.portal.create')
-                <button
-                    type="button"
-                    class="tr-portal-quick-actions__item tr-portal-quick-actions__item--button"
-                    data-toggle="modal"
-                    data-target="#tr-portal-manual-booking-modal"
-                >
-                    <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--create">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                    </span>
-                    <span class="tr-portal-quick-actions__body">
-                        <strong>{{ trans('treatmentreservation::admin.manual_booking.portal_open') }}</strong>
-                        <span>{{ trans('treatmentreservation::admin.manual_booking.portal_quick_hint') }}</span>
-                    </span>
-                    <i class="fa fa-chevron-right tr-portal-quick-actions__arrow" aria-hidden="true"></i>
-                </button>
-            @endHasAccess
-        @endif
-
         <a href="#" class="tr-portal-quick-actions__item" data-schedule-view="kanban" data-scroll-schedule>
             <span class="tr-portal-quick-actions__icon tr-portal-quick-actions__icon--kanban">
                 <i class="fa fa-columns" aria-hidden="true"></i>

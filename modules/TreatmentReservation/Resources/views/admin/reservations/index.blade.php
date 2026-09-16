@@ -101,10 +101,6 @@
         data-cal-preview-notes-saved="{{ TrLang::trans('admin.calendar.preview_notes_saved') }}"
         data-cal-preview-notes-save-failed="{{ TrLang::trans('admin.calendar.preview_notes_save_failed') }}"
         data-cal-work-log-labels='@json($workLogLabels)'
-        data-cal-preview-edit-manual="{{ TrLang::trans('admin.manual_booking.edit_title') }}"
-        data-cal-preview-cancel-manual="{{ TrLang::trans('admin.manual_booking.cancel') }}"
-        data-cal-preview-cancel-manual-confirm="{{ TrLang::trans('admin.manual_booking.cancel_confirm') }}"
-        data-cal-preview-cancel-manual-success="{{ TrLang::trans('admin.manual_booking.canceled') }}"
         data-cal-preview-view-profile="{{ TrLang::trans('admin.crm.action_view_profile') }}"
         data-cal-preview-send-reminder="{{ TrLang::trans('admin.crm.action_send_reminder') }}"
         data-cal-preview-resend-reminder="{{ TrLang::trans('admin.crm.action_resend_reminder') }}"
@@ -167,9 +163,6 @@
         data-reschedule-labels='@json(trans('treatmentreservation::admin.reschedule'))'
         data-cal-preview-status-update-failed="{{ TrLang::trans('admin.crm.agenda_status_update_failed') }}"
         @hasAccess('admin.treatment_reservations.edit')
-            data-manual-booking-edit="1"
-            data-manual-booking-update-url="{{ route('admin.treatment_reservations.manual_bookings.update', ['booking' => '__ID__']) }}"
-            data-manual-booking-cancel-url="{{ route('admin.treatment_reservations.manual_bookings.cancel', ['booking' => '__ID__']) }}"
         @endHasAccess
         data-initial-month="{{ $filters['month'] }}"
         data-initial-beautician="{{ $filters['beautician_id'] }}"
@@ -226,20 +219,6 @@
             </div>
 
             <div class="tr-reservations-hero__actions">
-                @if ($activeView !== 'calendar')
-                    @hasAccess('admin.treatment_reservations.create')
-                        <button
-                            type="button"
-                            class="btn btn-primary btn-sm tr-manual-booking-open-btn"
-                            data-toggle="modal"
-                            data-target="#tr-manual-booking-modal"
-                        >
-                            <i class="fa fa-plus"></i>
-                            {{ TrLang::trans('admin.manual_booking.open') }}
-                        </button>
-                    @endHasAccess
-                @endif
-
                 <div class="tr-reservations-hero__pipeline" role="list" aria-label="{{ TrLang::trans('admin.hero.pipeline_aria') }}">
                     <div
                         class="tr-reservations-hero__metric tr-reservations-hero__metric--pending"
@@ -303,18 +282,6 @@
             </div>
         </header>
         @endif
-
-        @hasAnyAccess('admin.treatment_reservations.create', 'admin.treatment_reservations.edit')
-            @include('treatmentreservation::admin.reservations.partials.manual-booking-modal', [
-                'beauticianPickerOptions' => $beauticianPickerOptions,
-                'manualBookingProductCatalog' => $manualBookingProductCatalog,
-                'slotsUrl' => route('admin.treatment_reservations.manual_bookings.slots'),
-                'storeUrl' => route('admin.treatment_reservations.manual_bookings.store'),
-                'customersUrl' => route('admin.treatment_reservations.manual_bookings.customers'),
-                'updateUrlTemplate' => route('admin.treatment_reservations.manual_bookings.update', ['booking' => '__ID__']),
-                'cancelUrlTemplate' => route('admin.treatment_reservations.manual_bookings.cancel', ['booking' => '__ID__']),
-            ])
-        @endHasAnyAccess
 
         @if ($activeView === 'calendar')
             @include('treatmentreservation::admin.reservations.partials.filters-calendar')

@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.108' => [
+        'date' => '2026-09-16',
+        'en' => [
+            'summary' => 'Make POS Booking the single, reliable reservation path for administrators and beauticians.',
+            'changes' => [
+                'Restore the selected beautician context when an administrator opens POS Booking through portal preview.',
+                'Remove the legacy New reservation modal, its obsolete CRUD routes, and unused client assets from reservation workspaces.',
+                'Keep TBA and rescheduling availability protected while POS Booking remains the only reservation creation flow.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Jadikan POS Booking sebagai satu-satunya aliran tempahan yang stabil untuk pentadbir dan beautician.',
+            'changes' => [
+                'Pulihkan konteks beautician yang dipilih apabila pentadbir membuka POS Booking melalui portal preview.',
+                'Buang modal Tempahan baharu lama, route CRUD yang tidak lagi digunakan, dan aset klien berlebihan daripada ruang kerja reservation.',
+                'Kekalkan availability TBA dan reschedule yang dilindungi, manakala POS Booking menjadi satu-satunya aliran mencipta tempahan.',
+            ],
+        ],
+    ],
     '4.11.107' => [
         'date' => '2026-09-16',
         'en' => [

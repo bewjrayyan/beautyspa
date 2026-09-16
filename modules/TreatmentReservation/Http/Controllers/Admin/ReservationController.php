@@ -25,7 +25,6 @@ use Modules\TreatmentReservation\Http\Requests\RescheduleTreatmentBookingRequest
 use Modules\TreatmentReservation\Services\RescheduleTreatmentBookingService;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
 use Modules\TreatmentReservation\Services\BookingSelfService;
-use Modules\TreatmentReservation\Services\ManualBookingProductCatalogService;
 use Modules\TreatmentReservation\Services\TreatmentBookingsReportService;
 use Modules\TreatmentReservation\Services\UpcomingJobUrgencyService;
 use Modules\TreatmentReservation\Services\MalaysiaHolidayImportService;
@@ -86,7 +85,6 @@ class ReservationController extends Controller
             'spaBranches' => is_module_enabled('SpaBranch')
                 ? \Modules\SpaBranch\Entities\SpaBranch::query()->where('is_active', true)->orderBy('position')->orderBy('name')->pluck('name', 'id')
                 : collect(),
-            'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
             'filters' => [
                 'beautician_id' => $beauticianId,
                 'treatment_category_id' => $categoryId,

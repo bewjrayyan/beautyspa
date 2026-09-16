@@ -24,7 +24,6 @@ use Modules\TreatmentReservation\Services\RescheduleTreatmentBookingService;
 use Modules\TreatmentReservation\Services\BookingJobSheetOrderSync;
 use Modules\TreatmentReservation\Services\CustomerAppointmentReminderService;
 use Modules\TreatmentReservation\Services\CustomerCrmProfileService;
-use Modules\TreatmentReservation\Services\ManualBookingProductCatalogService;
 use Modules\TreatmentReservation\Services\ReservationDashboardService;
 use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
 use Modules\TreatmentReservation\Services\UpcomingJobUrgencyService;
@@ -77,7 +76,6 @@ class PortalController extends Controller
             'analyticsCharts' => null,
             'categories' => TreatmentCategory::active()->ordered()->get(),
             'spaBranches' => $this->spaBranchesForBeautician($beautician, $lockPortalFilters),
-            'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
             'beauticianPickerOptions' => collect(Beautician::activeListForCheckout())
                 ->where('id', $beauticianId)
                 ->values()
@@ -89,8 +87,6 @@ class PortalController extends Controller
             'portalFilterContext' => $this->portalFilterContext($beautician, $filters, $lockPortalFilters),
             'crmRoutes' => $crmRoutes,
             'crmCanEdit' => true,
-            'crmCanCreate' => $this->portalCanCreateManualBooking($request),
-            'portalCanCreate' => $this->portalCanCreateManualBooking($request),
             'crmSpecialistProfileUrl' => $this->isAdminBeauticianPreview($request)
                 ? route('admin.beauticians.portal.availability', $beautician->id)
                 : route('admin.treatment_reservations.portal.availability'),
@@ -136,7 +132,6 @@ class PortalController extends Controller
             'activeView' => $activeView,
             'calendarFocus' => $calendarFocus,
             'calendarFocusBookingId' => $calendarFocusBookingId,
-            'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
             'beauticianPickerOptions' => Beautician::activeListForCheckout(),
         ], $portalContext));
     }
@@ -182,7 +177,6 @@ class PortalController extends Controller
             'calendarFocus' => $request->boolean('focus') || filled($calendarFocusBookingId),
             'calendarFocusBookingId' => $calendarFocusBookingId,
             'calendarInitialMonth' => $initialMonth,
-            'manualBookingProductCatalog' => app(ManualBookingProductCatalogService::class)->catalog(),
             'beauticianPickerOptions' => Beautician::activeListForCheckout(),
         ], $portalContext));
     }
@@ -219,7 +213,6 @@ class PortalController extends Controller
 
         return [
             'adminPortalPreview' => $this->isAdminBeauticianPreview($request, $beautician),
-            'portalCanCreate' => $this->portalCanCreateManualBooking($request),
             'crmRoutes' => $this->crmApiRoutes($request, $beautician),
             'portalApiRoutes' => [
                 'calendar' => route('admin.beauticians.portal.calendar', $routeParams),
@@ -1003,18 +996,6 @@ class PortalController extends Controller
                 'manualBookingSlots' => $isPreview
                     ? route('admin.treatment_reservations.manual_bookings.slots')
                     : route('admin.treatment_reservations.portal.manual_bookings.slots'),
-                'manualBookingCustomers' => $isPreview
-                    ? route('admin.treatment_reservations.manual_bookings.customers')
-                    : route('admin.treatment_reservations.portal.manual_bookings.customers'),
-                'manualBookingStore' => $isPreview
-                    ? route('admin.treatment_reservations.manual_bookings.store')
-                    : route('admin.treatment_reservations.portal.manual_bookings.store'),
-                'manualBookingUpdate' => $isPreview
-                    ? route('admin.treatment_reservations.manual_bookings.update', ['booking' => '__ID__'])
-                    : route('admin.treatment_reservations.portal.manual_bookings.update', ['booking' => '__ID__']),
-                'manualBookingCancel' => $isPreview
-                    ? route('admin.treatment_reservations.manual_bookings.cancel', ['booking' => '__ID__'])
-                    : route('admin.treatment_reservations.portal.manual_bookings.cancel', ['booking' => '__ID__']),
             ];
         }
 
@@ -1034,10 +1015,6 @@ class PortalController extends Controller
             'customerProfile' => route('admin.treatment_reservations.portal.customer_profile'),
             'specialistAvailability' => route('admin.treatment_reservations.portal.specialist_availability'),
             'manualBookingSlots' => route('admin.treatment_reservations.portal.manual_bookings.slots'),
-            'manualBookingCustomers' => route('admin.treatment_reservations.portal.manual_bookings.customers'),
-            'manualBookingStore' => route('admin.treatment_reservations.portal.manual_bookings.store'),
-            'manualBookingUpdate' => route('admin.treatment_reservations.portal.manual_bookings.update', ['booking' => '__ID__']),
-            'manualBookingCancel' => route('admin.treatment_reservations.portal.manual_bookings.cancel', ['booking' => '__ID__']),
         ];
     }
 
@@ -1089,21 +1066,6 @@ class PortalController extends Controller
             ->pluck('name', 'id');
     }
 
-
-    private function portalCanCreateManualBooking(Request $request): bool
-    {
-        $user = auth()->user();
-
-        if (! $user) {
-            return false;
-        }
-
-        if ($this->isAdminBeauticianPreview($request)) {
-            return $user->hasAccess('admin.treatment_reservations.create');
-        }
-
-        return $user->hasAccess('admin.treatment_reservations.portal.create');
-    }
 
 
     private function isAdminBeauticianPreview(Request $request, ?Beautician $beautician = null): bool

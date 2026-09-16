@@ -95,19 +95,4 @@
         </div>
     </form>
 
-    @hasAccess('admin.treatment_reservations.create')
-        <div class="tr-crm-toolbar__actions">
-            <button
-                type="button"
-                class="tr-crm-toolbar__new tr-manual-booking-open-btn"
-                data-toggle="modal"
-                data-target="#tr-manual-booking-modal"
-            >
-                <span class="tr-crm-toolbar__new-icon" aria-hidden="true">
-                    <i class="fa fa-plus"></i>
-                </span>
-                {{ TrLang::trans('admin.crm.new_reservation') }}
-            </button>
-        </div>
-    @endHasAccess
 </div>

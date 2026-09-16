@@ -3,29 +3,21 @@
 namespace Modules\TreatmentReservation\Http\Controllers\Admin;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
-use Modules\TreatmentReservation\Entities\TreatmentBooking;
-use Modules\TreatmentReservation\Http\Requests\StoreManualBookingRequest;
-use Modules\TreatmentReservation\Http\Requests\UpdateManualBookingRequest;
-use Modules\TreatmentReservation\Services\CustomerLookupService;
-use Modules\TreatmentReservation\Services\ManualBookingService;
 use Modules\TreatmentReservation\Services\ManualBookingSlotsResolver;
 
 class ManualBookingController extends Controller
 {
-    public function __construct(
-        private ManualBookingSlotsResolver $slotsResolver,
-        private ManualBookingService $manualBookings,
-        private CustomerLookupService $customerLookup,
-    ) {}
-
-
-    public function slots(): JsonResponse
+    /**
+     * Retained for TBA scheduling and rescheduling only; legacy booking CRUD
+     * now lives exclusively in POS Booking.
+     */
+    public function slots(Request $request, ManualBookingSlotsResolver $slotsResolver): JsonResponse
     {
-        $data = request()->validate([
-            'beautician_id' => ['required', 'integer', 'exists:beauticians,id'],
+        $data = $request->validate([
+            'beautician_id' => ['required', 'integer', Rule::exists('beauticians', 'id')->where('is_active', true)],
             'date' => ['required', 'date', 'after_or_equal:today'],
             'booking_id' => ['nullable', 'integer'],
             'product_id' => ['nullable', 'integer', Rule::exists('products', 'id')->where('is_virtual', true)->where('is_active', true)->whereNull('deleted_at')],
@@ -33,108 +25,9 @@ class ManualBookingController extends Controller
         ]);
 
         try {
-            return response()->json([
-                'slots' => $this->slotsResolver->resolve($data),
-            ]);
+            return response()->json(['slots' => $slotsResolver->resolve($data)]);
         } catch (\InvalidArgumentException $exception) {
-            return response()->json([
-                'message' => $exception->getMessage(),
-            ], 422);
+            return response()->json(['message' => $exception->getMessage()], 422);
         }
-    }
-
-
-    public function customers(): JsonResponse
-    {
-        $data = request()->validate([
-            'q' => ['required', 'string', 'min:3', 'max:50'],
-        ]);
-
-        return response()->json([
-            'customers' => $this->customerLookup->search($data['q']),
-        ]);
-    }
-
-
-    public function store(StoreManualBookingRequest $request): JsonResponse
-    {
-        try {
-            $booking = $this->manualBookings->create(
-                array_merge($request->validated(), [
-                    'payment_receipt' => $request->file('payment_receipt'),
-                    'options' => $request->input('options', []),
-                    'variations' => $request->input('variations', []),
-                ]),
-                $request->user(),
-            );
-        } catch (ValidationException $exception) {
-            return response()->json([
-                'message' => collect($exception->errors())->flatten()->first(),
-                'errors' => $exception->errors(),
-            ], 422);
-        } catch (\InvalidArgumentException $exception) {
-            return response()->json([
-                'message' => $exception->getMessage(),
-            ], 422);
-        }
-
-        return response()->json([
-            'message' => trans('treatmentreservation::admin.manual_booking.created'),
-            'booking' => [
-                'id' => $booking->id,
-                'redirect' => route('admin.treatment_reservations.index', ['view' => 'kanban']),
-            ],
-        ]);
-    }
-
-
-    public function update(UpdateManualBookingRequest $request, TreatmentBooking $booking): JsonResponse
-    {
-        try {
-            $booking = $this->manualBookings->update(
-                $booking,
-                array_merge($request->validated(), [
-                    'payment_receipt' => $request->file('payment_receipt'),
-                    'options' => $request->input('options', []),
-                    'variations' => $request->input('variations', []),
-                ]),
-                $request->user(),
-            );
-        } catch (ValidationException $exception) {
-            return response()->json([
-                'message' => collect($exception->errors())->flatten()->first(),
-                'errors' => $exception->errors(),
-            ], 422);
-        } catch (\InvalidArgumentException $exception) {
-            return response()->json([
-                'message' => $exception->getMessage(),
-            ], 422);
-        }
-
-        $freshBooking = $booking->fresh(['beautician.files', 'product', 'category', 'paymentReceipt']);
-
-        return response()->json([
-            'message' => trans('treatmentreservation::admin.manual_booking.updated'),
-            'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
-        ]);
-    }
-
-
-    public function cancel(TreatmentBooking $booking): JsonResponse
-    {
-        try {
-            $booking = $this->manualBookings->cancel($booking, request()->user());
-        } catch (\InvalidArgumentException $exception) {
-            return response()->json([
-                'message' => $exception->getMessage(),
-            ], 422);
-        }
-
-        $freshBooking = $booking->fresh(['beautician.files', 'product', 'category']);
-
-        return response()->json([
-            'message' => trans('treatmentreservation::admin.manual_booking.canceled'),
-            'booking' => $freshBooking->appendAdminPayload($freshBooking->toKanbanPayload()),
-        ]);
     }
 }

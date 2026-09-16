@@ -18,7 +18,46 @@ class AdminPortalPreview
 
         $this->portalUser = $this->beautician->user;
 
-        $this->ensureSessionStarted((int) $beautician->id);
+        $this->ensureSessionStarted((int) $beautician->id, (int) auth()->id());
+    }
+
+
+    /**
+     * Restore an admin's selected portal context for a subsequent request.
+     *
+     * Preview is intentionally limited to an admin who can already open the
+     * reservation workspace. A beautician always resolves only their own
+     * profile through BeauticianPortalMiddleware.
+     */
+    public function restoreFromSession(): void
+    {
+        if ($this->isActive()) {
+            return;
+        }
+
+        $viewer = auth()->user();
+
+        if (! $viewer || $viewer->isBeauticianOnly() || ! $viewer->hasAccess('admin.treatment_reservations.index')) {
+            return;
+        }
+
+        $beauticianId = (int) session('admin_portal_preview_beautician_id');
+        $previewerId = (int) session('admin_portal_preview_admin_user_id');
+
+        if (! $beauticianId || ($previewerId && $previewerId !== (int) $viewer->id)) {
+            return;
+        }
+
+        $beautician = Beautician::query()->with('user')->find($beauticianId);
+
+        if (! $beautician?->user) {
+            return;
+        }
+
+        $this->beautician = $beautician;
+        $this->portalUser = $beautician->user;
+
+        session(['admin_portal_preview_admin_user_id' => $viewer->id]);
     }
 
 
@@ -34,14 +73,19 @@ class AdminPortalPreview
     }
 
 
-    private function ensureSessionStarted(int $beauticianId): void
+    private function ensureSessionStarted(int $beauticianId, int $previewerId): void
     {
         if ((int) session('admin_portal_preview_beautician_id') !== $beauticianId) {
             session([
                 'admin_portal_preview_started_at' => now()->timestamp,
                 'admin_portal_preview_beautician_id' => $beauticianId,
+                'admin_portal_preview_admin_user_id' => $previewerId,
             ]);
+
+            return;
         }
+
+        session(['admin_portal_preview_admin_user_id' => $previewerId]);
     }
 
 

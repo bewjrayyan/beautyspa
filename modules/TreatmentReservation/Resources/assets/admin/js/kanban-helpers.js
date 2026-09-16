@@ -6,7 +6,6 @@ let previewLabels = {};
 const previewDetailRequests = new Map();
 const schedulingDetailRequests = new Map();
 
-import { openManualBookingEditor } from "./manual-booking.js";
 import { parseLocalDateTime } from "../../../../../Storefront/Resources/assets/public/js/lib/flatpickrLocale.js";
 
 /** Local calendar date as Y-m-d (work-log “completed at”, not appointment). */
@@ -353,7 +352,6 @@ function previewOptionsForBooking(booking, options = {}) {
         crmCanEdit: false,
         portalGenericWhatsApp: false,
         consultationUrlTemplate: "",
-        manualBookingEditEnabled: false,
         tbaScheduleEnabled: false,
     };
 }
@@ -1101,20 +1099,6 @@ export function buildCalendarEventPreviewHtml(booking, labels, options = {}) {
                 `data-tba-schedule data-booking-id="${escapeHtml(String(booking.id))}" data-beautician-id="${escapeHtml(String(booking.beautician_id || ""))}" data-product-id="${escapeHtml(String(booking.product_id || ""))}" data-spa-branch-id="${escapeHtml(String(booking.spa_branch_id || ""))}"`
             )
             : "",
-        booking.can_edit_manual && options.manualBookingEditEnabled
-            ? previewActionButton(
-                "tr-calendar-event-preview__edit-manual tr-calendar-event-preview__action-btn--ghost",
-                `<i class="fa fa-pencil" aria-hidden="true"></i><span>${escapeHtml(labels.editManual || "Edit appointment")}</span>`,
-                `data-booking-id="${escapeHtml(String(booking.id))}"`
-            )
-            : "",
-        booking.can_cancel_manual && options.manualBookingEditEnabled
-            ? previewActionButton(
-                "tr-calendar-event-preview__cancel-manual tr-calendar-event-preview__action-btn--danger",
-                `<i class="fa fa-times" aria-hidden="true"></i><span>${escapeHtml(labels.cancelManual || "Cancel appointment")}</span>`,
-                `data-booking-id="${escapeHtml(String(booking.id))}"`
-            )
-            : "",
     ].filter(Boolean);
 
     const whatsappHint = !options.whatsappConfigured && (notify.customerReminder || notify.beauticianReminder)
@@ -1557,62 +1541,6 @@ async function prepareConsultation(button) {
     }
 }
 
-async function cancelManualBooking(button) {
-    const bookingId = button.dataset.bookingId;
-    const cancelUrlTemplate = previewOptions.manualBookingCancelUrlTemplate;
-
-    if (!bookingId || !cancelUrlTemplate || !window.axios) {
-        return;
-    }
-
-    const confirmMessage = previewLabels.cancelManualConfirm || "Cancel this manual appointment?";
-
-    if (!window.confirm(confirmMessage)) {
-        return;
-    }
-
-    const originalHtml = button.innerHTML;
-
-    button.disabled = true;
-    button.innerHTML = `<i class="fa fa-spinner fa-spin"></i>`;
-
-    try {
-        const url = cancelUrlTemplate.replace("__ID__", bookingId);
-        const response = await window.axios.patch(url);
-        const message = response.data?.message || previewLabels.cancelManualSuccess || "Appointment canceled";
-
-        closeCalendarEventPreview();
-        window.notify?.success?.(message) || alert(message);
-        window.location.reload();
-    } catch (error) {
-        const message =
-            error.response?.data?.message ||
-            previewLabels.cancelManualFailed ||
-            "Failed to cancel appointment";
-
-        window.notify?.error?.(message) || alert(message);
-        button.disabled = false;
-        button.innerHTML = originalHtml;
-    }
-}
-
-function openManualBookingEditorFromPreview(button) {
-    const bookingId = button.dataset.bookingId;
-
-    if (!bookingId || !previewResolveBooking) {
-        return;
-    }
-
-    const booking = previewResolveBooking(bookingId);
-
-    if (!booking) {
-        return;
-    }
-
-    closeCalendarEventPreview();
-    openManualBookingEditor(booking, previewOptions.manualBookingModalSelector || "");
-}
-
 function appendChecklistItem(item = {}) {
     const list = document.querySelector(".tr-calendar-event-preview__checklist");
 
@@ -1950,24 +1878,6 @@ export function initCalendarEventPreview(resolveBooking, labels, options = {}) {
         if (legacyReminderButton) {
             event.preventDefault();
             sendCustomerReminder(legacyReminderButton);
-
-            return;
-        }
-
-        const editManualButton = event.target.closest(".tr-calendar-event-preview__edit-manual");
-
-        if (editManualButton) {
-            event.preventDefault();
-            openManualBookingEditorFromPreview(editManualButton);
-
-            return;
-        }
-
-        const cancelManualButton = event.target.closest(".tr-calendar-event-preview__cancel-manual");
-
-        if (cancelManualButton) {
-            event.preventDefault();
-            cancelManualBooking(cancelManualButton);
 
             return;
         }

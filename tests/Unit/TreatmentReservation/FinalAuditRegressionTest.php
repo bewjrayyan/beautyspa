@@ -13,8 +13,10 @@ use Modules\GoogleIntegration\Services\OrderGoogleSyncService;
 use Modules\GoogleIntegration\Support\GoogleSheetsCellSanitizer;
 use Modules\Order\Entities\Order;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
+use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalMiddleware;
 use Modules\TreatmentReservation\Http\Middleware\BeauticianPortalPermissionMiddleware;
 use Modules\TreatmentReservation\Services\AppointmentAvailabilityService;
+use Modules\TreatmentReservation\Services\AdminPortalPreview;
 use Modules\TreatmentReservation\Services\BeauticianAvailabilityService;
 use Modules\TreatmentReservation\Services\BookingSelfService;
 use Modules\TreatmentReservation\Services\TreatmentBookingActivityLogger;
@@ -226,6 +228,32 @@ class FinalAuditRegressionTest extends TestCase
     }
 
     #[Test]
+    public function portal_pos_uses_the_preview_beautician_context(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $previewSource = file_get_contents($root . '/modules/TreatmentReservation/Services/AdminPortalPreview.php');
+        $middlewareSource = file_get_contents($root . '/modules/TreatmentReservation/Http/Middleware/BeauticianPortalMiddleware.php');
+        $beautician = new Beautician(['id' => 17, 'user_id' => 44]);
+        $preview = $this->createMock(AdminPortalPreview::class);
+        $preview->expects($this->once())->method('restoreFromSession');
+        $preview->expects($this->once())->method('isActive')->willReturn(true);
+        $preview->expects($this->once())->method('beautician')->willReturn($beautician);
+
+        $request = Request::create('/admin/my/pos');
+        $middleware = new BeauticianPortalMiddleware($preview);
+
+        $response = $middleware->handle(
+            $request,
+            fn (): Response => new Response('ok'),
+        );
+
+        $this->assertSame('ok', $response->getContent());
+        $this->assertSame($beautician, $request->attributes->get('portal_beautician'));
+        $this->assertStringContainsString('admin_portal_preview_admin_user_id', $previewSource);
+        $this->assertStringContainsString("\$this->portalPreview->restoreFromSession();", $middlewareSource);
+    }
+
+    #[Test]
     public function beautician_operational_views_and_customer_lookup_are_scoped_to_ownership(): void
     {
         $root = dirname(__DIR__, 3);
@@ -430,16 +458,9 @@ class FinalAuditRegressionTest extends TestCase
         $this->assertStringContainsString('renderMobileWeekAgenda', file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/main.js'));
         $this->assertStringContainsString('.tr-week-mobile-agenda', $calendarStyles);
         $this->assertStringContainsString('window.matchMedia("(max-width: 575px)")', file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/main.js'));
-        $manualBooking = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/manual-booking-modal.blade.php');
-        $manualBookingJs = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/manual-booking-products.js');
-        $manualBookingStyles = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/sass/_manual-booking.scss');
-        $this->assertStringContainsString('tr-manual-booking-receipt__dropzone', $manualBooking);
-        $this->assertStringContainsString('accept="image/jpeg,image/png,image/webp,application/pdf"', $manualBooking);
-        $this->assertStringContainsString('receiptDropzone?.addEventListener("drop"', $manualBookingJs);
-        $this->assertStringContainsString('tr-manual-booking-receipt__remove', $manualBookingJs);
-        $this->assertStringContainsString('&__dropzone', $manualBookingStyles);
-        $this->assertStringContainsString("'receipt_formats'", $en);
-        $this->assertStringContainsString("'receipt_formats'", $ms);
+        $this->assertFileDoesNotExist($root . '/modules/TreatmentReservation/Resources/views/admin/reservations/partials/manual-booking-modal.blade.php');
+        $this->assertFileDoesNotExist($root . '/modules/TreatmentReservation/Resources/assets/admin/js/manual-booking.js');
+        $this->assertFileDoesNotExist($root . '/modules/TreatmentReservation/Resources/assets/admin/sass/_manual-booking.scss');
 
         foreach (['mobile_nav_dashboard', 'mobile_nav_jobs', 'mobile_nav_calendar', 'mobile_nav_availability', 'mobile_nav_account'] as $key) {
             $this->assertStringContainsString("'{$key}'", $en);

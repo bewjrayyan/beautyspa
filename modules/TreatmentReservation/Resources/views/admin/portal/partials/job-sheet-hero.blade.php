@@ -17,11 +17,6 @@
         ? route('admin.beauticians.portal.account', $beautician->id)
         : route('admin.treatment_reservations.portal.account');
     $activePortalNav = $activePortalNav ?? 'job_sheet';
-    $portalCanCreate = $portalCanCreate ?? (
-        (! empty($adminPortalPreview) && auth()->user()?->hasAccess('admin.treatment_reservations.create'))
-        || (empty($adminPortalPreview) && auth()->user()?->hasAccess('admin.treatment_reservations.portal.create'))
-    );
-    $manualBookingModalId = $manualBookingModalId ?? 'tr-portal-manual-booking-modal';
     $portalAvailabilityUrl = $onBeauticianRoute
         ? route('admin.beauticians.portal.availability', $beautician->id)
         : route('admin.treatment_reservations.portal.availability');
@@ -98,18 +93,6 @@
         </div>
 
         <div class="tr-portal-saas-hero__actions">
-            @if (! empty($portalCanCreate))
-                <button
-                    type="button"
-                    class="tr-portal-saas-hero__btn tr-portal-saas-hero__btn--primary tr-manual-booking-open-btn"
-                    data-toggle="modal"
-                    data-target="#{{ $manualBookingModalId }}"
-                >
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                    {{ trans('treatmentreservation::admin.crm.new_reservation') }}
-                </button>
-            @endif
-
             @if ($showPortalActions)
                 <a href="{{ $portalAvailabilityUrl }}" class="tr-portal-saas-hero__btn">
                     <i class="fa fa-clock-o" aria-hidden="true"></i>

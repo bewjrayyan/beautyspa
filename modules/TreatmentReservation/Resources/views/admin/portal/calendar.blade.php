@@ -120,7 +120,6 @@
         data-cal-status-pending="{{ trans('treatmentreservation::admin.kanban.pending') }}"
         data-cal-status-in-progress="{{ trans('treatmentreservation::admin.kanban.in_progress') }}"
         data-cal-status-completed="{{ trans('treatmentreservation::admin.kanban.completed') }}"
-        data-cal-preview-edit-manual="{{ trans('treatmentreservation::admin.manual_booking.edit_title') }}"
         data-cal-preview-schedule-tba="{{ trans('treatmentreservation::admin.tba.schedule') }}"
         data-cal-preview-tba-badge="{{ trans('treatmentreservation::admin.tba.badge') }}"
         data-tba-schedule-url="{{ route('admin.treatment_reservations.portal.tba.schedule', ['id' => '__ID__']) }}"
@@ -133,14 +132,6 @@
         data-reschedule-save-failed="{{ trans('treatmentreservation::admin.reschedule.save_failed') }}"
         data-reschedule-no-slots="{{ trans('treatmentreservation::admin.reschedule.no_slots') }}"
         data-reschedule-labels='@json(trans('treatmentreservation::admin.reschedule'))'
-        data-cal-preview-cancel-manual="{{ trans('treatmentreservation::admin.manual_booking.cancel') }}"
-        data-cal-preview-cancel-manual-confirm="{{ trans('treatmentreservation::admin.manual_booking.cancel_confirm') }}"
-        data-cal-preview-cancel-manual-success="{{ trans('treatmentreservation::admin.manual_booking.canceled') }}"
-        @hasAccess('admin.treatment_reservations.portal.create')
-            data-manual-booking-edit="1"
-            data-manual-booking-update-url="{{ route('admin.treatment_reservations.portal.manual_bookings.update', ['booking' => '__ID__']) }}"
-            data-manual-booking-cancel-url="{{ route('admin.treatment_reservations.portal.manual_bookings.cancel', ['booking' => '__ID__']) }}"
-        @endHasAccess
     >
         @include('treatmentreservation::admin.portal.partials.job-sheet-hero', [
             'beautician' => $beautician,
@@ -149,8 +140,6 @@
             'adminPortalPreview' => $adminPortalPreview ?? false,
             'backUrl' => $backUrl ?? null,
             'activePortalNav' => 'calendar',
-            'portalCanCreate' => $portalCanCreate ?? false,
-            'manualBookingModalId' => 'tr-portal-manual-booking-modal',
         ])
 
         <div class="tr-portal-saas-calendar-page">
@@ -165,23 +154,6 @@
         ])
     </div>
 
-    @if (! empty($portalCanCreate))
-        @include('treatmentreservation::admin.reservations.partials.manual-booking-modal', [
-            'portalMode' => true,
-            'allowBeauticianSelect' => empty($adminPortalPreview),
-            'lockedBeautician' => $beautician,
-            'beauticianPickerOptions' => $beauticianPickerOptions,
-            'defaultBeauticianId' => $beautician->id,
-            'defaultSpaBranchId' => $defaultSpaBranchId ?? null,
-            'manualBookingProductCatalog' => $manualBookingProductCatalog,
-            'modalId' => 'tr-portal-manual-booking-modal',
-            'slotsUrl' => $crmRoutes['manualBookingSlots'] ?? route('admin.treatment_reservations.portal.manual_bookings.slots'),
-            'storeUrl' => $crmRoutes['manualBookingStore'] ?? route('admin.treatment_reservations.portal.manual_bookings.store'),
-            'customersUrl' => $crmRoutes['manualBookingCustomers'] ?? route('admin.treatment_reservations.portal.manual_bookings.customers'),
-            'updateUrlTemplate' => $crmRoutes['manualBookingUpdate'] ?? route('admin.treatment_reservations.portal.manual_bookings.update', ['booking' => '__ID__']),
-            'cancelUrlTemplate' => $crmRoutes['manualBookingCancel'] ?? route('admin.treatment_reservations.portal.manual_bookings.cancel', ['booking' => '__ID__']),
-        ])
-    @endif
 @endsection
 
 @push('globals')

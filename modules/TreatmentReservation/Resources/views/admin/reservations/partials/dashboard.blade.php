@@ -65,7 +65,6 @@
     data-tba-schedule-label="{{ TrLang::trans('admin.tba.schedule') }}"
     data-reschedule-labels='@json(trans('treatmentreservation::admin.reschedule'))'
     data-tba-badge="{{ TrLang::trans('admin.tba.badge') }}"
-    data-agenda-edit-manual="{{ TrLang::trans('admin.manual_booking.edit_title') }}"
     data-agenda-whatsapp="{{ TrLang::trans('admin.crm.action_whatsapp') }}"
     data-agenda-whatsapp-sending="{{ TrLang::trans('admin.calendar.preview_whatsapp_sending') }}"
     data-agenda-whatsapp-sent="{{ TrLang::trans('admin.calendar.preview_whatsapp_sent') }}"

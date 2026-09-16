@@ -2114,24 +2114,22 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-CsO0qRY7-v4.7.72.js",
+    "file": "assets/main-C1iJ-d-F-v4.7.72.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
     "imports": [
-      "_time-format-CCdvbXny-v4.7.72.js",
-      "_flatpickr-B_JH6AFf-v4.7.72.js",
       "_flatpickrLocale-DI9uzNdu-v4.7.72.js",
-      "modules/Storefront/Resources/assets/public/js/lib/modernPhoneInput.js",
       "_chart.js-CDYwASMv-v4.7.72.js",
+      "_time-format-CCdvbXny-v4.7.72.js",
       "_axios-BCn5QfZZ-v4.7.72.js",
+      "_flatpickr-B_JH6AFf-v4.7.72.js",
       "modules/Storefront/Resources/assets/public/js/lib/dateOfBirthPicker.js",
-      "_intl-tel-input-B1SBksUB-v4.7.72.js",
       "_@kurkle-C_POY-EF-v4.7.72.js"
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-DtCBb2CC-v4.7.72.css",
+    "file": "assets/main-Bzil59r6-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {

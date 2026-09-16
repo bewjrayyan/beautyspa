@@ -5,13 +5,11 @@ import { mergeFlatpickrLocale, coerceFlatpickrDate } from "../../../../../Storef
 import {
     bookingAllowsDetail,
     closeCalendarEventPreview,
-    getCalendarBooking,
     getCalendarBookingsForOrder,
     setCalendarBookings,
     upsertBooking,
     resolveSchedulingBooking,
 } from "./kanban-helpers.js";
-import { openManualBookingEditor } from "./manual-booking.js";
 
 function escapeHtml(value = "") {
     return String(value)
@@ -114,10 +112,6 @@ function getCrmDashboardLabels() {
         scheduleBeforeStart: root?.dataset?.scheduleBeforeStart || "",
         pipelineStatusFailed: root?.dataset.pipelineStatusFailed || "Failed to update status",
     };
-}
-
-function manualBookingEditEnabled() {
-    return document.getElementById("tr-reservations-app")?.dataset.manualBookingEdit === "1";
 }
 
 function bookingSearchHaystack(booking = {}) {
@@ -1221,22 +1215,6 @@ function initPipelineActions(app) {
 
             if (orderUrl) {
                 window.open(orderUrl, "_blank", "noopener,noreferrer");
-            }
-
-            return;
-        }
-
-        const rescheduleButton = event.target.closest("[data-pipeline-reschedule]");
-
-        if (rescheduleButton) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const booking = getPipelineBooking(rescheduleButton.dataset.bookingId)
-                || getCalendarBooking(rescheduleButton.dataset.bookingId);
-
-            if (booking) {
-                openManualBookingEditor(booking);
             }
 
             return;

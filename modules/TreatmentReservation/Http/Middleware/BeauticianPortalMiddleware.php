@@ -5,13 +5,21 @@ namespace Modules\TreatmentReservation\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Modules\Beautician\Entities\Beautician;
+use Modules\TreatmentReservation\Services\AdminPortalPreview;
 use Symfony\Component\HttpFoundation\Response;
 
 class BeauticianPortalMiddleware
 {
+    public function __construct(
+        private AdminPortalPreview $portalPreview,
+    ) {}
+
     public function handle(Request $request, Closure $next): Response
     {
+        $this->portalPreview->restoreFromSession();
+
         $beautician = $request->attributes->get('portal_beautician')
+            ?? ($this->portalPreview->isActive() ? $this->portalPreview->beautician() : null)
             ?? Beautician::findForUser(auth()->id());
 
         if (! $beautician) {

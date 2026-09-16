@@ -19,7 +19,6 @@ import { initCrmDashboard, initTbaScheduleActions, initCalendarBookingDrop } fro
 import { initCustomerProfileDrawer } from "./customer-profile.js";
 import "./portal-account.js";
 import "./portal-availability.js";
-import "./manual-booking.js";
 import "./pos.js";
 import { initAdminPreviewTimer } from "./admin-preview-timer.js";
 
@@ -1666,16 +1665,6 @@ function buildCalendarPreviewLabels(root) {
 }
 
 function buildCalendarPreviewOptions(root) {
-    const manualBookingOptions = root.dataset.manualBookingEdit === "1"
-        ? {
-              tbaScheduleEnabled: true,
-            manualBookingEditEnabled: true,
-              manualBookingCancelUrlTemplate: root.dataset.manualBookingCancelUrl || "",
-              manualBookingModalSelector:
-                  root.id === "tr-portal-app" ? "#tr-portal-manual-booking-modal" : "#tr-manual-booking-modal",
-          }
-        : {};
-
     if (root.id === "tr-portal-app") {
         const canEdit = root.dataset.crmCanEdit !== "0";
 
@@ -1697,7 +1686,6 @@ function buildCalendarPreviewOptions(root) {
             reminderUrlTemplate: root.dataset.reminderUrl || "",
             beauticianReminderUrlTemplate: root.dataset.beauticianReminderUrl || "",
             detailsUrlTemplate: root.dataset.calendarDetailsUrl || "",
-            ...manualBookingOptions,
         };
     }
 
@@ -1721,11 +1709,10 @@ function buildCalendarPreviewOptions(root) {
             allowBeauticianNotes: canEdit && Boolean(root.dataset.notesUrl),
             notesUrlTemplate: root.dataset.notesUrl || "",
             portalBeauticianId,
-            ...manualBookingOptions,
         };
     }
 
-    return manualBookingOptions;
+    return {};
 }
 
 const calendarPreviewRoot =

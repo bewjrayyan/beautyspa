@@ -131,11 +131,6 @@
         @if (! empty($crmCanEdit))
             data-crm-can-edit="1"
         @endif
-        @if (! empty($crmCanCreate))
-            data-manual-booking-edit="1"
-            data-manual-booking-update-url="{{ $crmRoutes['manualBookingUpdate'] ?? '' }}"
-            data-manual-booking-cancel-url="{{ $crmRoutes['manualBookingCancel'] ?? '' }}"
-        @endif
         data-cal-preview-duration="{{ TrLang::trans('admin.calendar.preview_duration') }}"
         data-cal-preview-payment="{{ TrLang::trans('admin.calendar.preview_payment') }}"
         data-cal-preview-payment-receipt="{{ TrLang::trans('admin.calendar.preview_payment_receipt') }}"
@@ -177,26 +172,7 @@
             'adminPortalPreview' => $adminPortalPreview ?? false,
             'backUrl' => $backUrl ?? null,
             'activePortalNav' => 'dashboard',
-            'portalCanCreate' => $portalCanCreate ?? ($crmCanCreate ?? false),
-            'manualBookingModalId' => 'tr-portal-manual-booking-modal',
         ])
-
-        @if (! empty($crmCanCreate))
-            @include('treatmentreservation::admin.reservations.partials.manual-booking-modal', [
-                'beauticianPickerOptions' => $beauticianPickerOptions,
-                'manualBookingProductCatalog' => $manualBookingProductCatalog,
-                'slotsUrl' => $crmRoutes['manualBookingSlots'] ?? '',
-                'storeUrl' => $crmRoutes['manualBookingStore'] ?? '',
-                'customersUrl' => $crmRoutes['manualBookingCustomers'] ?? '',
-                'updateUrlTemplate' => $crmRoutes['manualBookingUpdate'] ?? '',
-                'cancelUrlTemplate' => $crmRoutes['manualBookingCancel'] ?? '',
-                'portalMode' => true,
-                'lockedBeautician' => $beautician,
-                'defaultBeauticianId' => $beautician->id,
-                'defaultSpaBranchId' => $filters['spa_branch_id'] ?? null,
-                'modalId' => 'tr-portal-manual-booking-modal',
-            ])
-        @endif
 
         <div class="tab-content tr-tab-panels">
             @include('treatmentreservation::admin.reservations.partials.dashboard', [

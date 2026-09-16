@@ -5,7 +5,6 @@ namespace Modules\TreatmentReservation\Http\Requests;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Modules\Core\Http\Requests\Request;
-use Modules\TreatmentReservation\Http\Requests\StoreManualBookingRequest;
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Rules\ValidBeauticianSlot;
 
@@ -59,7 +58,14 @@ class ScheduleTbaBookingRequest extends Request
             'appointment_date' => ['required', 'date', 'after_or_equal:today'],
             'appointment_time' => ['required', 'date_format:H:i', new ValidBeauticianSlot()],
             'spa_branch_id' => ['nullable', 'integer', Rule::exists('spa_branches', 'id')->where('is_active', true)],
-            'product_id' => StoreManualBookingRequest::treatmentProductRule(),
+            'product_id' => [
+                'required',
+                'integer',
+                Rule::exists('products', 'id')
+                    ->where('is_virtual', true)
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at'),
+            ],
             'notify_customer' => ['sometimes', 'boolean'],
         ];
     }
