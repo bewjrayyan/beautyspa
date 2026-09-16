@@ -17,7 +17,7 @@ return new class extends Migration
         }
 
         DB::table('beauticians')
-            ->whereIn('phone', ['60100000001', '60100000002', '+60100000001', '+60100000002'])
+            ->whereRaw('phone REGEXP ?', ['^[+]?6010{7,}[0-9]?$'])
             ->update(['phone' => null]);
     }
 

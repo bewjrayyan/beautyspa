@@ -44,6 +44,23 @@ class PhoneNumber
 
 
     /**
+     * Legacy seed data used zero-filled numbers which must never receive WhatsApp.
+     */
+    public static function isPlaceholder(?string $phone): bool
+    {
+        $normalized = self::normalize($phone);
+
+        return $normalized !== '' && preg_match('/^6010{7,}[0-9]?$/', $normalized) === 1;
+    }
+
+
+    public static function isDeliverableWhatsAppRecipient(?string $phone): bool
+    {
+        return self::normalize($phone) !== '' && ! self::isPlaceholder($phone);
+    }
+
+
+    /**
      * @return array<int, string>
      */
     public static function variants(string $normalized): array

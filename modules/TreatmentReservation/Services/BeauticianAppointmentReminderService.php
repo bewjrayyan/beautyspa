@@ -89,10 +89,10 @@ class BeauticianAppointmentReminderService
 
         $booking->loadMissing('beautician.user');
 
-        $phone = trim((string) ($booking->beautician?->phone ?: $booking->beautician?->user?->phone));
+        $recipients = app(BeauticianWhatsAppRecipientResolver::class)->resolve($booking);
 
         if (
-            $phone === ''
+            $recipients === []
             || ! $booking->beautician_id
             || ! $booking->appointment_date
             || ! $booking->appointment_time
@@ -148,22 +148,27 @@ class BeauticianAppointmentReminderService
     {
         $booking->loadMissing('beautician.user');
 
-        $phone = trim((string) ($booking->beautician?->phone ?: $booking->beautician?->user?->phone));
+        $recipients = app(BeauticianWhatsAppRecipientResolver::class)->resolve($booking);
 
-        if ($phone === '' || ! $this->claimReminder($booking)) {
+        if ($recipients === [] || ! $this->claimReminder($booking)) {
             return false;
         }
 
         try {
-            $delivered = app(OneSenderWhatsAppService::class)->sendNotification(
-                $phone,
-                $this->buildMessage($booking),
-                [
-                    'source' => 'treatment.beautician.reminder',
-                    'dedupe_key' => 'booking:' . $booking->id . ':beautician_reminder:' . now()->format('YmdHi'),
-                    'immediate' => $logActivity,
-                ]
-            );
+            $delivered = false;
+
+            foreach ($recipients as $phone) {
+                $delivered = app(OneSenderWhatsAppService::class)->sendNotification(
+                    $phone,
+                    $this->buildMessage($booking),
+                    [
+                        'source' => 'treatment.beautician.reminder',
+                        'dedupe_key' => 'booking:' . $booking->id . ':beautician_reminder:' . now()->format('YmdHi')
+                            . ':recipient:' . substr(hash('sha256', $phone), 0, 16),
+                        'immediate' => $logActivity,
+                    ]
+                ) || $delivered;
+            }
 
             if (! $delivered) {
                 $this->releaseReminderClaim($booking);

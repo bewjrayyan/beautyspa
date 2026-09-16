@@ -3,14 +3,12 @@
 namespace Modules\TreatmentReservation\Services;
 
 use Modules\TreatmentReservation\Entities\TreatmentBooking;
-use Modules\User\Support\PhoneNumber;
 
 class BookingBeauticianWhatsAppService
 {
     public function url(TreatmentBooking $booking): ?string
     {
-        $beautician = $booking->beautician;
-        $phone = PhoneNumber::normalize((string) ($beautician?->phone ?: $beautician?->user?->phone));
+        $phone = app(BeauticianWhatsAppRecipientResolver::class)->resolve($booking)[0] ?? '';
 
         if ($phone === '') {
             return null;

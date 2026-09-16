@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.109' => [
+        'date' => '2026-09-16',
+        'en' => [
+            'summary' => 'Prevent legacy placeholder phone data from ever receiving OneSender WhatsApp messages.',
+            'changes' => [
+                'Clear zero-filled placeholder phones from legacy users and beautician records without generating replacement numbers.',
+                'Reject placeholder numbers at the OneSender delivery boundary and filter them from configured admin recipients.',
+                'Route beautician booking and reminder notifications to configured admin recipients only when no real beautician phone is available.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Halang data telefon placeholder lama daripada menerima mesej WhatsApp OneSender.',
+            'changes' => [
+                'Kosongkan telefon placeholder sifar daripada rekod user dan beautician lama tanpa menjana nombor gantian.',
+                'Tolak nombor placeholder pada lapisan penghantaran OneSender dan tapisnya daripada penerima admin yang dikonfigurasi.',
+                'Hantar notifikasi booking dan reminder beautician kepada penerima admin yang dikonfigurasi hanya apabila tiada telefon beautician sebenar.',
+            ],
+        ],
+    ],
     '4.11.108' => [
         'date' => '2026-09-16',
         'en' => [
@@ -1492,7 +1511,7 @@ return [
         'en' => [
             'summary' => 'Stop OneSender from using seeded placeholder beautician phones; fix Operations console in-page anchors.',
             'changes' => [
-                'Remove hardcoded 60100000001/02 seeder phones; WhatsApp recipients must be set from Admin.',
+                'Remove hardcoded seed placeholder phones; WhatsApp recipients must be set from Admin.',
                 'Migration clears existing placeholder beautician phones so notifications skip until a real number is saved.',
                 'Operations jump/issue links use the admin operations route so #fragments work with the layout base href.',
             ],
@@ -1500,7 +1519,7 @@ return [
         'ms' => [
             'summary' => 'Hentikan OneSender guna nombor placeholder dari seeder; baiki pautan anchor konsol Operations.',
             'changes' => [
-                'Buang nombor hardcoded 60100000001/02 dari seeder; penerima WhatsApp mesti diset dari Admin.',
+                'Buang nombor placeholder hardcoded dari seeder; penerima WhatsApp mesti diset dari Admin.',
                 'Migration kosongkan telefon placeholder beautician sedia ada supaya notifikasi dilangkau sehingga nombor sebenar disimpan.',
                 'Pautan jump/isu Operations guna route admin supaya #fragment berfungsi dengan base href layout.',
             ],

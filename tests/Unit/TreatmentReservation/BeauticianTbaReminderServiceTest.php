@@ -9,6 +9,10 @@ use Modules\TreatmentReservation\Entities\TreatmentBooking;
 use Modules\TreatmentReservation\Observers\TreatmentBookingObserver;
 use Modules\TreatmentReservation\Services\BeauticianAppointmentReminderService;
 use Modules\TreatmentReservation\Services\BeauticianTbaReminderService;
+use Modules\TreatmentReservation\Services\BeauticianWhatsAppRecipientResolver;
+use Modules\User\Entities\User;
+use Modules\User\Services\OneSenderWhatsAppService;
+use Modules\User\Support\PhoneNumber;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -68,6 +72,38 @@ class BeauticianTbaReminderServiceTest extends TestCase
             $this->assertStringContainsString('Rujukan: B1584', $message);
             $this->assertStringContainsString(route('admin.treatment_reservations.portal'), $message);
         });
+    }
+
+    #[Test]
+    public function placeholder_beautician_phones_fall_back_to_configured_admin_recipients(): void
+    {
+        $original = app(OneSenderWhatsAppService::class);
+        app()->instance(OneSenderWhatsAppService::class, new class extends OneSenderWhatsAppService {
+            public function configuredAdminPhones(): array
+            {
+                return ['configured-admin'];
+            }
+        });
+
+        try {
+            $user = new User();
+            $user->forceFill(['phone' => '60' . '1' . str_repeat('0', 7) . '1']);
+
+            $beautician = new Beautician();
+            $beautician->forceFill(['id' => 7, 'phone' => null]);
+            $beautician->setRelation('user', $user);
+
+            $booking = new TreatmentBooking();
+            $booking->setRelation('beautician', $beautician);
+
+            $this->assertTrue(PhoneNumber::isPlaceholder($user->phone));
+            $this->assertSame(
+                ['configured-admin'],
+                app(BeauticianWhatsAppRecipientResolver::class)->resolve($booking),
+            );
+        } finally {
+            app()->instance(OneSenderWhatsAppService::class, $original);
+        }
     }
 
     #[Test]

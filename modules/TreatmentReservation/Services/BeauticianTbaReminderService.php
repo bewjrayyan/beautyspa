@@ -87,10 +87,10 @@ class BeauticianTbaReminderService
     {
         $booking->loadMissing('beautician.user');
 
-        $phone = trim((string) ($booking->beautician?->phone ?: $booking->beautician?->user?->phone));
+        $recipients = app(BeauticianWhatsAppRecipientResolver::class)->resolve($booking);
 
         return Schema::hasColumn('treatment_bookings', 'tba_reminder_sent_at')
-            && $phone !== ''
+            && $recipients !== []
             && $booking->beautician_id
             && $booking->isTbaSchedule()
             && in_array($booking->status, [
@@ -178,24 +178,28 @@ class BeauticianTbaReminderService
         Carbon $eligibleBefore,
         bool $logActivity = false,
     ): bool {
-        $phone = trim((string) ($booking->beautician?->phone ?: $booking->beautician?->user?->phone));
+        $recipients = app(BeauticianWhatsAppRecipientResolver::class)->resolve($booking);
 
-        if ($phone === '' || ! $this->claimReminder($booking, $now, $eligibleBefore)) {
+        if ($recipients === [] || ! $this->claimReminder($booking, $now, $eligibleBefore)) {
             return false;
         }
 
         try {
-            $accepted = app(OneSenderWhatsAppService::class)->sendNotification(
-                $phone,
-                $this->message($booking),
-                [
-                    'source' => 'treatment.beautician.tba-reminder',
-                    'dedupe_key' => 'booking:' . $booking->id . ':beautician_tba_reminder:' . ($logActivity
-                        ? 'manual:' . $now->format('YmdHis')
-                        : $now->format('Ymd')),
-                    'immediate' => $logActivity,
-                ]
-            );
+            $accepted = false;
+
+            foreach ($recipients as $phone) {
+                $accepted = app(OneSenderWhatsAppService::class)->sendNotification(
+                    $phone,
+                    $this->message($booking),
+                    [
+                        'source' => 'treatment.beautician.tba-reminder',
+                        'dedupe_key' => 'booking:' . $booking->id . ':beautician_tba_reminder:' . ($logActivity
+                            ? 'manual:' . $now->format('YmdHis')
+                            : $now->format('Ymd')) . ':recipient:' . substr(hash('sha256', $phone), 0, 16),
+                        'immediate' => $logActivity,
+                    ]
+                ) || $accepted;
+            }
 
             if (! $accepted) {
                 $this->releaseReminderClaim($booking);

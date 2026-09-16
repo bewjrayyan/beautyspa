@@ -19,23 +19,26 @@ class BeauticianBookingNotificationService
             return;
         }
 
-        $booking->loadMissing(['beautician', 'product']);
+        $booking->loadMissing(['beautician.user', 'product']);
 
-        $phone = trim((string) $booking->beautician?->phone);
+        $recipients = app(BeauticianWhatsAppRecipientResolver::class)->resolve($booking);
 
-        if ($phone === '') {
+        if ($recipients === []) {
             return;
         }
 
         try {
-            app(OneSenderWhatsAppService::class)->sendNotification(
-                $phone,
-                $this->buildMessage($booking),
-                [
-                    'source' => 'treatment.beautician.new_booking',
-                    'dedupe_key' => 'booking:' . $booking->id . ':beautician_new',
-                ]
-            );
+            foreach ($recipients as $phone) {
+                app(OneSenderWhatsAppService::class)->sendNotification(
+                    $phone,
+                    $this->buildMessage($booking),
+                    [
+                        'source' => 'treatment.beautician.new_booking',
+                        'dedupe_key' => 'booking:' . $booking->id . ':beautician_new:recipient:'
+                            . substr(hash('sha256', $phone), 0, 16),
+                    ]
+                );
+            }
         } catch (\Throwable $exception) {
             Log::error('Beautician new booking WhatsApp failed', [
                 'booking_id' => $booking->id,
@@ -51,27 +54,34 @@ class BeauticianBookingNotificationService
             return false;
         }
 
-        $booking->loadMissing(['beautician', 'product']);
-        $phone = trim((string) $booking->beautician?->phone);
+        $booking->loadMissing(['beautician.user', 'product']);
+        $recipients = app(BeauticianWhatsAppRecipientResolver::class)->resolve($booking);
 
-        if ($phone === '') {
+        if ($recipients === []) {
             return false;
         }
 
         try {
-            return app(OneSenderWhatsAppService::class)->sendNotification(
-                $phone,
-                $this->buildRescheduleMessage($booking, $oldDate, $oldTime),
-                [
-                    'source' => 'treatment.beautician.rescheduled',
-                    'dedupe_key' => sprintf(
-                        'booking:%s:rescheduled:beautician:%s:%s',
-                        $booking->id,
-                        $booking->appointment_date?->format('Ymd') ?: 'date',
-                        str_replace(':', '', (string) $booking->appointment_time),
-                    ),
-                ],
-            );
+            $delivered = false;
+
+            foreach ($recipients as $phone) {
+                $delivered = app(OneSenderWhatsAppService::class)->sendNotification(
+                    $phone,
+                    $this->buildRescheduleMessage($booking, $oldDate, $oldTime),
+                    [
+                        'source' => 'treatment.beautician.rescheduled',
+                        'dedupe_key' => sprintf(
+                            'booking:%s:rescheduled:beautician:%s:%s:recipient:%s',
+                            $booking->id,
+                            $booking->appointment_date?->format('Ymd') ?: 'date',
+                            str_replace(':', '', (string) $booking->appointment_time),
+                            substr(hash('sha256', $phone), 0, 16),
+                        ),
+                    ],
+                ) || $delivered;
+            }
+
+            return $delivered;
         } catch (\Throwable $exception) {
             Log::error('Beautician reschedule WhatsApp failed', [
                 'booking_id' => $booking->id,

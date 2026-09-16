@@ -75,7 +75,7 @@ class OneSenderWhatsAppService
         $to = PhoneNumber::normalize($phone);
         $imageUrl = trim($imageUrl);
 
-        if ($to === '' || $imageUrl === '') {
+        if (! PhoneNumber::isDeliverableWhatsAppRecipient($to) || $imageUrl === '') {
             throw new Exception(trans('user::messages.whatsapp_otp.send_failed'));
         }
 
@@ -123,7 +123,7 @@ class OneSenderWhatsAppService
         $documentUrl = trim($documentUrl);
         $filename = trim($filename);
 
-        if ($to === '') {
+        if (! PhoneNumber::isDeliverableWhatsAppRecipient($to)) {
             throw new Exception(trans('user::messages.whatsapp_otp.invalid_phone'));
         }
 
@@ -205,7 +205,7 @@ class OneSenderWhatsAppService
     {
         $context['source'] ??= 'admin.notify';
 
-        foreach ($this->adminPhones() as $phone) {
+        foreach ($this->configuredAdminPhones() as $phone) {
             $recipientContext = $context;
 
             if (filled($recipientContext['dedupe_key'] ?? null)) {
@@ -375,7 +375,7 @@ class OneSenderWhatsAppService
         $to = PhoneNumber::normalize($phone);
         $message = WhatsAppFormatting::boldOtpCodesInMessage(trim($message));
 
-        if ($to === '') {
+        if (! PhoneNumber::isDeliverableWhatsAppRecipient($to)) {
             throw new Exception(trans('user::messages.whatsapp_otp.invalid_phone'));
         }
 
@@ -865,7 +865,7 @@ class OneSenderWhatsAppService
     /**
      * @return array<int, string>
      */
-    private function adminPhones(): array
+    public function configuredAdminPhones(): array
     {
         $raw = (string) SettingValues::get('onesender_admin_phones', '');
 
@@ -873,9 +873,9 @@ class OneSenderWhatsAppService
             return [];
         }
 
-        return array_values(array_filter(array_map(
+        return array_values(array_unique(array_filter(array_map(
             fn (string $phone) => PhoneNumber::normalize($phone),
             preg_split('/[\s,;]+/', $raw) ?: []
-        )));
+        ), fn (string $phone) => PhoneNumber::isDeliverableWhatsAppRecipient($phone))));
     }
 }
