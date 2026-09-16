@@ -2001,6 +2001,12 @@ select {
 }
 
 @media screen and (max-width: 991px) {
+    // Avoid crowding the compact header with desktop-only shortcuts. Both
+    // destinations remain available from the sidebar/hamburger navigation.
+    .navbar.navbar-static-top > .navbar-nav > .pos-booking-shortcut {
+        display: none !important;
+    }
+
     .main-header {
         .sidebar-toggle {
             padding: unset !important;

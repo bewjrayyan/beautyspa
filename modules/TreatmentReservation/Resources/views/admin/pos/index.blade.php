@@ -48,6 +48,11 @@
             </section>
 
             <div class="tr-pos-side-rail">
+                <div class="tr-pos-mobile-sheet-head">
+                    <span aria-hidden="true"></span>
+                    <strong>Booking summary</strong>
+                    <button type="button" data-pos-mobile-close aria-label="Close booking summary"><i class="fa fa-times"></i></button>
+                </div>
                 <section class="tr-pos-customer-desk" aria-labelledby="tr-pos-customer-title" data-pos-customer-desk>
                     <div class="tr-pos-customer-desk__head">
                         <div>
@@ -109,6 +114,7 @@
 
                     <div class="tr-pos-summary">
                         <div><span>Service total</span><strong data-pos-total>MYR 0.00</strong></div>
+                        <div data-pos-coupon-discount-row hidden><span>Coupon discount</span><strong class="tr-pos-summary-discount" data-pos-coupon-discount>− MYR 0.00</strong></div>
                         <div data-pos-loyalty-discount-row hidden><span>Points discount</span><strong class="tr-pos-summary-discount" data-pos-loyalty-discount>− MYR 0.00</strong></div>
                         <div data-pos-payable-row hidden><span>Amount due</span><strong data-pos-payable>MYR 0.00</strong></div>
                         <div><span>Payment</span><strong class="tr-pos-summary-payment" data-pos-payment-summary>Offline · receipt required</strong></div>
@@ -140,6 +146,25 @@
                         <div class="tr-pos-loyalty-redeem__applied" data-pos-loyalty-applied hidden>
                             <span data-pos-loyalty-applied-label></span>
                             <button type="button" class="tr-pos-loyalty-redeem__remove" data-pos-loyalty-remove>{{ trans('loyalty::checkout.remove') }}</button>
+                        </div>
+                    </section>
+
+                    <section class="tr-pos-loyalty-redeem tr-pos-coupon-redeem" data-pos-coupon-redeem hidden aria-labelledby="tr-pos-coupon-title">
+                        <div class="tr-pos-loyalty-redeem__head">
+                            <span class="tr-pos-loyalty-redeem__icon" aria-hidden="true"><i class="fa fa-ticket"></i></span>
+                            <strong id="tr-pos-coupon-title">Coupon discount</strong>
+                        </div>
+                        <p class="tr-pos-loyalty-redeem__empty" data-pos-coupon-empty>Select a member and treatment to validate a coupon.</p>
+                        <div class="tr-pos-loyalty-redeem__form" data-pos-coupon-form hidden>
+                            <input type="text" class="tr-pos-loyalty-redeem__input" data-pos-coupon-input placeholder="Enter coupon code" autocomplete="off">
+                            <div class="tr-pos-loyalty-redeem__actions">
+                                <button type="button" class="tr-pos-loyalty-redeem__apply" data-pos-coupon-apply>Apply coupon</button>
+                            </div>
+                            <p class="tr-pos-loyalty-redeem__error" data-pos-coupon-error role="status" aria-live="polite"></p>
+                        </div>
+                        <div class="tr-pos-loyalty-redeem__applied" data-pos-coupon-applied hidden>
+                            <span data-pos-coupon-applied-label></span>
+                            <button type="button" class="tr-pos-loyalty-redeem__remove" data-pos-coupon-remove>Remove</button>
                         </div>
                     </section>
 
@@ -201,6 +226,14 @@
             </div>
         </main>
 
+        <div class="tr-pos-mobile-scrim" data-pos-mobile-scrim data-pos-mobile-close hidden></div>
+        <button type="button" class="tr-pos-mobile-checkout" data-pos-mobile-checkout aria-expanded="false">
+            <span class="tr-pos-mobile-checkout__count" data-pos-mobile-count>0 items</span>
+            <span class="tr-pos-mobile-checkout__copy"><strong>Booking summary</strong><small>Customer, payment &amp; save</small></span>
+            <span class="tr-pos-mobile-checkout__total" data-pos-mobile-total>MYR 0.00</span>
+            <i class="fa fa-chevron-up" aria-hidden="true"></i>
+        </button>
+
         <div class="tr-pos-wizard" data-pos-wizard hidden>
             <div class="tr-pos-wizard__backdrop" data-pos-wizard-close></div>
             <section class="tr-pos-wizard__dialog" role="dialog" aria-modal="true" aria-labelledby="tr-pos-wizard-title">
@@ -216,7 +249,6 @@
                 <p class="tr-pos-wizard__feedback" data-pos-wizard-feedback role="status" aria-live="polite"></p>
                 <footer class="tr-pos-wizard__footer">
                     <button type="button" class="tr-pos-wizard__back" data-pos-wizard-back>Back</button>
-                    <button type="button" class="tr-pos-wizard__next" data-pos-wizard-next>Continue</button>
                 </footer>
             </section>
         </div>

@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.106' => [
+        'date' => '2026-09-16',
+        'en' => [
+            'summary' => 'Make Treatment POS faster, more flexible, and genuinely usable on mobile.',
+            'changes' => [
+                'Add a direct treatment-to-branch-to-beautician booking flow with TBA scheduling, cached availability, and expandable future appointment months.',
+                'Add member-point redemption and validated coupon discounts to POS booking totals, audit data, and payment records.',
+                'Introduce a mobile-first POS checkout sheet and remove crowded POS and Central Management header shortcuts on compact screens.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Jadikan Treatment POS lebih pantas, fleksibel dan benar-benar mudah digunakan pada mobile.',
+            'changes' => [
+                'Tambah aliran booking terus daripada rawatan ke cawangan, beautician dan jadual TBA, bersama semakan availability cache serta bulan temujanji masa depan.',
+                'Tambah penebusan mata ahli dan diskaun kupon yang disahkan pada jumlah booking POS, data audit dan rekod bayaran.',
+                'Perkenal checkout sheet POS mobile-first dan buang shortcut header POS serta Central Management yang sesak pada skrin kecil.',
+            ],
+        ],
+    ],
     '4.11.105' => [
         'date' => '2026-09-15',
         'en' => [

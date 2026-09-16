@@ -13,6 +13,7 @@ Route::middleware('throttle:30,1')->group(function () {
     Route::prefix('bookings')->group(function () {
         Route::get('/', [BookingController::class, 'index']);
         Route::post('/', [BookingController::class, 'store']);
+        Route::post('coupon-quote', [BookingController::class, 'couponQuote']);
         Route::get('available-dates', [BookingController::class, 'availableDates']);
         Route::get('availability', [BookingController::class, 'availability']);
         Route::get('{booking}', [BookingController::class, 'show'])->whereNumber('booking');

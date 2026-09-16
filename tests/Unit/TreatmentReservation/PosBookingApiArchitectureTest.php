@@ -39,6 +39,21 @@ class PosBookingApiArchitectureTest extends TestCase
         self::assertStringContainsString("'items.*.appointment_date'", $request);
     }
 
+    public function test_pos_progresses_from_choices_and_supports_tba_when_enabled(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $script = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/pos.js');
+        $controller = file_get_contents($root . '/modules/TreatmentReservation/Http/Controllers/Api/BookingController.php');
+        $view = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/pos/index.blade.php');
+
+        self::assertStringContainsString("'tba_allowed' => \$tbaAllowed", $controller);
+        self::assertStringContainsString('data-wizard-schedule-now', $script);
+        self::assertStringContainsString('data-wizard-tba', $script);
+        self::assertStringContainsString("formData.append(prefix + '[schedule_later]', line.schedule_later ? '1' : '0')", $script);
+        self::assertStringContainsString('commitWizard()', $script);
+        self::assertStringNotContainsString('data-pos-wizard-next', $view);
+    }
+
     public function test_pos_domain_persists_customer_and_audit_contracts(): void
     {
         $root = dirname(__DIR__, 3);
@@ -72,9 +87,25 @@ class PosBookingApiArchitectureTest extends TestCase
         self::assertStringContainsString("Rule::in([TreatmentBooking::PAYMENT_FULL_PAID])", $updateRequest);
         self::assertStringContainsString("'payment_receipt' => ['sometimes', 'file'", $updateRequest);
         self::assertStringContainsString('new FormData()', $script);
-        self::assertStringNotContainsString("'Content-Type': 'application/json'", $script);
+        self::assertStringContainsString("formData.append('coupon_code'", $script);
+        self::assertStringContainsString("apiUrl('/bookings/coupon-quote')", $script);
         self::assertStringContainsString('PAYMENT_FULL_PAID', $service);
         self::assertStringContainsString('customerHasConflict', $availability);
         self::assertStringContainsString('customer:', $availability);
+    }
+
+    public function test_pos_has_a_mobile_first_booking_summary_sheet(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $view = file_get_contents($root . '/modules/TreatmentReservation/Resources/views/admin/pos/index.blade.php');
+        $script = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/js/pos.js');
+        $styles = file_get_contents($root . '/modules/TreatmentReservation/Resources/assets/admin/sass/pos-wizard.scss');
+
+        self::assertStringContainsString('data-pos-mobile-checkout', $view);
+        self::assertStringContainsString('data-pos-mobile-scrim', $view);
+        self::assertStringContainsString('setMobileCheckoutOpen', $script);
+        self::assertStringContainsString('data-pos-mobile-total', $script);
+        self::assertStringContainsString('.tr-pos-mobile-checkout', $styles);
+        self::assertStringContainsString('.tr-pos-side-rail.is-mobile-open', $styles);
     }
 }

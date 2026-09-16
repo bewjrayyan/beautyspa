@@ -992,7 +992,7 @@
     ]
   },
   "modules/Admin/Resources/assets/sass/main.scss": {
-    "file": "assets/main-BxR54MwA-v4.7.72.css",
+    "file": "assets/main-DvIy1pt1-v4.7.72.css",
     "src": "modules/Admin/Resources/assets/sass/main.scss"
   },
   "modules/Attribute/Resources/assets/admin/js/main.js": {
@@ -2114,7 +2114,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/js/main.js": {
-    "file": "assets/main-CIdbjtL5-v4.7.72.js",
+    "file": "assets/main-CsO0qRY7-v4.7.72.js",
     "name": "main",
     "src": "modules/TreatmentReservation/Resources/assets/admin/js/main.js",
     "isEntry": true,
@@ -2131,7 +2131,7 @@
     ]
   },
   "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss": {
-    "file": "assets/main-2II_aFpA-v4.7.72.css",
+    "file": "assets/main-DtCBb2CC-v4.7.72.css",
     "src": "modules/TreatmentReservation/Resources/assets/admin/sass/main.scss"
   },
   "modules/User/Resources/assets/admin/fonts/manrope/manrope-latin-400-normal.woff2": {

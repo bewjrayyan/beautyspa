@@ -11,6 +11,7 @@ use Modules\Loyalty\Enums\TransactionType;
 use Modules\Loyalty\Entities\LoyaltyWallet;
 use Modules\Loyalty\Services\LoyaltyRedemptionService;
 use Modules\Loyalty\Services\LoyaltyWalletService;
+use Modules\Loyalty\Services\LoyaltyConfig;
 use Modules\User\Entities\User;
 
 class PosBookingService
@@ -19,6 +20,8 @@ class PosBookingService
         private ManualBookingService $manualBookings,
         private TreatmentBookingActivityLogger $activityLogger,
         private ManualBookingPaymentReceiptService $paymentReceipts,
+        private PosBookingCouponService $coupons,
+        private LoyaltyConfig $loyaltyConfig,
     ) {
     }
 
@@ -55,6 +58,7 @@ class PosBookingService
                 ->load(['customer', 'beautician', 'product', 'category']);
 
             if ($directIdempotency) {
+                $this->applyCoupon($data, [$booking], $customer);
                 $this->redeemLoyaltyPoints($data, [$booking], $actor);
             }
 
@@ -119,6 +123,7 @@ class PosBookingService
                     }
                 }
 
+                $this->applyCoupon($data, $bookings, $this->customer((int) $data['customer_id'], $actor));
                 $this->redeemLoyaltyPoints($data, $bookings, $actor);
 
                 return $bookings;
@@ -370,9 +375,11 @@ class PosBookingService
             throw new \InvalidArgumentException('Loyalty wallet not found for this customer.');
         }
 
-        $serviceTotal = collect($bookings)->sum(function (TreatmentBooking $booking) {
-            return (float) ($booking->product?->selling_price?->amount() ?? 0);
-        });
+        if (! empty($data['coupon_code']) && ! $this->loyaltyConfig->allowWithCoupon()) {
+            throw new \InvalidArgumentException('Loyalty points cannot be used with a coupon under the current loyalty settings.');
+        }
+
+        $serviceTotal = (float) collect($bookings)->sum('total');
 
         /** @var LoyaltyRedemptionService $redemption */
         $redemption = app(LoyaltyRedemptionService::class);
@@ -404,5 +411,50 @@ class PosBookingService
         $loyaltyNote = sprintf('Loyalty redeemed: %s pts (−RM %0.2f)', number_format($quote['points']), $quote['discount_rm']);
         $primary->notes = $note === '' ? $loyaltyNote : ($note."\n".$loyaltyNote);
         $primary->save();
+
+        $this->allocateDiscount($bookings, (float) $quote['discount_rm'], 'loyalty_discount_amount', 'loyalty_points_redeemed', (int) $quote['points']);
+    }
+
+    /** @param list<TreatmentBooking> $bookings */
+    private function applyCoupon(array $data, array $bookings, User $customer): void
+    {
+        $code = trim((string) ($data['coupon_code'] ?? ''));
+        if ($code === '' || $bookings === []) {
+            return;
+        }
+
+        $quote = $this->coupons->quote($code, $customer, collect($bookings), true);
+        $coupon = $quote['coupon'];
+        $this->allocateDiscount($bookings, (float) $quote['discount'], 'coupon_discount', null, 0, [
+            'coupon_id' => $coupon->id,
+            'coupon_code' => $coupon->code,
+        ]);
+        $coupon->increment('used');
+
+        $primary = $bookings[0];
+        $note = trim((string) ($primary->notes ?? ''));
+        $couponNote = sprintf('Coupon applied: %s (−RM %0.2f)', $coupon->code, $quote['discount']);
+        $primary->update(['notes' => $note === '' ? $couponNote : ($note."\n".$couponNote)]);
+    }
+
+    /**
+     * @param list<TreatmentBooking> $bookings
+     * @param array<string, mixed> $extra
+     */
+    private function allocateDiscount(array $bookings, float $discount, string $discountColumn, ?string $pointsColumn = null, int $points = 0, array $extra = []): void
+    {
+        $remaining = round(max(0, $discount), 2);
+        foreach ($bookings as $index => $booking) {
+            $amount = min($remaining, round((float) $booking->total, 2));
+            $changes = array_merge($extra, [
+                'total' => round((float) $booking->total - $amount, 2),
+                $discountColumn => $amount,
+            ]);
+            if ($pointsColumn !== null) {
+                $changes[$pointsColumn] = $index === 0 ? $points : 0;
+            }
+            $booking->update($changes);
+            $remaining = round($remaining - $amount, 2);
+        }
     }
 }

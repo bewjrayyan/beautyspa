@@ -23,6 +23,8 @@ use Modules\SpaBranch\Entities\SpaBranch;
 use Modules\Loyalty\Entities\LoyaltyWallet;
 use Modules\Loyalty\Services\LoyaltyConfig;
 use Modules\Loyalty\Services\LoyaltyStampAdminService;
+use Modules\TreatmentReservation\Services\PosBookingCouponService;
+use Modules\User\Entities\User;
 
 class BookingController
 {
@@ -46,6 +48,35 @@ class BookingController
             return (new PosBookingResource($service->create($request->validated(), $request->user())))
                 ->response()
                 ->setStatusCode(201);
+        } catch (\InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+    }
+
+    public function couponQuote(Request $request, PosBookingCouponService $coupons, PosBookingService $bookings, LoyaltyConfig $loyalty)
+    {
+        Gate::authorize('create', TreatmentBooking::class);
+
+        $data = $request->validate([
+            'coupon_code' => ['required', 'string', 'max:100'],
+            'customer_id' => ['required', 'integer', Rule::exists('users', 'id')],
+            'items' => ['required', 'array', 'min:1', 'max:20'],
+            'items.*.product_id' => ['required', 'integer', Rule::exists('products', 'id')->where('is_virtual', true)->where('is_active', true)->whereNull('deleted_at')],
+            'items.*.variant_id' => ['nullable', 'integer'],
+            'items.*.options' => ['nullable', 'array', 'max:50'],
+        ]);
+
+        try {
+            $customer = User::query()->findOrFail($data['customer_id']);
+            $bookings->assertCustomerAccessible($customer, $request->user());
+            $quote = $coupons->quoteItems($data['coupon_code'], $customer, $data['items']);
+
+            return response()->json([
+                'code' => $quote['code'],
+                'subtotal' => $quote['subtotal'],
+                'discount' => $quote['discount'],
+                'loyalty_compatible' => $loyalty->allowWithCoupon(),
+            ]);
         } catch (\InvalidArgumentException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         }
@@ -176,6 +207,8 @@ class BookingController
         $productId = (int) $data['product_id'];
         $beauticianId = isset($data['beautician_id']) ? (int) $data['beautician_id'] : null;
         $limit = isset($data['limit']) ? (int) $data['limit'] : null;
+        $settings = $availability->settingsFor($productId, $branchId);
+        $tbaAllowed = ! $settings || ($settings->is_bookable && $settings->allow_tba);
 
         if ($beauticianId && ! Beautician::query()->whereKey($beauticianId)
             ->whereHas('spaBranches', fn ($query) => $query->where('spa_branches.id', $branchId))->exists()) {
@@ -213,7 +246,7 @@ class BookingController
                 $limit,
             );
 
-            return response()->json(['dates' => $dates, 'date_options' => []]);
+            return response()->json(['dates' => $dates, 'date_options' => [], 'tba_allowed' => $tbaAllowed]);
         }
 
         $options = $availability->dateOptions($productId, $branchId, $from, $to, $beauticianId);
@@ -225,6 +258,7 @@ class BookingController
         return response()->json([
             'dates' => $available,
             'date_options' => $options,
+            'tba_allowed' => $tbaAllowed,
         ]);
     }
 
