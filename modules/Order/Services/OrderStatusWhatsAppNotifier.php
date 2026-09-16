@@ -111,8 +111,6 @@ class OrderStatusWhatsAppNotifier
                     $changeType,
                     $newValue ?: $order->status
                 ),
-                'immediate' => true,
-                'fallback_to_queue' => true,
             ]);
         } catch (\Throwable $exception) {
             Log::warning('Order status WhatsApp to customer failed', [
@@ -180,8 +178,6 @@ class OrderStatusWhatsAppNotifier
                     $changeType,
                     $newValue ?: $order->status
                 ),
-                'immediate' => true,
-                'fallback_to_queue' => true,
             ]);
         } catch (\Throwable $exception) {
             Log::warning('Order status WhatsApp to beautician failed', [

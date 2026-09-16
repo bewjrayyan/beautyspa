@@ -33,8 +33,6 @@ class SendNewOrderSms implements ShouldHandleEventsAfterCommit
         $this->oneSender->notifyAdmins($this->adminMessage($order), [
             'source' => 'checkout.order_placed.admin',
             'dedupe_key' => "order:{$order->id}:placed:admin",
-            'immediate' => true,
-            'fallback_to_queue' => true,
         ]);
     }
 
@@ -58,8 +56,6 @@ class SendNewOrderSms implements ShouldHandleEventsAfterCommit
                 [
                     'source' => 'checkout.order_placed.customer',
                     'dedupe_key' => "order:{$order->id}:placed:customer",
-                    'immediate' => true,
-                    'fallback_to_queue' => true,
                 ]
             );
         } catch (\Throwable $exception) {

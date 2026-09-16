@@ -5,6 +5,25 @@
  * Add a new entry whenever app/AestheticCart.php VERSION is bumped.
  */
 return [
+    '4.11.107' => [
+        'date' => '2026-09-16',
+        'en' => [
+            'summary' => 'Keep order notifications off the customer request path and ready for resilient background delivery.',
+            'changes' => [
+                'Queue new-order, order-status, and bank-transfer proof WhatsApp messages through the existing OneSender outbound queue instead of waiting for the provider during a web request.',
+                'Preserve after-commit delivery, message deduplication, delayed outbound processing, and immediate OTP delivery.',
+                'Add regression coverage confirming bank-transfer proof and receipt notifications use the background delivery path.',
+            ],
+        ],
+        'ms' => [
+            'summary' => 'Pastikan notifikasi pesanan tidak melambatkan request pelanggan dan sedia untuk penghantaran latar yang stabil.',
+            'changes' => [
+                'Queue WhatsApp pesanan baharu, kemas kini status, dan bukti bank transfer melalui OneSender outbound queue sedia ada tanpa menunggu provider semasa request web.',
+                'Kekalkan penghantaran selepas commit, deduplikasi mesej, pemprosesan outbound tertunda, dan penghantaran OTP segera.',
+                'Tambah liputan regresi untuk mengesahkan notifikasi bukti bank transfer serta resit menggunakan aliran penghantaran latar.',
+            ],
+        ],
+    ],
     '4.11.106' => [
         'date' => '2026-09-16',
         'en' => [

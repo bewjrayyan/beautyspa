@@ -15,7 +15,7 @@ use Tests\TestCase;
 class BankTransferPaymentProofWhatsAppNotifierTest extends TestCase
 {
     #[Test]
-    public function it_sends_the_payment_proof_and_receipt_pdf_immediately_to_the_group(): void
+    public function it_queues_the_payment_proof_and_receipt_pdf_for_the_group(): void
     {
         $oneSender = new class extends OneSenderWhatsAppService {
             /** @var list<array<string, mixed>> */
@@ -89,12 +89,12 @@ class BankTransferPaymentProofWhatsAppNotifierTest extends TestCase
         $this->assertCount(2, $oneSender->messages);
         $this->assertSame('https://example.test/payment-proof.webp', $oneSender->messages[0]['imageUrl']);
         $this->assertSame('Payment proof', $oneSender->messages[0]['caption']);
-        $this->assertTrue($oneSender->messages[0]['context']['immediate']);
-        $this->assertTrue($oneSender->messages[0]['context']['fallback_to_queue']);
+        $this->assertArrayNotHasKey('immediate', $oneSender->messages[0]['context']);
+        $this->assertArrayNotHasKey('fallback_to_queue', $oneSender->messages[0]['context']);
         $this->assertSame('https://example.test/receipt.pdf', $oneSender->messages[1]['documentUrl']);
         $this->assertSame('receipt-77.pdf', $oneSender->messages[1]['filename']);
-        $this->assertTrue($oneSender->messages[1]['context']['immediate']);
-        $this->assertTrue($oneSender->messages[1]['context']['fallback_to_queue']);
+        $this->assertArrayNotHasKey('immediate', $oneSender->messages[1]['context']);
+        $this->assertArrayNotHasKey('fallback_to_queue', $oneSender->messages[1]['context']);
         $this->assertNotSame(
             $oneSender->messages[0]['context']['dedupe_key'],
             $oneSender->messages[1]['context']['dedupe_key'],
